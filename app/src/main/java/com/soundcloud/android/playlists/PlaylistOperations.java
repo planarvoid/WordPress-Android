@@ -257,6 +257,7 @@ public class PlaylistOperations {
             return viewModelCreator.create(playlist,
                                            Lists.transform(tracks, TrackItem::from),
                                            playlist.isLikedByCurrentUser().or(false),
+                                           playlist.isRepostedByCurrentUser().or(false),
                                            false,
                                            playlist.offlineState().or(OfflineState.NOT_OFFLINE),
                                            playlistsItems.isEmpty() ? Optional.absent() :

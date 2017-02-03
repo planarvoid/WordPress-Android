@@ -15,7 +15,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -57,7 +56,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
-    private PublishSubject<RepostsStatusEvent.RepostStatus> repostSubject = PublishSubject.create();
+    private PublishSubject<RepostOperations.RepostResult> repostSubject = PublishSubject.create();
     private TrackItem sourceTrack;
 
     @Before

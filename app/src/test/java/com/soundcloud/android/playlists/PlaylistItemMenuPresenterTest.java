@@ -21,7 +21,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -126,7 +125,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
-        final PublishSubject<Integer> likeObservable = PublishSubject.create();
+        final PublishSubject<LikeOperations.LikeResult> likeObservable = PublishSubject.create();
         when(likeOperations.toggleLike(playlist.getUrn(), !playlist.isLikedByCurrentUser())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
@@ -138,7 +137,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickRepostItemRepostsPlaylist() {
-        final PublishSubject<RepostsStatusEvent.RepostStatus> repostObservable = PublishSubject.create();
+        final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
         when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
@@ -151,7 +150,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnRepostSendsTrackingEvent() {
-        final PublishSubject<RepostsStatusEvent.RepostStatus> repostObservable = PublishSubject.create();
+        final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
         when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);

@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -47,8 +46,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final PlayableItem playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-    private final PublishSubject<Integer> testSubject = PublishSubject.create();
-    private final PublishSubject<RepostsStatusEvent.RepostStatus> repostTestSubject = PublishSubject.create();
+    private final PublishSubject<LikeOperations.LikeResult> testSubject = PublishSubject.create();
+    private final PublishSubject<RepostOperations.RepostResult> repostTestSubject = PublishSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();
 
     private CardEngagementsPresenter presenter;

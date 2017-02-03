@@ -214,7 +214,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenUnlikingPlaylist() {
         setPlaylistInfo();
         when(likeOperations.toggleLike(headerItem.getUrn(),
-                                       false)).thenReturn(Observable.just(0));
+                                       false)).thenReturn(Observable.just(LikeOperations.LikeResult.UNLIKE_SUCCEEDED));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleLike(false);
@@ -228,7 +228,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenRepostingPlayable() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
+                                           anyBoolean())).thenReturn(Observable.just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.toggleRepost(true, false);
@@ -242,7 +242,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
+                                           anyBoolean())).thenReturn(Observable.just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.toggleRepost(false, false);
@@ -279,7 +279,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         setPlaylistInfo();
         when(likeOperations.toggleLike(headerItem.getUrn(),
-                                       true)).thenReturn(Observable.just(0));
+                                       true)).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
         presenter.onToggleLike(true);
 
@@ -290,7 +290,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldRepostTrackWhenCheckingRepostButton() {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
-                                           anyBoolean())).thenReturn(Observable.just(RepostStatus.createReposted(Urn.NOT_SET)));
+                                           anyBoolean())).thenReturn(Observable.just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
 
         presenter.toggleRepost(true, false);
 
@@ -514,7 +514,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem, boolean isLiked) {
-        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked, false, OfflineState.NOT_OFFLINE, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
+        return PlaylistDetailsMetadata.from(playlistItem, emptyList(), isLiked,
+                                            playlistItem.isRepostedByCurrentUser().or(false),
+                                            false, OfflineState.NOT_OFFLINE, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
     }
 
     private Playlist.Builder createPlaylistBuilder(Sharing sharing) {

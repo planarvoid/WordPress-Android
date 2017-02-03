@@ -1,7 +1,9 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.transform;
+import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Collections.singleton;
 import static rx.Observable.combineLatest;
@@ -13,6 +15,9 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.associations.RepostStatuses;
+import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -21,6 +26,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
@@ -70,6 +76,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PlaylistOperations playlistOperations;
     private final PlaybackInitiator playbackInitiator;
     private final LikesStateProvider likesStateProvider;
+    private final RepostsStateProvider repostsStateProvider;
     private final PlayQueueHelper playQueueHelper;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final SyncInitiator syncInitiator;
@@ -77,7 +84,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final OfflineContentOperations offlineContentOperations;
     private final EventTracker eventTracker;
     private final LikeOperations likeOperations;
-    private final Urn playlistUrn;
+    private final RepostOperations repostOperations;
     private final SearchQuerySourceInfo searchQuerySourceInfo;
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
@@ -86,20 +93,29 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    // inputs
-    private final BehaviorSubject<Boolean> refresh = BehaviorSubject.create(false);
+    // state
+    private final BehaviorSubject<Boolean> refreshState = BehaviorSubject.create(false);
     private final BehaviorSubject<Boolean> editMode = BehaviorSubject.create(false);
+
+    // inputs
+    private final PublishSubject<Void> refresh = PublishSubject.create();
+    private final PublishSubject<Void> playNext = PublishSubject.create();
+    private final PublishSubject<Void> delete = PublishSubject.create();
     private final PublishSubject<Void> offlineAvailable = PublishSubject.create();
     private final PublishSubject<Void> offlineUnavailable = PublishSubject.create();
     private final PublishSubject<Void> onCreatorClicked = PublishSubject.create();
     private final PublishSubject<Void> headerPlayClicked = PublishSubject.create();
     private final PublishSubject<Integer> trackPlayClicked = PublishSubject.create();
-    private final PublishSubject<Void> like = PublishSubject.create();
-    private final PublishSubject<Void> unlike = PublishSubject.create();
+    private final PublishSubject<Boolean> like = PublishSubject.create();
+    private final PublishSubject<Boolean> repost = PublishSubject.create();
 
     // outputs
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
     private final PublishSubject<Urn> gotoCreator = PublishSubject.create();
+    private final PublishSubject<Object> goBack = PublishSubject.create();
+    private final PublishSubject<RepostOperations.RepostResult> showRepostResult = PublishSubject.create();
+    private final PublishSubject<LikeOperations.LikeResult> showLikeResult = PublishSubject.create();
+    private final PublishSubject<Urn> showPlaylistDeletionConfirmation = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithTracks> dataSource;
 
@@ -110,6 +126,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided PlaybackInitiator playbackInitiator,
                                 @Provided PlaylistOperations playlistOperations,
                                 @Provided LikesStateProvider likesStateProvider,
+                                @Provided RepostsStateProvider repostsStateProvider,
                                 @Provided PlayQueueHelper playQueueHelper,
                                 @Provided OfflinePropertiesProvider offlinePropertiesProvider,
                                 @Provided SyncInitiator syncInitiator,
@@ -118,22 +135,26 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided EventTracker eventTracker,
                                 @Provided LikeOperations likeOperations,
                                 @Provided PlaylistDetailsViewModelCreator viewModelCreator,
-                                @Provided NewPlaylistDetailsPresenter_DataSourceProviderFactory dataSourceProviderFactory) {
+                                @Provided NewPlaylistDetailsPresenter_DataSourceProviderFactory dataSourceProviderFactory,
+                                @Provided RepostOperations repostOperations) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
         this.likesStateProvider = likesStateProvider;
+        this.repostsStateProvider = repostsStateProvider;
         this.playQueueHelper = playQueueHelper;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.syncInitiator = syncInitiator;
         this.eventBus = eventBus;
-        this.playlistUrn = playlistUrn;
         this.offlineContentOperations = offlineContentOperations;
         this.eventTracker = eventTracker;
         this.likeOperations = likeOperations;
         this.viewModelCreator = viewModelCreator;
+        this.repostOperations = repostOperations;
+
+        // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         this.dataSource = dataSourceProviderFactory.create(playlistUrn).data();
     }
 
@@ -141,13 +162,18 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         subscription.unsubscribe();
         subscription = new CompositeSubscription(
 
+                actionRefresh(refresh),
                 actionGoToCreator(onCreatorClicked),
                 actionMakeAvailableOffline(offlineAvailable),
                 actionMakeOfflineUnavailableOffline(offlineUnavailable),
+                actionPlayNext(playNext),
+                actionDeletePlaylist(delete),
                 actionLike(like),
-                actionUnlike(unlike),
+                actionRepost(repost),
                 actionPlayPlaylist(headerPlayClicked),
                 actionPlayPlaylistAtPosition(trackPlayClicked),
+
+                onPlaylistDeleted(),
 
                 emitViewModel()
         );
@@ -166,12 +192,14 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription emitViewModel() {
         return combineLatest(
-                refresh,
+                refreshState,
                 editMode,
                 dataSource,
-                likesStateProvider.likedStatuses().distinctUntilChanged(likedStatuses -> likedStatuses.isLiked(playlistUrn)),
+                likesStateProvider.likedStatuses(),
+                repostsStateProvider.repostedStatuses(),
                 offlinePropertiesProvider.states(),
                 this::combine)
+                .distinctUntilChanged()
                 .doOnNext(viewModelSubject::onNext)
                 .subscribe(new DefaultSubscriber<>());
     }
@@ -197,6 +225,19 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 .subscribe(showPlaybackResult());
     }
 
+    private Subscription onPlaylistDeleted() {
+        Observable<UrnStateChangedEvent> playlistDeleted = eventBus
+                .queue(URN_STATE_CHANGED)
+                .filter(event -> event.kind() == UrnStateChangedEvent.Kind.ENTITY_DELETED)
+                .filter(UrnStateChangedEvent::containsPlaylist);
+
+        return dataSource
+                .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                .compose(Transformers.takePairWhen(playlistDeleted))
+                .filter(pair -> pair.second.urns().contains(pair.first))
+                .subscribe(goBack);
+    }
+
     private Observable<PlaybackResult> playTracksFromPosition(List<Track> tracks, Integer position, PlaySessionSource playSessionSource) {
         return playbackInitiator.playTracks(
                 transform(tracks, Track::urn),
@@ -205,18 +246,18 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         );
     }
 
-    private Subscription actionUnlike(PublishSubject<Void> trigger) {
-        return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(PlaylistWithTracks::playlist)
-                         .withLatestFrom(playSessionSource(), Pair::of)
-                         .subscribe(playlistSourcePair -> doLike(playlistSourcePair, false));
+    private Subscription actionLike(PublishSubject<Boolean> trigger) {
+        return dataSource.compose(Transformers.takePairWhen(trigger))
+                         .withLatestFrom(playSessionSource(), this::like)
+                         .flatMap(x -> x)
+                         .subscribe(showLikeResult);
     }
 
-    private Subscription actionLike(PublishSubject<Void> trigger) {
-        return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(PlaylistWithTracks::playlist)
-                         .withLatestFrom(playSessionSource(), Pair::of)
-                         .subscribe(playlistSourcePair -> doLike(playlistSourcePair, true));
+    private Subscription actionRepost(PublishSubject<Boolean> trigger) {
+        return dataSource.compose(Transformers.takePairWhen(trigger))
+                         .withLatestFrom(playSessionSource(), this::repost)
+                         .flatMap(x -> x)
+                         .subscribe(showRepostResult);
     }
 
     private Subscription actionMakeOfflineUnavailableOffline(PublishSubject<Void> trigger) {
@@ -237,10 +278,48 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return dataSource.map(createPlaySessionSource());
     }
 
+    private Subscription actionRefresh(PublishSubject<Void> trigger) {
+        return dataSource.compose(Transformers.takeWhen(trigger))
+                         .filter(playlistWithTracks -> isNotRefreshing())
+                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .subscribe(this::doSync);
+    }
+
+    private boolean isNotRefreshing() {
+        return !refreshState.hasValue() || !refreshState.getValue();
+    }
+
+    private void doSync(Urn urn) {
+        syncInitiator.syncPlaylist(urn)
+                     .subscribe(new DefaultSubscriber<SyncJobResult>() {
+                         @Override
+                         public void onStart() {
+                             refreshState.onNext(true);
+                         }
+
+                         @Override
+                         public void onCompleted() {
+                             refreshState.onNext(false);
+                         }
+                     });
+    }
+
     private Subscription actionGoToCreator(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
                          .map(playlistWithTracks -> playlistWithTracks.playlist().creatorUrn())
                          .subscribe(gotoCreator);
+    }
+
+    private Subscription actionPlayNext(PublishSubject<Void> trigger) {
+        return dataSource.compose(Transformers.takeWhen(trigger))
+                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .subscribe(playQueueHelper::playNext);
+    }
+
+    private Subscription actionDeletePlaylist(PublishSubject<Void> trigger) {
+        return dataSource.compose(Transformers.takeWhen(trigger))
+                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .subscribe(showPlaylistDeletionConfirmation);
     }
 
     private Action1<Pair<Urn, PlaySessionSource>> makePlaylistAvailableOffline() {
@@ -256,17 +335,6 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urnSourcePair.first(), false, urnSourcePair.second()));
 
         };
-    }
-
-    private void doLike(Pair<Playlist, PlaySessionSource> playlistSourcePair, boolean isLike) {
-        Playlist playlist = playlistSourcePair.first();
-        eventTracker.trackEngagement(UIEvent.fromToggleLike(isLike,
-                                                            playlist.urn(),
-                                                            getEventContext(),
-                                                            playlistSourcePair.second().getPromotedSourceInfo(),
-                                                            createEntityMetadata(playlist)));
-
-        fireAndForget(likeOperations.toggleLike(playlist.urn(), isLike));
     }
 
     private EntityMetadata createEntityMetadata(Playlist playlist) {
@@ -298,31 +366,23 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     public void refresh() {
-        syncInitiator.syncPlaylist(playlistUrn)
-                     .subscribe(new DefaultSubscriber<SyncJobResult>() {
-                         @Override
-                         public void onStart() {
-                             refresh.onNext(true);
-                         }
-
-                         @Override
-                         public void onCompleted() {
-                             refresh.onNext(false);
-                         }
-                     });
+        refresh.onNext(null);
     }
 
     private AsyncViewModel<PlaylistDetailsViewModel> combine(Boolean isRefreshing,
                                                              Boolean isEditMode,
                                                              PlaylistWithTracks playlistWithTracks,
                                                              LikedStatuses likedStatuses,
+                                                             RepostStatuses repostStatuses,
                                                              OfflineProperties offlineProperties) {
         return AsyncViewModel.create(of(viewModelCreator.create(playlistWithTracks.playlist(),
                                                                 updateTracks(playlistWithTracks, offlineProperties),
                                                                 likedStatuses.isLiked(playlistWithTracks.playlist().urn()),
+                                                                repostStatuses.isReposted(playlistWithTracks.playlist().urn()),
                                                                 isEditMode,
                                                                 offlineProperties.state(playlistWithTracks.playlist().urn()),
-                                                                Optional.absent())), isRefreshing, Optional.absent());
+                                                                absent()
+        )), isRefreshing, Optional.absent());
     }
 
     private List<TrackItem> updateTracks(PlaylistWithTracks playlistWithTracks, OfflineProperties offlineProperties) {
@@ -343,8 +403,24 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return gotoCreator;
     }
 
+    PublishSubject<LikeOperations.LikeResult> onLikeResult() {
+        return showLikeResult;
+    }
+
+    PublishSubject<RepostOperations.RepostResult> onRepostResult() {
+        return showRepostResult;
+    }
+
     Observable<PlaybackResult.ErrorReason> onPlaybackError() {
         return playbackError;
+    }
+
+    Observable<Object> onGoBack() {
+        return goBack;
+    }
+
+    Observable<Urn> onRequestingPlaylistDeletion() {
+        return showPlaylistDeletionConfirmation;
     }
 
     public Observable<AsyncViewModel<PlaylistDetailsViewModel>> viewModel() {
@@ -388,30 +464,17 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     @Override
     public void onPlayNext() {
-        playQueueHelper.playNext(playlistUrn);
+        playNext.onNext(null);
     }
 
     @Override
     public void onToggleLike(boolean isLiked) {
-        if (isLiked) {
-            like.onNext(null);
-        } else {
-            unlike.onNext(null);
-        }
-    }
-
-    private EventContextMetadata getEventContext() {
-        return EventContextMetadata.builder()
-                                   .contextScreen(screen)
-                                   .pageName(Screen.PLAYLIST_DETAILS.get())
-                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
-                                   .pageUrn(playlistUrn)
-                                   .build();
+        like.onNext(isLiked);
     }
 
     @Override
     public void onToggleRepost(boolean isReposted) {
-
+        repost.onNext(isReposted);
     }
 
     @Override
@@ -441,7 +504,41 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     @Override
     public void onDeletePlaylist() {
+        delete.onNext(null);
+    }
 
+    private Observable<LikeOperations.LikeResult> like(android.util.Pair<PlaylistWithTracks, Boolean> playlistWithTracksBooleanPair, PlaySessionSource playSessionSource) {
+        Playlist playlist = playlistWithTracksBooleanPair.first.playlist();
+        final Boolean isLike = playlistWithTracksBooleanPair.second;
+        eventTracker.trackEngagement(UIEvent.fromToggleLike(isLike,
+                                                            playlist.urn(),
+                                                            getEventContext(playlist.urn()),
+                                                            playSessionSource.getPromotedSourceInfo(),
+                                                            createEntityMetadata(playlist)));
+
+        return likeOperations.toggleLike(playlist.urn(), isLike);
+    }
+
+    private Observable<RepostOperations.RepostResult> repost(android.util.Pair<PlaylistWithTracks, Boolean> playlistWithTracksBooleanPair, PlaySessionSource playSessionSource) {
+        final Playlist playlist = playlistWithTracksBooleanPair.first.playlist();
+        final Boolean isReposted = playlistWithTracksBooleanPair.second;
+
+        eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
+                                                              playlist.urn(),
+                                                              getEventContext(playlist.urn()),
+                                                              playSessionSource.getPromotedSourceInfo(),
+                                                              createEntityMetadata(playlist)));
+
+        return repostOperations.toggleRepost(playlist.urn(), isReposted);
+    }
+
+    private EventContextMetadata getEventContext(Urn playlistUrn) {
+        return EventContextMetadata.builder()
+                                   .contextScreen(screen)
+                                   .pageName(Screen.PLAYLIST_DETAILS.get())
+                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                                   .pageUrn(playlistUrn)
+                                   .build();
     }
 
     private OfflineInteractionEvent getOfflinePlaylistTrackingEvent(Urn urn, boolean isMarkedForOffline, PlaySessionSource playSessionSource) {
@@ -532,7 +629,6 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
      * - error states
      * - Upsells
      * - Other playlists by user
-     * - Local dataSource pushed to server while viewing it
      * - missing playlists
      * - offline logic
      * - show confirmation dialog when exiting offline mode

@@ -42,7 +42,7 @@ public class RepostsStateProviderTest extends AndroidUnitTest {
         repostsStateProvider.subscribe();
         repostsStateProvider.repostedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new RepostStatuses(new HashSet<>(list)));
+        subscriber.assertValue(RepostStatuses.create(new HashSet<>(list)));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class RepostsStateProviderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.create(urnRepostStatusMap));
         repostsStateProvider.repostedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new RepostStatuses(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
+        subscriber.assertValue(RepostStatuses.create(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
     }
 
     @Test
@@ -77,6 +77,6 @@ public class RepostsStateProviderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.REPOST_CHANGED, RepostsStatusEvent.create(urnRepostStatusMap));
         repostsStateProvider.repostedStatuses().subscribe(subscriber);
 
-        subscriber.assertValue(new RepostStatuses(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
+        subscriber.assertValue(RepostStatuses.create(new HashSet<>(asList(Urn.forTrack(1), Urn.forPlaylist(2)))));
     }
 }

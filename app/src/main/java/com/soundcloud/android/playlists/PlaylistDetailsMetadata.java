@@ -23,6 +23,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
     static PlaylistDetailsMetadata from(Playlist playlist,
                                         List<TrackItem> trackItems,
                                         boolean isLiked,
+                                        boolean isReposted,
                                         boolean isInEditMode,
                                         OfflineState offlineState,
                                         int trackCount,
@@ -38,7 +39,7 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
                 .canShuffle(trackItems.size() > 1)
                 .trackCount(trackCount)
                 .isPrivate(playlist.isPrivate())
-                .isRepostedByUser(playlist.isRepostedByCurrentUser().or(false))
+                .isRepostedByUser(isReposted)
                 .isLikedByUser(isLiked)
                 .likesCount(playlist.likesCount())
                 .isMarkedForOffline(offlineState != OfflineState.NOT_OFFLINE)

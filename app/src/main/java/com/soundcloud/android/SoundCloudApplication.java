@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
+import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
@@ -127,6 +128,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
     @Inject PerformanceEngineFactory performanceEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
+    @Inject RepostsStateProvider repostsStateProvider;
     @Inject MiniplayerStorage miniplayerStorage;
     @Inject FollowingStateProvider followingStateProvider;
 
@@ -227,6 +229,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2) || featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
             likesStateProvider.subscribe();
+            repostsStateProvider.subscribe();
             followingStateProvider.subscribe();
         }
 

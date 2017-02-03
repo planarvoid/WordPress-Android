@@ -136,15 +136,33 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
         subscription = new CompositeSubscription();
         subscription.addAll(
+
                 modelUpdates().subscribe(asyncViewModel -> {
                     Optional<PlaylistDetailsViewModel> dataOpt = asyncViewModel.data();
                     if (dataOpt.isPresent()) {
                         bindViews(dataOpt.get());
                     }
                 }),
+
                 onRefresh.subscribe(aVoid -> {
                     presenter.refresh();
-                })
+                }),
+
+                presenter.onRepostResult()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(new RepostResultSubscriber(view.getContext())),
+
+                presenter.onRequestingPlaylistDeletion()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(urn -> {
+                             DeletePlaylistDialogFragment.show(getFragmentManager(), urn);
+                         }),
+
+                presenter.onGoBack()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(ignored -> {
+                             getActivity().onBackPressed();
+                         })
         );
     }
 

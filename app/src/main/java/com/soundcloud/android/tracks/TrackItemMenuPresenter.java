@@ -309,7 +309,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final boolean repost = !track.isRepostedByCurrentUser();
         repostOperations.toggleRepost(track.getUrn(), repost)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(context, repost));
+                        .subscribe(new RepostResultSubscriber(context));
 
         trackRepost(repost);
     }

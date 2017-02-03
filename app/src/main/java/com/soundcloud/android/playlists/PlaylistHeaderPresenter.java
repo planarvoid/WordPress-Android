@@ -368,7 +368,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistDetailsMetadata.getUrn(), isReposted)
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new RepostResultSubscriber(activity, isReposted));
+                                .subscribe(new RepostResultSubscriber(activity));
             } else {
                 fireAndForget(repostOperations.toggleRepost(playlistDetailsMetadata.getUrn(), isReposted));
             }

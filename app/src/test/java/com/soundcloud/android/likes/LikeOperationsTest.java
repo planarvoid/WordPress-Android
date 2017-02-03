@@ -24,6 +24,8 @@ import rx.functions.Action0;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
+import java.io.IOException;
+
 public class LikeOperationsTest extends AndroidUnitTest {
 
     private LikeOperations operations;
@@ -35,7 +37,7 @@ public class LikeOperationsTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<Integer> observer = new TestSubscriber<>();
+    private TestSubscriber<LikeOperations.LikeResult> observer = new TestSubscriber<>();
     private Urn targetUrn = Urn.forTrack(123);
 
     @Before
@@ -56,7 +58,19 @@ public class LikeOperationsTest extends AndroidUnitTest {
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isTrue();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(5);
+        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.LIKE_SUCCEEDED);
+    }
+
+    @Test
+    public void toggleLikeAddsNewLikeAndEmitsErrorResult() {
+        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.error(new IOException()));
+
+        operations.toggleLike(targetUrn, true).subscribe(observer);
+
+        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        assertThat(commandParamsCaptor.getValue().addLike).isTrue();
+        assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
+        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.LIKE_FAILED);
     }
 
     @Test
@@ -66,7 +80,19 @@ public class LikeOperationsTest extends AndroidUnitTest {
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
         assertThat(commandParamsCaptor.getValue().addLike).isFalse();
         assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
-        assertThat(observer.getOnNextEvents()).containsExactly(5);
+        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.UNLIKE_SUCCEEDED);
+    }
+
+    @Test
+    public void toggleLikeRemovesLikeAndEmitsFailedResult() {
+        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.error(new IOException()));
+
+        operations.toggleLike(targetUrn, false).subscribe(observer);
+
+        verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
+        assertThat(commandParamsCaptor.getValue().addLike).isFalse();
+        assertThat(commandParamsCaptor.getValue().targetUrn).isEqualTo(targetUrn);
+        assertThat(observer.getOnNextEvents()).containsExactly(LikeOperations.LikeResult.UNLIKE_FAILED);
     }
 
     @Test

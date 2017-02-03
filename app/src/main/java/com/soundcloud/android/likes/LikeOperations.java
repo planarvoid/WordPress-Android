@@ -21,6 +21,10 @@ public class LikeOperations {
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
 
+    public enum LikeResult {
+        LIKE_SUCCEEDED, LIKE_FAILED, UNLIKE_SUCCEEDED, UNLIKE_FAILED
+    }
+
     @Inject
     public LikeOperations(UpdateLikeCommand storeLikeCommand,
                           SyncInitiator syncInitiator,
@@ -32,13 +36,17 @@ public class LikeOperations {
         this.syncInitiator = syncInitiator;
     }
 
-    public Observable<Integer> toggleLike(final Urn targetUrn, final boolean addLike) {
+    public Observable<LikeResult> toggleLike(final Urn targetUrn, final boolean addLike) {
         final UpdateLikeParams params = new UpdateLikeParams(targetUrn, addLike);
         return storeLikeCommand
                 .toObservable(params)
-                .doOnNext(likesCount -> eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(targetUrn, addLike, likesCount)))
+                .map(likesCount -> LikesStatusEvent.create(targetUrn, addLike, likesCount))
+                .doOnNext(likesStatusEvent -> eventBus.publish(EventQueue.LIKE_CHANGED, likesStatusEvent))
                 .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(scheduler);
+                .subscribeOn(scheduler)
+                .map(likesStatusEvent -> addLike ? LikeResult.LIKE_SUCCEEDED : LikeResult.UNLIKE_SUCCEEDED)
+                .onErrorReturn(throwable -> addLike ? LikeResult.LIKE_FAILED : LikeResult.UNLIKE_FAILED);
+
     }
 
 }

@@ -38,7 +38,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
     private RepostOperations operations;
-    private TestObserver<RepostsStatusEvent.RepostStatus> testObserver = new TestObserver<>();
+    private TestObserver<RepostOperations.RepostResult> testObserver = new TestObserver<>();
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private RepostStorage repostStorage;
@@ -67,7 +67,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(TRACK_URN, REPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(PLAYLIST_URN, REPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
         verify(removeRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(TRACK_URN, UNPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_FAILED);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(TRACK_URN, UNPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
         operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createUnposted(PLAYLIST_URN, UNPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
         verify(addRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostsStatusEvent.RepostStatus.createReposted(TRACK_URN, REPOST_COUNT));
+        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_FAILED);
     }
 
     @Test

@@ -34,14 +34,16 @@ class PlaylistDetailsViewModelCreator {
     public PlaylistDetailsViewModel create(Playlist playlist,
                                            List<TrackItem> trackItems,
                                            boolean isLiked,
+                                           boolean isReposted,
                                            boolean isEditMode,
                                            Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
-        return create(playlist, trackItems, isLiked, isEditMode, OfflineState.NOT_OFFLINE, otherPlaylists);
+        return create(playlist, trackItems, isLiked, isReposted, isEditMode, OfflineState.NOT_OFFLINE, otherPlaylists);
     }
 
     public PlaylistDetailsViewModel create(Playlist playlist,
                                            List<TrackItem> trackItems,
                                            boolean isLiked,
+                                           boolean isReposted,
                                            boolean isEditMode,
                                            OfflineState offlineState,
                                            Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
@@ -50,17 +52,18 @@ class PlaylistDetailsViewModelCreator {
 
         final PlaylistDetailTrackItem.Builder builder = PlaylistDetailTrackItem.builder().inEditMode(isEditMode);
         return PlaylistDetailsViewModel.builder()
-                                       .metadata(createMetadata(playlist, trackItems, isLiked, isEditMode, offlineState))
+                                       .metadata(createMetadata(playlist, trackItems, isLiked, isReposted, isEditMode, offlineState))
                                        .tracks(transform(trackItems, track -> builder.trackItem(track).build()))
                                        .upsell(upsell)
                                        .otherPlaylists(otherPlaylists)
                                        .build();
     }
 
-    private PlaylistDetailsMetadata createMetadata(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, boolean isEditMode, OfflineState offlineState) {
+    private PlaylistDetailsMetadata createMetadata(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, boolean isReposted, boolean isEditMode, OfflineState offlineState) {
         int trackCount = getTrackCount(playlist, trackItems);
         PlaylistDetailsMetadata.OfflineOptions offlineOptions = getOfflineOptions(playlist);
-        return PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isEditMode, offlineState, trackCount, offlineOptions, resources, accountOperations.isLoggedInUser(playlist.creatorUrn()));
+        return PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isReposted, isEditMode, offlineState, trackCount, offlineOptions, resources, accountOperations.isLoggedInUser(playlist.creatorUrn())
+        );
     }
 
     private int getTrackCount(Playlist playlist, List<TrackItem> trackItems) {

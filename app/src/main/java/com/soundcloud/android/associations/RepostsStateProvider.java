@@ -13,12 +13,14 @@ import rx.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Singleton
 public class RepostsStateProvider {
 
     private final RepostStorage repostStorage;
@@ -73,7 +75,7 @@ public class RepostsStateProvider {
     }
 
     private void publishSnapshot() {
-        statuses.onNext(new RepostStatuses(Collections.unmodifiableSet(reposts)));
+        statuses.onNext(RepostStatuses.create(Collections.unmodifiableSet(reposts)));
     }
 
     public Observable<RepostStatuses> repostedStatuses() {

@@ -34,6 +34,7 @@ class PlaylistDetailFixtures {
                                                                               trackItems,
                                                                               false,
                                                                               false,
+                                                                              false,
                                                                               playlist.offlineState().or(OfflineState.NOT_OFFLINE),
                                                                               trackItems.isEmpty() ? playlist.trackCount() : trackItems.size(),
                                                                               PlaylistDetailsMetadata.OfflineOptions.NONE,

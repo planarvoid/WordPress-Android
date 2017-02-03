@@ -206,7 +206,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     public void handleRepost(boolean addRepost) {
         repostOperations.toggleRepost(playlistUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(appContext, addRepost));
+                        .subscribe(new RepostResultSubscriber(appContext));
 
         eventTracker.trackEngagement(
                 UIEvent.fromToggleRepost(addRepost,

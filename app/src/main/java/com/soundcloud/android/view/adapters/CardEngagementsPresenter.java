@@ -88,7 +88,7 @@ public class CardEngagementsPresenter {
         final boolean addRepost = !playableItem.isRepostedByCurrentUser();
         repostOperations.toggleRepost(entityUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));
+                        .subscribe(new RepostResultSubscriber(repostButton.getContext()));
 
         eventTracker.trackEngagement(UIEvent.fromToggleRepost(addRepost, entityUrn,
                                                                        contextMetadata,

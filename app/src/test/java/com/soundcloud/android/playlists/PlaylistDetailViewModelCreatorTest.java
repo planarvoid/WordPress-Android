@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +38,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();
         List<TrackItem> tracks = ModelFixtures.trackItems(2);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, tracks, true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, tracks, true, false, false, Optional.absent());
 
         assertThat(item.metadata().trackCount()).isEqualTo(2);
     }
@@ -48,7 +47,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     public void returnsTrackCountFromPlaylistMetadataIfTracksMissing() {
         Playlist playlist = ModelFixtures.playlistBuilder().trackCount(1).build();
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().trackCount()).isEqualTo(1);
     }
@@ -56,7 +55,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     @Test
     public void returnsDurationFromPlaylistMetadataIfTracksMissing() {
         Playlist playlist = ModelFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().headerText()).isEqualTo("2 tracks, 1:00");
     }
@@ -64,7 +63,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     @Test
     public void returnsDurationFromTracklistIfTracksAreThere() {
         Playlist playlist = ModelFixtures.playlistBuilder().duration(TimeUnit.SECONDS.toMillis(60)).build();
-        final PlaylistDetailsViewModel item = creator.create(playlist, ModelFixtures.trackItems(2), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, ModelFixtures.trackItems(2), true, false, false, Optional.absent());
 
         assertThat(item.metadata().headerText()).isEqualTo("2 tracks, 22:37");
     }
@@ -73,7 +72,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     public void returnsOfflineAvailableNoneByDefault() throws Exception {
         Playlist playlist = ModelFixtures.playlist();
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().offlineOptions()).isEqualTo(PlaylistDetailsMetadata.OfflineOptions.NONE);
     }
@@ -84,7 +83,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().offlineOptions()).isEqualTo(PlaylistDetailsMetadata.OfflineOptions.AVAILABLE);
     }
@@ -94,7 +93,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         Playlist playlist = ModelFixtures.playlistBuilder().isLikedByCurrentUser(true).build();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().offlineOptions()).isEqualTo(PlaylistDetailsMetadata.OfflineOptions.AVAILABLE);
     }
@@ -104,7 +103,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         Playlist playlist = ModelFixtures.playlistBuilder().build();
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), true, false, false, Optional.absent());
 
         assertThat(item.metadata().offlineOptions()).isEqualTo(PlaylistDetailsMetadata.OfflineOptions.UPSELL);
     }
@@ -114,7 +113,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         Playlist playlist = ModelFixtures.playlist();
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(false);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, false, Optional.absent());
 
         assertThat(item.metadata().showOwnerOptions()).isFalse();
     }
@@ -124,7 +123,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
         Playlist playlist = ModelFixtures.playlist();
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
-        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, false, Optional.absent());
 
         assertThat(item.metadata().showOwnerOptions()).isTrue();
     }
@@ -132,14 +131,14 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     @Test
     public void cannotShuffleWithOneTrack() throws Exception {
 
-        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 1), false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 1), false, false, false, Optional.absent());
 
         assertThat(item.metadata().canShuffle()).isFalse();
     }
 
     @Test
     public void canShuffleWithMoreThanOneTrack() throws Exception {
-        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 2), false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 2), false, false, false, Optional.absent());
 
         assertThat(item.metadata().canShuffle()).isTrue();
     }

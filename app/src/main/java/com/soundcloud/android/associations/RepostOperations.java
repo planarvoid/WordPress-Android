@@ -19,6 +19,10 @@ import javax.inject.Named;
 
 public class RepostOperations {
 
+    public enum RepostResult {
+        REPOST_SUCCEEDED, REPOST_FAILED, UNREPOST_SUCCEEDED, UNREPOST_FAILED
+    }
+
     private final RepostStorage repostStorage;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
@@ -33,7 +37,7 @@ public class RepostOperations {
         this.eventBus = eventBus;
     }
 
-    public Observable<RepostStatus> toggleRepost(final Urn soundUrn, final boolean addRepost) {
+    public Observable<RepostResult> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         if (addRepost) {
             return addRepostLocally(soundUrn).flatMap(pushAddRepostAndRevertWhenFailed());
         } else {
@@ -41,16 +45,18 @@ public class RepostOperations {
         }
     }
 
-    private Func1<RepostStatus, Observable<RepostStatus>> pushAddRepostAndRevertWhenFailed() {
+    private Func1<RepostStatus, Observable<RepostResult>> pushAddRepostAndRevertWhenFailed() {
         return repostStatus -> pushAddRepost(repostStatus.urn())
-                .map(o -> repostStatus)
-                .onErrorResumeNext(removeRepostLocally(repostStatus.urn()));
+                .map(o -> RepostResult.REPOST_SUCCEEDED)
+                .onErrorResumeNext(removeRepostLocally(repostStatus.urn())
+                                           .map(repostStatus1 -> RepostResult.REPOST_FAILED));
     }
 
-    private Func1<RepostStatus, Observable<RepostStatus>> pushRemoveAndRevertWhenFailed() {
+    private Func1<RepostStatus, Observable<RepostResult>> pushRemoveAndRevertWhenFailed() {
         return repostStatus -> pushRemoveRepost(repostStatus.urn())
-                .map(o -> repostStatus)
-                .onErrorResumeNext(addRepostLocally(repostStatus.urn()));
+                .map(o -> RepostResult.UNREPOST_SUCCEEDED)
+                .onErrorResumeNext(addRepostLocally(repostStatus.urn())
+                                           .map(repostStatus1 -> RepostResult.UNREPOST_FAILED));
     }
 
     private Observable<RepostStatus> addRepostLocally(final Urn soundUrn) {
