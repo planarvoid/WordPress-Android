@@ -652,13 +652,8 @@ vão aparecer aqui.</string>
   <string name="notification_username_started_following_you">começou a seguir você</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Inscrever</string>
-  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mês</string>
   <string name="conversion_price_promo">%1$s para %2$s</string>
-  <string name="conversion_headline">Ouça offline e sem anúncios</string>
-  <string name="conversion_plus">E mais:</string>
-  <string name="conversion_feature_1">Tenha mais de 135 filhões de faixas. É o maior catálogo de streaming de áudio e música do mundo</string>
-  <string name="conversion_feature_2">Chega de visualizações. Todas as faixas no SoundCloud Go, o tempo todo</string>
   <string name="conversion_buy_loading">Carregando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Comece sua avaliação grátis de %d dias</string>
   <string name="conversion_buy_no_trial">Faz o upgrade agora</string>

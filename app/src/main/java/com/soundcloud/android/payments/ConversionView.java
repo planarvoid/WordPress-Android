@@ -3,6 +3,8 @@ package com.soundcloud.android.payments;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.android.view.LoadingButton;
@@ -29,9 +31,11 @@ class ConversionView {
     private final Resources resources;
     private final ProductInfoFormatter formatter;
     private final BackgroundDecoder backgroundDecoder;
+    private final FeatureFlags flags;
 
     private FragmentManager fragmentManager;
 
+    @BindView(R.id.conversion_title) TextView title;
     @BindView(R.id.conversion_background) ImageView background;
     @BindView(R.id.conversion_buy) LoadingButton buyButton;
     @BindView(R.id.conversion_price) TextView priceView;
@@ -39,10 +43,11 @@ class ConversionView {
     @BindView(R.id.conversion_more_products) Button moreButton;
 
     @Inject
-    ConversionView(Resources resources, ProductInfoFormatter formatter, BackgroundDecoder backgroundDecoder) {
+    ConversionView(Resources resources, ProductInfoFormatter formatter, BackgroundDecoder backgroundDecoder, FeatureFlags flags) {
         this.resources = resources;
         this.formatter = formatter;
         this.backgroundDecoder = backgroundDecoder;
+        this.flags = flags;
     }
 
     interface Listener {
@@ -55,6 +60,9 @@ class ConversionView {
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         loadBackground();
         setupListener(listener);
+        title.setText(flags.isEnabled(Flag.MID_TIER)
+                      ? R.string.conversion_title
+                      : R.string.conversion_title_legacy);
     }
 
     private void loadBackground() {

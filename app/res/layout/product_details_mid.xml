@@ -12,7 +12,7 @@
         style="@style/ProductText.Title"
         android:layout_below="@id/conversion_cloud"
         android:layout_marginTop="20dp"
-        android:text="@string/conversion_title" />
+        android:text="@string/tier_go" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/product_choice_price"

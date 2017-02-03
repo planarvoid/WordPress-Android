@@ -220,15 +220,12 @@
     <!-- Conversion -->
     <dimen name="conversion_margin">32dp</dimen>
     <dimen name="conversion_content">380dp</dimen>
+    <dimen name="conversion_headline_text">32sp</dimen>
     <dimen name="conversion_title_text">24dp</dimen>
-    <dimen name="conversion_headline_text">38sp</dimen>
     <dimen name="conversion_headline_width">250dp</dimen>
-    <dimen name="conversion_feature_text">16sp</dimen>
     <dimen name="conversion_button_text">16sp</dimen>
-    <dimen name="conversion_divider_width">80dp</dimen>
+    <dimen name="conversion_divider_width">60dp</dimen>
     <dimen name="conversion_divider_height">2dp</dimen>
-    <dimen name="conversion_divider_top_margin">56dp</dimen>
-    <dimen name="conversion_check_margin">10dp</dimen>
 
     <!-- Player -->
     <dimen name="collapsed_player_strip">3dp</dimen>

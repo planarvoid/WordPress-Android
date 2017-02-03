@@ -655,13 +655,8 @@
   <string name="notification_username_started_following_you">vous suit</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">S\'abonner</string>
-  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mois</string>
   <string name="conversion_price_promo">%1$s pour %2$s</string>
-  <string name="conversion_headline">Écoutez hors connexion et sans publicité</string>
-  <string name="conversion_plus">Plus :</string>
-  <string name="conversion_feature_1">Accédez à plus de 135 millions de titres : le catalogue de streaming audio et musical le plus vaste au monde.</string>
-  <string name="conversion_feature_2">Plus d\'aperçu : écoutez l\'intégralité des titres SoundCloud Go à tout moment</string>
   <string name="conversion_buy_loading">Chargement…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Démarrez votre essai gratuit de %d jours</string>
   <string name="conversion_buy_no_trial">Abonnez-vous maintenant</string>
