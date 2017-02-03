@@ -10,6 +10,7 @@ import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -17,7 +18,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -54,7 +54,8 @@ class StreamPlayer implements PlayerListener {
                  Provider<FlipperAdapter> flipperAdapterProvider,
                  NetworkConnectionHelper networkConnectionHelper,
                  EventBus eventBus,
-                 FlipperConfiguration flipperConfiguration) {
+                 FlipperConfiguration flipperConfiguration,
+                 ApplicationProperties applicationProperties) {
 
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
@@ -62,7 +63,7 @@ class StreamPlayer implements PlayerListener {
         this.mediaPlayerDelegate = mediaPlayerAdapter;
         this.videoPlayer = mediaPlayerAdapter;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (applicationProperties.isSkippyAvailable()) {
             this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
             this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
             this.offlineContentPlayer = skippyPlayerDelegate;
