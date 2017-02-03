@@ -8,9 +8,11 @@ import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -20,7 +22,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -98,6 +99,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleAdDeliveryEvent((AdDeliveryEvent) event);
         } else if (event instanceof AdPlaybackSessionEvent) {
             handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
+        } else if (event instanceof AdRichMediaSessionEvent) {
+            handleAdRichMediaSessionEvent((AdRichMediaSessionEvent) event);
         } else if (event instanceof AdPlaybackErrorEvent) {
             handleAdPlaybackErrorEvent((AdPlaybackErrorEvent) event);
         } else if (event instanceof ScrollDepthEvent) {
@@ -209,23 +212,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
-        switch (eventData.getKind()) {
-            case AdPlaybackSessionEvent.EVENT_KIND_QUARTILE:
-                trackAdProgressQuartile(eventData);
-                break;
-            case AdPlaybackSessionEvent.EVENT_KIND_PLAY:
-            case AdPlaybackSessionEvent.EVENT_KIND_STOP:
-            case AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT:
-                if (eventData.shouldReportStart()) {
-                    trackAdImpression(eventData);
-                } else if (eventData.hasAdFinished()) {
-                    trackAdFinished(eventData);
-                }
-                trackAdSessionEvent(eventData);
-                break;
-            default:
-                break;
-        }
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackSessionEvent(eventData));
     }
 
     @Override
@@ -241,20 +228,9 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
-    private void trackAdImpression(AdPlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdImpression(eventData));
-    }
-
-    private void trackAdFinished(AdPlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdFinished(eventData));
-    }
-
-    private void trackAdSessionEvent(AdPlaybackSessionEvent eventData) {
+    @Override
+    public void handleAdRichMediaSessionEvent(AdRichMediaSessionEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForRichMediaSessionEvent(eventData));
-    }
-
-    private void trackAdProgressQuartile(AdPlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdProgressQuartileEvent(eventData));
     }
 
     private void handleAdPlaybackErrorEvent(AdPlaybackErrorEvent eventData) {

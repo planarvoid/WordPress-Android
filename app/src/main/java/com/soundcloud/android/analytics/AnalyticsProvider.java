@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PerformanceEvent;
@@ -28,6 +29,8 @@ public interface AnalyticsProvider {
     void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData);
 
     void handlePlaybackErrorEvent(PlaybackErrorEvent eventData);
+
+    void handleAdRichMediaSessionEvent(AdRichMediaSessionEvent eventData);
 
     void handleOnboardingEvent(OnboardingEvent event);
 

@@ -1,166 +1,247 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO;
+
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
-
-import android.support.annotation.Nullable;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class AdPlaybackSessionEvent extends LegacyTrackingEvent {
+@AutoValue
+public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
 
-    public static final String EVENT_KIND_PLAY = "play";
-    public static final String EVENT_KIND_STOP = "stop";
-    public static final String EVENT_KIND_CHECKPOINT = "checkpoint";
-    public static final String EVENT_KIND_QUARTILE = "quartile_event";
+    public enum EventName {
+        CLICK_EVENT("click"),
+        IMPRESSION_EVENT("impression");
+        private final String key;
 
-    private static final String FIRST_QUARTILE_TYPE = "ad::first_quartile";
-    private static final String SECOND_QUARTILE_TYPE = "ad::second_quartile";
-    private static final String THIRD_QUARTILE_TYPE = "ad::third_quartile";
+        EventName(String key) {
+            this.key = key;
+        }
 
-    private static final String MONETIZATION_AUDIO = "audio_ad";
-    private static final String MONETIZATION_VIDEO = "video_ad";
+        public String toString() {
+            return key;
+        }
 
-    public final TrackSourceInfo trackSourceInfo;
+    }
 
-    private StopReasonProvider.StopReason stopReason;
-    private boolean shouldReportStartWithPlay;
-    private AdPlaybackSessionEventArgs eventArgs;
-    private List<String> trackingUrls = Collections.emptyList();
+    public enum EventKind {
+        PLAY("play"),
+        STOP("stop"),
+        QUARTILE("quartile_event");
+        private final String key;
+
+        EventKind(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum ClickName {
+
+        FIRST_QUARTILE_TYPE("ad::first_quartile"),
+        SECOND_QUARTILE_TYPE("ad::second_quartile"),
+        THIRD_QUARTILE_TYPE("ad::third_quartile"),
+        AD_FINISH("ad::finish");
+
+        private final String key;
+
+        ClickName(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum ImpressionName {
+        VIDEO_AD("video_ad_impression"),
+        AUDIO_AD("audio_ad_impression");
+
+        private final String key;
+
+        ImpressionName(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public enum MonetizationType {
+        MONETIZATION_AUDIO("audio_ad"),
+        MONETIZATION_VIDEO("video_ad");
+        private final String key;
+
+        MonetizationType(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
+    public abstract Optional<EventName> eventName();
+
+    public abstract EventKind eventKind();
+
+    public abstract Urn adUrn();
+
+    public abstract Urn monetizableTrackUrn();
+
+    public abstract MonetizationType monetizationType();
+
+    public abstract Optional<List<String>> trackingUrls();
+
+    public abstract Optional<ClickName> clickName();
+
+    public abstract Optional<ImpressionName> impressionName();
+
+    public abstract String pageName();
+
+    public abstract Optional<StopReasonProvider.StopReason> stopReason();
+
+    public abstract boolean shouldReportStartWithPlay();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return forQuartile(adData, trackSourceInfo, FIRST_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.getFirstQuartileUrls(), ClickName.FIRST_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forSecondQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return forQuartile(adData, trackSourceInfo, SECOND_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.getSecondQuartileUrls(), ClickName.SECOND_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forThirdQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return forQuartile(adData, trackSourceInfo, THIRD_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.getThirdQuartileUrls(), ClickName.THIRD_QUARTILE_TYPE);
     }
 
-    private static AdPlaybackSessionEvent forQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo,
-                                                      String quartileType) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(quartileType, adData)
-                .put(PlayableTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
+    protected static AdPlaybackSessionEvent createQuartileEvent(PlayableAdData adData,
+                                                                TrackSourceInfo trackSourceInfo,
+                                                                List<String> quartileUrls, ClickName quartileType) {
+        return create(EventKind.QUARTILE, adData, trackSourceInfo.getOriginScreen())
+                .eventName(Optional.of(EventName.CLICK_EVENT))
+                .trackingUrls(Optional.of(quartileUrls))
+                .clickName(Optional.of(quartileType))
+                .build();
+    }
+
+    public static boolean shouldTrackStart(PlayableAdData adData) {
+        return !adData.hasReportedStart();
     }
 
     public static AdPlaybackSessionEvent forPlay(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, eventArgs.getTrackSourceInfo())
-                .setPlaybackTrackingUrls(adData)
-                .setEventArgs(eventArgs);
+        return AdPlaybackSessionEvent.create(EventKind.PLAY, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+                                     .eventName(Optional.of(EventName.IMPRESSION_EVENT))
+                                     .impressionName(adData instanceof VideoAd ? Optional.of(ImpressionName.VIDEO_AD) : Optional.of(ImpressionName.AUDIO_AD))
+                                     .trackingUrls(Optional.of(getPlayEventTracking(adData)))
+                                     .build();
+    }
+
+    public static boolean shouldTrackFinish(StopReasonProvider.StopReason stopReason) {
+        return stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
     }
 
     public static AdPlaybackSessionEvent forStop(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, eventArgs.getTrackSourceInfo())
-                .setStopReason(stopReason)
-                .setEventArgs(eventArgs)
-                .setPlaybackTrackingUrls(adData);
+        return AdPlaybackSessionEvent.create(EventKind.STOP, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+                                     .eventName(Optional.of(EventName.CLICK_EVENT))
+                                     .clickName(Optional.of(ClickName.AD_FINISH))
+                                     .trackingUrls(getStopEventTrackingUrls(adData, stopReason))
+                                     .stopReason(Optional.of(stopReason))
+                                     .build();
     }
 
-    public static AdPlaybackSessionEvent forCheckpoint(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_CHECKPOINT, adData, eventArgs.getTrackSourceInfo()).setEventArgs(eventArgs);
+    private static AdPlaybackSessionEvent.Builder create(EventKind kind, PlayableAdData adData, String pageName) {
+        final AutoValue_AdPlaybackSessionEvent.Builder builder = new AutoValue_AdPlaybackSessionEvent.Builder();
+        builder.id(defaultId())
+               .timestamp(defaultTimestamp())
+               .referringEvent(Optional.absent())
+               .eventKind(kind)
+               .eventName(Optional.absent())
+               .adUrn(adData.getAdUrn())
+               .monetizableTrackUrn(adData.getMonetizableTrackUrn())
+               .monetizationType(adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO)
+               .trackingUrls(Optional.absent())
+               .shouldReportStartWithPlay(!adData.hasReportedStart())
+               .pageName(pageName)
+               .clickName(Optional.absent())
+               .impressionName(Optional.absent())
+               .stopReason(Optional.absent());
+        return builder;
     }
 
-    private AdPlaybackSessionEvent(String kind, PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        super(kind);
-        this.trackSourceInfo = trackSourceInfo;
-
-        put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
-        put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE,
-            adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
-    }
-
-    public boolean hasAdFinished() {
-        return isKind(EVENT_KIND_STOP) && this.stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
-    }
-
-    public boolean shouldReportStart() {
-        return isKind(EVENT_KIND_PLAY) && shouldReportStartWithPlay;
-    }
-
-    private boolean wasAdPaused() {
-        return isKind(EVENT_KIND_STOP) && this.stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE;
-    }
-
-    private boolean isKind(String kind) {
-        return this.kind.equals(kind);
-    }
-
-    private AdPlaybackSessionEvent setStopReason(StopReasonProvider.StopReason stopReason) {
-        this.stopReason = stopReason;
-        return this;
-    }
-
-    public List<String> getTrackingUrls() {
-        return trackingUrls;
-    }
-
-    private AdPlaybackSessionEvent setQuartileTrackingUrls(String quartileType, PlayableAdData adData) {
-        switch (quartileType) {
-            case FIRST_QUARTILE_TYPE:
-                trackingUrls = adData.getFirstQuartileUrls();
-                break;
-            case SECOND_QUARTILE_TYPE:
-                trackingUrls = adData.getSecondQuartileUrls();
-                break;
-            case THIRD_QUARTILE_TYPE:
-                trackingUrls = adData.getThirdQuartileUrls();
-                break;
-        }
-        return this;
-    }
-
-    private AdPlaybackSessionEvent setPlaybackTrackingUrls(PlayableAdData adData) {
-        shouldReportStartWithPlay = !adData.hasReportedStart();
-        if (isKind(EVENT_KIND_PLAY)) {
-            configurePlayEventTracking(adData);
-        } else {
-            setStopEventTrackingUrls(adData);
-        }
-        return this;
-    }
-
-    private void configurePlayEventTracking(PlayableAdData adData) {
-        if (shouldReportStartWithPlay) {
+    private static List<String> getPlayEventTracking(PlayableAdData adData) {
+        List<String> trackingUrls;
+        if (!adData.hasReportedStart()) {
             trackingUrls = new ArrayList<>();
             trackingUrls.addAll(adData.getImpressionUrls());
             trackingUrls.addAll(adData.getStartUrls());
         } else {
             trackingUrls = adData.getResumeUrls();
         }
+        return trackingUrls;
     }
 
-    private void setStopEventTrackingUrls(PlayableAdData adData) {
-        if (hasAdFinished()) {
-            trackingUrls = adData.getFinishUrls();
-        } else if (wasAdPaused()) {
-            trackingUrls = adData.getPauseUrls();
+    private static Optional<List<String>> getStopEventTrackingUrls(PlayableAdData adData, StopReasonProvider.StopReason stopReason) {
+        if (stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED) {
+            return Optional.of(adData.getFinishUrls());
+        } else if (stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE) {
+            return Optional.of(adData.getPauseUrls());
         }
-    }
-
-    private AdPlaybackSessionEvent setEventArgs(AdPlaybackSessionEventArgs eventArgs) {
-        this.eventArgs = eventArgs;
-        return this;
-    }
-
-    @Nullable
-    public AdPlaybackSessionEventArgs getEventArgs() {
-        return eventArgs;
-    }
-
-    public StopReasonProvider.StopReason getStopReason() {
-        return stopReason;
+        return Optional.absent();
     }
 
     public boolean isVideoAd() {
-        return MONETIZATION_VIDEO.equals(get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE));
+        return MONETIZATION_VIDEO.equals(monetizationType());
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+        abstract Builder id(String id);
+
+        abstract Builder timestamp(long timestamp);
+
+        abstract Builder referringEvent(Optional<ReferringEvent> referringEvent);
+
+        abstract Builder eventName(Optional<EventName> eventName);
+
+        abstract Builder eventKind(EventKind eventKind);
+
+        abstract Builder adUrn(Urn adUrn);
+
+        abstract Builder monetizableTrackUrn(Urn monetizableTrackUrn);
+
+        abstract Builder monetizationType(MonetizationType monetizationType);
+
+        abstract Builder trackingUrls(Optional<List<String>> trackingUrls);
+
+        abstract Builder clickName(Optional<ClickName> clickName);
+
+        abstract Builder impressionName(Optional<ImpressionName> impressionName);
+
+        abstract Builder pageName(String pageName);
+
+        abstract Builder stopReason(Optional<StopReasonProvider.StopReason> stopReason);
+
+        abstract Builder shouldReportStartWithPlay(boolean shouldReportStartWithPlay);
+
+        abstract AdPlaybackSessionEvent build();
+    }
+
+    @Override
+    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_AdPlaybackSessionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 }

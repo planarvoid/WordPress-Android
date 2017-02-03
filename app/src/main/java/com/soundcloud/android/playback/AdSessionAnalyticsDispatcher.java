@@ -5,6 +5,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -66,7 +67,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
             currentPlayingAd = getPlayerAdDataIfAvailable();
             if (currentPlayingAd.isPresent()) {
                 final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
-                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+                sendPlayTrackingEvent(eventArgs);
                 currentPlayingAd.get().setStartReported();
             } else {
                 ErrorUtils.handleSilentException(new IllegalStateException("AdSessionAnalyticsController couldn't retrieve ad data for play state: " + playStateEvent.getTransition()));
@@ -96,15 +97,14 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     @Override
     public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent, PlaybackProgressEvent progressEvent) {
         if (currentPlayingAd.isPresent() && previousPlayStateEvent.getPlayingItemUrn().equals(progressEvent.getUrn())) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forCheckpoint(currentPlayingAd.get(),
-                    buildEventArgs(previousPlayStateEvent.getTransition(), progressEvent.getPlaybackProgress())));
+            eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forCheckpoint(currentPlayingAd.get(), buildEventArgs(previousPlayStateEvent.getTransition(), progressEvent.getPlaybackProgress())));
         }
     }
 
     private void publishStopEvent(final PlaybackStateTransition stateTransition, final StopReasonProvider.StopReason stopReason) {
         // Note that we only want to publish a stop event if we have a corresponding play event.
         if (currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));
+            sendStopTrackingEvent(stateTransition, stopReason);
             currentPlayingAd = Optional.absent();
         }
     }
@@ -121,4 +121,19 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return AdPlaybackSessionEventArgs.createWithProgress(currentTrackSourceInfo.get(), playbackProgress, stateTransition,
                                                              UUID.randomUUID().toString());
     }
+
+    private void sendPlayTrackingEvent(AdPlaybackSessionEventArgs eventArgs) {
+        if (AdPlaybackSessionEvent.shouldTrackStart(currentPlayingAd.get())) {
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+        }
+        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+    }
+
+    private void sendStopTrackingEvent(PlaybackStateTransition stateTransition, StopReasonProvider.StopReason stopReason) {
+        if (AdPlaybackSessionEvent.shouldTrackFinish(stopReason)) {
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));
+        }
+        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));
+    }
+
 }

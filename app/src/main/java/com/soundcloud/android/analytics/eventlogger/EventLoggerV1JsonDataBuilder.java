@@ -1,12 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -21,6 +15,7 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -28,7 +23,6 @@ import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -64,7 +58,6 @@ class EventLoggerV1JsonDataBuilder {
 
     // Ads specific events
     private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
-    private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
@@ -163,62 +156,64 @@ class EventLoggerV1JsonDataBuilder {
         return transform(eventData);
     }
 
-    String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
-        return transform(buildBaseEvent(CLICK_EVENT, eventData)
-                                 .clickName(eventData.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE))
-                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
-                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
+    String buildForAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
+        final String eventName = eventData.eventName().get().toString();
+        final EventLoggerEventData data = buildBaseEvent(eventName, eventData).adUrn(eventData.adUrn().toString())
+                                                                              .pageName(eventData.pageName())
+                                                                              .monetizedObject(eventData.monetizableTrackUrn().toString())
+                                                                              .monetizationType(eventData.monetizationType().toString());
+        if (eventData.clickName().isPresent()) {
+            data.clickName(eventData.clickName().get().toString());
+        }
+        if (eventData.impressionName().isPresent()) {
+            data.impressionName(eventData.impressionName().get().toString());
+        }
+        return transform(data);
     }
 
-    String buildForAdFinished(AdPlaybackSessionEvent eventData) {
-        return transform(buildBaseEvent(CLICK_EVENT, eventData)
-                                 .clickName("ad::finish")
-                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
-                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
-    }
+    String buildForRichMediaSessionEvent(AdRichMediaSessionEvent eventData) {
+        EventLoggerEventData data = buildBaseEvent(eventData.eventName(), eventData)
+                .adUrn(eventData.adUrn().toString())
+                .monetizedObject(eventData.monetizableTrackUrn().toString())
+                .monetizationType(eventData.monetizationType().toString())
+                .pageName(eventData.pageName())
+                .playheadPosition(eventData.playheadPosition())
+                .clientEventId(eventData.clickEventId())
+                .trigger(eventData.trigger().toString())
+                .protocol(eventData.protocol())
+                .playerType(eventData.playerType())
+                .trackLength(eventData.trackLength());
 
-    String buildForAdImpression(AdPlaybackSessionEvent eventData) {
-        return transform(buildBaseEvent(IMPRESSION_EVENT, eventData)
-                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
-                                 .impressionName(eventData.isVideoAd() ? "video_ad_impression" : "audio_ad_impression")
-                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
-    }
+        data.action(eventData.action().toString());
 
-    String buildForRichMediaSessionEvent(AdPlaybackSessionEvent eventData) {
-        EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_STREAM_EVENT, eventData)
-                .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .pageName(eventData.trackSourceInfo.getOriginScreen())
-                .playheadPosition(eventData.getEventArgs().getProgress())
-                .clientEventId(eventData.getEventArgs().getUuid())
-                .trigger(getTrigger(eventData.trackSourceInfo))
-                .protocol(eventData.getEventArgs().getProtocol())
-                .playerType(eventData.getEventArgs().getPlayerType())
-                .trackLength(eventData.getEventArgs().getDuration());
-
-        switch (eventData.getKind()) {
-            case EVENT_KIND_PLAY:
-                data.action(AUDIO_ACTION_PLAY);
-                break;
-            case EVENT_KIND_STOP:
-                data.action(AUDIO_ACTION_PAUSE);
-                data.reason(eventData.getStopReason().toString());
-                break;
-            case EVENT_KIND_CHECKPOINT:
-                data.action(AUDIO_ACTION_CHECKPOINT);
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected audio event:" + eventData.getKind());
+        if (eventData.stopReason().isPresent()) {
+            data.reason(eventData.stopReason().get().toString());
         }
 
-        addTrackSourceInfoToSessionEvent(data, eventData.trackSourceInfo, Urn.NOT_SET);
+        if (eventData.source().isPresent()) {
+            data.source(eventData.source().get());
+        }
+        if (eventData.sourceVersion().isPresent()) {
+            data.sourceVersion(eventData.sourceVersion().get());
+        }
+        if (eventData.inPlaylist().isPresent()) {
+            data.inPlaylist(eventData.inPlaylist().get());
+        }
+        if (eventData.playlistPosition().isPresent()) {
+            data.playlistPosition(eventData.playlistPosition().get());
+        }
+        if (eventData.reposter().isPresent()) {
+            data.reposter(eventData.reposter().get());
+        }
+        if (eventData.queryUrn().isPresent()) {
+            data.queryUrn(eventData.queryUrn().get().toString());
+        }
+        if (eventData.queryPosition().isPresent()) {
+            data.queryPosition(eventData.queryPosition().get());
+        }
+        if (eventData.sourceUrn().isPresent()) {
+            data.sourceUrn(eventData.sourceUrn().get().toString());
+        }
 
         return transform(data);
     }

@@ -32,6 +32,7 @@ import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
+import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
@@ -778,10 +779,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                                        TestPlayerTransitions.playing(),
                                                                                        CLIENT_EVENT_ID);
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(audioAd, eventArgs);
-
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forPlay(audioAd, eventArgs);
+
 
         jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
@@ -811,11 +812,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                                        TestPlayerTransitions.idle(),
                                                                                        CLIENT_EVENT_ID);
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd,
-                                                                            eventArgs,
-                                                                            STOP_REASON_BUFFERING);
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forStop(audioAd,
+                                                                            eventArgs,
+                                                                            STOP_REASON_BUFFERING);
 
         jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
@@ -933,7 +934,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getVideoAd(TRACK_URN),
                                                                                      trackSourceInfo);
 
-        jsonDataBuilder.buildForAdProgressQuartileEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .monetizedObject(TRACK_URN.toString())
@@ -948,7 +949,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forSecondQuartile(AdFixtures.getVideoAd(TRACK_URN),
                                                                                       trackSourceInfo);
 
-        jsonDataBuilder.buildForAdProgressQuartileEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .monetizedObject(TRACK_URN.toString())
@@ -963,7 +964,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forThirdQuartile(AdFixtures.getVideoAd(TRACK_URN),
                                                                                      trackSourceInfo);
 
-        jsonDataBuilder.buildForAdProgressQuartileEvent(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .monetizedObject(TRACK_URN.toString())
@@ -1086,7 +1087,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                                   "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
 
-        jsonDataBuilder.buildForAdImpression(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, event.getTimestamp())
                                                .monetizedObject(TRACK_URN.toString())
@@ -1105,7 +1106,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                             args,
                                                                             STOP_REASON_TRACK_FINISHED);
 
-        jsonDataBuilder.buildForAdFinished(event);
+        jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
                                                .monetizedObject(TRACK_URN.toString())
