@@ -17,6 +17,7 @@ import com.soundcloud.android.view.status.StatusBarColorController;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -197,9 +198,21 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void restorePlayerState() {
         final boolean isRestoringVideoAd = playQueueManager.getCurrentPlayQueueItem().isVideoAd();
-        showPanelAsCollapsedIfNeeded();
-        if (expandOnResume || isRestoringVideoAd || isPlayQueueLocked) {
-            restoreExpanded(isRestoringVideoAd || isPlayQueueLocked);
+        final boolean shouldLockPlayer = isRestoringVideoAd || isPlayQueueLocked;
+
+        if (expandOnResume || shouldLockPlayer) {
+            restoreExpanded(shouldLockPlayer);
+        } else {
+            eventBus.queue(EventQueue.PLAYER_UI)
+                    .firstOrDefault(PlayerUIEvent.fromPlayerCollapsed())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(uiEvent -> {
+                        if (uiEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+                            restoreExpanded(false);
+                        } else {
+                            restoreCollapsed();
+                        }
+                    });
         }
     }
 
@@ -211,6 +224,13 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         if (shouldLockPlayer) {
             lockExpanded();
         }
+    }
+
+    private void restoreCollapsed() {
+        statusBarColorController.onPlayerCollapsed();
+
+        collapse();
+        notifyCollapsedState();
     }
 
     private void showPanelAsCollapsedIfNeeded() {
