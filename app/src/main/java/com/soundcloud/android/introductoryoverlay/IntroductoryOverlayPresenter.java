@@ -6,6 +6,7 @@ import static com.soundcloud.android.view.CustomFontLoader.getFont;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.soundcloud.android.R;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -13,7 +14,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -40,10 +41,18 @@ public class IntroductoryOverlayPresenter {
 
     public void showForMenuItemIfNeeded(String overlayKey, Toolbar toolbar, @IdRes int menuItemIdRes,
                                         CharSequence title, CharSequence description) {
-        Menu menu = toolbar.getMenu();
-        if (menu != null && menu.findItem(menuItemIdRes) != null) {
-            View view = menu.findItem(menuItemIdRes).getActionView();
+        Optional<MenuItem> menuItem = findMenuItem(toolbar, menuItemIdRes);
+        if (menuItem.isPresent()) {
+            View view = menuItem.get().getActionView();
             showIfNeeded(overlayKey, view, title, description);
+        }
+    }
+
+    private Optional<MenuItem> findMenuItem(Toolbar toolbar, @IdRes int menuItemIdRes) {
+        if (toolbar != null && toolbar.getMenu() != null) {
+            return Optional.fromNullable(toolbar.getMenu().findItem(menuItemIdRes));
+        } else {
+            return Optional.absent();
         }
     }
 
