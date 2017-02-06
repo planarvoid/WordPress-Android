@@ -9,6 +9,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -20,7 +21,16 @@ import java.util.List;
 
 class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUIItem> {
 
+    interface MagicBoxListener {
+
+        void clicked();
+
+        void toggle(boolean checked);
+
+    }
+
     private final PlayQueueManager playQueueManager;
+    private Optional<MagicBoxListener> magicBoxListener = Optional.absent();
 
     @Inject
     MagicBoxPlayQueueItemRenderer(PlayQueueManager playQueueManager) {
@@ -41,7 +51,7 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
         itemView.setOnClickListener(view -> {
             final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
             if (currentPlayQueueItem.isTrack()) {
-                playQueueManager.moveToNextRecommendationItem();
+                if (magicBoxListener.isPresent()) magicBoxListener.get().clicked();
             }
         });
     }
@@ -51,7 +61,7 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
         ViewUtils.extendTouchArea(toggle);
         toggle.setChecked(playQueueManager.isAutoPlay());
         toggle.setOnCheckedChangeListener((compoundButton, checked) -> {
-            playQueueManager.setAutoPlay(checked);
+            if (magicBoxListener.isPresent()) magicBoxListener.get().toggle(checked);
             setAlpha(itemView, isRepeat);
         });
     }
@@ -65,6 +75,10 @@ class MagicBoxPlayQueueItemRenderer implements CellRenderer<MagicBoxPlayQueueUII
         itemView.findViewById(R.id.toggle_auto_play_label).setAlpha(alpha);
         itemView.findViewById(R.id.toggle_auto_play_description).setAlpha(alpha);
         itemView.findViewById(R.id.toggle_auto_play).setAlpha(buttonAlpha);
+    }
+
+    public void setMagicBoxListener(MagicBoxListener magicboxListener) {
+        this.magicBoxListener = Optional.fromNullable(magicboxListener);
     }
 
 }

@@ -1,11 +1,9 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromNewQueue;
-import static com.soundcloud.android.events.CurrentPlayQueueItemEvent.fromPositionChanged;
-import static com.soundcloud.android.playback.playqueue.PlayQueueUIItem.Kind.MAGIC_BOX;
-import static com.soundcloud.android.playback.playqueue.PlayState.COMING_UP;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrackWithContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -14,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -37,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
@@ -46,6 +42,7 @@ import java.util.List;
 
 public class PlayQueuePresenterTest extends AndroidUnitTest {
 
+    private final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
     @Mock private PlayQueueView playQueueViewContract;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlayQueueOperations playQueueOperations;
@@ -57,8 +54,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
-    private final PlayQueueUIItem headerItem = headerPlayQueueUIItem();
-    private final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
@@ -72,12 +67,12 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 playlistExploder,
                 eventBus,
                 playQueueUIItemMapper);
-        setCachedObservables();
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(item.isTrack()).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
+        setCachedObservables();
         presenter.attachView(playQueueViewContract);
     }
 
@@ -94,132 +89,138 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSetViewOnAttach() {
+        verify(playQueueViewContract).showLoadingIndicator();
+        verify(playQueueViewContract).setItems(any());
+        verify(playQueueViewContract).setShuffledState(false);
+        verify(playQueueViewContract).setRepeatNone();
+        verify(playQueueViewContract).scrollTo(0);
+        verify(playQueueViewContract).removeLoadingIndicator();
+    }
+
+    @Test
+    public void shouldSetDefaultPlayerStrip() {
+        presenter.trackClicked(1);
+        verify(playQueueViewContract).setDefaultPlayerStrip();
+    }
+
+    @Test
+    public void shouldSetGoPlayerStrip() {
+        presenter.trackClicked(3);
+        verify(playQueueViewContract).setGoPlayerStrip();
+    }
+
+    @Test
     public void shouldScrollToPositionOnNext() {
         presenter.onNextClick();
 
-        verify(playQueueViewContract).scrollTo(0);
+        verify(playQueueViewContract, times(2)).scrollTo(0);
+    }
+
+    @Test
+    public void shouldSwitchItems() {
+        presenter.switchItems(1, 3);
+
+        verify(playQueueViewContract).switchItems(1, 3);
     }
 
     @Test
     public void returnTrueWhenUpcomingTrack() {
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        when(playQueueViewContract.getItemCount()).thenReturn(10);
-        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
-
         assertThat(presenter.isRemovable(2)).isTrue();
     }
 
     @Test
     public void returnFalseWhenCurrentTrack() {
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYING);
-        when(playQueueViewContract.getItemCount()).thenReturn(10);
-        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
+        presenter.trackClicked(2);
 
         assertThat(presenter.isRemovable(2)).isFalse();
     }
 
     @Test
     public void returnFalseWhenPlayedTrack() {
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(PlayState.PLAYED);
-        when(playQueueViewContract.getItemCount()).thenReturn(10);
-        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
+        presenter.trackClicked(2);
 
-        assertThat(presenter.isRemovable(2)).isFalse();
+        assertThat(presenter.isRemovable(1)).isFalse();
     }
 
     @Test
-    public void shouldRemoveItemAtPosition() {
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        final PlayQueueItem playQueueItem = upcomingTrack.getPlayQueueItem();
-        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
-        when(playQueueManager.indexOfPlayQueueItem(playQueueItem)).thenReturn(1);
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
+    public void shouldSetPlayStateWhenTrack() {
+        presenter.trackClicked(2);
 
-        presenter.remove(2);
-
-        verify(playQueueViewContract).removeItem(2);
-        verify(playQueueManager).removeItem(playQueueItem);
+        verify(playQueueManager).setCurrentPlayQueueItem(any(PlayQueueItem.class));
     }
 
     @Test
-    public void shouldSubscribeToCurrentPlayQueueItem() {
+    public void shouldTogglePlayBack() {
+        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(true);
+
+        presenter.trackClicked(2);
+
+        verify(playSessionController).togglePlayback();
+    }
+
+    @Test
+    public void shouldStartPlayback() {
+        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(false);
+
+        presenter.trackClicked(2);
+
+        verify(playSessionController).play();
+    }
+
+    @Test
+    public void shouldUpdateAfterItemAdded() {
         setCachedObservables();
-
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
-        final CurrentPlayQueueItemEvent event = fromNewQueue(queueItem, Urn.NOT_SET, 0);
-        when(playQueueViewContract.getAdapterPosition(queueItem)).thenReturn(0);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
-
-        verify(playQueueViewContract, times(2)).updateNowPlaying(0, true, true);
-    }
-
-    @Test
-    public void shouldSubscribeToCurrentPlayQueueItemForPositionChanged() {
-        setCachedObservables();
-
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        final PlayQueueItem queueItem = upcomingTrack.getPlayQueueItem();
-        final CurrentPlayQueueItemEvent event = fromPositionChanged(queueItem, Urn.NOT_SET, 0);
-        when(playQueueViewContract.getAdapterPosition(queueItem)).thenReturn(0);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, event);
-
-        verify(playQueueViewContract, times(2)).updateNowPlaying(0, true, true);
-    }
-
-    @Test
-    public void shouldSubscribeToPlayQueueChanged() {
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
-        final PlayQueueEvent event = PlayQueueEvent.fromNewQueue(Urn.NOT_SET);
+        final PlayQueueEvent event = PlayQueueEvent.fromQueueInsert(Urn.NOT_SET);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, event);
 
-        assertThat(tracksSubject.hasObservers()).isTrue();
+        verify(playQueueViewContract, times(2)).setItems(anyList());
     }
 
     @Test
     public void shouldSubscribeToPlayQueueChangedAndFilterOutItemChanges() {
+        reset(playQueueViewContract);
+
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, event);
 
-        assertThat(tracksSubject.hasObservers()).isFalse();
+        verify(playQueueViewContract, never()).setItems(anyList());
     }
 
     @Test
-    public void shouldCycleRepeatModeToRepatOneFromRepeatNoneOnClick() {
-        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
-
-        presenter.repeatClicked();
-
-        verifyRepeatModeChanged(RepeatMode.REPEAT_ONE);
-    }
-
-    @Test
-    public void shouldCycleRepeatModeToRepeatAllFromRepeatOneOnClick() {
-        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ONE);
-
-        presenter.repeatClicked();
-
-        verifyRepeatModeChanged(RepeatMode.REPEAT_ALL);
-    }
-
-    @Test
-    public void shouldCycleRepeatModeOnClickOnLastMode() {
+    public void shouldSetRepeatModeNone() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ALL);
 
         presenter.repeatClicked();
 
         verify(playQueueManager).setRepeatMode(RepeatMode.REPEAT_NONE);
-        verify(playQueueViewContract, times(2)).setRepeatMode(RepeatMode.REPEAT_NONE);
+        verify(playQueueViewContract, times(2)).setRepeatNone();
     }
-    
+
+    @Test
+    public void shouldSetRepeatModeOne() {
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
+
+        presenter.repeatClicked();
+
+        verify(playQueueManager).setRepeatMode(RepeatMode.REPEAT_ONE);
+        verify(playQueueViewContract, times(1)).setRepeatOne();
+    }
+
+    @Test
+    public void shouldSetRepeatModeAll() {
+        when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_ONE);
+
+        presenter.repeatClicked();
+
+        verify(playQueueManager).setRepeatMode(RepeatMode.REPEAT_ALL);
+        verify(playQueueViewContract, times(1)).setRepeatAll();
+    }
+
     @Test
     public void shouldTrackRepeatModeChanges() {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
@@ -247,57 +248,26 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveATrack() {
-        final TrackPlayQueueUIItem trackPlayQueueUIItem = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        final PlayQueueItem playQueueItem = trackPlayQueueUIItem.getPlayQueueItem();
-        final int position = 0;
+        reset(playQueueViewContract);
 
-        when(playQueueViewContract.getItems()).thenReturn(Collections.<PlayQueueUIItem>emptyList());
-        when(playQueueViewContract.getItem(position)).thenReturn(trackPlayQueueUIItem);
-        when(playQueueViewContract.getAdapterPosition(playQueueItem)).thenReturn(position);
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
+        final int position = 1;
 
         presenter.remove(position);
 
-        verify(playQueueViewContract).removeItem(position);
-        verify(playQueueManager).removeItem(playQueueItem);
+        verify(playQueueManager).removeItem(any());
         verify(playQueueViewContract).showUndo();
+        verify(playQueueViewContract).setItems(anyList());
     }
 
     @Test
     public void shouldNotRemoveAHeader() {
-        final int position = 0;
+        reset(playQueueViewContract);
 
-        when(playQueueViewContract.getItem(position)).thenReturn(headerItem);
+        presenter.remove(0);
 
-        presenter.remove(position);
-
-        verify(playQueueViewContract, never()).removeItem(position);
         verify(playQueueManager, never()).removeItem(any(PlayQueueItem.class));
         verify(playQueueViewContract, never()).showUndo();
-    }
-
-    @Test
-    public void shouldRebuildPlayQueueUIItems() {
-        final TestSubscriber<List<PlayQueueUIItem>> observer = new TestSubscriber<>();
-        final Optional<String> contextTitle = Optional.of("Some title");
-        final TrackPlayQueueUIItem trackPlayQueueUIItem = trackPlayQueueUIItemWithPlayState(COMING_UP, contextTitle);
-        final List<PlayQueueUIItem> items = Collections.<PlayQueueUIItem>singletonList(trackPlayQueueUIItem);
-
-        presenter.rebuildPlayQueueUIItemsObservable(items).subscribe(observer);
-        observer.assertValueCount(1);
-
-        final List<PlayQueueUIItem> receivedItems = observer.getOnNextEvents().get(0);
-        assertThat(receivedItems).hasSize(3);
-
-        final HeaderPlayQueueUIItem receivedHeader = (HeaderPlayQueueUIItem) receivedItems.get(0);
-        assertThat(receivedHeader.getContentTitle()).isEqualTo(contextTitle);
-
-        final TrackPlayQueueUIItem receivedTrack = (TrackPlayQueueUIItem) receivedItems.get(1);
-        assertThat(receivedTrack.getContextTitle()).isEqualTo(contextTitle);
-
-        final MagicBoxPlayQueueUIItem receivedMagicBox = (MagicBoxPlayQueueUIItem) receivedItems.get(2);
-        assertThat(receivedMagicBox.getKind()).isEqualTo(MAGIC_BOX);
+        verify(playQueueViewContract, never()).setItems(anyList());
     }
 
     @Test
@@ -309,7 +279,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShufflingOn() {
-        presenter.shuffleClicked(true); // TODO: 15/12/16
+        presenter.shuffleClicked(true);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
@@ -318,7 +288,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackShufflingOff() {
-        presenter.shuffleClicked(false); // TODO: 15/12/16
+        presenter.shuffleClicked(false);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_QUEUE_SHUFFLE);
@@ -334,9 +304,14 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldReorderInPlayQueueManager() {
+        presenter.moveItems(0, 2);
+
+        verify(playQueueManager).moveItem(0, 1);
+    }
+
+    @Test
     public void shouldTrackRemoval() {
-        final TrackPlayQueueUIItem upcomingTrack = trackPlayQueueUIItemWithPlayState(COMING_UP);
-        when(playQueueViewContract.getItem(2)).thenReturn(upcomingTrack);
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
@@ -348,7 +323,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRemovalUndo() {
-        when(playQueueViewContract.getItem(2)).thenReturn(trackPlayQueueUIItemWithPlayState(COMING_UP));
         when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
         when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
 
@@ -380,9 +354,40 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         verify(playlistExploder).explodePlaylists(5, 5);
     }
 
-    private void verifyRepeatModeChanged(RepeatMode mode) {
-        verify(playQueueManager).setRepeatMode(mode);
-        verify(playQueueViewContract).setRepeatMode(mode);
+    public void shouldAddTrackOnUndo() {
+        presenter.remove(2);
+        reset(playQueueViewContract);
+        presenter.undoClicked();
+
+        verify(playQueueManager).insertItemAtPosition(eq(0), any());
+        verify(playQueueViewContract).setItems(anyList());
+    }
+
+    @Test
+    public void shouldNotShowLoadingIndicatorOnRotation() {
+        presenter.detachContract();
+
+        reset(playQueueViewContract);
+
+        presenter.attachView(playQueueViewContract);
+
+        verify(playQueueViewContract, never()).showLoadingIndicator();
+    }
+
+    @Test
+    public void shouldMoveToNextRecommendationWhenMagicBoxClicked() {
+        presenter.magicBoxClicked();
+
+        verify(playQueueManager).moveToNextRecommendationItem();
+    }
+
+    @Test
+    public void shouldSetAutoPlayWhenMagicBoxToggled() {
+        presenter.magicBoxToggled(false);
+        presenter.magicBoxToggled(true);
+
+        verify(playQueueManager).setAutoPlay(false);
+        verify(playQueueManager).setAutoPlay(true);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState) {
@@ -423,11 +428,13 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 PlaySessionSource.EMPTY));
         TrackAndPlayQueueItem trackAndPlayQueueItem2 = trackAndPlayQueueItem(Urn.forTrack(2L), PlaybackContext.create(
                 PlaySessionSource.EMPTY));
-        List<TrackAndPlayQueueItem> trackAndPlayQueueItems = Arrays.asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2);
+        TrackItem higherTierTrack = TestPropertySets.highTierTrack();
+        TrackAndPlayQueueItem trackAndPlayQueueItem3 = new TrackAndPlayQueueItem(higherTierTrack, createTrackWithContext(Urn.forTrack(3L), PlaybackContext.create(PlaySessionSource.EMPTY)));
+        List<TrackAndPlayQueueItem> trackAndPlayQueueItems = Arrays.asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2, trackAndPlayQueueItem3);
 
 
         when(playQueueOperations.getTracks()).thenReturn(Observable.just(trackAndPlayQueueItems));
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.<Urn, String>emptyMap()));
+        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
     }
 
 }

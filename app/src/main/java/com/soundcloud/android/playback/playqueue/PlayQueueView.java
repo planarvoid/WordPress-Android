@@ -6,8 +6,6 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
-import com.soundcloud.android.playback.PlayQueueItem;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 
@@ -24,7 +22,7 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment> {
+public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment> implements MagicBoxPlayQueueItemRenderer.MagicBoxListener {
 
     private final PlayQueuePresenter playQueuePresenter;
     private final PlayQueueAdapter playQueueAdapter;
@@ -75,13 +73,12 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         itemTouchHelper.attachToRecyclerView(recyclerView);
         playQueueAdapter.setDragListener(itemTouchHelper::startDrag);
         playQueueAdapter.setTrackClickListener(playQueuePresenter::trackClicked);
-        playQueueAdapter.addNowPlayingChangedListener(playQueuePresenter::nowPlayingChanged);
+        playQueueAdapter.setMagicBoxListener(this);
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         unbinder.unbind();
-        playQueueAdapter.removeListeners();
         playQueuePresenter.detachContract();
     }
 
@@ -97,79 +94,40 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         shuffleView.setChecked(shuffled);
     }
 
-    public void setRepeatMode(PlayQueueManager.RepeatMode nextRepeatMode) {
-        switch (nextRepeatMode) {
-            case REPEAT_ONE:
-                repeatView.setImageResource(R.drawable.ic_repeat_one);
-                break;
-            case REPEAT_ALL:
-                repeatView.setImageResource(R.drawable.ic_repeat_all);
-                break;
-            case REPEAT_NONE:
-            default:
-                repeatView.setImageResource(R.drawable.ic_repeat_off);
-        }
-        playQueueAdapter.updateInRepeatMode(nextRepeatMode);
+    public void setRepeatOne() {
+        repeatView.setImageResource(R.drawable.ic_repeat_one);
+    }
+
+    public void setRepeatAll() {
+        repeatView.setImageResource(R.drawable.ic_repeat_all);
+    }
+
+    public void setRepeatNone() {
+        repeatView.setImageResource(R.drawable.ic_repeat_off);
     }
 
     public void scrollTo(int position) {
         recyclerView.scrollToPosition(position);
     }
 
-    public int getAdapterPosition(PlayQueueItem playQueueItem) {
-        return playQueueAdapter.getAdapterPosition(playQueueItem);
-    }
-
-    public int getItemCount() {
-        return playQueueAdapter.getItemCount();
-    }
-
-    public PlayQueueUIItem getItem(int position) {
-        return playQueueAdapter.getItem(position);
-    }
-
-    public void removeItem(int position) {
-        playQueueAdapter.removeItem(position);
-    }
-
     public void switchItems(int fromPosition, int toPosition) {
         playQueueAdapter.switchItems(fromPosition, toPosition);
     }
 
-    public int getQueuePosition(int position) {
-        return playQueueAdapter.getQueuePosition(position);
-    }
-
-    public List<PlayQueueUIItem> getItems() {
-        return playQueueAdapter.getItems();
-    }
-
-    public void clear() {
+    public void setItems(List<PlayQueueUIItem> items) {
         playQueueAdapter.clear();
-    }
-
-    public void addItem(int position, PlayQueueUIItem item) {
-        playQueueAdapter.addItem(position, item);
-    }
-
-    public void addItem(PlayQueueUIItem item) {
-        playQueueAdapter.addItem(item);
-    }
-
-    public void notifyDataSetChanged() {
+        for (PlayQueueUIItem item : items) {
+            playQueueAdapter.addItem(item);
+        }
         playQueueAdapter.notifyDataSetChanged();
-    }
-
-    public void updateNowPlaying(int adapterPosition, boolean notifyListener, boolean isPlaying) {
-        playQueueAdapter.updateNowPlaying(adapterPosition, notifyListener, isPlaying);
-    }
-
-    public boolean isEmpty() {
-        return playQueueAdapter.isEmpty();
     }
 
     public void removeLoadingIndicator() {
         loadingIndicator.setVisibility(View.GONE);
+    }
+
+    public void showLoadingIndicator() {
+        loadingIndicator.setVisibility(View.VISIBLE);
     }
 
     public void showUndo() {
@@ -195,6 +153,16 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     @OnClick(R.id.repeat_button)
     void repeatClicked() {
         playQueuePresenter.repeatClicked();
+    }
+
+    @Override
+    public void clicked() {
+        playQueuePresenter.magicBoxClicked();
+    }
+
+    @Override
+    public void toggle(boolean checked) {
+        playQueuePresenter.magicBoxToggled(checked);
     }
 
     private DefaultItemAnimator buildItemAnimator() {
