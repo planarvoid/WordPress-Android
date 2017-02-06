@@ -67,13 +67,19 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
             if (state.isPlayerPlaying()) {
                 showPlayingState(state.getProgress());
             } else {
-                showIdleState(state.getProgress());
+                showIdleState(isBufferingFromStart(state) ? latestProgress : state.getProgress());
             }
         } else {
             showIdleState();
         }
 
         artworkView.setArtworkActive(state.playSessionIsActive());
+    }
+
+    // Buffering events might have position 0 after skippy has been reinitialized
+    private boolean isBufferingFromStart(PlayStateEvent state) {
+        boolean isSameTrack = latestProgress.getUrn().equals(state.getPlayingItemUrn());
+        return state.isBuffering() && isSameTrack && state.getProgress().getPosition() == 0;
     }
 
     private void showPlayingState(PlaybackProgress progress) {

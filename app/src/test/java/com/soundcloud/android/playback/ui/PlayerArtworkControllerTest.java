@@ -7,12 +7,12 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
@@ -196,8 +196,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadArtworkDisplaysArtworkThroughImageOperations() throws Exception {
-        final Urn urn = Urn.forTrack(123L);
+    public void loadArtworkDisplaysArtworkThroughImageOperations()  {
         when(wrappedImageView.getResources()).thenReturn(resources());
         when(wrappedImageView.getContext()).thenReturn(context());
 
@@ -207,5 +206,17 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
                                                 same(artworkOverlayImage),
                                                 eq(true),
                                                 same(viewVisibilityProvider));
+    }
+
+    @Test
+    public void ignoresBufferingEventsAtPositionZero() {
+        playerArtworkController.setFullDuration(FULL_DURATION);
+        playerArtworkController.setPlayState(TestPlayStates.playing(), true);
+        PlaybackProgress latest = new PlaybackProgress(5, 10, TestPlayStates.URN);
+
+        playerArtworkController.setProgress(latest);
+        playerArtworkController.setPlayState(TestPlayStates.buffering(), true);
+
+        verify(progressController, times(2)).setPlaybackProgress(latest, FULL_DURATION);
     }
 }
