@@ -20,6 +20,8 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     private static final String ALBUMS_IN_SEARCH = "albums_in_search2";
+    public static final String QUERY = "forss";
+
     private DiscoveryScreen discoveryScreen;
 
     public SearchResultsTest() {
@@ -38,7 +40,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testSubmittingSearchQueryOpensSearchResults() {
-        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
 
         assertThat("Search results screen should be visible", resultsScreen, is(visible()));
         assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
@@ -83,7 +85,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
 
     public void testTappingTrackOnTracksTabOpensPlayer() {
         VisualPlayerElement playerScreen = discoveryScreen.clickSearch()
-                                                          .doSearch("clownstep")
+                                                          .doSearch(QUERY)
                                                           .goToTracksTab()
                                                           .findAndClickFirstTrackItem();
 
@@ -93,7 +95,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     public void testTappingPlaylistOnPlaylistsTabOpensPlaylistDetails() {
         PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
                 .clickSearch()
-                .doSearch("clownstep")
+                .doSearch(QUERY)
                 .goToPlaylistsTab()
                 .findAndClickFirstPlaylistItem();
 
@@ -108,7 +110,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
 
         PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
                 .clickSearch()
-                .doSearch("clownstep")
+                .doSearch(QUERY)
                 .goToAlbumsTab()
                 .findAndClickFirstAlbumItem();
 
@@ -118,7 +120,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testOrderOfDisplayedTabsWithAlbums() {
-        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
         assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
 
         resultsScreen.swipeLeft();
@@ -135,7 +137,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testAllResultsLoadsNextPage() {
-        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch("clownstep");
+        SearchResultsScreen resultsScreen = discoveryScreen.clickSearch().doSearch(QUERY);
         int initialItemCount = resultsScreen.getResultItemCount();
         resultsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
 
@@ -149,7 +151,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
 
     public void testDismissingSearchClearsUpSearchResults() {
         SearchScreen searchScreen = discoveryScreen.clickSearch();
-        searchScreen.setSearchQuery("clownstep").dismissSearch();
+        searchScreen.setSearchQuery(QUERY).dismissSearch();
 
         assertThat("Search query should be empty", searchScreen.getSearchQuery(), isEmptyString());
         assertThat("Search results should be empty", searchScreen.hasSearchResults(), is(false));

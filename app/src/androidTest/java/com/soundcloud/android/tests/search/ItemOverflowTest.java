@@ -8,6 +8,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.tests.discovery.SearchResultsTest;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
 
@@ -24,7 +25,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
         mainNavHelper
                 .goToDiscovery()
                 .clickSearch()
-                .doSearch("clownstep")
+                .doSearch(SearchResultsTest.QUERY)
                 .goToTracksTab()
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();

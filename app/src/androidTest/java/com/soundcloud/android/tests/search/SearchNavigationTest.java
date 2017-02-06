@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.discovery.SearchResultsTest;
 
 public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
 
@@ -43,7 +44,7 @@ public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
 
     private void assertGoBackFromSearchResultsReturnsToDiscoveryScreen() {
         final SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
-                                                                 .doSearch("clownstep");
+                                                                 .doSearch(SearchResultsTest.QUERY);
         final DiscoveryScreen discoveryScreen = resultsScreen.goBack();
 
         assertThat("Tags screen should be visible", discoveryScreen, is(visible()));

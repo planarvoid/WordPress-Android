@@ -35,7 +35,7 @@ expected_events:
     client_id: '3152'
     connection_type: wifi
     click_attributes:
-          q: 'clownstep'
+          q: 'forss'
     click_name: search_formulation_end
     page_name: search:main
     query_position: 0
@@ -72,7 +72,7 @@ expected_events:
     ts: '[0-9]+'
     client_id: '3152'
     click_attributes:
-          q: 'clownstep'
+          q: 'forss'
     click_name: item_navigation
     click_object: soundcloud:playlists:(\w|-)+
     query_urn: soundcloud:search:(\w|-)+
