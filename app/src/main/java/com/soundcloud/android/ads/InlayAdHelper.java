@@ -4,13 +4,14 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -70,23 +71,50 @@ class InlayAdHelper {
 
     public void onScroll() {
         final Date now = dateProvider.getCurrentDate();
-
         minimumVisibleIndex = firstVisibleItemPosition();
         maximumVisibleIndex = lastVisibleItemPosition();
+        forAdsOnScreen(now, adsOnScreenWithPosition());
+    }
 
-        for (Pair<Integer, AdData> positionAndAd : adsOnScreenWithPosition()) {
+    private void forAdsOnScreen(Date now, List<Pair<Integer, AdData>> adsOnScreenWithPosition) {
+        Optional<VideoOnScreen> mostViewableVideo = Optional.absent();
+
+        for (Pair<Integer, AdData> positionAndAd : adsOnScreenWithPosition) {
             final AdData adData = positionAndAd.second();
             if (adData instanceof AppInstallAd) {
-                final AppInstallAd ad = (AppInstallAd) adData;
-                if (!ad.hasReportedImpression()) {
-                    eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(positionAndAd.first(), ad, now));
-                }
+                forAppInstallOnScreen(now, positionAndAd.first(), (AppInstallAd) adData);
             } else if (adData instanceof VideoAd) {
-                // TODO: Initiate muted playback here
-                final String urn = adData.getAdUrn().toString();
-                Log.d(Log.ADS_TAG, "Video inlay " + urn +  " is on screen");
+                mostViewableVideo = moreViewableVideoOnScreen(mostViewableVideo, positionAndAd);
             }
         }
+
+        if (mostViewableVideo.isPresent()) {
+            final VideoOnScreen videoOnScreen = mostViewableVideo.get();
+            publishInlayAdEvent(InlayAdEvent.OnScreen.create(videoOnScreen.position(), videoOnScreen.adData(), now));
+        } else {
+            publishInlayAdEvent(InlayAdEvent.NoVideoOnScreen.create(now));
+        }
+    }
+
+    private Optional<VideoOnScreen> moreViewableVideoOnScreen(Optional<VideoOnScreen> currentMostViewable, Pair<Integer, AdData> currentAd) {
+        final float currentViewablePercentage = ViewUtils.calculateViewablePercentage(layoutManager.findViewByPosition(currentAd.first()));
+        final VideoOnScreen currentVideo = VideoOnScreen.create(currentViewablePercentage, currentAd.first(), (VideoAd) currentAd.second());
+
+        if (!currentMostViewable.isPresent() || currentMostViewable.get().isLessViewable(currentVideo)) {
+            return Optional.of(currentVideo);
+        } else {
+            return currentMostViewable;
+        }
+    }
+
+    private void forAppInstallOnScreen(Date now, int position, AppInstallAd adData) {
+        if (!adData.hasReportedImpression()) {
+            publishInlayAdEvent(InlayAdEvent.OnScreen.create(position, adData, now));
+        }
+    }
+
+    private void publishInlayAdEvent(InlayAdEvent event) {
+       eventBus.publish(EventQueue.INLAY_AD, event);
     }
 
     public boolean isOnScreen(int position) {
@@ -171,5 +199,21 @@ class InlayAdHelper {
 
     private int getNumberOfStreamItems() {
         return adapter.getItems().size();
+    }
+
+    @AutoValue
+    abstract static class VideoOnScreen {
+
+        abstract int position();
+        abstract float viewablePercentage();
+        abstract VideoAd adData();
+
+        static VideoOnScreen create(float viewablePercentage, int position, VideoAd videoAd) {
+            return new AutoValue_InlayAdHelper_VideoOnScreen(position, viewablePercentage, videoAd);
+        }
+
+        boolean isLessViewable(VideoOnScreen that) {
+           return this.viewablePercentage() < that.viewablePercentage();
+        }
     }
 }

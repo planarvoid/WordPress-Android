@@ -106,8 +106,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
             clearExpiredAds();
 
             if (impressionsSubscription.isUnsubscribed() && inlayAdHelper.isPresent()) {
-                impressionsSubscription = inlayAdOperations.trackImpressions(inlayAdHelper.get())
-                                                           .subscribe(eventBus.queue(EventQueue.TRACKING));
+                impressionsSubscription = inlayAdOperations.subscribe(inlayAdHelper.get());
             }
 
             if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {

@@ -14,10 +14,22 @@ import auto.parcel.AutoParcel;
 @AutoParcel
 public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
+    private static final float INITIAL_VOLUME = 1.0f;
+
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition) {
         return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
                                                   adData.getVideoSources(),
                                                   startPosition,
+                                                  INITIAL_VOLUME,
+                                                  PlaybackType.VIDEO_AD,
+                                                  Consts.NOT_SET);
+    }
+
+    public static VideoAdPlaybackItem create(VideoAd adData, long startPosition, float initialVolume) {
+        return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
+                                                  adData.getVideoSources(),
+                                                  startPosition,
+                                                  initialVolume,
                                                   PlaybackType.VIDEO_AD,
                                                   Consts.NOT_SET);
     }
@@ -29,6 +41,8 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
     @Override
     public abstract long getStartPosition();
+
+    public abstract float getInitialVolume();
 
     @Override
     public abstract PlaybackType getPlaybackType();
