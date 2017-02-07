@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.stream;
 
-import static com.soundcloud.android.framework.TestUser.streamUser;
+import static com.soundcloud.android.framework.TestUser.engagementsUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -18,8 +18,8 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 
 public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
-    private static final String REPOST_ENGAGEMENTS_FROM_STREAM = "stream_engagements_repost_scenario";
-    private static final String LIKE_ENGAGEMENTS_FROM_STREAM = "stream_engagements_like_scenario";
+    private static final String REPOST_ENGAGEMENTS_FROM_STREAM = "stream_engagements_repost_scenario_v2";
+    private static final String LIKE_ENGAGEMENTS_FROM_STREAM = "stream_engagements_like_scenario_v2";
 
     private StreamScreen streamScreen;
 
@@ -35,7 +35,7 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     protected TestUser getUserForLogin() {
-        return streamUser;
+        return engagementsUser;
     }
 
     public void testStreamItemActions() {
