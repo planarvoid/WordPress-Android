@@ -129,6 +129,7 @@ public enum Screen {
 
     // PAYMENT
     CONVERSION("consumer-premium:main"),
+    PLAN_CHOICE("consumer-premium:plans"),
     CHECKOUT("consumer-premium:checkout");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";

@@ -20,8 +20,7 @@ public class ProductChoiceActivity extends LoggedInActivity {
 
     @Override
     public Screen getScreen() {
-        // TODO: separate screen ID for plan choice
-        return Screen.CONVERSION;
+        return Screen.PLAN_CHOICE;
     }
 
     @Override
