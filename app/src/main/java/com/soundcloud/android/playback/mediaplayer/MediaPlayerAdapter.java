@@ -51,13 +51,16 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-@Singleton
-public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener,
+public class MediaPlayerAdapter implements
+        Player,
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener,
+        MediaPlayer.OnSeekCompleteListener,
+        MediaPlayer.OnInfoListener,
+        MediaPlayer.OnBufferingUpdateListener,
         VideoSurfaceProvider.Listener {
 
     private static final String TAG = "MediaPlayerAdapter";
@@ -205,6 +208,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
             if (playerListener != null) {
                 if (isPlayingVideo()) {
+                    final float volume = ((VideoAdPlaybackItem) currentItem).getInitialVolume();
+                    mediaPlayer.setVolume(volume, volume);
                     adViewabilityController.startVideoTracking(mediaPlayer, currentItem.getUrn());
                 }
 
@@ -696,8 +701,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         private WeakReference<MediaPlayerAdapter> mediaPlayerAdapterWeakReference;
 
         @Inject
-        PlayerHandler() {
-        }
+        PlayerHandler() {}
 
         @VisibleForTesting
         void setMediaPlayerAdapter(MediaPlayerAdapter adapter) {

@@ -12,6 +12,10 @@ public class TestPlayerTransitions {
 
     public static final Urn URN = Urn.forTrack(123L);
 
+    public static PlaybackStateTransition idle(Urn urn) {
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, urn, 0, 0));
+    }
+
     public static PlaybackStateTransition idle() {
         return idle(PlayStateReason.NONE);
     }

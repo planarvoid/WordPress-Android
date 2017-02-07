@@ -1,17 +1,20 @@
 package com.soundcloud.android.ads;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
+import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Spy;
 
 import java.util.Date;
 
@@ -24,11 +27,13 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     private InlayAdOperations.OnScreenAndImageLoaded filter;
 
     @Mock InlayAdHelper inlayAdHelper;
-    @Spy EventBus eventBus = new TestEventBus();
+    @Mock InlayAdPlayer inlayAdPlayer;
+
+    TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        operations = new InlayAdOperations(eventBus);
+        operations = new InlayAdOperations(eventBus, InjectionSupport.lazyOf(inlayAdPlayer));
         filter = new InlayAdOperations.OnScreenAndImageLoaded(inlayAdHelper);
     }
 
@@ -62,12 +67,57 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
 
     @Test
     public void toImpressionSetsImpressionReported() {
+        when(inlayAdHelper.isOnScreen(42)).thenReturn(true);
         final AppInstallAd ad = appInstall();
 
-        final InlayAdImpressionEvent impression = operations.TO_IMPRESSION.call(InlayAdEvent.ImageLoaded.create(42, ad, new Date(999)));
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ImageLoaded.create(42, ad, new Date(999)));
 
-        assertThat(impression.ad()).isEqualTo(ad.getAdUrn());
-        assertThat(impression.contextPosition()).isEqualTo(42);
-        assertThat(impression.getTimestamp()).isEqualTo(999);
+        InlayAdImpressionEvent impressionEvent = (InlayAdImpressionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(impressionEvent.ad()).isEqualTo(ad.getAdUrn());
+        assertThat(impressionEvent.contextPosition()).isEqualTo(42);
+        assertThat(impressionEvent.getTimestamp()).isEqualTo(999);
+    }
+
+    @Test
+    public void playsInlayAdPlayerWhenPlayerForVideoOnScreen() {
+        when(inlayAdPlayer.isPlaying()).thenReturn(false);
+        VideoAd videoAd = AdFixtures.getVideoAd(1L);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
+
+        verify(inlayAdPlayer).play(VideoAdPlaybackItem.create(videoAd, 0L, 0.0f));
+    }
+
+    @Test
+    public void playsInlayAdPlayerWhenPlayerForVideoOnScreenEvenIfPlayerAlreadyPlaying() {
+        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+        VideoAd videoAd = AdFixtures.getVideoAd(1L);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
+
+        verify(inlayAdPlayer).play(VideoAdPlaybackItem.create(videoAd, 0L, 0.0f));
+    }
+
+    @Test
+    public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreen() {
+        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
+
+        verify(inlayAdPlayer).pause();
+    }
+
+    @Test
+    public void doesNotPauseInlayAdPlayerWhenPlayerNotPlayingForNoVideoOnScreen() {
+        when(inlayAdPlayer.isPlaying()).thenReturn(false);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
+
+        verify(inlayAdPlayer, never()).pause();
     }
 }
