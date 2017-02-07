@@ -129,6 +129,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
             CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
             mediaRouteButtons.add(mediaRouteButton);
             mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+            mediaRouteButton.onAttachedToWindow();
         } catch (Exception ex) {
             ErrorUtils.handleSilentExceptionWithLog(ex, "Unable to set up media route item " + mediaRouteButton);
         }
@@ -137,6 +138,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     @Override
     public void removeMediaRouterButton(MediaRouteButton mediaRouteButton) {
         mediaRouteButtons.remove(mediaRouteButton);
+        mediaRouteButton.onDetachedFromWindow();
     }
 
     @Override
