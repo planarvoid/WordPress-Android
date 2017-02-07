@@ -718,11 +718,7 @@
   <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes, playlists and albums offline automatically.</string>
   <string name="go_onboarding_offline_settings_continue">Ok, got it</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad‑free, offline access to an expanded catalogue, don’t worry. You can come back anytime.</string>
-  <string name="go_offboarding_primary_button_text">Resubscribe</string>
-  <string name="go_offboarding_secondary_button_text">Continue</string>
+  <string name="go_offboard_resubscribe">Resubscribe</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Save automatically</string>
   <string name="pref_offline_offline_collection_description_off">Turn this on to save all your current and future likes, playlists and albums offline.</string>

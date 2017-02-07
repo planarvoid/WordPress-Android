@@ -13,29 +13,38 @@
         <item name="android:orientation">vertical</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
     </style>
 
     <style name="GoOffboarding.Cloud">
-        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:src">@drawable/conversion_cloud</item>
     </style>
 
+    <style name="GoOffboarding.Divider">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
     <style name="GoOffboarding.Text" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:maxWidth">320dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="GoOffboarding.Text.Headline">
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginTop">33dp</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
+        <!-- No space for headline on small screens in landscape -->
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="GoOffboarding.Text.SubText">
-        <item name="android:visibility">gone</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">16dp</item>
     </style>
 
     <style name="GoOffboarding.Button" parent="TextAppearance.SoundCloudLightFont">
@@ -52,10 +61,10 @@
     </style>
 
     <style name="GoOffboarding.Button.Secondary">
-        <item name="android:background">@drawable/btn_secondary</item>
-        <item name="android:textColor">@color/black</item>
-        <item name="textColor">@color/black</item>
-        <item name="loadingColor">@color/ak_sc_orange</item>
+        <item name="android:background">@drawable/btn_transparent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="textColor">@color/white</item>
+        <item name="loadingColor">@color/white</item>
     </style>
 
 </resources>

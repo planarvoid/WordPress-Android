@@ -794,11 +794,6 @@
     <string name="offline_no_wifi">No Wi-Fi</string>
     <string name="offline_no_connection">No connection</string>
 
-    <!-- __GO TIERS -->
-    <string name="tier_free">SoundCloud Free</string>
-    <string name="tier_go">SoundCloud Go</string>
-    <string name="tier_plus">SoundCloud Go+</string>
-
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
     <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad‑free offline listening.</string>
@@ -820,11 +815,12 @@
     <string name="go_onboarding_offline_settings_continue">OK, got it</string>
 
     <!-- __GO OFFBOARDING -->
-    <string name="go_offboarding_title">Your SoundCloud Go subscription has ended</string>
-    <!-- Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving." -->
-    <string name="go_offboarding_description">We’re sad to see you go (no pun intended). If you miss having ad‑free, offline access to an expanded catalog, don’t worry. You can come back anytime.</string>
-    <string name="go_offboarding_primary_button_text">Resubscribe</string>
-    <string name="go_offboarding_secondary_button_text">Continue</string>
+    <string name="go_offboard_to_free_title">We’ll miss you</string>
+    <string name="go_offboard_to_free_description">Your subscription has ended.\n\nYou will no longer have offline and ad-free listening, and Go+ tracks are only playable as previews. Don’t worry, you can resubscribe any time.</string>
+    <string name="go_offboard_to_free_description_legacy">Your subscription has ended.\n\nYou will no longer have offline and ad-free listening, and Go tracks are only playable as previews. Don’t worry, you can resubscribe any time.</string>
+    <string name="go_offboard_to_mid_title">Change of plans</string>
+    <string name="go_offboard_to_mid_description">You switched from SoundCloud Go+ to SoundCloud Go.\n\nYou’ll still have offline and ad-free listening, but Go+ tracks are only playable as previews. Don’t worry, you can switch back any time.</string>
+    <string name="go_offboard_resubscribe">Resubscribe</string>
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_offline_collection">Save automatically</string>

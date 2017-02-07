@@ -120,7 +120,7 @@
     </style>
 
     <style name="ConversionButton.More">
-        <item name="android:background">@drawable/btn_primary_transparent</item>
+        <item name="android:background">@drawable/btn_transparent</item>
     </style>
 
     <style name="CheckoutRetry">

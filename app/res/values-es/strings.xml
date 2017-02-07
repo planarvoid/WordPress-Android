@@ -725,11 +725,9 @@
   <string name="go_onboarding_offline_settings_subtext">Si lo seleccionas, se guardarán automáticamente tus listas, tus Me gusta y tus álbumes actuales y futuros para escucharlos sin conexión.</string>
   <string name="go_onboarding_offline_settings_continue">De acuerdo</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboarding_title">Tu suscripción a SoundCloud Go ha finalizado</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">Es una pena que te vayas. Si echas de menos poder acceder a un catálogo ampliado sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
-  <string name="go_offboarding_primary_button_text">Volver a suscribirse</string>
-  <string name="go_offboarding_secondary_button_text">Continuar</string>
+  <string name="go_offboard_to_free_title">Tu suscripción a SoundCloud Go ha finalizado</string>
+  <string name="go_offboard_to_free_description">Es una pena que te vayas. Si echas de menos poder acceder a un catálogo ampliado sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
+  <string name="go_offboard_resubscribe">Volver a suscribirse</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Guardar automáticamente</string>
   <string name="pref_offline_offline_collection_description_off">Activa esta opción para guardar tus listas, tus Me gusta y tus álbumes actuales y futuros sin conexión.</string>

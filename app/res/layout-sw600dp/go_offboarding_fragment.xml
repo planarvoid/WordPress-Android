@@ -25,29 +25,26 @@
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 tools:ignore="UselessParent">
 
                 <ImageView
                     android:id="@+id/white_cloud"
                     style="@style/GoOffboarding.Cloud"
-                    android:layout_width="72dp"
-                    android:layout_height="33dp" />
+                    android:layout_marginBottom="8dp"/>
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/offboarding_primary_text"
-                    style="@style/GoOffboarding.Text.Headline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/go_offboarding_title" />
+                    style="@style/GoOffboarding.Text.Headline" />
+
+                <View
+                    android:id="@+id/divider"
+                    style="@style/GoOffboarding.Divider">
+                </View>
 
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/offboarding_secondary_text"
-                    style="@style/GoOffboarding.Text.SubText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/go_offboarding_description" />
+                    style="@style/GoOffboarding.Text.SubText" />
 
             </LinearLayout>
         </FrameLayout>

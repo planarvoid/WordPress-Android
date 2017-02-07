@@ -78,7 +78,7 @@ class GoOnboardingView implements ViewPager.OnPageChangeListener {
             final TransitionDrawable transition = (TransitionDrawable) doneButton.getBackground();
             transition.startTransition(BUTTON_TRANSITION_MS);
         } else {
-            doneButton.setBackgroundResource(R.drawable.btn_primary_transparent);
+            doneButton.setBackgroundResource(R.drawable.btn_transparent);
         }
     }
 

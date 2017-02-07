@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="GoOffboarding.Text.Headline">
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="GoOffboarding.Text.SubText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+    </style>
+
+</resources>

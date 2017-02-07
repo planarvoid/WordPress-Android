@@ -23,16 +23,16 @@
     <string name="dev_drawer_action_kill_app_key">kill_process</string>
     <string name="dev_drawer_action_kill_app_title">Restart app</string>
 
-    <string name="dev_drawer_action_upgrade_mt_key">fake_mt_onboarding_flow</string>
+    <string name="dev_drawer_action_upgrade_mt">fake_mt_onboarding_flow</string>
     <string name="dev_drawer_action_upgrade_mt_title">Fake MT onboarding</string>
 
-    <string name="dev_drawer_action_upgrade_ht_key">fake_ht_onboarding_flow</string>
+    <string name="dev_drawer_action_upgrade_ht">fake_ht_onboarding_flow</string>
     <string name="dev_drawer_action_upgrade_ht_title">Fake HT onboarding</string>
 
-    <string name="dev_drawer_action_downgrade_mt_key">fake_mt_downgrade_flow</string>
+    <string name="dev_drawer_action_downgrade_mt">fake_mt_downgrade_flow</string>
     <string name="dev_drawer_action_downgrade_mt_title">Fake downgrade to MT</string>
 
-    <string name="dev_drawer_action_downgrade_free_key">fake_mt_downgrade_flow</string>
+    <string name="dev_drawer_action_downgrade_free">fake_free_downgrade_flow</string>
     <string name="dev_drawer_action_downgrade_free_title">Fake downgrade to free</string>
 
     <string name="dev_drawer_action_reset_flags_key">reset_flags</string>

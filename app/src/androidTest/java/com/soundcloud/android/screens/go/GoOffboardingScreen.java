@@ -41,12 +41,12 @@ public class GoOffboardingScreen extends Screen {
 
     private ViewElement resubscribeButton() {
         return testDriver
-                .findOnScreenElement(With.text(R.string.go_offboarding_primary_button_text));
+                .findOnScreenElement(With.text(R.string.go_offboard_resubscribe));
     }
 
     private ViewElement continueButton() {
         return testDriver
-                .findOnScreenElement(With.text(R.string.go_offboarding_secondary_button_text));
+                .findOnScreenElement(With.text(R.string.ok_got_it));
     }
 
     public ViewElement retryButton() {

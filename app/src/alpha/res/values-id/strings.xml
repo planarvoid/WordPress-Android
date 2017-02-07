@@ -362,8 +362,6 @@
   <string name="go_onboarding_error_dialog_title">Ada yang tidak beres</string>
   <string name="go_onboarding_offline_settings_continue">Ok, saya mengerti</string>
   <!--__GO OFFBOARDING-->
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_secondary_button_text">Lanjutkan</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_used">Digunakan</string>
   <!--offline playlist creation-->

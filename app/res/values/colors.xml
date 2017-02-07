@@ -9,6 +9,7 @@
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
     <color name="translucent_black">#33000000</color>
+    <color name="transparent">#00000000</color>
 
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>

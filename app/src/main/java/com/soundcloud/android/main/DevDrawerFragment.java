@@ -137,25 +137,25 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_ht_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_ht))
               .setOnPreferenceClickListener(preference -> {
                   launchFakeUpgrade(Plan.HIGH_TIER);
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_mt_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_upgrade_mt))
               .setOnPreferenceClickListener(preference -> {
                   launchFakeUpgrade(Plan.MID_TIER);
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_mt_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_mt))
               .setOnPreferenceClickListener(preference -> {
                   launchFakeDowngrade(Plan.MID_TIER);
                   return true;
               });
 
-        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_free_key))
+        screen.findPreference(getString(R.string.dev_drawer_action_downgrade_free))
               .setOnPreferenceClickListener(preference -> {
                   launchFakeDowngrade(Plan.FREE_TIER);
                   return true;

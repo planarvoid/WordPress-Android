@@ -727,12 +727,10 @@ vão aparecer aqui.</string>
   <string name="go_onboarding_offline_settings_subtext">Selecionar essa opção vai salvar todas as curtidas, playlists e álbuns atuais e futuros offline automaticamente.</string>
   <string name="go_onboarding_offline_settings_continue">OK, entendi</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboarding_title">Sua assinatura da SoundCloud Go terminou</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">Ficamos tristes em saber que você está indo embora.
+  <string name="go_offboard_to_free_title">Sua assinatura da SoundCloud Go terminou</string>
+  <string name="go_offboard_to_free_description">Ficamos tristes em saber que você está indo embora.
 Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expandido, não se preocupe. Você poderá retornar a qualquer momento.</string>
-  <string name="go_offboarding_primary_button_text">Assinar novamente</string>
-  <string name="go_offboarding_secondary_button_text">Continuar</string>
+  <string name="go_offboard_resubscribe">Assinar novamente</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Salvar automaticamente</string>
   <string name="pref_offline_offline_collection_description_off">Ative este recurso para salvar todas as suas curtidas, playlists e álbuns atuais e futuros offline.</string>

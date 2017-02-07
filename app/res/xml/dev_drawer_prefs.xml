@@ -23,16 +23,16 @@
             android:key="@string/dev_drawer_action_kill_app_key"
             android:title="@string/dev_drawer_action_kill_app_title" />
         <Preference
-            android:key="@string/dev_drawer_action_upgrade_mt_key"
+            android:key="@string/dev_drawer_action_upgrade_mt"
             android:title="@string/dev_drawer_action_upgrade_mt_title" />
         <Preference
-            android:key="@string/dev_drawer_action_upgrade_ht_key"
+            android:key="@string/dev_drawer_action_upgrade_ht"
             android:title="@string/dev_drawer_action_upgrade_ht_title" />
         <Preference
-            android:key="@string/dev_drawer_action_downgrade_mt_key"
+            android:key="@string/dev_drawer_action_downgrade_mt"
             android:title="@string/dev_drawer_action_downgrade_mt_title" />
         <Preference
-            android:key="@string/dev_drawer_action_downgrade_free_key"
+            android:key="@string/dev_drawer_action_downgrade_free"
             android:title="@string/dev_drawer_action_downgrade_free_title" />
         <Preference
             android:key="@string/dev_drawer_action_reset_flags_key"

@@ -691,10 +691,8 @@
   <string name="go_onboarding_offline_settings_continue">Okay, geschafft</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Dein SoundCloud Go-Abonnement ist abgelaufen</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
   <string name="go_offboarding_description">Schade, dass du nicht mehr dabei bist (ganz ehrlich). Falls du den Offline-Zugriff auf unseren erweiterten Katalog werbefreier Tracks irgendwann vermissen solltest – kein Problem. Wir heißen dich jederzeit wieder willkommen.</string>
   <string name="go_offboarding_primary_button_text">Neu abonnieren</string>
-  <string name="go_offboarding_secondary_button_text">Fortsetzen</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Automatisch speichern</string>
   <string name="pref_offline_offline_collection_description_off">Aktiviere diese Option, um alle deine aktuellen und künftigen Likes, Playlists und Alben offline zu speichern.</string>

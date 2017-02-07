@@ -691,10 +691,8 @@
   <string name="go_onboarding_offline_settings_continue">Ok, ho capito</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">L\'abbonamento a SoundCloud Go è scaduto</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
   <string name="go_offboarding_description">Ci dispiace che tu te ne vada (davvero). Se ti dovesse mancare l\'accesso a un ampio catalogo senza pubblicità e offline non preoccuparti, potrai tornare in qualsiasi momento.</string>
   <string name="go_offboarding_primary_button_text">Iscriviti nuovamente</string>
-  <string name="go_offboarding_secondary_button_text">Continua</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Salva automaticamente</string>
   <string name="pref_offline_offline_collection_description_off">Attiva questa opzione per salvare offline tutti i preferiti, playlist e album presenti e futuri.</string>

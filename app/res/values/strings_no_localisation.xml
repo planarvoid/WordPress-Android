@@ -3,6 +3,11 @@
     <string name="hyphen">-</string>
     <string name="bullet">\u2022</string>
 
+    <!-- __GO TIERS -->
+    <string name="tier_free">SoundCloud Free</string>
+    <string name="tier_go">SoundCloud Go</string>
+    <string name="tier_plus">SoundCloud Go+</string>
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string-array name="feedback_general">
         <item>@string/feedback_playback_issue</item>

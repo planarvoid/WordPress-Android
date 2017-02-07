@@ -696,10 +696,8 @@
   <string name="go_onboarding_offline_settings_continue">OK, begrepen</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Je abonnement op SoundCloud Go is verstreken</string>
-  <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
   <string name="go_offboarding_description">Wat jammer dat je ons verlaat. Als je de reclamevrije toegang tot een uitgebreide catalogus mist, niet getreurd: je mag altijd terugkomen.</string>
   <string name="go_offboarding_primary_button_text">Opnieuw abonneren</string>
-  <string name="go_offboarding_secondary_button_text">Doorgaan</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Automatisch opslaan</string>
   <string name="pref_offline_offline_collection_description_off">Wanneer je dit inschakelt, worden al je huidige en toekomstige likes, playlists en offline opgeslagen.</string>

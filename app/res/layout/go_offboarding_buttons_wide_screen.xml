@@ -18,7 +18,7 @@
         android:layout_height="48dp"
         android:layout_marginRight="8dp"
         android:layout_weight="1"
-        app:actionText="@string/go_offboarding_secondary_button_text"
+        app:actionText="@string/ok_got_it"
         app:retryText="@string/go_onboarding_retry" />
 
     <com.soundcloud.android.view.LoadingButton
@@ -28,7 +28,7 @@
         android:layout_height="48dp"
         android:layout_marginLeft="8dp"
         android:layout_weight="1"
-        app:actionText="@string/go_offboarding_primary_button_text"
+        app:actionText="@string/go_offboard_resubscribe"
         app:retryText="@string/go_onboarding_retry" />
 
 </LinearLayout>
