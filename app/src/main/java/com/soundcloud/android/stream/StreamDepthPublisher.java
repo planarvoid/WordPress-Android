@@ -1,8 +1,10 @@
 package com.soundcloud.android.stream;
 
+import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.View;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -16,7 +18,6 @@ import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -135,8 +136,23 @@ class StreamDepthPublisher extends RecyclerView.OnScrollListener {
     }
 
     private ItemDetails itemDetailsForPosition(LayoutManager layoutManager, int column, int position) {
-        final float viewablePercentage = ViewUtils.calculateViewablePercentage(layoutManager.findViewByPosition(position));
+        final float viewablePercentage = calculateViewablePercentage(layoutManager.findViewByPosition(position));
         return ItemDetails.create(column, position, viewablePercentage);
+    }
+
+    private float calculateViewablePercentage(View view) {
+        if (view != null) {
+            final Rect onScreen = new Rect();
+            final int area = view.getWidth() * view.getHeight();
+
+            view.getGlobalVisibleRect(onScreen);
+
+            if (area > 0) {
+                final int viewableArea = onScreen.width() * onScreen.height();
+                return ((float) viewableArea) / ((float) area) * 100;
+            }
+        }
+        return 0.0f;
     }
 
     void unsubscribe() {
