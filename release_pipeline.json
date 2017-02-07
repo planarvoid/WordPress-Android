@@ -225,7 +225,7 @@
     "git-branch": "release",
     "git-url": "git@github.com:soundcloud/android-listeners.git",
     "github-url": "https://github.com/soundcloud/android-listeners/",
-    "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
+    "jenkins-server": "http://old-mobile-jenkins.int.s-cloud.net",
     "owner-emails": "android-dev@soundcloud.com",
     "slave-label": "mobile-slave"
   }
