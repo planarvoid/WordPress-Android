@@ -18,7 +18,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -66,7 +65,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(recycler.getLayoutManager()).thenReturn(layoutManager);
         when(featureOperations.shouldRequestAds()).thenReturn(true);
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.absent()));
-        when(inlayAdOperations.subscribe(inlayAdHelper)).thenReturn(RxUtils.invalidSubscription());
+        when(inlayAdOperations.trackImpressions(inlayAdHelper)).thenReturn(Observable.empty());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
         when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
 

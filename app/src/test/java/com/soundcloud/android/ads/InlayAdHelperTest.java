@@ -233,39 +233,6 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onScrollFiresOnScreenEventWhenVideoAdOnScreen() {
-        setEdgeVisiblePosition(7, 10);
-        setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
-
-        inlayAdHelper.onScroll();
-
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
-    }
-
-    @Test
-    public void onScrollFiresOnScreenEventForFirstMostVisibleVideoAdOnScreen() {
-        setEdgeVisiblePosition(7, 10);
-        setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
-        when(adapter.getItem(9)).thenReturn(StreamItem.forVideoAd(AdFixtures.getVideoAd(23L)));
-
-        inlayAdHelper.onScroll();
-
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
-    }
-
-    @Test
-    public void onScrollFiresNoVideoOnScreenEventWhenNoVideoAdsOnScreen() {
-        setEdgeVisiblePosition(7, 10);
-        setStreamItems(15, TRACK_ITEM);
-
-        inlayAdHelper.onScroll();
-
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(CURRENT_DATE));
-    }
-
-    @Test
     public void isOnScreenUsesLastStoredVisibleIndicesInclusive() {
         setEdgeVisiblePosition(5, 6);
         inlayAdHelper.onScroll();

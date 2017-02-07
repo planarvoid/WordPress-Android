@@ -92,7 +92,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private Urn trackUrn = Urn.forTrack(123L);
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
-    private VideoAdPlaybackItem videoItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L, 0.5f);
+    private VideoAdPlaybackItem videoItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
     private int duration = 20000;
     private PropertySet track;
 
@@ -474,18 +474,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         verify(adViewabilityController).startVideoTracking(mediaPlayer, videoItem.getUrn());
-    }
-
-    @Test
-    public void playVideoOnPreparedSetsInitialVolume() throws IOException {
-        VideoAdPlaybackItem video = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L, 0.5f);
-        final VideoAdSource videoSource = VideoAdSource.create(AdFixtures.getApiVideoSource(1, 2));
-        when(videoSourceProvider.selectOptimalSource(video)).thenReturn(videoSource);
-
-        mediaPlayerAdapter.play(video);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-
-        verify(mediaPlayer).setVolume(0.5f, 0.5f);
     }
 
     @Test

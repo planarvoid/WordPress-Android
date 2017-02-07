@@ -69,21 +69,6 @@ public final class ViewUtils {
         parent.setTouchDelegate(null);
     }
 
-    public static float calculateViewablePercentage(View view) {
-        if (view != null) {
-            final Rect onScreen = new Rect();
-            final int area = view.getWidth() * view.getHeight();
-
-            view.getGlobalVisibleRect(onScreen);
-
-            if (area > 0) {
-                final int viewableArea = onScreen.width() * onScreen.height();
-                return ((float) viewableArea) / ((float) area) * 100;
-            }
-        }
-        return 0.0f;
-    }
-
     public static Iterable<View> childViewsOf(final ViewGroup viewGroup) {
         return new Iterable<View>() {
             private final int count = viewGroup.getChildCount();
