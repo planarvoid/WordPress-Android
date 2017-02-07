@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.Video;
 import com.soundcloud.android.view.AspectRatioTextureView;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -49,6 +51,13 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
         if (listener.isPresent()) {
             listener.get().onVideoTextureBind(holder.videoView, videoAd);
+        }
+    }
+
+    public void onViewAttachedToWindow(View itemView, Optional<AdData> adData) {
+        if (listener.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
+            final Holder holder = getHolder(itemView);
+            listener.get().onVideoTextureBind(holder.videoView, (VideoAd) adData.get());
         }
     }
 

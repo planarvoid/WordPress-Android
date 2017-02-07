@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallItemRenderer;
 import com.soundcloud.android.ads.VideoAdItemRenderer;
 import com.soundcloud.android.events.FollowingStatusEvent;
@@ -14,6 +15,7 @@ import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.optional.Optional;
 
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
@@ -120,6 +122,16 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         ErrorUtils.log(Log.INFO, "StreamAdapter", "On Next= [" + Iterables.size(items) + " items]");
         checkMainThread();
         super.onNext(items);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+
+        if (cellRenderers.get(holder.getItemViewType()) instanceof VideoAdItemRenderer) {
+            final Optional<AdData> item = getItem(holder.getAdapterPosition()).getAdData();
+            videoAdItemRenderer.onViewAttachedToWindow(holder.itemView, item);
+        }
     }
 
     // debugging https://github.com/soundcloud/android-listeners/issues/6323

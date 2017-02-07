@@ -11,6 +11,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.AspectRatioImageView;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 
 import org.assertj.core.data.Offset;
 import org.junit.Before;
@@ -45,6 +46,13 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Test
     public void onVideoTextureBindCalledOnBind() {
         renderer.bindItemView(0, adView, ITEMS);
+
+        verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), VIDEOS.get(0));
+    }
+
+    @Test
+    public void onVideoTextureBindCalledOnViewAttached() {
+        renderer.onViewAttachedToWindow(adView, Optional.of(VIDEOS.get(0)));
 
         verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), VIDEOS.get(0));
     }
