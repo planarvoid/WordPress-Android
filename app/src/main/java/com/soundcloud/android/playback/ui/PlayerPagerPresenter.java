@@ -441,6 +441,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .filter(playerItem -> isPlayerItemRelatedToView(view, playerItem))
                                            .compose(OperationsInstrumentation.reportOverdue())
+                                           .switchIfEmpty(Observable.just(PlayerTrackState.EMPTY))
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
         return view;
     }

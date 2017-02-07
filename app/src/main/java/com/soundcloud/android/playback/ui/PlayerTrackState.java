@@ -131,4 +131,8 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
         return source.isCommentable();
     }
 
+    public boolean isEmpty() {
+        return source.equals(TrackItem.EMPTY);
+    }
+
 }

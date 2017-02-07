@@ -79,7 +79,9 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private AdOverlayControllerFactory adOverlayControllerFactory;
     @Mock private AdOverlayController adOverlayController;
     @Mock private ErrorViewControllerFactory errorControllerFactory;
+    @Mock private EmptyViewControllerFactory emptyControllerFactory;
     @Mock private ErrorViewController errorViewController;
+    @Mock private EmptyViewController emptyViewController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
@@ -120,6 +122,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            castPlayerStripControllerFactory,
                                            adOverlayControllerFactory,
                                            errorControllerFactory,
+                                           emptyControllerFactory,
                                            castConnectionHelper,
                                            resources(),
                                            upsellImpressionController,
@@ -133,6 +136,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                 adOverlayController);
         when(castPlayerStripControllerFactory.create(any(PlayerStripView.class), any(PlayerUpsellView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
+        when(emptyControllerFactory.create(any(View.class))).thenReturn(emptyViewController);
         when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_1);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
@@ -794,6 +798,13 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                                           resources().getString(R.string.play_queue_introductory_overlay_description));
     }
 
+    @Test
+    public void bindingEmptyTrackShowsTheEmptyViewController() {
+        bindEmptyTrack();
+
+        verify(emptyViewController).show();
+    }
+
     private TrackPageHolder getHolder(View trackView) {
         return (TrackPageHolder) trackView.getTag();
     }
@@ -813,5 +824,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         final TrackItem source = TestPropertySets.upsellableTrackForPlayer();
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
         return source;
+    }
+
+    private void bindEmptyTrack() {
+        final TrackItem source = TrackItem.EMPTY;
+        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 }

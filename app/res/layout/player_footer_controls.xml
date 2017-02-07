@@ -2,10 +2,10 @@
 
 <RelativeLayout android:id="@+id/footer_controls"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/player_track_page"
-    android:layout_height="@dimen/player_footer_control">
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/player_footer_control"
+    tools:showIn="@layout/player_track_page">
 
     <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/footer_toggle"
@@ -17,14 +17,17 @@
         style="@style/FooterUser"
         android:layout_marginTop="@dimen/player_footer_margin"
         android:layout_toLeftOf="@+id/footer_play_queue_button"
-        android:layout_toRightOf="@id/footer_toggle" />
+        android:layout_toRightOf="@id/footer_toggle"
+        tools:text="Track user" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/footer_title"
         style="@style/FooterTitle"
         android:layout_below="@id/footer_user"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/footer_play_queue_button"
-        android:layout_toRightOf="@id/footer_toggle" />
+        android:layout_toRightOf="@id/footer_toggle"
+        tools:text="Track title" />
 
     <ImageView
         android:id="@+id/footer_play_queue_button"

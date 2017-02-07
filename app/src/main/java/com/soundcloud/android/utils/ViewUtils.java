@@ -157,6 +157,20 @@ public final class ViewUtils {
         return activityContext;
     }
 
+    public static void setGone(Iterable<View> views) {
+        for (View v : views) {
+            v.clearAnimation();
+            v.setVisibility(View.GONE);
+        }
+    }
+
+    public static void setVisible(Iterable<View> views) {
+        for (View v : views) {
+            v.setVisibility(View.VISIBLE);
+            v.setAlpha(1f);
+        }
+    }
+
     private ViewUtils() {
     }
 }

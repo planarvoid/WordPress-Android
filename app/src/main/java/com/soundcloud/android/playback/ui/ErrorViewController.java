@@ -7,6 +7,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -47,7 +48,7 @@ class ErrorViewController {
     void showError(ErrorState error) {
         this.currentError = error;
         holder.waveformController.hide();
-        setGone(holder.hideOnErrorViews);
+        ViewUtils.setGone(holder.hideOnErrorViews);
 
         setupErrorLayout();
         setupPlaybackErrorVisibility(error);
@@ -117,7 +118,7 @@ class ErrorViewController {
     void hideError() {
         if (isShowingError()) {
             holder.waveformController.show();
-            setVisible(holder.hideOnErrorViews);
+            ViewUtils.setVisible(holder.hideOnErrorViews);
 
             errorLayout.setVisibility(View.GONE);
             currentError = null;
@@ -127,20 +128,6 @@ class ErrorViewController {
     void hideNonBlockedErrors() {
         if (currentError != ErrorState.BLOCKED) {
             hideError();
-        }
-    }
-
-    private void setGone(Iterable<View> views) {
-        for (View v : views) {
-            v.clearAnimation();
-            v.setVisibility(View.GONE);
-        }
-    }
-
-    private void setVisible(Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(View.VISIBLE);
-            v.setAlpha(1f);
         }
     }
 }

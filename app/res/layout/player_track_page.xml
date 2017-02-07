@@ -161,6 +161,14 @@
     </FrameLayout>
 
     <ViewStub
+        android:id="@+id/track_page_empty_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/player_strip"
+        android:inflatedId="@+id/track_page_empty"
+        android:layout="@layout/track_page_empty" />
+
+    <ViewStub
         android:id="@+id/track_page_error_stub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
