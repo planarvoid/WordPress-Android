@@ -74,7 +74,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
         AdItemRenderer.Listener,
-        NewItemsIndicator.Listener, StreamHighlightsItemRenderer.Listener {
+        NewItemsIndicator.Listener,
+        StreamHighlightsItemRenderer.Listener {
 
     private final StreamOperations streamOperations;
     private final StreamAdapter adapter;
