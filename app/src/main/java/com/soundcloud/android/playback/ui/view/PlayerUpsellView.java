@@ -38,10 +38,15 @@ public class PlayerUpsellView extends RelativeLayout {
         collapsedHeight = 0;
     }
 
-    public void showUpsell(@StringRes int upsellTextRes, @StringRes int upsellButtonTextRes) {
+    public void showUpsell(@StringRes int upsellTextRes, @StringRes int upsellButtonTextRes, boolean isCollapsed) {
         upsellButton.setText(upsellButtonTextRes);
         upsellText.setText(upsellTextRes);
 
+        if (isCollapsed) {
+            setCollapsed();
+        } else {
+            setExpanded();
+        }
         setVisibility(VISIBLE);
     }
 
@@ -57,12 +62,12 @@ public class PlayerUpsellView extends RelativeLayout {
         return getVisibility() == View.VISIBLE;
     }
 
-    public void setCollapsed() {
+    private void setCollapsed() {
         getLayoutParams().height = collapsedHeight;
         requestLayout();
     }
 
-    public void setExpanded() {
+    private void setExpanded() {
         getLayoutParams().height = expandedHeight;
         upsellButton.setTranslationY(0F);
         upsellText.setTranslationY(0F);

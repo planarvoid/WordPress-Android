@@ -107,9 +107,6 @@ public class CastPlayerStripController {
 
         stripView.setExpanded();
         stripView.updateCastDeviceName(getCastDeviceName());
-        if (upsellView.isVisible()) {
-            upsellView.setCollapsed();
-        }
     }
 
     private void animateExpand() {
@@ -126,9 +123,6 @@ public class CastPlayerStripController {
         }
 
         stripView.setCollapsed();
-        if (upsellView.isVisible()) {
-            upsellView.setExpanded();
-        }
     }
 
     private void animateCollapse() {

@@ -259,7 +259,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void configureUpsell(TrackPageHolder holder, FeatureOperations featureOperations) {
         if (featureOperations.upsellHighTier()) {
-            holder.upsellView.showUpsell(upsellCopyExperiment.getUpsellCtaId(), getUpsellButtonText());
+            holder.upsellView.showUpsell(upsellCopyExperiment.getUpsellCtaId(), getUpsellButtonText(), castConnectionHelper.isCasting());
             holder.timestamp.setPreview(true);
         } else {
             holder.upsellView.setVisibility(View.GONE);
