@@ -10,6 +10,8 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -32,6 +34,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final Navigator navigator;
     private final Resources resources;
     private final ScreenProvider screenProvider;
+    private final FeatureFlags flags;
     private int layoutResource = R.layout.default_track_card;
 
     @Inject
@@ -41,7 +44,8 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                              ImageOperations imageOperations,
                              Navigator navigator,
                              Resources resources,
-                             ScreenProvider screenProvider) {
+                             ScreenProvider screenProvider,
+                             FeatureFlags flags) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.engagementsPresenter = engagementsPresenter;
@@ -49,6 +53,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         this.navigator = navigator;
         this.resources = resources;
         this.screenProvider = screenProvider;
+        this.flags = flags;
     }
 
     @Override
@@ -72,7 +77,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
         engagementsPresenter.bind(viewHolder, track, getEventContextMetadataBuilder(module).build());
 
-        viewHolder.bindArtworkView(track);
+        viewHolder.bindArtworkView(track, flags.isEnabled(Flag.MID_TIER));
         showPlayCountOrNowPlaying(viewHolder, track);
         viewHolder.overflowButton.setOnClickListener(overflowButton -> menuPresenter.show(getFragmentActivity(itemView),
                                                                                   viewHolder.overflowButton,

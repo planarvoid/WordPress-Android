@@ -16,6 +16,8 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -36,11 +38,12 @@ class StreamCardViewPresenter {
     private final Navigator navigator;
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final FeatureFlags flags;
 
     @Inject
     StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
                             ScreenProvider screenProvider, Navigator navigator, Resources resources,
-                            ImageOperations imageOperations) {
+                            ImageOperations imageOperations, FeatureFlags flags) {
 
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
@@ -48,6 +51,7 @@ class StreamCardViewPresenter {
         this.navigator = navigator;
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.flags = flags;
     }
 
     void bind(StreamItemViewHolder itemView,
@@ -104,6 +108,7 @@ class StreamCardViewPresenter {
         if (playableItem instanceof TieredTrack) {
             TieredTrack tieredTrack = ((TieredTrack) playableItem);
             if (isFullHighTierTrack(tieredTrack) || isHighTierPreview(tieredTrack)) {
+                item.setGoIndicatorSelected(flags.isEnabled(Flag.MID_TIER));
                 item.showGoIndicator();
             }
         }

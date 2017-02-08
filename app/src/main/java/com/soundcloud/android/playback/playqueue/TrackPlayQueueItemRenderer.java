@@ -5,6 +5,8 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
 
@@ -28,14 +30,17 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
 
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
+    private final FeatureFlags flags;
 
     private TrackClickListener trackClickListener;
 
     @Inject
     TrackPlayQueueItemRenderer(ImageOperations imageOperations,
-                               TrackItemMenuPresenter trackItemMenuPresenter) {
+                               TrackItemMenuPresenter trackItemMenuPresenter,
+                               FeatureFlags flags) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
+        this.flags = flags;
     }
 
     @Override
@@ -71,6 +76,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     private void setGoIndicator(View indicator, TrackPlayQueueUIItem item) {
+        indicator.setSelected(flags.isEnabled(Flag.MID_TIER));
         indicator.setVisibility(item.isGoTrack()
                                 ? View.VISIBLE
                                 : View.GONE);

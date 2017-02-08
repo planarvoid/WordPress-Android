@@ -20,6 +20,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -50,6 +52,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final Navigator navigator;
     protected final FeatureOperations featureOperations;
     private final TrackItemView.Factory trackItemViewFactory;
+    private final FeatureFlags flags;
 
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
     protected Optional<String> moduleName = Optional.absent();
@@ -65,7 +68,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              ScreenProvider screenProvider,
                              Navigator navigator,
                              FeatureOperations featureOperations,
-                             TrackItemView.Factory trackItemViewFactory) {
+                             TrackItemView.Factory trackItemViewFactory,
+                             FeatureFlags flags) {
         this(Optional.<String>absent(),
              imageOperations,
              numberFormatter,
@@ -74,7 +78,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
              screenProvider,
              navigator,
              featureOperations,
-             trackItemViewFactory);
+             trackItemViewFactory,
+             flags);
     }
 
     protected TrackItemRenderer(Optional<String> moduleName,
@@ -85,7 +90,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              ScreenProvider screenProvider,
                              Navigator navigator,
                              FeatureOperations featureOperations,
-                             TrackItemView.Factory trackItemViewFactory) {
+                             TrackItemView.Factory trackItemViewFactory,
+                             FeatureFlags flags) {
         this.moduleName = moduleName;
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -95,6 +101,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.trackItemViewFactory = trackItemViewFactory;
+        this.flags = flags;
     }
 
     public TrackItemView.Factory trackItemViewFactory() {
@@ -225,6 +232,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                 track, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 itemView.getImage());
         if (isFullHighTierTrack(track) || isHighTierPreview(track)) {
+            itemView.setGoLabelSelected(flags.isEnabled(Flag.MID_TIER));
             itemView.showGoLabel();
         }
     }

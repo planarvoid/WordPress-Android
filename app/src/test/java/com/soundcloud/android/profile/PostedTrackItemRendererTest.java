@@ -11,6 +11,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
@@ -66,7 +67,8 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                mock(ScreenProvider.class),
                                                mock(Navigator.class),
                                                mock(FeatureOperations.class),
-                                               mock(TrackItemView.Factory.class));
+                                               mock(TrackItemView.Factory.class),
+                                               mock(FeatureFlags.class));
     }
 
     @Test

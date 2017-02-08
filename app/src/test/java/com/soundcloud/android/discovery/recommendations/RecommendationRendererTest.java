@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery.recommendations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.Navigator;
@@ -10,6 +11,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -43,6 +46,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private RecommendationsAdapter adapter;
     @Mock private Navigator navigator;
     @Mock private TrackRecommendationListener listener;
+    @Mock private FeatureFlags flags;
     private View itemView;
     private TrackItem recommendedTrack;
 
@@ -50,7 +54,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(activity());
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigator);
+        renderer = new RecommendationRenderer(listener, flags, imageOperations, trackItemMenuPresenter, navigator);
         final Recommendation recommendation = RecommendationsFixtures.createNonHighTierRecommendation(SEED_TRACK.getUrn());
         recommendedTrack = recommendation.getTrack();
         final Recommendation goRecommendation = RecommendationsFixtures.createHighTierRecommendation(SEED_TRACK.getUrn());
@@ -96,6 +100,23 @@ public class RecommendationRendererTest extends AndroidUnitTest {
                 recommendedTrack,
                 ApiImageSize.getFullImageSize(itemView.getResources()),
                 (ImageView) itemView.findViewById(R.id.recommendation_artwork));
+    }
+
+    @Test
+    public void shouldNotSetGoIndicatorSelectedIfMidTierFlagIsDisabled() {
+        renderer.bindItemView(goTrackPosition, itemView, recommendations);
+        View goIndicator = ButterKnife.findById(itemView, R.id.go_indicator);
+        assertThat(goIndicator.isSelected()).isFalse();
+    }
+
+    @Test
+    public void shouldSetGoIndicatorSelectedIfMidTierFlagIsEnabled() {
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+
+        renderer.bindItemView(goTrackPosition, itemView, recommendations);
+
+        View goIndicator = ButterKnife.findById(itemView, R.id.go_indicator);
+        assertThat(goIndicator.isSelected()).isTrue();
     }
 
     @Test

@@ -181,14 +181,12 @@ public class StreamItemViewHolder implements CardViewHolder {
         safeSetVisibility(goIndicator, View.GONE);
     }
 
-    public void showGoIndicator() {
-        safeSetVisibility(goIndicator, View.VISIBLE);
+    public void setGoIndicatorSelected(boolean selected) {
+        safeSetSelected(goIndicator, selected);
     }
 
-    private void safeSetVisibility(View view, int visibility) {
-        if (view != null) {
-            view.setVisibility(visibility);
-        }
+    public void showGoIndicator() {
+        safeSetVisibility(goIndicator, View.VISIBLE);
     }
 
     @Override
@@ -237,6 +235,18 @@ public class StreamItemViewHolder implements CardViewHolder {
 
     public interface OverflowListener {
         void onOverflow(View overflowButton);
+    }
+
+    private void safeSetSelected(View view, boolean selected) {
+        if(view != null) {
+            view.setSelected(selected);
+        }
+    }
+
+    private void safeSetVisibility(View view, int visibility) {
+        if (view != null) {
+            view.setVisibility(visibility);
+        }
     }
 
 }

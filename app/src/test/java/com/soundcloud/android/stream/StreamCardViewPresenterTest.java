@@ -24,6 +24,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -54,6 +56,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private ImageView imageView;
     @Mock private View view;
     @Mock private FeatureOperations featureOperations;
+    @Mock private FeatureFlags flags;
 
     private Date createdAtStream = new Date();
     private StreamCardViewPresenter presenter;
@@ -61,7 +64,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                                                navigator, resources(), imageOperations);
+                                                navigator, resources(), imageOperations, flags);
 
         when(itemView.getImage()).thenReturn(imageView);
         when(itemView.getUserImage()).thenReturn(imageView);
@@ -234,6 +237,24 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                         any(ImageResource.class),
                         any(ApiImageSize.class),
                         any(ImageView.class));
+    }
+
+    @Test
+    public void bindsGoLabelAsSelected() {
+        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+
+        TrackItem trackItem = upsellableTrack();
+        presenter.bind(itemView, trackItem, EventContextMetadata.builder());
+
+        verify(itemView).setGoIndicatorSelected(true);
+    }
+
+    @Test
+    public void bindsGoLabelAsNotSelected() {
+        TrackItem trackItem = upsellableTrack();
+        presenter.bind(itemView, trackItem, EventContextMetadata.builder());
+
+        verify(itemView).setGoIndicatorSelected(false);
     }
 
     @Test

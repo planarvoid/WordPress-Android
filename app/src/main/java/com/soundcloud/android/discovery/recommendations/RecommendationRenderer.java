@@ -14,6 +14,8 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 
@@ -32,15 +34,18 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     private final TrackItemMenuPresenter trackItemMenuPresenter;
     private final Navigator navigator;
     private final TrackRecommendationListener listener;
+    private final FeatureFlags flags;
 
-    public RecommendationRenderer(TrackRecommendationListener listener,
-                                  @Provided ImageOperations imageOperations,
-                                  @Provided TrackItemMenuPresenter trackItemMenuPresenter,
-                                  @Provided Navigator navigator) {
+    RecommendationRenderer(TrackRecommendationListener listener,
+                           @Provided FeatureFlags flags,
+                           @Provided ImageOperations imageOperations,
+                           @Provided TrackItemMenuPresenter trackItemMenuPresenter,
+                           @Provided Navigator navigator) {
         this.listener = listener;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.navigator = navigator;
+        this.flags = flags;
     }
 
     @Override
@@ -58,12 +63,14 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         bindTrackArtist(view, track.getCreatorName(), track.getCreatorUrn(), viewModel.isPlaying());
         bindNowPlaying(view, viewModel.isPlaying());
         setOnClickListener(viewModel, view);
-        setOverflowMenuClickListener(ButterKnife.<ImageView>findById(view, R.id.overflow_button), track, position);
+        setOverflowMenuClickListener(ButterKnife.findById(view, R.id.overflow_button), track, position);
         showGoIndicator(view, track);
     }
 
     private void showGoIndicator(View view, TrackItem track) {
-        ButterKnife.findById(view, R.id.go_indicator).setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
+        View goIndicator = ButterKnife.findById(view, R.id.go_indicator);
+        goIndicator.setSelected(flags.isEnabled(Flag.MID_TIER));
+        goIndicator.setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
     }
 
     private void bindTrackTitle(View view, String title) {
@@ -92,7 +99,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
     private void loadTrackArtwork(View view, TrackItem track) {
         imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
-                                             ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
+                                             ButterKnife.findById(view, R.id.recommendation_artwork)
         );
     }
 

@@ -15,6 +15,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -39,7 +40,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                                      @Provided FeatureOperations featureOperations,
                                      @Provided ScreenProvider screenProvider,
                                      @Provided Navigator navigator,
-                                     @Provided TrackItemView.Factory trackItemViewFactory) {
+                                     @Provided TrackItemView.Factory trackItemViewFactory,
+                                     @Provided FeatureFlags flags) {
         super(Optional.of(Module.PLAYLIST),
               imageOperations,
               numberFormatter,
@@ -48,7 +50,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
               featureOperations,
               screenProvider,
               navigator,
-              trackItemViewFactory);
+              trackItemViewFactory,
+              flags);
         this.removeTrackListener = removeTrackListener;
     }
 

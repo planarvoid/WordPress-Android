@@ -122,6 +122,10 @@ public class TrackItemView {
         previewIndicator.setVisibility(View.VISIBLE);
     }
 
+    public void setGoLabelSelected(boolean selected) {
+        goIndicator.setSelected(selected);
+    }
+
     public void showGoLabel() {
         goIndicator.setVisibility(View.VISIBLE);
     }

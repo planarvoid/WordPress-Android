@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -27,10 +28,11 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
                                          FeatureOperations featureOperations,
                                          ScreenProvider screenProvider,
                                          Navigator navigator,
-                                         TrackItemView.Factory trackItemViewFactory) {
+                                         TrackItemView.Factory trackItemViewFactory,
+                                         FeatureFlags flags) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter,
               eventBus, screenProvider, navigator,
-              featureOperations, trackItemViewFactory);
+              featureOperations, trackItemViewFactory, flags);
     }
 
     protected DownloadableTrackItemRenderer(Optional<String> moduleName,
@@ -41,7 +43,8 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
                                             FeatureOperations featureOperations,
                                             ScreenProvider screenProvider,
                                             Navigator navigator,
-                                            TrackItemView.Factory trackItemViewFactory) {
+                                            TrackItemView.Factory trackItemViewFactory,
+                                            FeatureFlags flags) {
         super(moduleName,
               imageOperations,
               numberFormatter,
@@ -50,7 +53,8 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
               screenProvider,
               navigator,
               featureOperations,
-              trackItemViewFactory);
+              trackItemViewFactory,
+              flags);
     }
 
     @Override

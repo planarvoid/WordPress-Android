@@ -152,21 +152,28 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         creator.setOnClickListener(clickListener);
     }
 
-    public void bindArtworkView(PlayableItem playableItem) {
+    public void bindArtworkView(PlayableItem playableItem, boolean selected) {
         loadArtwork(playableItem);
         setTitle(playableItem.getTitle());
         setArtist(playableItem.getCreatorName());
         setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
-        setupTierIndicator(playableItem);
+        setupTierIndicator(playableItem, selected);
     }
 
-    private void setupTierIndicator(PlayableItem playableItem) {
+    private void setupTierIndicator(PlayableItem playableItem, boolean selected) {
         safeSetVisibility(goIndicator, View.GONE);
         if (playableItem instanceof TieredTrack) {
             TieredTrack track = (TieredTrack) playableItem;
             if (isHighTierPreview(track) || isFullHighTierTrack(track)) {
+                safeSetSelected(goIndicator, selected);
                 safeSetVisibility(goIndicator, View.VISIBLE);
             }
+        }
+    }
+
+    private void safeSetSelected(View view, boolean selected) {
+        if (view != null) {
+            view.setSelected(selected);
         }
     }
 
