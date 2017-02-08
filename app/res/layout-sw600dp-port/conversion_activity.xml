@@ -5,11 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/conversion_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+    <View style="@style/ConversionBackground" />
 
     <include layout="@layout/conversion_common"
         android:layout_width="@dimen/conversion_content"

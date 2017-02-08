@@ -5,20 +5,13 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.android.view.LoadingButton;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -26,27 +19,23 @@ import javax.inject.Inject;
 class ConversionView {
 
     private static final String RESTRICTIONS_DIALOG_TAG = "restrictions_dialog";
-    private static final int BACKGROUND_ID = R.drawable.conversion_background;
 
     private final Resources resources;
     private final ProductInfoFormatter formatter;
-    private final BackgroundDecoder backgroundDecoder;
     private final FeatureFlags flags;
 
     private FragmentManager fragmentManager;
 
     @BindView(R.id.conversion_title) TextView title;
-    @BindView(R.id.conversion_background) ImageView background;
     @BindView(R.id.conversion_buy) LoadingButton buyButton;
     @BindView(R.id.conversion_price) TextView priceView;
     @BindView(R.id.conversion_restrictions) TextView restrictionsView;
     @BindView(R.id.conversion_more_products) Button moreButton;
 
     @Inject
-    ConversionView(Resources resources, ProductInfoFormatter formatter, BackgroundDecoder backgroundDecoder, FeatureFlags flags) {
+    ConversionView(Resources resources, ProductInfoFormatter formatter, FeatureFlags flags) {
         this.resources = resources;
         this.formatter = formatter;
-        this.backgroundDecoder = backgroundDecoder;
         this.flags = flags;
     }
 
@@ -58,18 +47,10 @@ class ConversionView {
     void setupContentView(AppCompatActivity activity, Listener listener) {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
-        loadBackground();
         setupListener(listener);
         title.setText(flags.isEnabled(Flag.MID_TIER)
                       ? R.string.conversion_title
                       : R.string.conversion_title_legacy);
-    }
-
-    private void loadBackground() {
-        Observable.fromCallable(() -> backgroundDecoder.decode(BACKGROUND_ID))
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BackgroundSubscriber());
     }
 
     private void setupListener(final Listener listener) {
@@ -152,13 +133,6 @@ class ConversionView {
 
     void enableMorePlans() {
         moreButton.setVisibility(View.VISIBLE);
-    }
-
-    private class BackgroundSubscriber extends DefaultSubscriber<Bitmap> {
-        @Override
-        public void onNext(Bitmap image) {
-            background.setImageBitmap(image);
-        }
     }
 
 }

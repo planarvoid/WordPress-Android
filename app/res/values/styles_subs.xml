@@ -8,6 +8,12 @@
         <item name="android:animateLayoutChanges">true</item>
     </style>
 
+    <style name="ConversionBackground">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name='android:background'>@drawable/conversion_background</item>
+    </style>
+
     <style name="ConversionText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
