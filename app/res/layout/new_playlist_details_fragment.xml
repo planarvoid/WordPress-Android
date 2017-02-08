@@ -1,56 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-
 <com.soundcloud.android.view.MultiSwipeRefreshLayout android:id="@+id/str_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:ignore="InconsistentLayout">
 
-    <android.support.design.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/playlist_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar"
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
 
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar"
+            <android.support.design.widget.AppBarLayout
+                android:id="@+id/appbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
 
-                <LinearLayout
-                    android:id="@+id/playlist_details"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:orientation="vertical">
+                <android.support.design.widget.CollapsingToolbarLayout
+                    android:id="@+id/collapsing_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    app:contentScrim="@color/white"
+                    android:fitsSystemWindows="true"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:fitsSystemWindows="true">
 
                         <RelativeLayout
                             android:id="@+id/artwork_container"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:fitsSystemWindows="true">
 
                             <com.soundcloud.android.view.SquareImageView
                                 android:id="@+id/artwork"
                                 android:layout_width="match_parent"
                                 android:layout_height="0dp"
-                                android:scaleType="centerCrop"
-                                android:src="@color/ak_placeholder_salmon" />
+                                android:scaleType="centerCrop" />
 
                             <ImageButton
                                 android:id="@+id/btn_play"
-                                style="@style/HeaderPlay" />
+                                style="@style/HeaderPlay"
+                                android:fitsSystemWindows="true"/>
 
                         </RelativeLayout>
 
@@ -60,7 +62,8 @@
                             android:layout_above="@+id/title"
                             android:layout_marginLeft="@dimen/playlist_header_padding"
                             android:enabled="false"
-                            android:visibility="invisible" />
+                            android:visibility="invisible"
+                            android:fitsSystemWindows="true"/>
 
                         <com.soundcloud.android.view.JaggedTextView
                             android:id="@+id/title"
@@ -70,7 +73,8 @@
                             android:layout_marginLeft="@dimen/playlist_header_padding"
                             android:layout_marginRight="@dimen/playlist_header_padding"
                             android:layout_marginTop="4dp"
-                            android:visibility="invisible" />
+                            android:visibility="invisible"
+                            android:fitsSystemWindows="true" />
 
                         <com.soundcloud.android.view.JaggedTextView
                             android:id="@+id/title_private"
@@ -83,38 +87,51 @@
                             android:drawableLeft="@drawable/ic_private_playlist_lock"
                             android:drawablePadding="4dp"
                             android:maxLines="1"
-                            android:visibility="gone" />
+                            android:visibility="gone"
+                            android:fitsSystemWindows="true"/>
 
                         <View
                             android:id="@+id/artwork_divider"
                             style="@style/Divider.Section"
-                            android:layout_below="@id/artwork_container" />
+                            android:layout_below="@id/artwork_container"
+                            android:fitsSystemWindows="true"/>
+
+                        <include
+                            android:id="@+id/playlist_engagement_bar"
+                            layout="@layout/playlist_engagement_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/artwork_divider"/>
 
                     </RelativeLayout>
 
-                    <include
-                        android:id="@+id/playlist_engagement_bar"
-                        layout="@layout/playlist_engagement_bar"
+                    <View
+                        android:id="@+id/header_scrim"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:fitsSystemWindows="true" />
 
-                </LinearLayout>
+                    <include layout="@layout/transparent_toolbar_with_gradient" />
 
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
+                </android.support.design.widget.CollapsingToolbarLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/ak_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            </android.support.design.widget.AppBarLayout>
 
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/ak_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+            <com.soundcloud.android.view.EmptyView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
 
-    </android.support.design.widget.CoordinatorLayout>
+            </com.soundcloud.android.view.EmptyView>
+
+        </android.support.design.widget.CoordinatorLayout>
+    </FrameLayout>
 
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

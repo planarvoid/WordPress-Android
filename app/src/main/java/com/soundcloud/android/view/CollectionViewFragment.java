@@ -1,20 +1,19 @@
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.view.ViewError.CONNECTION_ERROR;
-import static java.util.Collections.emptyList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
+import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
@@ -27,7 +26,7 @@ import android.view.View;
 
 import java.util.List;
 
-public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends RecyclerView.ViewHolder>
+public abstract class CollectionViewFragment<ItemT, VH extends RecyclerView.ViewHolder>
         extends LightCycleSupportFragment<Fragment> {
 
     @BindView(R.id.ak_recycler_view) protected RecyclerView recyclerView;
@@ -63,44 +62,37 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
 
         subscription = new CompositeSubscription(
 
-                modelUpdates().map(AsyncViewModel::isRefreshing)
-                              .observeOn(AndroidSchedulers.mainThread())
-                              .doOnNext(aBoolean -> swipeRefreshLayout.setRefreshing(aBoolean))
-                              .subscribe(new CrashOnTerminateSubscriber<>()),
+                collectionView().map(CollectionViewState::isRefreshing)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doOnNext(aBoolean -> swipeRefreshLayout.setRefreshing(aBoolean))
+                                .subscribe(new CrashOnTerminateSubscriber<>()),
 
-                modelUpdates().map(extractItems())
-                              .observeOn(AndroidSchedulers.mainThread())
-                              .doOnNext(data -> onNewItems(data))
-                              .subscribe(new CrashOnTerminateSubscriber<>()),
+                collectionView().map(CollectionViewState::items)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doOnNext(this::onNewItems)
+                                .subscribe(new CrashOnTerminateSubscriber<>()),
 
-                modelUpdates().doOnNext(updateEmptyView())
-                              .subscribe(new CrashOnTerminateSubscriber<>())
+                collectionView().doOnNext(updateEmptyView())
+                                .subscribe(new CrashOnTerminateSubscriber<>())
         );
     }
 
 
 
     @NonNull
-    private Func1<AsyncViewModel<ViewModelT>, List<ItemT>> extractItems() {
-        return viewModelTAsyncViewModel -> viewModelTAsyncViewModel.data().isPresent()
-                                           ? viewModelToItems().call(viewModelTAsyncViewModel.data().get())
-                                           : emptyList();
-    }
-
-    @NonNull
-    private Action1<AsyncViewModel<ViewModelT>> updateEmptyView() {
-        return asyncViewModel -> {
-            Optional<ViewError> viewErrorOptional = asyncViewModel.error();
+    private Action1<CollectionViewState<ItemT>> updateEmptyView() {
+        return viewModel -> {
+            Optional<ViewError> viewErrorOptional = viewModel.nextPageError();
             if (viewErrorOptional.isPresent()) {
                 if (viewErrorOptional.get() == CONNECTION_ERROR) {
                     emptyView.setStatus(EmptyView.Status.CONNECTION_ERROR);
                 } else {
                     emptyView.setStatus(EmptyView.Status.SERVER_ERROR);
                 }
-            } else if (asyncViewModel.data().isPresent()) {
-                emptyView.setStatus(EmptyView.Status.OK);
-            } else {
+            } else if (viewModel.isLoadingNextPage()){
                 emptyView.setStatus(EmptyView.Status.WAITING);
+            } else {
+                emptyView.setStatus(EmptyView.Status.OK);
             }
         };
     }
@@ -120,9 +112,7 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
 
     protected abstract RecyclerItemAdapter<ItemT, VH> createAdapter();
 
-    protected abstract Observable<AsyncViewModel<ViewModelT>> modelUpdates();
-
-    protected abstract Func1<ViewModelT, List<ItemT>> viewModelToItems();
+    protected abstract Observable<CollectionViewState<ItemT>> collectionView();
 
     @Override
     public void onDestroyView() {
@@ -163,16 +153,4 @@ public abstract class CollectionViewFragment<ViewModelT, ItemT, VH extends Recyc
         emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
-    private class CrashOnTerminateSubscriber<T> extends DefaultSubscriber<T> {
-
-        @Override
-        public void onError(Throwable e) {
-            super.onError(new IllegalStateException(e));
-        }
-
-        @Override
-        public void onCompleted() {
-            throw new IllegalStateException("Subscription should not terminate");
-        }
-    }
 }

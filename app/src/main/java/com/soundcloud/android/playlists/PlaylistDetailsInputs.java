@@ -6,7 +6,9 @@ interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onCreatorClicked();
 
-    void onPlayAtPosition(Integer position);
+    void onItemTriggered(PlaylistDetailTrackItem item);
+
+    void onItemTriggered(PlaylistDetailUpsellItem item);
 
     void onEnterEditMode();
 
@@ -24,7 +26,7 @@ interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onMakeOfflineUnavailable();
 
-    void onUpsell();
+    void onMakeOfflineUpsell();
 
     void onOverflowUpsell();
 

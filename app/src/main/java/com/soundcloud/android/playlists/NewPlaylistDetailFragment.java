@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static android.support.v4.view.MotionEventCompat.getActionMasked;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import butterknife.ButterKnife;
@@ -13,20 +12,19 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.RefreshableScreen;
-import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.lightcycle.LightCycle;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.animation.LayoutTransition;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -39,17 +37,16 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailsViewModel, PlaylistDetailTrackItem, NewPlaylistDetailFragment.MyViewHolder>
-        implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen, AppBarLayout.OnOffsetChangedListener {
+public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDetailItem, RecyclerView.ViewHolder>
+        implements TrackItemMenuPresenter.RemoveTrackListener, RefreshableScreen, AppBarLayout.OnOffsetChangedListener, NewPlaylistDetailsAdapter.PlaylistDetailView {
 
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
@@ -62,7 +59,11 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistEditionItemTouchCallbackFactory touchCallbackFactory;
     @Inject PlaylistDetailToolbarViewFactory toolbarViewFactory;
+    @Inject NewPlaylistDetailsAdapterFactory newPlaylistDetailsAdapterFactory;
     @Inject Navigator navigator;
+    @Inject BaseLayoutHelper baseLayoutHelper;
+
+    @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
 
     private final ItemTouchHelper itemTouchHelper;
     private PlaylistDetailToolbarView toolbarView;
@@ -71,7 +72,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     private boolean skipModelUpdates;
     private View view;
     private CompositeSubscription subscription;
-
 
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
@@ -111,10 +111,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
                                                     getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO));
         presenter.connect();
 
-        presenter.goToCreator().subscribe(urn -> {
-            navigator.legacyOpenProfile(getActivity(), urn);
-        });
-
         setHasOptionsMenu(true);
     }
 
@@ -123,29 +119,38 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         return inflater.inflate(R.layout.new_playlist_details_fragment, container, false);
     }
 
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.view = view;
 
+        baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
+
         toolbarView = toolbarViewFactory.create(presenter, actionBar());
         bind(toolbarView);
 
         animateLayoutChangesInAdapterCells();
-        doNotPropagateAnimationsToTheAppBar();
 
         subscription = new CompositeSubscription();
         subscription.addAll(
 
-                modelUpdates().subscribe(asyncViewModel -> {
-                    Optional<PlaylistDetailsViewModel> dataOpt = asyncViewModel.data();
-                    if (dataOpt.isPresent()) {
-                        bindViews(dataOpt.get());
+                viewModel().subscribe(asyncViewModel -> {
+                    if (asyncViewModel.data().isPresent()) {
+                        bindViews(asyncViewModel.data().get());
                     }
                 }),
 
                 onRefresh.subscribe(aVoid -> {
                     presenter.refresh();
+                }),
+
+                presenter.goToCreator().subscribe(urn -> {
+                    navigator.legacyOpenProfile(getActivity(), urn);
+                }),
+
+                presenter.goToUpsell().subscribe(urn -> {
+                    navigator.openUpgrade(getContext());
                 }),
 
                 presenter.onRepostResult()
@@ -173,18 +178,6 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
     private ActionBar actionBar() {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
-    }
-
-    // Hack : this prevents the appbar from scrolling strangely when
-    // the view disappearance animation run.
-    // http://stackoverflow.com/questions/36064424/animate-layout-changes-broken-in-nested-layout-with-collapsingtoolbarlayout
-    private void doNotPropagateAnimationsToTheAppBar() {
-        final LayoutTransition layoutTransition = playlistDetailsView().getLayoutTransition();
-        layoutTransition.setAnimateParentHierarchy(false);
-    }
-
-    private ViewGroup playlistDetailsView() {
-        return ButterKnife.findById(getActivity(), R.id.playlist_details);
     }
 
     @Override
@@ -238,14 +231,13 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     @Override
-    protected RecyclerItemAdapter<PlaylistDetailTrackItem, MyViewHolder> createAdapter() {
-        final PlaylistTrackItemRenderer trackItemRenderer = trackItemRendererFactory.create(this);
-        return new NewPlaylistDetailsAdapter(trackItemRenderer);
+    protected RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> createAdapter() {
+        return newPlaylistDetailsAdapterFactory.create(this);
     }
 
     @Override
-    protected void onNewItems(List<PlaylistDetailTrackItem> newItems) {
-        final List<PlaylistDetailTrackItem> oldItems = adapter().getItems();
+    protected void onNewItems(List<PlaylistDetailItem> newItems) {
+        final List<PlaylistDetailItem> oldItems = adapter().getItems();
         final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AdapterDiffCallback(oldItems, newItems), true);
 
         populateAdapter(newItems);
@@ -253,27 +245,40 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     @Override
-    protected Observable<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates() {
-        return presenter
-                .viewModel()
+    protected Observable<CollectionViewState<PlaylistDetailItem>> collectionView() {
+        return viewModel()
                 .filter(ignored -> !skipModelUpdates)
+                .map(this::convertLegacyModel)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    @Override
-    protected Func1<PlaylistDetailsViewModel, List<PlaylistDetailTrackItem>> viewModelToItems() {
-        return PlaylistDetailsViewModel::tracks;
+    private CollectionViewState<PlaylistDetailItem> convertLegacyModel(AsyncViewModel<PlaylistDetailsViewModel> playlistDetailsViewModelAsyncViewModel) {
+        Optional<PlaylistDetailsViewModel> items = playlistDetailsViewModelAsyncViewModel.data();
+        return CollectionViewState.<PlaylistDetailItem>builder()
+                .nextPageError(playlistDetailsViewModelAsyncViewModel.error())
+                .isRefreshing(playlistDetailsViewModelAsyncViewModel.isRefreshing())
+                .hasMorePages(false)
+                .items(items.isPresent() ? items.get().itemsWithoutHeader() : Collections.emptyList())
+                .build();
+    }
+
+    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> viewModel() {
+        return presenter
+                .viewModel()
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     private void bindViews(PlaylistDetailsViewModel data) {
         bindCover(data);
         bindEngagementBar(data);
         bindToolBar(data);
-        bindEditMode(data);
+        bindEditMode(data.metadata().isInEditMode());
     }
 
-    private void bindEditMode(PlaylistDetailsViewModel data) {
-        if (data.metadata().isInEditMode()) {
+    private void bindEditMode(boolean isInEditMode) {
+        recyclerView().setNestedScrollingEnabled(!isInEditMode);
+        headerScrollHelper.setExpanded(!isInEditMode);
+        if (isInEditMode) {
             itemTouchHelper.attachToRecyclerView(recyclerView());
         } else {
             itemTouchHelper.attachToRecyclerView(null);
@@ -285,7 +290,7 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     private void bindEngagementBar(PlaylistDetailsViewModel data) {
-        playlistEngagementsRenderer.bind(view, data.metadata(), presenter);
+        playlistEngagementsRenderer.bind(view, data, presenter);
     }
 
     private void bindCover(PlaylistDetailsViewModel data) {
@@ -306,8 +311,33 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
         super.onDestroy();
     }
 
-    private void startDrag(MyViewHolder holder) {
+    @Override
+    public void onItemClicked(PlaylistDetailTrackItem trackItem) {
+        presenter.onItemTriggered(trackItem);
+    }
+
+    @Override
+    public void onHandleTouched(RecyclerView.ViewHolder holder) {
         itemTouchHelper.startDrag(holder);
+    }
+
+    @Override
+    public void onUpsellItemDismissed(PlaylistDetailUpsellItem item) {
+        presenter.onItemDismissed(item);
+
+        final int position = adapter().getItems().indexOf(item);
+        adapter().removeItem(position);
+        adapter().notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onUpsellItemClicked(PlaylistDetailUpsellItem item) {
+        presenter.onItemTriggered(item);
+    }
+
+    @Override
+    public void onUpsellItemPresented() {
+        presenter.fireUpsellImpression();
     }
 
     public void onDragStarted() {
@@ -326,7 +356,7 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
     @Override
     public void onPlaylistTrackRemoved(Urn trackUrn) {
-        final List<Urn> urns = transform(adapter().getItems(), PlaylistDetailTrackItem::getUrn);
+        final List<Urn> urns = transform(trackItems(), PlaylistDetailTrackItem::getUrn);
         removeTrackAtPosition(urns.indexOf(trackUrn));
     }
 
@@ -341,14 +371,25 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
     }
 
     private void saveUpdates() {
-        presenter.actionUpdateTrackList(adapter().getItems());
+        presenter.actionUpdateTrackList(trackItems());
+    }
+
+    private List<PlaylistDetailTrackItem> trackItems() {
+        final List<PlaylistDetailItem> items = adapter().getItems();
+        final List<PlaylistDetailTrackItem> tracks = new ArrayList<>(items.size());
+        for (PlaylistDetailItem item : items) {
+            if (item.isTrackItem()) {
+                tracks.add(((PlaylistDetailTrackItem) item));
+            }
+        }
+        return tracks;
     }
 
     static class AdapterDiffCallback extends DiffUtil.Callback {
-        private final List<PlaylistDetailTrackItem> oldItems;
-        private final List<PlaylistDetailTrackItem> newItems;
+        private final List<PlaylistDetailItem> oldItems;
+        private final List<PlaylistDetailItem> newItems;
 
-        public AdapterDiffCallback(List<PlaylistDetailTrackItem> oldItems, List<PlaylistDetailTrackItem> newItems) {
+        public AdapterDiffCallback(List<PlaylistDetailItem> oldItems, List<PlaylistDetailItem> newItems) {
             this.oldItems = oldItems;
             this.newItems = newItems;
         }
@@ -365,108 +406,26 @@ public class NewPlaylistDetailFragment extends CollectionViewFragment<PlaylistDe
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            final PlaylistDetailTrackItem oldItem = oldItems.get(oldItemPosition);
-            final PlaylistDetailTrackItem newItem = newItems.get(newItemPosition);
-            return newItem.getUrn().equals(oldItem.getUrn());
+            final PlaylistDetailItem oldItem = oldItems.get(oldItemPosition);
+            final PlaylistDetailItem newItem = newItems.get(newItemPosition);
+
+            return isPlaylistDetailTrackItem(oldItem) && isPlaylistDetailTrackItem(newItem)
+                    && trackItem(newItem).getUrn().equals((trackItem(oldItem)).getUrn());
+        }
+
+        private PlaylistDetailTrackItem trackItem(PlaylistDetailItem newItem) {
+            return (PlaylistDetailTrackItem) newItem;
+        }
+
+        private boolean isPlaylistDetailTrackItem(PlaylistDetailItem newItem) {
+            return newItem instanceof PlaylistDetailTrackItem;
         }
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            final PlaylistDetailTrackItem oldItem = oldItems.get(oldItemPosition);
-            final PlaylistDetailTrackItem newItem = newItems.get(newItemPosition);
+            final PlaylistDetailItem oldItem = oldItems.get(oldItemPosition);
+            final PlaylistDetailItem newItem = newItems.get(newItemPosition);
             return newItem.equals(oldItem);
         }
-    }
-
-    class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailTrackItem, MyViewHolder> {
-        private final PlaylistTrackItemRenderer playlistTrackItemRenderer;
-
-        NewPlaylistDetailsAdapter(PlaylistTrackItemRenderer playlistTrackItemRenderer) {
-            this.playlistTrackItemRenderer = playlistTrackItemRenderer;
-            this.playlistTrackItemRenderer.trackItemViewFactory().setLayoutId(R.layout.edit_playlist_track_item);
-        }
-
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return createViewHolder(playlistTrackItemRenderer.createItemView(parent));
-        }
-
-        @Override
-        protected MyViewHolder createViewHolder(View itemView) {
-            return new MyViewHolder(itemView);
-        }
-
-        private View.OnTouchListener createDragListener(MyViewHolder holder) {
-            return (view, motionEvent) -> {
-                if (getActionMasked(motionEvent) == MotionEvent.ACTION_DOWN) {
-                    startDrag(holder);
-                }
-                return false;
-            };
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
-            final PlaylistDetailTrackItem detailTrackItem = items.get(position);
-            final View itemView = holder.itemView;
-            playlistTrackItemRenderer.bindTrackView(position, itemView, detailTrackItem.trackItem());
-            itemView.setOnClickListener(view -> {
-                if (!detailTrackItem.inEditMode()) {
-                    presenter.onPlayAtPosition(position);
-                }
-            });
-            bindEditMode(holder, detailTrackItem, position);
-        }
-
-        // TODO eventually move to a cell renderer
-        private void bindEditMode(MyViewHolder holder, PlaylistDetailTrackItem detailTrackItem, int position) {
-            if (detailTrackItem.inEditMode()) {
-                bindHandle(holder);
-            } else {
-                holder.handle().setVisibility(View.GONE);
-            }
-        }
-
-        private void bindHandle(MyViewHolder holder) {
-            holder.handle().setOnTouchListener(createDragListener(holder));
-            holder.handle().setVisibility(View.VISIBLE);
-            holder.overflow().setVisibility(View.GONE);
-            holder.preview().setVisibility(View.GONE);
-            holder.hideDuration();
-        }
-
-        @Override
-        public int getBasicItemViewType(int position) {
-            return 0;
-        }
-
-    }
-
-    static class MyViewHolder extends RecyclerView.ViewHolder {
-        MyViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public View preview() {
-            return ButterKnife.findById(itemView, R.id.preview_indicator);
-        }
-
-
-        ImageView overflow() {
-            return ButterKnife.findById(itemView, R.id.overflow_button);
-        }
-
-        ImageView handle() {
-            return ButterKnife.findById(itemView, R.id.drag_handle);
-        }
-
-        void hideDuration() {
-            trackItemView().hideDuration();
-        }
-
-        private TrackItemView trackItemView() {
-            return (TrackItemView) itemView.getTag();
-        }
-
     }
 }

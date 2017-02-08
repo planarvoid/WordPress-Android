@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.observers.AssertableSubscriber;
 import rx.subjects.PublishSubject;
@@ -27,6 +26,7 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
     private final ApiRequestException networkError = ApiRequestException.networkError(null, null);
 
+    private final String firstPageParams = "first-page-params";
     private final List<Integer> firstPageData = Arrays.asList(1, 2, 3);
     private final String secondPageParams = "second-page-params";
     private final List<Integer> secondPageData = Arrays.asList(4, 5, 6);
@@ -36,12 +36,12 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
     @Mock Func1<String, Observable<List<Integer>>> paramsToPage;
     @Mock Func1<List<Integer>, Optional<String>> pageToParams;
-    @Mock Func0<Observable<List<Integer>>> firstPageFunc;
-    @Mock Func0<Observable<List<Integer>>> refreshFunc;
+    @Mock Func1<String, Observable<List<Integer>>> firstPageFunc;
+    @Mock Func1<String, Observable<List<Integer>>> refreshFunc;
 
-    private final PublishSubject<Void> loadFirstPage = PublishSubject.create();
+    private final PublishSubject<String> loadFirstPage = PublishSubject.create();
     private final PublishSubject<Void> loadNextPage = PublishSubject.create();
-    private final PublishSubject<Void> refreshRequested = PublishSubject.create();
+    private final PublishSubject<String> refreshRequested = PublishSubject.create();
 
     private CollectionLoader<Integer, String> collectionLoader;
 
@@ -55,17 +55,17 @@ public class CollectionLoaderTest extends AndroidUnitTest {
         when(paramsToPage.call(secondPageParams)).thenReturn(Observable.just(secondPageData));
         when(paramsToPage.call(thirdPageParams)).thenReturn(Observable.just(thirdPageData));
 
-        when(firstPageFunc.call()).thenReturn(Observable.just(firstPageData));
-        when(refreshFunc.call()).thenReturn(refreshSubject);
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.just(firstPageData));
+        when(refreshFunc.call(firstPageParams)).thenReturn(refreshSubject);
 
         collectionLoader = new CollectionLoader<>(
-                refreshFunc,
-                firstPageFunc,
-                paramsToPage,
-                pageToParams,
                 loadFirstPage,
+                firstPageFunc,
+                refreshRequested,
+                refreshFunc,
                 loadNextPage,
-                refreshRequested
+                paramsToPage,
+                pageToParams
         );
     }
 
@@ -73,10 +73,10 @@ public class CollectionLoaderTest extends AndroidUnitTest {
     public void firstPageLoads() throws Exception {
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build()
         );
@@ -84,34 +84,34 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
     @Test
     public void firstPageErrors() throws Exception {
-        when(firstPageFunc.call()).thenReturn(Observable.error(networkError));
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.error(networkError));
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
+        CollectionViewState<Integer> loadingNextPage = CollectionViewState.loadingNextPage();
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
-                CollectionViewState.firstPageError(networkError)
+                loadingNextPage,
+                loadingNextPage.toNextPageError(networkError)
         );
     }
 
     @Test
     public void firstPageRecovers() throws Exception {
-        when(firstPageFunc.call()).thenReturn(Observable.error(networkError), Observable.just(firstPageData));
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.error(networkError), Observable.just(firstPageData));
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
-                CollectionViewState.firstPageError(networkError),
-                CollectionViewState.loadingFirstPage(),
-                CollectionViewState.<Integer>builder().items(firstPageData)
-                                                      .build()
+                CollectionViewState.loadingNextPage(),
+                CollectionViewState.<Integer>builder().nextPageError(of(ViewError.from(networkError))).build(),
+                CollectionViewState.loadingNextPage(),
+                CollectionViewState.<Integer>builder().items(firstPageData).build()
         );
     }
 
@@ -119,12 +119,12 @@ public class CollectionLoaderTest extends AndroidUnitTest {
     public void secondPageLoads() throws Exception {
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         loadNextPage.onNext(null);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
@@ -141,12 +141,12 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         loadNextPage.onNext(null);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
@@ -165,14 +165,14 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         loadNextPage.onNext(null);
 
         loadNextPage.onNext(null);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
@@ -194,14 +194,14 @@ public class CollectionLoaderTest extends AndroidUnitTest {
     public void thirdPageLoadsWithNoMorePages() throws Exception {
         AssertableSubscriber<CollectionViewState<Integer>> testSubscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
         loadNextPage.onNext(null);
 
         loadNextPage.onNext(null);
 
         testSubscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
@@ -219,23 +219,59 @@ public class CollectionLoaderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void refreshErrorDoesNotPropogate() throws Exception {
+        // load second page data after refresh
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.just(firstPageData));
+        when(paramsToPage.call(secondPageParams)).thenReturn(Observable.just(secondPageData));
+
+        AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
+
+        loadFirstPage.onNext(firstPageParams);
+
+        refreshRequested.onNext(firstPageParams);
+
+        refreshSubject.onError(networkError);
+
+        loadNextPage.onNext(null);
+
+        subscriber.assertValues(
+                CollectionViewState.loadingNextPage(),
+                CollectionViewState.<Integer>builder().items(firstPageData)
+                                                      .build(),
+                CollectionViewState.<Integer>builder().items(firstPageData)
+                                                      .isRefreshing(true)
+                                                      .build(),
+                CollectionViewState.<Integer>builder().items(firstPageData)
+                                                      .refreshError(of(ViewError.from(networkError)))
+                                                      .build(),
+                CollectionViewState.<Integer>builder().items(firstPageData)
+                                                      .refreshError(of(ViewError.from(networkError)))
+                                                      .isLoadingNextPage(true)
+                                                      .build(),
+                CollectionViewState.<Integer>builder().items(Lists.newArrayList(concat(firstPageData, secondPageData)))
+                                                      .refreshError(of(ViewError.from(networkError)))
+                                                      .build()
+        );
+    }
+
+    @Test
     public void refreshWipesOutOldState() throws Exception {
         // load second page data after refresh
-        when(firstPageFunc.call()).thenReturn(Observable.just(firstPageData), Observable.just(secondPageData));
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.just(firstPageData), Observable.just(secondPageData));
         when(paramsToPage.call(secondPageParams)).thenReturn(Observable.error(networkError));
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
 
-        refreshRequested.onNext(null);
+        refreshRequested.onNext(firstPageParams);
 
         loadNextPage.onNext(null);
 
         refreshSubject.onNext(secondPageData);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
@@ -249,7 +285,7 @@ public class CollectionLoaderTest extends AndroidUnitTest {
                                                       .isRefreshing(true)
                                                       .nextPageError(of(ViewError.from(networkError)))
                                                       .build(),
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(secondPageData)
                                                       .isRefreshing(false)
                                                       .build()
@@ -259,18 +295,18 @@ public class CollectionLoaderTest extends AndroidUnitTest {
 
     @Test
     public void refreshErrorKeepsOldState() throws Exception {
-        when(firstPageFunc.call()).thenReturn(Observable.just(firstPageData));
+        when(firstPageFunc.call(firstPageParams)).thenReturn(Observable.just(firstPageData));
         when(paramsToPage.call(secondPageParams)).thenReturn(Observable.error(networkError));
 
         AssertableSubscriber<CollectionViewState<Integer>> subscriber = collectionLoader.pages().test();
 
-        loadFirstPage.onNext(null);
-        refreshRequested.onNext(null);
+        loadFirstPage.onNext(firstPageParams);
+        refreshRequested.onNext(firstPageParams);
         loadNextPage.onNext(null);
         refreshSubject.onError(networkError);
 
         subscriber.assertValues(
-                CollectionViewState.loadingFirstPage(),
+                CollectionViewState.loadingNextPage(),
                 CollectionViewState.<Integer>builder().items(firstPageData)
                                                       .build(),
                 CollectionViewState.<Integer>builder().items(firstPageData)

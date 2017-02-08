@@ -5,13 +5,12 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
-import static java.util.Collections.singleton;
 import static rx.Observable.combineLatest;
+import static rx.Observable.empty;
+import static rx.Observable.just;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.google.auto.value.AutoValue;
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -23,9 +22,8 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.PlaylistChangedEvent;
-import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikedStatuses;
@@ -35,24 +33,24 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -61,19 +59,16 @@ import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @AutoFactory
 class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private final PlaylistOperations playlistOperations;
+    private final PlaylistUpsellOperations playlistUpsellOperations;
     private final PlaybackInitiator playbackInitiator;
     private final LikesStateProvider likesStateProvider;
     private final RepostsStateProvider repostsStateProvider;
@@ -98,16 +93,20 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final BehaviorSubject<Boolean> editMode = BehaviorSubject.create(false);
 
     // inputs
-    private final PublishSubject<Void> refresh = PublishSubject.create();
+    private final PublishSubject<Object> refresh = PublishSubject.create();
     private final PublishSubject<Void> playNext = PublishSubject.create();
     private final PublishSubject<Void> delete = PublishSubject.create();
     private final PublishSubject<Void> offlineAvailable = PublishSubject.create();
     private final PublishSubject<Void> offlineUnavailable = PublishSubject.create();
     private final PublishSubject<Void> onCreatorClicked = PublishSubject.create();
+    private final PublishSubject<Void> onMakeOfflineUpsell = PublishSubject.create();
+    private final PublishSubject<List<PlaylistDetailTrackItem>> tracklistUpdated = PublishSubject.create();
+    private final PublishSubject<PlaylistDetailUpsellItem> onUpsellItemClicked = PublishSubject.create();
+    private final PublishSubject<PlaylistDetailUpsellItem> onUpsellDismissed = PublishSubject.create();
     private final PublishSubject<Void> headerPlayClicked = PublishSubject.create();
-    private final PublishSubject<Integer> trackPlayClicked = PublishSubject.create();
     private final PublishSubject<Boolean> like = PublishSubject.create();
     private final PublishSubject<Boolean> repost = PublishSubject.create();
+    private final PublishSubject<PlaylistDetailTrackItem> playFromTrack = PublishSubject.create();
 
     // outputs
     private final BehaviorSubject<AsyncViewModel<PlaylistDetailsViewModel>> viewModelSubject = BehaviorSubject.create();
@@ -116,13 +115,16 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PublishSubject<RepostOperations.RepostResult> showRepostResult = PublishSubject.create();
     private final PublishSubject<LikeOperations.LikeResult> showLikeResult = PublishSubject.create();
     private final PublishSubject<Urn> showPlaylistDeletionConfirmation = PublishSubject.create();
+    private final PublishSubject<Urn> goToUpsell = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
-    private final BehaviorSubject<PlaylistWithTracks> dataSource;
+    private final BehaviorSubject<PlaylistWithExtras> dataSource;
+    private final DataSourceProvider dataSourceProvider;
 
     NewPlaylistDetailsPresenter(Urn playlistUrn,
                                 String screen,
                                 @Nullable SearchQuerySourceInfo searchQuerySourceInfo,
                                 @Nullable PromotedSourceInfo promotedSourceInfo,
+                                @Provided PlaylistUpsellOperations playlistUpsellOperations,
                                 @Provided PlaybackInitiator playbackInitiator,
                                 @Provided PlaylistOperations playlistOperations,
                                 @Provided LikesStateProvider likesStateProvider,
@@ -135,11 +137,12 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided EventTracker eventTracker,
                                 @Provided LikeOperations likeOperations,
                                 @Provided PlaylistDetailsViewModelCreator viewModelCreator,
-                                @Provided NewPlaylistDetailsPresenter_DataSourceProviderFactory dataSourceProviderFactory,
+                                @Provided DataSourceProviderFactory dataSourceProviderFactory,
                                 @Provided RepostOperations repostOperations) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
+        this.playlistUpsellOperations = playlistUpsellOperations;
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
         this.likesStateProvider = likesStateProvider;
@@ -155,15 +158,23 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.repostOperations = repostOperations;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
-        this.dataSource = dataSourceProviderFactory.create(playlistUrn).data();
+        dataSourceProvider = dataSourceProviderFactory.create(playlistUrn);
+
+        this.dataSource = dataSourceProvider.data();
     }
 
     public void connect() {
+
+        this.dataSourceProvider.connect();
+
         subscription.unsubscribe();
         subscription = new CompositeSubscription(
 
                 actionRefresh(refresh),
                 actionGoToCreator(onCreatorClicked),
+                actionOnMakeOfflineUpsell(onMakeOfflineUpsell),
+                actionGoToUpsellFromTrack(onUpsellItemClicked),
+                actionDismissUpsell(onUpsellDismissed),
                 actionMakeAvailableOffline(offlineAvailable),
                 actionMakeOfflineUnavailableOffline(offlineUnavailable),
                 actionPlayNext(playNext),
@@ -171,7 +182,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 actionLike(like),
                 actionRepost(repost),
                 actionPlayPlaylist(headerPlayClicked),
-                actionPlayPlaylistAtPosition(trackPlayClicked),
+                actionPlayPlaylistStartingFromTrack(playFromTrack),
+                actionTracklistUpdated(tracklistUpdated),
 
                 onPlaylistDeleted(),
 
@@ -179,15 +191,33 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         );
     }
 
-    void actionUpdateTrackList(List<PlaylistDetailTrackItem> trackItems) {
-        final PlaylistWithTracks previousState = dataSource.getValue();
-        final Playlist playlist = previousState.playlist();
-
-        fireAndForget(savePlaylist(playlist, transform(trackItems, PlaylistDetailTrackItem::getUrn)));
+    @Override
+    public void onItemTriggered(PlaylistDetailUpsellItem item) {
+        onUpsellItemClicked.onNext(item);
     }
 
-    private Observable<Playlist> savePlaylist(Playlist playlist, List<Urn> tracks) {
-        return playlistOperations.editPlaylist(playlist, tracks);
+    void onItemDismissed(PlaylistDetailUpsellItem item) {
+        onUpsellDismissed.onNext(item);
+    }
+
+    void fireUpsellImpression() {
+        fireAndForget(lastModel()
+                              .doOnNext(mode -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression(mode.metadata().urn()))));
+    }
+
+    private Observable<PlaylistDetailsViewModel> lastModel() {
+        return viewModelSubject.flatMap(asyncModel -> asyncModel.data().isPresent() ? just(asyncModel.data().get()) : empty());
+    }
+
+    void actionUpdateTrackList(List<PlaylistDetailTrackItem> trackItems) {
+        tracklistUpdated.onNext(trackItems);
+    }
+
+    private Observable<Playlist> savePlaylist(PlaylistWithExtras playlistWithExtras) {
+        return playlistOperations.editPlaylist(playlistWithExtras.playlist().urn(),
+                                               playlistWithExtras.playlist().title(),
+                                               playlistWithExtras.playlist().isPrivate(),
+                                               transform(playlistWithExtras.tracks(), track -> track.urn()));
     }
 
     private Subscription emitViewModel() {
@@ -201,28 +231,41 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 this::combine)
                 .distinctUntilChanged()
                 .doOnNext(viewModelSubject::onNext)
-                .subscribe(new DefaultSubscriber<>());
+                .subscribe(new CrashOnTerminateSubscriber<>());
     }
 
     private Subscription actionPlayPlaylist(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .flatMap(playlistOperations::trackUrnsForPlayback)
                          .withLatestFrom(playSessionSource(), Pair::of)
                          .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
                          .subscribe(showPlaybackResult());
     }
 
-    private Subscription actionPlayPlaylistAtPosition(PublishSubject<Integer> trigger) {
-        return dataSource
+    private Subscription actionPlayPlaylistStartingFromTrack(PublishSubject<PlaylistDetailTrackItem> trigger) {
+        return lastModel()
                 .compose(Transformers.takePairWhen(trigger))
-                .withLatestFrom(playSessionSource(), (playlistWithTracksIntegerPair, playSessionSource) -> {
-                    final List<Track> tracks = playlistWithTracksIntegerPair.first.tracks();
-                    final Integer position = playlistWithTracksIntegerPair.second;
-                    return playTracksFromPosition(tracks, position, playSessionSource);
+                .withLatestFrom(playSessionSource(), (modelWithItem, playSessionSource) -> {
+                    final List<PlaylistDetailTrackItem> tracks = modelWithItem.first.tracks();
+                    final int position = tracks.indexOf(modelWithItem.second);
+                    return playTracksFromPosition(position, playSessionSource, transform(tracks, PlaylistDetailTrackItem::getUrn));
                 })
                 .flatMap(x -> x)
                 .subscribe(showPlaybackResult());
+    }
+
+    private Subscription actionTracklistUpdated(PublishSubject<List<PlaylistDetailTrackItem>> newTrackItemOrder) {
+        return newTrackItemOrder.map(playlistDetailTrackItems -> transform(playlistDetailTrackItems, PlaylistDetailTrackItem::getUrn))
+                                .withLatestFrom(dataSource, this::getSortedPlaylistWithExtras)
+                                .doOnNext(this::savePlaylist)
+                                .subscribe(dataSource);
+    }
+
+    private PlaylistWithExtras getSortedPlaylistWithExtras(List<Urn> urns, PlaylistWithExtras playlistWithExtras) {
+        ArrayList<Track> sortedList = new ArrayList<>(playlistWithExtras.tracks());
+        Collections.sort(sortedList, (left, right) -> urns.indexOf(left.urn()) - urns.indexOf(right.urn()));
+        return playlistWithExtras.toBuilder().tracks(sortedList).build();
     }
 
     private Subscription onPlaylistDeleted() {
@@ -232,15 +275,15 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 .filter(UrnStateChangedEvent::containsPlaylist);
 
         return dataSource
-                .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                 .compose(Transformers.takePairWhen(playlistDeleted))
                 .filter(pair -> pair.second.urns().contains(pair.first))
                 .subscribe(goBack);
     }
 
-    private Observable<PlaybackResult> playTracksFromPosition(List<Track> tracks, Integer position, PlaySessionSource playSessionSource) {
+    private Observable<PlaybackResult> playTracksFromPosition(Integer position, PlaySessionSource playSessionSource, List<Urn> tracks) {
         return playbackInitiator.playTracks(
-                transform(tracks, Track::urn),
+                tracks,
                 position,
                 playSessionSource
         );
@@ -262,14 +305,14 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription actionMakeOfflineUnavailableOffline(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .withLatestFrom(playSessionSource(), Pair::of)
                          .subscribe(makePlaylistUnavailableOffline());
     }
 
     private Subscription actionMakeAvailableOffline(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .withLatestFrom(playSessionSource(), Pair::of)
                          .subscribe(makePlaylistAvailableOffline());
     }
@@ -278,10 +321,10 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return dataSource.map(createPlaySessionSource());
     }
 
-    private Subscription actionRefresh(PublishSubject<Void> trigger) {
+    private Subscription actionRefresh(PublishSubject<Object> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .filter(playlistWithTracks -> isNotRefreshing())
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .filter(PlaylistWithExtras -> isNotRefreshing())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .subscribe(this::doSync);
     }
 
@@ -306,20 +349,42 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription actionGoToCreator(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().creatorUrn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().creatorUrn())
                          .subscribe(gotoCreator);
     }
 
     private Subscription actionPlayNext(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .subscribe(playQueueHelper::playNext);
     }
 
     private Subscription actionDeletePlaylist(PublishSubject<Void> trigger) {
         return dataSource.compose(Transformers.takeWhen(trigger))
-                         .map(playlistWithTracks -> playlistWithTracks.playlist().urn())
+                         .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                          .subscribe(showPlaylistDeletionConfirmation);
+    }
+
+    private Subscription actionGoToUpsellFromTrack(PublishSubject<PlaylistDetailUpsellItem> trigger) {
+        return lastModel().compose(Transformers.takeWhen(trigger))
+                          .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
+                          .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick(urn)))
+                          .subscribe(goToUpsell);
+    }
+
+    private Subscription actionOnMakeOfflineUpsell(PublishSubject<Void> trigger) {
+        return lastModel().compose(Transformers.takeWhen(trigger))
+                          .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
+                          .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(urn)))
+                          .subscribe(goToUpsell);
+    }
+
+    private Subscription actionDismissUpsell(PublishSubject<PlaylistDetailUpsellItem> trigger) {
+        return lastModel()
+                .compose(Transformers.takeWhen(trigger))
+                .doOnNext(e -> playlistUpsellOperations.disableUpsell())
+                .map(ignored -> false)
+                .subscribe(refresh);
     }
 
     private Action1<Pair<Urn, PlaySessionSource>> makePlaylistAvailableOffline() {
@@ -352,9 +417,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         };
     }
 
-    private Func1<PlaylistWithTracks, PlaySessionSource> createPlaySessionSource() {
-        return playlistWithTracks -> {
-            final Playlist playlist = playlistWithTracks.playlist();
+    private Func1<PlaylistWithExtras, PlaySessionSource> createPlaySessionSource() {
+        return PlaylistWithExtras -> {
+            final Playlist playlist = PlaylistWithExtras.playlist();
             PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(screen, playlist.urn(), playlist.creatorUrn(), playlist.trackCount());
             if (promotedSourceInfo != null) {
                 playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
@@ -371,31 +436,46 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private AsyncViewModel<PlaylistDetailsViewModel> combine(Boolean isRefreshing,
                                                              Boolean isEditMode,
-                                                             PlaylistWithTracks playlistWithTracks,
+                                                             PlaylistWithExtras playlistWithExtras,
                                                              LikedStatuses likedStatuses,
                                                              RepostStatuses repostStatuses,
                                                              OfflineProperties offlineProperties) {
-        return AsyncViewModel.create(of(viewModelCreator.create(playlistWithTracks.playlist(),
-                                                                updateTracks(playlistWithTracks, offlineProperties),
-                                                                likedStatuses.isLiked(playlistWithTracks.playlist().urn()),
-                                                                repostStatuses.isReposted(playlistWithTracks.playlist().urn()),
+
+        return AsyncViewModel.create(of(viewModelCreator.create(playlistWithExtras.playlist(),
+                                                                updateTracks(playlistWithExtras, offlineProperties, isEditMode),
+                                                                likedStatuses.isLiked(playlistWithExtras.playlist().urn()),
+                                                                repostStatuses.isReposted(playlistWithExtras.playlist().urn()),
                                                                 isEditMode,
-                                                                offlineProperties.state(playlistWithTracks.playlist().urn()),
-                                                                absent()
+                                                                isEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(playlistWithExtras.playlist().urn()),
+                                                                createOtherPlaylistsItem(playlistWithExtras, isEditMode)
         )), isRefreshing, Optional.absent());
     }
 
-    private List<TrackItem> updateTracks(PlaylistWithTracks playlistWithTracks, OfflineProperties offlineProperties) {
-        List<Track> tracks = playlistWithTracks.tracks();
+    private Optional<PlaylistDetailOtherPlaylistsItem> createOtherPlaylistsItem(PlaylistWithExtras playlistWithExtras, boolean isInEditMode) {
+        if (!isInEditMode && playlistWithExtras.otherPlaylistsByCreator().isPresent() && !playlistWithExtras.otherPlaylistsByCreator().get().isEmpty()) {
+
+            List<PlaylistItem> otherPlaylistItems = transform(playlistWithExtras.otherPlaylistsByCreator().get(), PlaylistItem::from);
+            String creatorName = playlistWithExtras.playlist().creatorName();
+            return of(new PlaylistDetailOtherPlaylistsItem(creatorName, otherPlaylistItems));
+
+        } else {
+            return absent();
+        }
+
+    }
+
+    private List<TrackItem> updateTracks(PlaylistWithExtras PlaylistWithExtras, OfflineProperties offlineProperties, boolean isInEditMode) {
+        List<Track> tracks = PlaylistWithExtras.tracks();
         List<TrackItem> trackItems = new ArrayList<>(tracks.size());
         for (Track track : tracks) {
             // todo, use constructor instead of update
-            trackItems.add(TrackItem.from(track).updatedWithOfflineState(offlineProperties.state(track.urn())));
+            trackItems.add(TrackItem.from(track).updatedWithOfflineState(isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn())));
         }
         return trackItems;
     }
 
     void disconnect() {
+        dataSourceProvider.disconnect();
         subscription.unsubscribe();
     }
 
@@ -409,6 +489,10 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     PublishSubject<RepostOperations.RepostResult> onRepostResult() {
         return showRepostResult;
+    }
+
+    PublishSubject<Urn> goToUpsell() {
+        return goToUpsell;
     }
 
     Observable<PlaybackResult.ErrorReason> onPlaybackError() {
@@ -433,8 +517,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     @Override
-    public void onPlayAtPosition(Integer position) {
-        trackPlayClicked.onNext(position);
+    public void onItemTriggered(PlaylistDetailTrackItem item) {
+        playFromTrack.onNext(item);
     }
 
     @Override
@@ -455,6 +539,11 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     @Override
     public void onMakeOfflineUnavailable() {
         offlineUnavailable.onNext(null);
+    }
+
+    @Override
+    public void onMakeOfflineUpsell() {
+        onMakeOfflineUpsell.onNext(null);
     }
 
     @Override
@@ -483,11 +572,6 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     @Override
-    public void onUpsell() {
-
-    }
-
-    @Override
     public void onOverflowUpsell() {
 
     }
@@ -507,9 +591,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         delete.onNext(null);
     }
 
-    private Observable<LikeOperations.LikeResult> like(android.util.Pair<PlaylistWithTracks, Boolean> playlistWithTracksBooleanPair, PlaySessionSource playSessionSource) {
-        Playlist playlist = playlistWithTracksBooleanPair.first.playlist();
-        final Boolean isLike = playlistWithTracksBooleanPair.second;
+    private Observable<LikeOperations.LikeResult> like(android.util.Pair<PlaylistWithExtras, Boolean> PlaylistWithExtrasBooleanPair, PlaySessionSource playSessionSource) {
+        Playlist playlist = PlaylistWithExtrasBooleanPair.first.playlist();
+        final Boolean isLike = PlaylistWithExtrasBooleanPair.second;
         eventTracker.trackEngagement(UIEvent.fromToggleLike(isLike,
                                                             playlist.urn(),
                                                             getEventContext(playlist.urn()),
@@ -519,9 +603,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return likeOperations.toggleLike(playlist.urn(), isLike);
     }
 
-    private Observable<RepostOperations.RepostResult> repost(android.util.Pair<PlaylistWithTracks, Boolean> playlistWithTracksBooleanPair, PlaySessionSource playSessionSource) {
-        final Playlist playlist = playlistWithTracksBooleanPair.first.playlist();
-        final Boolean isReposted = playlistWithTracksBooleanPair.second;
+    private Observable<RepostOperations.RepostResult> repost(android.util.Pair<PlaylistWithExtras, Boolean> PlaylistWithExtrasBooleanPair, PlaySessionSource playSessionSource) {
+        final Playlist playlist = PlaylistWithExtrasBooleanPair.first.playlist();
+        final Boolean isReposted = PlaylistWithExtrasBooleanPair.second;
 
         eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
                                                               playlist.urn(),
@@ -553,84 +637,11 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                        playSessionSource.getPromotedSourceInfo());
     }
 
-    @VisibleForTesting
-    @AutoValue
-    static abstract class PlaylistWithTracks {
-
-        static PlaylistWithTracks create(Playlist playlist, List<Track> tracks) {
-            return new AutoValue_NewPlaylistDetailsPresenter_PlaylistWithTracks(playlist, tracks);
-        }
-
-        abstract Playlist playlist();
-
-        abstract List<Track> tracks();
-    }
-
-    @AutoFactory(allowSubclasses = true)
-    static class DataSourceProvider {
-
-        private PlaylistRepository playlistRepository;
-        private TrackRepository trackRepository;
-        private EventBus eventBus;
-        private Urn playlistUrn;
-
-        private final BehaviorSubject<PlaylistWithTracks> data = BehaviorSubject.create();
-        private final Scheduler scheduler;
-
-        @Inject
-        DataSourceProvider(Urn initialUrn,
-                           @Provided @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler,
-                           @Provided PlaylistRepository playlistRepository,
-                           @Provided TrackRepository trackRepository,
-                           @Provided EventBus eventBus) {
-            this.scheduler = scheduler;
-            this.playlistRepository = playlistRepository;
-            this.trackRepository = trackRepository;
-            this.eventBus = eventBus;
-            this.playlistUrn = initialUrn;
-            dataSource().subscribe(data);
-        }
-
-        public BehaviorSubject<PlaylistWithTracks> data() {
-            return data;
-        }
-
-        Observable<PlaylistWithTracks> dataSource() {
-            return playlistUpdates().startWith(singleton(null))
-                                    .switchMap(ignored -> combineLatest(playlist(), tracks(), PlaylistWithTracks::create));
-        }
-
-        private Observable<List<Track>> tracks() {
-            return trackRepository.forPlaylist(playlistUrn)
-                                  .startWith(Collections.<Track>emptyList())
-                                  .debounce(100, TimeUnit.MILLISECONDS, scheduler);
-        }
-
-        private Observable<Playlist> playlist() {
-            return playlistRepository.withUrn(playlistUrn);
-        }
-
-        private Observable<PlaylistChangedEvent> playlistUpdates() {
-            return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
-                           .filter(event -> event.changeMap().containsKey(playlistUrn))
-                           .filter(event -> !event.isPlaylistEdited() && (event.isEntityChangeEvent() || event.isTracklistChangeEvent()))
-                           .doOnNext(this::storeUpdatedUrn);
-        }
-
-        private void storeUpdatedUrn(PlaylistChangedEvent event) {
-            if (event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER) {
-                playlistUrn = ((PlaylistEntityChangedEvent) event).changeMap().get(playlistUrn).urn();
-            }
-        }
-    }
-
     /**
      * TODO :
      * - error states
      * - Upsells
-     * - Other playlists by user
      * - missing playlists
-     * - offline logic
      * - show confirmation dialog when exiting offline mode
      */
 }

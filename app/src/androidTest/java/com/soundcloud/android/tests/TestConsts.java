@@ -51,6 +51,10 @@ public final class TestConsts {
     public static final Uri LETTERBOX_VIDEO_PLAYLIST_URI = Uri.parse(
             "https://soundcloud.com/scandroidad1/sets/letterbox-video-ad");
 
+    public static final Uri PLAYLIST_UPSELL = Uri.parse(
+            "https://soundcloud.com/mrs-creator-2/sets/ht-1-4");
+
+
     public static final Uri HOME_URI = Uri.parse("soundcloud://home");
     public static final Uri UPGRADE_URI = Uri.parse("soundcloud://soundcloudgo");
     public static final Uri OFFLINE_SETTINGS_URI_DEEPLINK = Uri.parse("soundcloud://settings_offlinelistening");

@@ -1,19 +1,28 @@
 package com.soundcloud.android.search.topresults;
 
+import com.soundcloud.android.associations.FollowingStateProvider;
+import com.soundcloud.android.associations.FollowingStatuses;
+import com.soundcloud.android.likes.LikedStatuses;
+import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.view.AsyncViewModel;
-import com.soundcloud.android.viewstate.PartialState;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.search.ApiUniversalSearchItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.view.adapters.CollectionLoader;
+import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
-import rx.functions.Func2;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.CompositeSubscription;
 
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TopResultsPresenter {
 
@@ -24,64 +33,102 @@ public class TopResultsPresenter {
         Observable<Void> refreshIntent();
     }
 
-    private final BehaviorSubject<AsyncViewModel<TopResultsViewModel>> viewModel = BehaviorSubject.create();
+    private final BehaviorSubject<TopResultsViewModel> viewModel = BehaviorSubject.create();
 
-    private final TopResultsLoader topResultsLoader;
+    private CompositeSubscription viewSubscription = new CompositeSubscription();
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private final BehaviorSubject<Pair<String, Optional<Urn>>> firstPageIntent = BehaviorSubject.create();
+    private final BehaviorSubject<Pair<String, Optional<Urn>>> refreshIntent = BehaviorSubject.create();
 
     @Inject
-    TopResultsPresenter(TopResultsLoader topResultsLoader) {
-        this.topResultsLoader = topResultsLoader;
+    TopResultsPresenter(TopResultsOperations operations, LikesStateProvider likedStatuses, FollowingStateProvider followingStatuses) {
+
+        CollectionLoader<ApiTopResultsBucket, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
+                firstPageIntent,
+                operations::search,
+                refreshIntent,
+                operations::search);
+
+        Observable.combineLatest(loader.pages(),
+                                 likedStatuses.likedStatuses(),
+                                 followingStatuses.followingStatuses(),
+                                 this::transformBucketToViewModel)
+                  .subscribe(viewModel);
     }
 
     void attachView(TopResultsView topResultsView) {
-        AsyncViewModel<TopResultsViewModel> initialState = AsyncViewModel.fromIdle(TopResultsViewModel.create(Collections.emptyList()));
-        subscription = new CompositeSubscription();
+        viewSubscription = new CompositeSubscription();
 
-        Observable<PartialState<TopResultsViewModel>> searchIntent = topResultsView.searchIntent().cache().flatMap(this::doSearch);
-        Observable<PartialState<TopResultsViewModel>> refreshIntent = topResultsView.refreshIntent()
-                                                                                    .flatMap(ignored -> searchIntent.startWith(new PartialState.RefreshStarted<>()));
-
-        subscription.add(
-                Observable.merge(
-                        searchIntent,
-                        refreshIntent
-                ).scan(initialState, reduceStates()).subscribe(viewModel)
+        Observable<Pair<String, Optional<Urn>>> cachedSearchIntent = topResultsView.searchIntent().cache();
+        viewSubscription.addAll(
+                cachedSearchIntent
+                        .subscribe(firstPageIntent),
+                topResultsView.refreshIntent()
+                              .flatMap(ignored -> cachedSearchIntent)
+                              .subscribe(refreshIntent)
         );
     }
 
-    void detachView() {
-        subscription.unsubscribe();
+    @NonNull
+    private TopResultsViewModel transformBucketToViewModel(
+            CollectionViewState<ApiTopResultsBucket> collectionViewState,
+            LikedStatuses likedStatuses,
+            FollowingStatuses followingStatuses) {
+
+        return TopResultsViewModel.create(collectionViewState.withNewType(transformBucket(likedStatuses, followingStatuses)));
     }
 
-    Observable<AsyncViewModel<TopResultsViewModel>> viewModel() {
+    void detachView() {
+        viewSubscription.unsubscribe();
+    }
+
+    Observable<TopResultsViewModel> viewModel() {
         return viewModel;
     }
 
     @NonNull
-    private Observable<PartialState<TopResultsViewModel>> doSearch(Pair<String, Optional<Urn>> searchParams) {
-        return topResultsLoader.getTopSearchResults(searchParams)
-                .<PartialState<TopResultsViewModel>>map(UpdatedResults::new)
-                .onErrorReturn(PartialState.Error::new);
+    static Function<ApiTopResultsBucket, TopResultsBucketViewModel> transformBucket(LikedStatuses likedStatuses, FollowingStatuses followingStatuses) {
+        return apiBucket -> {
+
+            List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
+            List<SearchItem> result = new ArrayList<>(apiUniversalSearchItems.size());
+
+            for (ApiUniversalSearchItem searchItem : apiUniversalSearchItems) {
+                if (searchItem.track().isPresent()) {
+                    result.add(SearchItem.Track.create(createTrackItem(searchItem, likedStatuses)));
+
+                } else if (searchItem.playlist().isPresent()) {
+                    result.add(SearchItem.Playlist.create(createPlaylistItem(searchItem, likedStatuses)));
+
+                } else if (searchItem.user().isPresent()) {
+                    result.add(SearchItem.User.create(createUserItem(searchItem, followingStatuses)));
+                }
+            }
+            return TopResultsBucketViewModel.create(result, urnToKind(apiBucket.urn()), apiBucket.totalResults(), apiBucket.queryUrn().or(Urn.NOT_SET));
+        };
     }
 
-    @NonNull
-    private Func2<AsyncViewModel<TopResultsViewModel>, PartialState<TopResultsViewModel>, AsyncViewModel<TopResultsViewModel>> reduceStates() {
-        return (oldState, partialState) -> partialState.createNewState(oldState);
+    private static UserItem createUserItem(ApiUniversalSearchItem searchItem, FollowingStatuses followingStatuses) {
+        return UserItem.from(searchItem.user().get(), followingStatuses.isFollowed(searchItem.user().get().getUrn()));
     }
 
-    private class UpdatedResults implements PartialState<TopResultsViewModel> {
+    private static PlaylistItem createPlaylistItem(ApiUniversalSearchItem searchItem, LikedStatuses likedStatuses) {
+        return PlaylistItem.fromLiked(searchItem.playlist().get(), likedStatuses.isLiked(searchItem.playlist().get().getUrn()));
+    }
 
-        private TopResultsViewModel updatedResults;
+    private static TrackItem createTrackItem(ApiUniversalSearchItem searchItem, LikedStatuses likedStatuses) {
+        return TrackItem.fromLiked(searchItem.track().get(), likedStatuses.isLiked(searchItem.track().get().getUrn()));
+    }
 
-        UpdatedResults(TopResultsViewModel updatedResults) {
-            this.updatedResults = updatedResults;
-        }
 
-        @Override
-        public AsyncViewModel<TopResultsViewModel> createNewState(AsyncViewModel<TopResultsViewModel> oldState) {
-            return AsyncViewModel.fromIdle(updatedResults);
+    private static TopResultsBucketViewModel.Kind urnToKind(Urn urn) {
+        switch (urn.toString()) {
+            case "soundcloud:search-buckets:tracks":
+                return TopResultsBucketViewModel.Kind.TRACKS;
+            case "soundcloud:search-buckets:top":
+                return TopResultsBucketViewModel.Kind.TOP_RESULT;
+            default:
+                throw new IllegalArgumentException("Unexpected urn type for search");
         }
     }
 }

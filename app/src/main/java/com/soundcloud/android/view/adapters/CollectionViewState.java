@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.java.optional.Optional.of;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Lists;
@@ -11,13 +13,11 @@ import java.util.Collections;
 import java.util.List;
 
 @AutoValue
-abstract class CollectionViewState<ItemType> {
+public abstract class CollectionViewState<ItemType> {
 
     public <TransformedType> CollectionViewState<TransformedType> withNewType(Function<? super ItemType, ? extends TransformedType> func){
         return CollectionViewState.<TransformedType>builder()
                 .items(Lists.transform(items(), func))
-                .isLoadingFirstPage(isLoadingFirstPage())
-                .firstPageError(firstPageError())
                 .isLoadingNextPage(isLoadingNextPage())
                 .nextPageError(nextPageError())
                 .isRefreshing(isRefreshing())
@@ -27,10 +27,6 @@ abstract class CollectionViewState<ItemType> {
     }
 
     public abstract List<ItemType> items();
-
-    public abstract boolean isLoadingFirstPage();
-
-    public abstract Optional<ViewError> firstPageError();
 
     public abstract boolean isLoadingNextPage();
 
@@ -46,105 +42,62 @@ abstract class CollectionViewState<ItemType> {
 
     public static <ItemType> Builder<ItemType> builder() {
         return new AutoValue_CollectionViewState.Builder()
-                .firstPageError(Optional.absent())
                 .nextPageError(Optional.absent())
                 .refreshError(Optional.absent())
-                .isLoadingFirstPage(false)
                 .isLoadingNextPage(false)
                 .isRefreshing(false)
                 .hasMorePages(true)
                 .items(Collections.emptyList());
     }
 
-    public static <ItemType> CollectionViewState<ItemType> loadingFirstPage() {
-        return CollectionViewState.<ItemType>builder().isLoadingFirstPage(true).build();
+    public static <ItemType> CollectionViewState<ItemType> loadingNextPage() {
+        return CollectionViewState.<ItemType>builder().isLoadingNextPage(true).build();
     }
 
-    public static CollectionViewState pageLoaded() {
-        return pageLoaded(true);
-    }
-
-    public static CollectionViewState pageLoaded(boolean hasMorePages) {
-        return builder().hasMorePages(hasMorePages).build();
-    }
-
-    public static <ItemType> CollectionViewState<ItemType> firstPageError(Throwable throwable) {
-        return CollectionViewState.<ItemType>builder()
-                .firstPageError(Optional.of(ViewError.from(throwable)))
+    public CollectionViewState<ItemType> toFirstPageLoaded(List<ItemType> items) {
+        return toBuilder()
+                .isLoadingNextPage(false)
+                .nextPageError(Optional.absent())
+                .items(items)
                 .build();
     }
 
-    public static CollectionViewState loadingNextPage() {
-        return builder().isLoadingNextPage(true).build();
+    public CollectionViewState<ItemType> toRefreshStarted() {
+        return toBuilder()
+                .isRefreshing(true)
+                .refreshError(Optional.absent())
+                .build();
     }
 
-    public static CollectionViewState nextPageError(Throwable throwable) {
-        return builder()
-                .nextPageError(Optional.of(ViewError.from(throwable)))
+    public CollectionViewState<ItemType> toNextPageError(Throwable throwable) {
+        return toBuilder()
+                .isLoadingNextPage(false)
+                .nextPageError(of(ViewError.from(throwable)))
                 .build();
     }
 
     @AutoValue.Builder
-    abstract static class Builder<ItemType> {
+    public abstract static class Builder<ItemType> {
 
-        abstract Builder<ItemType> items(List<ItemType> value);
+        public abstract Builder<ItemType> items(List<ItemType> value);
 
-        abstract Builder<ItemType> isLoadingFirstPage(boolean value);
+        public abstract Builder<ItemType> isLoadingNextPage(boolean value);
 
-        abstract Builder<ItemType> firstPageError(Optional<ViewError> value);
+        public abstract Builder<ItemType> nextPageError(Optional<ViewError> value);
 
-        abstract Builder<ItemType> isLoadingNextPage(boolean value);
+        public abstract Builder<ItemType> isRefreshing(boolean value);
 
-        abstract Builder<ItemType> nextPageError(Optional<ViewError> value);
+        public abstract Builder<ItemType> refreshError(Optional<ViewError> value);
 
-        abstract Builder<ItemType> isRefreshing(boolean value);
+        public abstract Builder<ItemType> hasMorePages(boolean value);
 
-        abstract Builder<ItemType> refreshError(Optional<ViewError> value);
-
-        abstract Builder<ItemType> hasMorePages(boolean value);
-
-        abstract CollectionViewState<ItemType> build();
+        public abstract CollectionViewState<ItemType> build();
     }
 
 
     public interface PartialState<ItemType> {
 
         CollectionViewState<ItemType> newState(CollectionViewState<ItemType> oldState);
-
-        class FirstPageLoaded<ItemType> implements PartialState<ItemType> {
-
-            private List<ItemType> items;
-
-            FirstPageLoaded(List<ItemType> items) {
-                this.items = items;
-            }
-
-            @Override
-            public CollectionViewState<ItemType> newState(CollectionViewState<ItemType> oldState) {
-                Builder<ItemType> builder = oldState.toBuilder();
-                builder.items(items);
-                builder.nextPageError(Optional.absent());
-                builder.firstPageError(Optional.absent());
-                builder.isLoadingFirstPage(false);
-                builder.isLoadingNextPage(false);
-                return builder.build();
-            }
-        }
-
-        class FirstPageError<ItemType> implements PartialState<ItemType> {
-
-            private final Throwable throwable;
-
-            FirstPageError(Throwable throwable) {
-                this.throwable = throwable;
-            }
-
-            @Override
-            public CollectionViewState<ItemType> newState(CollectionViewState<ItemType> oldState) {
-                return CollectionViewState.firstPageError(throwable);
-
-            }
-        }
 
         class NextPageLoaded<ItemType> implements PartialState<ItemType> {
 
@@ -193,7 +146,7 @@ abstract class CollectionViewState<ItemType> {
             @Override
             public CollectionViewState<ItemType> newState(CollectionViewState<ItemType> oldState) {
                 return oldState.toBuilder()
-                               .nextPageError(Optional.of(ViewError.from(throwable)))
+                               .nextPageError(of(ViewError.from(throwable)))
                                .isLoadingNextPage(false)
                                .build();
 
@@ -223,7 +176,7 @@ abstract class CollectionViewState<ItemType> {
             public CollectionViewState<ItemType> newState(CollectionViewState<ItemType> oldState) {
                 return oldState.toBuilder()
                                .isRefreshing(false)
-                               .refreshError(Optional.of(ViewError.from(throwable)))
+                               .refreshError(of(ViewError.from(throwable)))
                                .build();
 
             }

@@ -58,20 +58,18 @@ class PlaylistEngagementsRenderer {
         this.infoProvider = infoProvider;
     }
 
-    void bind(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
+    void bind(View view, PlaylistDetailsViewModel item, PlaylistDetailsInputs onEngagementListener) {
+        final PlaylistDetailsMetadata metadata = item.metadata();
         bindEngagementBar(view, item, onEngagementListener);
-        setInfoText(infoProvider.getPlaylistInfoLabel(item.offlineState(), item.headerText()), view);
+        setInfoText(infoProvider.getPlaylistInfoLabel(metadata.offlineState(), metadata.headerText()), view);
     }
 
-    private void bindEngagementBar(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
-        configureLikeButton(view, item, onEngagementListener);
-        configureOverflow(view, item, onEngagementListener);
+    private void bindEngagementBar(View view, PlaylistDetailsViewModel item, PlaylistDetailsInputs onEngagementListener) {
+        final PlaylistDetailsMetadata metadata = item.metadata();
+        configureLikeButton(view, metadata, onEngagementListener);
+        configureOverflow(view, metadata, onEngagementListener);
         configureDownloadToggle(item, view, onEngagementListener);
-        downloadStateRenderer.show(item.offlineState(), view);
-
-        final View bar = view.findViewById(R.id.playlist_engagement_bar);
-        bar.setVisibility(item.isInEditMode() ? View.GONE : View.VISIBLE);
-
+        downloadStateRenderer.show(metadata.offlineState(), view);
     }
 
     private void configureLikeButton(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
@@ -102,11 +100,12 @@ class PlaylistEngagementsRenderer {
         });
     }
 
-    private void configureDownloadToggle(PlaylistDetailsMetadata item, View view, PlaylistDetailsInputs listener) {
-        IconToggleButton downloadToggle = ButterKnife.findById(view, R.id.toggle_download);
-        switch (item.offlineOptions()) {
+    private void configureDownloadToggle(PlaylistDetailsViewModel item, View view, PlaylistDetailsInputs listener) {
+        final IconToggleButton downloadToggle = ButterKnife.findById(view, R.id.toggle_download);
+        final PlaylistDetailsMetadata metadata = item.metadata();
+        switch (metadata.offlineOptions()) {
             case AVAILABLE:
-                showOfflineOptions(item.isMarkedForOffline(), downloadToggle, listener);
+                showOfflineOptions(metadata.isMarkedForOffline(), downloadToggle, listener);
                 break;
             case UPSELL:
                 showUpsell(downloadToggle, listener);
@@ -187,7 +186,7 @@ class PlaylistEngagementsRenderer {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(v -> {
-            listener.onUpsell();
+            listener.onMakeOfflineUpsell();
             downloadToggle.setChecked(false);
         });
     }

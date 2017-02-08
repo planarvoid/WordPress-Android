@@ -31,6 +31,10 @@ public class BaseLayoutHelper {
         return createActionBarLayout(activity, R.layout.base);
     }
 
+    public View setBaseNoToolbar(AppCompatActivity activity) {
+        return createActionBarLayout(activity, R.layout.base_no_toolbar);
+    }
+
     public View setBaseTabsLayout(AppCompatActivity activity) {
         return createLayout(activity, R.layout.base_with_tabs);
     }

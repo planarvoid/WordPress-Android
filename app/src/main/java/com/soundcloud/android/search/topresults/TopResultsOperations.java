@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.CacheUniversalSearchCommand;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
@@ -30,6 +31,10 @@ class TopResultsOperations {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
+    }
+
+    public Observable<List<ApiTopResultsBucket>> search(Pair<String,Optional<Urn>> pairQuery) {
+        return search(pairQuery.first(), pairQuery.second());
     }
 
     public Observable<List<ApiTopResultsBucket>> search(String query, Optional<Urn> queryUrn) {

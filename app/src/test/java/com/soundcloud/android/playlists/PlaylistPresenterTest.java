@@ -277,7 +277,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     public void onUpsellItemClickedOpensUpgradeScreen() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
-        presenter.onUpsellItemClicked(context());
+        presenter.onUpsellItemClicked(context(), 0);
 
         verify(navigator).openUpgrade(context());
     }
@@ -300,7 +300,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
-        presenter.onUpsellItemClicked(context());
+        presenter.onUpsellItemClicked(context(), 0);
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());

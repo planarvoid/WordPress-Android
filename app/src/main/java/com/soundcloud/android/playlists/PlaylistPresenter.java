@@ -317,7 +317,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
                 final PlaylistDetailsMetadata headerItem = playlistDetailsViewModel.metadata();
                 PlaylistPresenter.this.headerItemOpt = Optional.of(headerItem);
                 playSessionSource = createPlaySessionSource(headerItem);
-                headerPresenter.setPlaylist(headerItem, playSessionSource);
+                headerPresenter.setPlaylist(playlistDetailsViewModel, playSessionSource);
                 fragment.getActivity().setTitle(headerItem.label());
                 trackRenderer.setPlaylistInformation(playSessionSource.getPromotedSourceInfo(), headerItem.getUrn(), headerItem.creatorUrn());
             }
@@ -363,7 +363,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     }
 
     @Override
-    public void onUpsellItemClicked(Context context) {
+    public void onUpsellItemClicked(Context context, int position) {
         navigator.openUpgrade(context);
         if (headerItemOpt.isPresent()) {
             eventBus.publish(EventQueue.TRACKING,

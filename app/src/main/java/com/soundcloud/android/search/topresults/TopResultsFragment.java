@@ -5,13 +5,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionViewFragment;
+import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -23,7 +22,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TopResultsFragment extends CollectionViewFragment<TopResultsViewModel, TopResultsBucketViewModel, RecyclerView.ViewHolder>  implements TopResultsPresenter.TopResultsView {
+public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketViewModel, RecyclerView.ViewHolder>  implements TopResultsPresenter.TopResultsView {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
@@ -111,15 +110,11 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsViewMod
     }
 
     @Override
-    protected Observable<AsyncViewModel<TopResultsViewModel>> modelUpdates() {
+    protected Observable<CollectionViewState<TopResultsBucketViewModel>> collectionView() {
         return presenter
                 .viewModel()
+                .map(TopResultsViewModel::buckets)
                 .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @Override
-    protected Func1<TopResultsViewModel, List<TopResultsBucketViewModel>> viewModelToItems() {
-        return TopResultsViewModel::buckets;
     }
 
     static class TopResultsAdapter extends RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> {

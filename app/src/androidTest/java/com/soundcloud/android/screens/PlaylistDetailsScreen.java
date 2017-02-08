@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
@@ -14,6 +13,7 @@ import com.soundcloud.android.screens.elements.AdapterElement;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
+import com.soundcloud.android.screens.elements.PlaylistUpsellCardElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -53,6 +53,10 @@ public class PlaylistDetailsScreen extends Screen {
     public UpgradeScreen clickDownloadToggleForUpsell() {
         getDownloadToggle().click();
         return new UpgradeScreen(testDriver);
+    }
+
+    public PlaylistUpsellCardElement scrollToUpsell() {
+        return new PlaylistUpsellCardElement(testDriver, scrollToItem(With.id(R.id.playlist_upsell)));
     }
 
     public ViewElement getDownloadToggle() {

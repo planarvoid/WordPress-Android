@@ -343,7 +343,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onUpsellItemClickedOpensUpgradeScreen() {
         presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onUpsellItemClicked(context());
+        presenter.onUpsellItemClicked(context(), 0);
 
         verify(navigator).openUpgrade(fragmentRule.getActivity());
     }
@@ -353,7 +353,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forStreamClick();
 
         presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onUpsellItemClicked(context());
+        presenter.onUpsellItemClicked(context(), 0);
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());

@@ -76,6 +76,13 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private EventContextMetadata eventContextMetadata;
 
     public interface RemoveTrackListener {
+        RemoveTrackListener EMPTY = new RemoveTrackListener() {
+            @Override
+            public void onPlaylistTrackRemoved(Urn track) {
+
+            }
+        };
+
         void onPlaylistTrackRemoved(Urn track);
     }
 

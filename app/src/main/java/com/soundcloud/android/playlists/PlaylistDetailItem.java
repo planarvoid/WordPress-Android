@@ -18,4 +18,8 @@ public class PlaylistDetailItem {
     public PlaylistDetailItem.Kind getPlaylistItemKind() {
         return kind;
     }
+
+    public boolean isTrackItem() {
+        return kind == Kind.TrackItem;
+    }
 }

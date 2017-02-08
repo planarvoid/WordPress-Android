@@ -16,6 +16,10 @@ class PlaylistDetailFixtures {
         return create(resources, playlist, trackItems, Optional.absent(), Optional.absent());
     }
 
+    static PlaylistDetailsViewModel create(Resources resources, Playlist playlist, List<TrackItem> trackItems, PlaylistDetailOtherPlaylistsItem otherPlaylistsByUser) {
+        return create(resources, playlist, trackItems, Optional.of(otherPlaylistsByUser), Optional.absent());
+    }
+
     static PlaylistDetailsViewModel createWithOtherMyPlaylists(Resources resources, Playlist playlist, List<TrackItem> trackItems, Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
         PlaylistDetailsViewModel viewModel = create(resources, playlist, trackItems, otherPlaylists, Optional.absent());
         return viewModel

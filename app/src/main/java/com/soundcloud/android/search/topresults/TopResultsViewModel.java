@@ -1,15 +1,14 @@
 package com.soundcloud.android.search.topresults;
 
 import com.google.auto.value.AutoValue;
-
-import java.util.List;
+import com.soundcloud.android.view.adapters.CollectionViewState;
 
 @AutoValue
 abstract class TopResultsViewModel {
 
-    abstract List<TopResultsBucketViewModel> buckets();
+    abstract CollectionViewState<TopResultsBucketViewModel> buckets();
 
-    static TopResultsViewModel create(List<TopResultsBucketViewModel> buckets) {
+    static TopResultsViewModel create(CollectionViewState<TopResultsBucketViewModel> buckets) {
         return new AutoValue_TopResultsViewModel(buckets);
     }
 }

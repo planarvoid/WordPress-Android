@@ -57,6 +57,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -108,7 +109,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
     private Observable<List<Urn>> playlistTrackurns;
-    private PlaylistDetailsMetadata headerItem;
+    private PlaylistDetailsViewModel viewModel;
     private PlaylistHeaderPresenter presenter;
     private View view;
 
@@ -122,8 +123,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void setup() {
         eventBus = new TestEventBus();
         playlistTrackurns = Observable.just(singletonList(Urn.forTrack(1)));
-        headerItem = createPlaylistInfoWithSharing(Sharing.PUBLIC);
-        when(playlistOperations.trackUrnsForPlayback(headerItem.getUrn())).thenReturn(playlistTrackurns);
+        viewModel = createPlaylistInfoWithSharing(Sharing.PUBLIC);
+        when(playlistOperations.trackUrnsForPlayback(viewModel.metadata().getUrn())).thenReturn(playlistTrackurns);
 
         presenter = new PlaylistHeaderPresenter(
                 eventBus,
@@ -152,15 +153,16 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void updatesEngagementsForNewLike() {
         setPlaylistInfo();
 
-        LikesStatusEvent likesStatusEvent = LikesStatusEvent.create(headerItem.getUrn(),
+        LikesStatusEvent likesStatusEvent = LikesStatusEvent.create(viewModel.metadata().getUrn(),
                                                          true,
-                                                         headerItem.likesCount());
+                                                         viewModel.metadata().likesCount());
         eventBus.publish(EventQueue.LIKE_CHANGED,
                          likesStatusEvent);
 
+        final PlaylistDetailsMetadata metadata = viewModel.metadata().updatedWithLikeStatus(likesStatusEvent.likeStatusForUrn(viewModel.metadata().getUrn()).get());
         verify(engagementsView).bind(
                 same(view),
-                eq(headerItem.updatedWithLikeStatus(likesStatusEvent.likeStatusForUrn(headerItem.getUrn()).get())),
+                eq(updateVithMetadata(metadata)),
                 any());
     }
 
@@ -168,13 +170,14 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void updatesEngagementsForNewRepost() {
         setPlaylistInfo();
 
-        RepostsStatusEvent repostStatusEvent = RepostsStatusEvent.create(RepostStatus.createReposted(headerItem.getUrn()));
+        RepostsStatusEvent repostStatusEvent = RepostsStatusEvent.create(RepostStatus.createReposted(viewModel.metadata().getUrn()));
         eventBus.publish(EventQueue.REPOST_CHANGED,
                          repostStatusEvent);
 
+        final PlaylistDetailsMetadata metadata = viewModel.metadata().updatedWithRepostStatus(repostStatusEvent.repostStatusForUrn(viewModel.metadata().getUrn()).get());
         verify(engagementsView).bind(
                 same(view),
-                eq(headerItem.updatedWithRepostStatus(repostStatusEvent.repostStatusForUrn(headerItem.getUrn()).get())),
+                eq(updateVithMetadata(metadata)),
                 any());
     }
 
@@ -213,7 +216,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldPublishUIEventWhenUnlikingPlaylist() {
         setPlaylistInfo();
-        when(likeOperations.toggleLike(headerItem.getUrn(),
+        when(likeOperations.toggleLike(viewModel.metadata().getUrn(),
                                        false)).thenReturn(Observable.just(LikeOperations.LikeResult.UNLIKE_SUCCEEDED));
         doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
@@ -260,10 +263,10 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
-                                                                        .pageUrn(headerItem.getUrn())
+                                                                        .pageUrn(viewModel.metadata().getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), headerItem.permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
+        verify(shareOperations).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
 
     @Test
@@ -278,12 +281,12 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         setPlaylistInfo();
-        when(likeOperations.toggleLike(headerItem.getUrn(),
+        when(likeOperations.toggleLike(viewModel.metadata().getUrn(),
                                        true)).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
         presenter.onToggleLike(true);
 
-        verify(likeOperations).toggleLike(headerItem.getUrn(), true);
+        verify(likeOperations).toggleLike(viewModel.metadata().getUrn(), true);
     }
 
     @Test
@@ -294,7 +297,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.toggleRepost(true, false);
 
-        verify(repostOperations).toggleRepost(eq(headerItem.getUrn()), eq(true));
+        verify(repostOperations).toggleRepost(eq(viewModel.metadata().getUrn()), eq(true));
     }
 
     @Test
@@ -313,7 +316,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
         setPlaylistInfo();
 
-        presenter.onUpsell();
+        presenter.onItemTriggered(new PlaylistDetailUpsellItem(TrackItem.EMPTY));
 
         verify(navigator).openUpgrade(getContext());
     }
@@ -331,18 +334,18 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldUpdateOfflineAvailabilityOnMarkedForOfflineChange() {
         setPlaylistInfo();
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(accountOperations.isLoggedInUser(headerItem.creatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(viewModel.metadata().creatorUrn())).thenReturn(true);
 
-        OfflineContentChangedEvent requested = requested(singletonList(headerItem.getUrn()), false);
+        OfflineContentChangedEvent requested = requested(singletonList(viewModel.metadata().getUrn()), false);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested);
 
-        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+        PlaylistDetailsMetadata updated = viewModel.metadata().toBuilder()
                                                     .offlineState(requested.state)
                                                     .isMarkedForOffline(true)
                                                     .build();
 
         verify(engagementsView).bind(same(view),
-                                     eq(updated),
+                                     eq(updateVithMetadata(updated)),
                                      any());
     }
 
@@ -354,21 +357,21 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
-                                                                        .pageUrn(headerItem.getUrn())
+                                                                        .pageUrn(viewModel.metadata().getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), headerItem.permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
+        verify(shareOperations).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
 
     private EntityMetadata entityMetadata() {
-        return EntityMetadata.from(headerItem.creatorName(), headerItem.creatorUrn(), headerItem.title(), headerItem.getUrn());
+        return EntityMetadata.from(viewModel.metadata().creatorName(), viewModel.metadata().creatorUrn(), viewModel.metadata().title(), viewModel.metadata().getUrn());
     }
 
     @Test
     public void makeOfflineAvailableUsesOfflineOperationsToMakeOfflineAvailable() {
         setPlaylistInfo();
         final PublishSubject<Void> makePlaylistAvailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistAvailableOffline(headerItem.getUrn())).thenReturn(
+        when(offlineContentOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn())).thenReturn(
                 makePlaylistAvailableOffline);
 
         presenter.onMakeOfflineAvailable();
@@ -380,7 +383,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void makeOfflineUnavailableUsesOfflineOperationsToMakeOfflineUnavailable() {
         setPlaylistInfo();
         final PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
-        when(offlineContentOperations.makePlaylistUnavailableOffline(headerItem.getUrn())).thenReturn(
+        when(offlineContentOperations.makePlaylistUnavailableOffline(viewModel.metadata().getUrn())).thenReturn(
                 makePlaylistUnavailableOffline);
 
         presenter.onMakeOfflineUnavailable();
@@ -394,27 +397,28 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
         reset(engagementsView);
 
-        OfflineContentChangedEvent removed = removed(headerItem.getUrn());
+        OfflineContentChangedEvent removed = removed(viewModel.metadata().getUrn());
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed);
 
-        verify(engagementsView).bind(same(view), eq(headerItem.toBuilder().offlineState(removed.state).build()), any());
+        final PlaylistDetailsMetadata metadata = viewModel.metadata().toBuilder().offlineState(removed.state).build();
+        verify(engagementsView).bind(same(view), eq(updateVithMetadata(metadata)), any());
     }
 
     @Test
     public void showDefaultDownloadStateWhenCurrentDownloadEmitsRequested() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         setPlaylistInfo();
-        OfflineContentChangedEvent requested = requested(singletonList(headerItem.getUrn()), false);
+        OfflineContentChangedEvent requested = requested(singletonList(viewModel.metadata().getUrn()), false);
         reset(engagementsView);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          requested);
 
-        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+        PlaylistDetailsMetadata updated = viewModel.metadata().toBuilder()
                                                     .offlineState(requested.state)
                                                     .isMarkedForOffline(true).build();
 
-        verify(engagementsView).bind(same(view), eq(updated), any());
+        verify(engagementsView).bind(same(view), eq(updateVithMetadata(updated)), any());
     }
 
     @Test
@@ -423,17 +427,17 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
 
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        OfflineContentChangedEvent downloading = downloading(Arrays.asList(track.getUrn(), headerItem.getUrn()), true);
+        OfflineContentChangedEvent downloading = downloading(Arrays.asList(track.getUrn(), viewModel.metadata().getUrn()), true);
         reset(engagementsView);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          downloading);
 
-        PlaylistDetailsMetadata updated = headerItem.toBuilder()
+        PlaylistDetailsMetadata updated = viewModel.metadata().toBuilder()
                                                     .offlineState(downloading.state)
                                                     .isMarkedForOffline(true).build();
 
-        verify(engagementsView).bind(same(view), eq(updated), any());
+        verify(engagementsView).bind(same(view), eq(updateVithMetadata(updated)), any());
     }
 
     @Test
@@ -441,15 +445,14 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         setPlaylistInfo();
-        OfflineContentChangedEvent downloaded = downloaded(singletonList(headerItem.getUrn()), false);
+        OfflineContentChangedEvent downloaded = downloaded(singletonList(viewModel.metadata().getUrn()), false);
         reset(engagementsView);
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          downloaded);
 
-        PlaylistDetailsMetadata updated = headerItem.toBuilder()
-                                                    .offlineState(downloaded.state)
-                                                    .isMarkedForOffline(true).build();
+        PlaylistDetailsViewModel updated = updateVithMetadata(viewModel.metadata().toBuilder()
+                                                                        .offlineState(downloaded.state).isMarkedForOffline(true).build());
         verify(engagementsView).bind(same(view), eq(updated), any());
     }
 
@@ -489,24 +492,32 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onPlayNext();
 
-        verify(playQueueHelper, times(1)).playNext(headerItem.urn());
+        verify(playQueueHelper, times(1)).playNext(viewModel.metadata().urn());
     }
 
     private void setPlaylistInfo() {
-        setPlaylistInfo(headerItem, getPlaySessionSource());
+        setPlaylistInfo(viewModel, getPlaySessionSource());
     }
 
-    private void setPlaylistInfo(PlaylistDetailsMetadata playlistDetailsMetadata, PlaySessionSource playSessionSource) {
+    private void setPlaylistInfo(PlaylistDetailsViewModel viewModel, PlaySessionSource playSessionSource) {
         presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
         presenter.setScreen(SCREEN.get());
-        presenter.setPlaylist(playlistDetailsMetadata, playSessionSource);
+        presenter.setPlaylist(viewModel, playSessionSource);
     }
 
-    private PlaylistDetailsMetadata createPlaylistInfoWithSharing(Sharing sharing) {
+    private PlaylistDetailsViewModel createPlaylistInfoWithSharing(Sharing sharing) {
         final Playlist.Builder playlistBuilder = createPlaylistBuilder(sharing);
-        return createPlaylistHeaderItem(playlistBuilder.build());
+        final PlaylistDetailsMetadata metaData = createPlaylistHeaderItem(playlistBuilder.build());
+
+        return PlaylistDetailsViewModel
+                .builder()
+                .metadata(metaData)
+                .tracks(emptyList())
+                .upsell(Optional.absent())
+                .otherPlaylists(Optional.absent())
+                .build();
     }
 
     private PlaylistDetailsMetadata createPlaylistHeaderItem(Playlist playlistItem) {
@@ -540,5 +551,9 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     protected Context getContext() {
         return fragmentRule.getFragment().getContext();
+    }
+    
+    private PlaylistDetailsViewModel updateVithMetadata(PlaylistDetailsMetadata metadata) {
+        return viewModel.toBuilder().metadata(metadata).build();
     }
 }

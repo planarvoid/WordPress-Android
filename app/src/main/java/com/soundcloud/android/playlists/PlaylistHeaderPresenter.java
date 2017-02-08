@@ -83,7 +83,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private FragmentManager fragmentManager;
     private Activity activity;
     private PlaylistHeaderPresenterListener playlistHeaderPresenterListener;
-    private PlaylistDetailsMetadata playlistDetailsMetadata;
+    private PlaylistDetailsViewModel viewModel;
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private Optional<View> headerView = Optional.absent();
     private String screen;
@@ -160,11 +160,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onResume(Fragment fragment) {
         fragmentManager = fragment.getFragmentManager();
         foregroundSubscription = new CompositeSubscription(eventBus.queue(EventQueue.PLAYLIST_CHANGED)
-                                                                   .filter(event -> playlistDetailsMetadata != null && event.changeMap().containsKey(playlistDetailsMetadata.getUrn()))
-                                                                   .subscribe(event -> playlistDetailsMetadata = (PlaylistDetailsMetadata) event.apply(playlistDetailsMetadata)),
+                                                                   .filter(event -> viewModel != null && event.changeMap().containsKey(viewModel.metadata().getUrn()))
+                                                                   .subscribe(event -> updateMetadata((PlaylistDetailsMetadata) event.apply(viewModel.metadata()))),
                                                            eventBus.subscribe(EventQueue.LIKE_CHANGED, new PlaylistLikesSubscriber()),
                                                            eventBus.subscribe(EventQueue.REPOST_CHANGED, new PlaylistRepostsSubscriber()));
         subscribeForOfflineContentUpdates();
+    }
+
+    private void updateMetadata(PlaylistDetailsMetadata metadata) {
+        viewModel = viewModel.toBuilder().metadata(metadata).build();
     }
 
     @Override
@@ -194,15 +198,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.screen = screen;
     }
 
-    void setPlaylist(PlaylistDetailsMetadata headerItem, PlaySessionSource playSessionSource) {
-        this.playlistDetailsMetadata = headerItem;
+    void setPlaylist(PlaylistDetailsViewModel model, PlaySessionSource playSessionSource) {
+        this.viewModel = model;
         this.playSessionSource = playSessionSource;
         bindItemView();
     }
 
     private void bindItemView() {
-        if (headerView.isPresent() && playlistDetailsMetadata != null) {
-            playlistCoverRenderer.bind(headerView.get(), playlistDetailsMetadata, this::onHeaderPlay, this::onGoToCreator);
+        if (headerView.isPresent() && viewModel != null) {
+            playlistCoverRenderer.bind(headerView.get(), viewModel.metadata(), this::onHeaderPlay, this::onGoToCreator);
             bingEngagementBars();
         }
     }
@@ -216,7 +220,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void bingEngagementBars() {
-        playlistEngagementsRenderer.bind(headerView.get(), playlistDetailsMetadata, this);
+        playlistEngagementsRenderer.bind(headerView.get(), viewModel, this);
     }
 
     private void subscribeForOfflineContentUpdates() {
@@ -226,11 +230,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
             offlineState = offlinePropertiesProvider
                     .states()
-                    .filter(event -> playlistDetailsMetadata != null)
-                    .map(properties -> properties.state(playlistDetailsMetadata.getUrn()));
+                    .filter(event -> viewModel != null)
+                    .map(properties -> properties.state(viewModel.metadata().getUrn()));
         } else {
             offlineState = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                   .filter(event -> playlistDetailsMetadata != null && event.entities.contains(playlistDetailsMetadata.getUrn()))
+                                   .filter(event -> viewModel != null && event.entities.contains(viewModel.metadata().getUrn()))
                                    .map(OfflineContentChangedEvent.TO_OFFLINE_STATE);
 
         }
@@ -242,54 +246,61 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onMakeOfflineAvailable() {
-        fireAndForget(offlineOperations.makePlaylistAvailableOffline(playlistDetailsMetadata.getUrn()));
+        fireAndForget(offlineOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn()));
         eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
     }
 
     @Override
     public void onMakeOfflineUnavailable() {
         if (offlineOperations.isOfflineCollectionEnabled()) {
-            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistDetailsMetadata.getUrn(),
+            ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, viewModel.metadata().getUrn(),
                                                                playSessionSource.getPromotedSourceInfo());
         } else {
-            fireAndForget(offlineOperations.makePlaylistUnavailableOffline(playlistDetailsMetadata.getUrn()));
+            fireAndForget(offlineOperations.makePlaylistUnavailableOffline(viewModel.metadata().getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(false));
         }
+    }
+
+    @Override
+    public void onMakeOfflineUpsell() {
+        navigator.openUpgrade(activity);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(viewModel.metadata().getUrn()));
     }
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
         return isMarkedForOffline ?
                OfflineInteractionEvent.fromAddOfflinePlaylist(
                        Screen.PLAYLIST_DETAILS.get(),
-                       playlistDetailsMetadata.getUrn(),
+                       viewModel.metadata().getUrn(),
                        playSessionSource.getPromotedSourceInfo()) :
                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
                        Screen.PLAYLIST_DETAILS.get(),
-                       playlistDetailsMetadata.getUrn(),
+                       viewModel.metadata().getUrn(),
                        playSessionSource.getPromotedSourceInfo());
     }
 
+
     @Override
-    public void onUpsell() {
+    public void onItemTriggered(PlaylistDetailUpsellItem item) {
         navigator.openUpgrade(activity);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(playlistDetailsMetadata.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(viewModel.metadata().getUrn()));
     }
 
     @Override
     public void onOverflowUpsell() {
         navigator.openUpgrade(activity);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(playlistDetailsMetadata.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(viewModel.metadata().getUrn()));
     }
 
     @Override
     public void onOverflowUpsellImpression() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(playlistDetailsMetadata.getUrn()));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(viewModel.metadata().getUrn()));
     }
 
     @Override
     public void onPlayShuffled() {
-        if (playlistDetailsMetadata != null) {
-            final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistDetailsMetadata.getUrn());
+        if (viewModel != null) {
+            final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(viewModel.metadata().getUrn());
             playbackInitiator
                     .playTracksShuffled(tracks, playSessionSource)
                     .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext())))
@@ -299,7 +310,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onDeletePlaylist() {
-        DeletePlaylistDialogFragment.show(fragmentManager, playlistDetailsMetadata.getUrn());
+        DeletePlaylistDialogFragment.show(fragmentManager, viewModel.metadata().getUrn());
     }
 
     @Override
@@ -313,7 +324,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onPlayAtPosition(Integer position) {
+    public void onItemTriggered(PlaylistDetailTrackItem item) {
 
     }
 
@@ -329,25 +340,25 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onPlayNext() {
-        playQueueHelper.playNext(playlistDetailsMetadata.getUrn());
+        playQueueHelper.playNext(viewModel.metadata().getUrn());
     }
 
     @Override
     public void onToggleLike(boolean addLike) {
-        if (playlistDetailsMetadata != null) {
+        if (viewModel != null) {
             eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike,
-                                                                playlistDetailsMetadata.getUrn(),
+                                                                viewModel.metadata().getUrn(),
                                                                 getEventContext(),
                                                                 playSessionSource.getPromotedSourceInfo(),
                                                                 createEntityMetadata()));
 
-            fireAndForget(likeOperations.toggleLike(playlistDetailsMetadata.getUrn(), addLike));
+            fireAndForget(likeOperations.toggleLike(viewModel.metadata().getUrn(), addLike));
         }
     }
 
     private EntityMetadata createEntityMetadata() {
-        return EntityMetadata.from(playlistDetailsMetadata.creatorName(), playlistDetailsMetadata.creatorUrn(),
-                                   playlistDetailsMetadata.title(), playlistDetailsMetadata.getUrn());
+        return EntityMetadata.from(viewModel.metadata().creatorName(), viewModel.metadata().creatorUrn(),
+                                   viewModel.metadata().title(), viewModel.metadata().getUrn());
     }
 
     @Override
@@ -355,22 +366,23 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         toggleRepost(isReposted, true);
     }
 
-    @VisibleForTesting // horrible things being done here. Deleting this class soon
+    @VisibleForTesting
+        // horrible things being done here. Deleting this class soon
     void toggleRepost(boolean isReposted, boolean showResultToast) {
-        if (playlistDetailsMetadata != null) {
+        if (viewModel != null) {
             eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
-                                                                  playlistDetailsMetadata.getUrn(),
+                                                                  viewModel.metadata().getUrn(),
                                                                   getEventContext(),
                                                                   playSessionSource
                                                                           .getPromotedSourceInfo(),
                                                                   createEntityMetadata()));
 
             if (showResultToast) {
-                repostOperations.toggleRepost(playlistDetailsMetadata.getUrn(), isReposted)
+                repostOperations.toggleRepost(viewModel.metadata().getUrn(), isReposted)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new RepostResultSubscriber(activity));
             } else {
-                fireAndForget(repostOperations.toggleRepost(playlistDetailsMetadata.getUrn(), isReposted));
+                fireAndForget(repostOperations.toggleRepost(viewModel.metadata().getUrn(), isReposted));
             }
         }
     }
@@ -380,15 +392,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                    .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())
                                    .invokerScreen(Screen.PLAYLIST_DETAILS.get())
-                                   .pageUrn(playlistDetailsMetadata.getUrn())
+                                   .pageUrn(viewModel.metadata().getUrn())
                                    .build();
     }
 
     @Override
     public void onShare() {
-        if (playlistDetailsMetadata != null) {
-            final Optional<String> permalinkUrl = playlistDetailsMetadata.permalinkUrl();
-            if (!playlistDetailsMetadata.isPrivate() && permalinkUrl.isPresent()) {
+        if (viewModel != null) {
+            final Optional<String> permalinkUrl = viewModel.metadata().permalinkUrl();
+            if (!viewModel.metadata().isPrivate() && permalinkUrl.isPresent()) {
                 shareOperations.share(activity,
                                       permalinkUrl.get(),
                                       getEventContext(),
@@ -401,12 +413,12 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
         public void onNext(OfflineState state) {
-            if (playlistDetailsMetadata != null) {
-                playlistDetailsMetadata = playlistDetailsMetadata
-                        .toBuilder()
-                        .offlineState(state)
-                        .isMarkedForOffline(state != OfflineState.NOT_OFFLINE)
-                        .build();
+            if (viewModel != null) {
+                updateMetadata(viewModel.metadata()
+                                        .toBuilder()
+                                        .offlineState(state)
+                                        .isMarkedForOffline(state != OfflineState.NOT_OFFLINE)
+                                        .build());
 
                 bindItemView();
             }
@@ -416,10 +428,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class PlaylistLikesSubscriber extends DefaultSubscriber<LikesStatusEvent> {
         @Override
         public void onNext(LikesStatusEvent event) {
-            if (playlistDetailsMetadata != null) {
-                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(playlistDetailsMetadata.getUrn());
+            if (viewModel != null) {
+                final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(viewModel.metadata().getUrn());
                 if (likeStatus.isPresent()) {
-                    playlistDetailsMetadata = playlistDetailsMetadata.updatedWithLikeStatus(likeStatus.get());
+                    updateMetadata(viewModel.metadata().updatedWithLikeStatus(likeStatus.get()));
+                    ;
                     bindItemView();
                 }
             }
@@ -429,10 +442,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private class PlaylistRepostsSubscriber extends DefaultSubscriber<RepostsStatusEvent> {
         @Override
         public void onNext(RepostsStatusEvent event) {
-            if (playlistDetailsMetadata != null) {
-                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(playlistDetailsMetadata.getUrn());
+            if (viewModel != null) {
+                final Optional<RepostsStatusEvent.RepostStatus> repostStatus = event.repostStatusForUrn(viewModel.metadata().getUrn());
                 if (repostStatus.isPresent()) {
-                    playlistDetailsMetadata = playlistDetailsMetadata.updatedWithRepostStatus(repostStatus.get());
+                    updateMetadata(viewModel.metadata().updatedWithRepostStatus(repostStatus.get()));
                     bindItemView();
                 }
             }
