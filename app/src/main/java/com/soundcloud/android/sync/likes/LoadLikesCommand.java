@@ -4,7 +4,6 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 

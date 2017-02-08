@@ -2,11 +2,9 @@ package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.propeller.query.Query.from;
 
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.SearchSuggestions;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -61,15 +59,6 @@ class SearchSuggestionStorage {
     private static class SearchSuggestionMapper extends RxResultMapper<SearchSuggestion> {
         @Override
         public SearchSuggestion map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(SearchSuggestionProperty.URN, getUrn(cursorReader));
-            propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT,
-                            cursorReader.getString(SearchSuggestions.DISPLAY_TEXT));
-            propertySet.put(SearchSuggestionProperty.HIGHLIGHT, Optional.<SuggestionHighlight>absent());
-            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE,
-                            Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
-
-
             return DatabaseSearchSuggestion.create(getUrn(cursorReader), cursorReader.getString(SearchSuggestions.DISPLAY_TEXT), Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
         }
     }

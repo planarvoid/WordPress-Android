@@ -22,6 +22,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -44,6 +45,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
     @Mock StoreTracksCommand storeTracksCommand;
     @Mock StoreStationCommand storeStationCommand;
     @Mock SyncInitiator syncInitiator;
+    @Mock TrackRepository trackRepository;
 
     private final Urn station = Urn.forTrackStation(123L);
     private TestEventBus eventBus;
@@ -65,7 +67,8 @@ public class StationsOperationsTest extends AndroidUnitTest {
                 storeStationCommand,
                 syncInitiator,
                 Schedulers.immediate(),
-                eventBus);
+                eventBus,
+                trackRepository);
 
         when(stationsStorage.clearExpiredPlayQueue(station)).thenReturn(Observable.just(new TxnResult()));
         when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));

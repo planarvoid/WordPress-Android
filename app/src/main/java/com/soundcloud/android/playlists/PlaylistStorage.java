@@ -13,8 +13,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
 import com.soundcloud.java.collections.Sets;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
@@ -53,17 +54,17 @@ public class PlaylistStorage {
 
     private Boolean hasLocalPlaylistChange() {
         return propeller.query(apply(exists(from(Tables.Sounds.TABLE)
-                                                     .select(Tables.PlaylistView.ID, Tables.Sounds.REMOVED_AT)
-                                                     .whereEq(_TYPE, Tables.Sounds.TYPE_PLAYLIST)
-                                                     .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
-                                                                                    .orWhereNotNull(Tables.Sounds.REMOVED_AT))).first(Boolean.class);
+                                                    .select(Tables.PlaylistView.ID, Tables.Sounds.REMOVED_AT)
+                                                    .whereEq(_TYPE, Tables.Sounds.TYPE_PLAYLIST)
+                                                    .whereLt(Tables.Sounds._ID, 0)).as("has_local_playlists")
+                                                                                   .orWhereNotNull(Tables.Sounds.REMOVED_AT))).first(Boolean.class);
     }
 
     private Boolean hasLocalTrackChanges() {
         return propeller.query(apply(exists(from(Table.PlaylistTracks.name())
-                                                          .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
-                                                          .where(hasLocalTracks())
-                                                          .where(isNotLocal())))).first(Boolean.class);
+                                                    .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
+                                                    .where(hasLocalTracks())
+                                                    .where(isNotLocal())))).first(Boolean.class);
     }
 
     public Set<Urn> playlistWithTrackChanges() {
@@ -115,9 +116,8 @@ public class PlaylistStorage {
                 .whereGt(TableColumns.PlaylistTracks.PLAYLIST_ID, 0);
     }
 
-    public PropertySet loadPlaylistModifications(Urn playlistUrn) {
-        return propeller.query(buildPlaylistModificationQuery(playlistUrn))
-                        .firstOrDefault(new PlaylistModificationMapper(), PropertySet.create());
+    public Optional<LocalPlaylistChange> loadPlaylistModifications(Urn playlistUrn) {
+        return Optional.fromNullable(propeller.query(buildPlaylistModificationQuery(playlistUrn)).firstOrDefault(new PlaylistModificationMapper(), null));
     }
 
     private Query buildPlaylistModificationQuery(Urn playlistUrn) {
@@ -140,16 +140,12 @@ public class PlaylistStorage {
                     ).whereIn(Tables.PlaylistView.ID, playlistIds);
     }
 
-    private static class PlaylistModificationMapper implements ResultMapper<PropertySet> {
+    private static class PlaylistModificationMapper implements ResultMapper<LocalPlaylistChange> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(Tables.Sounds._ID)));
-            propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(Tables.Sounds.TITLE));
-            propertySet.put(PlaylistProperty.IS_PRIVATE,
-                            Sharing.PRIVATE.name()
-                                           .equalsIgnoreCase(cursorReader.getString(Tables.Sounds.SHARING)));
-            return propertySet;
+        public LocalPlaylistChange map(CursorReader cursorReader) {
+            return LocalPlaylistChange.create(Urn.forPlaylist(cursorReader.getLong(Tables.Sounds._ID)),
+                                              cursorReader.getString(Tables.Sounds.TITLE),
+                                              Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(Tables.Sounds.SHARING)));
         }
     }
 }

@@ -5,10 +5,8 @@ import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
@@ -18,7 +16,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class LoadPlaylistTracksWithChangesCommand
-        extends LegacyCommand<Urn, List<PropertySet>, LoadPlaylistTracksWithChangesCommand> {
+        extends LegacyCommand<Urn, List<PlaylistTrackChange>, LoadPlaylistTracksWithChangesCommand> {
 
     private final PropellerDatabase database;
 
@@ -28,7 +26,7 @@ class LoadPlaylistTracksWithChangesCommand
     }
 
     @Override
-    public List<PropertySet> call() throws Exception {
+    public List<PlaylistTrackChange> call() throws Exception {
         return database.query(Query.from(Table.PlaylistTracks.name())
                                    .select(TableColumns.PlaylistTracks.TRACK_ID,
                                            TableColumns.PlaylistTracks.ADDED_AT,
@@ -38,23 +36,17 @@ class LoadPlaylistTracksWithChangesCommand
                        .toList(new PlaylistTrackUrnMapper());
     }
 
-    private class PlaylistTrackUrnMapper extends RxResultMapper<PropertySet> {
+    private class PlaylistTrackUrnMapper extends RxResultMapper<PlaylistTrackChange> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
+        public PlaylistTrackChange map(CursorReader cursorReader) {
             final Urn urn = Urn.forTrack(cursorReader.getLong(TableColumns.PlaylistTracks.TRACK_ID));
-            final PropertySet playlistTrack = PropertySet.from(
-                    PlaylistTrackProperty.TRACK_URN.bind(urn)
-            );
             if (cursorReader.isNotNull(TableColumns.PlaylistTracks.ADDED_AT)) {
-                playlistTrack.put(PlaylistTrackProperty.ADDED_AT,
-                                  cursorReader.getDateFromTimestamp(TableColumns.PlaylistTracks.ADDED_AT));
+                return PlaylistTrackChange.createAdded(urn);
             }
             if (cursorReader.isNotNull(TableColumns.PlaylistTracks.REMOVED_AT)) {
-                playlistTrack.put(PlaylistTrackProperty.REMOVED_AT,
-                                  cursorReader.getDateFromTimestamp(TableColumns.PlaylistTracks.REMOVED_AT));
+                return PlaylistTrackChange.createRemoved(urn);
             }
-            return playlistTrack;
+            return PlaylistTrackChange.createEmpty(urn);
         }
     }
-
 }

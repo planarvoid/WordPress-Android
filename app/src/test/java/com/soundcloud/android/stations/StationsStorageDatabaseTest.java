@@ -8,7 +8,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.ChangeResult;
 import org.assertj.core.util.Lists;
@@ -141,14 +140,14 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadLastPlayedTrackPosition() {
-        TestSubscriber<StationWithTracks> subscriber = new TestSubscriber<>();
+        TestSubscriber<StationWithTrackUrns> subscriber = new TestSubscriber<>();
         final int position = 20;
         final Urn station = testFixtures().insertStation(0).getUrn();
 
         storage.saveLastPlayedTrackPosition(station, position);
-        storage.stationWithTracks(station).subscribe(subscriber);
+        storage.stationWithTrackUrns(station).subscribe(subscriber);
 
-        assertThat(subscriber.getOnNextEvents().get(0).getPreviousPosition()).isEqualTo(20);
+        assertThat(subscriber.getOnNextEvents().get(0).lastPlayedTrackPosition()).isEqualTo(20);
     }
 
     @Test
@@ -186,20 +185,6 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
                 StationFixtures.getStation(firstStation),
                 StationFixtures.getStation(thirdStation)
         );
-    }
-
-    @Test
-    public void shouldReturnStationTracks() {
-        final TestSubscriber<StationInfoTrack> subscriber = new TestSubscriber<>();
-        final List<ApiTrack> apiTracks = ModelFixtures.create(ApiTrack.class, 10);
-        final ApiStation station = StationFixtures.getApiStation(stationUrn, apiTracks);
-        testFixtures().insertStation(station);
-
-        storage.stationTracks(stationUrn).subscribe(subscriber);
-
-        List<StationInfoTrack> receivedTracks = subscriber.getOnNextEvents();
-        assertReceivedStationInfoTracks(receivedTracks, apiTracks);
-        subscriber.assertCompleted();
     }
 
     @Test
@@ -267,14 +252,14 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     @Test
     public void shouldReturnCorrectLikeStatusWhenLoadingStationWithTracks() {
         final ApiStation apiStation = testFixtures().insertLikedStation();
-        final TestSubscriber<StationWithTracks> subscriber = new TestSubscriber<>();
+        final TestSubscriber<StationWithTrackUrns> subscriber = new TestSubscriber<>();
 
-        storage.stationWithTracks(apiStation.getUrn()).subscribe(subscriber);
-        final StationWithTracks stationWithTracks = subscriber.getOnNextEvents().get(0);
+        storage.stationWithTrackUrns(apiStation.getUrn()).subscribe(subscriber);
+        final StationWithTrackUrns stationWithTracks = subscriber.getOnNextEvents().get(0);
 
-        assertThat(stationWithTracks.isLiked()).isTrue();
-        assertThat(stationWithTracks.getTitle()).isEqualTo(apiStation.getTitle());
-        assertThat(stationWithTracks.getType()).isEqualTo(apiStation.getType());
+        assertThat(stationWithTracks.liked()).isTrue();
+        assertThat(stationWithTracks.title()).isEqualTo(apiStation.getTitle());
+        assertThat(stationWithTracks.type()).isEqualTo(apiStation.getType());
     }
 
     @Test

@@ -6,7 +6,6 @@ import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.checks.Preconditions;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.Intent;
 import android.os.Bundle;

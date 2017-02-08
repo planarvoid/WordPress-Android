@@ -47,7 +47,20 @@ class StationWithTracks {
                 station.getImageUrlTemplate(),
                 station.getPermalink(),
                 transform(station.getTrackRecords(), TO_STATION_TRACKS),
-                Stations.NEVER_PLAYED, false);
+                Stations.NEVER_PLAYED,
+                false);
+    }
+
+    public static StationWithTracks from(StationWithTrackUrns entity, List<StationInfoTrack> tracks) {
+        return new StationWithTracks(
+                entity.urn(),
+                entity.title(),
+                entity.type(),
+                entity.imageUrlTemplate(),
+                entity.permalink().orNull(),
+                tracks,
+                Stations.NEVER_PLAYED,
+                entity.liked());
     }
 
     StationWithTracks(Urn urn,

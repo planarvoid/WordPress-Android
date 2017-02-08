@@ -34,6 +34,7 @@ import java.util.List;
 class PlaylistTracksStorage {
     private static final String IS_TRACK_ALREADY_ADDED = "track_exists_in_playlist";
     private static final String IS_MARKED_FOR_OFFLINE = "is_marked_for_offline";
+    private static final String LOCAL_TRACK_COUNT = "local_track_count";
 
     private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
@@ -56,7 +57,7 @@ class PlaylistTracksStorage {
                             field(Table.SoundView.field(SoundView.ARTWORK_URL)).as(SoundView.ARTWORK_URL),
                             field(Table.SoundView.field(SoundView.SHARING)).as(SoundView.SHARING),
                             field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
-                            count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
+                            count(PlaylistTracks.PLAYLIST_ID).as(LOCAL_TRACK_COUNT),
                             exists(isTrackInPlaylist(trackUrn)).as(IS_TRACK_ALREADY_ADDED),
                             exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(
                                     IS_MARKED_FOR_OFFLINE))
@@ -168,7 +169,7 @@ class PlaylistTracksStorage {
             return new AddTrackToPlaylistItem(
                     Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID)),
                     reader.getString(SoundView.TITLE),
-                    Math.max(reader.getInt(PlaylistMapper.LOCAL_TRACK_COUNT),
+                    Math.max(reader.getInt(LOCAL_TRACK_COUNT),
                              reader.getInt(TableColumns.SoundView.TRACK_COUNT)),
                     readPrivateFlag(reader),
                     reader.getBoolean(IS_MARKED_FOR_OFFLINE),

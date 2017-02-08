@@ -136,7 +136,7 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         ));
     }
 
-    public PlaylistItem(PropertySet source) {
+    protected PlaylistItem(PropertySet source) {
         super(source);
     }
 

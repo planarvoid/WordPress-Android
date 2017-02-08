@@ -4,11 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Sharing;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -122,18 +120,15 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     public void loadPlaylistModificationsReturnsEmptySetWhenNoModifications() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
-        assertThat(storage.loadPlaylistModifications(apiPlaylist.getUrn())).isEmpty();
+        assertThat(storage.loadPlaylistModifications(apiPlaylist.getUrn()).isPresent()).isFalse();
     }
 
     @Test
     public void loadPlaylistModificationsLoadsNewInfoWithModifications() {
         final ApiPlaylist apiPlaylist = testFixtures().insertModifiedPlaylist(new Date());
 
-        PropertySet playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
+        Optional<LocalPlaylistChange> playlist = storage.loadPlaylistModifications(apiPlaylist.getUrn());
 
-        assertThat(playlist).isEqualTo(PropertySet.from(
-                TrackProperty.URN.bind(apiPlaylist.getUrn()),
-                PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
-                PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing()))));
+        assertThat(playlist.get()).isEqualTo(LocalPlaylistChange.create(apiPlaylist.getUrn(), apiPlaylist.getTitle(), Sharing.PRIVATE.equals(apiPlaylist.getSharing())));
     }
 }

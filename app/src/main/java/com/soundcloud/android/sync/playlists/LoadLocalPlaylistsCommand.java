@@ -3,10 +3,7 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
@@ -16,7 +13,7 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PlaylistItem>, LoadLocalPlaylistsCommand> {
+class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<LocalPlaylistChange>, LoadLocalPlaylistsCommand> {
 
     private final PropellerDatabase database;
 
@@ -26,7 +23,7 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PlaylistItem>
     }
 
     @Override
-    public List<PlaylistItem> call() throws Exception {
+    public List<LocalPlaylistChange> call() throws Exception {
         final QueryResult queryResult = database.query(Query.from(Tables.Sounds.TABLE)
                                                             .select(
                                                                     Tables.Sounds._ID,
@@ -39,15 +36,13 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PlaylistItem>
         return queryResult.toList(new LocalPlaylistsMapper());
     }
 
-    private static final class LocalPlaylistsMapper implements ResultMapper<PlaylistItem> {
+    private static final class LocalPlaylistsMapper implements ResultMapper<LocalPlaylistChange> {
         @Override
-        public PlaylistItem map(CursorReader reader) {
-            return PlaylistItem.from(PropertySet.from(
-                    PlaylistProperty.URN.bind(Urn.forPlaylist(reader.getLong(Tables.Sounds._ID))),
-                    PlaylistProperty.TITLE.bind(reader.getString(Tables.Sounds.TITLE)),
-                    PlaylistProperty.IS_PRIVATE.bind(Sharing.PRIVATE.value().equals(
-                            reader.getString(Tables.Sounds.SHARING)))
-            ));
+        public LocalPlaylistChange map(CursorReader reader) {
+            return LocalPlaylistChange.create(Urn.forPlaylist(reader.getLong(Tables.Sounds._ID)),
+                                              reader.getString(Tables.Sounds.TITLE),
+                                              Sharing.PRIVATE.value().equals(reader.getString(Tables.Sounds.SHARING)));
         }
     }
+
 }

@@ -7,15 +7,11 @@ import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -251,33 +247,11 @@ public abstract class TestPropertySets {
     }
 
     public static TrackItem fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
-        return TrackItem.from(PropertySet.from(
-                TrackProperty.URN.bind(apiTrack.getUrn()),
-                PlayableProperty.TITLE.bind(apiTrack.getTitle()),
-                TrackProperty.SNIPPET_DURATION.bind(apiTrack.getSnippetDuration()),
-                TrackProperty.FULL_DURATION.bind(apiTrack.getFullDuration()),
-                PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
-                PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
-                TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(apiTrack.getImageUrlTemplate()),
-                TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
-                TrackProperty.COMMENTS_COUNT.bind(apiTrack.getStats().getCommentsCount()),
-                TrackProperty.IS_COMMENTABLE.bind(apiTrack.isCommentable()),
-                PlayableProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
-                PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
-                TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
-                TrackProperty.POLICY.bind(apiTrack.getPolicy()),
-                TrackProperty.BLOCKED.bind(apiTrack.isBlocked()),
-                TrackProperty.SNIPPED.bind(apiTrack.isSnipped()),
-                TrackProperty.SUB_HIGH_TIER.bind(apiTrack.isSubHighTier().get()),
-                TrackProperty.SUB_MID_TIER.bind(apiTrack.isSubMidTier().get()),
-                TrackProperty.MONETIZATION_MODEL.bind(apiTrack.getMonetizationModel().get()),
-                PlayableProperty.IS_USER_LIKE.bind(isLiked),
-                PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
-                PlayableProperty.IS_PRIVATE.bind(isPrivate),
-                PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
-                PlayableProperty.IS_USER_REPOST.bind(isReposted),
-                OfflineProperty.OFFLINE_STATE.bind(OfflineState.NOT_OFFLINE)));
+        final TrackItem trackItem = TrackItem.from(apiTrack);
+        trackItem.setPrivate(isPrivate);
+        trackItem.setLikedByCurrentUser(isLiked);
+        trackItem.setRepost(isReposted);
+        return trackItem;
     }
 
     public static PlaylistItem fromApiPlaylist() {
@@ -288,25 +262,11 @@ public abstract class TestPropertySets {
                                                boolean isLiked,
                                                boolean isReposted,
                                                boolean markedForOffline) {
-        return PlaylistItem.from(PropertySet.from(
-                TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
-                PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(apiPlaylist.getImageUrlTemplate()),
-                PlaylistProperty.PLAYLIST_DURATION.bind(apiPlaylist.getDuration()),
-                PlayableProperty.CREATOR_NAME.bind(apiPlaylist.getUser().getUsername()),
-                PlayableProperty.CREATOR_URN.bind(apiPlaylist.getUser().getUrn()),
-                PlayableProperty.LIKES_COUNT.bind(apiPlaylist.getStats().getLikesCount()),
-                PlayableProperty.REPOSTS_COUNT.bind(apiPlaylist.getStats().getRepostsCount()),
-                PlayableProperty.PERMALINK_URL.bind(apiPlaylist.getPermalinkUrl()),
-                PlayableProperty.CREATED_AT.bind(apiPlaylist.getCreatedAt()),
-                PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing())),
-                PlayableProperty.IS_USER_LIKE.bind(isLiked),
-                PlayableProperty.IS_USER_REPOST.bind(isReposted),
-                OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
-                PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
-                PlaylistProperty.IS_ALBUM.bind(apiPlaylist.isAlbum()),
-                PlaylistProperty.SET_TYPE.bind(apiPlaylist.getSetType()),
-                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate())));
+        final PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist);
+        playlistItem.setLikedByCurrentUser(isLiked);
+        playlistItem.setRepost(isReposted);
+        playlistItem.setMarkedForOffline(markedForOffline);
+        return playlistItem;
     }
 
     public static StreamPlayable timelineItem(Date createdAt) {

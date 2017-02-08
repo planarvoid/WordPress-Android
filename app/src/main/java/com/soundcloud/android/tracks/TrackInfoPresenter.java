@@ -6,7 +6,6 @@ import static java.lang.System.getProperty;
 import com.soundcloud.android.R;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.java.collections.PropertySet;
 
 import android.content.res.Resources;
 import android.text.Spanned;
@@ -37,9 +36,6 @@ public class TrackInfoPresenter {
         return inflater.inflate(R.layout.track_info, container, false);
     }
 
-    public void bind(View view, final PropertySet propertySet, CommentClickListener commentClickListener) {
-        bind(view, TrackItem.from(propertySet), commentClickListener);
-    }
     public void bind(View view, final TrackItem trackItem, CommentClickListener commentClickListener) {
         setTextAndShow(view, R.id.track_info_title, trackItem.getTitle());
         setTextAndShow(view, R.id.creator, trackItem.getCreatorName());
@@ -54,10 +50,6 @@ public class TrackInfoPresenter {
     public void showSpinner(View view) {
         hideView(view, R.id.description);
         showView(view, R.id.loading);
-    }
-
-    public void bindDescription(View view, PropertySet propertySet) {
-        bindDescription(view, TrackItem.from(propertySet));
     }
 
     public void bindDescription(View view, TrackItem trackItem) {

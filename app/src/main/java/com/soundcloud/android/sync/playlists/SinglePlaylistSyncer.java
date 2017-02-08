@@ -16,9 +16,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.support.annotation.NonNull;
@@ -83,12 +82,12 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         final Set<Urn> localAdditions = new HashSet<>();
 
         final Urn playlistUrn = apiPlaylistWithTracks.getPlaylist().getUrn();
-        final PropertySet playlistModifications = playlistStorage.loadPlaylistModifications(playlistUrn);
+        final Optional<LocalPlaylistChange> playlistModifications = playlistStorage.loadPlaylistModifications(playlistUrn);
         compileLocalPlaylistState(fullLocalTracklist, localRemovals, localAdditions);
 
         ApiPlaylist updatedPlaylist;
         if (hasChangesToPush(playlistModifications, localRemovals, localAdditions)) {
-            final boolean trustLocalState = !playlistModifications.isEmpty();
+            final boolean trustLocalState = playlistModifications.isPresent();
             final List<Urn> finalTracklist = compileFinalTrackList(trustLocalState,
                                                                    remoteTracks,
                                                                    fullLocalTracklist,
@@ -153,13 +152,13 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         return finalTrackList;
     }
 
-    private boolean hasChangesToPush(PropertySet localPlaylist, List<Urn> localRemovals, Set<Urn> localAdditions) {
-        return !localPlaylist.isEmpty() || !localRemovals.isEmpty() || !localAdditions.isEmpty();
+    private boolean hasChangesToPush(Optional<LocalPlaylistChange> localPlaylist, List<Urn> localRemovals, Set<Urn> localAdditions) {
+        return localPlaylist.isPresent() || !localRemovals.isEmpty() || !localAdditions.isEmpty();
     }
 
     private ApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList,
                                                  Urn playlistUrn,
-                                                 PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
+                                                 Optional<LocalPlaylistChange> localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest request =
                 ApiRequest.put(ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
                           .forPrivateApi()
@@ -205,13 +204,14 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     private void compileLocalPlaylistState(List<Urn> validLocalTracks,
                                            List<Urn> localRemovals,
                                            Set<Urn> localAdditions) throws Exception {
-        for (PropertySet playlistTrack : loadPlaylistTracks.call()) {
-            if (playlistTrack.contains(PlaylistTrackProperty.REMOVED_AT)) {
-                localRemovals.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
+        for (PlaylistTrackChange playlistTrackChange : loadPlaylistTracks.call()) {
+            final Urn playlistUrn = playlistTrackChange.urn();
+            if (playlistTrackChange.removed()) {
+                localRemovals.add(playlistUrn);
             } else {
-                validLocalTracks.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
-                if (playlistTrack.contains(PlaylistTrackProperty.ADDED_AT)) {
-                    localAdditions.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
+                validLocalTracks.add(playlistUrn);
+                if (playlistTrackChange.added()) {
+                    localAdditions.add(playlistUrn);
                 }
             }
         }

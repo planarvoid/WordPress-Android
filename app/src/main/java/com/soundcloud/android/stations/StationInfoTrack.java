@@ -7,7 +7,6 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
@@ -17,12 +16,12 @@ abstract class StationInfoTrack implements ListItem, UpdatableTrackItem {
         return new AutoValue_StationInfoTrack(TrackItem.from(track));
     }
 
-    public static StationInfoTrack from(PropertySet track) {
-        return new AutoValue_StationInfoTrack(TrackItem.from(track));
-    }
-
     public static StationInfoTrack from(TrackItem trackItem) {
         return new AutoValue_StationInfoTrack(trackItem);
+    }
+
+    public static StationInfoTrack from(Track track) {
+        return new AutoValue_StationInfoTrack(TrackItem.from(track));
     }
 
     public abstract TrackItem getTrack();

@@ -1,18 +1,6 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.model.PlayableProperty.CREATOR_NAME;
-import static com.soundcloud.android.model.PlayableProperty.CREATOR_URN;
-import static com.soundcloud.android.model.PlayableProperty.IMAGE_URL_TEMPLATE;
-import static com.soundcloud.android.model.PlayableProperty.IS_USER_LIKE;
-import static com.soundcloud.android.model.PlayableProperty.IS_USER_REPOST;
-import static com.soundcloud.android.model.PlayableProperty.LIKES_COUNT;
-import static com.soundcloud.android.model.PlayableProperty.PERMALINK_URL;
-import static com.soundcloud.android.model.PlayableProperty.TITLE;
-import static com.soundcloud.android.model.PlayableProperty.URN;
 import static com.soundcloud.android.stations.Stations.NEVER_PLAYED;
-import static com.soundcloud.android.tracks.TrackProperty.FULL_DURATION;
-import static com.soundcloud.android.tracks.TrackProperty.PLAY_COUNT;
-import static com.soundcloud.android.tracks.TrackProperty.SNIPPET_DURATION;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
@@ -28,7 +16,6 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackView;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -190,14 +177,14 @@ class StationsStorage {
         });
     }
 
-    Observable<StationWithTracks> stationWithTracks(final Urn station) {
+    Observable<StationWithTrackUrns> stationWithTrackUrns(final Urn station) {
         return Observable.fromCallable(() -> {
-            final StationWithTracks stationWithTracks = propellerDatabase.query(stationInfoQuery(station))
-                                                                         .firstOrDefault(new StationWithTracksMapper(), null);
+            final StationWithTrackUrns stationWithTracks = propellerDatabase.query(stationInfoQuery(station))
+                                                                            .firstOrDefault(new StationWithTracksMapper(), null);
 
             if (stationWithTracks != null) {
-                final List<StationInfoTrack> stationInfoTracks = propellerDatabase.query(stationInfoTracksQuery(station)).toList(new StationInfoTrackMapper());
-                stationWithTracks.setTracks(stationInfoTracks);
+                final List<Urn> trackUrns = propellerDatabase.query(stationInfoTracksQuery(station)).toList(new StationTrackUrnMapper());
+                return stationWithTracks.copyWithTrackUrns(trackUrns);
             }
             return stationWithTracks;
         });
@@ -240,11 +227,6 @@ class StationsStorage {
                     .whereNull(StationsCollections.REMOVED_AT)
                     .whereEq(StationsCollections.STATION_URN, stationUrn)
                     .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED);
-    }
-
-    Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
-        final Query query = stationInfoTracksQuery(stationUrn);
-        return propellerRx.query(query).map(new StationInfoTrackMapper());
     }
 
     private Query buildTracksListQuery(Urn stationUrn) {
@@ -340,40 +322,24 @@ class StationsStorage {
         sharedPreferences.edit().putBoolean(MIGRATE_RECENT_TO_LIKED_STATIONS, false).apply();
     }
 
-    private final class StationInfoTrackMapper extends RxResultMapper<StationInfoTrack> {
-
+    private final class StationTrackUrnMapper extends RxResultMapper<Urn> {
         @Override
-        public StationInfoTrack map(CursorReader reader) {
-            return StationInfoTrack.from(
-                    PropertySet.from(URN.bind(Urn.forTrack(reader.getLong(TrackView.ID))),
-                                     TITLE.bind(reader.getString(TrackView.TITLE)),
-                                     CREATOR_NAME.bind(reader.getString(TrackView.CREATOR_NAME)),
-                                     CREATOR_URN.bind(Urn.forUser(reader.getLong(TrackView.CREATOR_ID))),
-                                     SNIPPET_DURATION.bind(reader.getLong(TrackView.SNIPPET_DURATION)),
-                                     FULL_DURATION.bind(reader.getLong(TrackView.FULL_DURATION)),
-                                     IS_USER_LIKE.bind(reader.getBoolean(TrackView.IS_USER_LIKE)),
-                                     IS_USER_REPOST.bind(reader.getBoolean(TrackView.IS_USER_REPOST)),
-                                     PLAY_COUNT.bind(reader.getInt(TrackView.PLAY_COUNT)),
-                                     LIKES_COUNT.bind(reader.getInt(TrackView.LIKES_COUNT)),
-                                     PERMALINK_URL.bind(reader.getString(TrackView.PERMALINK_URL)),
-                                     IMAGE_URL_TEMPLATE.bind(fromNullable(reader.getString(TrackView.ARTWORK_URL)))
-                    )
-            );
+        public Urn map(CursorReader reader) {
+            return Urn.forTrack(reader.getLong(TrackView.ID));
         }
     }
 
-    private final class StationWithTracksMapper extends RxResultMapper<StationWithTracks> {
+    private final class StationWithTracksMapper extends RxResultMapper<StationWithTrackUrns> {
 
         @Override
-        public StationWithTracks map(CursorReader reader) {
-            return new StationWithTracks(new Urn(reader.getString(Stations.STATION_URN)),
-                                         reader.getString(Stations.TITLE),
-                                         reader.getString(Stations.TYPE),
-                                         Optional.fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)),
-                                         reader.getString(Stations.PERMALINK),
-                                         Collections.emptyList(),
-                                         reader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
-                                         reader.getBoolean(STATION_LIKE)
+        public StationWithTrackUrns map(CursorReader reader) {
+            return StationWithTrackUrns.create(new Urn(reader.getString(Stations.STATION_URN)),
+                                               reader.getString(Stations.TYPE),
+                                               reader.getString(Stations.TITLE),
+                                               fromNullable(reader.getString(Stations.PERMALINK)),
+                                               Optional.fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)),
+                                               reader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
+                                               reader.getBoolean(STATION_LIKE)
             );
         }
     }

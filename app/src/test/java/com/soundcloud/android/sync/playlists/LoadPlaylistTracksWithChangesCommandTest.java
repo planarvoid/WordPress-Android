@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,20 +27,12 @@ public class LoadPlaylistTracksWithChangesCommandTest extends StorageIntegration
         ApiTrack track2 = testFixtures().insertPlaylistTrackPendingAddition(playlist, 1, new Date(200));
         ApiTrack track3 = testFixtures().insertPlaylistTrackPendingRemoval(playlist, 2, new Date(100));
 
-        List<PropertySet> playlistTracks = command.with(playlist.getUrn()).call();
+        List<PlaylistTrackChange> playlistTrackChanges = command.with(playlist.getUrn()).call();
 
-        assertThat(playlistTracks).containsExactly(
-                PropertySet.from(
-                        PlaylistTrackProperty.TRACK_URN.bind(track1.getUrn())
-                ),
-                PropertySet.from(
-                        PlaylistTrackProperty.TRACK_URN.bind(track2.getUrn()),
-                        PlaylistTrackProperty.ADDED_AT.bind(new Date(200))
-                ),
-                PropertySet.from(
-                        PlaylistTrackProperty.TRACK_URN.bind(track3.getUrn()),
-                        PlaylistTrackProperty.REMOVED_AT.bind(new Date(100))
-                )
+        assertThat(playlistTrackChanges).containsExactly(
+                PlaylistTrackChange.createEmpty(track1.getUrn()),
+                PlaylistTrackChange.createAdded(track2.getUrn()),
+                PlaylistTrackChange.createRemoved(track3.getUrn())
         );
     }
 }

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiResponse;
@@ -113,7 +114,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
     @Test
     public void replacesOldPlaylistWithNewPlaylistAfterSuccessfulPush() throws Exception {
-        final List<PlaylistItem> playlists = ModelFixtures.create(PlaylistItem.class, 2);
+        final List<LocalPlaylistChange> playlists = createLocalPlaylists(2);
         final List<Urn> playlist1Tracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final List<Urn> playlist2Tracks = Arrays.asList(Urn.forTrack(3), Urn.forTrack(4));
         final ApiPlaylist newPlaylist1 = ModelFixtures.create(ApiPlaylist.class);
@@ -133,7 +134,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         syncer.call();
 
         verify(replacePlaylist, times(2)).call();
-        assertThat(replacePlaylist.getInput()).isEqualTo(Pair.create(playlists.get(1).getUrn(), newPlaylist2)); // todo, check in put on first item too
+        assertThat(replacePlaylist.getInput()).isEqualTo(Pair.create(playlists.get(1).urn(), newPlaylist2)); // todo, check in put on first item too
     }
 
     @Test
@@ -296,8 +297,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     private ApiPlaylist setupNewPlaylistCreation() throws Exception {
-        final List<PlaylistItem> playlists = ModelFixtures.create(PlaylistItem.class, 1);
-        localPlaylistUrn = playlists.get(0).getUrn();
+        final List<LocalPlaylistChange> playlists = createLocalPlaylists(1);
+        localPlaylistUrn = playlists.get(0).urn();
         final List<Urn> playlistTracks = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2));
         final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
@@ -310,14 +311,18 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         return newPlaylist;
     }
 
-    private Map<String, Object> createPushRequestBody(PlaylistItem apiPlaylist, List<Urn> playlistTracks) {
+    private Map<String, Object> createPushRequestBody(LocalPlaylistChange apiPlaylist, List<Urn> playlistTracks) {
         final Map<String, Object> playlistBody = new ArrayMap<>(2);
-        playlistBody.put("title", apiPlaylist.getTitle());
-        playlistBody.put("public", apiPlaylist.isPublic());
+        playlistBody.put("title", apiPlaylist.title());
+        playlistBody.put("public", !apiPlaylist.isPrivate());
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);
         requestBody.put("track_urns", Urns.toString(playlistTracks));
         return requestBody;
+    }
+
+    private List<LocalPlaylistChange> createLocalPlaylists(int count) {
+        return Lists.transform(ModelFixtures.create(PlaylistItem.class, count), playlist -> LocalPlaylistChange.create(playlist.getUrn(), playlist.getTitle(), playlist.isPrivate()));
     }
 }
