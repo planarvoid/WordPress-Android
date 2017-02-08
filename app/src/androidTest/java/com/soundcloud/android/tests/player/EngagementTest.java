@@ -33,13 +33,6 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         assertThat(menu.shareItem(), is(not(Enabled())));
     }
 
-    public void testPublicTrackHasEnabledShareAndRepost() {
-        PlayerMenuElement menu = PlayerHelper.playPublicTrack(this, mainNavHelper).clickMenu();
-
-        assertThat(menu.repostItem(), is(Enabled()));
-        assertThat(menu.shareItem(), is(Enabled()));
-    }
-
     public void testLikeTrackAlwaysShowsTheShareButton() {
         VisualPlayerElement player = PlayerHelper.playPublicTrack(this, mainNavHelper);
 
