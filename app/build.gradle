@@ -192,7 +192,9 @@ dependencies {
   compile (libraries.crashlytics) {
     transitive = true
   }
-  compile libraries.jacksonRespack
+  compile libraries.jacksonAnnotations
+  compile libraries.jacksonDataBind
+  compile libraries.jacksonCore
   compile libraries.okHttp
   compile (libraries.slidingUpPanel) {
     transitive = true;
