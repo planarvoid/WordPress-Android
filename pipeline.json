@@ -141,6 +141,41 @@
           }
         }
       ]
+    },
+    {
+      "name": "nightly_acceptance_tests",
+      "jobs": [
+        {
+          "release_build_of_master_branch_acceptance_tests": {
+            "manual": true,
+            "schedule": "H 04 * * 2-6",
+            "artifacts": [
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk",
+              "app/build/outputs/apk/*androidTest*.apk",
+              "app/build/outputs/apk/androidnetworkmanager-*.apk"
+            ],
+            "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest downloadNetworkManagerApkCI runLollipopTestsRelease",
+            "plugins": {
+              "htmlReports": [
+                {
+                  "reportDir": "results/",
+                  "reportFiles": "index.html",
+                  "reportName": "Test Results"
+                },
+                {
+                  "reportDir": "results/",
+                  "reportFiles": "collection_index.html",
+                  "reportName": "Collection Results"
+                }
+              ],
+              "extEmail": {
+                "content": "&lt;p&gt;${SCRIPT, template=&quot;random-gif.template&quot;}&lt;/p&gt;${SCRIPT, template=&quot;ios.template&quot;}"
+              }
+            },
+            "test-reports": "results/xml/*.xml"
+          }
+        }
+      ]
     }
   ],
   "settings": {
