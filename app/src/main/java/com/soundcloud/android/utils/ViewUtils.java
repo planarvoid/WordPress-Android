@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import android.view.TouchDelegate;
@@ -69,7 +70,7 @@ public final class ViewUtils {
         parent.setTouchDelegate(null);
     }
 
-    public static float calculateViewablePercentage(View view) {
+    public static float calculateViewablePercentage(@Nullable View view) {
         if (view != null) {
             final Rect onScreen = new Rect();
             final int area = view.getWidth() * view.getHeight();

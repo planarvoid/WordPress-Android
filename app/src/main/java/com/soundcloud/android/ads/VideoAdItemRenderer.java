@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -59,6 +60,10 @@ public class VideoAdItemRenderer extends AdItemRenderer {
             final Holder holder = getHolder(itemView);
             listener.get().onVideoTextureBind(holder.videoView, (VideoAd) adData.get());
         }
+    }
+
+    public TextureView getVideoView(View itemView) {
+        return getHolder(itemView).videoView;
     }
 
     private float getVideoProportion(VideoAd videoAd) {

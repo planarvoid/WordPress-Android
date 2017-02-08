@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.View;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -28,8 +29,11 @@ class InlayAdHelper {
     final static int MIN_DISTANCE_BETWEEN_ADS = 4;
     final static int MAX_SEARCH_DISTANCE = 5;
 
+    private final static float MINIMUM_VIDEO_VIEWABLE_PERCENTAGE = 50.0f;
+
     private final StaggeredGridLayoutManager layoutManager;
     private final StreamAdapter adapter;
+    private final VideoAdItemRenderer videoAdItemRenderer;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
 
@@ -38,10 +42,12 @@ class InlayAdHelper {
 
     InlayAdHelper(StaggeredGridLayoutManager layoutManager,
                   StreamAdapter adapter,
+                  @Provided VideoAdItemRenderer videoAdItemRenderer,
                   @Provided CurrentDateProvider dateProvider,
                   @Provided EventBus eventBus) {
         this.layoutManager = layoutManager;
         this.adapter = adapter;
+        this.videoAdItemRenderer = videoAdItemRenderer;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
     }
@@ -84,7 +90,7 @@ class InlayAdHelper {
             if (adData instanceof AppInstallAd) {
                 forAppInstallOnScreen(now, positionAndAd.first(), (AppInstallAd) adData);
             } else if (adData instanceof VideoAd) {
-                mostViewableVideo = moreViewableVideoOnScreen(mostViewableVideo, positionAndAd);
+                mostViewableVideo = mostViewableVideoOnScreen(mostViewableVideo, positionAndAd);
             }
         }
 
@@ -96,15 +102,20 @@ class InlayAdHelper {
         }
     }
 
-    private Optional<VideoOnScreen> moreViewableVideoOnScreen(Optional<VideoOnScreen> currentMostViewable, Pair<Integer, AdData> currentAd) {
-        final float currentViewablePercentage = ViewUtils.calculateViewablePercentage(layoutManager.findViewByPosition(currentAd.first()));
-        final VideoOnScreen currentVideo = VideoOnScreen.create(currentViewablePercentage, currentAd.first(), (VideoAd) currentAd.second());
+    private Optional<VideoOnScreen> mostViewableVideoOnScreen(Optional<VideoOnScreen> currentMostViewable, Pair<Integer, AdData> currentAd) {
+        final float viewablePercentage = viewablePercentageForVideoView(currentAd.first());
+        final VideoOnScreen currentVideo = VideoOnScreen.create(viewablePercentage, currentAd.first(), (VideoAd) currentAd.second());
 
-        if (!currentMostViewable.isPresent() || currentMostViewable.get().isLessViewable(currentVideo)) {
+        if (viewablePercentage > MINIMUM_VIDEO_VIEWABLE_PERCENTAGE && currentVideo.isMoreViewable(currentMostViewable)) {
             return Optional.of(currentVideo);
         } else {
             return currentMostViewable;
         }
+    }
+
+    private float viewablePercentageForVideoView(int position) {
+        final View videoView = videoAdItemRenderer.getVideoView(layoutManager.findViewByPosition(position));
+        return ViewUtils.calculateViewablePercentage(videoView);
     }
 
     private void forAppInstallOnScreen(Date now, int position, AppInstallAd adData) {
@@ -212,8 +223,8 @@ class InlayAdHelper {
             return new AutoValue_InlayAdHelper_VideoOnScreen(position, viewablePercentage, videoAd);
         }
 
-        boolean isLessViewable(VideoOnScreen that) {
-           return this.viewablePercentage() < that.viewablePercentage();
+        boolean isMoreViewable(Optional<VideoOnScreen> that) {
+            return this.viewablePercentage() > (that.isPresent() ? that.get().viewablePercentage() : 0.0f);
         }
     }
 }

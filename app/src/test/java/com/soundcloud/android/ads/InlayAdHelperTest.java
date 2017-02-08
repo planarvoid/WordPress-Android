@@ -1,6 +1,9 @@
 package com.soundcloud.android.ads;
 
+import android.graphics.Rect;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.TextureView;
+import android.view.View;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -16,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 
 import java.util.Date;
@@ -29,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class InlayAdHelperTest extends AndroidUnitTest {
+
     private static AppInstallAd appInstall() {
         return AppInstallAd.create(AdFixtures.getApiAppInstall(), 434343);
     }
@@ -55,6 +60,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
     @Mock StaggeredGridLayoutManager layoutManager;
     @Mock StreamAdapter adapter;
+    @Mock VideoAdItemRenderer videoAdItemRenderer;
     @Mock List<StreamItem> list;
     @Spy TestEventBus eventBus = new TestEventBus();
 
@@ -64,7 +70,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        inlayAdHelper = new InlayAdHelper(layoutManager, adapter, dateProvider, eventBus);
+        inlayAdHelper = new InlayAdHelper(layoutManager, adapter, videoAdItemRenderer, dateProvider, eventBus);
     }
 
     @After
@@ -237,6 +243,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
         when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 51);
 
         inlayAdHelper.onScroll();
 
@@ -244,15 +251,29 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onScrollFiresOnScreenEventForFirstMostVisibleVideoAdOnScreen() {
+    public void onScrollFiresOnScreenEventForFirstMostVisibleVideoAdOnScreenGreaterThan50PercentVisible() {
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
-        when(adapter.getItem(9)).thenReturn(StreamItem.forVideoAd(AdFixtures.getVideoAd(23L)));
+        when(adapter.getItem(8)).thenReturn(StreamItem.forVideoAd(AdFixtures.getVideoAd(23L)));
+        when(adapter.getItem(9)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 51);
+        setVideoViewVisibility(9, 52);
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+    }
+
+    @Test
+    public void onScrollFiresNoVideoOnScreenEventWhenVideoAdsOnScreenAreAllLessThan50PercentVisible() {
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 49);
+
+        inlayAdHelper.onScroll();
+
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(CURRENT_DATE));
     }
 
     @Test
@@ -312,5 +333,21 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private void setItemListSize(int size) {
         when(list.size()).thenReturn(size);
         when(adapter.getItems()).thenReturn(list);
+    }
+
+    private void setVideoViewVisibility(int position, float viewablePercentage) {
+        final View itemView = Mockito.mock(View.class);
+        final TextureView videoView = Mockito.mock(TextureView.class);
+
+        when(layoutManager.findViewByPosition(position)).thenReturn(itemView);
+        when(videoAdItemRenderer.getVideoView(itemView)).thenReturn(videoView);
+        when(videoView.getWidth()).thenReturn(100);
+        when(videoView.getHeight()).thenReturn(1);
+        when(videoView.getGlobalVisibleRect(any(Rect.class)))
+                .then(invocation -> {
+                    final Rect viewableRect = (Rect) invocation.getArguments()[0];
+                    viewableRect.set(0, 0, (int) viewablePercentage, 1);
+                    return true;
+                });
     }
 }
