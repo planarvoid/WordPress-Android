@@ -593,7 +593,6 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profile</string>
-  <string name="collections_upsell_title">Get SoundCloud Go</string>
   <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
   <string name="collections_recently_played_clear_action">Clear recently played</string>
   <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
@@ -658,9 +657,7 @@
   <string name="conversion_restrictions_promo">Restrictions apply, %s after</string>
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
   <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
-  <string name="conversion_restrictions_message_no_trial">You have already used your free trial or are a resident of Quebec and are not eligible for a trial due to local restrictions.\n\nBy purchasing SoundCloud Go, you will be charged the current regular price per month (including applicable local sales taxes) unless cancelled before your next renewal date.</string>
   <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favourite artists with SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>
@@ -674,7 +671,6 @@
   <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
   <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
   <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
-  <string name="payments_error_unconfirmed_email">Confirm your email address to purchase SoundCloud Go. Check your inbox for confirmation instructions.</string>
   <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
   <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
   <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
@@ -765,9 +761,6 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">You’ve reached your device limit</string>
-  <string name="device_management_limit_active">You already have SoundCloud Go on three devices. If you register this device, we’ll automatically unregister the one you haven’t used the longest.</string>
-  <string name="device_management_limit_registered">You already have SoundCloud Go on 10 devices. You need to sign out of one device before you can sign in on this one.</string>
-  <string name="device_management_conflict_message">Since you’ve reached your SoundCloud Go device limit, we’ve signed out this device and de-registered it. Anything you saved offline was removed. You need to sign in before you can re-register this device.</string>
   <string name="device_management_register">Register</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Nothing to hear here</string>
@@ -807,10 +800,7 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Go ad‑free</string>
-  <string name="upsell_upgrade_button">Get SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Unlock previews with SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad‑free and offline listening.</string>
-  <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
   <string name="upsell_track_geo_blocked">Not available in your country</string>
@@ -826,14 +816,7 @@
   <string name="playback_error_blocked">Not available in\nyour country</string>
   <string name="playback_upsell_1">No more previews, just full tracks</string>
   <string name="playback_upsell_2">Get full tracks, offline &amp; ad free</string>
-  <string name="playback_upsell_button">Get SoundCloud Go</string>
-  <string name="playback_upsell_button_trial">Try SoundCloud Go</string>
   <!--__SEARCH-->
-  <plurals name="search_premium_content_results_count">
-    <item quantity="one">Found %1$d SoundCloud Go result</item>
-    <item quantity="other">Found %1$d SoundCloud Go results</item>
-  </plurals>
-  <string name="search_premium_content_view_all">See all SoundCloud Go results</string>
   <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Push notifications</string>

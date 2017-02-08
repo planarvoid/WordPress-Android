@@ -7,6 +7,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
@@ -17,6 +19,7 @@ import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.PluralsRes;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +49,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     private final UserItemRenderer userItemRenderer;
     private final Resources resources;
     private final FeatureOperations featureOperations;
+    private final FeatureFlags flags;
 
     private OnPremiumContentClickListener premiumContentListener;
 
@@ -58,12 +62,14 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                                  PlaylistItemRenderer playlistItemRenderer,
                                  UserItemRenderer userItemRenderer,
                                  Resources resources,
-                                 FeatureOperations featureOperations) {
+                                 FeatureOperations featureOperations,
+                                 FeatureFlags flags) {
         this.trackItemRenderer = trackItemRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
         this.userItemRenderer = userItemRenderer;
         this.resources = resources;
         this.featureOperations = featureOperations;
+        this.flags = flags;
     }
 
     @Override
@@ -169,11 +175,21 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     private String getResultsCountText(SearchPremiumItem premiumItem) {
         final int resultsCount = premiumItem.getResultsCount();
-        return resources.getQuantityString(R.plurals.search_premium_content_results_count, resultsCount, resultsCount);
+        return resources.getQuantityString(adaptResultCountPlural(), resultsCount, resultsCount);
+    }
+
+    @PluralsRes
+    private int adaptResultCountPlural() {
+        return flags.isEnabled(Flag.MID_TIER)
+               ? R.plurals.search_premium_content_results_count
+               : R.plurals.search_premium_content_results_count_legacy;
     }
 
     private String getViewAllText() {
-        return resources.getString(R.string.search_premium_content_view_all).toUpperCase(Locale.getDefault());
+        return resources.getString(flags.isEnabled(Flag.MID_TIER)
+                                   ? R.string.search_premium_content_view_all
+                                   : R.string.search_premium_content_view_all_legacy)
+                        .toUpperCase(Locale.getDefault());
     }
 
     void setPremiumContentListener(OnPremiumContentClickListener listener) {

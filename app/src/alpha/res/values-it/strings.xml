@@ -620,7 +620,6 @@
   <string name="notification_username_started_following_you">ha iniziato a seguirti</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abbonati</string>
-  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s al mese</string>
   <string name="conversion_buy_loading">Caricamento…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Prova gratis per %d giorni</string>
@@ -632,7 +631,6 @@
   <string name="conversion_buy_retry">Caricamento non riuscito. Riprovare?</string>
   <string name="conversion_restrictions">Si applicano restrizioni</string>
   <string name="conversion_restrictions_dialog_title">Si applicano restrizioni</string>
-  <string name="ads_why_ads_upsell_dialog_message">Quando vedi o senti una pubblicità, gli artisti ricevono un compenso. Così possiamo mantenere SoundCloud gratuito per gli ascoltatori.\n\nVuoi ascoltare musica senza interruzioni? Passa alla versione senza pubblicità e continua a supportare i tuoi artisti preferiti con SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Prodotto non disponibile</string>
   <string name="payments_error_title_no_billing">Fatturazione non disponibile</string>
@@ -646,7 +644,6 @@
   <string name="payments_error_unavailable">Si è verificato un problema nel tentativo di connessione allo store di app. Riprovare.</string>
   <string name="payments_error_no_billing">Non sono presenti store di app validi su questo dispositivo.</string>
   <string name="payments_error_already_subscribed">È già presente un abbonamento attivo collegato all\'account.</string>
-  <string name="payments_error_unconfirmed_email">Confermare l\'indirizzo email per acquistare SoundCloud Go. Verificare la cartella della posta in arrivo per le istruzioni relative alla conferma.</string>
   <string name="payments_error_cancelled">Non è stato possibile completare l\'acquisto. Riprovare.</string>
   <string name="payments_error_stale">È trascorso troppo tempo per la convalida del pagamento. Se il problema persiste, contattare il team di assistenza.</string>
   <string name="payments_error_wrong_user">L\'abbonamento è associato a un account SoundCloud diverso. Accertarsi che l\'account SoundCloud corrisponda all\'abbonamento nell\'account Google Play.</string>
@@ -690,7 +687,6 @@
   <string name="go_onboarding_offline_settings_subtext">Selezionando, verranno salvati automaticamente tutti i preferiti, playlist e album offline presenti e futuri.</string>
   <string name="go_onboarding_offline_settings_continue">Ok, ho capito</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboarding_title">L\'abbonamento a SoundCloud Go è scaduto</string>
   <string name="go_offboarding_description">Ci dispiace che tu te ne vada (davvero). Se ti dovesse mancare l\'accesso a un ampio catalogo senza pubblicità e offline non preoccuparti, potrai tornare in qualsiasi momento.</string>
   <string name="go_offboarding_primary_button_text">Iscriviti nuovamente</string>
   <!--__OFFLINE SETTINGS-->
@@ -739,9 +735,6 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">È stato raggiunto il limite del dispositivo</string>
-  <string name="device_management_limit_active">Hai già installato SoundCloud Go su tre dispositivi. Se registri questo dispositivo annulleremo automaticamente la registrazione di quello non utilizzato da più tempo.</string>
-  <string name="device_management_limit_registered">Hai già SoundCloud Go su 10 dispositivi. È necessario uscire da un dispositivo prima di accedere a questo.</string>
-  <string name="device_management_conflict_message">Hai raggiunto il limite di dispositivi su cui è installato SoundCloud Go, perciò abbiamo disconnesso e annullato la registrazione di questo dispositivo. Tutti i contenuti salvati offline sono stati rimossi. È necessario accedere prima di poter registrare nuovamente questo dispositivo.</string>
   <string name="device_management_register">Registra</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Non c\'è nulla da ascoltare</string>
@@ -781,10 +774,7 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Passa alla versione senza pubblicità</string>
-  <string name="upsell_upgrade_button">Passa a SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Sblocca le anteprime con SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Accedi al catalogo di streaming di musica e audio più ampio al mondo con ascolto senza pubblicità e offline.</string>
-  <string name="upsell_playlist_upgrade_title">Riproduci le tracce intere con SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">Niente più anteprime. Ascolta ogni secondo di ogni traccia.</string>
   <string name="upsell_track_preview">Anteprima</string>
   <string name="upsell_track_geo_blocked">Non disponibile nel tuo paese</string>
@@ -799,11 +789,6 @@
   <!--__PLAYER-->
   <string name="playback_error_blocked">Non disponibile nel\ntuo paese</string>
   <!--__SEARCH-->
-  <plurals name="search_premium_content_results_count">
-    <item quantity="one">Trovato %1$d risultato SoundCloud Go</item>
-    <item quantity="other">Trovati %1$d risultati SoundCloud Go</item>
-  </plurals>
-  <string name="search_premium_content_view_all">Visualizza tutti i risultati SoundCloud Go</string>
   <string name="search_premium_content_upsell">Effettua l\'upgrade per ascoltare le tracce complete</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notifiche push</string>

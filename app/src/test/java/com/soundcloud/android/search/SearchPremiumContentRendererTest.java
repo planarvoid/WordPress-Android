@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -45,6 +46,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private UserItemRenderer userRenderer;
     @Mock private FeatureOperations featureOperations;
+    @Mock private FeatureFlags flags;
 
     private View premiumItemView;
     private View trackItemView;
@@ -69,7 +71,8 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
                                                     playlistRenderer,
                                                     userRenderer,
                                                     resources(),
-                                                    featureOperations);
+                                                    featureOperations,
+                                                    flags);
     }
 
     @Test

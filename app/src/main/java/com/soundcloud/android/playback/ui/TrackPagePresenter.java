@@ -32,6 +32,8 @@ import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.DefaultAnimationListener;
@@ -48,6 +50,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.StringRes;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
@@ -86,6 +89,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final PlayerUpsellCopyExperiment upsellCopyExperiment;
     private final PlayQueueConfiguration playQueueConfiguration;
+    private final FeatureFlags flags;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -107,7 +111,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        Resources resources,
                        PlayerUpsellImpressionController upsellImpressionController,
                        PlayerUpsellCopyExperiment upsellCopyExperiment,
-                       PlayQueueConfiguration playQueueConfiguration) {
+                       PlayQueueConfiguration playQueueConfiguration,
+                       FeatureFlags flags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -126,6 +131,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.upsellImpressionController = upsellImpressionController;
         this.upsellCopyExperiment = upsellCopyExperiment;
         this.playQueueConfiguration = playQueueConfiguration;
+        this.flags = flags;
     }
 
     @Override
@@ -268,13 +274,27 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private int getUpsellButtonText() {
-        return featureOperations.isHighTierTrialEligible() ? R.string.playback_upsell_button_trial : R.string.playback_upsell_button;
+        return featureOperations.isHighTierTrialEligible()
+               ? adaptTrialUpsellCopy()
+               : adaptUpsellCopy();
+    }
+
+    @StringRes
+    private int adaptTrialUpsellCopy() {
+        return flags.isEnabled(Flag.MID_TIER)
+               ? R.string.playback_upsell_button_trial
+               : R.string.playback_upsell_button_trial_legacy;
+    }
+
+    @StringRes
+    private int adaptUpsellCopy() {
+        return flags.isEnabled(Flag.MID_TIER)
+               ? R.string.playback_upsell_button
+               : R.string.playback_upsell_button_legacy;
     }
 
     private void configureEmptyState(TrackPageHolder holder, PlayerTrackState trackState) {
-        final boolean empty = trackState.isEmpty();
-
-        if (empty) {
+        if (trackState.isEmpty()) {
             holder.emptyViewController.show();
         }
     }

@@ -620,7 +620,6 @@
   <string name="notification_username_started_following_you">zijn begonnen je te volgen</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
-  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
   <string name="conversion_buy_loading">Laden…</string>
@@ -635,9 +634,7 @@
   <string name="conversion_restrictions_promo">Er zijn beperkingen van toepassing. daarna %s</string>
   <string name="conversion_restrictions_dialog_title">Er zijn beperkingen van toepassing. </string>
   <string name="conversion_restrictions_message_trial">Aanbieding beperkt tot één proefabonnement van %1$d dagen per gebruiker. Na de eerste %2$d dagen wordt het abonnement maandelijks gefactureerd tenzij de gebruiker het hiervoor annuleert. Het proefabonnement kan op elk moment tijdens de eerste %3$d dagen worden geannuleerd.\n\nInwoners van Québec, Canada komen niet in aanmerking voor proefversies vanwege lokale beperkingen.</string>
-  <string name="conversion_restrictions_message_no_trial">Je hebt je gratis proefversie al gebruikt of bent inwoner van Québec en komt daarom niet in aanmerking voor een proefversie als gevolg van lokale beperkingen.\n\nWanneer je SoundCloud Go aanschaft, wordt de huidige normale prijs per maand in rekening gebracht, tenzij je annuleert voor je volgende verlengingsdatum.</string>
   <string name="conversion_restrictions_message_promo">Aanbieding is alleen geldig voor gebruikers die geen gratis proefversie hebben gehad. Eerste %1$s van een abonnement voor %2$s in totaal. Als de gebruiker het abonnement niet annuleert voor afloop van deze %1$s, wordt het automatisch elke maand verlengd voor de prijs van %3$s per maand, tot de gebruiker dit annuleert.\n\nReclamevrij wil zeggen dat er geen audio- of video-onderbrekingen zijn.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Iedere keer dat je een advertentie ziet of hoort, krijgen artiesten betaald. Zo kunnen we SoundCloud gratis houden voor de luisteraars.\n\nWil je geen onderbrekingen meer? Kies voor reclamevrij en blijf je favoriete artiesten steunen met SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product niet beschikbaar</string>
   <string name="payments_error_title_no_billing">Facturering niet beschikbaar</string>
@@ -651,7 +648,6 @@
   <string name="payments_error_unavailable">Er is een probleem opgetreden bij de verbinding met de app-winkel. Probeer het zo nog eens.</string>
   <string name="payments_error_no_billing">Zo te zien is er geen geldige app-winkel op dit apparaat.</string>
   <string name="payments_error_already_subscribed">Zo te zien is er al al een actief abonnement gekoppeld aan je account.</string>
-  <string name="payments_error_unconfirmed_email">Bevestig je e-mailadres om SoundCloud Go aan te schaffen. Controleer je Postvak IN voor bevestigingsinstructies.</string>
   <string name="payments_error_cancelled">De aankoop kon niet worden voltooid. Probeer het nog eens.</string>
   <string name="payments_error_stale">Er is te veel tijd verstreken om je betaling te valideren. Neem contact op met ons ondersteuningsteam als dit probleem aanhoudt.</string>
   <string name="payments_error_wrong_user">Je abonnement is gekoppeld aan een andere SoundCloud-account. Zorg dat je SoundCloud-account overeenkomt met het abonnement in je Google Play-account.</string>
@@ -695,7 +691,6 @@
   <string name="go_onboarding_offline_settings_subtext">Wanneer je dit selecteert, worden al je huidige en toekomstige likes, playlists en albums automatisch offline beschikbaar.</string>
   <string name="go_onboarding_offline_settings_continue">OK, begrepen</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboarding_title">Je abonnement op SoundCloud Go is verstreken</string>
   <string name="go_offboarding_description">Wat jammer dat je ons verlaat. Als je de reclamevrije toegang tot een uitgebreide catalogus mist, niet getreurd: je mag altijd terugkomen.</string>
   <string name="go_offboarding_primary_button_text">Opnieuw abonneren</string>
   <!--__OFFLINE SETTINGS-->
@@ -744,9 +739,6 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">Je hebt je apparaatlimiet bereikt</string>
-  <string name="device_management_limit_active">Je hebt SoundCloud Go al op drie apparaten. Als je dit apparaat registreert, verwijderen we automatisch het apparaat dat je het langst niet gebruikt hebt.</string>
-  <string name="device_management_limit_registered">Je hebt SoundCloud Go al op 10 apparaten. Je moet op een daarvan uitloggen voordat je op dit apparaat kunt inloggen.</string>
-  <string name="device_management_conflict_message">Aangezien je je apparaatlimiet voor SoundCloud Go hebt bereikt, hebben we je op dit apparaat uitgelogd en de registratie ervan verwijderd. Eventuele offline opgeslagen content is verwijderd. Je moet inloggen voordat je dit apparaat opnieuw kunt registreren.</string>
   <string name="device_management_register">Registreren</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Niets te horen hier</string>
@@ -786,10 +778,7 @@
   <string name="set_type_compilation_label_for_text">compilatie</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Kies voor reclamevrij</string>
-  <string name="upsell_upgrade_button">Abonneer je op SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Ontgrendel previews met SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Krijg volledige toegang tot \'s werelds grootste catalogus met muziek- en audiostreaming, met reclamevrij en offline luisteren.</string>
-  <string name="upsell_playlist_upgrade_title">Speel volledige tracks af met SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">Geen previews meer. Luister naar elke seconde van elke track.</string>
   <string name="upsell_track_preview">Voorbeeld</string>
   <string name="upsell_track_geo_blocked">Niet beschikbaar in jouw land</string>
@@ -804,11 +793,6 @@
   <!--__PLAYER-->
   <string name="playback_error_blocked">Niet beschikbaar in\njouw land</string>
   <!--__SEARCH-->
-  <plurals name="search_premium_content_results_count">
-    <item quantity="one">%1$d SoundCloud Go-resultaat gevonden</item>
-    <item quantity="other">%1$d SoundCloud Go-resultaten gevonden</item>
-  </plurals>
-  <string name="search_premium_content_view_all">Zie alle SoundCloud Go-resultaten</string>
   <string name="search_premium_content_upsell">Upgrade om volledige tracks te horen</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Pushmeldingen</string>

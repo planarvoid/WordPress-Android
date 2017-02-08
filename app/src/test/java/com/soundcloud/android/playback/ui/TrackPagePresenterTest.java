@@ -38,6 +38,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -96,6 +97,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
     @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
     @Mock private CastPlayerStripController castPlayerStripController;
+    @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -127,7 +129,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            upsellCopyExperiment,
-                                           playQueueConfiguration);
+                                           playQueueConfiguration,
+                                           flags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

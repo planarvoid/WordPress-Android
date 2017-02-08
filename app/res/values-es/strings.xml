@@ -596,7 +596,6 @@
   <string name="collections_recently_played_playlist">lista</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
-  <string name="collections_upsell_title">Hazte con SoundCloud Go</string>
   <string name="collections_upsell_body">Escucha las pistas que te han gustado, tus listas, y tus álbumes sin conexión y sin anuncios</string>
   <string name="collections_recently_played_clear_action">Borrar las pistas escuchadas recientemente</string>
   <string name="collections_recently_played_clear_dialog_title">¿Borrar las pistas escuchadas recientemente?</string>
@@ -665,9 +664,7 @@
   <string name="conversion_restrictions_promo">Existen limitaciones, %s después</string>
   <string name="conversion_restrictions_dialog_title">Existen limitaciones</string>
   <string name="conversion_restrictions_message_trial">La oferta se limita a un periodo de prueba de %1$d días por usuario. Tras los primeros %2$d días, la suscripción se renueva automáticamente a menos que se cancele antes de que finalice el periodo de prueba de %3$d días. La suscripción se puede cancelar en cualquier momento en soundcloud.com. Todos los precios incluyen los impuestos locales aplicables.\n\nLos residentes en Quebec (Canadá) no pueden optar a las versiones de prueba debido a restricciones locales.</string>
-  <string name="conversion_restrictions_message_no_trial">Ya has activado tu periodo de prueba gratuito o eres residente en Quebec, por lo que no puedes optar a versiones de prueba debido a restricciones locales.\n\nAl adquirir SoundCloud Go, se te cobrará la cuota mensual normal actual (incluidos los impuestos locales aplicables) a menos que la canceles antes de la próxima fecha de renovación.</string>
   <string name="conversion_restrictions_message_promo">La oferta solo está disponible para usuarios que no hayan disfrutado de un periodo de prueba. Los primeros %1$s de suscripción por un total de %2$s. Si el usuario no cancela su suscripción antes de que transcurran esos %1$s, la suscripción se renovará automáticamente cada mes con una cuota de %3$s/mes hasta que el usuario la cancele.\n\nSin anuncios significa que se eliminan las interrupciones audiovisuales.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Cada vez que ves o oyes un anuncio, se les paga a los artistas. Ellos nos ayudan a mantener SoundCloud gratis para los oyentes.\n\n¿No quieres que te interrumpan? Olvídate de los anuncios y sigue apoyando a tus artistas favoritos con SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Producto no disponible</string>
   <string name="payments_error_title_no_billing">Facturación no disponible</string>
@@ -681,7 +678,6 @@
   <string name="payments_error_unavailable">Hubo un problema al intentar conectar con el App Store. Inténtalo de nuevo.</string>
   <string name="payments_error_no_billing">Parece que no hay un App Store válido en este dispositivo.</string>
   <string name="payments_error_already_subscribed">Parece que ya existe una subscripción activa asociada a tu cuenta.</string>
-  <string name="payments_error_unconfirmed_email">Confirma tu dirección de email para adquirir SoundCloud Go. Busca las instrucciones de confirmación en tu bandeja de entrada.</string>
   <string name="payments_error_cancelled">No hemos podido completar la compra. Inténtalo de nuevo.</string>
   <string name="payments_error_stale">Ha pasado demasiado tiempo para validar tu pago. Si el problema persiste, ponte en contacto con nuestro equipo de soporte.</string>
   <string name="payments_error_wrong_user">Tu suscripción está asociada a otra cuenta de SoundCloud. Comprueba que tu cuenta de SoundCloud coincide con la suscripción de tu cuenta de Google Play.</string>
@@ -725,7 +721,6 @@
   <string name="go_onboarding_offline_settings_subtext">Si lo seleccionas, se guardarán automáticamente tus listas, tus Me gusta y tus álbumes actuales y futuros para escucharlos sin conexión.</string>
   <string name="go_onboarding_offline_settings_continue">De acuerdo</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboard_to_free_title">Tu suscripción a SoundCloud Go ha finalizado</string>
   <string name="go_offboard_to_free_description">Es una pena que te vayas. Si echas de menos poder acceder a un catálogo ampliado sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
   <string name="go_offboard_resubscribe">Volver a suscribirse</string>
   <!--__OFFLINE SETTINGS-->
@@ -774,9 +769,6 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">Has alcanzado el límite de dispositivos</string>
-  <string name="device_management_limit_active">Ya tienes SoundCloud Go en tres dispositivos. Si registras este dispositivo, deshabilitaremos automáticamente el que lleves más tiempo sin usar.</string>
-  <string name="device_management_limit_registered">Ya tienes SoundCloud Go en 10 dispositivos. Debes cerrar sesión en uno de los dispositivos antes de poder iniciar sesión en este.</string>
-  <string name="device_management_conflict_message">Has alcanzado el límite de dispositivos con SoundCloud Go, por lo que hemos cerrado tu sesión en este dispositivo y lo hemos deshabilitado. Todo lo que guardaste sin conexión se ha eliminado. Debes iniciar sesión para poder volver a registrar el dispositivo.</string>
   <string name="device_management_register">Registrar</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Aquí no hay nada que oír</string>
@@ -816,10 +808,7 @@
   <string name="set_type_compilation_label_for_text">recopilación</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
-  <string name="upsell_upgrade_button">Hazte con SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Desbloquea vistas previas con SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Accede al mayor catálogo mundial de música y audio en streaming, sin conexión y sin anuncios.</string>
-  <string name="upsell_playlist_upgrade_title">Reproduce pistas completas con SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_description">Se acabaron las vistas previas. Escucha cada segundo de todas las pistas.</string>
   <string name="upsell_track_preview">Vista previa</string>
   <string name="upsell_track_geo_blocked">No disponible en tu país</string>
@@ -835,14 +824,7 @@
   <string name="playback_error_blocked">No disponible\nen tu país</string>
   <string name="playback_upsell_1">Se acabaron las vistas previas, solo pistas enteras</string>
   <string name="playback_upsell_2">Escucha pistas enteras, sin conexión y sin anuncios.</string>
-  <string name="playback_upsell_button">Hazte con SoundCloud Go</string>
-  <string name="playback_upsell_button_trial">Prueba SoundCloud Go</string>
   <!--__SEARCH-->
-  <plurals name="search_premium_content_results_count">
-    <item quantity="one">Encontramos %1$d resultado de SoundCloud Go</item>
-    <item quantity="other">Encontramos %1$d resultados de SoundCloud Go</item>
-  </plurals>
-  <string name="search_premium_content_view_all">Ver todos los resultados de SoundCloud Go</string>
   <string name="search_premium_content_upsell">Mejora tu cuenta para oír la pista entera</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notificaciones push</string>
