@@ -29,7 +29,7 @@
     </style>
 
     <style name="ConversionText.ProductsHeader">
-        <item name="android:textSize">24sp</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="ConversionText.Details">
