@@ -87,6 +87,7 @@
         <item name="android:layout_height">72dp</item>
         <item name="android:layout_marginRight">-23dp</item>
         <item name="android:layout_marginTop">-3dp</item>
+        <item name="externalRouteEnabledDrawable">@drawable/mr_button_dark</item>
         <item name="android:visibility">gone</item>
     </style>
 
