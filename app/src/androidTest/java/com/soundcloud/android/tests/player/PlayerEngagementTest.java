@@ -42,7 +42,7 @@ public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity>
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                streamScreen.clickFirstTrackCard();
+                streamScreen.clickFirstNotPromotedTrackCard();
 
         assertThat(playerElement, is(expanded()));
         assertThat(playerElement, is(visible()));
@@ -64,7 +64,7 @@ public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity>
         startEventTracking();
 
         final VisualPlayerElement playerElement2 =
-                streamScreen.clickFirstTrackCard();
+                streamScreen.clickFirstNotPromotedTrackCard();
 
         // Repost
         playerElement2.clickMenu().toggleRepost();
