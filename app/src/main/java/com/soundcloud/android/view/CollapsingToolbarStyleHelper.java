@@ -70,7 +70,7 @@ public class CollapsingToolbarStyleHelper implements AppBarLayout.OnOffsetChange
         if (lightStatus && verticalOffset > positionProvider.changeStatusPosition()) {
             lightStatus = false;
             statusBarColorController.clearLightStatusBar();
-        } else if (!lightStatus && verticalOffset < positionProvider.changeStatusPosition()) {
+        } else if (!lightStatus && verticalOffset <= positionProvider.changeStatusPosition()) {
             lightStatus = true;
             statusBarColorController.setLightStatusBar();
         }

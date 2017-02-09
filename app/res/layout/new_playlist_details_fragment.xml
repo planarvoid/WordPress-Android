@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:ignore="InconsistentLayout">
 
     <FrameLayout
         android:id="@+id/playlist_details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -21,7 +20,8 @@
                 android:id="@+id/appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fitsSystemWindows="true">
+                android:fitsSystemWindows="true"
+                app:layout_behavior="com.soundcloud.android.view.FlingBehavior">
 
                 <android.support.design.widget.CollapsingToolbarLayout
                     android:id="@+id/collapsing_toolbar"
@@ -101,7 +101,8 @@
                             layout="@layout/playlist_engagement_bar"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/artwork_divider"/>
+                            android:layout_below="@id/artwork_divider"
+                            android:visibility="invisible"/>
 
                     </RelativeLayout>
 
@@ -115,6 +116,9 @@
                     <include layout="@layout/transparent_toolbar_with_gradient" />
 
                 </android.support.design.widget.CollapsingToolbarLayout>
+
+                <View
+                    style="@style/Divider.Item"/>
 
             </android.support.design.widget.AppBarLayout>
 

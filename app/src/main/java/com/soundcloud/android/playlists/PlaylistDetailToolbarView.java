@@ -10,7 +10,6 @@ import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.MenuItem;
 
 @AutoFactory
 class PlaylistDetailToolbarView extends DefaultSupportFragmentLightCycle<Fragment> {
@@ -35,15 +34,6 @@ class PlaylistDetailToolbarView extends DefaultSupportFragmentLightCycle<Fragmen
     void onPrepareOptionsMenu(Menu menu) {
         this.menu = Optional.of(menu);
         bindView();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
-        if (item.getItemId() == R.id.edit_validate) {
-            listener.onExitEditMode();
-            return true;
-        }
-        return false;
     }
 
     private void bindView() {

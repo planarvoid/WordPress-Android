@@ -1,12 +1,9 @@
 package com.soundcloud.android.profile;
 
 
-import static com.soundcloud.android.view.status.StatusBarUtils.getStatusBarHeight;
-
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.PlayerActivity;
+import com.soundcloud.android.main.FullscreenablePlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -15,13 +12,11 @@ import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class ProfileActivity extends PlayerActivity {
+public class ProfileActivity extends FullscreenablePlayerActivity {
 
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
@@ -44,24 +39,19 @@ public class ProfileActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
+        super.setActivityContentView();
         if (showProfileBanner) {
-            setTheme(R.style.Theme_SoundCloud_TransparentStatus);
             baseLayoutHelper.createActionBarLayout(this, R.layout.profile);
         } else {
-            setTheme(R.style.Theme_SoundCloud);
             baseLayoutHelper.createActionBarLayout(this, R.layout.profile_no_banner);
         }
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (showProfileBanner) {
-            View panel = findViewById(R.id.player_root);
-            ((SlidingUpPanelLayout.LayoutParams) panel
-                                .getLayoutParams()).setMargins(0, getStatusBarHeight(this), 0, 0);
-        }
+    protected boolean shouldBeFullscreen() {
+        return showProfileBanner;
     }
+
 
     static Urn getUserUrnFromIntent(Intent intent) {
         if (intent.hasExtra(EXTRA_USER_URN)) {

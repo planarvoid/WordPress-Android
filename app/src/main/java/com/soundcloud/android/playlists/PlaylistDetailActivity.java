@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.main.PlayerActivity;
+import com.soundcloud.android.main.FullscreenablePlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -22,8 +22,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-public class PlaylistDetailActivity extends PlayerActivity {
+public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
 
     static final String LOG_TAG = "PlaylistDetails";
 
@@ -35,6 +36,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
     @Inject Navigator navigator;
+    @Inject @Named(PlaylistsModule.FULLSCREEN_PLAYLIST_DETAILS) boolean showFullscreenPlaylistDetails;
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
         return getIntent(playlistUrn, screen, autoPlay, null, null);
@@ -89,12 +91,17 @@ public class PlaylistDetailActivity extends PlayerActivity {
 
     @Override
     protected void setActivityContentView() {
-        // TODO : This switch should take the config into account, as we will have no collapsing toolbar in certain configs
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
+        super.setActivityContentView();
+        if (shouldBeFullscreen()) {
             baseLayoutHelper.setBaseNoToolbar(this);
         } else {
             baseLayoutHelper.setBaseLayout(this);
         }
+    }
+
+    @Override
+    protected boolean shouldBeFullscreen() {
+        return showFullscreenPlaylistDetails;
     }
 
     @Override

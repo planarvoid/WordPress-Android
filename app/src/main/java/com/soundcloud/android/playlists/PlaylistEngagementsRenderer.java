@@ -59,6 +59,7 @@ class PlaylistEngagementsRenderer {
     }
 
     void bind(View view, PlaylistDetailsViewModel item, PlaylistDetailsInputs onEngagementListener) {
+        view.findViewById(R.id.playlist_engagement_bar).setVisibility(View.VISIBLE); // it is not visible by default
         final PlaylistDetailsMetadata metadata = item.metadata();
         bindEngagementBar(view, item, onEngagementListener);
         setInfoText(infoProvider.getPlaylistInfoLabel(metadata.offlineState(), metadata.headerText()), view);

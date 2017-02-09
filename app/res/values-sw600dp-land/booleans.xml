@@ -2,4 +2,5 @@
 <resources>
     <bool name="split_screen_details_pages">true</bool>
     <bool name="allow_interstitials">true</bool>
+    <bool name="show_fullscreen_playlist_details">false</bool>
 </resources>

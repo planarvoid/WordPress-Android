@@ -5,4 +5,5 @@
     <bool name="light_status_bar">false</bool>
     <bool name="is_tablet">false</bool>
     <bool name="profile_banner">false</bool>
+    <bool name="show_fullscreen_playlist_details">true</bool>
 </resources>

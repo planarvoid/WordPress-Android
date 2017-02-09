@@ -213,11 +213,11 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         tracklistUpdated.onNext(trackItems);
     }
 
-    private Observable<Playlist> savePlaylist(PlaylistWithExtras playlistWithExtras) {
-        return playlistOperations.editPlaylist(playlistWithExtras.playlist().urn(),
+    private void savePlaylist(PlaylistWithExtras playlistWithExtras) {
+        fireAndForget(playlistOperations.editPlaylist(playlistWithExtras.playlist().urn(),
                                                playlistWithExtras.playlist().title(),
                                                playlistWithExtras.playlist().isPrivate(),
-                                               transform(playlistWithExtras.tracks(), track -> track.urn()));
+                                               transform(playlistWithExtras.tracks(), Track::urn)));
     }
 
     private Subscription emitViewModel() {

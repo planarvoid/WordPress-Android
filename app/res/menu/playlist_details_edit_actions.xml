@@ -6,5 +6,6 @@
         android:id="@+id/edit_validate"
         android:icon="@drawable/edit_playlist_done"
         android:title="@string/edit_validate"
+        android:visible="false"
         app:showAsAction="always" />
 </menu>

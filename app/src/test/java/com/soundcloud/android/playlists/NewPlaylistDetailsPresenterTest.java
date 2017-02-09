@@ -637,6 +637,14 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void savesPlaylistWithNewTracklist() throws Exception {
         connect();
 
+        PublishSubject<Playlist> saveSubject = PublishSubject.create();
+        when(playlistOperations.editPlaylist(
+                initialPlaylist.urn(),
+                initialPlaylist.title(),
+                initialPlaylist.isPrivate(),
+                asList(trackItem2.getUrn(), trackItem1.getUrn())
+        )).thenReturn(saveSubject);
+
         newPlaylistPresenter.actionUpdateTrackList(asList(
                 getPlaylistDetailTrackItem(trackItem2),
                 getPlaylistDetailTrackItem(trackItem1)));
@@ -648,12 +656,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                             .test()
                             .assertValue(fromIdle(viewModelWithReversedTracks));
 
-        verify(playlistOperations).editPlaylist(
-                initialPlaylist.urn(),
-                initialPlaylist.title(),
-                initialPlaylist.isPrivate(),
-                asList(trackItem2.getUrn(), trackItem1.getUrn())
-        );
+        assertThat(saveSubject.hasObservers()).isTrue();
     }
 
     private PlaylistDetailTrackItem getPlaylistDetailTrackItem(TrackItem trackItem) {

@@ -5,14 +5,16 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.CollectionViewFragment;
-import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.view.CollectionRenderer;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +24,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketViewModel, RecyclerView.ViewHolder>  implements TopResultsPresenter.TopResultsView {
+public class TopResultsFragment extends Fragment implements TopResultsPresenter.TopResultsView {
 
     private static final String KEY_API_QUERY = "query";
     private static final String KEY_USER_QUERY = "userQuery";
@@ -31,6 +33,9 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketV
     private static final String KEY_QUERY_POSITION = "queryPosition";
 
     @Inject TopResultsPresenter presenter;
+
+    private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
+    private Subscription subscription;
 
     public static TopResultsFragment newInstance(String apiQuery,
                                                  String userQuery,
@@ -60,8 +65,13 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketV
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        collectionRenderer = new CollectionRenderer<>(new TopResultsAdapter(), this::isTheSameItem, Object::equals);
         presenter.attachView(this);
         setHasOptionsMenu(true);
+    }
+
+    private boolean isTheSameItem(TopResultsBucketViewModel item1, TopResultsBucketViewModel item2) {
+        return item1.kind() == item2.kind();
     }
 
     @Override
@@ -77,7 +87,7 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketV
 
     @Override
     public Observable<Void> refreshIntent() {
-        return onRefresh;
+        return collectionRenderer.onRefresh();
     }
 
     private String getApiQuery() {
@@ -99,22 +109,22 @@ public class TopResultsFragment extends CollectionViewFragment<TopResultsBucketV
     }
 
     @Override
-    protected void onNewItems(List<TopResultsBucketViewModel> newItems) {
-        populateAdapter(newItems);
-        adapter().notifyDataSetChanged();
-    }
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        collectionRenderer.attach(view);
 
-    @Override
-    protected RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> createAdapter() {
-        return new TopResultsAdapter();
-    }
-
-    @Override
-    protected Observable<CollectionViewState<TopResultsBucketViewModel>> collectionView() {
-        return presenter
+        subscription = presenter
                 .viewModel()
                 .map(TopResultsViewModel::buckets)
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(collectionRenderer::render);
+    }
+
+    @Override
+    public void onDestroyView() {
+        subscription.unsubscribe();
+        collectionRenderer.detach();
+        super.onDestroyView();
     }
 
     static class TopResultsAdapter extends RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> {
