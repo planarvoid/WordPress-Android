@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -38,6 +39,7 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
     @Mock private EventBus eventBus;
 
@@ -61,6 +63,7 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
+                storeUsersCommand,
                 spotlightItemStatusLoader,
                 eventBus);
     }

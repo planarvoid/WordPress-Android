@@ -5,6 +5,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.ApiUserProfileInfo;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.reflect.TypeToken;
@@ -133,6 +134,16 @@ public class ProfileApiMobile implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, ApiUserProfile.class);
+    }
+
+    @Override
+    public Observable<ApiUserProfileInfo> userProfileInfo(Urn user) {
+        final ApiRequest request = ApiRequest
+                .get(ApiEndpoints.PROFILE_INFO.path(user))
+                .forPrivateApi()
+                .build();
+
+        return apiClientRx.mappedResponse(request, ApiUserProfileInfo.class);
     }
 
     @Override

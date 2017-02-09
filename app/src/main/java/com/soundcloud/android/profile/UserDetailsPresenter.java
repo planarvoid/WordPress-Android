@@ -6,9 +6,14 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.users.SocialMediaLinkItem;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Observable;
@@ -20,6 +25,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+
+import java.util.List;
 
 class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
         implements SwipeRefreshLayout.OnRefreshListener {
@@ -34,8 +41,8 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
     private Urn userUrn;
     private SearchQuerySourceInfo searchQuerySourceInfo;
-    private Observable<User> userDetailsObservable;
-    private User profileUser;
+    private Observable<UserProfileInfo> userDetailsObservable;
+    private UserProfileInfo userProfileInfo;
 
     UserDetailsPresenter(UserProfileOperations profileOperations,
                          UserDetailsView userDetailsView,
@@ -53,8 +60,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
         searchQuerySourceInfo = fragment.getArguments().getParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY);
 
-        userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
-                                                 .cache();
+        userDetailsObservable = profileOperations.userProfileInfo(userUrn).cache();
     }
 
     @Override
@@ -79,10 +85,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
             }
         });
 
+        userDetailsView.showEmptyView(EmptyView.Status.WAITING);
         configureRefreshLayout(view);
 
-        if (profileUser != null) {
-            updateViews(profileUser);
+        if (userProfileInfo != null) {
+            updateViews(userProfileInfo);
         }
 
         loadUser();
@@ -113,14 +120,14 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
     @Override
     public void onRefresh() {
-        userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn).cache();
+        userDetailsObservable = profileOperations.userProfileInfo(userUrn).cache();
         loadUser();
     }
 
-    private void updateViews(User user) {
-        setupFollows(user);
-        setupBio(user);
-        setupLinks(user);
+    private void updateViews(UserProfileInfo userProfileInfo) {
+        setupFollows(userProfileInfo.getUser());
+        setupDescription(userProfileInfo.getDescription());
+        setupLinks(userProfileInfo.getSocialMediaLinks().getCollection());
     }
 
     private void setupFollows(User user) {
@@ -128,47 +135,47 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setFollowingsCount(numberFormatter.format(user.followingsCount()));
     }
 
-    private void setupBio(User user) {
-        if (hasDescription(user)) {
-            userDetailsView.showBio(user.description().get());
+    private void setupDescription(Optional<String> description) {
+        if (isNotBlank(description)) {
+            userDetailsView.showBio(description.get());
         } else {
             userDetailsView.hideBio();
         }
     }
 
-    private void setupLinks(User user) {
-        if (user.socialMediaLinks().isEmpty()) {
+    private void setupLinks(List<SocialMediaLinkItem> socialMediaLinks) {
+        if (socialMediaLinks.isEmpty()) {
             userDetailsView.hideLinks();
         } else {
-            userDetailsView.showLinks(user.socialMediaLinks());
+            userDetailsView.showLinks(socialMediaLinks);
         }
     }
 
-    private boolean hasDescription(User user) {
-        return user.description().isPresent() && Strings.isNotBlank(user.description().get());
+    private boolean isNotBlank(Optional<String> stringOptional) {
+        return stringOptional.isPresent() && Strings.isNotBlank(stringOptional.get());
     }
 
-    private class ProfileUserSubscriber extends DefaultSubscriber<User> {
-        @Override
-        public void onCompleted() {
-            if (refreshLayout != null) {
-                refreshLayout.setRefreshing(false);
-            }
-        }
-
+    private class ProfileUserSubscriber extends DefaultSubscriber<UserProfileInfo> {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
 
+            userDetailsView.showEmptyView(ErrorUtils.emptyViewStatusFromError(e));
+
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);
             }
         }
 
         @Override
-        public void onNext(User profileUser) {
-            UserDetailsPresenter.this.profileUser = profileUser;
-            updateViews(profileUser);
+        public void onNext(UserProfileInfo userProfileInfo) {
+            UserDetailsPresenter.this.userProfileInfo = userProfileInfo;
+            updateViews(userProfileInfo);
+
+            userDetailsView.hideEmptyView();
+            if (refreshLayout != null) {
+                refreshLayout.setRefreshing(false);
+            }
         }
     }
 }

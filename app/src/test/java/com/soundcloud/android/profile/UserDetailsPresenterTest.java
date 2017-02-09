@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
@@ -11,13 +12,17 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.SocialMediaLinkItem;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -32,6 +37,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import java.util.List;
 import java.util.Locale;
 
 public class UserDetailsPresenterTest extends AndroidUnitTest {
@@ -64,22 +70,39 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
     @Captor private ArgumentCaptor<Intent> intentCaptor;
     private CondensedNumberFormatter numberFormatter;
+    private UserProfileInfo fullUserProfileInfo;
+    private UserProfileInfo emptyUserProfileInfo;
+    private List<SocialMediaLinkItem> links;
 
     @Before
     public void setUp() throws Exception {
         final Bundle value = new Bundle();
         value.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
         value.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
+        links = newArrayList(
+                SocialMediaLinkItem.create(Optional.of("firstTitle"), "firstNetwork", "http://www.first.com"),
+                SocialMediaLinkItem.create(Optional.of("secondTitle"), "secondNetwork", "http://www.second.com")
+        );
+        fullUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(links), of(BIO), fullUser());
+        emptyUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(newArrayList()), Optional.absent(), emptyUser());
         when(fragment.getArguments()).thenReturn(value);
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.empty());
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.empty());
 
         when(resources.getStringArray(R.array.ak_number_suffixes)).thenReturn(new String[]{"", "K", "M", "B"});
         numberFormatter = CondensedNumberFormatter.create(Locale.GERMAN, resources);
         presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator);
+    }
+
+    @Test
+    public void onViewCreatedShowsWaitingEmptyView() throws Exception {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(userDetailsView).showEmptyView(EmptyView.Status.WAITING);
     }
 
     @Test
@@ -92,90 +115,91 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedSetsFullUserDetailsOnView() throws Exception {
-        final User user = userWithFullDetails();
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(fullUserProfileInfo));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
+        verify(userDetailsView).hideEmptyView();
         verify(userDetailsView).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView).showBio(BIO);
-        verify(userDetailsView).showLinks(user.socialMediaLinks());
+        verify(userDetailsView).showLinks(links);
     }
 
     @Test
     public void onViewCreatedSetsFullUserDetailsOnViewAfterOrientationChange() throws Exception {
-        final User user = userWithFullDetails();
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(fullUserProfileInfo));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
         Mockito.reset(userDetailsView);
 
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.never());
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.never());
 
         presenter.onViewCreated(fragment, view, null);
 
+        verify(userDetailsView).hideEmptyView();
         verify(userDetailsView, times(2)).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView, times(2)).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView, times(2)).showBio(BIO);
-        verify(userDetailsView, times(2)).showLinks(user.socialMediaLinks());
+        verify(userDetailsView, times(2)).showLinks(links);
     }
 
     @Test
     public void onViewCreatedHidesUserDetailsOnEmptyUser() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(
-                userWithBlankDescription()));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(emptyUserProfileInfo));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
+        verify(userDetailsView).hideEmptyView();
         verify(userDetailsView).hideBio();
-        verify(userDetailsView).hideLinks();
         verify(userDetailsView).hideLinks();
     }
 
     @Test
     public void swipeToRefreshSetsFullUserDetailsOnView() throws Exception {
-        final User user = userWithFullDetails();
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(user));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(fullUserProfileInfo));
 
         swipeToRefresh();
 
+        verify(userDetailsView).hideEmptyView();
         verify(userDetailsView).setFollowersCount(numberFormatter.format(FOLLOWERS_COUNT));
         verify(userDetailsView).setFollowingsCount(numberFormatter.format(FOLLOWINGS_COUNT));
         verify(userDetailsView).showBio(BIO);
-        verify(userDetailsView).showLinks(user.socialMediaLinks());
+        verify(userDetailsView).showLinks(links);
     }
 
     @Test
     public void swipeToRefreshHidesUserDetailsOnEmptyUser() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithBlankDescription()));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(emptyUserProfileInfo));
 
         swipeToRefresh();
 
+        verify(userDetailsView).hideEmptyView();
         verify(userDetailsView).hideBio();
         verify(userDetailsView).hideLinks();
         verify(userDetailsView).hideLinks();
     }
 
     @Test
-    public void stopsSwipeToRefreshAfterRefreshComplete() throws Exception {
+    public void hidesLoadersAfterRefreshComplete() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        when(profileOperations.getSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithDescription()));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(fullUserProfileInfo));
 
         swipeToRefresh();
 
-        verify(refreshLayout, times(2)).setRefreshing(false);
+        verify(refreshLayout).setRefreshing(false);
+        verify(userDetailsView).hideEmptyView();
     }
 
     @Test
     public void onDestroyViewClearsViewsOnUserDetailsView() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithFullDetails()));
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.just(fullUserProfileInfo));
 
         presenter.onDestroyView(fragment);
 
@@ -219,17 +243,12 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         refreshCaptor.getValue().onRefresh();
     }
 
-    private User userWithBlankDescription() {
-        return ModelFixtures.userBuilder(false).description(of("")).build();
+    private User emptyUser() {
+        return ModelFixtures.userBuilder(false).build();
     }
 
-    private User userWithDescription() {
-        return ModelFixtures.userBuilder(false).description(of(BIO)).build();
-    }
-
-    private User userWithFullDetails() {
+    private User fullUser() {
         return ModelFixtures.userBuilder(false)
-                            .description(of(BIO))
                             .websiteName(of(WEBSITE_NAME))
                             .websiteUrl(of(WEBSITE_URL))
                             .discogsName(of(DISCOGS_NAME))

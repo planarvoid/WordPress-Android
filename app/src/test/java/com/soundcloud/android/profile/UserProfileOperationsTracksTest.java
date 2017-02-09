@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -24,13 +25,11 @@ import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class UserProfileOperationsTracksTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
-    private static final Date CREATED_AT = new Date();
 
     private UserProfileOperations operations;
 
@@ -39,6 +38,7 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
     @Mock private EventBus eventBus;
 
@@ -58,6 +58,7 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
+                storeUsersCommand,
                 spotlightItemStatusLoader,
                 eventBus);
     }

@@ -105,6 +105,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
+                storeUsersCommand,
                 spotlightItemStatusLoader,
                 eventBus);
 

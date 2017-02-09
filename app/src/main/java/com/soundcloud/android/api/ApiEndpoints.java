@@ -88,10 +88,6 @@ public enum ApiEndpoints {
     FOLLOWERS("/followers/%s/users"),
     USER_FOLLOWS("/follows/users/%s"),
 
-    // profile
-    MY_DOB("/you/profile/dob"),
-    USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
-
     TRACKS_FETCH("/tracks/fetch"),
     USERS_FETCH("/users/fetch"),
 
@@ -105,7 +101,10 @@ public enum ApiEndpoints {
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
 
     // profile
+    MY_DOB("/you/profile/dob"),
+    USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
     PROFILE("/users/%s/profile/v2"),
+    PROFILE_INFO("/users/%s/profile/info"),
     USER_REPOSTS("/users/%s/reposts"),
     USER_TRACKS("/users/%s/tracks/posted"),
     USER_ALBUMS("/users/%s/albums/posted"),

@@ -3,9 +3,11 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.profile.StoreProfileCommand.TO_RECORD_HOLDERS;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.api.model.ApiUserProfileInfo;
 import com.soundcloud.android.api.model.PagedCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.model.EntityProperty;
@@ -15,6 +17,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
@@ -29,6 +32,7 @@ import rx.functions.Func2;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +44,7 @@ public class UserProfileOperations {
     private final UserRepository userRepository;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final StoreProfileCommand storeProfileCommand;
+    private final StoreUsersCommand storeUsersCommand;
     private final SpotlightItemStatusLoader spotlightItemStatusLoader;
     private final EventBus eventBus;
 
@@ -72,6 +77,7 @@ public class UserProfileOperations {
                           UserRepository userRepository,
                           WriteMixedRecordsCommand writeMixedRecordsCommand,
                           StoreProfileCommand storeProfileCommand,
+                          StoreUsersCommand storeUsersCommand,
                           SpotlightItemStatusLoader spotlightItemStatusLoader,
                           EventBus eventBus) {
         this.profileApi = profileApi;
@@ -80,6 +86,7 @@ public class UserProfileOperations {
         this.userRepository = userRepository;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.storeProfileCommand = storeProfileCommand;
+        this.storeUsersCommand = storeUsersCommand;
         this.spotlightItemStatusLoader = spotlightItemStatusLoader;
         this.eventBus = eventBus;
     }
@@ -177,9 +184,17 @@ public class UserProfileOperations {
     public Observable<UserProfile> userProfile(final Urn user) {
         return profileApi.userProfile(user)
                          .doOnNext(storeProfileCommand.toAction1())
-                         .doOnNext(publishEntityChanged())
+                         .doOnNext(publishEntityChangedFromProfile())
                          .map(UserProfile::fromUserProfileRecord)
                          .doOnNext(spotlightItemStatusLoader.toAction1())
+                         .subscribeOn(scheduler);
+    }
+
+    public Observable<UserProfileInfo> userProfileInfo(final Urn user) {
+        return profileApi.userProfileInfo(user)
+                         .doOnNext(profileInfo -> storeUsersCommand.call(Collections.singleton(profileInfo.getUser())))
+                         .doOnNext(publishEntityChangedFromProfileInfo())
+                         .map(UserProfileInfo::fromApiUserProfileInfo)
                          .subscribeOn(scheduler);
     }
 
@@ -283,7 +298,11 @@ public class UserProfileOperations {
         return PagedCollection.pagingFunction(nextPage, scheduler);
     }
 
-    private Action1<ApiUserProfile> publishEntityChanged() {
+    private Action1<ApiUserProfile> publishEntityChangedFromProfile() {
         return userProfile -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(userProfile.getUser())));
+    }
+
+    private Action1<ApiUserProfileInfo> publishEntityChangedFromProfileInfo() {
+        return userProfileInfo -> eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(User.fromApiUser(userProfileInfo.getUser())));
     }
 }

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" >
-    <size android:height="1dp"/>
-    <solid android:color="#e5e5e5"/>
-</shape>
-<!-- TODO this only exists because ak_list_divider_section doesn't have height 1dp. I don't know how to edit that generated file -->

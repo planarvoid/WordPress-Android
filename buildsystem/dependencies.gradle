@@ -11,7 +11,7 @@ ext {
   // Dependency versions
   androidMultiDex = "1.0.1"
   androidSupportVersion = '25.0.1'
-  androidKitVersion = '0.53'
+  androidKitVersion = '0.54'
   googleServicesVersion = '10.0.1'
   lightCycleVersion = '1.5.1'
   daggerVersion = '2.9'

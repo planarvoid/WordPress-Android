@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -42,6 +43,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private UserRepository userRepository;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<Iterable<ApiEntityHolder>> userCaptor;
@@ -66,6 +68,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
+                storeUsersCommand,
                 spotlightItemStatusLoader,
                 eventBus);
     }

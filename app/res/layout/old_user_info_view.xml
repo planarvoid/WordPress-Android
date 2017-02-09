@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- frameLayout required because of https://github.com/soundcloud/android-listeners/issues/2988 -->
 <com.soundcloud.android.view.MultiSwipeRefreshLayout
     android:id="@+id/str_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
