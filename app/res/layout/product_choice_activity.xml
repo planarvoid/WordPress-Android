@@ -22,15 +22,8 @@
         <ImageView
             style="@style/ConversionCloud"
             android:layout_marginLeft="@dimen/conversion_margin"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="16dp"/>
-
-        <com.soundcloud.android.view.CustomFontTextView
-            style="@style/ConversionText.ProductsHeader"
-            android:layout_marginLeft="@dimen/conversion_margin"
-            android:layout_marginTop="-8dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/product_choice_title" />
     </LinearLayout>
 
     <com.soundcloud.android.view.SafeViewPager

@@ -16,21 +16,15 @@
             android:layout_width="match_parent"
             android:layout_height="84dp"
             android:background="@drawable/go_gradient"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:gravity="bottom"
             android:paddingTop="@dimen/android_status_bar_stub_height">
 
             <ImageView
                 android:id="@+id/conversion_cloud"
                 style="@style/ConversionCloud"
-                android:layout_marginTop="4dp"
+                android:layout_marginBottom="20dp"
                 android:layout_marginLeft="@dimen/conversion_margin" />
-
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/product_choice_title"
-                style="@style/ConversionText.ProductsHeader"
-                android:layout_marginTop="4dp"
-                android:layout_marginLeft="24dp"
-                android:text="@string/product_choice_title" />
         </LinearLayout>
 
         <LinearLayout

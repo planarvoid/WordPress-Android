@@ -741,7 +741,6 @@
     <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favorite artists with a subscription.</string>
 
     <!-- PRODUCT_CHOICE -->
-    <string name="product_choice_title">An experience for everyone</string>
     <string name="product_choice_line_1_mid">Discover, stream and share a constantly expanding mix of music from established and emerging artists</string>
     <string name="product_choice_line_1_high">Access the world’s largest music streaming catalog, a constantly expanding mix from established and emerging artists</string>
     <string name="product_choice_line_2_mid">120M+ tracks</string>

@@ -11,7 +11,7 @@
         android:id="@+id/product_choice_title"
         style="@style/ProductText.Title"
         android:layout_below="@id/conversion_cloud"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/tier_go" />
 
     <com.soundcloud.android.view.CustomFontTextView

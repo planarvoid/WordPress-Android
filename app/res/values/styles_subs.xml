@@ -34,10 +34,6 @@
         <item name="android:textSize">@dimen/conversion_headline_text</item>
     </style>
 
-    <style name="ConversionText.ProductsHeader">
-        <item name="android:visibility">gone</item>
-    </style>
-
     <style name="ConversionText.Details">
         <item name="android:textSize">18sp</item>
         <item name="android:lineSpacingExtra">1dp</item>
@@ -46,10 +42,6 @@
     <style name="ProductText.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/ak_almost_black</item>
-    </style>
-
-    <style name="ProductText.Title.Highlight">
-        <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 
     <style name="ProductText.Price">

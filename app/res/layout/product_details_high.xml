@@ -9,9 +9,9 @@
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/product_choice_title"
-        style="@style/ProductText.Title.Highlight"
+        style="@style/ProductText.Title"
         android:layout_below="@id/conversion_cloud"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/tier_plus" />
 
     <com.soundcloud.android.view.CustomFontTextView
