@@ -49,7 +49,8 @@
         "test",
         "performances",
         "deploy",
-        "statistics"
+        "statistics",
+        "nightly_acceptance_tests"
       ]
     },
     {
@@ -147,14 +148,14 @@
       "jobs": [
         {
           "release_build_of_master_branch_acceptance_tests": {
+            "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest downloadNetworkManagerApkCI runLollipopTestsRelease",
             "manual": true,
             "schedule": "H 04 * * 2-6",
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk",
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-preRelease-*.apk",
               "app/build/outputs/apk/*androidTest*.apk",
               "app/build/outputs/apk/androidnetworkmanager-*.apk"
             ],
-            "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest downloadNetworkManagerApkCI runLollipopTestsRelease",
             "plugins": {
               "htmlReports": [
                 {
