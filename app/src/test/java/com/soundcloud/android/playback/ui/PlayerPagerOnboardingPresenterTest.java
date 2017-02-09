@@ -131,15 +131,14 @@ public class PlayerPagerOnboardingPresenterTest {
     }
 
     @Test
-    public void doNotShowSkipOnboardingWhenCasting() {
+    public void showSkipOnboardingWhenCastingAndIntroOverlayWasAlreadyShown() {
         when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
-        when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE)).thenReturn(true);
         when(castConnectionHelper.isCasting()).thenReturn(true);
 
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(pager, never()).beginFakeDrag();
+        verify(pager).beginFakeDrag();
     }
 
 }

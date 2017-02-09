@@ -4,6 +4,7 @@ import static com.soundcloud.android.cast.CastProtocol.TAG;
 
 import com.appboy.support.StringUtils;
 import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastSession;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -24,8 +25,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 @Singleton
-class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
-        implements CastConnectionHelper {
+class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity> implements CastConnectionHelper {
 
     private static final int EXPECTED_MEDIA_BUTTON_CAPACITY = 6;
 
@@ -35,8 +35,8 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
     private final CastContextWrapper castContextWrapper;
 
-    private boolean isCastableDeviceAvailable;
-    private String deviceName;
+    private boolean sessionConnected;
+    private boolean isCastDeviceAvailable;
 
     @Inject
     DefaultCastConnectionHelper(CastContextWrapper castContextWrapper) {
@@ -75,9 +75,9 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     }
 
     @Override
-    public void notifyConnectionChange(boolean castAvailable, Optional<String> optionalDeviceName) {
-        this.deviceName = optionalDeviceName.or(StringUtils.EMPTY_STRING);
-        this.isCastableDeviceAvailable = castAvailable;
+    public void notifyConnectionChange(boolean sessionConnected, boolean castAvailable) {
+        this.sessionConnected = sessionConnected;
+        this.isCastDeviceAvailable = castAvailable;
         updateMediaRouteButtonsVisibility();
         notifyListeners();
     }
@@ -94,11 +94,11 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     private void updateMediaRouteButtonsVisibility() {
         for (MediaRouteButton mediaRouteButton : mediaRouteButtons) {
-            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+            mediaRouteButton.setVisibility(isCastDeviceAvailable ? View.VISIBLE : View.GONE);
         }
 
         for (MenuItem mediaRouteButton : mediaRouteMenuItems.values()) {
-            mediaRouteButton.setVisible(isCastableDeviceAvailable);
+            mediaRouteButton.setVisible(isCastDeviceAvailable);
         }
     }
 
@@ -106,10 +106,10 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
         try {
             final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
-            Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastableDeviceAvailable);
+            Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastDeviceAvailable);
 
             mediaRouteMenuItems.put(context, menuItem);
-            menuItem.setVisible(isCastableDeviceAvailable);
+            menuItem.setVisible(isCastDeviceAvailable);
             return menuItem;
 
         } catch (Exception ex) {
@@ -128,7 +128,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         try {
             CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
             mediaRouteButtons.add(mediaRouteButton);
-            mediaRouteButton.setVisibility(isCastableDeviceAvailable ? View.VISIBLE : View.GONE);
+            mediaRouteButton.setVisibility(isCastDeviceAvailable ? View.VISIBLE : View.GONE);
             mediaRouteButton.onAttachedToWindow();
         } catch (Exception ex) {
             ErrorUtils.handleSilentExceptionWithLog(ex, "Unable to set up media route item " + mediaRouteButton);
@@ -148,12 +148,12 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     @Override
     public boolean isCasting() {
-        return isCastableDeviceAvailable && !deviceName.isEmpty();
+        return sessionConnected;
     }
 
     @Override
     public boolean isCastAvailable() {
-        return isCastableDeviceAvailable;
+        return isCastDeviceAvailable;
     }
 
     @Override
@@ -163,7 +163,12 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     @Override
     public String getDeviceName() {
-        return deviceName;
+        Optional<CastSession> castSession = castContextWrapper.getCurrentCastSession();
+        if (castSession.isPresent() && castSession.get().getCastDevice() != null) {
+            return Optional.fromNullable(castSession.get().getCastDevice().getFriendlyName()).or(StringUtils.EMPTY_STRING);
+        } else {
+            return StringUtils.EMPTY_STRING;
+        }
     }
 }
 

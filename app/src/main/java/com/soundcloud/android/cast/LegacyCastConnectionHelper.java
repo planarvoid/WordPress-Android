@@ -40,7 +40,7 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
-    public void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName) {
+    public void notifyConnectionChange(boolean sessionConnected, boolean castAvailable) {
         // no - op
     }
 

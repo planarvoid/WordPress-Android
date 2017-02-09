@@ -742,7 +742,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private void showIntroductoryOverlayForPlayQueueIfCurrentPage(View view) {
         final PlayQueueItem playQueueItem = pagesInPlayer.get(view);
-        if (isForeground && isCurrentPagerPage(playQueueItem)) {
+        if (isForeground && isCurrentPagerPage(playQueueItem) && !castConnectionHelper.isCasting()) {
             pagePresenter(playQueueItem).showIntroductoryOverlayForPlayQueue(view);
         }
     }

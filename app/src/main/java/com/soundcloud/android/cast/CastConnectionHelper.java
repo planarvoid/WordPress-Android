@@ -1,6 +1,5 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycle;
 
 import android.content.Context;
@@ -14,10 +13,11 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     interface OnConnectionChangeListener {
         void onCastUnavailable();
+
         void onCastAvailable();
     }
 
-    void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName);
+    void notifyConnectionChange(boolean sessionConnected, boolean castAvailable);
 
     void addOnConnectionChangeListener(OnConnectionChangeListener listener);
 

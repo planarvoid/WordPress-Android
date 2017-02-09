@@ -1,6 +1,5 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -10,11 +9,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity>
-        implements CastConnectionHelper {
+class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivity> implements CastConnectionHelper {
 
     @Override
-    public void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName) {
+    public void notifyConnectionChange(boolean sessionConnected, boolean castAvailable) {
         // no-op
     }
 

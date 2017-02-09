@@ -67,12 +67,12 @@ public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightC
     }
 
     private boolean canShowOnboarding() {
-        boolean isCasting = castConnectionHelper.isCasting();
-        return !hasPendingOverlay && !isCasting && !willShowPlayQueueOverlay();
+        return !hasPendingOverlay && !willShowPlayQueueOverlay();
     }
 
     private boolean willShowPlayQueueOverlay() {
         return featureFlags.isEnabled(Flag.PLAY_QUEUE) &&
+                !castConnectionHelper.isCasting() &&
                 !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
     }
 

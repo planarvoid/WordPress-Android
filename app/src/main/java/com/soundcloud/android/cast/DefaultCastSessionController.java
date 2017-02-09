@@ -8,7 +8,6 @@ import com.google.android.gms.cast.framework.CastStateListener;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.java.optional.Optional;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -25,8 +24,6 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     private final CastConnectionHelper castConnectionHelper;
     private final CastProtocol castProtocol;
 
-    private Optional<CastSession> currentCastSession;
-
     @Inject
     public DefaultCastSessionController(PlaybackServiceController serviceController,
                                         AdsOperations adsOperations, DefaultCastPlayer castPlayer,
@@ -38,7 +35,6 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
         this.castPlayer = castPlayer;
         this.castContext = castContext;
 
-        this.currentCastSession = castContext.getCurrentCastSession();
         this.castConnectionHelper = castConnectionHelper;
         this.castProtocol = castProtocol;
     }
@@ -73,9 +69,6 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     }
 
     private void onSessionUpdated(CastSession castSession) {
-        currentCastSession = Optional.of(castSession);
-        notifyConnectionChange(true, getDeviceName());
-
         castProtocol.registerCastSession(castSession);
         castProtocol.setListener(castPlayer);
         castPlayer.onConnected();
@@ -97,36 +90,12 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
         castProtocol.unregisterCastSession();
     }
 
-    private void notifyConnectionChange(boolean castAvailable, Optional<String> deviceName) {
-        castConnectionHelper.notifyConnectionChange(castAvailable, deviceName);
-    }
-
-    private Optional<String> getDeviceName() {
-        return currentCastSession.isPresent() && currentCastSession.get().getCastDevice() != null ?
-               Optional.fromNullable(currentCastSession.get().getCastDevice().getFriendlyName()) :
-               Optional.absent();
-    }
-
     @Override
     public void onCastStateChanged(int castState) {
-        switch (castState) {
-            case CastState.CONNECTED:
-                // Notify done in on Session connected
-                Log.d(TAG, "DefaultCastSessionController::onCastStateChanged() = CONNECTED");
-                break;
-            case CastState.NOT_CONNECTED:
-                Log.d(TAG, "DefaultCastSessionController::onCastStateChanged() = NOT_CONNECTED");
-                notifyConnectionChange(true, Optional.<String>absent());
-                break;
-            case CastState.CONNECTING:
-                Log.d(TAG, "DefaultCastSessionController::onCastStateChanged() = CONNECTING");
-                notifyConnectionChange(true, getDeviceName());
-                break;
-            case CastState.NO_DEVICES_AVAILABLE:
-                Log.d(TAG, "DefaultCastSessionController::onCastStateChanged() = NO_DEVICES_AVAILABLE");
-                notifyConnectionChange(false, Optional.<String>absent());
-                break;
-        }
+        final boolean sessionConnected = castState == CastState.CONNECTED;
+        final boolean castAvailable = castState != CastState.NO_DEVICES_AVAILABLE;
+        Log.d(TAG, "DefaultCastSessionController::notifyConnectionChange() for " + CastState.toString(castState) + " with: " +
+                "sessionConnected = [" + sessionConnected + "], castAvailable = [" + castAvailable + "]");
+        castConnectionHelper.notifyConnectionChange(sessionConnected, castAvailable);
     }
-
 }
