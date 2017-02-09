@@ -116,7 +116,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
 
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.UPGRADE_BUTTON.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_BUTTON.toString());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
 
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.Tcode.UPGRADE_PROMO.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_PROMO.toString());
     }
 
     @Test

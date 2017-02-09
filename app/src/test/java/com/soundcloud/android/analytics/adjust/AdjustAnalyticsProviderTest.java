@@ -55,7 +55,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.CONVERSION);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.CONVERSION.toString());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.PROMO);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.PROMO.toString());
     }
 
     @Test
@@ -73,7 +73,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.WHY_ADS);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.WHY_ADS.toString());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.HIGH_TIER_TRACK_PLAYED);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.HIGH_TIER_TRACK_PLAYED.toString());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.HIGH_TIER_SEARCH_RESULTS);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.HIGH_TIER_SEARCH_RESULTS.toString());
     }
 
     @Test
@@ -100,7 +100,16 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.STREAM_UPSELL);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.STREAM_UPSELL.toString());
+    }
+
+    @Test
+    public void tracksPlaylistUpsell() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forPlaylistTracksImpression(Urn.forPlaylist(123L));
+
+        adjustAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.PLAYLIST_TRACKS_UPSELL.toString());
     }
 
     @Test
@@ -109,7 +118,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.OFFLINE_SETTINGS);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.SETTINGS.toString());
     }
 
     @Test
@@ -118,7 +127,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(adjustWrapper).trackEvent(AdjustEventToken.PLAN_DOWNGRADED);
+        verify(adjustWrapper).trackEvent(UpgradeFunnelEvent.AdjustToken.PLAN_DOWNGRADED.toString());
     }
 
 }

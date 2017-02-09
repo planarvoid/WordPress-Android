@@ -5,17 +5,18 @@ import com.soundcloud.java.optional.Optional;
 
 @AutoValue
 public abstract class PurchaseEvent extends NewTrackingEvent {
+
     public enum Subscription {
-        HIGH_TIER("high_tier_sub");
+        HIGH_TIER("1n0o91");
 
-        private final String key;
+        private final String adjustToken;
 
-        Subscription(String key) {
-            this.key = key;
+        Subscription(String adjustToken) {
+            this.adjustToken = adjustToken;
         }
 
-        public String toString() {
-            return key;
+        public String adjustToken() {
+            return adjustToken;
         }
     }
 
@@ -24,6 +25,10 @@ public abstract class PurchaseEvent extends NewTrackingEvent {
     }
 
     public abstract Subscription subscription();
+
+    public String adjustToken() {
+        return subscription().adjustToken();
+    }
 
     public abstract String price();
 

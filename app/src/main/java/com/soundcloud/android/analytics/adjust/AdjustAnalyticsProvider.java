@@ -43,9 +43,7 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePurchaseTracking(PurchaseEvent event) {
-        if (event.subscription() == PurchaseEvent.Subscription.HIGH_TIER) {
-            adjustWrapper.trackPurchase(AdjustEventToken.HIGH_TIER_PURCHASE, event.price(), event.currency());
-        }
+        adjustWrapper.trackPurchase(event.adjustToken(), event.price(), event.currency());
     }
 
     private void handleUpgradeTrackingEvent(UpgradeFunnelEvent event) {
