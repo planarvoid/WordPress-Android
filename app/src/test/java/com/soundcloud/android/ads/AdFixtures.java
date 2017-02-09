@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public class AdFixtures {
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn, List<ApiVideoSource> videoSources) {
-        return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE), 0, monetizableUrn);
+        return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE, Optional.absent(), Optional.absent()), 0, monetizableUrn);
     }
 
     public static VideoAd getNonskippableVideoAd(Urn monetizableUrn) {
@@ -253,18 +254,30 @@ public class AdFixtures {
         return getApiVideoAd(SKIPPABLE);
     }
 
+    static ApiVideoAd getApiVideoAd(String title, String clickThroughText) {
+        return getApiVideoAd(Collections.singletonList(getApiVideoSource(608, 1080)),
+                             SKIPPABLE,
+                             Optional.of(title),
+                             Optional.of(clickThroughText));
+    }
+
     private static ApiVideoAd getApiVideoAd(boolean skippable) {
         return getApiVideoAd(getApiVideoSource(608, 1080), skippable);
     }
 
     private static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
-        return getApiVideoAd(Collections.singletonList(apiVideoSource), skippable);
+        return getApiVideoAd(Collections.singletonList(apiVideoSource), skippable, Optional.absent(), Optional.absent());
     }
 
-    private static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources, boolean skippable) {
+    private static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources,
+                                            boolean skippable,
+                                            Optional<String> title,
+                                            Optional<String> clickthroughText) {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
                 60,
+                title,
+                clickthroughText,
                 "http://clickthrough.videoad.com",
                 getApiDisplayProperties(),
                 apiVideoSources,

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.Video;
 import com.soundcloud.android.view.AspectRatioTextureView;
@@ -44,15 +43,34 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         final Holder holder = getHolder(itemView);
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
-        holder.callToAction.setText(resources.getText(R.string.ads_call_to_action));
         holder.videoView.setAspectRatio(getVideoProportion(videoAd));
 
+        bindFooter(videoAd, holder);
         bindWhyAdsListener(holder.whyAds);
-        bindClickthroughListener(holder.callToAction, videoAd);
 
         if (listener.isPresent()) {
             listener.get().onVideoTextureBind(holder.videoView, videoAd);
         }
+    }
+
+    private void bindFooter(VideoAd videoAd, Holder holder) {
+        final String callToActionText = videoAd.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
+        final boolean titleIsPresent = videoAd.getTitle().isPresent();
+
+        holder.footerWithTitle.setVisibility(titleIsPresent ? View.VISIBLE : View.GONE);
+        holder.callToActionWithoutTitle.setVisibility(titleIsPresent ? View.GONE : View.VISIBLE);
+
+        if (titleIsPresent) {
+            holder.title.setText(videoAd.getTitle().get());
+            bindCallToAction(videoAd, holder.callToActionWithTitle, callToActionText);
+        } else {
+            bindCallToAction(videoAd, holder.callToActionWithoutTitle, callToActionText);
+        }
+    }
+
+    private void bindCallToAction(VideoAd videoAd, TextView callToAction, String callToActionText) {
+        callToAction.setText(callToActionText);
+        callToAction.setOnClickListener(getClickthroughListener(videoAd));
     }
 
     public void onViewAttachedToWindow(View itemView, Optional<AdData> adData) {
@@ -77,9 +95,15 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     static class Holder {
         @BindView(R.id.ad_item) TextView headerText;
-        @BindView(R.id.call_to_action) TextView callToAction;
+
         @BindView(R.id.why_ads) TextView whyAds;
         @BindView(R.id.video_view) AspectRatioTextureView videoView;
+
+        @BindView(R.id.footer_with_title) View footerWithTitle;
+        @BindView(R.id.title) TextView title;
+        @BindView(R.id.call_to_action_with_title) TextView callToActionWithTitle;
+
+        @BindView(R.id.call_to_action_without_title) TextView callToActionWithoutTitle;
 
         Holder(View view) {
             ButterKnife.bind(this, view);

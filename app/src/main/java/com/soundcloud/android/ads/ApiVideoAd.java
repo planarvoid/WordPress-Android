@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ public abstract class ApiVideoAd {
     @JsonCreator
     public static ApiVideoAd create(@JsonProperty("urn") Urn adUrn,
                                     @JsonProperty("expiry_in_minutes") int expiryInMins,
+                                    @JsonProperty("title") Optional<String> title,
+                                    @JsonProperty("cta_button_text") Optional<String> ctaButtonText,
                                     @JsonProperty("clickthrough_url") String clickthroughUrl,
                                     @JsonProperty("display_properties") ApiDisplayProperties displayProperties,
                                     @JsonProperty("video_sources") List<ApiVideoSource> videoSources,
@@ -20,6 +23,8 @@ public abstract class ApiVideoAd {
                                     @JsonProperty("skippable") boolean skippable) {
         return new AutoValue_ApiVideoAd(adUrn,
                                         expiryInMins,
+                                        title,
+                                        ctaButtonText,
                                         clickthroughUrl,
                                         displayProperties,
                                         videoSources,
@@ -30,6 +35,10 @@ public abstract class ApiVideoAd {
     public abstract Urn getAdUrn();
 
     public abstract int getExpiryInMins();
+
+    public abstract Optional<String> getTitle();
+
+    public abstract Optional<String> getCallToActionButtonText();
 
     public abstract String getClickThroughUrl();
 

@@ -177,7 +177,6 @@
     </style>
 
     <style name="Cards.Footer">
-        <item name="android:minHeight">56dp</item>
     </style>
 
     <style name="Cards.Image.Playlist" parent="Cards.Image">

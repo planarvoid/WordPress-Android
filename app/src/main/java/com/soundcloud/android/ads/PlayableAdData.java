@@ -43,6 +43,8 @@ public abstract class PlayableAdData extends AdData {
         thirdQuartileReported = true;
     }
 
+    public abstract Optional<String> getCallToActionButtonText();
+
     public abstract List<String> getImpressionUrls();
 
     public abstract List<String> getStartUrls();

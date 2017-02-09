@@ -113,7 +113,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         setupSkipButton(holder, playerAd);
     }
 
-    public TextureView getVideoTexture(View adView) {
+    TextureView getVideoTexture(View adView) {
         return getViewHolder(adView).videoTextureView;
     }
 

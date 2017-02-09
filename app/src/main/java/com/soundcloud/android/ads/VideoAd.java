@@ -14,6 +14,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
         return new AutoValue_VideoAd(
                 apiVideoAd.getAdUrn(),
+                apiVideoAd.getCallToActionButtonText(),
                 videoTracking.impressionUrls,
                 videoTracking.startUrls,
                 videoTracking.finishUrls,
@@ -26,6 +27,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 videoTracking.clickUrls,
                 apiVideoAd.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
+                apiVideoAd.getTitle(),
                 createdAt,
                 apiVideoAd.getExpiryInMins(),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoAdSource),
@@ -40,6 +42,8 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }
+
+    public abstract Optional<String> getTitle();
 
     public abstract long getCreatedAt();
 

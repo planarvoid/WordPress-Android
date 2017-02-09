@@ -35,12 +35,12 @@ public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
         });
     }
 
-    void bindClickthroughListener(View callToActionButton, final AdData adData) {
-        callToActionButton.setOnClickListener(view -> {
+    View.OnClickListener getClickthroughListener(final AdData adData) {
+        return view -> {
             if (listener.isPresent()) {
                 listener.get().onAdItemClicked(view.getContext(), adData);
             }
-        });
+        };
     }
 
     SpannableString getSponsoredHeaderText(Resources resources, String itemType) {

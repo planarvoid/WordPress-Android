@@ -41,16 +41,28 @@
 
         <RelativeLayout
             android:paddingBottom="18dp"
+            android:id="@+id/footer_with_title"
             style="@style/Cards.Footer">
 
             <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/call_to_action"
+                android:id="@+id/title"
+                android:layout_alignParentLeft="true"
+                android:layout_alignBaseline="@+id/call_to_action_with_title"
+                android:layout_toLeftOf="@id/call_to_action_with_title"
+                style="@style/Stream.Text.VideoTitle"/>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/call_to_action_with_title"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="10dp"
-                android:paddingTop="9dp"
-                android:paddingBottom="9dp"
-                style="@style/Stream.Button.CallToAction"/>
+                style="@style/Stream.Button.CallToAction.Video"/>
 
         </RelativeLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/call_to_action_without_title"
+            android:layout_marginBottom="24dp"
+            android:layout_width="match_parent"
+            style="@style/Stream.Button.CallToAction.Video"/>
+
     </LinearLayout>
 </FrameLayout>

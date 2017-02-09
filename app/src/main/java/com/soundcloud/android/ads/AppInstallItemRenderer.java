@@ -72,8 +72,13 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         holder.ratingBar.setRating(appInstall.getRating());
 
         bindWhyAdsListener(holder.whyAds);
-        bindClickthroughListener(holder.callToAction, appInstall);
-        bindClickthroughListener(holder.image, appInstall);
+        bindClickThroughListener(appInstall, holder);
+    }
+
+    private void bindClickThroughListener(AppInstallAd appInstall, Holder holder) {
+        final View.OnClickListener clickthroughListener = getClickthroughListener(appInstall);
+        holder.callToAction.setOnClickListener(clickthroughListener);
+        holder.image.setOnClickListener(clickthroughListener);
     }
 
     private Holder getHolder(View adView) {

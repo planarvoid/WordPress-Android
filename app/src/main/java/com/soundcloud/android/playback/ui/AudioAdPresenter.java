@@ -188,7 +188,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private Holder holder;
         private AudioPlayerAd audioPlayerAd;
 
-        public AdImageSubscriber(Holder holder, AudioPlayerAd audioPlayerAd) {
+        AdImageSubscriber(Holder holder, AudioPlayerAd audioPlayerAd) {
             this.holder = holder;
             this.audioPlayerAd = audioPlayerAd;
         }
@@ -228,7 +228,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         return (Holder) trackView.getTag();
     }
 
-    static class Holder extends AdHolder {
+    private static class Holder extends AdHolder {
         private final ImageView fullbleedAdArtworkView;
         private final ImageView centeredAdArtworkView;
         private final View centeredAdClickableOverlay;
