@@ -24,7 +24,7 @@ import java.io.IOException;
 public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     public static final String TAG = "GoogleCast";
-    @VisibleForTesting static final String PROTOCOL_CHANNEL_NAMESPACE = "urn:x-cast:com.soundcloud.chromecast";
+    private static final String PROTOCOL_CHANNEL_NAMESPACE = "urn:x-cast:com.soundcloud.chromecast";
     @VisibleForTesting static final String MIME_TYPE_AUDIO_MPEG = "audio/mpeg";
 
     private static final String UPDATE_QUEUE = "UPDATE_QUEUE";
@@ -65,6 +65,11 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     private CastCredentials getCredentials() {
         return new CastCredentials(accountOperations.getSoundCloudToken(), featureFlags);
+    }
+
+    public void requestStatus() {
+        getRemoteMediaClient().requestStatus();
+        Log.d(TAG, "CastProtocol::requestStatus");
     }
 
     public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {
@@ -132,10 +137,12 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     @Override
     public void onMetadataUpdated() {
-        RemoteMediaClientLogger.logState("onMetadataUpdated", getRemoteMediaClient());
-        if (listener != null && getRemoteMediaClient() != null) {
-            int playerState = getRemoteMediaClient().getPlayerState();
-            Optional<JSONObject> remoteLoadedData = getRemoteLoadedData();
+        RemoteMediaClient remoteMediaClient = getRemoteMediaClient();
+        if (listener != null && remoteMediaClient != null) {
+            RemoteMediaClientLogger.logState("onMetadataUpdated", remoteMediaClient);
+
+            int playerState = remoteMediaClient.getPlayerState();
+            Optional<JSONObject> remoteLoadedData = getRemoteLoadedData(remoteMediaClient);
 
             try {
                 if (remoteLoadedData.isPresent()) {
@@ -153,9 +160,9 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         }
     }
 
-    private Optional<JSONObject> getRemoteLoadedData() {
-        if (getRemoteMediaClient().getMediaInfo() != null && getRemoteMediaClient().getMediaInfo().getCustomData() != null) {
-            return Optional.of(getRemoteMediaClient().getMediaInfo().getCustomData());
+    private Optional<JSONObject> getRemoteLoadedData(RemoteMediaClient remoteMediaClient) {
+        if (remoteMediaClient.getMediaInfo() != null && remoteMediaClient.getMediaInfo().getCustomData() != null) {
+            return Optional.of(remoteMediaClient.getMediaInfo().getCustomData());
         } else {
             return Optional.absent();
         }
@@ -164,6 +171,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private void onNonEmptyMetadataReceived(int playerState, JSONObject remoteLoadedData) throws IOException, ApiMapperException, JSONException {
         CastPlayQueue castPlayQueue = jsonHandler.parseCastPlayQueue(remoteLoadedData);
         if (hasStateChanged(playerState, Optional.fromNullable(castPlayQueue.getRevision()))) {
+            RemoteMediaClientLogger.logState("onNonEmptyMetadataReceived", getRemoteMediaClient());
             listener.onQueueReceived(castPlayQueue);
             updateState(playerState, castPlayQueue.getRevision());
         } else {
@@ -174,6 +182,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private void onIdleEmptyMetadataReceived() {
         final int playerState = MediaStatus.PLAYER_STATE_IDLE;
         if (hasStateChanged(playerState, Optional.absent())) {
+            RemoteMediaClientLogger.logState("onIdleEmptyMetadataReceived", getRemoteMediaClient());
             listener.onRemoteEmptyStateFetched();
             updateState(playerState, null);
         } else {

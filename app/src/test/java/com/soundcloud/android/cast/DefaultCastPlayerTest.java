@@ -77,7 +77,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         castPlayer = getCastPlayer();
-        castPlayer.onConnected();
         observer = new TestObserver<>();
     }
 
@@ -87,6 +86,13 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         return new DefaultCastPlayer(playQueueManager, eventBus,
                                      castProtocol, playSessionStateProvider,
                                      castQueueController, castPlayStateReporter);
+    }
+
+    @Test
+    public void requestStatusAsSoonAsConnectedToCoverReconnectionAfterSessionSuspension() {
+        castPlayer.onConnected();
+
+        verify(castProtocol).requestStatus();
     }
 
     @Test

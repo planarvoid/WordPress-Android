@@ -172,6 +172,13 @@ public class CastProtocolTest extends AndroidUnitTest {
         verify(listener, times(1)).onQueueReceived(castPlayQueue);
     }
 
+    @Test
+    public void requestStatusForwardsCallToTheSdk() {
+        castProtocol.requestStatus();
+
+        verify(remoteMediaClient).requestStatus();
+    }
+
     private void mockRemoteState(int playerState, CastPlayQueue queue) {
         try {
             when(castJsonHandler.parseCastPlayQueue(any(JSONObject.class))).thenReturn(queue);

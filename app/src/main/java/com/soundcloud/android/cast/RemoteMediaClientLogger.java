@@ -9,7 +9,7 @@ public class RemoteMediaClientLogger {
     private static final String TAG = "RemoteMediaClientLogger";
 
     public static void logState(String message, RemoteMediaClient remoteMediaClient) {
-        Log.d(TAG, "PlayerState::" + message + ", status = " + getPlayerStateAsString(remoteMediaClient) + ", queue = " + getRemoteQueue(remoteMediaClient));
+        Log.d(TAG, "CastPlayerState::" + message + ", status = " + getPlayerStateAsString(remoteMediaClient) + ", queue = " + getRemoteQueue(remoteMediaClient));
     }
 
     private static String getRemoteQueue(RemoteMediaClient remoteMediaClient) {
