@@ -107,6 +107,10 @@ public class ApplicationProperties {
                 buildType);
     }
 
+    public boolean isSkippyAvailable() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
     public boolean allowDatabaseMigrationsSilentErrors() {
         return BuildType.RELEASE.equals(buildType) || BuildType.BETA.equals(buildType);
     }

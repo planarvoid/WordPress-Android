@@ -192,7 +192,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         analyticsEngine.onAppCreated(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
-        skippyFactory.create().preload();
+        if (applicationProperties.isSkippyAvailable()) {
+            skippyFactory.create().preload();
+        }
 
         imageOperations.initialise(this, applicationProperties);
 

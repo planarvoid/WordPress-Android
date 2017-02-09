@@ -59,6 +59,7 @@
   <string name="ads_now_playing">Now playing</string>
   <string name="ads_now_playing_tracktitle_username">Now playing: %1$s (%2$s)</string>
   <string name="ads_app">app</string>
+  <string name="ads_video">video</string>
   <plurals name="ads_app_ratings">
     <item quantity="one">%s rating</item>
     <item quantity="other">%s ratings</item>
@@ -266,6 +267,7 @@
   <string name="edit_playlist">Edit playlist</string>
   <string name="delete_playlist">Delete playlist</string>
   <string name="search_playlists">search playlists</string>
+  <string name="more_playlists_by">More Playlists by %s</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Add to playlist...</string>
   <string name="added_to_playlist">Added to playlist</string>
@@ -288,6 +290,10 @@
   <string name="tab_title_user_followers">FOLLOWERS</string>
   <string name="tab_title_user_followings">FOLLOWING</string>
   <string name="tab_title_user_sounds">SOUNDS</string>
+  <string name="profile_bio">Bio</string>
+  <string name="profile_followers">Followers</string>
+  <string name="profile_following">Following</string>
+  <string name="profile_links">Links</string>
   <!--@Todo from l10n: can we get rid of these Discogs and Myspace strings?-->
   <string name="discogs">Discogs</string>
   <string name="myspace">Myspace</string>
@@ -539,6 +545,9 @@
   <!--__GOOGLE CAST-->
   <string name="cast_unable_play_track">Unable to cast track</string>
   <string name="media_route_menu_title">Cast</string>
+  <string name="cast_introductory_overlay_title">Cast SoundCloud</string>
+  <string name="cast_introductory_overlay_description">Tap to cast music to your TV and Cast enabled speakers</string>
+  <string name="cast_player_casting_to">Casting to %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Promoted by %s</string>
@@ -547,6 +556,7 @@
   <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
   <string name="welcome_user_title_evening">Good Evening, %s</string>
   <string name="welcome_user_title_night">Good Night, %s</string>
+  <string name="welcome_user_new_signup">Welcome to SoundCloud, %s</string>
   <string name="welcome_user_subtitle">Check out some of these new songs!</string>
   <!--__FACEBOOK INVITES-->
   <string name="facebook_invites_title">Invite friends to SoundCloud</string>
@@ -633,6 +643,10 @@
   <string name="stream_track">track</string>
   <string name="stream_promoted_playable">Promoted %s</string>
   <string name="stream_sponsored_item">Sponsored %s</string>
+  <string name="stream_highlights">Stream Highlights</string>
+  <string name="stream_highlights_description_one">With a track from %s</string>
+  <string name="stream_highlights_description_two">With tracks from %1$s and %2$s</string>
+  <string name="stream_highlights_description_other">With tracks from %1$s, %2$s and %3$s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->
@@ -642,6 +656,8 @@
   <string name="notification_username_started_following_you">started following you</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Subscribe</string>
+  <string name="conversion_title">SoundCloud Go</string>
+  <string name="conversion_title_plus">SoundCloud Go+</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
   <string name="conversion_buy_loading">Loading…</string>
@@ -658,6 +674,15 @@
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
   <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
   <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
+  <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favourite artists with SoundCloud Go.</string>
+  <!--PRODUCT_CHOICE-->
+  <string name="product_choice_title">Something for everyone</string>
+  <string name="product_choice_mini_terms">Subscription will renew until cancelled</string>
+  <string name="product_choice_line_1">The world’s largest music and audio streaming community</string>
+  <string name="product_choice_line_2">Offline listening</string>
+  <string name="product_choice_line_3">No adverts</string>
+  <string name="product_choice_line_4">No previews</string>
+  <string name="product_choice_line_5">More tracks than any other streaming service</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>
@@ -874,6 +899,7 @@
   <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
   <string name="play_queue_header_explicit">Added by you</string>
   <string name="play_queue_header_auto_play">Auto play</string>
+  <string name="play_queue_header_other">From a recent play queue</string>
   <string name="play_queue_introductory_overlay_title">New! Next up</string>
   <string name="play_queue_introductory_overlay_description">Control what plays next, shuffle or repeat</string>
   <string name="play_queue_header_magic_box_subtitle">New music based on what’s playing</string>

@@ -12,6 +12,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -79,12 +80,15 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent,
-                                     final PlaybackProgressEvent progressEvent) {
-        trackObservable
-                .filter(track -> isForPlayingTrack(progressEvent))
-                .map(stateTransitionToCheckpointEvent(previousPlayStateEvent, progressEvent))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+    public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent, final PlaybackProgressEvent progressEvent) {
+        if (trackObservable != null) {
+            trackObservable
+                    .filter(track -> isForPlayingTrack(progressEvent))
+                    .map(stateTransitionToCheckpointEvent(previousPlayStateEvent, progressEvent))
+                    .subscribe(eventBus.queue(EventQueue.TRACKING));
+        } else {
+            ErrorUtils.handleSilentException("onProgressCheckpoint before trackObservable", new IllegalArgumentException());
+        }
     }
 
     private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {

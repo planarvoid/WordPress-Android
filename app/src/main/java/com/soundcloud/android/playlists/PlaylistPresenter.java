@@ -81,11 +81,11 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     private final PlaylistOperations playlistOperations;
     private final PlaylistUpsellOperations upsellOperations;
     private final Navigator navigator;
+    private final Resources resources;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final PlaylistAdapter adapter;
-    private final boolean addInlineHeader;
     private final PlaylistTrackItemRenderer trackRenderer;
 
     private PlaySessionSource playSessionSource;
@@ -116,12 +116,12 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
         this.eventBus = eventBus;
         this.headerPresenter = headerPresenter;
         this.navigator = navigator;
+        this.resources = resources;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.trackRenderer = trackRendererFactory.create(this);
         this.adapter = adapterFactory.create(headerPresenter, trackRenderer);
         headerPresenter.setPlaylistHeaderPresenterListener(this);
-        addInlineHeader = !resources.getBoolean(R.bool.split_screen_details_pages);
 
         adapter.setOnUpsellClickListener(this);
 
@@ -234,18 +234,26 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn playlistUrn = getPlaylistUrn(fragmentArgs);
-        return CollectionBinding.from(loadPlaylistObservable(playlistUrn), PlaylistDetailsViewModel::itemsWithHeader)
+        return CollectionBinding.from(loadPlaylistObservable(playlistUrn), this::getItems)
                                 .withAdapter(adapter).build();
     }
 
+    private List<PlaylistDetailItem> getItems(PlaylistDetailsViewModel model) {
+        return useInlineHeader() ? model.itemsWithHeader() : model.itemsWithoutHeader();
+    }
+
+    private boolean useInlineHeader() {
+        return !resources.getBoolean(R.bool.split_screen_details_pages);
+    }
+
     private void playFromBeginning() {
-        handleItemClick(addInlineHeader ? 1 : 0);
+        handleItemClick(useInlineHeader() ? 1 : 0);
     }
 
     private void handleItemClick(int position) {
         playbackInitiator.playTracks(
                 playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
-                ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (addInlineHeader ? 1 : 0), playSessionSource)
+                ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (useInlineHeader() ? 1 : 0), playSessionSource)
                          .subscribe(expandPlayerSubscriberProvider.get());
     }
 
@@ -274,8 +282,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     @Override
     protected CollectionBinding<PlaylistDetailsViewModel, PlaylistDetailItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
-        return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn),
-                                      PlaylistDetailsViewModel::itemsWithHeader)
+        return CollectionBinding.from(playlistOperations.updatedPlaylistWithTracksAndRecommendations(playlistUrn), this::getItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -291,7 +298,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
 
     private void reloadPlaylist() {
         retryWith(CollectionBinding
-                          .from(loadPlaylistObservable(getPlaylistUrn()), PlaylistDetailsViewModel::itemsWithHeader)
+                          .from(loadPlaylistObservable(getPlaylistUrn()), this::getItems)
                           .withAdapter(adapter).build());
     }
 

@@ -78,6 +78,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        recyclerView.setLayoutManager(null);
         unbinder.unbind();
         playQueuePresenter.detachContract();
     }
