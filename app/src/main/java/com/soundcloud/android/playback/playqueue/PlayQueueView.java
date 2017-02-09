@@ -123,6 +123,10 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         playQueueAdapter.notifyDataSetChanged();
     }
 
+    public void removeItem(int adapterPosition) {
+        playQueueAdapter.removeItem(adapterPosition);
+    }
+
     public void removeLoadingIndicator() {
         loadingIndicator.setVisibility(View.GONE);
     }

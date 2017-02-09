@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrackWithContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -20,34 +20,31 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 import rx.Observable;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
+import rx.subjects.Subject;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class PlayQueuePresenterTest extends AndroidUnitTest {
 
-    private final PublishSubject<List<TrackAndPlayQueueItem>> tracksSubject = PublishSubject.create();
+    private final Subject<List<PlayQueueUIItem>, List<PlayQueueUIItem>> uiSubject = BehaviorSubject.create();
     @Mock private PlayQueueView playQueueViewContract;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlayQueueOperations playQueueOperations;
+    @Mock private PlayQueueDataProvider playQueueDataProvider;
     @Mock private PlaySessionController playSessionController;
-    @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private PlayQueueUIItem item;
     @Mock private PlaylistExploder playlistExploder;
@@ -63,7 +60,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 playQueueManager,
                 playbackStateProvider,
                 playSessionController,
-                playQueueOperations,
+                playQueueDataProvider,
                 playlistExploder,
                 eventBus,
                 playQueueUIItemMapper);
@@ -72,8 +69,17 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(item.isTrack()).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
-        setCachedObservables();
+        setUIItems();
         presenter.attachView(playQueueViewContract);
+    }
+
+    private OngoingStubbing<Observable<List<PlayQueueUIItem>>> setUIItems() {
+        List<PlayQueueUIItem> uiItems = Lists.newArrayList(headerPlayQueueUIItem(),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.PLAYED),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+        uiSubject.onNext(uiItems);
+        return when(playQueueDataProvider.getPlayQueueUIItems()).thenReturn(uiSubject);
     }
 
     @Test
@@ -106,7 +112,13 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetGoPlayerStrip() {
-        presenter.trackClicked(3);
+        TrackPlayQueueUIItem trackPlayQueueUIItem = Mockito.mock(TrackPlayQueueUIItem.class);
+        when(trackPlayQueueUIItem.isTrack()).thenReturn(true);
+        when(trackPlayQueueUIItem.isGoTrack()).thenReturn(true);
+        uiSubject.onNext(Lists.newArrayList(trackPlayQueueUIItem));
+
+        presenter.trackClicked(0);
+
         verify(playQueueViewContract).setGoPlayerStrip();
     }
 
@@ -169,21 +181,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateAfterItemAdded() {
-        setCachedObservables();
-        final PlayQueueEvent event = PlayQueueEvent.fromQueueInsert(Urn.NOT_SET);
-
-        eventBus.publish(EventQueue.PLAY_QUEUE, event);
-
-        verify(playQueueViewContract, times(2)).setItems(anyList());
-    }
-
-    @Test
     public void shouldSubscribeToPlayQueueChangedAndFilterOutItemChanges() {
         reset(playQueueViewContract);
 
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
         final PlayQueueEvent event = PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET);
 
         eventBus.publish(EventQueue.PLAY_QUEUE, event);
@@ -248,6 +248,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveATrack() {
+        uiSubject.onNext(Lists.newArrayList(trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP)));
         reset(playQueueViewContract);
 
         final int position = 1;
@@ -256,11 +259,12 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         verify(playQueueManager).removeItem(any());
         verify(playQueueViewContract).showUndo();
-        verify(playQueueViewContract).setItems(anyList());
+        verify(playQueueViewContract).removeItem(position);
     }
 
     @Test
     public void shouldNotRemoveAHeader() {
+        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem()));
         reset(playQueueViewContract);
 
         presenter.remove(0);
@@ -268,6 +272,23 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         verify(playQueueManager, never()).removeItem(any(PlayQueueItem.class));
         verify(playQueueViewContract, never()).showUndo();
         verify(playQueueViewContract, never()).setItems(anyList());
+    }
+
+    @Test
+    public void shouldRemoveHeaders() {
+        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                            headerPlayQueueUIItem()));
+        reset(playQueueViewContract);
+
+        final int position = 1;
+
+        presenter.remove(position);
+
+        verify(playQueueManager).removeItem(any());
+        verify(playQueueViewContract).showUndo();
+        verify(playQueueViewContract).removeItem(0);
+        verify(playQueueViewContract, times(2)).removeItem(1);
     }
 
     @Test
@@ -312,9 +333,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRemoval() {
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
-
         presenter.remove(2);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
@@ -323,9 +341,6 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRemovalUndo() {
-        when(playQueueOperations.getTracks()).thenReturn(tracksSubject);
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
-
         presenter.remove(2);
         presenter.undoClicked();
 
@@ -341,7 +356,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldResolvePostion() {
+    public void shouldResolvePosition() {
         presenter.scrollUp(0);
 
         verify(playlistExploder).explodePlaylists(0, 5);
@@ -391,12 +406,12 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState) {
-        return trackPlayQueueUIItemWithPlayState(playState, Optional.<String>absent());
+        return trackPlayQueueUIItemWithPlayState(playState, Optional.absent());
     }
 
     private HeaderPlayQueueUIItem headerPlayQueueUIItem() {
         return new HeaderPlayQueueUIItem(null,
-                                         Optional.<String>absent(),
+                                         Optional.absent(),
                                          PlayState.PLAYING,
                                          RepeatMode.REPEAT_ONE);
     }
@@ -411,30 +426,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                       RepeatMode.REPEAT_ONE);
 
         playQueueUIItem.setPlayState(playState);
-
         return playQueueUIItem;
-    }
-
-    private static TrackAndPlayQueueItem trackAndPlayQueueItem(Urn track, PlaybackContext playbackContext) {
-        return new TrackAndPlayQueueItem(trackItem(track), createTrackWithContext(track, playbackContext));
-    }
-
-    private static TrackItem trackItem(Urn track) {
-        return TestPropertySets.expectedTrackForListItem(track);
-    }
-
-    private void setCachedObservables() {
-        TrackAndPlayQueueItem trackAndPlayQueueItem1 = trackAndPlayQueueItem(Urn.forTrack(1L), PlaybackContext.create(
-                PlaySessionSource.EMPTY));
-        TrackAndPlayQueueItem trackAndPlayQueueItem2 = trackAndPlayQueueItem(Urn.forTrack(2L), PlaybackContext.create(
-                PlaySessionSource.EMPTY));
-        TrackItem higherTierTrack = TestPropertySets.highTierTrack();
-        TrackAndPlayQueueItem trackAndPlayQueueItem3 = new TrackAndPlayQueueItem(higherTierTrack, createTrackWithContext(Urn.forTrack(3L), PlaybackContext.create(PlaySessionSource.EMPTY)));
-        List<TrackAndPlayQueueItem> trackAndPlayQueueItems = Arrays.asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2, trackAndPlayQueueItem3);
-
-
-        when(playQueueOperations.getTracks()).thenReturn(Observable.just(trackAndPlayQueueItems));
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.emptyMap()));
     }
 
 }
