@@ -35,20 +35,20 @@
         style="@style/ConversionText.Details"
         android:text="@string/conversion_description" />
 
-    <com.soundcloud.android.view.CustomFontButton
-        android:id="@+id/conversion_more_products"
-        style="@style/ConversionButton.More"
-        android:layout_marginTop="20dp"
-        android:text="@string/conversion_more_plans"
-        android:visibility="invisible" />
-
     <com.soundcloud.android.view.LoadingButton
         android:id="@+id/conversion_buy"
         style="@style/ConversionButton"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         app:loadingText="@string/conversion_buy_loading"
         app:actionText="@string/conversion_buy_no_trial"
         app:retryText="@string/conversion_buy_retry" />
+
+    <com.soundcloud.android.view.CustomFontButton
+        android:id="@+id/conversion_more_products"
+        style="@style/ConversionButton.More"
+        android:layout_marginTop="16dp"
+        android:text="@string/conversion_more_plans"
+        android:visibility="gone" />
 
     <FrameLayout
         android:layout_width="match_parent"
