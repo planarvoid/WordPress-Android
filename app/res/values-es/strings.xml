@@ -673,14 +673,6 @@
   <string name="conversion_restrictions_message_trial">La oferta se limita a un periodo de prueba de %1$d días por usuario. Tras los primeros %2$d días, la suscripción se renueva automáticamente a menos que se cancele antes de que finalice el periodo de prueba de %3$d días. La suscripción se puede cancelar en cualquier momento en soundcloud.com. Todos los precios incluyen los impuestos locales aplicables.\n\nLos residentes en Quebec (Canadá) no pueden optar a las versiones de prueba debido a restricciones locales.</string>
   <string name="conversion_restrictions_message_promo">La oferta solo está disponible para usuarios que no hayan disfrutado de un periodo de prueba. Los primeros %1$s de suscripción por un total de %2$s. Si el usuario no cancela su suscripción antes de que transcurran esos %1$s, la suscripción se renovará automáticamente cada mes con una cuota de %3$s/mes hasta que el usuario la cancele.\n\nSin anuncios significa que se eliminan las interrupciones audiovisuales.</string>
   <string name="ads_why_ads_upsell_dialog_message">Cada vez que ves o oyes un anuncio, se les paga a los artistas. Ellos nos ayudan a mantener SoundCloud gratis para los oyentes.\n\n¿No quieres que te interrumpan? Olvídate de los anuncios y sigue apoyando a tus artistas favoritos con SoundCloud Go.</string>
-  <!--PRODUCT_CHOICE-->
-  <string name="product_choice_title">De todo para todos</string>
-  <string name="product_choice_mini_terms">La suscripción se renovará hasta que se cancele</string>
-  <string name="product_choice_line_1">La mayor comunidad mundial de música y audio en streaming</string>
-  <string name="product_choice_line_2">Sin conexión</string>
-  <string name="product_choice_line_3">Sin anuncios</string>
-  <string name="product_choice_line_4">Sin vistas previas</string>
-  <string name="product_choice_line_5">Más pistas que ningún otro servicio de streaming</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Producto no disponible</string>
   <string name="payments_error_title_no_billing">Facturación no disponible</string>

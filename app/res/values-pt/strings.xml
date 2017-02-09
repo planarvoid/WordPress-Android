@@ -675,14 +675,6 @@ vão aparecer aqui.</string>
   <string name="conversion_restrictions_message_trial">Oferta limitada para uma avaliação de %1$d dias por usuário. Depois dos primeiros %2$d dias, a assinatura é renovada automaticamente, a menos que seja cancelado antes que termine a avaliação grátis de %3$d dias. A assinatura poderá ser cancelada a qualquer momento na soundcloud.com. Todos os preços incluem taxas locais aplicáveis sobre as vendas.\n\nOs residentes de Québec, no Canadá, não têm direito a avaliações devido a restrições locais.</string>
   <string name="conversion_restrictions_message_promo">A oferta só está disponível para os usuários que ainda não receberam uma avaliação grátis. Primeiros %1$s da assinatura para o total de %2$s. Se o usuário não cancelar a assinatura antes do final desses %1$s, a assinatura será renovada automaticamente a cada mês, por um preço de %3$s/mês até que o usuário cancele.\n\nA opção sem anúncios é definida pela remoção das interrupções no áudio e no vídeo.</string>
   <string name="ads_why_ads_upsell_dialog_message">Todas as vezes que você ver ou ouvir um anúncio, os artistas são pagos. É assim que mantemos a SoundCloud grátis para os ouvintes.\n\nQuer saltar as interrupções? Retire os anúncios e continue apoiando seus artistas favoritos com o SoundCloud Go.</string>
-  <!--PRODUCT_CHOICE-->
-  <string name="product_choice_title">Algo para todos</string>
-  <string name="product_choice_mini_terms">A assinatura será renovada até ser cancelada</string>
-  <string name="product_choice_line_1">A maior comunidade de streaming de música e áudio do mundo</string>
-  <string name="product_choice_line_2">Modo off-line</string>
-  <string name="product_choice_line_3">Sem anúncios</string>
-  <string name="product_choice_line_4">Sem visualizações</string>
-  <string name="product_choice_line_5">Mais faixas do que qualquer outro serviço de streaming</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produto indisponível</string>
   <string name="payments_error_title_no_billing">Cobrança indisponível</string>

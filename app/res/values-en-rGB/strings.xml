@@ -675,14 +675,6 @@
   <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
   <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
   <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favourite artists with SoundCloud Go.</string>
-  <!--PRODUCT_CHOICE-->
-  <string name="product_choice_title">Something for everyone</string>
-  <string name="product_choice_mini_terms">Subscription will renew until cancelled</string>
-  <string name="product_choice_line_1">The world’s largest music and audio streaming community</string>
-  <string name="product_choice_line_2">Offline listening</string>
-  <string name="product_choice_line_3">No adverts</string>
-  <string name="product_choice_line_4">No previews</string>
-  <string name="product_choice_line_5">More tracks than any other streaming service</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>

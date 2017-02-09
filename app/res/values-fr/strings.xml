@@ -679,14 +679,6 @@
   <string name="conversion_restrictions_message_trial">Offre limitée à une version d\'essai de %1$d jours par utilisateur. Après les %2$d premiers jours, l\'abonnement est renouvelé automatiquement sauf en cas d\'annulation avant la fin de l\'essai de %3$d jours. L\'abonnement peut être annulé à tout moment sur soundcloud.com. \n\nLes résidents du Québec au Canada ne sont pas éligibles aux versions d\'essai en raison de restrictions locales.</string>
   <string name="conversion_restrictions_message_promo">L\'offre est uniquement disponible pour les utilisateurs qui n\'ont pas bénéficié de la version d\'essai. Les %1$s premiers jours d\'abonnement coûtent %2$s. Si l\'utilisateur n\'annule pas son abonnement avant la fin de ces %1$s jours, l\'abonnement sera renouvelé automatiquement tous les mois pour un montant de %3$s/mois jusqu\'à annulation de la part de l\'utilisateur.\n\nL\'absence de publicités consiste à supprimer les expériences auditives et visuelles entre les titres.</string>
   <string name="ads_why_ads_upsell_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités nous permettent ainsi de conserver la gratuité de SoundCloud pour nos auditeurs. Vous souhaitez vous débarrasser des publicités ? Passez à une offre sans publicités et continuez à soutenir vos artistes préférés avec SoundCloud Go.</string>
-  <!--PRODUCT_CHOICE-->
-  <string name="product_choice_title">Il y en a pour tous les goûts</string>
-  <string name="product_choice_mini_terms">L\'abonnement sera renouvelé jusqu\'à annulation</string>
-  <string name="product_choice_line_1">La plus grande communauté de streaming musical et audio au monde</string>
-  <string name="product_choice_line_2">Écoute hors connexion</string>
-  <string name="product_choice_line_3">Aucune publicité</string>
-  <string name="product_choice_line_4">Aucun aperçu</string>
-  <string name="product_choice_line_5">Plus de titres que n\'importe quel autre service de streaming</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produit non disponible</string>
   <string name="payments_error_title_no_billing">Facturation non disponible</string>

@@ -670,9 +670,6 @@
   <string name="conversion_restrictions_message_trial">Die Testversion gilt nur für einen Zeitraum von %1$d Tagen pro Benutzer. Nach den ersten %2$d Tagen wird das Abonnement automatisch verlängert, sofern vor Ablauf der %3$d-Tage-Frist keine Kündigung erfolgt. Abonnements können auf soundcloud.com jederzeit gekündigt werden. Alle Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer.\n\nIn Québec, Kanada, ansässige Benutzer können die Testversion aufgrund von regionalen Beschränkungen nicht in Anspruch nehmen.</string>
   <string name="conversion_restrictions_message_promo">Dieses Angebot gilt nur für Nutzer, die keine kostenlose Testversiona genutzt haben. Die ersten %1$s des Abonnements kosten insgesamt %2$s. Wenn der Nutzer das Abonnement nicht vor Ablauf dieser %1$s kündigt, verlängert sich das Abonnement zu einem Preis von %3$s/Monat jeden Monat automatisch, bis der Nutzer es kündigt.\n\n„Ohne Werbung“ bedeutet, dass Unterbrechungen durch Audio- und Videoinhalte wegfallen.</string>
   <string name="ads_why_ads_upsell_dialog_message">Jedes Mal, wenn du dir einen Werbespot ansiehst oder anhörst, klingelt beim jeweiligen Interpreten die Kasse. Nur so kann die Nutzung von SoundCloud kostenfrei bleiben.\n\nSchluss mit Werbeunterbrechungen? Mit SoundCloud Go kannst du deine Lieblingskünstler auch ohne Werbespots unterstützen.</string>
-  <!--PRODUCT_CHOICE-->
-  <string name="product_choice_line_2">Offline hören</string>
-  <string name="product_choice_line_3">Keine Werbung</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produkt ist nicht verfügbar</string>
   <string name="payments_error_title_no_billing">Abrechnung nicht verfügbar</string>
