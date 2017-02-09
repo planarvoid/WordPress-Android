@@ -6,7 +6,7 @@
     android:layout_width="match_parent">
 
     <ImageView style="@style/GoOffboarding.Background"
-        android:src="@drawable/go_onboarding_1" />
+        android:src="@drawable/go_offboarding" />
 
     <RelativeLayout
         style="@style/GoOffboarding.Container"
