@@ -31,7 +31,7 @@ allprojects {
     mobileTestRunner = "com.soundcloud.mobiletestrunner:client:132-31-55df03b"
     mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
     mobileTestRunnerReportUrl = "http://mobile-jenkins.int.s-cloud.net:84"
-    mobileTestRunnerMaxTestAttempts = 2
+    mobileTestRunnerMaxTestAttempts = 3
     mobileTestRunnerScheduleAllTestAttemptsAtOnce = false
     mobileTestRunnerMaxCollectionTaskAttempts = 3
   }
