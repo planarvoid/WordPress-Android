@@ -22,7 +22,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     monetized_object: soundcloud:tracks:[0-9]+
-    ad_urn: dfp:ads:110000021-12000000021
+    ad_urn: dfp:ads:[0-9,-]+
     connection_type: wifi
     click_name: ad::first_quartile
     page_name: deeplink
@@ -37,7 +37,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     monetized_object: soundcloud:tracks:[0-9]+
-    ad_urn: dfp:ads:110000021-12000000021
+    ad_urn: dfp:ads:[0-9,-]+
     connection_type: wifi
     click_name: ad::second_quartile
     page_name: deeplink
@@ -52,7 +52,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     monetized_object: soundcloud:tracks:[0-9]+
-    ad_urn: dfp:ads:110000021-12000000021
+    ad_urn: dfp:ads:[0-9,-]+
     connection_type: wifi
     click_name: ad::third_quartile
     page_name: deeplink
@@ -67,7 +67,7 @@ expected_events:
     app_version: '[0-9]+'
     client_id: 3152
     monetized_object: soundcloud:tracks:[0-9]+
-    ad_urn: dfp:ads:110000021-12000000021
+    ad_urn: dfp:ads:[0-9,-]+
     connection_type: wifi
     click_name: ad::finish
     page_name: deeplink
