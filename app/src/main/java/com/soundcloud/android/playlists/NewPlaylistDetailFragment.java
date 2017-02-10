@@ -366,7 +366,7 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     private void removeTrackAtPosition(int trackPosition) {
         adapter.getItems().remove(trackPosition);
         adapter.notifyItemRemoved(trackPosition);
-        saveUpdates();
+        presenter.actionUpdateTrackListWithUndo(trackItems());
     }
 
     private void saveUpdates() {

@@ -614,6 +614,7 @@ public class DatabaseAssertions {
             assertThat(select(from(PlaylistTracks.name())
                                       .whereEq(PLAYLIST_ID, playlistId)
                                       .whereEq(TRACK_ID, tracklist.get(i).getNumericId())
+                                      .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)
                                       .whereEq(TableColumns.PlaylistTracks.POSITION, i))).counts(1);
         }
 

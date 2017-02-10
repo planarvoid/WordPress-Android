@@ -7,9 +7,9 @@ import android.graphics.Color;
 
 import javax.inject.Inject;
 
-class PlayerSnackBarWrapper extends SnackBarWrapper {
+class DefaultSnackBarWrapper extends SnackBarWrapper {
     @Inject
-    public PlayerSnackBarWrapper(Resources resources) {
-        super(resources.getColor(R.color.snack_bar_bg_dark), Color.WHITE);
+    public DefaultSnackBarWrapper(Resources resources) {
+        super(resources.getColor(R.color.snack_bar_bg_light), Color.DKGRAY);
     }
 }

@@ -74,6 +74,23 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void reordersTracksAndAddsOne() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist.getUrn(), 0);
+        final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist.getUrn(), 1);
+        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist.getUrn(), 2);
+        final ApiTrack newTrack = testFixtures().insertTrack();
+
+        final List<Urn> newTrackList = Arrays.asList(newTrack.getUrn(), apiTrack3.getUrn(), apiTrack2.getUrn());
+
+        assertThat(command.call(getInput(apiPlaylist.getUrn(), newTrackList))).isEqualTo(3);
+
+        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);
+        databaseAssertions().assertPlaylistTrackForRemoval(apiPlaylist.getUrn(), apiTrack1.getUrn());
+        databaseAssertions().assertPlaylistTrackForAddition(apiPlaylist.getUrn(), newTrack.getUrn());
+    }
+
+    @Test
     public void updatesMetadata() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         assertThat(command.call(getInput(apiPlaylist.getUrn(), Collections.<Urn>emptyList()))).isEqualTo(0);
@@ -113,6 +130,20 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);
         databaseAssertions().assertPlaylistTrackForAddition(apiPlaylist.getUrn(), apiTrack2.getUrn());
+    }
+
+    @Test
+    public void trackAppearingInUpdateNoLongerRemoved() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist.getUrn(), 0);
+        final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist.getUrn(), 1);
+        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 2, new Date());
+
+        final List<Urn> newTrackList = Arrays.asList(apiTrack1.getUrn(), apiTrack3.getUrn(), apiTrack2.getUrn());
+
+        assertThat(command.call(getInput(apiPlaylist.getUrn(), newTrackList))).isEqualTo(3);
+
+        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);
     }
 
     @NonNull

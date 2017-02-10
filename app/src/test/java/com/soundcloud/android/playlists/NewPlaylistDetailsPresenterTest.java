@@ -54,6 +54,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -89,6 +90,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private DataSourceProvider dataSourceProvider;
     @Mock private RepostOperations repostOperations;
     @Mock private RepostsStateProvider repostsStateProvider;
+    @Mock private FeedbackController feedbackController;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -162,7 +164,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                eventTracker,
                                                                likeOperations,
                                                                viewModelCreator,
-                                                               dataSourceProviderFactory, repostOperations);
+                                                               dataSourceProviderFactory, repostOperations, feedbackController);
 
     }
 

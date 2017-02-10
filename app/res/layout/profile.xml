@@ -57,8 +57,8 @@
                 android:clipToPadding="false"
                 android:foregroundGravity="bottom"
                 android:paddingLeft="@dimen/profile_tabs_padding"
-                app:layout_collapseMode="pin"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                app:layout_collapseMode="pin" />
 
             <com.soundcloud.android.view.CustomFontTabLayout
                 android:id="@+id/tab_indicator_fixed"
@@ -68,8 +68,8 @@
                 android:background="@color/white"
                 android:clipToPadding="false"
                 android:foregroundGravity="bottom"
-                app:layout_collapseMode="pin"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                app:layout_collapseMode="pin" />
 
         </android.support.design.widget.AppBarLayout>
 
@@ -85,11 +85,13 @@
 
             <View style="@style/ToolbarShadow" />
 
-            <FrameLayout
-                android:id="@+id/snackbar_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
         </FrameLayout>
+
+        <!-- this just has to exist inside the coordinator layout -->
+        <View
+            android:id="@+id/snackbar_anchor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </android.support.design.widget.CoordinatorLayout>
 

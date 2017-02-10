@@ -8,11 +8,7 @@
     sothree:umanoDragView="@+id/player_layout"
     sothree:umanoPanelHeight="@dimen/player_footer">
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_id"/>
+    <include layout="@layout/container" />
 
     <fragment
         android:id="@+id/player_root"

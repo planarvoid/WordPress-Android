@@ -12,9 +12,7 @@
 
         <View style="@style/MarginLeft" />
 
-        <FrameLayout
-            android:id="@+id/container"
-            style="@style/MarginedContent" />
+        <include layout="@layout/container" />
 
         <View style="@style/MarginRight" />
 

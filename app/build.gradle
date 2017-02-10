@@ -197,7 +197,6 @@ dependencies {
   compile (libraries.slidingUpPanel) {
     transitive = true;
   }
-  compile libraries.tSnackBar
   compile libraries.androidCrop
   compile libraries.rxAndroid
   compile libraries.rxJava
@@ -210,7 +209,6 @@ dependencies {
   }
   compile libraries.butterKnife
   compile libraries.castCompanionLibrary
-  compile libraries.undoBar
   compile libraries.appBoy
   compile libraries.krux
   compile libraries.moat

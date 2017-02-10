@@ -11,6 +11,7 @@ import static rx.Observable.just;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -25,6 +26,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
@@ -47,6 +49,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.android.view.AsyncViewModel;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -80,6 +83,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final EventTracker eventTracker;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
+    private final FeedbackController feedbackController;
     private final SearchQuerySourceInfo searchQuerySourceInfo;
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
@@ -91,6 +95,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     // state
     private final BehaviorSubject<Boolean> refreshState = BehaviorSubject.create(false);
     private final BehaviorSubject<Boolean> editMode = BehaviorSubject.create(false);
+    private final BehaviorSubject<PlaylistWithExtras> undoTracklistState = BehaviorSubject.create();
 
     // inputs
     private final PublishSubject<Object> refresh = PublishSubject.create();
@@ -101,6 +106,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PublishSubject<Void> onCreatorClicked = PublishSubject.create();
     private final PublishSubject<Void> onMakeOfflineUpsell = PublishSubject.create();
     private final PublishSubject<List<PlaylistDetailTrackItem>> tracklistUpdated = PublishSubject.create();
+    private final PublishSubject<Void> undoTrackRemoval = PublishSubject.create();
     private final PublishSubject<PlaylistDetailUpsellItem> onUpsellItemClicked = PublishSubject.create();
     private final PublishSubject<PlaylistDetailUpsellItem> onUpsellDismissed = PublishSubject.create();
     private final PublishSubject<Void> headerPlayClicked = PublishSubject.create();
@@ -138,7 +144,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided LikeOperations likeOperations,
                                 @Provided PlaylistDetailsViewModelCreator viewModelCreator,
                                 @Provided DataSourceProviderFactory dataSourceProviderFactory,
-                                @Provided RepostOperations repostOperations) {
+                                @Provided RepostOperations repostOperations,
+                                @Provided FeedbackController feedbackController) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
@@ -156,6 +163,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.likeOperations = likeOperations;
         this.viewModelCreator = viewModelCreator;
         this.repostOperations = repostOperations;
+        this.feedbackController = feedbackController;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         dataSourceProvider = dataSourceProviderFactory.create(playlistUrn);
@@ -184,6 +192,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 actionPlayPlaylist(headerPlayClicked),
                 actionPlayPlaylistStartingFromTrack(playFromTrack),
                 actionTracklistUpdated(tracklistUpdated),
+                actionTrackRemovalUndo(undoTrackRemoval),
 
                 onPlaylistDeleted(),
 
@@ -211,6 +220,12 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     void actionUpdateTrackList(List<PlaylistDetailTrackItem> trackItems) {
         tracklistUpdated.onNext(trackItems);
+    }
+
+    void actionUpdateTrackListWithUndo(List<PlaylistDetailTrackItem> updatedTrackItems) {
+        undoTracklistState.onNext(dataSource.getValue());
+        tracklistUpdated.onNext(updatedTrackItems);
+        feedbackController.showFeedback(Feedback.create(R.string.track_removed, R.string.undo, view -> undoTrackRemoval.onNext(null)));
     }
 
     private void savePlaylist(PlaylistWithExtras playlistWithExtras) {
@@ -262,8 +277,20 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 .subscribe(dataSource);
     }
 
+    private Subscription actionTrackRemovalUndo(PublishSubject<Void> undoTracklistRemoval) {
+        return undoTracklistState.compose(Transformers.takeWhen(undoTracklistRemoval))
+                                 .doOnNext(this::savePlaylist)
+                                 .subscribe(dataSource);
+
+    }
+
     private PlaylistWithExtras getSortedPlaylistWithExtras(List<Urn> urns, PlaylistWithExtras playlistWithExtras) {
-        ArrayList<Track> sortedList = new ArrayList<>(playlistWithExtras.tracks().get());
+        ArrayList<Track> sortedList = new ArrayList<>();
+        for (Track track : playlistWithExtras.tracks().get()) {
+            if (urns.contains(track.urn())) {
+                sortedList.add(track);
+            }
+        }
         Collections.sort(sortedList, (left, right) -> urns.indexOf(left.urn()) - urns.indexOf(right.urn()));
         return playlistWithExtras.toBuilder().tracks(Optional.of(sortedList)).build();
     }
@@ -654,5 +681,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
      * - Upsells
      * - missing playlists
      * - show confirmation dialog when exiting offline mode
+     * - empty tracklist loop
+     * - artwork keeps changing
      */
 }

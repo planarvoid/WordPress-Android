@@ -23,7 +23,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
     @Mock private SlidingPlayerController playerController;
     @Mock private PlayerSnackBarWrapper playerSnackBarWrapper;
-    @Mock private TopSnackBarWrapper defaultSnackBarWrapper;
+    @Mock private DefaultSnackBarWrapper defaultSnackBarWrapper;
     @Mock private FragmentActivity fragmentActivity;
     @Mock private FeatureFlags featureFlags;
 
@@ -73,7 +73,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
     @Test
     public void showsActivitySnackBarWhenResumedAndPlayerNotExpanded() {
-        when(fragmentActivity.findViewById(R.id.snackbar_holder)).thenReturn(activitySnackBarView);
+        when(fragmentActivity.findViewById(R.id.snackbar_anchor)).thenReturn(activitySnackBarView);
 
         feedbackController.register(fragmentActivity, playerController);
 

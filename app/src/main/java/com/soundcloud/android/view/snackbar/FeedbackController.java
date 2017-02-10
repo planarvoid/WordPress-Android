@@ -16,7 +16,7 @@ import javax.inject.Singleton;
 public class FeedbackController {
 
     private final PlayerSnackBarWrapper playerSnackBarWrapper;
-    private final TopSnackBarWrapper topSnackBarWrapper;
+    private final DefaultSnackBarWrapper defaultSnackBarWrapper;
 
     private Optional<SlidingPlayerController> playerControllerOpt = Optional.absent();
     private Optional<View> snackBarHolderOpt = Optional.absent();
@@ -24,9 +24,9 @@ public class FeedbackController {
 
     @Inject
     public FeedbackController(PlayerSnackBarWrapper playerSnackBarWrapper,
-                              TopSnackBarWrapper topSnackBarWrapper) {
+                              DefaultSnackBarWrapper defaultSnackBarWrapper) {
         this.playerSnackBarWrapper = playerSnackBarWrapper;
-        this.topSnackBarWrapper = topSnackBarWrapper;
+        this.defaultSnackBarWrapper = defaultSnackBarWrapper;
     }
 
     public void register(FragmentActivity activity, SlidingPlayerController playerController) {
@@ -45,14 +45,14 @@ public class FeedbackController {
             if (playerController.isExpanded()) {
                 playerSnackBarWrapper.show(playerController.getSnackbarHolder(), feedback);
             } else if (snackBarHolderOpt.isPresent()) {
-                topSnackBarWrapper.show(snackBarHolderOpt.get(), feedback);
+                defaultSnackBarWrapper.show(snackBarHolderOpt.get(), feedback);
             }
         }
     }
 
     private View getActivitySnackBarHolder(Activity activity) {
-        final View snackBarViewHolder = activity.findViewById(R.id.snackbar_holder);
-        return (snackBarViewHolder != null) ? snackBarViewHolder : activity.findViewById(R.id.container);
+        final View snackBarViewAnchor = activity.findViewById(R.id.snackbar_anchor);
+        return (snackBarViewAnchor != null) ? snackBarViewAnchor : activity.findViewById(R.id.container);
     }
 
 }
