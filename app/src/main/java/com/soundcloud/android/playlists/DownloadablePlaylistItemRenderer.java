@@ -39,7 +39,6 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
               screenProvider,
               navigator);
         this.featureOperations = featureOperations;
-        allowOfflineOptions();
     }
 
     @Override

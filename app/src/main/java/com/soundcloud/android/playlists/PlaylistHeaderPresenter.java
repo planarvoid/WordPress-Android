@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -75,6 +76,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private FeatureFlags featureFlags;
     private final PlaylistCoverRenderer playlistCoverRenderer;
     private final FeatureOperations featureOperations;
+    private final AccountOperations accountOperations;
 
     @LightCycle final PlaylistHeaderScrollHelper playlistHeaderScrollHelper;
 
@@ -105,7 +107,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             PlayQueueHelper playQueueHelper,
                             PlaylistCoverRenderer playlistCoverRenderer,
                             PlaylistEngagementsRenderer playlistEngagementsRenderer,
-                            FeatureFlags featureFlags) {
+                            FeatureFlags featureFlags,
+                            AccountOperations accountOperations) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
         this.navigator = navigator;
@@ -123,6 +126,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.playQueueHelper = playQueueHelper;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.accountOperations = accountOperations;
     }
 
     @Override
@@ -246,7 +250,12 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onMakeOfflineAvailable() {
-        fireAndForget(offlineOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn()));
+        if (viewModel.metadata().isLikedByUser() || isPlaylistOwnedByCurrentUser()) {
+            saveOffline();
+        } else {
+            likeAndSaveOffline();
+        }
+
         eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(true));
     }
 
@@ -408,6 +417,21 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                       createEntityMetadata());
             }
         }
+    }
+
+    private boolean isPlaylistOwnedByCurrentUser() {
+        return accountOperations.isLoggedInUser(viewModel.metadata().creatorUrn());
+    }
+
+    private void likeAndSaveOffline() {
+        final boolean addLike = true;
+        fireAndForget(likeOperations.toggleLike(viewModel.metadata().getUrn(), addLike)
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .doOnNext(ignored -> saveOffline()));
+    }
+
+    private void saveOffline() {
+        fireAndForget(offlineOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn()));
     }
 
     private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {

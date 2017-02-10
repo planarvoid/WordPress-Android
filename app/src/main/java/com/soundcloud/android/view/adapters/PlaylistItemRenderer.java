@@ -42,7 +42,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
 
-    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().build();
+    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
@@ -81,10 +81,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
         loadArtwork(itemView, playlist);
         setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module);
-    }
-
-    public void allowOfflineOptions() {
-        this.menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
     }
 
     private void setupOverFlow(final View button,

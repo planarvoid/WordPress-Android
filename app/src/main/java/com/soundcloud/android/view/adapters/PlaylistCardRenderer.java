@@ -20,7 +20,6 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -100,7 +99,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
         playlistView.overflowButton.setOnClickListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
                                                                                                 playlistItem,
-                                                                                                builder().build(),
+                                                                                                builder().showOffline(true).build(),
                                                                                                 getEventContextMetadataBuilder(module)));
     }
 

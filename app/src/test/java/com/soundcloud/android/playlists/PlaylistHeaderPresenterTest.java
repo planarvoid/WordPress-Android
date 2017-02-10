@@ -16,6 +16,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
@@ -123,7 +124,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void setup() {
         eventBus = new TestEventBus();
         playlistTrackurns = Observable.just(singletonList(Urn.forTrack(1)));
-        viewModel = createPlaylistInfoWithSharing(Sharing.PUBLIC);
+        viewModel = createPlaylistInfoWithSharingAndIfLikedByCurrentUser(Sharing.PUBLIC, false);
         when(playlistOperations.trackUrnsForPlayback(viewModel.metadata().getUrn())).thenReturn(playlistTrackurns);
 
         presenter = new PlaylistHeaderPresenter(
@@ -143,7 +144,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 playQueueHelper,
                 coverRenderer,
                 engagementsView,
-                featureFlags);
+                featureFlags,
+                accountOperations);
 
         view = View.inflate(activity(), R.layout.playlist_details_view, null);
         presenter.bindItemView(0, view, null);
@@ -368,7 +370,22 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void makeOfflineAvailableUsesOfflineOperationsToMakeOfflineAvailable() {
+    public void shouldSaveOfflineOnMakeOfflineAvailableIfPlaylistOwnedByCurrentUser() {
+        setPlaylistInfo();
+        final PublishSubject<Void> makePlaylistAvailableOffline = PublishSubject.create();
+        when(offlineContentOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn())).thenReturn(
+                makePlaylistAvailableOffline);
+        when(accountOperations.isLoggedInUser(viewModel.metadata().creatorUrn())).thenReturn(true);
+
+        presenter.onMakeOfflineAvailable();
+
+        assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
+        verifyZeroInteractions(likeOperations);
+    }
+
+    @Test
+    public void shouldSaveOfflineOnMakeOfflineAvailableIfPlaylistLikedByCurrentUser() {
+        viewModel = createPlaylistInfoWithSharingAndIfLikedByCurrentUser(Sharing.PUBLIC, true);
         setPlaylistInfo();
         final PublishSubject<Void> makePlaylistAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn())).thenReturn(
@@ -377,6 +394,21 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onMakeOfflineAvailable();
 
         assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
+        verifyZeroInteractions(likeOperations);
+    }
+
+    @Test
+    public void shouldLikeAndSaveOfflineOnMakeOfflineAvailable() {
+        setPlaylistInfo();
+        final PublishSubject<Void> makePlaylistAvailableOffline = PublishSubject.create();
+        when(offlineContentOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn())).thenReturn(
+                makePlaylistAvailableOffline);
+        when(likeOperations.toggleLike(viewModel.metadata().getUrn(), true)).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+
+        presenter.onMakeOfflineAvailable();
+
+        assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
+        verify(likeOperations).toggleLike(viewModel.metadata().getUrn(), true);
     }
 
     @Test
@@ -507,8 +539,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.setPlaylist(viewModel, playSessionSource);
     }
 
-    private PlaylistDetailsViewModel createPlaylistInfoWithSharing(Sharing sharing) {
-        final Playlist.Builder playlistBuilder = createPlaylistBuilder(sharing);
+    private PlaylistDetailsViewModel createPlaylistInfoWithSharingAndIfLikedByCurrentUser(Sharing sharing, boolean isLikedByCurrentUser) {
+        final Playlist.Builder playlistBuilder = createPlaylistBuilder(sharing, isLikedByCurrentUser);
         final PlaylistDetailsMetadata metaData = createPlaylistHeaderItem(playlistBuilder.build());
 
         return PlaylistDetailsViewModel
@@ -530,17 +562,17 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                             false, OfflineState.NOT_OFFLINE, 0, PlaylistDetailsMetadata.OfflineOptions.AVAILABLE, resources(), false);
     }
 
-    private Playlist.Builder createPlaylistBuilder(Sharing sharing) {
+    private Playlist.Builder createPlaylistBuilder(Sharing sharing, boolean isLikedByCurrentUser) {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         apiPlaylist.setSharing(sharing);
 
-        return playlistBuilder(apiPlaylist);
+        return playlistBuilder(apiPlaylist, isLikedByCurrentUser);
     }
 
-    private Playlist.Builder playlistBuilder(ApiPlaylist apiPlaylist) {
+    private Playlist.Builder playlistBuilder(ApiPlaylist apiPlaylist, boolean isLikedByCurrentUser) {
         return ModelFixtures.playlistBuilder(apiPlaylist)
                             .isMarkedForOffline(false)
-                            .isLikedByCurrentUser(false)
+                            .isLikedByCurrentUser(isLikedByCurrentUser)
                             .isRepostedByCurrentUser(false);
     }
 
@@ -552,7 +584,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     protected Context getContext() {
         return fragmentRule.getFragment().getContext();
     }
-    
+
     private PlaylistDetailsViewModel updateVithMetadata(PlaylistDetailsMetadata metadata) {
         return viewModel.toBuilder().metadata(metadata).build();
     }

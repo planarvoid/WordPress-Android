@@ -33,7 +33,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
         void handleUpsell(Context context);
 
-        void saveOffline();
+        void saveOffline(PlaylistItem playlist);
 
         void removeFromOffline(Context context);
 
@@ -123,11 +123,8 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
         if (maybeMarkedForOffline.isPresent() && menuOptions.showOffline()) {
             final boolean markedForOffline = maybeMarkedForOffline.get();
-            final boolean canShowOfflineOption = markedForOffline
-                    || playlist.isLikedByCurrentUser()
-                    || accountOperations.isLoggedInUser(playlist.getCreatorUrn());
 
-            if (featureOperations.isOfflineContentEnabled() && canShowOfflineOption) {
+            if (featureOperations.isOfflineContentEnabled()) {
                 showOfflineContentOption(markedForOffline);
             } else if (featureOperations.upsellOfflineContent()) {
                 showUpsellOption();
@@ -201,7 +198,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                 listener.handleUpsell(context);
                 return true;
             case R.id.make_offline_available:
-                listener.saveOffline();
+                listener.saveOffline(playlist);
                 return true;
             case R.id.make_offline_unavailable:
                 listener.removeFromOffline(context);

@@ -148,8 +148,13 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         return getFragmentActivity(context).getSupportFragmentManager();
     }
 
-    public void saveOffline() {
-        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn));
+    public void saveOffline(PlaylistItem playlist) {
+        if (playlist.isLikedByCurrentUser() || isPlaylistOwnedByCurrentUser(playlist)) {
+            saveOffline();
+        } else {
+            likeAndSaveOffline();
+        }
+
         eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.fromAddOfflinePlaylist(
                 screenProvider.getLastScreenTag(),
                 playlistUrn,
@@ -235,9 +240,25 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         }
     }
 
+    private void likeAndSaveOffline() {
+        final boolean addLike = true;
+        likeOperations.toggleLike(playlistUrn, addLike)
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .doOnNext(ignored -> saveOffline())
+                      .subscribe(new LikeToggleSubscriber(appContext, addLike));
+    }
+
+    private void saveOffline() {
+        fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn));
+    }
+
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {
         boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && menuOptions.showOffline();
-        return offlineContentEnabled && !addLike && !accountOperations.isLoggedInUser(playlist.getCreatorUrn());
+        return offlineContentEnabled && !addLike && !isPlaylistOwnedByCurrentUser(playlist);
+    }
+
+    private boolean isPlaylistOwnedByCurrentUser(PlaylistItem playlist) {
+        return accountOperations.isLoggedInUser(playlist.getCreatorUrn());
     }
 
     // this is really ugly. We should introduce a PlaylistRepository.

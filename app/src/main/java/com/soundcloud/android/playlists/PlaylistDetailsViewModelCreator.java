@@ -63,17 +63,16 @@ class PlaylistDetailsViewModelCreator {
 
     private PlaylistDetailsMetadata createMetadata(Playlist playlist, List<TrackItem> trackItems, boolean isLiked, boolean isReposted, boolean isEditMode, OfflineState offlineState) {
         int trackCount = getTrackCount(playlist, trackItems);
-        PlaylistDetailsMetadata.OfflineOptions offlineOptions = getOfflineOptions(playlist);
-        return PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isReposted, isEditMode, offlineState, trackCount, offlineOptions, resources, accountOperations.isLoggedInUser(playlist.creatorUrn())
-        );
+        PlaylistDetailsMetadata.OfflineOptions offlineOptions = getOfflineOptions();
+        return PlaylistDetailsMetadata.from(playlist, trackItems, isLiked, isReposted, isEditMode, offlineState, trackCount, offlineOptions, resources, accountOperations.isLoggedInUser(playlist.creatorUrn()));
     }
 
     private int getTrackCount(Playlist playlist, List<TrackItem> trackItems) {
         return trackItems.isEmpty() ? playlist.trackCount() : trackItems.size();
     }
 
-    private PlaylistDetailsMetadata.OfflineOptions getOfflineOptions(Playlist playlist) {
-        if (featureOperations.isOfflineContentEnabled() && (accountOperations.isLoggedInUser(playlist.creatorUrn()) || playlist.isLikedByCurrentUser().or(false))) {
+    private PlaylistDetailsMetadata.OfflineOptions getOfflineOptions() {
+        if (featureOperations.isOfflineContentEnabled()) {
             return PlaylistDetailsMetadata.OfflineOptions.AVAILABLE;
         } else if (featureOperations.upsellOfflineContent()) {
             return PlaylistDetailsMetadata.OfflineOptions.UPSELL;

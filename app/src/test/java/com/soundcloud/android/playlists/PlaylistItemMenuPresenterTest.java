@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
@@ -200,15 +201,45 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingOnMakeOfflineAvailableMarksPlaylistAsOfflineContent() {
+    public void shouldSaveOfflineIfPlaylistOwnedByCurrentUser() {
         final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
         when(offlineOperations.makePlaylistAvailableOffline(playlist.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlist, menuOptions);
-        presenter.saveOffline();
+        presenter.saveOffline(playlist);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
+        verifyZeroInteractions(likeOperations);
+    }
+
+    @Test
+    public void shouldSaveOfflineIfPlaylistLikedByCurrentUser() {
+        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        playlist.setLikedByCurrentUser(true);
+        when(offlineOperations.makePlaylistAvailableOffline(playlist.getUrn())).thenReturn(offlineObservable);
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
+
+        presenter.show(button, playlist, menuOptions);
+        presenter.saveOffline(playlist);
+
+        assertThat(offlineObservable.hasObservers()).isTrue();
+        verifyZeroInteractions(likeOperations);
+    }
+
+    @Test
+    public void shouldLikeAndSaveOffline() {
+        final PublishSubject<Void> offlineObservable = PublishSubject.create();
+        when(offlineOperations.makePlaylistAvailableOffline(playlist.getUrn())).thenReturn(offlineObservable);
+        when(likeOperations.toggleLike(playlist.getUrn(), !playlist.isLikedByCurrentUser())).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+        when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
+
+        presenter.show(button, playlist, menuOptions);
+        presenter.saveOffline(playlist);
+
+        assertThat(offlineObservable.hasObservers()).isTrue();
+        verify(likeOperations).toggleLike(playlist.getUrn(), true);
     }
 
     @Test
@@ -216,7 +247,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlist, menuOptions);
-        presenter.saveOffline();
+        presenter.saveOffline(playlist);
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);

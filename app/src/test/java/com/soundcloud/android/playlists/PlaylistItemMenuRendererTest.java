@@ -94,55 +94,60 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doNotShowOfflineWhenNotMarkedForDownloadAndNotLikedAndNotPosted() {
+    public void showOfflineDownloadOptionWhenNotMarkedForOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem nonDownloadablePlaylist = buildPlaylist(false, false);
-        when(accountOperations.isLoggedInUser(nonDownloadablePlaylist.getCreatorUrn())).thenReturn(false);
+        PlaylistItem playlistItem = buildPlaylist(false);
 
-        renderer.render(nonDownloadablePlaylist);
+        renderer.render(playlistItem);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    @Test
+    public void showOfflineRemovalOptionWhenMarkedForOffline() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        PlaylistItem playlistItem = buildPlaylist(true);
+
+        renderer.render(playlistItem);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, true);
+        verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    @Test
+    public void showUpsellOption() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+        when(menuItem.isVisible()).thenReturn(true);
+        when(screenProvider.getLastScreenTag()).thenReturn("screen-tag");
+        PlaylistItem playlistItem = buildPlaylist(false);
+
+        renderer.render(playlistItem);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, false);
+        verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, true);
+    }
+
+    @Test
+    public void hideAllOfflineContentOptionsWhenOfflineContentAndUpsellContentAreDisabled() throws Exception {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.upsellOfflineContent()).thenReturn(false);
+        PlaylistItem playlistItem = buildPlaylist(true);
+
+        renderer.render(playlistItem);
 
         verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, false);
         verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, false);
         verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, false);
     }
 
-    @Test
-    public void showOfflineWhenMarkedForDownloadAndNotLikedAndNotPosted() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem nonDownloadablePlaylist = buildPlaylist(true, false);
-        when(accountOperations.isLoggedInUser(nonDownloadablePlaylist.getCreatorUrn())).thenReturn(false);
-
-        renderer.render(nonDownloadablePlaylist);
-
-        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_unavailable, true);
-    }
-
-    @Test
-    public void showOfflineWhenLikedAndNotMarkedForDownloadAndNotPosted() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem likedPlaylist = buildPlaylist(false, true);
-        when(accountOperations.isLoggedInUser(likedPlaylist.getCreatorUrn())).thenReturn(false);
-
-        renderer.render(likedPlaylist);
-
-        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
-    }
-
-    @Test
-    public void showOfflineWhenPostedAndNotMarkedForDownloadAndLiked() {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem postedPlaylist = buildPlaylist(false, false);
-        when(accountOperations.isLoggedInUser(postedPlaylist.getCreatorUrn())).thenReturn(true);
-
-        renderer.render(postedPlaylist);
-
-        verify(popupMenuWrapper).setItemVisible(R.id.make_offline_available, true);
-    }
-
-    private PlaylistItem buildPlaylist(boolean markedForDownload, boolean liked) {
+    private PlaylistItem buildPlaylist(boolean markedForDownload) {
         PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
         playlist.setMarkedForOffline(markedForDownload);
-        playlist.setLikedByCurrentUser(liked);
         return playlist;
     }
 

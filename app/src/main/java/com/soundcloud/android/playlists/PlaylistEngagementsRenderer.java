@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -96,7 +95,7 @@ class PlaylistEngagementsRenderer {
             configureShuffleOptions(item, menu);
             configurePlayNext(menu);
             configureOfflineAvailability(item, menu, onEngagementListener);
-            menu.setOnMenuItemClickListener(new PopupListener(onEngagementListener, item.urn()));
+            menu.setOnMenuItemClickListener(new PopupListener(onEngagementListener));
             menu.show();
         });
     }
@@ -229,13 +228,11 @@ class PlaylistEngagementsRenderer {
     }
 
     private static class PopupListener implements PopupMenuWrapper.PopupMenuWrapperListener {
-        
-        private final PlaylistDetailsInputs listener;
-        private final Urn playlistUrn;
 
-        private PopupListener(PlaylistDetailsInputs listener, Urn playlistUrn) {
+        private final PlaylistDetailsInputs listener;
+
+        private PopupListener(PlaylistDetailsInputs listener) {
             this.listener = listener;
-            this.playlistUrn = playlistUrn;
         }
 
         @Override

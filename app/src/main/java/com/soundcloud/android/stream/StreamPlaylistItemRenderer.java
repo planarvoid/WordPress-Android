@@ -74,7 +74,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
                                       playlistItem,
                                       getEventContextMetadataBuilder(playlistItem, position).build());
 
-        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().build(),
+        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().showOffline(true).build(),
                                                                                   getEventContextMetadataBuilder(playlistItem, position)));
     }
 
