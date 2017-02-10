@@ -76,7 +76,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     // Flipper may send past progress events when seeking, leading to UI glitches.
     // This boolean helps us to workaround this.
     private boolean isSeekPending;
-    private boolean isPlayerSeeking;
     private long duration;
     private long progress;
 
@@ -122,7 +121,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
 
         stateHandler.removeMessages(0);
-        isSeekPending = isPlayerSeeking = false;
+        isSeekPending = false;
         progress = 0;
 
         final String trackUrl = buildStreamUrl(playbackItem);
@@ -226,26 +225,21 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     }
 
     @Override
-    public void onBufferUnderrunChanged(state_change event) {
+    public void onBufferingChanged(state_change event) {
         if (event.getUri().equals(currentStreamUrl)) {
-            final PlayStateReason translatedReason = PlayStateReason.NONE;
-            final PlaybackState translatedState = event.getBufferUnderrun() ?
-                                                  PlaybackState.BUFFERING :
-                                                  PlaybackState.PLAYING;
-            reportStateTransition(event, translatedState, translatedReason);
+            final PlayerState currentState = event.getState();
+            if (currentState == PlayerState.Playing) {
+                final PlayStateReason translatedReason = PlayStateReason.NONE;
+                final PlaybackState translatedState = event.getBuffering() ?
+                        PlaybackState.BUFFERING :
+                        PlaybackState.PLAYING;
+                reportStateTransition(event, translatedState, translatedReason);
+            }
         }
     }
 
     @Override
     public void onSeekingStatusChanged(state_change event) {
-        if (event.getUri().equals(currentStreamUrl)) {
-            isPlayerSeeking = event.getSeekingInProgress();
-            if (event.getState().equals(PlayerState.Playing)) {
-                final PlayStateReason translatedReason = PlayStateReason.NONE;
-                final PlaybackState translatedState = translatePlayingState();
-                reportStateTransition(event, translatedState, translatedReason);
-            }
-        }
     }
 
     // TODO: waiting for a Skipper update go provide getHost and getFormat
@@ -359,7 +353,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         if (event.getUri().equals(currentStreamUrl)) {
             setProgress(event.getPosition());
 
-            final PlaybackState translatedState = playbackState(event.getState());
+            final PlaybackState translatedState = playbackState(event);
             final PlayStateReason translatedReason = playStateReason(event);
             reportStateTransition(event, translatedState, translatedReason);
         }
@@ -398,9 +392,10 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
     }
 
-    private PlaybackState playbackState(PlayerState flipperState) {
+    private PlaybackState playbackState(state_change stateChange) {
         // TODO : waiting for a Flipper update.
         // Use a switch once PlayerState is converted to an enum.
+        PlayerState flipperState = stateChange.getState();
         if (PlayerState.Idle.equals(flipperState)) {
             return PlaybackState.IDLE;
         } else if (PlayerState.Preparing.equals(flipperState)) {
@@ -408,7 +403,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         } else if (PlayerState.Prepared.equals(flipperState)) {
             return PlaybackState.BUFFERING;
         } else if (PlayerState.Playing.equals(flipperState)) {
-            return translatePlayingState();
+            return translatePlayingState(stateChange);
         } else if (PlayerState.Completed.equals(flipperState)) {
             return PlaybackState.IDLE;
         } else if (PlayerState.Error.equals(flipperState)) {
@@ -434,8 +429,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
     }
 
-    private PlaybackState translatePlayingState() {
-        if (!isPlayerSeeking) {
+    private PlaybackState translatePlayingState(state_change stateChange) {
+        if (!stateChange.getBuffering()) {
             return PlaybackState.PLAYING;
         }
         return PlaybackState.BUFFERING;
