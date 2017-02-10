@@ -28,7 +28,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     private static final AvailableWebProducts DEFAULT = AvailableWebProducts.single(TestProduct.highTier());
     private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
-    private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.highTierPromo());
+    private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.promoHighTier());
     private static final AvailableWebProducts INVALID = AvailableWebProducts.single(TestProduct.midTier());
 
     private TestEventBus eventBus = new TestEventBus();

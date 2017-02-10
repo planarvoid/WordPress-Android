@@ -41,7 +41,7 @@ public class ProductInfoFormatterTest extends AndroidUnitTest{
 
     @Test
     public void configuresPromoRestrictionsTextWithPromo() {
-        assertThat(formatter.configuredRestrictionsText(TestProduct.highTierPromo()))
+        assertThat(formatter.configuredRestrictionsText(TestProduct.promoHighTier()))
                 .isEqualTo("Restrictions apply, $2 after");
     }
 

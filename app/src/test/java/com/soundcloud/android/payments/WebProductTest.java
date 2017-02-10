@@ -107,7 +107,7 @@ public class WebProductTest extends AndroidUnitTest {
     }
 
     private WebProduct buildWebProduct(String price, @Nullable String discountedPrice) {
-        return WebProduct.create("high_tier", "package:123", price, discountedPrice, "9.99", "USD", 0, 0, null, "123", "456");
+        return WebProduct.create("high_tier", "package:123", price, discountedPrice, "9.99", "USD", 0, 0, null, null, "123", "456");
     }
 
     private void setLocale(Locale locale) {

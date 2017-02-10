@@ -46,6 +46,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private static final String PROMO_DAYS_KEY = "promo_days";
     private static final String PROMO_PRICE_KEY = "promo_price";
     private static final String PACKAGE_URN_KEY = "package_urn";
+    private static final String PRORATED_PRICE_KEY = "prorated_price";
     private static final String ENVIRONMENT_KEY = "env";
     private static final String DISCOUNT_PRICE_KEY = "discount_price";
 
@@ -174,7 +175,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void startTimeout() {
-        handler.postDelayed(() -> setRetryState(), TIMEOUT_MILLIS);
+        handler.postDelayed(this::setRetryState, TIMEOUT_MILLIS);
     }
 
     private void cancelTimeout() {
@@ -199,9 +200,16 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
         appendDiscount(product, builder);
         appendPromo(product, builder);
+        appendProratedPrice(product, builder);
         appendLocale(builder);
 
         return builder.toString();
+    }
+
+    private void appendDiscount(WebProduct product, Uri.Builder builder) {
+        if (product.getDiscountPrice().isPresent()) {
+            builder.appendQueryParameter(DISCOUNT_PRICE_KEY, product.getDiscountPrice().get());
+        }
     }
 
     private void appendPromo(WebProduct product, Uri.Builder builder) {
@@ -211,9 +219,9 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private void appendDiscount(WebProduct product, Uri.Builder builder) {
-        if (product.getDiscountPrice().isPresent()) {
-            builder.appendQueryParameter(DISCOUNT_PRICE_KEY, product.getDiscountPrice().get());
+    private void appendProratedPrice(WebProduct product, Uri.Builder builder) {
+        if (product.getProratedPrice().isPresent()) {
+            builder.appendQueryParameter(PRORATED_PRICE_KEY, product.getProratedPrice().get());
         }
     }
 
