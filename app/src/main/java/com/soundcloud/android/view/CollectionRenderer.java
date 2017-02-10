@@ -11,7 +11,6 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
-import rx.functions.Action1;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
@@ -21,70 +20,97 @@ import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 
 import java.util.List;
 
 public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
+    private final EmptyStateProvider emptyStateProvider;
     @BindView(R.id.ak_recycler_view) protected RecyclerView recyclerView;
-    @BindView(android.R.id.empty) protected EmptyView emptyView;
     @BindView(R.id.str_layout) protected MultiSwipeRefreshLayout swipeRefreshLayout;
 
     private Unbinder unbinder;
-
-    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
-
     private final PublishSubject<Void> onRefresh = PublishSubject.create();
 
     private final RecyclerItemAdapter<ItemT, VH> adapter;
     private final Func2<ItemT, ItemT, Boolean> areItemsTheSame;
     private final Func2<ItemT, ItemT, Boolean> areContentsTheSame;
+    private EmptyAdapter emptyAdapter;
+    private boolean animateLayoutChangesInItems;
 
-    public CollectionRenderer(RecyclerItemAdapter<ItemT, VH> adapter, Func2<ItemT, ItemT, Boolean> areItemsTheSame, Func2<ItemT, ItemT, Boolean> areContentsTheSame) {
+    public CollectionRenderer(RecyclerItemAdapter<ItemT, VH> adapter,
+                              Func2<ItemT, ItemT, Boolean> areItemsTheSame,
+                              Func2<ItemT, ItemT, Boolean> areContentsTheSame,
+                              EmptyStateProvider emptyStateProvider,
+                              boolean animateLayoutChangesInItems) {
         this.adapter = adapter;
         this.areItemsTheSame = areItemsTheSame;
         this.areContentsTheSame = areContentsTheSame;
+        this.emptyStateProvider = emptyStateProvider;
+        this.animateLayoutChangesInItems = animateLayoutChangesInItems;
+
     }
 
-    public void attach(View view) {
+    public void attach(View view, boolean renderEmptyAtTop) {
         Preconditions.checkArgument(recyclerView == null, "Recycler View already atteched. Did you forget to detach?");
 
         unbinder = ButterKnife.bind(this, view);
 
         configureRecyclerView(view.getContext());
-        recyclerView.setAdapter(adapter);
-
-        emptyViewObserver = createEmptyViewObserver();
-        adapter.registerAdapterDataObserver(emptyViewObserver);
-        emptyView.setStatus(emptyViewStatus);
+        this.emptyAdapter = new EmptyAdapter(emptyStateProvider, renderEmptyAtTop);
+        recyclerView.setAdapter(emptyAdapter);
 
         // handle swipe to refresh
-        swipeRefreshLayout.setSwipeableChildren(recyclerView, emptyView);
+        swipeRefreshLayout.setSwipeableChildren(recyclerView);
         swipeRefreshLayout.setOnRefreshListener(() -> onRefresh.onNext(null));
     }
 
-    public PublishSubject<Void> onRefresh(){
+    public PublishSubject<Void> onRefresh() {
         return onRefresh;
     }
 
     public void detach() {
-        adapter.unregisterAdapterDataObserver(emptyViewObserver);
-        emptyView = null;
+        if (emptyViewObserver != null) {
+            adapter.unregisterAdapterDataObserver(emptyViewObserver);
+        }
+
+        emptyViewObserver = null;
         recyclerView.setAdapter(null);
         recyclerView = null;
         unbinder.unbind();
     }
 
     public void render(CollectionViewState<ItemT> state) {
+
         swipeRefreshLayout.setRefreshing(state.isRefreshing());
-        onNewItems(state.items());
-        updateEmptyView();
+        if (state.items().isEmpty()) {
+            if (recyclerView.getAdapter() != emptyAdapter) {
+                recyclerView.setAdapter(emptyAdapter);
+                setAnimateItemChanges(true);
+            }
+            updateEmptyView(state);
+
+        } else {
+            if (recyclerView.getAdapter() != adapter) {
+                recyclerView.setAdapter(adapter);
+                setAnimateItemChanges(animateLayoutChangesInItems);
+                populateAdapter(state.items());
+                adapter.notifyDataSetChanged();
+            } else {
+                onNewItems(state.items());
+            }
+
+        }
+    }
+
+    private void setAnimateItemChanges(boolean supportsChangeAnimations) {
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(supportsChangeAnimations);
     }
 
     private void configureRecyclerView(Context context) {
-        // TODO : Grid Support
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         addListDividers(recyclerView);
     }
@@ -95,66 +121,50 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         recyclerView.addItemDecoration(new DividerItemDecoration(divider, dividerHeight));
     }
 
-
     @NonNull
-    private Action1<CollectionViewState<ItemT>> updateEmptyView() {
-        return viewModel -> {
-            Optional<ViewError> viewErrorOptional = viewModel.nextPageError();
-            if (viewErrorOptional.isPresent()) {
-                if (viewErrorOptional.get() == CONNECTION_ERROR) {
-                    emptyView.setStatus(EmptyView.Status.CONNECTION_ERROR);
-                } else {
-                    emptyView.setStatus(EmptyView.Status.SERVER_ERROR);
-                }
-            } else if (viewModel.isLoadingNextPage()){
-                emptyView.setStatus(EmptyView.Status.WAITING);
+    private void updateEmptyView(CollectionViewState<ItemT> state) {
+        Optional<ViewError> viewErrorOptional = state.nextPageError();
+        if (viewErrorOptional.isPresent()) {
+            if (viewErrorOptional.get() == CONNECTION_ERROR) {
+                emptyAdapter.setStatus(EmptyAdapter.Status.CONNECTION_ERROR);
             } else {
-                emptyView.setStatus(EmptyView.Status.OK);
+                emptyAdapter.setStatus(EmptyAdapter.Status.SERVER_ERROR);
             }
-        };
+        } else if (state.isLoadingNextPage()) {
+            emptyAdapter.setStatus(EmptyAdapter.Status.WAITING);
+        } else {
+            emptyAdapter.setStatus(EmptyAdapter.Status.OK);
+        }
+        emptyAdapter.notifyDataSetChanged();
     }
 
     public RecyclerItemAdapter<ItemT, VH> adapter() {
         return adapter;
     }
 
-    private void onNewItems(List<ItemT> newItems){
+    private void onNewItems(List<ItemT> newItems) {
         final List<ItemT> oldItems = adapter().getItems();
         final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AdapterDiffCallback(oldItems, newItems), true);
         populateAdapter(newItems);
         diffResult.dispatchUpdatesTo(adapter());
     }
 
-    protected void populateAdapter(List<ItemT> newItems) {
+    private void populateAdapter(List<ItemT> newItems) {
         adapter.clear();
         for (ItemT item : newItems) {
             adapter.addItem(item);
         }
     }
 
-    private RecyclerView.AdapterDataObserver createEmptyViewObserver() {
-        return new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                updateEmptyViewVisibility();
-            }
+    public interface EmptyStateProvider {
 
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                updateEmptyViewVisibility();
-            }
+        int waitingView();
 
-            @Override
-            public void onChanged() {
-                updateEmptyViewVisibility();
-            }
-        };
-    }
+        int connectionErrorView();
 
-    private void updateEmptyViewVisibility() {
-        final boolean empty = adapter.isEmpty();
-        recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
-        emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
+        int serverErrorView();
+
+        int emptyView();
     }
 
     private class AdapterDiffCallback extends DiffUtil.Callback {
@@ -191,5 +201,5 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
             return areContentsTheSame.call(oldItem, newItem);
         }
     }
-
 }
+

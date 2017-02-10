@@ -15,11 +15,15 @@ abstract class PlaylistDetailsViewModel {
 
     abstract PlaylistDetailsMetadata metadata();
 
-    abstract List<PlaylistDetailTrackItem> tracks();
+    abstract Optional<List<PlaylistDetailTrackItem>> tracks();
 
     abstract Optional<PlaylistDetailUpsellItem> upsell();
 
     abstract Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists();
+
+    boolean waitingForTracks() {
+        return !tracks().isPresent();
+    }
 
     List<PlaylistDetailItem> itemsWithHeader() {
         final ArrayList<PlaylistDetailItem> items = new ArrayList<>();
@@ -46,15 +50,19 @@ abstract class PlaylistDetailsViewModel {
     }
 
     private static void addTracksAndUpsell(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
-        for (PlaylistDetailTrackItem trackItem : playlistDetailsViewModel.tracks()) {
-            items.add(trackItem);
-            if (playlistDetailsViewModel.upsell().isPresent()) {
-                final PlaylistDetailUpsellItem upsellItem = playlistDetailsViewModel.upsell().get();
-                if (trackItem.getUrn().equals(upsellItem.track().getUrn())) {
-                    items.add(upsellItem);
+        Optional<List<PlaylistDetailTrackItem>> tracks = playlistDetailsViewModel.tracks();
+        if (tracks.isPresent()) {
+            for (PlaylistDetailTrackItem trackItem : tracks.get()) {
+                items.add(trackItem);
+                if (playlistDetailsViewModel.upsell().isPresent()) {
+                    final PlaylistDetailUpsellItem upsellItem = playlistDetailsViewModel.upsell().get();
+                    if (trackItem.getUrn().equals(upsellItem.track().getUrn())) {
+                        items.add(upsellItem);
+                    }
                 }
             }
         }
+
     }
 
     private static void addHeader(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
@@ -71,7 +79,7 @@ abstract class PlaylistDetailsViewModel {
 
         abstract Builder metadata(PlaylistDetailsMetadata value);
 
-        abstract Builder tracks(List<PlaylistDetailTrackItem> value);
+        abstract Builder tracks(Optional<List<PlaylistDetailTrackItem>> value);
 
         Builder upsell(PlaylistDetailUpsellItem playlistDetailUpsellItem) {
             return upsell(Optional.of(playlistDetailUpsellItem));

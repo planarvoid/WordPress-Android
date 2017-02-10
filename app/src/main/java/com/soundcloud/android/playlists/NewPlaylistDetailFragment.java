@@ -28,7 +28,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -114,7 +113,32 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         setHasOptionsMenu(true);
 
         adapter = newPlaylistDetailsAdapterFactory.create(this);
-        collectionRenderer = new CollectionRenderer<>(adapter, this::isTheSameItem, Object::equals);
+
+        collectionRenderer = new CollectionRenderer<>(adapter, this::isTheSameItem, Object::equals, getEmptyStateProvider(), false);
+    }
+
+    private CollectionRenderer.EmptyStateProvider getEmptyStateProvider() {
+        return new CollectionRenderer.EmptyStateProvider(){
+            @Override
+            public int waitingView() {
+                return R.layout.emptyview_loading_tracks;
+            }
+
+            @Override
+            public int connectionErrorView() {
+                return R.layout.emptyview_connection_error;
+            }
+
+            @Override
+            public int serverErrorView() {
+                return R.layout.emptyview_server_error;
+            }
+
+            @Override
+            public int emptyView() {
+                return R.layout.emptyview_playlist_no_tracks;
+            }
+        };
     }
 
     private boolean isTheSameItem(PlaylistDetailItem item1, PlaylistDetailItem item2) {
@@ -142,13 +166,12 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
         this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
 
-        collectionRenderer.attach(view);
+        boolean shouldRenderEmptyViewsAtTop = view.findViewById(R.id.appbar) != null;
+        collectionRenderer.attach(view, shouldRenderEmptyViewsAtTop);
 
         baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
 
         toolbarView = toolbarViewFactory.create(presenter, actionBar());
-
-        animateLayoutChangesInAdapterCells();
 
         subscription = new CompositeSubscription();
         subscription.addAll(
@@ -196,10 +219,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         );
     }
 
-    // Let the layout for tracks animates itself
-    private void animateLayoutChangesInAdapterCells() {
-        ((SimpleItemAnimator) recyclerView().getItemAnimator()).setSupportsChangeAnimations(false);
-    }
 
     private ActionBar actionBar() {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -231,16 +250,17 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
     private CollectionViewState<PlaylistDetailItem> convertLegacyModel(AsyncViewModel<PlaylistDetailsViewModel> playlistDetailsViewModelAsyncViewModel) {
         Optional<PlaylistDetailsViewModel> items = playlistDetailsViewModelAsyncViewModel.data();
+
         return CollectionViewState.<PlaylistDetailItem>builder()
                 .nextPageError(playlistDetailsViewModelAsyncViewModel.error())
                 .isRefreshing(playlistDetailsViewModelAsyncViewModel.isRefreshing())
+                .isLoadingNextPage(!items.isPresent() || items.get().waitingForTracks())
                 .hasMorePages(false)
                 .items(items.isPresent() ? items.get().itemsWithoutHeader() : Collections.emptyList())
                 .build();
     }
 
     private void bindViews(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-
         if (asyncViewModel.data().isPresent()) {
             PlaylistDetailsViewModel data = asyncViewModel.data().get();
             headerScrollHelper.setIsEditing(data.metadata().isInEditMode());

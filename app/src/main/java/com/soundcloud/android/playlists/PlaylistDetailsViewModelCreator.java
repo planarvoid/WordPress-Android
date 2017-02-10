@@ -11,6 +11,7 @@ import com.soundcloud.java.optional.Optional;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 class PlaylistDetailsViewModelCreator {
@@ -37,23 +38,24 @@ class PlaylistDetailsViewModelCreator {
                                            boolean isReposted,
                                            boolean isEditMode,
                                            Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
-        return create(playlist, trackItems, isLiked, isReposted, isEditMode, OfflineState.NOT_OFFLINE, otherPlaylists);
+        return create(playlist, Optional.of(trackItems), isLiked, isReposted, isEditMode, OfflineState.NOT_OFFLINE, otherPlaylists);
     }
 
     public PlaylistDetailsViewModel create(Playlist playlist,
-                                           List<TrackItem> trackItems,
+                                           Optional<List<TrackItem>> trackItems,
                                            boolean isLiked,
                                            boolean isReposted,
                                            boolean isEditMode,
                                            OfflineState offlineState,
                                            Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists) {
 
-        Optional<PlaylistDetailUpsellItem> upsell = upsellOperations.getUpsell(playlist, trackItems);
+        Optional<PlaylistDetailUpsellItem> upsell = trackItems.isPresent() ? upsellOperations.getUpsell(playlist, trackItems.get()) : Optional.absent();
+        List<TrackItem> loadedTrackItems = trackItems.isPresent() ? trackItems.get() : Collections.emptyList();
 
         final PlaylistDetailTrackItem.Builder builder = PlaylistDetailTrackItem.builder().inEditMode(isEditMode);
         return PlaylistDetailsViewModel.builder()
-                                       .metadata(createMetadata(playlist, trackItems, isLiked, isReposted, isEditMode, offlineState))
-                                       .tracks(transform(trackItems, track -> builder.trackItem(track).build()))
+                                       .metadata(createMetadata(playlist, loadedTrackItems, isLiked, isReposted, isEditMode, offlineState))
+                                       .tracks(trackItems.isPresent() ? Optional.of(transform(loadedTrackItems, track -> builder.trackItem(track).build())) : Optional.absent())
                                        .upsell(upsell)
                                        .otherPlaylists(otherPlaylists)
                                        .build();

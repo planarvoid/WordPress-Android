@@ -16,14 +16,22 @@ import java.util.List;
 abstract class PlaylistWithExtras {
 
     static PlaylistWithExtras create(Playlist playlist, List<Track> tracks) {
+        return create(playlist, Optional.of(tracks), absent());
+    }
+
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks) {
         return create(playlist, tracks, absent());
     }
 
     static PlaylistWithExtras create(Playlist playlist, List<Track> tracks, List<Playlist> otherPlaylistsByCreator) {
+        return create(playlist, Optional.of(tracks), of(otherPlaylistsByCreator));
+    }
+
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, List<Playlist> otherPlaylistsByCreator) {
         return create(playlist, tracks, of(otherPlaylistsByCreator));
     }
 
-    static PlaylistWithExtras create(Playlist playlist, List<Track> tracks, Optional<List<Playlist>> otherPlaylistsByCreator) {
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, Optional<List<Playlist>> otherPlaylistsByCreator) {
         return  new AutoValue_PlaylistWithExtras.Builder()
                 .playlist(playlist)
                 .tracks(tracks)
@@ -33,7 +41,7 @@ abstract class PlaylistWithExtras {
 
     abstract Playlist playlist();
 
-    abstract List<Track> tracks();
+    abstract Optional<List<Track>> tracks();
 
     abstract Optional<List<Playlist>> otherPlaylistsByCreator();
 
@@ -44,7 +52,7 @@ abstract class PlaylistWithExtras {
 
         abstract Builder playlist(Playlist value);
 
-        abstract Builder tracks(List<Track> value);
+        abstract Builder tracks(Optional<List<Track>> value);
 
         abstract Builder otherPlaylistsByCreator(Optional<List<Playlist>> value);
 
@@ -54,6 +62,6 @@ abstract class PlaylistWithExtras {
 
     @Override
     public String toString() {
-        return "PlaylistWithExtras{ "+ playlist().title() + " " + tracks().size() + " " + otherPlaylistsByCreator().isPresent() + " }";
+        return "PlaylistWithExtras{ "+ playlist().title() + " " + tracks() + " " + otherPlaylistsByCreator().isPresent() + " }";
     }
 }

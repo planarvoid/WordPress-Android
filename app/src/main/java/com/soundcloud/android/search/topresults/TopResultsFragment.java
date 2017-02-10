@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.CollectionRenderer;
+import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -65,7 +66,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        collectionRenderer = new CollectionRenderer<>(new TopResultsAdapter(), this::isTheSameItem, Object::equals);
+        collectionRenderer = new CollectionRenderer<>(new TopResultsAdapter(), this::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), true);
         presenter.attachView(this);
         setHasOptionsMenu(true);
     }
@@ -111,7 +112,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        collectionRenderer.attach(view);
+        collectionRenderer.attach(view, false);
 
         subscription = presenter
                 .viewModel()

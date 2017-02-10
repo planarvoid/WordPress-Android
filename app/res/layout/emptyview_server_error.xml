@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/Ak.EmptyCollectionErrorContentHolder"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:id="@id/ak_emptyview_error_image"
+        style="@style/Ak.EmptyViewImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ak_emptyview_error_connectivity" />
+
+    <TextView
+        android:id="@id/ak_emptyview_error_message1"
+        style="@style/Ak.EmptyViewContent.EmptyCollection.Main.Error"
+        android:text="@string/ak_error_soundcloud_no_response"
+        android:visibility="gone" />
+
+</LinearLayout>

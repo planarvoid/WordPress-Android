@@ -514,7 +514,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         return PlaylistDetailsViewModel
                 .builder()
                 .metadata(metaData)
-                .tracks(emptyList())
+                .tracks(Optional.absent())
                 .upsell(Optional.absent())
                 .otherPlaylists(Optional.absent())
                 .build();

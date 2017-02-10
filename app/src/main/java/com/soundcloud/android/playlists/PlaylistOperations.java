@@ -255,7 +255,7 @@ public class PlaylistOperations {
         return playlists -> {
             final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
             return viewModelCreator.create(playlist,
-                                           Lists.transform(tracks, TrackItem::from),
+                                           Optional.of(Lists.transform(tracks, TrackItem::from)),
                                            playlist.isLikedByCurrentUser().or(false),
                                            playlist.isRepostedByCurrentUser().or(false),
                                            false,

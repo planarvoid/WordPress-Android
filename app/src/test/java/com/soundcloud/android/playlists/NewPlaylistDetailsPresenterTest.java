@@ -608,9 +608,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onItemTriggeredForTrackStartsPlaybackOnGivenTrack() {
         connect();
 
-        newPlaylistPresenter.onItemTriggered(initialModel.tracks().get(1));
+        newPlaylistPresenter.onItemTriggered(initialModel.tracks().get().get(1));
 
-        final List<Urn> tracks = transform(initialModel.tracks(), PlaylistDetailTrackItem::getUrn);
+        final List<Urn> tracks = transform(initialModel.tracks().get(), PlaylistDetailTrackItem::getUrn);
         verify(playbackInitiator).playTracks(tracks, 1, createPlaySessionSource());
     }
 
@@ -685,14 +685,14 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsViewModel toEditMode(PlaylistDetailsViewModel source) {
-        final List<PlaylistDetailTrackItem> expectedTracks = transform(source.tracks(), track -> track.toBuilder().inEditMode(true).build());
+        final List<PlaylistDetailTrackItem> expectedTracks = transform(source.tracks().get(), track -> track.toBuilder().inEditMode(true).build());
         final PlaylistDetailsMetadata expectedMetaData = source.metadata()
                                                                .toBuilder()
                                                                .isInEditMode(true)
                                                                .build();
         return source.toBuilder()
                      .metadata(expectedMetaData)
-                     .tracks(expectedTracks)
+                     .tracks(Optional.of(expectedTracks))
                      .otherPlaylists(absent())
                      .build();
     }

@@ -47,7 +47,8 @@
                                 android:id="@+id/artwork"
                                 android:layout_width="match_parent"
                                 android:layout_height="0dp"
-                                android:scaleType="centerCrop" />
+                                android:scaleType="centerCrop"
+                                android:src="@color/gray_background"/>
 
                             <ImageButton
                                 android:id="@+id/btn_play"
@@ -127,13 +128,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-            <com.soundcloud.android.view.EmptyView
-                android:id="@android:id/empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-
-            </com.soundcloud.android.view.EmptyView>
 
         </android.support.design.widget.CoordinatorLayout>
     </FrameLayout>

@@ -24,6 +24,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,6 @@ import rx.observers.AssertableSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
@@ -61,12 +61,12 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private List<Track> trackItems = singletonList(track1);
     private List<Track> updatedTrackItems = asList(track1, track2);
 
-    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, Collections.emptyList());
+    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, Optional.absent());
     private PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(playlist, trackItems);
     private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, trackItems, singletonList(otherPlaylist));
-    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist, Collections.emptyList());
+    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist, Optional.absent());
     private PlaylistWithExtras updatedPlaylistWithExtras = PlaylistWithExtras.create(updatedPlaylist, updatedTrackItems, singletonList(otherPlaylist));
-    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, emptyList());
+    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, Optional.absent());
     private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, updatedTrackItems);
 
     private PublishSubject<List<Track>> tracklistSubject = PublishSubject.create();

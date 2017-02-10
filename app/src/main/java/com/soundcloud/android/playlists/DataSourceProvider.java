@@ -25,7 +25,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -108,18 +108,18 @@ class DataSourceProvider {
 
                 playlistUpdates.switchMap(this::otherPlaylistsByUser),
 
-                (pair, otherPlaylists) -> {
-                    if (pair.second().isEmpty() || otherPlaylists.isEmpty()) {
-                        return PlaylistWithExtras.create(pair.first(), pair.second());
+                (playlistWithTracks, otherPlaylists) -> {
+                    if (!playlistWithTracks.tracksOpt.isPresent() || playlistWithTracks.tracksOpt.get().isEmpty() || otherPlaylists.isEmpty()) {
+                        return PlaylistWithExtras.create(playlistWithTracks.playlist, playlistWithTracks.tracksOpt);
                     } else {
-                        return PlaylistWithExtras.create(pair.first(), pair.second(), otherPlaylists);
+                        return PlaylistWithExtras.create(playlistWithTracks.playlist, playlistWithTracks.tracksOpt, otherPlaylists);
                     }
                 }
         );
     }
 
-    private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn urn) {
-        return combineLatest(playlist(urn), tracks(urn), Pair::of);
+    private Observable<PlaylistWithTracks> playlistWithTracks(Urn urn) {
+        return combineLatest(playlist(urn), tracks(urn), PlaylistWithTracks::new);
     }
 
     private Observable<List<Playlist>> otherPlaylistsByUser(Urn urn) {
@@ -154,9 +154,10 @@ class DataSourceProvider {
                                                     input -> !input.urn().equals(playlist.urn())));
     }
 
-    private Observable<List<Track>> tracks(Urn urn) {
+    private Observable<Optional<List<Track>>> tracks(Urn urn) {
         return trackRepository.forPlaylist(urn)
-                              .startWith(Collections.<Track>emptyList())
+                              .map(Optional::of)
+                              .startWith(Optional.absent())
                               .debounce(100, TimeUnit.MILLISECONDS, scheduler);
     }
 
@@ -188,5 +189,16 @@ class DataSourceProvider {
                 return lastUrn;
             }
         };
+    }
+
+    private static class PlaylistWithTracks {
+
+        private final Playlist playlist;
+        private final Optional<List<Track>> tracksOpt;
+
+        private PlaylistWithTracks(Playlist playlist, Optional<List<Track>> tracksOpt) {
+            this.playlist = playlist;
+            this.tracksOpt = tracksOpt;
+        }
     }
 }
