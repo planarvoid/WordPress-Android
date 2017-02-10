@@ -106,6 +106,9 @@ android {
       // to pre-dex each module and produce an APK that can be tested on
       // Android Lollipop without time consuming dex merging processes.
       minSdkVersion 21
+      // Don't generate a new Fabric build ID for every dev build. Otherwise we always
+      // have to repackage, even when nothing has changed.
+      ext.alwaysUpdateBuildId = false
     }
 
     prod {
