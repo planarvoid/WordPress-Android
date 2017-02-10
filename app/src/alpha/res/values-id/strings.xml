@@ -358,7 +358,6 @@
   <string name="offline_dialog_go_online_continue">Lanjutkan</string>
   <string name="offline_not_available_offline">Tidak tersedia saat offline</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_title_3">Mendengarkan offline</string>
   <string name="go_onboarding_error_dialog_title">Ada yang tidak beres</string>
   <string name="go_onboarding_offline_settings_continue">Ok, saya mengerti</string>
   <!--__GO OFFBOARDING-->

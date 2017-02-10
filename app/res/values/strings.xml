@@ -795,14 +795,19 @@
     <string name="offline_no_connection">No connection</string>
 
     <!-- __GO ONBOARDING -->
-    <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
-    <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad‑free offline listening.</string>
-    <string name="go_onboarding_title_2">Play full tracks</string>
-    <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud\u00A0Go.</string>
-    <string name="go_onboarding_title_3">Listen offline</string>
-    <string name="go_onboarding_body_3">Download playlists, albums, and all your liked\u00A0tracks.</string>
-    <string name="go_onboarding_title_4">Start exploring</string>
-    <string name="go_onboarding_body_4">Don’t wait — find old favorites and look for new ones in your massive new catalog of tracks.</string>
+    <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
+    <string name="go_onboarding_landing_title_legacy">Welcome to SoundCloud Go!</string>
+    <string name="go_onboarding_landing_body">Things are a little different now, in a good way</string>
+    <string name="go_onboarding_full_tracks_title">Millions of SoundCloud Go+ tracks</string>
+    <string name="go_onboarding_full_tracks_body">All previews are now full tracks with SoundCloud Go+</string>
+    <string name="go_onboarding_full_tracks_title_legacy">Millions of SoundCloud Go tracks</string>
+    <string name="go_onboarding_full_tracks_body_legacy">All previews are now full tracks with SoundCloud Go</string>
+    <string name="go_onboarding_offline_title">Listen anywhere, anytime</string>
+    <string name="go_onboarding_offline_body">Take your music with you. Tap the arrow to download for offline listening</string>
+    <string name="go_onboarding_no_ads_title">No ads</string>
+    <string name="go_onboarding_no_ads_body">Now nothing stands between you and the music</string>
+    <string name="go_onboarding_start_title">Let’s go</string>
+    <string name="go_onboarding_start_body">You now have access to more tracks than any other streaming service</string>
 
     <string name="go_onboarding_start">Start listening</string>
     <string name="go_onboarding_retry">Loading failed. Retry?</string>

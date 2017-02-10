@@ -674,14 +674,6 @@
   <string name="offline_no_wifi">Geen Wi-Fi</string>
   <string name="offline_no_connection">Geen verbinding</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_title_1">Welkom bij SoundCloud\u00A0Go!</string>
-  <string name="go_onboarding_body_1">Je hebt nu toegang tot de alsmaar groeiende SoundCloud Go-catalogus met reclamevrij offline luisteren.</string>
-  <string name="go_onboarding_title_2">Volledige tracks afspelen</string>
-  <string name="go_onboarding_body_2">Alle previews zijn nu volledige tracks met SoundCloud\u00A0Go.</string>
-  <string name="go_onboarding_title_3">Offline luisteren</string>
-  <string name="go_onboarding_body_3">Download playlists, albums en al je gelikete\u00A0tracks.</string>
-  <string name="go_onboarding_title_4">Begin met verkennen</string>
-  <string name="go_onboarding_body_4">Wacht niet langer. Vind oude favorieten en ontdek nieuwe in je enorme nieuwe trackcatalogus.</string>
   <string name="go_onboarding_start">Begin met luisteren</string>
   <string name="go_onboarding_retry">Laden is mislukt. Nog eens proberen?</string>
   <string name="go_onboarding_error_dialog_title">Er is iets misgegaan</string>

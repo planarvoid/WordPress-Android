@@ -5,6 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/go_onboarding_background"
+        style="@style/GoOnboarding.Background" />
+
     <com.soundcloud.android.view.SafeViewPager
         android:id="@+id/go_onboarding_pager"
         android:layout_width="match_parent"

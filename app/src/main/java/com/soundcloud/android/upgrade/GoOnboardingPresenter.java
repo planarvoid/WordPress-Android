@@ -4,12 +4,12 @@ import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.PendingPlanOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -20,7 +20,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements GoOnboardingView.Listener {
+
+    private static final String BUNDLE_PENDING_PLAN = "pending_plan";
 
     private enum StrategyContext {
         USER_NO_ACTION, USER_CLICKED_START
@@ -35,6 +37,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private AppCompatActivity activity;
     private Subscription subscription = RxUtils.invalidSubscription();
 
+    private Plan plan;
     private Strategy strategy;
     private StrategyContext context;
 
@@ -61,20 +64,43 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
-        Log.i("Launching onboarding for upgrade to: " + pendingPlanOperations.getPendingUpgrade().planId);
-        view.bind(activity, this);
+        resolvePendingPlan(bundle);
+        view.bind(activity, this, plan);
         this.activity = activity;
         context = StrategyContext.USER_NO_ACTION;
         strategy = initialLoadingStrategy().proceed();
     }
 
+    /*
+     * We save pending plan to the bundle, so that we can continue to render the correct onboarding flow
+     * on configuration change (rotation), even after the new plan has been applied.
+     */
+    private void resolvePendingPlan(Bundle bundle) {
+        if (bundle == null || !bundle.containsKey(BUNDLE_PENDING_PLAN)) {
+            plan = pendingPlanOperations.getPendingUpgrade();
+            if (plan == Plan.UNDEFINED || plan == Plan.FREE_TIER) {
+                throw new IllegalStateException("Cannot upgrade to plan: " + plan.planId);
+            }
+        } else {
+            plan = (Plan) bundle.getSerializable(BUNDLE_PENDING_PLAN);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
+        bundle.putSerializable(BUNDLE_PENDING_PLAN, plan);
+        super.onSaveInstanceState(activity, bundle);
+    }
+
     @Override
     public void onDestroy(AppCompatActivity activity) {
+        view.unbind();
         subscription.unsubscribe();
         this.activity = null;
     }
 
-    void onSetupOfflineClicked() {
+    @Override
+    public void onStartClicked() {
         context = StrategyContext.USER_CLICKED_START;
         strategy = strategy.proceed();
     }
@@ -136,7 +162,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             if (context == StrategyContext.USER_CLICKED_START) {
-                view.setSetUpOfflineButtonWaiting();
+                view.setStartButtonWaiting();
             }
             return this;
         }
@@ -159,7 +185,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             if (context == StrategyContext.USER_CLICKED_START) {
-                view.setSetUpOfflineButtonRetry();
+                view.setStartButtonRetry();
                 return retryLoadingStrategy();
             } else {
                 return this;
@@ -171,7 +197,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             if (context == StrategyContext.USER_CLICKED_START) {
-                view.setSetUpOfflineButtonRetry();
+                view.setStartButtonRetry();
                 view.showErrorDialog(activity.getSupportFragmentManager());
                 return retryLoadingStrategy();
             } else {

@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.images.BackgroundDecoder;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -49,44 +50,44 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingSetupOfflineOpensOfflineContentOnboardingIfAccountUpgradeAlreadyCompleted() {
+    public void clickingStartOpensOfflineContentOnboardingIfAccountUpgradeAlreadyCompleted() {
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.just(accountUpgradeSignal));
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
+        assertThat(view.isStartButtonWaiting).isFalse();
         verify(navigator).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
-    public void clickingSetupOfflineSendsOnboardingStartTrackingEventIfAccountUpgradeAlreadyCompleted() {
+    public void clickingStartSendsOnboardingStartTrackingEventIfAccountUpgradeAlreadyCompleted() {
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.just(accountUpgradeSignal));
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class).clickName().get())
                 .isEqualTo(OfflineInteractionEvent.Kind.KIND_ONBOARDING_START);
     }
 
     @Test
-    public void clickingSetupOfflineShowsProgressSpinnerIfAccountUpgradeOngoing() {
+    public void clickingStartShowsProgressSpinnerIfAccountUpgradeOngoing() {
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.never());
         presenter.onCreate(activity, null);
 
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isTrue();
+        assertThat(view.isStartButtonWaiting).isTrue();
     }
 
     @Test
-    public void clickingSetupOfflineAwaitsAccountUpgradeBeforeProceeding() {
+    public void clickingStartAwaitsAccountUpgradeBeforeProceeding() {
         PublishSubject<Object> subject = PublishSubject.create();
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
         subject.onNext(accountUpgradeSignal);
         subject.onCompleted();
@@ -95,66 +96,66 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void displaySetupOfflineRetryOnNetworkError() {
+    public void displayStartRetryOnNetworkError() {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isTrue();
+        assertThat(view.isStartButtonWaiting).isTrue();
         subject.onError(new IOException());
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        assertThat(view.isStartButtonRetry).isTrue();
     }
 
     @Test
-    public void displaySetupOfflineRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
+    public void displayStartRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.error(new IOException()));
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        assertThat(view.isStartButtonWaiting).isFalse();
+        assertThat(view.isStartButtonRetry).isTrue();
     }
 
     @Test
-    public void displaySetupOfflineRetryOnApiRequestExceptionForNetworkError() {
+    public void displayStartRetryOnApiRequestExceptionForNetworkError() {
         final PublishSubject<Object> subject = PublishSubject.create();
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(subject);
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isTrue();
+        assertThat(view.isStartButtonWaiting).isTrue();
         subject.onError(ApiRequestException.networkError(null, new IOException()));
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        assertThat(view.isStartButtonRetry).isTrue();
     }
 
     @Test
-    public void displaySetupOfflineRetryOnApiRequestExceptionForNetworkErrorAlreadyOccurred() {
+    public void displayStartRetryOnApiRequestExceptionForNetworkErrorAlreadyOccurred() {
         when(planChangeOperations.awaitAccountUpgrade())
                 .thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException())));
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        assertThat(view.isStartButtonWaiting).isFalse();
+        assertThat(view.isStartButtonRetry).isTrue();
     }
 
     @Test
-    public void clickOnSetupOfflineRetryShouldOpenOfflineContentOnboardingOnSuccess() {
+    public void clickOnStartRetryShouldOpenOfflineContentOnboardingOnSuccess() {
         final PublishSubject<Object> error = PublishSubject.create();
         final PublishSubject<Object> success = PublishSubject.create();
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(error, success);
 
         presenter.onCreate(activity, null);
 
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
         error.onError(new IOException());
 
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
         success.onNext(accountUpgradeSignal);
         success.onCompleted();
 
@@ -162,20 +163,20 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickOnSetupOfflineRetryShouldDisplayRetryOnNetworkError() {
+    public void clickOnStartRetryShouldDisplayRetryOnNetworkError() {
         final PublishSubject<Object> error1 = PublishSubject.create();
         final PublishSubject<Object> error2 = PublishSubject.create();
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(error1, error2);
 
         presenter.onCreate(activity, null);
 
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
         error1.onError(new IOException());
 
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
         error2.onError(new IOException());
 
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
+        assertThat(view.isStartButtonRetry).isTrue();
     }
 
     @Test
@@ -184,12 +185,12 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
                 .thenReturn(Observable.error(new IOException()), Observable.never());
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
-        assertThat(view.isSetUpOfflineButtonWaiting).isFalse();
-        assertThat(view.isSetUpOfflineButtonRetry).isTrue();
-        presenter.onSetupOfflineClicked();
-        assertThat(view.isSetUpOfflineButtonWaiting).isTrue();
+        assertThat(view.isStartButtonWaiting).isFalse();
+        assertThat(view.isStartButtonRetry).isTrue();
+        presenter.onStartClicked();
+        assertThat(view.isStartButtonWaiting).isTrue();
     }
 
     @Test
@@ -198,7 +199,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
                 .thenReturn(Observable.error(ApiRequestException.malformedInput(null, new ApiMapperException("test"))));
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
         assertThat(view.isErrorDialogShown).isTrue();
     }
@@ -208,42 +209,42 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.empty());
 
         presenter.onCreate(activity, null);
-        presenter.onSetupOfflineClicked();
+        presenter.onStartClicked();
 
         assertThat(view.isErrorDialogShown).isTrue();
     }
 
     private static class GoOnboardingViewStub extends GoOnboardingView {
-        private boolean isSetUpOfflineButtonWaiting;
-        private boolean isSetUpOfflineButtonRetry;
+        private boolean isStartButtonWaiting;
+        private boolean isStartButtonRetry;
         private boolean isErrorDialogShown;
 
         private GoOnboardingViewStub() {
-            super(new GoOnboardingAdapter(mock(BackgroundDecoder.class)));
+            super(new GoOnboardingAdapter(mock(FeatureFlags.class)), mock(BackgroundDecoder.class));
         }
 
         @Override
-        void bind(Activity activity, GoOnboardingPresenter presenter) {
+        void bind(Activity activity, Listener listener, Plan plan) {
             // no op
         }
 
         @Override
         void reset() {
-            isSetUpOfflineButtonWaiting = false;
-            isSetUpOfflineButtonRetry = false;
+            isStartButtonWaiting = false;
+            isStartButtonRetry = false;
             isErrorDialogShown = false;
         }
 
         @Override
-        void setSetUpOfflineButtonWaiting() {
-            isSetUpOfflineButtonWaiting = true;
-            isSetUpOfflineButtonRetry = false;
+        void setStartButtonWaiting() {
+            isStartButtonWaiting = true;
+            isStartButtonRetry = false;
         }
 
         @Override
-        void setSetUpOfflineButtonRetry() {
-            isSetUpOfflineButtonWaiting = false;
-            isSetUpOfflineButtonRetry = true;
+        void setStartButtonRetry() {
+            isStartButtonWaiting = false;
+            isStartButtonRetry = true;
         }
 
         @Override

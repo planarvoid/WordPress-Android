@@ -31,7 +31,7 @@
         <item name="android:textSize">@dimen/go_onboarding_sub_title_text_size</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:layout_marginTop">10dp</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
     </style>
 
     <style name="GoOnboarding.Tooltip">
@@ -75,7 +75,7 @@
     <!-- Go Onboarding Settings -->
     <style name="GoOnboarding.SettingsBackground">
         <item name="android:scaleType">centerCrop</item>
-        <item name="android:src">@drawable/go_onboarding_1</item>
+        <item name="android:src">@drawable/go_onboarding_landing</item>
     </style>
 
     <style name="GoOnboarding.SettingsContainer">

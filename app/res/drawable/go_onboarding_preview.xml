@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+
+    <item
+        android:duration="550"
+        android:drawable="@drawable/previewpeel_plus_0" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_1" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_2" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_3" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_4" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_5" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_6" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_7" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_8" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_9" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_10" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_11" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_12" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_13" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_14" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_15" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_16" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_17" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_18" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_19" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_20" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_21" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_22" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_23" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_24" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_25" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_26" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_27" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_28" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/previewpeel_plus_29" />
+
+</animation-list>

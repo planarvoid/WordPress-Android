@@ -6,10 +6,6 @@
     android:id="@+id/go_onboarding_container"
     style="@style/GoOnboarding.WelcomeContainer">
 
-    <ImageView
-        android:id="@+id/go_onboarding_background"
-        style="@style/GoOffboarding.Background" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

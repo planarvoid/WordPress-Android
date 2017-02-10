@@ -713,14 +713,6 @@ vão aparecer aqui.</string>
   <string name="offline_no_wifi">Sem Wi-Fi</string>
   <string name="offline_no_connection">Sem conexão</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_title_1">Bem-vindo ao SoundCloud\u00A0Go!</string>
-  <string name="go_onboarding_body_1">Agora você tem acesso ao catálogo sempre crescente do SoundCloud Go, incluindo opções de músicas off-line sem anúncios.</string>
-  <string name="go_onboarding_title_2">Reproduzir faixas inteiras</string>
-  <string name="go_onboarding_body_2">Agora todas as visualizações têm faixas complexas com o SoundCloud\u00A0Go.</string>
-  <string name="go_onboarding_title_3">Ouvir off-line</string>
-  <string name="go_onboarding_body_3">Baixe playlists, álbuns e todas as faixas curtidas\u00A0.</string>
-  <string name="go_onboarding_title_4">Começar a explorar</string>
-  <string name="go_onboarding_body_4">Não espere — encontre os favoritos antigos e busque novos no seu catálogo novo e massivo de faixas.</string>
   <string name="go_onboarding_start">Comece a ouvir</string>
   <string name="go_onboarding_retry">Falha no carregamento. Tentar novamente?</string>
   <string name="go_onboarding_error_dialog_title">Ocorreu um erro</string>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+
+    <item
+        android:duration="550"
+        android:drawable="@drawable/adfree_0" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_1" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_2" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_3" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_4" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_5" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_6" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_7" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_8" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_9" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_2" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_11" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_12" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_13" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_14" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_15" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_16" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_17" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_18" />
+
+    <item
+        android:duration="@integer/frame_20fps"
+        android:drawable="@drawable/adfree_0" />
+
+</animation-list>

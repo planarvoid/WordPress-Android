@@ -711,14 +711,6 @@
   <string name="offline_no_wifi">Sin Wi-Fi</string>
   <string name="offline_no_connection">Sin conexión</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_title_1">¡Bienvenido a SoundCloud\u00A0Go!</string>
-  <string name="go_onboarding_body_1">Ahora tienes acceso al creciente catálogo de SoundCloud Go, sin conexión y sin anuncios.</string>
-  <string name="go_onboarding_title_2">Reproduce pistas enteras</string>
-  <string name="go_onboarding_body_2">Con SoundCloud\u00A0Go, ahora todas las vistas previas son pistas completas.</string>
-  <string name="go_onboarding_title_3">Escucha sin conexión</string>
-  <string name="go_onboarding_body_3">Descarga listas, álbumes y todas las pistas que te\u00A0gustan.</string>
-  <string name="go_onboarding_title_4">Comienza a explorar</string>
-  <string name="go_onboarding_body_4">No esperes más: encuentra tus pistas favoritas de siempre y busca novedades en tu enorme nuevo catálogo.</string>
   <string name="go_onboarding_start">Empieza a escuchar</string>
   <string name="go_onboarding_retry">Error al cargar. ¿Volver a intentarlo?</string>
   <string name="go_onboarding_error_dialog_title">Algo ha ido mal</string>

@@ -2,17 +2,11 @@ package com.soundcloud.android.upgrade;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.images.BackgroundDecoder;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func0;
+import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
@@ -26,50 +20,50 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
 import java.util.WeakHashMap;
 
 class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
-    private final BackgroundDecoder backgroundDecoder;
+    private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap = new WeakHashMap<>(OnboardingPage.values().length);
+    private List<OnboardingPage> pages;
 
-    private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap =
-            new WeakHashMap<>(OnboardingPage.values().length - 1); // No animation on title page
+    private final FeatureFlags featureFlags;
 
     @Inject
-    GoOnboardingAdapter(BackgroundDecoder backgroundDecoder) {
-        this.backgroundDecoder = backgroundDecoder;
+    GoOnboardingAdapter(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
+    }
+
+    void configureContent(Plan plan) {
+        switch (plan) {
+            case MID_TIER:
+                pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS);
+                break;
+            default:
+                adaptContentForRebranding();
+        }
+    }
+
+    private void adaptContentForRebranding() {
+        if (featureFlags.isEnabled(Flag.MID_TIER)) {
+            pages = Arrays.asList(OnboardingPage.WELCOME_GO_PLUS, OnboardingPage.FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
+        } else {
+            pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.LEGACY_FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
+        }
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        switch (position) {
-            case 0:
-                return bindView(position, container, R.layout.go_onboarding_title_page, OnboardingPage.WELCOME);
-            case 1:
-                return bindView(position, container, R.layout.go_onboarding_page, OnboardingPage.FULL_TRACKS);
-            case 2:
-                return bindView(position, container, R.layout.go_onboarding_page, OnboardingPage.OFFLINE);
-            case 3:
-                return bindView(position, container, R.layout.go_onboarding_page, OnboardingPage.GO);
-            default:
-                throw new IllegalStateException("Unexpected index in " + GoOnboardingAdapter.class.getSimpleName());
-        }
+        return bindView(position, container, pages.get(position));
     }
 
-    private ViewGroup bindView(int position, ViewGroup parent, @LayoutRes int layout, OnboardingPage page) {
-        ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+    private ViewGroup bindView(int position, ViewGroup parent, OnboardingPage page) {
+        ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(page.layout, parent, false);
         bindBasicViews(position, page, view);
-        bindBackground(page, view);
         parent.addView(view);
         return view;
-    }
-
-    private void bindBackground(final OnboardingPage page, final ViewGroup view) {
-        Observable.fromCallable((Func0<Bitmap>) () -> backgroundDecoder.decode(page.background))
-        .subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER)
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new BackgroundSubscriber((ImageView) view.findViewById(R.id.go_onboarding_background)));
     }
 
     private void bindBasicViews(int position, OnboardingPage page, ViewGroup view) {
@@ -87,45 +81,17 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        ImageView imgView = ButterKnife.findById((View) object, R.id.go_onboarding_background);
-        BitmapDrawable drawable = (BitmapDrawable) imgView.getDrawable();
-        if (drawable != null && drawable.getBitmap() != null) {
-            drawable.getBitmap().recycle();
-        }
         container.removeView((View) object);
     }
 
     @Override
     public int getCount() {
-        return OnboardingPage.values().length;
+        return pages.size();
     }
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
-    }
-
-    private class BackgroundSubscriber extends DefaultSubscriber<Bitmap> {
-
-        private final WeakReference<ImageView> viewRef;
-
-        BackgroundSubscriber(ImageView view) {
-            this.viewRef = new WeakReference<>(view);
-        }
-
-        @Override
-        public void onNext(Bitmap bitmap) {
-            ImageView background = viewRef.get();
-            if (background != null && bitmap != null) {
-                background.setImageBitmap(bitmap);
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Log.e(getClass().getSimpleName(), "Failed to decode background: " + e.getMessage());
-            super.onError(e); // Log remotely
-        }
     }
 
     @Override
@@ -142,19 +108,21 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     public void onPageScrollStateChanged(int state) {}
 
     private enum OnboardingPage {
+        WELCOME_GO_PLUS(R.layout.go_onboarding_landing, R.drawable.go_onboarding_cloud, R.string.go_onboarding_landing_title, R.string.go_onboarding_landing_body),
+        WELCOME_GO(R.layout.go_onboarding_landing, R.drawable.go_onboarding_cloud, R.string.go_onboarding_landing_title_legacy, R.string.go_onboarding_landing_body),
+        FULL_TRACKS(R.layout.go_onboarding_page, R.drawable.go_onboarding_preview, R.string.go_onboarding_full_tracks_title, R.string.go_onboarding_full_tracks_body),
+        LEGACY_FULL_TRACKS(R.layout.go_onboarding_page, R.drawable.go_onboarding_preview_legacy, R.string.go_onboarding_full_tracks_title_legacy, R.string.go_onboarding_full_tracks_body_legacy),
+        NO_ADS(R.layout.go_onboarding_page, R.drawable.go_onboarding_no_ads, R.string.go_onboarding_no_ads_title, R.string.go_onboarding_no_ads_body),
+        OFFLINE(R.layout.go_onboarding_page, R.drawable.go_onboarding_offline, R.string.go_onboarding_offline_title, R.string.go_onboarding_offline_body),
+        START(R.layout.go_onboarding_page, R.drawable.go_onboarding_heartburst, R.string.go_onboarding_start_title, R.string.go_onboarding_start_body);
 
-        WELCOME(R.drawable.go_onboarding_1, R.drawable.conversion_cloud,  R.string.go_onboarding_title_1, R.string.go_onboarding_body_1),
-        FULL_TRACKS(R.drawable.go_onboarding_2, R.drawable.go_onboarding_previewpeel, R.string.go_onboarding_title_2, R.string.go_onboarding_body_2),
-        OFFLINE(R.drawable.go_onboarding_3, R.drawable.go_onboarding_offline, R.string.go_onboarding_title_3, R.string.go_onboarding_body_3),
-        GO(R.drawable.go_onboarding_4, R.drawable.go_onboarding_heartburst, R.string.go_onboarding_title_4, R.string.go_onboarding_body_4);
-
-        final int background;
+        final int layout;
         final int tooltip;
         final int title;
         final int body;
 
-        OnboardingPage(@DrawableRes int background, @DrawableRes int tooltip, @StringRes int title, @StringRes int body) {
-            this.background = background;
+        OnboardingPage(@LayoutRes int layout, @DrawableRes int tooltip, @StringRes int title, @StringRes int body) {
+            this.layout = layout;
             this.tooltip = tooltip;
             this.title = title;
             this.body = body;
