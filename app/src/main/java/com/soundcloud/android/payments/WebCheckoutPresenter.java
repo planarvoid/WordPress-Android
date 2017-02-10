@@ -10,7 +10,9 @@ import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LocaleFormatter;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -152,9 +154,19 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void trackPurchase() {
         final WebProduct product = getProductFromIntent();
-        if (product != null && Plan.fromId(product.getPlanId()) == Plan.HIGH_TIER) {
-            eventBus.publish(EventQueue.TRACKING,
-                             PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
+        if (product == null) {
+            Log.e("Dropping purchase tracking event: no product found in Intent!?");
+            return;
+        }
+        switch (Plan.fromId(product.getPlanId())) {
+            case MID_TIER:
+                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forMidTierSub(product.getRawPrice(), product.getRawCurrency()));
+                break;
+            case HIGH_TIER:
+                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
+                break;
+            default:
+                ErrorUtils.handleSilentException(new IllegalStateException("Dropping purchase tracking event: failed to resolve tier from product"));
         }
     }
 

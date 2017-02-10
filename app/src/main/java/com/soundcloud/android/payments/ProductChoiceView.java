@@ -7,7 +7,8 @@ abstract class ProductChoiceView {
     abstract void setupContent(View view, AvailableWebProducts products, Listener listener);
 
     interface Listener {
-        void onPurchaseProduct(WebProduct product);
+        void onBuyImpression(WebProduct product);
+        void onBuyClick(WebProduct product);
         void onRestrictionsClick(WebProduct product);
     }
 

@@ -41,17 +41,26 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksPurchase() {
+    public void tracksMidTierPurchase() {
+        PurchaseEvent purchase = PurchaseEvent.forMidTierSub("5.99", "USD");
+
+        adjustAnalyticsProvider.handleTrackingEvent(purchase);
+
+        verify(adjustWrapper).trackPurchase(PurchaseEvent.Subscription.MID_TIER.adjustToken(), "5.99", "USD");
+    }
+
+    @Test
+    public void tracksHighTierPurchase() {
         PurchaseEvent purchase = PurchaseEvent.forHighTierSub("9.99", "USD");
 
         adjustAnalyticsProvider.handleTrackingEvent(purchase);
 
-        verify(adjustWrapper).trackPurchase("1n0o91", "9.99", "USD");
+        verify(adjustWrapper).trackPurchase(PurchaseEvent.Subscription.HIGH_TIER.adjustToken(), "9.99", "USD");
     }
 
     @Test
     public void tracksConversionImpression() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeButtonImpression();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionBuyButtonImpression();
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 
@@ -60,7 +69,7 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromoConversionImpression() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoImpression();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionPromoImpression();
 
         adjustAnalyticsProvider.handleTrackingEvent(event);
 

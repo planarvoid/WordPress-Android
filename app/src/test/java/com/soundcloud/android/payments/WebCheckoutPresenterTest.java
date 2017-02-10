@@ -60,7 +60,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadsFormOnCreate() {
-        setupIntentWithProduct();
+        setupIntentWithProduct(TestProduct.highTier());
         presenter.onCreate(activity, null);
 
         verify(view).loadUrl(any(String.class));
@@ -68,7 +68,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadsFormOnRetry() {
-        setupIntentWithProduct();
+        setupIntentWithProduct(TestProduct.highTier());
         presenter.onCreate(activity, null);
 
         presenter.onRetry();
@@ -109,7 +109,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void paymentErrorsShouldBeTracked() {
-        setupIntentWithProduct();
+        setupIntentWithProduct(TestProduct.highTier());
         presenter.onCreate(activity, null);
         final String errorType = "KHAAAAAAAAAAAAAAAAAAAN";
         presenter.onPaymentError(errorType);
@@ -119,8 +119,19 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void successfulPaymentTriggersAccountUpgrade() {
-        setupIntentWithProduct();
+    public void successfulMidTierPaymentTriggersAccountUpgrade() {
+        setupIntentWithProduct(TestProduct.midTier());
+        presenter.onCreate(activity, null);
+
+        presenter.onPaymentSuccess();
+
+        verify(pendingPlanOperations).setPendingUpgrade(Plan.MID_TIER);
+        verify(navigator).resetForAccountUpgrade(eq(activity));
+    }
+
+    @Test
+    public void successfulHighTierPaymentTriggersAccountUpgrade() {
+        setupIntentWithProduct(TestProduct.highTier());
         presenter.onCreate(activity, null);
 
         presenter.onPaymentSuccess();
@@ -130,8 +141,18 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void successfulPaymentTracksPurchaseForMidTierSub() {
+        setupIntentWithProduct(TestProduct.midTier());
+        presenter.onCreate(activity, null);
+
+        presenter.onPaymentSuccess();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(PurchaseEvent.Subscription.MID_TIER.toString());
+    }
+
+    @Test
     public void successfulPaymentTracksPurchaseForHighTierSub() {
-        setupIntentWithProduct();
+        setupIntentWithProduct(TestProduct.highTier());
         presenter.onCreate(activity, null);
 
         presenter.onPaymentSuccess();
@@ -187,8 +208,8 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         assertThat(actual).isEqualTo(expected);
     }
 
-    private void setupIntentWithProduct() {
-        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebCheckoutPresenter.PRODUCT_INFO, TestProduct.highTier()));
+    private void setupIntentWithProduct(WebProduct product) {
+        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebCheckoutPresenter.PRODUCT_INFO, product));
     }
 
 }

@@ -61,7 +61,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     public void onPurchasePrimary() {
         subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
         conversionView.showLoadingState();
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionBuyButtonClick());
     }
 
     @Override
@@ -156,7 +156,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
             if (result.isSuccess()) {
                 details = result.getDetails();
                 conversionView.showDetails(details.getPrice());
-                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionBuyButtonImpression());
             } else {
                 paymentErrorPresenter.showConnectionError();
             }

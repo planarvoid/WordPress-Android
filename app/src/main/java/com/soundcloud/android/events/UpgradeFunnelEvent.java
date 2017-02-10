@@ -113,9 +113,11 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
         STREAM(1027),
         COLLECTION(1052),
         PLAYLIST_TRACKS(1042),
-        UPGRADE_BUTTON(3002),
-        UPGRADE_PROMO(4007),
-        RESUBSCRIBE_BUTTON(4002);
+        CONVERSION_BUY(3002),
+        CONVERSION_PROMO(4007),
+        RESUBSCRIBE_BUTTON(4002),
+        CHOOSER_BUY_MID_TIER(3009),
+        CHOOSER_BUY_HIGH_TIER(3011);
 
         private final int code;
 
@@ -370,28 +372,52 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forUpgradeButtonImpression() {
-        return UpgradeFunnelEvent.fromUpsellImpression(TCode.UPGRADE_BUTTON)
+    public static UpgradeFunnelEvent forConversionBuyButtonImpression() {
+        return UpgradeFunnelEvent.fromUpsellImpression(TCode.CONVERSION_BUY)
                                  .adjustToken(Optional.of(AdjustToken.CONVERSION))
                                  .pageName(Optional.of(Screen.CONVERSION.get()))
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forUpgradeButtonClick() {
-        return UpgradeFunnelEvent.fromUpsellClick(TCode.UPGRADE_BUTTON)
+    public static UpgradeFunnelEvent forConversionBuyButtonClick() {
+        return UpgradeFunnelEvent.fromUpsellClick(TCode.CONVERSION_BUY)
                                  .pageName(Optional.of(Screen.CONVERSION.get()))
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forUpgradePromoImpression() {
-        return UpgradeFunnelEvent.fromUpsellImpression(TCode.UPGRADE_PROMO)
+    public static UpgradeFunnelEvent forChooserBuyMidTierImpression() {
+        return UpgradeFunnelEvent.fromUpsellImpression(TCode.CHOOSER_BUY_MID_TIER)
+                                 .pageName(Optional.of(Screen.PLAN_CHOICE.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forChooserBuyMidTierClick() {
+        return UpgradeFunnelEvent.fromUpsellClick(TCode.CHOOSER_BUY_MID_TIER)
+                                 .pageName(Optional.of(Screen.PLAN_CHOICE.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forChooserBuyHighTierImpression() {
+        return UpgradeFunnelEvent.fromUpsellImpression(TCode.CHOOSER_BUY_HIGH_TIER)
+                                 .pageName(Optional.of(Screen.PLAN_CHOICE.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forChooserBuyHighTierClick() {
+        return UpgradeFunnelEvent.fromUpsellClick(TCode.CHOOSER_BUY_HIGH_TIER)
+                                 .pageName(Optional.of(Screen.PLAN_CHOICE.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forConversionPromoImpression() {
+        return UpgradeFunnelEvent.fromUpsellImpression(TCode.CONVERSION_PROMO)
                                  .adjustToken(Optional.of(AdjustToken.PROMO))
                                  .pageName(Optional.of(Screen.CONVERSION.get()))
                                  .build();
     }
 
-    public static UpgradeFunnelEvent forUpgradePromoClick() {
-        return UpgradeFunnelEvent.fromUpsellClick(TCode.UPGRADE_PROMO)
+    public static UpgradeFunnelEvent forConversionPromoClick() {
+        return UpgradeFunnelEvent.fromUpsellClick(TCode.CONVERSION_PROMO)
                                  .pageName(Optional.of(Screen.CONVERSION.get()))
                                  .build();
     }

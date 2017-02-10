@@ -1,7 +1,12 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 
 import android.content.Intent;
@@ -19,14 +24,19 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final Lazy<ProductChoicePagerView> pagerView;
     private final Lazy<ProductChoiceScrollView> scrollView;
     private final ProductInfoFormatter formatter;
+    private final EventBus eventBus;
 
     private AppCompatActivity activity;
 
     @Inject
-    ProductChoicePresenter(Lazy<ProductChoicePagerView> pagerView, Lazy<ProductChoiceScrollView> scrollView, ProductInfoFormatter formatter) {
+    ProductChoicePresenter(Lazy<ProductChoicePagerView> pagerView,
+                           Lazy<ProductChoiceScrollView> scrollView,
+                           ProductInfoFormatter formatter,
+                           EventBus eventBus) {
         this.pagerView = pagerView;
         this.scrollView = scrollView;
         this.formatter = formatter;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -51,9 +61,41 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     @Override
-    public void onPurchaseProduct(WebProduct product) {
+    public void onBuyImpression(WebProduct product) {
+        switch (Plan.fromId(product.getPlanId())) {
+            case MID_TIER:
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forChooserBuyMidTierImpression());
+                break;
+            case HIGH_TIER:
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forChooserBuyHighTierImpression());
+                break;
+            default:
+                logTrackingError();
+        }
+    }
+
+    @Override
+    public void onBuyClick(WebProduct product) {
         startWebCheckout(product);
+        trackBuyButtonClick(product);
         activity.finish();
+    }
+
+    private void trackBuyButtonClick(WebProduct product) {
+        switch (Plan.fromId(product.getPlanId())) {
+            case MID_TIER:
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forChooserBuyMidTierClick());
+                break;
+            case HIGH_TIER:
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forChooserBuyHighTierClick());
+                break;
+            default:
+                logTrackingError();
+        }
+    }
+
+    private void logTrackingError() {
+        ErrorUtils.handleSilentException(new IllegalStateException("Dropping funnel tracking event: failed to resolve tier from product"));
     }
 
     @Override

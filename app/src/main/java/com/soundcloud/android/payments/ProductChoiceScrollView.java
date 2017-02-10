@@ -32,8 +32,9 @@ class ProductChoiceScrollView extends ProductChoiceView {
     }
 
     private void configureBuyButton(WebProduct product, Button buyButton, Listener listener) {
+        listener.onBuyImpression(product);
         buyButton.setText(formatter.configuredBuyButton(product));
-        buyButton.setOnClickListener(v -> listener.onPurchaseProduct(product));
+        buyButton.setOnClickListener(v -> listener.onBuyClick(product));
     }
 
     private void configureRestrictions(WebProduct product, TextView restrictions, Listener listener) {

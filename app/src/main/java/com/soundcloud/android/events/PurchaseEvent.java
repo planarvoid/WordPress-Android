@@ -7,6 +7,7 @@ import com.soundcloud.java.optional.Optional;
 public abstract class PurchaseEvent extends NewTrackingEvent {
 
     public enum Subscription {
+        MID_TIER("cn058f"),
         HIGH_TIER("1n0o91");
 
         private final String adjustToken;
@@ -18,6 +19,10 @@ public abstract class PurchaseEvent extends NewTrackingEvent {
         public String adjustToken() {
             return adjustToken;
         }
+    }
+
+    public static PurchaseEvent forMidTierSub(String rawPrice, String rawCurrency) {
+        return new AutoValue_PurchaseEvent(defaultId(), defaultTimestamp(), Optional.absent(), Subscription.MID_TIER, rawPrice, rawCurrency);
     }
 
     public static PurchaseEvent forHighTierSub(String rawPrice, String rawCurrency) {

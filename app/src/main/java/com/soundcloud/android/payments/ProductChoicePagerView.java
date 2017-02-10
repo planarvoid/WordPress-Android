@@ -51,8 +51,9 @@ class ProductChoicePagerView extends ProductChoiceView implements ViewPager.OnPa
     }
 
     private void configureButtons(WebProduct product) {
+        listener.onBuyImpression(product);
         buyButton.setText(formatter.configuredBuyButton(product));
-        buyButton.setOnClickListener(v -> listener.onPurchaseProduct(product));
+        buyButton.setOnClickListener(v -> listener.onBuyClick(product));
         restrictions.setText(formatter.configuredRestrictionsText(product));
         restrictions.setOnClickListener(v -> listener.onRestrictionsClick(product));
     }

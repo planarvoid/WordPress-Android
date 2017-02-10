@@ -91,12 +91,12 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void displayPromo(WebProduct product) {
         checkNotNull(product.getPromoPrice());
         view.showPromo(product.getPromoPrice().get(), product.getPromoDays(), product.getPrice());
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradePromoImpression());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionPromoImpression());
     }
 
     private void displayDefault(WebProduct product) {
         view.showDetails(product.getDiscountPrice().or(product.getPrice()), product.getTrialDays());
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionBuyButtonImpression());
     }
 
     private void loadProducts() {
@@ -125,8 +125,8 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void startWebCheckout(WebProduct product) {
         eventBus.publish(EventQueue.TRACKING, product.hasPromo()
-                ? UpgradeFunnelEvent.forUpgradePromoClick()
-                : UpgradeFunnelEvent.forUpgradeButtonClick());
+                ? UpgradeFunnelEvent.forConversionPromoClick()
+                : UpgradeFunnelEvent.forConversionBuyButtonClick());
 
         final Intent intent = new Intent(activity, WebCheckoutActivity.class);
         intent.putExtra(WebCheckoutPresenter.PRODUCT_INFO, product);

@@ -213,34 +213,34 @@ public class UpgradeFunnelEventTest {
 
     @Test
     public void createsEventForUpgradeButtonImpression() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeButtonImpression();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionBuyButtonImpression();
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
-        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_BUTTON.toString());
+        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CONVERSION_BUY.toString());
     }
 
     @Test
     public void createsEventForUpgradeButtonClick() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeButtonClick();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionBuyButtonClick();
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_BUTTON.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CONVERSION_BUY.toString());
     }
 
     @Test
     public void createsEventForPromoButtonImpression() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoImpression();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionPromoImpression();
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
-        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_PROMO.toString());
+        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CONVERSION_PROMO.toString());
     }
 
     @Test
     public void createsEventForPromoButtonClick() {
-        UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradePromoClick();
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionPromoClick();
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.UPGRADE_PROMO.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CONVERSION_PROMO.toString());
     }
 
     @Test
