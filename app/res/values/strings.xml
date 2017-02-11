@@ -741,6 +741,9 @@
     <string name="conversion_restrictions_message_no_trial">Either this subscription does not have a trial, you have already used your free trial or are a resident of Quebec and are not eligible for a trial due to local restrictions.\n\nBy purchasing a subscription, you will be charged the current regular price per month (including applicable local sales taxes) unless cancelled before your next renewal date.</string>
     <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
     <string name="ads_why_ads_upsell_dialog_message">Every time you see or hear an ad, artists get paid. They’re how we keep SoundCloud free for listeners.\n\nWant to lose the interruptions? Go ad‑free and continue to support your favorite artists with a subscription.</string>
+    <string name="plan_conversion_error_dialog_title">Unable to change plans</string>
+    <string name="plan_conversion_error_message_generic">Something went wrong and we are unable to change your plan at this time. Please contact our community support team.</string>
+    <string name="plan_conversion_error_message_apple">You are currently on an Apple iTunes Subscription. To be able to change plans, you need to first end your Apple iTunes Subscription in the App Store.</string>
 
     <!-- PRODUCT_CHOICE -->
     <string name="product_choice_line_1_mid">Discover, stream and share a constantly expanding mix of music from established and emerging artists</string>

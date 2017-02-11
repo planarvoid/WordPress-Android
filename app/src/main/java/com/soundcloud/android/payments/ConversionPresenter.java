@@ -1,7 +1,10 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.payments.error.PlanConversionErrorDialog.createWithMessage;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -13,15 +16,17 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialogFragment;
 
 import javax.inject.Inject;
 
 class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
+
+    private static final String PLAN_CONVERSION_ERROR_DIALOG_TAG = "plan_conversion_error_dialog";
 
     @VisibleForTesting
     static final String LOADED_PRODUCTS = "available_products";
@@ -30,20 +35,23 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final ConversionView view;
     private final EventBus eventBus;
     private final FeatureFlags featureFlags;
+    private final FeatureOperations featureOperations;
 
     private Subscription subscription = RxUtils.invalidSubscription();
     private AvailableWebProducts products = AvailableWebProducts.empty();
-    private Activity activity;
+    private AppCompatActivity activity;
 
     @Inject
     ConversionPresenter(WebPaymentOperations operations,
                         ConversionView view,
                         EventBus eventBus,
-                        FeatureFlags featureFlags) {
+                        FeatureFlags featureFlags,
+                        FeatureOperations featureOperations) {
         this.operations = operations;
         this.view = view;
         this.eventBus = eventBus;
         this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -109,7 +117,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     @Override
     public void onPurchasePrimary() {
         if (products.highTier().isPresent()) {
-            startWebCheckout(products.highTier().get());
+            attemptWebCheckout(products.highTier().get());
         } else {
             loadProducts();
         }
@@ -123,6 +131,14 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         activity.finish();
     }
 
+    private void attemptWebCheckout(WebProduct product) {
+        if (featureOperations.isPlanManageable()) {
+            startWebCheckout(product);
+        } else {
+            showPlanConversionErrorDialog();
+        }
+    }
+
     private void startWebCheckout(WebProduct product) {
         eventBus.publish(EventQueue.TRACKING, product.hasPromo()
                 ? UpgradeFunnelEvent.forConversionPromoClick()
@@ -132,6 +148,18 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         intent.putExtra(WebCheckoutPresenter.PRODUCT_INFO, product);
         activity.startActivity(intent);
         activity.finish();
+    }
+
+    private void showPlanConversionErrorDialog() {
+        if (featureOperations.isPlanVendorApple()) {
+            showDialog(createWithMessage(activity.getString(R.string.plan_conversion_error_message_apple)));
+        } else {
+            showDialog(createWithMessage(activity.getString(R.string.plan_conversion_error_message_generic)));
+        }
+    }
+
+    private void showDialog(AppCompatDialogFragment dialogFragment) {
+        dialogFragment.show(activity.getSupportFragmentManager(), PLAN_CONVERSION_ERROR_DIALOG_TAG);
     }
 
     private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {

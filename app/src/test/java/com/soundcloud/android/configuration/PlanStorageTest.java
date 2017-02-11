@@ -6,6 +6,7 @@ import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,6 +38,32 @@ public class PlanStorageTest extends AndroidUnitTest {
     @Test
     public void returnsUndefinedIfNotSet() {
         assertThat(storage.getPlan()).isEqualTo(Plan.UNDEFINED);
+    }
+
+    @Test
+    public void shouldUpdateManageableValue() {
+        storage.updateManageable(true);
+
+        assertThat(storage.isManageable()).isTrue();
+    }
+
+    @Test
+    public void shouldUpdateVendorValueIfPresent() {
+        Optional<String> vendor = Optional.of("apple");
+        storage.updateVendor(vendor);
+        assertThat(storage.getVendor()).isEqualTo(vendor.get());
+    }
+
+    @Test
+    public void shouldNotUpdateVendorValueIfAbsent() {
+        Optional<String> vendor = Optional.absent();
+        storage.updateVendor(vendor);
+        assertThat(storage.getVendor()).isEmpty();
+    }
+
+    @Test
+    public void shouldReturnEmptyStringIfVendorValueNotSet() {
+        assertThat(storage.getVendor()).isEmpty();
     }
 
     @Test

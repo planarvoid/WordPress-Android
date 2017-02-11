@@ -5,6 +5,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -15,11 +17,13 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowDialog;
 import rx.Observable;
 
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,13 +40,16 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Mock private WebPaymentOperations paymentOperations;
     @Mock private ConversionView view;
     @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
 
     private AppCompatActivity activity = activity();
     private ConversionPresenter presenter;
 
     @Before
     public void setUp() {
-        presenter = new ConversionPresenter(paymentOperations, view, eventBus, featureFlags);
+        when(featureOperations.isPlanManageable()).thenReturn(true);
+
+        presenter = new ConversionPresenter(paymentOperations, view, eventBus, featureFlags, featureOperations);
     }
 
     @Test
@@ -92,6 +99,32 @@ public class ConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(view).showRetryState();
+    }
+
+    @Test
+    public void showsPlanConversionErrorDialogForAppleError() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureOperations.isPlanManageable()).thenReturn(false);
+        when(featureOperations.isPlanVendorApple()).thenReturn(true);
+
+        presenter.onCreate(activity, null);
+        presenter.onPurchasePrimary();
+
+        assertDialogMessage(resources().getString(R.string.plan_conversion_error_message_apple));
+    }
+
+    @Test
+    public void showsPlanConversionErrorDialogForGenericError() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureOperations.isPlanManageable()).thenReturn(false);
+        when(featureOperations.isPlanVendorApple()).thenReturn(false);
+
+        presenter.onCreate(activity, null);
+        presenter.onPurchasePrimary();
+
+        assertDialogMessage(resources().getString(R.string.plan_conversion_error_message_generic));
     }
 
     @Test
@@ -162,6 +195,11 @@ public class ConversionPresenterTest extends AndroidUnitTest {
                 .nextStartedIntent()
                 .containsExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, DEFAULT)
                 .opensActivity(ProductChoiceActivity.class);
+    }
+
+    private void assertDialogMessage(String message) {
+        TextView messageTextView = (TextView) ShadowDialog.getLatestDialog().findViewById(R.id.custom_dialog_body);
+        assertThat(messageTextView.getText()).isEqualTo(message);
     }
 
 }

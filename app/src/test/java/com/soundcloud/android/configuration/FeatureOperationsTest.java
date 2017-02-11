@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,6 +159,34 @@ public class FeatureOperationsTest {
         when(planStorage.getPlan()).thenReturn(Plan.HIGH_TIER);
 
         assertThat(featureOperations.getCurrentPlan()).isEqualTo(Plan.HIGH_TIER);
+    }
+
+    @Test
+    public void shouldReturnTrueIfPlanIsManageable() {
+        when(planStorage.isManageable()).thenReturn(true);
+
+        assertThat(featureOperations.isPlanManageable()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfPlanIsNotManageable() {
+        when(planStorage.isManageable()).thenReturn(false);
+
+        assertThat(featureOperations.isPlanManageable()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnTrueIfPlanVendorIsApple() {
+        when(planStorage.getVendor()).thenReturn("apple");
+
+        assertThat(featureOperations.isPlanVendorApple()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfPlanVendorIsNotApple() {
+        when(planStorage.getVendor()).thenReturn(Strings.EMPTY);
+
+        assertThat(featureOperations.isPlanVendorApple()).isFalse();
     }
 
     @Test

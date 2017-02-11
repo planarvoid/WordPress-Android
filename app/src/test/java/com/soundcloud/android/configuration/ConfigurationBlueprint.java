@@ -6,6 +6,7 @@ import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
@@ -19,7 +20,7 @@ public class ConfigurationBlueprint {
         public Object createInstance() {
             return Configuration.builder()
                                 .features(createFeatures())
-                                .userPlan(new UserPlan("free", Collections.singletonList(new Upsell("high_tier", 30))))
+                                .userPlan(new UserPlan("free", true, Optional.absent(), Collections.singletonList(new Upsell("high_tier", 30))))
                                 .assignment(new Assignment(createLayers()))
                                 .deviceManagement(new DeviceManagement(false, true))
                                 .selfDestruct(false)

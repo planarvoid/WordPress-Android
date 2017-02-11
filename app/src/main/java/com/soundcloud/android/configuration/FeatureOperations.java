@@ -10,6 +10,8 @@ import java.util.List;
 
 public class FeatureOperations {
 
+    private static final String PLAN_VENDOR_APPLE = "apple";
+
     private final FeatureStorage featureStorage;
     private final PlanStorage planStorage;
     private final ApplicationProperties applicationProperties;
@@ -29,11 +31,21 @@ public class FeatureOperations {
 
     void updatePlan(UserPlan userPlan) {
         planStorage.updatePlan(userPlan.currentPlan);
+        planStorage.updateManageable(userPlan.manageable);
+        planStorage.updateVendor(userPlan.vendor);
         planStorage.updateUpsells(userPlan.planUpsells);
     }
 
     public Plan getCurrentPlan() {
         return planStorage.getPlan();
+    }
+
+    public boolean isPlanManageable() {
+        return planStorage.isManageable();
+    }
+
+    public boolean isPlanVendorApple() {
+        return PLAN_VENDOR_APPLE.equals(planStorage.getVendor());
     }
 
     public boolean shouldUseKruxForAdTargeting() {

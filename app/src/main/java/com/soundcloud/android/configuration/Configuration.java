@@ -6,6 +6,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,7 @@ public abstract class Configuration {
     public static Builder builder() {
         return new AutoValue_Configuration.Builder()
                 .features(Collections.emptyList())
-                .userPlan(new UserPlan(Plan.FREE_TIER.planId, Collections.emptyList()))
+                .userPlan(new UserPlan(Plan.FREE_TIER.planId, true, Optional.absent(), Collections.emptyList()))
                 .assignment(Assignment.empty())
                 .deviceManagement(new DeviceManagement(true, false))
                 .selfDestruct(false)
