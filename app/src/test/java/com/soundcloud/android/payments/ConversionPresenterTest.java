@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -165,7 +166,8 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void moreProductsButtonEnabledWhenMidTierIsAvailable() {
+    public void moreProductsButtonEnabledWhenUserIsFreeTierAndMidTierIsAvailable() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
         when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
 
