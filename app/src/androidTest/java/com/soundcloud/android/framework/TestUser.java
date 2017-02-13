@@ -172,7 +172,7 @@ public class TestUser {
             "sctestoffline-mt",
             "soundcloud.Android.sctestoffline-mt@tests.soundcloud",
             "SoundCloudTest2016",
-            "1-8742-286124072-e9a876583339bf8",
+            "1-21686-286124072-700aa08157abf4",
             286124072,
             true);
     public static final TestUser upsellUser = new TestUser(
