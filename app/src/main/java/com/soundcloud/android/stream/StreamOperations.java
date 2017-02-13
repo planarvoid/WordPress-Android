@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.ads.StreamAdsController;
@@ -18,7 +19,6 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -30,12 +30,11 @@ import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
-public class StreamOperations extends TimelineOperations<StreamItem, StreamPlayable> {
+public class StreamOperations extends TimelineOperations<StreamEntity, StreamItem> {
 
     private final StreamStorage streamStorage;
     private final EventBus eventBus;
@@ -48,6 +47,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
+    private final StreamEntityToItemTransformer streamEntityToItemTransformer;
 
     private static boolean isSuggestedCreatorsNotification(Optional<? extends StreamItem> notificationItemOptional) {
         return notificationItemOptional.isPresent() && notificationItemOptional.get().kind() == Kind.SUGGESTED_CREATORS;
@@ -66,7 +66,8 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
                      InlineUpsellOperations upsellOperations,
                      SyncStateStorage syncStateStorage,
                      StreamHighlightsOperations streamHighlightsOperations,
-                     SuggestedCreatorsOperations suggestedCreatorsOperations) {
+                     SuggestedCreatorsOperations suggestedCreatorsOperations,
+                     StreamEntityToItemTransformer streamEntityToItemTransformer) {
         super(Syncable.SOUNDSTREAM,
               streamStorage,
               syncInitiator,
@@ -83,16 +84,12 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
         this.streamHighlightsOperations = streamHighlightsOperations;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
+        this.streamEntityToItemTransformer = streamEntityToItemTransformer;
     }
 
     @Override
-    protected List<StreamItem> toViewModels(List<StreamPlayable> streamPlayables) {
-        final List<StreamItem> items = new ArrayList<>(streamPlayables.size());
-
-        for (StreamPlayable streamPlayable : streamPlayables) {
-            items.add(StreamItem.fromStreamPlayable(streamPlayable));
-        }
-        return items;
+    protected Observable<List<StreamItem>> toViewModels(List<StreamEntity> streamEntities) {
+        return streamEntityToItemTransformer.call(streamEntities);
     }
 
     Observable<List<StreamItem>> initialStreamItems() {
@@ -236,7 +233,7 @@ public class StreamOperations extends TimelineOperations<StreamItem, StreamPlaya
 
     private static List<StreamItem> addNotificationItemToStream(List<StreamItem> streamItems,
                                                                 Optional<? extends StreamItem> notificationItemOptional) {
-        List<StreamItem> result = Lists.newArrayList(streamItems);
+        List<StreamItem> result = newArrayList(streamItems);
         if (isSuggestedCreatorsNotification(notificationItemOptional) || !streamItems.isEmpty()) {
             result.addAll(0, notificationItemOptional.asSet());
         }

@@ -99,6 +99,7 @@ public class TrackStorage {
     Observable<Map<Urn, Track>> loadTracks(List<Urn> urns) {
         return batchedTracks(urns).toList()
                                   .map(this::toMapOfUrnAndTrack)
+                                  .doOnError(error -> error.printStackTrace())
                                   .firstOrDefault(Collections.emptyMap());
     }
 

@@ -8,12 +8,14 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
-import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.android.stream.SoundStreamProperty;
+import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.java.collections.Property;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -66,6 +68,29 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
     private boolean isPlaying;
 
     public static TrackItem from(Track track) {
+        return new TrackItem(toPropertySet(track));
+    }
+
+    public static TrackItem fromTrackAndStreamEntity(Track track, StreamEntity streamEntity) {
+        final PropertySet source = toPropertySet(track, streamEntity);
+        return new TrackItem(source);
+    }
+
+    protected static PropertySet toPropertySet(Track track, StreamEntity streamEntity) {
+        final PropertySet source = toPropertySet(track);
+        if (streamEntity.reposter().isPresent()) {
+            source.put(PostProperty.REPOSTER, streamEntity.reposter().get());
+        }
+        if (streamEntity.reposterUrn().isPresent()) {
+            source.put(PostProperty.REPOSTER_URN, streamEntity.reposterUrn().get());
+        }
+        if (streamEntity.avatarUrl().isPresent()) {
+            source.put(SoundStreamProperty.AVATAR_URL_TEMPLATE, streamEntity.avatarUrl());
+        }
+        return source;
+    }
+
+    protected static PropertySet toPropertySet(Track track) {
         final PropertySet propertySet = PropertySet.from(
                 TrackProperty.URN.bind(track.urn()),
                 TrackProperty.TITLE.bind(track.title()),
@@ -99,8 +124,7 @@ public class TrackItem extends PlayableItem implements TieredTrack, UpdatableTra
         if (track.description().isPresent()) {
             propertySet.put(TrackProperty.DESCRIPTION, track.description().get());
         }
-
-        return new TrackItem(propertySet);
+        return propertySet;
     }
 
     public static Map<Urn, TrackItem> convertMap(Map<Urn, Track> map) {

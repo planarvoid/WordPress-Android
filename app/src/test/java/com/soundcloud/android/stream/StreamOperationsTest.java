@@ -4,13 +4,15 @@ import static com.soundcloud.android.stream.StreamItem.forFacebookCreatorInvites
 import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
 import static com.soundcloud.android.stream.StreamItem.forStationOnboarding;
 import static com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithChange;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.empty;
-import static rx.Observable.from;
+import static rx.Observable.just;
 
 import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.events.EventQueue;
@@ -21,17 +23,22 @@ import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
-import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
+import com.soundcloud.android.users.User;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -48,9 +55,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable, StreamItem, StreamStorage> {
+public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, StreamItem, StreamStorage> {
 
-    private final StreamItem SUGGESTED_CREATORS_ITEM = StreamItem.forSuggestedCreators(Lists.<SuggestedCreator>newArrayList());
+    private final StreamItem SUGGESTED_CREATORS_ITEM = StreamItem.forSuggestedCreators(Lists.newArrayList());
     private StreamOperations operations;
 
     @Mock private StreamStorage streamStorage;
@@ -63,32 +70,38 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Mock private InlineUpsellOperations upsellOperations;
     @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
     @Mock private StreamHighlightsOperations streamHighlightsOperations;
+    @Mock private StreamEntityToItemTransformer streamEntityToItemTransformer;
 
     private TestEventBus eventBus = new TestEventBus();
 
-    private final StreamPlayable promotedStreamTrack = StreamPlayable.createFromPlayable(new Date(), TestPropertySets.expectedPromotedTrack());
-    private final StreamPlayable upsellableStreamTrack = StreamPlayable.createFromPlayable(new Date(), TestPropertySets.upsellableTrack());
+    private final User promoter = ModelFixtures.user();
+    private final Track promotedTrack = ModelFixtures.track();
+    private final PromotedTrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(promotedTrack, promoter);
+    private final StreamEntity promotedStreamTrack = fromPromotedTrackItem(new Date(), promotedTrackItem);
+    private final TrackItem upsellableTrack = TestPropertySets.upsellableTrack();
+    private final StreamEntity upsellableStreamTrack = builderFromTrackItem(new Date(), upsellableTrack).build();
 
     @Before
     public void setUp() throws Exception {
-        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
+        when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(just(Collections.emptyList()));
         when(facebookInvitesOperations.creatorInvites()).thenReturn(empty());
         when(facebookInvitesOperations.listenerInvites()).thenReturn(empty());
         when(stationsOperations.onboardingStreamItem()).thenReturn(empty());
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(empty());
         when(streamHighlightsOperations.highlights()).thenReturn(empty());
+        when(streamEntityToItemTransformer.call(eq(emptyList()))).thenReturn(Observable.just(emptyList()));
         this.operations = (StreamOperations) super.operations;
     }
 
     @Override
-    protected TimelineOperations<StreamItem, StreamPlayable> buildOperations(StreamStorage storage,
-                                                                             SyncInitiator syncInitiator,
-                                                                             Scheduler scheduler,
-                                                                             SyncStateStorage syncStateStorage) {
+    protected TimelineOperations<StreamEntity, StreamItem> buildOperations(StreamStorage storage,
+                                                                           SyncInitiator syncInitiator,
+                                                                           Scheduler scheduler,
+                                                                           SyncStateStorage syncStateStorage) {
         return new StreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                     markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
                                     streamAdsController, stationsOperations, upsellOperations, syncStateStorage,
-                                    streamHighlightsOperations, suggestedCreatorsOperations);
+                                    streamHighlightsOperations, suggestedCreatorsOperations, streamEntityToItemTransformer);
     }
 
     @Override
@@ -103,12 +116,10 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void streamIsConsideredEmptyWhenOnlyPromotedTrackIsReturnedAndDoesNotSyncAgain() {
-        // 1st page comes back blank first, then includes promoted track only
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.just(promotedStreamTrack));
+        // 1st page comes back blank first, then includes promoted promotedTrack only
+        initWithTrack();
         // returning true means successful sync
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -116,17 +127,15 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         inOrder.verify(streamStorage).timelineItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).sync(Syncable.SOUNDSTREAM);
         inOrder.verify(streamStorage).timelineItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
+        inOrder.verify(observer).onNext(Collections.emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
 
     @Test
     public void showsSuggestedCreatorsWhenOnlyPromotedTrackIsReturned() {
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.just(promotedStreamTrack));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithTrack();
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         initSuggestedCreatorsItem();
 
@@ -136,9 +145,9 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void showsSuggestedCreatorsWhenNoTracksAreReturned() {
         when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.<StreamPlayable>empty());
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+                .thenReturn(Observable.empty())
+                .thenReturn(Observable.empty());
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         initSuggestedCreatorsItem();
 
@@ -147,8 +156,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void showsSuggestedCreatorsInsteadOfOtherNotificationItems() {
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
+        initWithStorageModel(items);
 
         initSuggestedCreatorsItem();
         initFacebookCreatorsItem();
@@ -182,22 +191,20 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
         }));
 
         operations.initialStreamItems().subscribe(observer);
-        subject.onNext(Collections.<Long>emptyList());
+        subject.onNext(Collections.emptyList());
 
         assertThat(verified.get()).isTrue();
     }
 
     @Test
     public void initialStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        final List<StreamPlayable> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedStreamTrack);
 
         final List<StreamItem> streamItemsWithPromoted = viewModelsFromStorageModel(itemsWithPromoted);
 
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted, streamItemsWithPromoted);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -220,8 +227,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void shouldShowFacebookListenerInvitesAsFirstItem() {
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
+        initWithStorageModel(items);
         initFacebookListenersItem();
 
         assertInitialStreamFirstItemKind(Kind.FACEBOOK_LISTENER_INVITES);
@@ -229,8 +236,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void shouldShowFacebookCreatorInvitesAsFirstItem() {
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
+        initWithStorageModel(items);
         initFacebookListenersItem();
         initFacebookCreatorsItem();
 
@@ -241,9 +248,9 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     public void shouldNotShowFacebookInvitesOnEmptyStream() {
         initFacebookListenersItem();
         when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.<StreamPlayable>empty());
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+                .thenReturn(Observable.empty())
+                .thenReturn(Observable.empty());
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -251,32 +258,28 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldNotShowFacebookInvitesOnPromotedOnlyStream() {
         initFacebookListenersItem();
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.just(promotedStreamTrack));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithTrack();
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
 
     @Test
     public void shouldShowFacebookInvitesAbovePromotedItems() {
-        final List<StreamPlayable> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedStreamTrack);
 
         initFacebookListenersItem();
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamFirstItemKind(Kind.FACEBOOK_LISTENER_INVITES);
     }
 
     @Test
     public void showStationsOnboardingAsFirstItem() {
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
+        initWithStorageModel(items);
         initOnboardingStationsItem();
 
         assertInitialStreamFirstItemKind(Kind.STATIONS_ONBOARDING);
@@ -286,9 +289,9 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     public void shouldNotShowStationsOnboardingOnEmptyStream() {
         initOnboardingStationsItem();
         when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.<StreamPlayable>empty());
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+                .thenReturn(Observable.empty())
+                .thenReturn(Observable.empty());
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -296,24 +299,20 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldNotShowStationsOnboardingOnPromotedOnlyStream() {
         initOnboardingStationsItem();
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.just(promotedStreamTrack));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithTrack();
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
 
     @Test
     public void shouldShowStationsOnboardingAbovePromotedItems() {
-        final List<StreamPlayable> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedStreamTrack);
 
         initOnboardingStationsItem();
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamFirstItemKind(Kind.STATIONS_ONBOARDING);
     }
@@ -321,21 +320,23 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldShowUpsellAfterFirstUpsellableTrack() {
         final int upsellableItemIndex = 1;
-        final List<StreamPlayable> streamItems = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableStreamTrack);
 
+        final List<StreamItem> viewModels = viewModelsFromStorageModel(streamItems);
+
         when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
+        initWithStorageModel(streamItems, viewModels);
 
         assertStreamItemAtPosition(Kind.STREAM_UPSELL, upsellableItemIndex + 1);
     }
 
     @Test
     public void shouldNotShowUpsellWhenNoUpsellableTrackIsPresent() {
-        final List<StreamPlayable> streamItems = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> streamItems = createItems(PAGE_SIZE, 123L);
 
         when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
+        initWithStorageModel(streamItems);
 
         assertNoUpsellInStream();
     }
@@ -343,11 +344,11 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldNotShowUpsellAfterItWasDismissedByTheUser() {
         final int upsellableItemIndex = 1;
-        final List<StreamPlayable> streamItems = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableStreamTrack);
 
         when(upsellOperations.shouldDisplayInStream()).thenReturn(false);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
+        initWithStorageModel(streamItems);
 
         assertNoUpsellInStream();
     }
@@ -356,14 +357,14 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     public void shouldShowUpsellOnlyAfterFirstUpsellableTrack() {
         final int firstUpsellableTrackIndex = 2;
         final int secondUpsellableTrackIndex = 4;
-        final List<StreamPlayable> streamItems = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(firstUpsellableTrackIndex, upsellableStreamTrack);
         streamItems.add(secondUpsellableTrackIndex, upsellableStreamTrack);
 
-        final Urn trackUrnAfterSecondUpsellable = streamItems.get(secondUpsellableTrackIndex + 1)
-                                                             .playableItem().getUrn();
+        final StreamEntity streamEntity = streamItems.get(secondUpsellableTrackIndex + 1);
+        final Urn trackUrnAfterSecondUpsellable = streamEntity.urn();
         when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
-        when(streamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
+        initWithStorageModel(streamItems);
 
         assertTrackStreamItemAtPosition(trackUrnAfterSecondUpsellable, secondUpsellableTrackIndex + 2);
     }
@@ -386,7 +387,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     public void urnsForPlaybackReturnsUrnsFromStorage() {
         final TestSubscriber<List<PlayableWithReposter>> subscriber = new TestSubscriber<>();
         final PlayableWithReposter playableWithReposter = PlayableWithReposter.from(Urn.forTrack(123L));
-        when(streamStorage.playbackItems()).thenReturn(Observable.just(playableWithReposter));
+        when(streamStorage.playbackItems()).thenReturn(just(playableWithReposter));
 
         operations.urnsForPlayback().subscribe(subscriber);
 
@@ -396,7 +397,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldReturnNewItemsSinceTimestamp() {
         final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
-        when(streamStorage.timelineItemCountSince(123L)).thenReturn(Observable.just(3));
+        when(streamStorage.timelineItemCountSince(123L)).thenReturn(just(3));
 
         operations.newItemsSince(123L).subscribe(subscriber);
 
@@ -405,13 +406,14 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void shouldUpdateStreamForStartWhenSyncedBefore() {
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
         final List<StreamItem> viewModels = viewModelsFromStorageModel(items);
 
         when(syncStateStorage.hasSyncedBefore(Syncable.SOUNDSTREAM)).thenReturn(true);
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Observable.just(successWithChange()));
-        when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(just(successWithChange()));
+
+        initWithStorageModel(items, viewModels);
 
         operations.updatedTimelineItemsForStart().subscribe(subscriber);
 
@@ -421,7 +423,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     @Test
     public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
         when(syncStateStorage.hasSyncedBefore(Syncable.SOUNDSTREAM)).thenReturn(false);
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Observable.just(successWithChange()));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(just(successWithChange()));
 
         operations.updatedTimelineItemsForStart().subscribe(subscriber);
 
@@ -430,10 +432,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     @Test
     public void shouldInsertAdsOnInitialStreamLoad() {
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.<StreamPlayable>empty())
-                .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        initWithStorageModelOnRepeatAfterSyncing(createItems(PAGE_SIZE, 123L));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -449,20 +449,26 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
     }
 
     @Override
-    protected List<StreamPlayable> createItems(int length, long lastItemTimestamp) {
+    protected List<StreamEntity> createItems(int length, long lastItemTimestamp) {
         return super.createStorageModels(length, lastItemTimestamp);
     }
 
     @Override
-    protected StreamPlayable createTimelineItem(long timestamp) {
+    protected StreamEntity createTimelineItem(long timestamp) {
         return TestPropertySets.timelineItem(new Date(timestamp));
     }
 
     @Override
-    protected List<StreamItem> viewModelsFromStorageModel(List<StreamPlayable> dataItems) {
+    protected List<StreamItem> viewModelsFromStorageModel(List<StreamEntity> dataItems) {
         final List<StreamItem> items = new ArrayList<>(dataItems.size());
-        for (StreamPlayable source : dataItems) {
-            items.add(StreamItem.fromStreamPlayable(source));
+        for (StreamEntity source : dataItems) {
+            if (source.urn().equals(promotedTrackItem.getUrn())) {
+                items.add(TrackStreamItem.createForPromoted(promotedTrackItem, new Date()));
+            } else if (source.urn().equals(upsellableTrack.getUrn())) {
+                items.add(TrackStreamItem.create(upsellableTrack, new Date()));
+            } else {
+                items.add(ModelFixtures.trackFromStreamEntity(source));
+            }
         }
         return items;
     }
@@ -504,30 +510,62 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamPlayable,
 
     private List<StreamItem> initUpdatedTimelineItems() {
         when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH))
-                .thenReturn(Observable.just(successWithChange()));
-        final List<StreamPlayable> items = createItems(PAGE_SIZE, 123L);
+                .thenReturn(just(successWithChange()));
+        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
         items.add(0, promotedStreamTrack);
 
         final List<StreamItem> streamItemsWithPromoted = viewModelsFromStorageModel(items);
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.from(items));
+        initWithStorageModel(items, streamItemsWithPromoted);
         return streamItemsWithPromoted;
     }
 
     private void initSuggestedCreatorsItem() {
-        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.just(SUGGESTED_CREATORS_ITEM));
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(just(SUGGESTED_CREATORS_ITEM));
     }
 
     private void initFacebookListenersItem() {
-        when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.just(forFacebookListenerInvites()));
+        when(facebookInvitesOperations.listenerInvites()).thenReturn(just(forFacebookListenerInvites()));
     }
 
     private void initFacebookCreatorsItem() {
         final StreamItem streamItem = forFacebookCreatorInvites(Urn.forTrack(1L), "url123");
-        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(streamItem));
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(just(streamItem));
     }
 
     private void initOnboardingStationsItem() {
-        when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.just(forStationOnboarding()));
+        when(stationsOperations.onboardingStreamItem()).thenReturn(just(forStationOnboarding()));
+    }
+
+    private StreamEntity fromPromotedTrackItem(Date createdAt, PromotedTrackItem promotedTrackItem) {
+        return builderFromTrackItem(createdAt, promotedTrackItem).promotedProperties(Optional.of(promotedTrackItem.promotedProperties)).build();
+    }
+
+    private StreamEntity.Builder builderFromTrackItem(Date createdAt, TrackItem promotedTrackItem) {
+        return StreamEntity.builder(promotedTrackItem.getUrn(), createdAt, Optional.absent(), Optional.absent(), promotedTrackItem.getAvatarUrlTemplate());
+    }
+
+    private void initWithTrack() {
+        when(streamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.empty())
+                .thenReturn(just(promotedStreamTrack));
+        List<StreamItem> result = Lists.newArrayList(TrackStreamItem.createForPromoted(promotedTrackItem, promotedStreamTrack.createdAt()));
+        when(streamEntityToItemTransformer.call(eq(Lists.newArrayList(promotedStreamTrack)))).thenReturn(just(result));
+    }
+
+    @Override
+    protected void initWithStorageModel(List<StreamEntity> streamEntities) {
+        List<StreamItem> streamItems = Lists.transform(streamEntities, ModelFixtures::trackFromStreamEntity);
+        initWithStorageModel(streamEntities, streamItems);
+    }
+
+    @Override
+    protected void initWithStorageModelOnRepeatAfterSyncing(List<StreamEntity> streamEntities) {
+        List<StreamItem> streamItems = Lists.transform(streamEntities, ModelFixtures::trackFromStreamEntity);
+        initWithStorageModelOnRepeatAfterSyncing(streamEntities, streamItems);
+    }
+
+    @Override
+    protected void initViewModelFromStorageModel(List<StreamEntity> streamEntities, List<StreamItem> streamItems) {
+        when(streamEntityToItemTransformer.call(eq(streamEntities))).thenReturn(just(streamItems));
     }
 }

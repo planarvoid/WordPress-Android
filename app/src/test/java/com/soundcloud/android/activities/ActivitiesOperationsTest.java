@@ -17,9 +17,9 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
 
     @Override
     protected TimelineOperations<ActivityItem, ActivityItem> buildOperations(ActivitiesStorage storage,
-                                                               SyncInitiator syncInitiator,
-                                                               Scheduler scheduler,
-                                                               SyncStateStorage syncStateStorage) {
+                                                                             SyncInitiator syncInitiator,
+                                                                             Scheduler scheduler,
+                                                                             SyncStateStorage syncStateStorage) {
         return new ActivitiesOperations(storage, syncInitiator, scheduler, syncStateStorage);
     }
 
@@ -48,4 +48,8 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
         return items;
     }
 
+    @Override
+    protected void initViewModelFromStorageModel(List<ActivityItem> streamEntities, List<ActivityItem> activityItems) {
+        //nop
+    }
 }

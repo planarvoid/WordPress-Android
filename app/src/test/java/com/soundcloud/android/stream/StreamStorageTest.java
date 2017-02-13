@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.stream.StreamPlayable.createFromPropertySet;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -9,26 +8,17 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.model.PromotedItemProperty;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.playback.PlayableWithReposter;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
@@ -38,11 +28,12 @@ import java.util.List;
 public class StreamStorageTest extends StorageIntegrationTest {
 
     private static final long TIMESTAMP = 1000L;
+    public static final Date CREATED_AT = new Date(TIMESTAMP);
 
-    @Mock private Observer<StreamPlayable> observer;
+    @Mock private Observer<StreamEntity> observer;
 
     private StreamStorage storage;
-    private TestSubscriber<StreamPlayable> subscriber;
+    private TestSubscriber<StreamEntity> subscriber;
 
     @Before
     public void setup() {
@@ -57,8 +48,8 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItems(50).subscribe(observer);
 
-        StreamPlayable promotedStreamPlayable = createPromotedDataItem(track, promoter);
-        verify(observer).onNext(promotedStreamPlayable);
+        StreamEntity promotedStreamEntity = createPromotedDataItem(track, promoter, CREATED_AT);
+        verify(observer).onNext(promotedStreamEntity);
         verify(observer).onCompleted();
     }
 
@@ -68,14 +59,14 @@ public class StreamStorageTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
-        final StreamPlayable normalTrack = createTrackDataItem(track);
-        final StreamPlayable promotedStreamPlayable = createPromotedDataItem(track, promoter);
+        final StreamEntity normalTrack = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
+        final StreamEntity promotedStreamEntity = createPromotedDataItem(track, promoter, CREATED_AT);
 
         storage.timelineItems(50).subscribe(subscriber);
 
         subscriber.assertValueCount(2);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(normalTrack);
-        assertThat(subscriber.getOnNextEvents().get(1)).isEqualTo(promotedStreamPlayable);
+        assertThat(subscriber.getOnNextEvents().get(1)).isEqualTo(promotedStreamEntity);
     }
 
     @Test
@@ -84,7 +75,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final StreamPlayable trackPost = createTrackDataItem(track);
+        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -97,7 +88,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackRepost(track.getId(), TIMESTAMP, reposter.getId());
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final StreamPlayable trackRepost = createRepostedTrack(track, reposter);
+        final StreamEntity trackRepost = createFromImageResourceWithReposter(track, reposter, CREATED_AT);
 
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
@@ -121,8 +112,8 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final StreamPlayable trackPost = createTrackDataItem(track);
-        final StreamPlayable trackRepost = createRepostedTrack(track, reposter, new Date(repostedTimestamp));
+        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getImageUrlTemplate());
+        final StreamEntity trackRepost = createFromImageResourceWithReposter(track, reposter, new Date(repostedTimestamp));
 
         verify(observer, never()).onNext(trackPost);
         verify(observer).onNext(trackRepost);
@@ -140,8 +131,8 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampOld, reposter.getId());
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampNew, reposter.getId());
 
-        final StreamPlayable trackRepostOld = createRepostedTrack(track, reposter, new Date(repostedTimestampOld));
-        final StreamPlayable trackRepostNew = createRepostedTrack(track, reposter, new Date(repostedTimestampNew));
+        final StreamEntity trackRepostOld = createFromImageResourceWithReposter(track, reposter, new Date(repostedTimestampOld));
+        final StreamEntity trackRepostNew = createFromImageResourceWithReposter(track, reposter, new Date(repostedTimestampNew));
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
@@ -157,7 +148,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-        final StreamPlayable trackPost = createTrackDataItem(track);
+        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -171,32 +162,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        verify(observer).onNext(createRepostedPlaylist(playlist, reposter));
-        verify(observer).onCompleted();
-    }
-
-    @Test
-    public void shouldIncludeLikesStateForPlaylist() {
-        final ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date());
-        testFixtures().insertStreamPlaylistPost(playlist.getId(), TIMESTAMP);
-        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(subscriber);
-
-        final StreamPlayable playlistStreamPlayable = createPlaylistDataItem(playlist, true, false);
-
-        subscriber.assertValueCount(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(playlistStreamPlayable);
-    }
-
-    @Test
-    public void shouldIncludeRepostStateForPlaylist() {
-        final ApiPlaylist playlist = testFixtures().insertPlaylist();
-        testFixtures().insertPlaylistPost(playlist.getId(), TIMESTAMP, true);
-        testFixtures().insertStreamPlaylistPost(playlist.getId(), TIMESTAMP);
-        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-
-        StreamPlayable playlistStreamPlayable = createPlaylistDataItem(playlist, false, true);
-
-        verify(observer).onNext(playlistStreamPlayable);
+        verify(observer).onNext(createFromImageResourceWithReposter(playlist, reposter, CREATED_AT));
         verify(observer).onCompleted();
     }
 
@@ -206,11 +172,12 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(firstTrack.getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP - 1);
 
-        TestObserver<StreamPlayable> observer = new TestObserver<>();
+        TestSubscriber<StreamEntity> observer = new TestSubscriber<>();
         storage.timelineItemsBefore(Long.MAX_VALUE, 1).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isEqualTo(firstTrack.getUrn());
+        final StreamEntity streamEntity = observer.getOnNextEvents().get(0);
+        assertThat(streamEntity.urn()).isEqualTo(firstTrack.getUrn());
     }
 
     @Test
@@ -219,11 +186,12 @@ public class StreamStorageTest extends StorageIntegrationTest {
         final ApiTrack oldestTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(oldestTrack.getId(), TIMESTAMP - 1);
 
-        TestObserver<StreamPlayable> observer = new TestObserver<>();
+        TestSubscriber<StreamEntity> observer = new TestSubscriber<>();
         storage.timelineItemsBefore(TIMESTAMP, 50).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isEqualTo(oldestTrack.getUrn());
+        final StreamEntity streamEntity = observer.getOnNextEvents().get(0);
+        assertThat(streamEntity.urn()).isEqualTo(oldestTrack.getUrn());
     }
 
     @Test
@@ -232,9 +200,10 @@ public class StreamStorageTest extends StorageIntegrationTest {
         final ApiTrack newest = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
 
-        final List<StreamPlayable> actual = storage.timelineItemsSince(TIMESTAMP, 50);
+        final List<StreamEntity> actual = storage.timelineItemsSince(TIMESTAMP, 50);
         assertThat(actual).hasSize(1);
-        assertThat(actual.get(0).playableItem().getUrn()).isEqualTo(newest.getUrn());
+        final StreamEntity streamEntity = actual.get(0);
+        assertThat(streamEntity.urn()).isEqualTo(newest.getUrn());
     }
 
     @Test
@@ -245,13 +214,13 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItems(50).subscribe(observer);
 
-        final List<StreamPlayable> actual = storage.timelineItemsSince(TIMESTAMP - 1, 50);
+        final List<StreamEntity> actual = storage.timelineItemsSince(TIMESTAMP - 1, 50);
         assertThat(actual).hasSize(1);
     }
 
     @Test
     public void loadStreamItemsCountSinceOnlyCountsItemsNewerThanTheGivenTimestamp() {
-        TestObserver<Integer> observer = new TestObserver<>();
+        TestSubscriber<Integer> observer = new TestSubscriber<>();
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP + 1);
 
@@ -261,46 +230,18 @@ public class StreamStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadingStreamItemsIncludesTierInformation() {
-        final ApiTrack track = testFixtures().insertTrack();
-        testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
-        testFixtures().insertPolicyHighTierMonetizable(track.getUrn());
-
-        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-
-        final StreamPlayable highTierTrackPost = createTrackDataItem(track, true);
-
-        verify(observer).onNext(highTierTrackPost);
-        verify(observer).onCompleted();
-    }
-
-    @Test
-    public void loadingStreamItemIncludesSnippedFlag() {
-        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setSnipped(true);
-        testFixtures().insertTrack(track);
-        testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
-
-        storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-
-        final StreamPlayable snippedTrack = createTrackDataItem(track);
-
-        verify(observer).onNext(snippedTrack);
-        verify(observer).onCompleted();
-    }
-
-    @Test
     public void shouldExcludeOrphanedRecordsInActivityView() {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(deletedTrack.getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
         propeller().delete(Tables.Sounds.TABLE, filter().whereEq(Tables.Sounds._ID, deletedTrack.getId()));
 
-        TestObserver<StreamPlayable> observer = new TestObserver<>();
+        TestSubscriber<StreamEntity> observer = new TestSubscriber<>();
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-        assertThat(observer.getOnNextEvents().get(0).playableItem().getUrn()).isNotEqualTo(deletedTrack.getUrn());
+        final StreamEntity streamEntity = observer.getOnNextEvents().get(0);
+        assertThat(streamEntity.urn()).isNotEqualTo(deletedTrack.getUrn());
     }
 
     @Test
@@ -323,106 +264,33 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 PlayableWithReposter.from(apiPlaylist.getUrn()));
     }
 
-    private StreamPlayable createTrackDataItem(final ApiTrack track) {
-        PropertySet trackPropertySet = createTrackPropertySet(track, new Date(TIMESTAMP));
-        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
+    private StreamEntity createFromImageResource(ImageResource resource, Date createdAt, Optional<String> imageUrlTemplate) {
+        return builderFromImageResource(resource, createdAt, imageUrlTemplate).build();
     }
 
-    private StreamPlayable createTrackDataItem(final ApiTrack track, boolean isSubHighTier) {
-        PropertySet trackPropertySet = createTrackPropertySet(track,
-                                                              new Date(TIMESTAMP)).put(TrackProperty.SUB_HIGH_TIER,
-                                                                                       isSubHighTier);
-        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
+
+    private StreamEntity.Builder builderFromImageResource(ImageResource resource, Date createdAt, Optional<String> imageUrlTemplate) {
+        return StreamEntity.builder(resource.getUrn(), createdAt, Optional.absent(), Optional.absent(), imageUrlTemplate);
     }
 
-    private PropertySet createRepostedTrackPropertySet(ApiTrack track, ApiUser reposter, Date repostedAt) {
-        return createTrackPropertySet(track, repostedAt)
-                .put(PostProperty.REPOSTER, reposter.getUsername())
-                .put(PostProperty.REPOSTER_URN, reposter.getUrn())
-                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
+    private StreamEntity createFromImageResourceWithReposter(ImageResource track, ApiUser reposter, Date createdAt) {
+        return StreamEntity.builder(track.getUrn(), createdAt, Optional.of(reposter.getUsername()), Optional.of(reposter.getUrn()), reposter.getImageUrlTemplate()).build();
     }
 
-    private StreamPlayable createRepostedTrack(ApiTrack track, ApiUser reposter, Date repostedAt) {
-        final PropertySet trackPropertySet = createRepostedTrackPropertySet(track, reposter, repostedAt);
-        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
+    private StreamEntity createPromotedDataItem(ApiTrack track, ApiUser promoter, Date createdAt) {
+        final StreamEntity.Builder builder = builderFromImageResource(track, createdAt, promoter.getAvatarUrlTemplate());
+        builder.promotedProperties(Optional.of(promotedProperties(promoter)));
+        return builder.build();
     }
 
-    private StreamPlayable createRepostedTrack(ApiTrack track, ApiUser reposter) {
-        final PropertySet trackPropertySet = createRepostedTrackPropertySet(track, reposter, new Date(TIMESTAMP));
-        return createFromPropertySet(trackPropertySet.get(PlayableProperty.CREATED_AT), trackPropertySet);
-    }
-
-    private PropertySet createTrackPropertySet(final ApiTrack track, final Date createdAt) {
-        return TestPropertySets.mandatoryTrackProperties().merge(PropertySet.from(
-                SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(track.getUser().getImageUrlTemplate()),
-                PlayableProperty.CREATED_AT.bind(createdAt),
-                PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
-                PlayableProperty.TITLE.bind(track.getTitle()),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(track.getImageUrlTemplate()),
-                TrackProperty.SNIPPET_DURATION.bind(track.getSnippetDuration()),
-                TrackProperty.FULL_DURATION.bind(track.getFullDuration()),
-                PlayableProperty.CREATOR_NAME.bind(track.getUser().getUsername()),
-                PlayableProperty.CREATOR_URN.bind(track.getUser().getUrn()),
-                PlayableProperty.IS_USER_LIKE.bind(false),
-                PlayableProperty.LIKES_COUNT.bind(track.getLikesCount()),
-                PlayableProperty.IS_USER_REPOST.bind(false),
-                PlayableProperty.REPOSTS_COUNT.bind(track.getRepostsCount()),
-                PlayableProperty.IS_PRIVATE.bind(false),
-                TrackProperty.PLAY_COUNT.bind(track.getStats().getPlaybackCount()),
-                TrackProperty.SUB_HIGH_TIER.bind(track.isSubHighTier().get()),
-                TrackProperty.SNIPPED.bind(track.isSnipped()),
-                PlayableProperty.GENRE.bind(Optional.of(track.getGenre())),
-                PlayableProperty.PERMALINK_URL.bind(track.getPermalinkUrl())));
-    }
-
-    private StreamPlayable createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {
-        PropertySet propertySet = createPlaylistPropertySet(playlist)
-                .put(PostProperty.REPOSTER, reposter.getUsername())
-                .put(PostProperty.REPOSTER_URN, reposter.getUrn())
-                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
-        return createFromPropertySet(propertySet.get(PlayableProperty.CREATED_AT), propertySet);
-    }
-
-    private StreamPlayable createPlaylistDataItem(ApiPlaylist playlist, boolean isLike, boolean isRepost) {
-        PropertySet propertySet = createPlaylistPropertySet(playlist).put(PlayableProperty.IS_USER_LIKE, isLike)
-                                                                     .put(PlayableProperty.IS_USER_REPOST, isRepost);
-        return createFromPropertySet(propertySet.get(PlayableProperty.CREATED_AT), propertySet);
-    }
-
-    private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
-        return PropertySet.from(
-                SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(playlist.getUser().getImageUrlTemplate()),
-                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
-                PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
-                PlayableProperty.TITLE.bind(playlist.getTitle()),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.getImageUrlTemplate()),
-                PlaylistProperty.PLAYLIST_DURATION.bind(playlist.getDuration()),
-                PlayableProperty.CREATOR_NAME.bind(playlist.getUser().getUsername()),
-                PlayableProperty.CREATOR_URN.bind(playlist.getUser().getUrn()),
-                PlayableProperty.IS_USER_LIKE.bind(false),
-                PlayableProperty.LIKES_COUNT.bind(playlist.getStats().getLikesCount()),
-                PlayableProperty.IS_USER_REPOST.bind(false),
-                PlayableProperty.REPOSTS_COUNT.bind(playlist.getStats().getRepostsCount()),
-                PlayableProperty.IS_USER_LIKE.bind(false),
-                PlayableProperty.IS_PRIVATE.bind(false),
-                PlaylistProperty.IS_ALBUM.bind(false),
-                PlaylistProperty.SET_TYPE.bind(""),
-                PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()),
-                PlayableProperty.GENRE.bind(Optional.of(playlist.getGenre())),
-                PlayableProperty.PERMALINK_URL.bind(playlist.getPermalinkUrl()));
-    }
-
-    private StreamPlayable createPromotedDataItem(ApiTrack track, ApiUser promoter) {
-        PropertySet set = createTrackPropertySet(track, new Date(TIMESTAMP))
-                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, promoter.getImageUrlTemplate())
-                .put(PromotedItemProperty.AD_URN, "promoted:track:123")
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(promoter.getUrn()))
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of(promoter.getUsername()))
-                .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
-                .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
-                .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
-                .put(PromotedItemProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
-        return createFromPropertySet(set.get(PlayableProperty.CREATED_AT), set);
+    private PromotedProperties promotedProperties(ApiUser promoter) {
+        return PromotedProperties.create("promoted:track:123",
+                                         Arrays.asList("promoted1", "promoted2"),
+                                         Arrays.asList("promoted3", "promoted4"),
+                                         Arrays.asList("promoted5", "promoted6"),
+                                         Arrays.asList("promoted7", "promoted8"),
+                                         Optional.of(promoter.getUrn()),
+                                         Optional.of(promoter.getUsername()));
     }
 
 }

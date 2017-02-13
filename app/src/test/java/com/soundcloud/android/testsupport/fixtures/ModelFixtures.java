@@ -1,6 +1,8 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
@@ -31,8 +33,13 @@ import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
+import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
+import com.soundcloud.android.stream.PromotedProperties;
+import com.soundcloud.android.stream.StreamEntity;
+import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.stream.TrackStreamItem;
 import com.soundcloud.android.sync.activities.ApiActivityItem;
 import com.soundcloud.android.sync.activities.ApiPlaylistLikeActivity;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
@@ -44,6 +51,7 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
@@ -245,6 +253,7 @@ public class ModelFixtures {
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
+
     public static List<Track> tracks(int count) {
         final List<Track> result = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -460,5 +469,36 @@ public class ModelFixtures {
                 .fullDuration(duration)
                 .snipped(false)
                 .build();
+    }
+
+    public static PromotedTrackItem promotedTrackItem(Track track, User promoter) {
+        final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
+        final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
+        return PromotedTrackItem.from(track, streamEntity, promotedStreamProperties);
+    }
+
+    public static PromotedPlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
+        final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
+        final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date(), absent(), absent(), playlist.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
+        return PromotedPlaylistItem.from(playlist, streamEntity, promotedStreamProperties);
+    }
+
+    private static PromotedProperties getPromotedProperties(User promoter) {
+        final List<String> clickedUrls = asList("promoted1", "promoted2");
+        final List<String> impressionUrls = asList("promoted3", "promoted4");
+        final List<String> playedUrls = asList("promoted5", "promoted6");
+        final List<String> promoterClickedUrls = asList("promoted7", "promoted8");
+        return PromotedProperties.create("ad:urn:123", clickedUrls, impressionUrls, playedUrls, promoterClickedUrls, of(promoter.urn()), of(promoter.username()));
+    }
+
+    public static StreamItem trackFromStreamEntity(StreamEntity streamEntity) {
+        final Track track = trackBuilder().urn(streamEntity.urn())
+                                          .imageUrlTemplate(streamEntity.avatarUrl())
+                                          .build();
+        if (streamEntity.promotedProperties().isPresent()) {
+            return TrackStreamItem.createForPromoted(PromotedTrackItem.from(track, streamEntity, streamEntity.promotedProperties().get()), streamEntity.createdAt());
+        } else {
+            return TrackStreamItem.create(TrackItem.from(track), streamEntity.createdAt());
+        }
     }
 }

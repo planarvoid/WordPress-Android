@@ -46,8 +46,8 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem, ActivityItem
     }
 
     @Override
-    protected List<ActivityItem> toViewModels(List<ActivityItem> activityItems) {
-        return activityItems;
+    protected Observable<List<ActivityItem>> toViewModels(List<ActivityItem> activityItems) {
+        return Observable.just(activityItems);
     }
 
     public Optional<Date> getFirstItemTimestamp(List<ActivityItem> items) {

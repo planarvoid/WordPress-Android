@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
+import static java.util.Collections.emptyList;
 
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.storage.Table;
@@ -9,6 +10,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +33,13 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
 
         PropertySet track = PropertySet.create();
         track.put(PromotedItemProperty.AD_URN, adUrn);
+        track.put(PromotedItemProperty.TRACK_CLICKED_URLS, emptyList());
+        track.put(PromotedItemProperty.TRACK_CLICKED_URLS, emptyList());
+        track.put(PromotedItemProperty.TRACK_IMPRESSION_URLS, emptyList());
+        track.put(PromotedItemProperty.TRACK_PLAYED_URLS, emptyList());
+        track.put(PromotedItemProperty.PROMOTER_CLICKED_URLS, emptyList());
+        track.put(PromotedItemProperty.PROMOTER_URN, Optional.absent());
+        track.put(PromotedItemProperty.PROMOTER_NAME, Optional.absent());
         PromotedTrackItem promotedItem = PromotedTrackItem.from(track);
 
         command.call(promotedItem);

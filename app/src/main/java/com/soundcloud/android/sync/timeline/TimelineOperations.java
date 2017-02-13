@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public abstract class TimelineOperations<ViewModel, StorageModel> {
+public abstract class TimelineOperations<StorageModel, ViewModel> {
 
     private static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
     private static final String TAG = "Timeline";
@@ -53,7 +53,7 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
         return storage.timelineItems(PAGE_SIZE)
                       .subscribeOn(scheduler)
                       .toList()
-                      .map(this::toViewModels)
+                      .flatMap(this::toViewModels)
                       .flatMap(viewModels -> handleLocalResult(viewModels, INITIAL_TIMESTAMP, syncCompleted));
     }
 
@@ -62,7 +62,7 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
                             .flatMap(syncJobResult -> handleSyncResult(syncJobResult, INITIAL_TIMESTAMP));
     }
 
-    protected abstract List<ViewModel> toViewModels(List<StorageModel> storageModels);
+    protected abstract Observable<List<ViewModel>> toViewModels(List<StorageModel> storageModels);
 
     private Observable<List<ViewModel>> handleLocalResult(List<ViewModel> result,
                                                           long timestamp,
@@ -113,7 +113,7 @@ public abstract class TimelineOperations<ViewModel, StorageModel> {
                 .timelineItemsBefore(timestamp, PAGE_SIZE)
                 .toList()
                 .subscribeOn(scheduler)
-                .map(this::toViewModels)
+                .flatMap(this::toViewModels)
                 .flatMap(viewModels -> handleLocalResult(viewModels, timestamp, syncCompleted));
     }
 

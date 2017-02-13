@@ -31,7 +31,7 @@ public abstract class TimelinePresenter<ItemT>
         implements NewItemsIndicator.Listener {
 
     private final NewItemsIndicator newItemsIndicator;
-    private final TimelineOperations<ItemT, ?> operations;
+    private final TimelineOperations<?, ItemT> operations;
     private final PagingRecyclerItemAdapter<ItemT, ? extends RecyclerView.ViewHolder> adapter;
 
     private final Action1<Integer> updateNewItemsIndicator = new Action1<Integer>() {
@@ -59,7 +59,7 @@ public abstract class TimelinePresenter<ItemT>
     public TimelinePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                              Options build,
                              NewItemsIndicator newItemsIndicator,
-                             TimelineOperations<ItemT, ?> operations,
+                             TimelineOperations<?, ItemT> operations,
                              PagingRecyclerItemAdapter<ItemT, ? extends RecyclerView.ViewHolder> adapter) {
         super(swipeRefreshAttacher, build);
         this.newItemsIndicator = newItemsIndicator;

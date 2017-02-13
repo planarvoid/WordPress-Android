@@ -17,7 +17,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
-import com.soundcloud.android.stream.StreamPlayable;
+import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -269,11 +269,10 @@ public abstract class TestPropertySets {
         return playlistItem;
     }
 
-    public static StreamPlayable timelineItem(Date createdAt) {
-        final PropertySet properties = PropertySet.from(
-                PlayableProperty.URN.bind(ModelFixtures.create(ApiTrack.class).getUrn()),
-                PlayableProperty.CREATED_AT.bind(createdAt));
-        return StreamPlayable.createFromPropertySet(createdAt, mandatoryTrackProperties().merge(properties));
+    public static StreamEntity timelineItem(Date createdAt) {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final Urn urn = apiTrack.getUrn();
+        return StreamEntity.builder(urn, createdAt, Optional.absent(), Optional.absent(), apiTrack.getUser().getImageUrlTemplate()).build();
     }
 
     public static ActivityItem activityTrackLike(Date createdAt) {

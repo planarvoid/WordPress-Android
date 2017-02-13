@@ -6,11 +6,14 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
+import com.soundcloud.android.stream.SoundStreamProperty;
+import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
@@ -82,9 +85,31 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
         return playlistItem;
     }
 
-
     public static PlaylistItem from(Playlist playlist) {
-        return new PlaylistItem(PropertySet.from(
+        return new PlaylistItem(toPropertySet(playlist));
+    }
+
+    public static PlaylistItem fromPlaylistAndStreamEntity(Playlist playlist, StreamEntity streamEntity) {
+        final PropertySet source = toPropertySet(playlist, streamEntity);
+        return new PlaylistItem(source);
+    }
+
+    static PropertySet toPropertySet(Playlist playlist, StreamEntity streamEntity) {
+        final PropertySet source = toPropertySet(playlist);
+        if (streamEntity.reposter().isPresent()) {
+            source.put(PostProperty.REPOSTER, streamEntity.reposter().get());
+        }
+        if (streamEntity.reposterUrn().isPresent()) {
+            source.put(PostProperty.REPOSTER_URN, streamEntity.reposterUrn().get());
+        }
+        if (streamEntity.avatarUrl().isPresent()) {
+            source.put(SoundStreamProperty.AVATAR_URL_TEMPLATE, streamEntity.avatarUrl());
+        }
+        return source;
+    }
+
+    private static PropertySet toPropertySet(Playlist playlist) {
+        return PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.urn()),
                 PlaylistProperty.TITLE.bind(playlist.title()),
                 PlaylistProperty.CREATED_AT.bind(playlist.createdAt()),
@@ -106,7 +131,7 @@ public class PlaylistItem extends PlayableItem implements UpdatablePlaylistItem 
                 PlaylistProperty.LIKES_COUNT.bind(playlist.likesCount()),
                 PlaylistProperty.REPOSTS_COUNT.bind(playlist.repostCount()),
                 PlaylistProperty.PERMALINK_URL.bind(playlist.permalinkUrl().or(Strings.EMPTY))
-        ));
+        );
     }
 
     public static PlaylistItem from(ApiPlaylist apiPlaylist) {

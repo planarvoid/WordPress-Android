@@ -16,14 +16,14 @@ import com.soundcloud.android.view.adapters.PlayableViewItem;
 import java.util.Date;
 
 @AutoValue
-abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+public abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, UpdatableTrackItem, LikeableItem, RepostableItem {
     public abstract TrackItem trackItem();
 
     public abstract boolean promoted();
 
     public abstract Date createdAt();
 
-    static TrackStreamItem create(TrackItem trackItem, Date createdAt) {
+    public static TrackStreamItem create(TrackItem trackItem, Date createdAt) {
         return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, false, createdAt);
     }
 
@@ -31,7 +31,7 @@ abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, U
         return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, promoted(), createdAt());
     }
 
-    static TrackStreamItem createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
+    public static TrackStreamItem createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
         return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, true, createdAt);
     }
 

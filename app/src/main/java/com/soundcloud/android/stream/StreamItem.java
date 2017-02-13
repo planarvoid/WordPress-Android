@@ -7,12 +7,9 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
@@ -64,20 +61,6 @@ public abstract class StreamItem {
 
     public static StreamItem forVideoAd(VideoAd ad) {
         return Video.create(ad);
-    }
-
-    static StreamItem fromStreamPlayable(StreamPlayable streamPlayable) {
-        if (streamPlayable.playableItem() instanceof PromotedTrackItem) {
-            return TrackStreamItem.createForPromoted((PromotedTrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
-        } else if (streamPlayable.playableItem() instanceof TrackItem) {
-            return TrackStreamItem.create((TrackItem) streamPlayable.playableItem(), streamPlayable.createdAt());
-        } else if (streamPlayable.playableItem() instanceof PromotedPlaylistItem) {
-            return PlaylistStreamItem.createForPromoted((PromotedPlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
-        } else if (streamPlayable.playableItem() instanceof PlaylistItem) {
-            return PlaylistStreamItem.create((PlaylistItem) streamPlayable.playableItem(), streamPlayable.createdAt());
-        } else {
-            throw new IllegalArgumentException("Unknown playable item.");
-        }
     }
 
     Optional<ListItem> getListItem() {

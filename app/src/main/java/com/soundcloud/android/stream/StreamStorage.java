@@ -2,8 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
-import static com.soundcloud.android.storage.TableColumns.SoundView;
-import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
@@ -24,48 +22,27 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-public class StreamStorage implements TimelineStorage<StreamPlayable> {
+public class StreamStorage implements TimelineStorage<StreamEntity> {
 
     private static final Object[] STREAM_SELECTION = new Object[]{
             SoundStreamView.SOUND_ID,
             SoundStreamView.SOUND_TYPE,
-            SoundView.TITLE,
-            SoundView.USERNAME,
-            SoundView.USER_ID,
-            SoundView.DURATION,
-            SoundView.FULL_DURATION,
-            SoundView.SNIPPET_DURATION,
-            SoundView.PLAYBACK_COUNT,
-            field(Table.SoundStreamView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
-            SoundView.LIKES_COUNT,
-            SoundView.REPOSTS_COUNT,
-            SoundView.SHARING,
-            SoundView.ARTWORK_URL,
-            SoundView.USER_AVATAR_URL,
-            SoundView.SET_TYPE,
-            SoundView.IS_ALBUM,
+            TableColumns.SoundView.USER_AVATAR_URL,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
-            SoundView.POLICIES_SNIPPED,
-            SoundView.POLICIES_SUB_HIGH_TIER,
-            SoundView.GENRE,
-            SoundStreamView.SOUND_PERMALINK_URL,
             SoundStreamView.REPOSTER_USERNAME,
             SoundStreamView.REPOSTER_ID,
             SoundStreamView.REPOSTER_AVATAR_URL,
-            exists(likeQuery()).as(SoundView.USER_LIKE),
-            exists(repostQuery()).as(SoundView.USER_REPOST),
     };
 
     private static final Object[] PROMOTED_EXTRAS = new Object[]{
-            field(Table.PromotedTracks.field(PromotedTracks.AD_URN)).as(PromotedTracks.AD_URN),
+            PromotedTracks.AD_URN,
             Tables.Users.AVATAR_URL.as(SoundStreamView.PROMOTER_AVATAR_URL),
             PromotedTracks.PROMOTER_ID,
             PromotedTracks.PROMOTER_NAME,
             PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
             PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
             PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
-            PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
-            PromotedTracks.TRACKING_PROFILE_CLICKED_URLS
+            PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS
     };
 
     private static final Object[] PLAYBACK_ITEMS_SELECTION = new Object[]{
@@ -93,7 +70,7 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
     }
 
     @Override
-    public Observable<StreamPlayable> timelineItems(final int limit) {
+    public Observable<StreamEntity> timelineItems(final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                                  .select(PROMOTED_STREAM_SELECTION)
                                  .leftJoin(Table.PromotedTracks.name(),
@@ -101,40 +78,40 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
                                            TableColumns.SoundStream.PROMOTED_ID)
                                  .leftJoin(Tables.Users.TABLE.name(), Tables.Users._ID.qualifiedName(), Table.PromotedTracks.field(PromotedTracks.PROMOTER_ID))
                                  .whereLe(Table.SoundStreamView.field(SoundStreamView.CREATED_AT), Long.MAX_VALUE)
-                                 .whereNotNull(SoundView.TITLE)
+                                 .whereNotNull(SoundStreamView.SOUND_ID)
                                  .limit(limit);
 
         return propellerRx.query(query)
-                          .map(StreamItemMapper.getPromotedMapper());
+                          .map(StreamEntityMapper.getPromotedMapper());
     }
 
     @Override
-    public Observable<StreamPlayable> timelineItemsBefore(final long timestamp, final int limit) {
+    public Observable<StreamEntity> timelineItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                                  .select(STREAM_SELECTION)
                                  .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                                  .whereNull(SoundStreamView.PROMOTED_ID)
                                  .limit(limit);
 
-        return propellerRx.query(query).map(StreamItemMapper.getMapper());
+        return propellerRx.query(query).map(StreamEntityMapper.getMapper());
     }
 
     @Override
-    public List<StreamPlayable> timelineItemsSince(final long timestamp, final int limit) {
+    public List<StreamEntity> timelineItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                                  .select(STREAM_SELECTION)
                                  .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                                  .whereNull(SoundStreamView.PROMOTED_ID)
                                  .limit(limit);
 
-        return propeller.query(query).toList(StreamItemMapper.getMapper());
+        return propeller.query(query).toList(StreamEntityMapper.getMapper());
     }
 
     public Observable<Integer> timelineItemCountSince(final long timestamp) {
         Query query = Query.count(Table.SoundStreamView.name())
                            .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
                            .whereNull(SoundStreamView.PROMOTED_ID)
-                           .whereNotNull(SoundView.TITLE);
+                           .whereNotNull(SoundStreamView.SOUND_ID);
 
         return propellerRx.query(query).map(scalar(Integer.class));
     }
@@ -166,19 +143,4 @@ public class StreamStorage implements TimelineStorage<StreamPlayable> {
     private static int getSoundType(CursorReader cursorReader) {
         return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
     }
-
-    private static Query likeQuery() {
-        return Query.from(Tables.Likes.TABLE, Tables.Sounds.TABLE)
-                    .joinOn(SoundStreamView.SOUND_ID, Tables.Likes._ID.qualifiedName())
-                    .joinOn(SoundStreamView.SOUND_TYPE, Tables.Likes._TYPE.qualifiedName())
-                    .whereNull(Tables.Likes.REMOVED_AT);
-    }
-
-    private static Query repostQuery() {
-        return Query.from(Tables.Posts.TABLE, Tables.Sounds.TABLE)
-                    .joinOn(SoundStreamView.SOUND_ID, Tables.Posts.TARGET_ID.qualifiedName())
-                    .joinOn(SoundStreamView.SOUND_TYPE, Tables.Posts.TARGET_TYPE.qualifiedName())
-                    .whereEq(Tables.Posts.TYPE, Tables.Posts.TYPE_REPOST);
-    }
-
 }
