@@ -65,12 +65,12 @@
 
     <ImageView
         android:id="@+id/check_4"
-        style="@style/ProductPageCheck.Disabled"
+        style="@style/ProductPageCheck"
         android:layout_below="@id/feature_3" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/feature_4"
-        style="@style/ProductText.Disabled"
+        style="@style/ProductText"
         android:layout_toRightOf="@id/check_4"
         android:layout_alignTop="@id/check_4"
         android:layout_marginBottom="8dp"
