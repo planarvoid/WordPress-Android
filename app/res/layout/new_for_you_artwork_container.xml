@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:clipToPadding="false">
+
+    <View
+        style="@style/NewForYouModule.BackStack"
+        android:layout_width="@dimen/new_for_you_discovery_preview_width"
+        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+
+    <View
+        style="@style/NewForYouModule.MidStack"
+        android:layout_width="@dimen/new_for_you_discovery_preview_width"
+        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+
+    <ViewFlipper
+        android:id="@+id/artwork_animator"
+        android:layout_width="@dimen/new_for_you_discovery_preview_width"
+        android:layout_height="@dimen/new_for_you_discovery_preview_height" />
+</FrameLayout>

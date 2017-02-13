@@ -297,21 +297,33 @@ public class ImageOperations {
 
     public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         displayWithPlaceholder(imageResource.getUrn(), imageView,
-                               buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+                               buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize), Optional.absent());
+    }
+
+    public Observable<Bitmap> displayWithPlaceholderObservable(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                displayWithPlaceholder(imageResource.getUrn(),
+                                       imageView,
+                                       buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
+                                       Optional.of(buildFallbackImageListener(bitmapAdapterFactory.create(subscriber))));
+            }
+        });
     }
 
     @Deprecated // use the ImageResource variant instead
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
-        displayWithPlaceholder(urn, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
+        displayWithPlaceholder(urn, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize), Optional.absent());
     }
 
-    private void displayWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
+    private void displayWithPlaceholder(Urn urn, ImageView imageView, String imageUrl, Optional<ImageLoadingListener> imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
                 ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
-                notFoundListener);
+                imageListener.isPresent() ? imageListener.get() : notFoundListener);
     }
 
     public void displayCircularWithPlaceholder(ImageResource imageResource,

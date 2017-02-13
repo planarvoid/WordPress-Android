@@ -4,4 +4,7 @@
     <!-- Conversion -->
     <dimen name="conversion_margin">54dp</dimen>
 
+    <!-- New for you -->
+    <dimen name="new_for_you_discovery_preview_width">300dp</dimen>
+    <dimen name="new_for_you_discovery_preview_height">300dp</dimen>
 </resources>

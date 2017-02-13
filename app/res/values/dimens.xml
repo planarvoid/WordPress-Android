@@ -84,6 +84,10 @@
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
 
+    <!-- New for you -->
+    <dimen name="new_for_you_discovery_preview_width">128dp</dimen>
+    <dimen name="new_for_you_discovery_preview_height">128dp</dimen>
+
     <!-- List item -->
     <dimen name="list_item_image_dimension">64dp</dimen>
     <dimen name="download_progress_indicator_margin">-6dp</dimen>

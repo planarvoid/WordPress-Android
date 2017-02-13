@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.Empty;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.NewForYouItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedPlaylistsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
@@ -13,6 +14,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserIte
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
+import com.soundcloud.android.discovery.newforyou.NewForYouBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsAdapter;
@@ -57,7 +59,8 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
                      @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
                      @Provided WelcomeUserItemRenderer welcomeUserItemRenderer,
-                     @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
+                     @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer,
+                     @Provided NewForYouBucketRenderer newForYouBucketRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
               new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
@@ -66,7 +69,8 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
               new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
               new CellRendererBinding<>(WelcomeUserItem.ordinal(), welcomeUserItemRenderer),
-              new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
+              new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer),
+              new CellRendererBinding<>(NewForYouItem.ordinal(), newForYouBucketRenderer)
         );
         this.playlistTagRenderer = playlistTagRenderer;
         this.stationsBucketRenderer = stationsBucketRenderer;

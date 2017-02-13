@@ -366,6 +366,26 @@ public class ImageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void displayWithPlaceholderObservablePassesBitmapFromLoadCompleteToAdapter() {
+        final Bitmap bitmap = Mockito.mock(Bitmap.class);
+        ArgumentCaptor<ImageLoadingListener> listenerCaptor = ArgumentCaptor.forClass(ImageLoadingListener.class);
+        TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
+        when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
+
+        imageOperations.displayWithPlaceholderObservable(imageResource,
+                                                         ApiImageSize.T500,
+                                                         imageView).subscribe(subscriber);
+
+        verify(imageLoader).displayImage(any(String.class),
+                                         any(ImageViewAware.class),
+                                         any(DisplayImageOptions.class),
+                                         listenerCaptor.capture());
+
+        listenerCaptor.getValue().onLoadingComplete("ad-image-url", imageView, bitmap);
+        verify(bitmapLoadingAdapter).onLoadingComplete(eq("ad-image-url"), any(ImageView.class), eq(bitmap));
+    }
+
+    @Test
     public void adImageObservablePassesBitmapFromLoadCompleteToLoadingAdapter() {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);

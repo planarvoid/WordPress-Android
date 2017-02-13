@@ -9,9 +9,9 @@ import java.util.List;
 
 @AutoValue
 public abstract class NewForYou {
-    abstract Date lastUpdate();
-    abstract Urn queryUrn();
-    abstract List<Track> tracks();
+    public abstract Date lastUpdate();
+    public abstract Urn queryUrn();
+    public abstract List<Track> tracks();
 
     public static NewForYou create(Date lastUpdated, Urn queryUrn, List<Track> tracks) {
         return new AutoValue_NewForYou(lastUpdated, queryUrn, tracks);

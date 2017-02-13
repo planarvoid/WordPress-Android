@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
+import com.soundcloud.android.discovery.newforyou.NewForYouBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationsFooterRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksBucketItem;
@@ -42,6 +43,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
     @Mock private WelcomeUserItemRenderer welcomeUserItemRenderer;
+    @Mock private NewForYouBucketRenderer newForYouBucketRenderer;
     @Mock private RecommendedStationsBucketItem stationsBucketItem;
     @Mock private RecommendedTracksBucketItem tracksBucketItem;
     @Mock private PlaylistTagsItem playlistTagItem;
@@ -69,7 +71,8 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                                        chartsBucketItemRenderer,
                                        recommendationsFooterRenderer,
                                        welcomeUserItemRenderer,
-                                       emptyDiscoveryItemRenderer);
+                                       emptyDiscoveryItemRenderer,
+                                       newForYouBucketRenderer);
     }
 
     @Test
@@ -113,7 +116,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Test
     public void setItemWhenItemIsAbsent() {
         final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
-        adapter.onNext(Collections.<DiscoveryItem>emptyList());
+        adapter.onNext(Collections.emptyList());
 
         adapter.setItem(0, updatedItem);
 

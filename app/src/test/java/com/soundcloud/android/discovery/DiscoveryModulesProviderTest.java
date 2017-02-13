@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.newforyou.NewForYou;
+import com.soundcloud.android.discovery.newforyou.NewForYouDiscoveryItem;
 import com.soundcloud.android.discovery.newforyou.NewForYouOperations;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsOperations;
@@ -22,6 +24,7 @@ import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import org.junit.Before;
@@ -31,6 +34,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +80,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
                                                                           Collections.emptyList());
         final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.user());
-        final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.emptyList());
+        final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.singletonList(Track.from(ModelFixtures.create(ApiTrack.class))));
 
         when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.just(stationsItem));
@@ -188,6 +192,77 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
+    }
+
+    @Test
+    public void loadsItemsWithoutNewForYouWhenNoTracksAvailable() {
+        final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.emptyList());
+        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.ChartItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsMaxFiveTracksInNewForYouModule() {
+        List trackList = new ArrayList();
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
+        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        NewForYouDiscoveryItem discoveryItem = null;
+        for (DiscoveryItem item : discoveryItems) {
+            if (item.getKind() == DiscoveryItem.Kind.NewForYouItem) {
+                discoveryItem = (NewForYouDiscoveryItem) item;
+                break;
+            }
+        }
+        assertThat(discoveryItem.newForYou().tracks().size()).isEqualTo(5);
+    }
+
+    @Test
+    public void loadsLessThanMaxIfFewerTracksAvailable() {
+        List trackList = new ArrayList();
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
+        final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
+        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        NewForYouDiscoveryItem discoveryItem = null;
+        for (DiscoveryItem item : discoveryItems) {
+            if (item.getKind() == DiscoveryItem.Kind.NewForYouItem) {
+                discoveryItem = (NewForYouDiscoveryItem) item;
+                break;
+            }
+        }
+        assertThat(discoveryItem.newForYou().tracks().size()).isEqualTo(4);
     }
 
     @Test

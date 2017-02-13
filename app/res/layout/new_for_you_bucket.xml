@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/new_for_you_bucket"
+    style="@style/Module.Background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.soundcloud.android.discovery.newforyou.NewForYouArtworkView
+            android:id="@+id/artwork"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            style="@style/NewForYouModule.Intro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/NewForYouModule.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/new_for_you_title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/NewForYouModule.IntroText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/new_for_you_intro" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View style="@style/Divider.Item" android:id="@+id/recommendations_view_all_divider" />
+
+    <RelativeLayout
+        android:id="@+id/view_all_container"
+        style="@style/ViewAllContainer">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/view_all"
+            style="@style/ViewAllText"
+            android:text="@string/new_for_you_action" />
+    </RelativeLayout>
+
+    <View style="@style/Divider.Section" />
+
+    <View
+        android:id="@+id/recommendation_separator"
+        style="@style/Divider.Background" />
+
+</LinearLayout>

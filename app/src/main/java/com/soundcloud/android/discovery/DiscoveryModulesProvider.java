@@ -22,6 +22,7 @@ import java.util.List;
 
 class DiscoveryModulesProvider {
 
+    public static final int MAX_NEW_FOR_YOU_TRACKS = 5;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
     private final FeatureFlags featureFlags;
     private final RecommendedTracksOperations recommendedTracksOperations;
@@ -137,7 +138,11 @@ class DiscoveryModulesProvider {
                                                           newForYouOperations.refreshNewForYou() :
                                                           newForYouOperations.newForYou();
 
-        return newForYouObservable.map(NewForYouDiscoveryItem::create);
+        return newForYouObservable.filter(newForYou -> !newForYou.tracks().isEmpty())
+                                  .map(newForYou -> NewForYouDiscoveryItem.create(
+                                          NewForYou.create(newForYou.lastUpdate(),
+                                                           newForYou.queryUrn(),
+                                                           newForYou.tracks().subList(0, Math.min(newForYou.tracks().size(), MAX_NEW_FOR_YOU_TRACKS)))));
     }
 
     private Observable<DiscoveryItem> recommendedPlaylists(boolean isRefresh) {
