@@ -10,17 +10,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static rx.Observable.error;
 import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -32,16 +33,17 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class TrackRepositoryTest extends AndroidUnitTest {
 
     public static final String TITLE = "title";
-    public static final String CREATOR = "creator";
-    public static final String DESCRIPTION = "Description...";
+    private static final String CREATOR = "creator";
+    private static final String DESCRIPTION = "Description...";
+    private static final Urn PLAYLIST_URN = Urn.forPlaylist(1);
 
     private TrackRepository trackRepository;
 
@@ -57,15 +59,17 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     @Mock private AccountOperations accountOperations;
     @Mock private SyncInitiator syncInitiator;
+    @Mock private EntitySyncStateStorage entitySyncStateStorage;
 
     private TestSubscriber<Track> propSubscriber = new TestSubscriber<>();
     private TestSubscriber<Track> trackItemSubscriber = new TestSubscriber<>();
     private TestSubscriber<Map<Urn,Track>> mapSubscriber = new TestSubscriber<>();
-    private PublishSubject<SyncJobResult> syncTracksSubject = PublishSubject.create();
+    private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
+    private TestDateProvider currentTimeProvider = new TestDateProvider();
 
     @Before
     public void setUp() {
-        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.immediate());
+        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.immediate(), entitySyncStateStorage, currentTimeProvider);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
@@ -164,48 +168,83 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void fromUrnsLoadsTracksFromStorageAfterSyncingMissingTracks() throws CreateModelException {
         List<Urn> urns = asList(track1.urn(), track2.urn());
         when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(singletonList(track1.urn())));
-        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(syncTracksSubject);
+        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(syncSubject);
         when(trackStorage.loadTracks(urns))
                 .thenReturn(Observable.just(toMap(asList(track1, track2))));
 
         trackRepository.fromUrns(urns).subscribe(mapSubscriber);
 
         mapSubscriber.assertNoValues();
-        syncTracksSubject.onNext(TestSyncJobResults.successWithChange());
-        syncTracksSubject.onCompleted();
+        syncSubject.onNext(TestSyncJobResults.successWithChange());
+        syncSubject.onCompleted();
         mapSubscriber.assertValue(toMap(asList(track1, track2)));
         mapSubscriber.assertCompleted();
     }
 
     @Test
-    public void fromPlaylistDoesNotBackfillWhenPlaylistHasTracks() {
-        final Urn playlistUrn = Urn.forPlaylist(1);
+    public void fromPlaylistBackfillsIfNeverSynced() {
+        when(entitySyncStateStorage.hasSyncedBefore(PLAYLIST_URN)).thenReturn(false);
+        
         final List<Track> trackList = singletonList(track);
 
-        when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(error(new IOException()));
-        when(loadPlaylistTracksCommand.toObservable(playlistUrn)).thenReturn(just(trackList));
 
-        trackRepository.forPlaylist(playlistUrn).test()
-                       .assertValue(trackList)
+        when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
+        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+
+        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
+        testSubscriber.assertNoValues();
+
+        syncSubject.onNext(TestSyncJobResults.successWithChange());
+        syncSubject.onCompleted();
+        testSubscriber.assertValue(trackList)
                        .assertCompleted();
     }
 
     @Test
-    public void fromPlaylistBackfillsWithoutTracks() {
-        final Urn playlistUrn = Urn.forPlaylist(1);
-        final PublishSubject<SyncJobResult> syncPlaylistSubject = PublishSubject.create();
+    public void fromPlaylistDoesNotBackfillIfSynced() {
+        when(entitySyncStateStorage.hasSyncedBefore(PLAYLIST_URN)).thenReturn(true);
+
         final List<Track> trackList = singletonList(track);
 
-        when(loadPlaylistTracksCommand.toObservable(playlistUrn)).thenReturn(just(emptyList()), just(trackList));
-        when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(syncPlaylistSubject);
+        when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
+        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
 
-        final AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(playlistUrn).test();
+        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
+        testSubscriber.assertValue(trackList)
+                       .assertCompleted();
+    }
 
+    @Test
+    public void fromPlaylistWithStaleTimeBackfillsIfStaleTimePassed() throws Exception {
+        when(entitySyncStateStorage.lastSyncTime(PLAYLIST_URN)).thenReturn(1000L);
+        currentTimeProvider.setTime(2, TimeUnit.SECONDS);
+
+        final List<Track> trackList = singletonList(track);
+
+        when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
+        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+
+        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 999).test();
         testSubscriber.assertNoValues();
 
-        syncPlaylistSubject.onNext(TestSyncJobResults.successWithChange());
-        syncPlaylistSubject.onCompleted();
+        syncSubject.onNext(TestSyncJobResults.successWithChange());
+        syncSubject.onCompleted();
+        testSubscriber.assertValue(trackList)
+                      .assertCompleted();
 
+    }
+
+    @Test
+    public void fromPlaylistDoesNotBackfillIfBeforeStaleTime() {
+        when(entitySyncStateStorage.lastSyncTime(PLAYLIST_URN)).thenReturn(1000L);
+        currentTimeProvider.setTime(2, TimeUnit.SECONDS);
+
+        final List<Track> trackList = singletonList(track);
+
+        when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
+        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+
+        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 1001).test();
         testSubscriber.assertValue(trackList)
                       .assertCompleted();
     }

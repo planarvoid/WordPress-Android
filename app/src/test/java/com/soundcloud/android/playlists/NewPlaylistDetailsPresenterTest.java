@@ -13,6 +13,7 @@ import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
@@ -27,8 +28,6 @@ import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.PlaylistEntityChangedEvent;
-import com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -55,7 +54,6 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
@@ -63,6 +61,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.observers.AssertableSubscriber;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -111,7 +110,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final String screen = "screen";
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forGenre("asdf"), "querystring");
-    private final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad-urn", Urn.forTrack(1), Optional.absent(), emptyList());
+    private final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad-urn", Urn.forTrack(1), absent(), emptyList());
 
     private final PlaylistDetailsViewModel initialModel = PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems);
     private final PlaylistDetailsViewModel updatedModel = PlaylistDetailFixtures.create(resources(), updatedPlaylist, updatedTrackItems);
@@ -128,7 +127,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, asList(track1, track2), singletonList(
             otherPlaylistByUser));
 
-    private final BehaviorSubject<PlaylistWithExtras> dataSource = BehaviorSubject.create();
+    private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
 
     private NewPlaylistDetailsPresenter newPlaylistPresenter;
 
@@ -137,10 +136,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         PlaylistDetailsViewModelCreator viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
 
-        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
+        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
-        when(dataSourceProviderFactory.create(playlistUrn)).thenReturn(dataSourceProvider);
+        when(dataSourceProviderFactory.create(eq(playlistUrn), any())).thenReturn(dataSourceProvider);
         when(dataSourceProvider.data()).thenReturn(dataSource);
         when(likesStateProvider.likedStatuses()).thenReturn(likeStatuses);
         when(repostsStateProvider.repostedStatuses()).thenReturn(repostStatuses);
@@ -158,13 +157,14 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                repostsStateProvider,
                                                                playQueueHelper,
                                                                offlinePropertiesProvider,
-                                                               syncInitiator,
                                                                eventBus,
                                                                offlineContentOperations,
                                                                eventTracker,
                                                                likeOperations,
                                                                viewModelCreator,
-                                                               dataSourceProviderFactory, repostOperations, feedbackController);
+                                                               dataSourceProviderFactory,
+                                                               repostOperations,
+                                                               feedbackController);
 
     }
 
@@ -177,7 +177,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         emitLikedEntities();
         emitRepostedEntities();
         emitOfflineEntities(Collections.<Urn,OfflineState>emptyMap());
-        dataSource.onNext(initialEmission);
+        dataSource.onNext(PlaylistWithExtrasState.builder().playlistWithExtras(of(initialEmission)).build());
     }
 
     @Test
@@ -492,80 +492,42 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void emitsUpdatedPlaylistAfterRefresh() {
-        connect();
+    public void refreshRefreshesOnDataProvider() {
+        ArgumentCaptor<Observable<Object>> refreshSignalCaptor = ArgumentCaptor.forClass(Observable.class);
+        verify(dataSourceProviderFactory).create(eq(playlistUrn), refreshSignalCaptor.capture());
 
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-
-        modelUpdates.assertValues(fromIdle(initialModel));
+        AssertableSubscriber<Object> testSubscriber = refreshSignalCaptor.getValue().test();
+        testSubscriber.assertNoValues();
 
         newPlaylistPresenter.refresh();
-        modelUpdates.assertValues(fromIdle(initialModel), fromRefreshing(initialModel));
 
-        dataSource.onNext(updatedPlaylistWithTrackExtras);
+        testSubscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void emitsRefreshSequence() {
+        connect();
+        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+
+        dataSource.onNext(PlaylistWithExtrasState.builder()
+                                                 .playlistWithExtras(of(initialPlaylistWithTrackExtras))
+                                                 .isRefreshing(true)
+                                                 .build());
+
+        dataSource.onNext(PlaylistWithExtrasState.builder()
+                                                 .playlistWithExtras(of(updatedPlaylistWithTrackExtras))
+                                                 .isRefreshing(true)
+                                                 .build());
+
+        dataSource.onNext(PlaylistWithExtrasState.builder()
+                                                 .playlistWithExtras(of(updatedPlaylistWithTrackExtras))
+                                                 .build());
+
         syncPlaylist.onCompleted();
         modelUpdates.assertValues(fromIdle(initialModel),
                                   fromRefreshing(initialModel),
                                   fromRefreshing(updatedModel),
                                   fromIdle(updatedModel));
-    }
-
-    @Test
-    public void emitsUpdatedTrackstAfterRefresh() {
-        connect();
-
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-
-        modelUpdates.assertValues(fromIdle(initialModel));
-
-        newPlaylistPresenter.refresh();
-        modelUpdates.assertValues(fromIdle(initialModel), fromRefreshing(initialModel));
-
-        dataSource.onNext(updatedPlaylistWithTrackExtras);
-        syncPlaylist.onCompleted();
-        modelUpdates.assertValues(fromIdle(initialModel),
-                                  fromRefreshing(initialModel),
-                                  fromRefreshing(updatedModel),
-                                  fromIdle(updatedModel));
-    }
-
-    @Test
-    public void emitsUpdatedModelWhenPlaylistUpdated() {
-        connect();
-
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-
-        modelUpdates.assertValues(fromIdle(initialModel));
-
-        dataSource.onNext(updatedPlaylistWithTrackExtras);
-
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(updatedModel));
-    }
-
-    @Test
-    public void doesNotEmitUpdatedPlaylistAfterMarkedForDownloadEvent() {
-        connect();
-
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-
-        modelUpdates.assertValues(fromIdle(initialModel));
-
-        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsMarkedForDownload(asList(playlistUrn)));
-
-        modelUpdates.assertValues(fromIdle(initialModel));
-    }
-
-    @Test
-    public void ignoredUnrelatedPlaylistsUpdates() {
-        connect();
-
-        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-        final Playlist unrelatedPlaylist = ModelFixtures.playlist();
-
-        modelUpdates.assertValues(fromIdle(initialModel));
-
-        eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.forUpdate(singleton(unrelatedPlaylist)));
-        modelUpdates.assertValues(fromIdle(initialModel));
     }
 
     @Test
@@ -629,10 +591,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         modelUpdates.assertValues(fromIdle(initialModelWithUpsell));
 
-        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(Optional.absent());
+        when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         newPlaylistPresenter.onItemDismissed(upsellItem);
 
-        modelUpdates.assertValues(fromIdle(initialModelWithUpsell), fromRefreshing(modelWithoutUpsell));
+        modelUpdates.assertValues(fromIdle(initialModelWithUpsell), fromIdle(modelWithoutUpsell));
     }
 
     @Test
@@ -694,7 +656,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                .build();
         return source.toBuilder()
                      .metadata(expectedMetaData)
-                     .tracks(Optional.of(expectedTracks))
+                     .tracks(of(expectedTracks))
                      .otherPlaylists(absent())
                      .build();
     }
@@ -703,9 +665,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
         UIEvent uiEvent = uiEventArgumentCaptor.getValue();
         assertThat(uiEvent.kind()).isEqualTo(kind);
-        assertThat(uiEvent.clickName()).isEqualTo(Optional.of(clickName));
-        assertThat(uiEvent.clickCategory()).isEqualTo(Optional.of(UIEvent.ClickCategory.ENGAGEMENT));
-        assertThat(uiEvent.clickObjectUrn()).isEqualTo(Optional.of(playlistUrn));
-        assertThat(uiEvent.adUrn()).isEqualTo(Optional.of("ad-urn"));
+        assertThat(uiEvent.clickName()).isEqualTo(of(clickName));
+        assertThat(uiEvent.clickCategory()).isEqualTo(of(UIEvent.ClickCategory.ENGAGEMENT));
+        assertThat(uiEvent.clickObjectUrn()).isEqualTo(of(playlistUrn));
+        assertThat(uiEvent.adUrn()).isEqualTo(of("ad-urn"));
     }
+
 }

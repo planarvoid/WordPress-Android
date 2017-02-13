@@ -4,14 +4,12 @@ import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 
-import static com.soundcloud.android.utils.DiffUtils.minus;
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-import static java.util.Collections.singletonList;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
@@ -22,9 +20,6 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,16 +31,22 @@ public class TrackRepository {
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
+    private final EntitySyncStateStorage entitySyncStateStorage;
+    private final CurrentDateProvider currentDateProvider;
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
                            LoadPlaylistTracksCommand loadPlaylistTracksCommand,
                            SyncInitiator syncInitiator,
-                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                           EntitySyncStateStorage entitySyncStateStorage,
+                           CurrentDateProvider currentDateProvider) {
         this.trackStorage = trackStorage;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
+        this.entitySyncStateStorage = entitySyncStateStorage;
+        this.currentDateProvider = currentDateProvider;
     }
 
     public Observable<Track> track(final Urn trackUrn) {
@@ -72,14 +73,32 @@ public class TrackRepository {
     }
 
     public Observable<List<Track>> forPlaylist(Urn playlistUrn) {
+        if (entitySyncStateStorage.hasSyncedBefore(playlistUrn)) {
+            return loadPlaylistTracks(playlistUrn);
+        } else {
+            return syncAndLoadPlaylistTracks(playlistUrn);
+        }
+    }
+
+    public Observable<List<Track>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
+        if (currentDateProvider.getCurrentTime() - staleTimeMillis > entitySyncStateStorage.lastSyncTime(playlistUrn)) {
+            return syncAndLoadPlaylistTracks(playlistUrn);
+        } else {
+            return loadPlaylistTracks(playlistUrn);
+        }
+    }
+
+    private Observable<List<Track>> loadPlaylistTracks(Urn playlistUrn) {
         return loadPlaylistTracksCommand
                 .toObservable(playlistUrn)
-                .filter(tracks -> !tracks.isEmpty())
-                .switchIfEmpty(syncInitiator
-                                       .syncPlaylist(playlistUrn)
-                                       .observeOn(scheduler)
-                                       .flatMap(ignored -> loadPlaylistTracksCommand.toObservable(playlistUrn)))
                 .subscribeOn(scheduler);
+    }
+
+    private Observable<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
+        return syncInitiator
+                .syncPlaylist(playlistUrn)
+                .observeOn(scheduler)
+                .flatMap(ignored -> loadPlaylistTracksCommand.toObservable(playlistUrn));
     }
 
     private Func1<List<Urn>, Observable<?>> syncMissingTracks(final List<Urn> requestedTracks) {
@@ -124,7 +143,7 @@ public class TrackRepository {
     }
 
     private Observable<Track> syncThenLoadTrack(final Urn trackUrn,
-                                                      final Observable<Track> loadObservable) {
+                                                final Observable<Track> loadObservable) {
         return syncInitiator.syncTrack(trackUrn).flatMap(o -> loadObservable);
     }
 

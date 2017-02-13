@@ -4,11 +4,13 @@ import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissin
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.strings.Strings;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
@@ -213,6 +215,16 @@ public final class ErrorUtils {
             return EmptyView.Status.OK;
         } else {
             return EmptyView.Status.ERROR;
+        }
+    }
+
+    public static int emptyMessageFromViewError(ViewError viewError) {
+        if (viewError == ViewError.CONNECTION_ERROR) {
+            return R.string.no_network_connection;
+        } else if (viewError == ViewError.SERVER_ERROR) {
+            return R.string.ak_error_soundcloud_no_response;
+        } else {
+            throw new IllegalArgumentException("Unknown view error type for message " + viewError);
         }
     }
 }

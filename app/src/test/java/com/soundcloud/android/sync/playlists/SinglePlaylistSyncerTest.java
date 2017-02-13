@@ -28,6 +28,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
+import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -57,18 +58,21 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     @Mock private WriteResult writeResult;
     @Mock private ApiRequest apiRequest;
     @Mock private ApiClient apiClient;
+    @Mock private EntitySyncStateStorage entitySyncStateStorage;
     @Mock private PlaylistStorage playlistStorage;
     private TestEventBus eventBus = new TestEventBus();
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
     private ApiPlaylist updatedPlaylist;
 
+
     @Before
     public void setUp() throws Exception {
         updatedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
                                                         apiClient, storeTracksCommand,
-                                                        storePlaylistCommand, replacePlaylistTracks, playlistStorage, eventBus);
+                                                        storePlaylistCommand, replacePlaylistTracks, playlistStorage, eventBus,
+                                                        entitySyncStateStorage);
     }
 
     @Test
@@ -300,6 +304,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
     private void verifyPlaylistStored(PlaylistRecord playlistRecord) throws PropellerWriteException {
         verify(storePlaylistCommand).call(singleton(playlistRecord));
+        verify(entitySyncStateStorage).synced(playlistRecord.getUrn());
     }
 
     private void verifyPlaylistTrackStored(Urn... urns) throws PropellerWriteException {

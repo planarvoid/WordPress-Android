@@ -45,6 +45,7 @@ public class StorageModule {
     public static final String STATIONS = "stations";
     public static final String PLAYER = "player";
     public static final String SYNCER = "syncer";
+    public static final String ENTITY_SYNC_STATE = "entity_sync_state";
     public static final String UPSELL = "upsell";
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
     public static final String IMAGE_CONFIG = "ImageConfiguration";
@@ -73,6 +74,7 @@ public class StorageModule {
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_PLAYER = "player";
     private static final String PREFS_SYNCER = "syncer";
+    private static final String PREFS_ENTITY_SYNC_STATE = "entity_sync_state";
     private static final String PREFS_UPSELL = "upsell";
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
@@ -227,6 +229,12 @@ public class StorageModule {
     @Named(SYNCER)
     public SharedPreferences provideSyncerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_SYNCER, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(ENTITY_SYNC_STATE)
+    public SharedPreferences provideEntitySyncStatePreferences(Context context) {
+        return context.getSharedPreferences(PREFS_ENTITY_SYNC_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides

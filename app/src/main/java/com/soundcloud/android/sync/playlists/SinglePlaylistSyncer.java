@@ -17,6 +17,7 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
+import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -42,6 +43,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     private final RemovePlaylistCommand removePlaylist;
     private final PlaylistStorage playlistStorage;
     private final EventBus eventBus;
+    private final EntitySyncStateStorage entitySyncStateStorage;
 
     SinglePlaylistSyncer(FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,
                          RemovePlaylistCommand removePlaylist,
@@ -50,7 +52,8 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
                          StorePlaylistsCommand storePlaylists,
                          ReplacePlaylistTracksCommand replacePlaylistTracks,
                          PlaylistStorage playlistStorage,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         EntitySyncStateStorage entitySyncStateStorage) {
 
         this.loadPlaylistTracks = loadPlaylistTracks;
         this.apiClient = apiClient;
@@ -61,6 +64,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         this.replacePlaylistTracks = replacePlaylistTracks;
         this.playlistStorage = playlistStorage;
         this.eventBus = eventBus;
+        this.entitySyncStateStorage = entitySyncStateStorage;
     }
 
     @Override
@@ -178,6 +182,9 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
 
         // store final playlist metadata
         storePlaylists.call(Collections.singleton(playlistRecord));
+
+        // mark the playlist as having synced
+        entitySyncStateStorage.synced(playlistRecord.getUrn());
     }
 
     private void handleRemotePlaylistException(Urn urn, ApiRequestException exception) throws Exception {

@@ -117,8 +117,7 @@ class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
             RelativeLayout rootView = (RelativeLayout) inflater.inflate(R.layout.emptyview_container, parent, false);
-
-            emptyView = inflater.inflate(emptyViewLayout, rootView, false);
+            View emptyView = inflater.inflate(emptyViewLayout, rootView, false);
             rootView.addView(emptyView, getEmptyItemParams());
             return rootView;
         }

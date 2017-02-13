@@ -6,6 +6,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
+import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ public class SinglePlaylistSyncerFactory {
     private final StoreTracksCommand storeTracks;
     private final PlaylistStorage playlistStorage;
     private final EventBus eventBus;
+    private EntitySyncStateStorage entitySyncStateStorage;
     private final Provider<ReplacePlaylistTracksCommand> replacePlaylistTracks;
 
     @Inject
@@ -32,7 +34,8 @@ public class SinglePlaylistSyncerFactory {
                                        StoreTracksCommand storeTracks,
                                        PlaylistStorage playlistStorage,
                                        Provider<ReplacePlaylistTracksCommand> replacePlaylistTracks,
-                                       EventBus eventBus) {
+                                       EventBus eventBus,
+                                       EntitySyncStateStorage entitySyncStateStorage) {
         this.loadUnpushedTracksForPlaylist = loadUnpushedTracksForPlaylist;
         this.apiClient = apiClient;
         this.playlistStorage = playlistStorage;
@@ -42,6 +45,7 @@ public class SinglePlaylistSyncerFactory {
         this.storeTracks = storeTracks;
         this.replacePlaylistTracks = replacePlaylistTracks;
         this.eventBus = eventBus;
+        this.entitySyncStateStorage = entitySyncStateStorage;
     }
 
     public SinglePlaylistSyncer create(Urn playlistUrn) {
@@ -53,6 +57,7 @@ public class SinglePlaylistSyncerFactory {
                 storePlaylist,
                 replacePlaylistTracks.get().with(playlistUrn),
                 playlistStorage,
-                eventBus);
+                eventBus,
+                entitySyncStateStorage);
     }
 }
