@@ -13,7 +13,9 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.ShareDialog;
 import com.soundcloud.java.strings.Strings;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
@@ -23,7 +25,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class ShareOperations {
+public class SharePresenter {
 
     private static final String SHARE_TYPE = "text/plain";
 
@@ -32,7 +34,7 @@ public class ShareOperations {
     private final FirebaseDynamicLinksApi firebaseDynamicLinksApi;
 
     @Inject
-    public ShareOperations(FeatureFlags featureFlags, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
+    public SharePresenter(FeatureFlags featureFlags, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
         this.featureFlags = featureFlags;
         this.eventTracker = eventTracker;
         this.firebaseDynamicLinksApi = firebaseDynamicLinksApi;
@@ -54,7 +56,8 @@ public class ShareOperations {
                       final PromotedSourceInfo promotedSourceInfo,
                       final EntityMetadata entityMetadata) {
         if (featureFlags.isEnabled(Flag.DYNAMIC_LINKS)) {
-            firebaseDynamicLinksApi.createDynamicLink(permalink).observeOn(AndroidSchedulers.mainThread()).subscribe(
+            ShareDialog shareDialog = ShareDialog.show(context);
+            Subscription subscription = firebaseDynamicLinksApi.createDynamicLink(permalink).observeOn(AndroidSchedulers.mainThread()).subscribe(
                     new DefaultSubscriber<String>() {
                         @Override
                         public void onNext(String dynamicLink) {
@@ -64,6 +67,7 @@ public class ShareOperations {
 
                         @Override
                         public void onError(Throwable throwable) {
+                            shareDialog.dismiss();
                             if (throwable instanceof IOException) {
                                 Log.e("Failed to retrieve dynamic link. Falling back to original URL.", throwable);
                                 shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
@@ -71,7 +75,16 @@ public class ShareOperations {
                                 super.onError(throwable);
                             }
                         }
+
+                        @Override
+                        public void onCompleted() {
+                            shareDialog.dismiss();
+                            super.onCompleted();
+                        }
                     });
+            shareDialog.onCancelObservable().subscribe(ignored -> {
+                subscription.unsubscribe();
+            });
         } else {
             shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
         }

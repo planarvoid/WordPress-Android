@@ -28,7 +28,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -57,7 +57,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikeOperations likeOperations;
     @Mock private RepostOperations repostOperations;
-    @Mock private ShareOperations shareOperations;
+    @Mock private SharePresenter sharePresenter;
     @Mock private ScreenProvider screenProvider;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
@@ -100,7 +100,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   playlistOperations,
                                                   likeOperations,
                                                   repostOperations,
-                                                  shareOperations,
+                                                  sharePresenter,
                                                   screenProvider,
                                                   featureOperations,
                                                   offlineOperations,
@@ -180,10 +180,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                                         .invokerScreen(ScreenElement.LIST.get())
                                                                         .build();
 
-        verify(shareOperations).share(context,
-                                      playlist.getPermalinkUrl(),
-                                      eventContextMetadata, null,
-                                      EntityMetadata.from(playlist));
+        verify(sharePresenter).share(context,
+                                     playlist.getPermalinkUrl(),
+                                     eventContextMetadata, null,
+                                     EntityMetadata.from(playlist));
     }
 
     @Test

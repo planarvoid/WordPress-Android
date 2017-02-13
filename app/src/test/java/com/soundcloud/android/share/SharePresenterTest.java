@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
@@ -27,15 +28,18 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowDialog;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ShareOperationsTest extends AndroidUnitTest {
+public class SharePresenterTest extends AndroidUnitTest {
 
     private static final String SCREEN_TAG = "screen_tag";
     private static final String PAGE_NAME = "page_name";
@@ -46,7 +50,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private static final PromotedTrackItem PROMOTED_TRACK = TestPropertySets.expectedPromotedTrack();
     private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PROMOTED_TRACK);
 
-    private ShareOperations operations;
+    private SharePresenter operations;
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
     @Mock private FeatureFlags features;
@@ -57,7 +61,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         activityContext = activity();
-        operations = new ShareOperations(features, tracker, firebaseApi);
+        operations = new SharePresenter(features, tracker, firebaseApi);
     }
 
     @Test
@@ -130,6 +134,54 @@ public class ShareOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shareDisplaysShareDialogWhileGeneratingDynamicLink() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        PublishSubject<String> observable = PublishSubject.create();
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
+        assertShareDialogNotShowing();
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareDialogShowing();
+    }
+
+    @Test
+    public void shareDismissesShareDialogOnErrorGeneratingDynamicLink() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        PublishSubject<String> observable = PublishSubject.create();
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareDialogShowing();
+        observable.onError(new IOException());
+        assertShareDialogNotShowing();
+    }
+
+    @Test
+    public void shareDismissesShareDialogWhenDynamicLinkGenerated() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        PublishSubject<String> observable = PublishSubject.create();
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareDialogShowing();
+        observable.onNext("http://goo.gl/foo?/somepath");
+        observable.onCompleted();
+        assertShareDialogNotShowing();
+    }
+
+    @Test
+    public void shareIgnoresDynamicLinkResultWhenDialogCanceled() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        PublishSubject<String> observable = PublishSubject.create();
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
+        assertShareDialogNotShowing();
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        assertShareDialogShowing();
+        ShadowDialog.getLatestDialog().cancel();
+        assertShareDialogNotShowing();
+        observable.onNext("http://goo.gl/foo?/somepath");
+        observable.onCompleted();
+        assertShareActivityNotStarted();
+    }
+
+    @Test
     public void shareCrashesAppWhenLookupFailsDueToAppBug() throws Exception {
         AtomicReference<Throwable> error = new AtomicReference<>();
         Thread.setDefaultUncaughtExceptionHandler((t, throwable) -> error.set(throwable));
@@ -155,6 +207,11 @@ public class ShareOperationsTest extends AndroidUnitTest {
                                    .pageUrn(PAGE_URN).build();
     }
 
+    private void assertShareActivityNotStarted() {
+        Assertions.assertThat(activityContext)
+                  .hasNoNextStartedIntent();
+    }
+
     private void assertShareActivityStarted(PlayableItem playable, String url) {
         Assertions.assertThat(activityContext)
                   .nextStartedIntent()
@@ -164,5 +221,20 @@ public class ShareOperationsTest extends AndroidUnitTest {
                   .containsExtra(Intent.EXTRA_SUBJECT, playable.getTitle() + " - SoundCloud")
                   .containsExtra(Intent.EXTRA_TEXT,
                                  "Listen to " + playable.getTitle() + " by " + playable.getCreatorName() + " #np on #SoundCloud\n" + url);
+    }
+
+    private void assertShareDialogShowing() {
+        assertThat(ShadowDialog.getLatestDialog()).isNotNull();
+        assertThat(ShadowDialog.getLatestDialog().isShowing()).isTrue();
+        assertThat(ShadowDialog.getLatestDialog().findViewById(R.id.share_dialog_progress)).isNotNull();
+    }
+
+    private void assertShareDialogNotShowing() {
+        Dialog latestDialog = ShadowDialog.getLatestDialog();
+        if (latestDialog == null) {
+            return;
+        }
+        assertThat(latestDialog.findViewById(R.id.share_dialog_progress)).isNotNull();
+        assertThat(latestDialog.isShowing()).isFalse();
     }
 }

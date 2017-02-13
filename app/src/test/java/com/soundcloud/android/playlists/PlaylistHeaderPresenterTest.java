@@ -52,7 +52,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -95,7 +95,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
-    @Mock private ShareOperations shareOperations;
+    @Mock private SharePresenter sharePresenter;
     @Mock private PlaylistCoverRenderer playlistCoverRenderer;
     @Mock private PlaylistHeaderPresenterListener headerListener;
     @Mock private PlaylistCoverRenderer coverRenderer;
@@ -139,7 +139,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 playbackToastHelper,
                 likeOperations,
                 repostOperations,
-                shareOperations,
+                sharePresenter,
                 offlinePropertiesProvider,
                 playQueueHelper,
                 coverRenderer,
@@ -268,14 +268,14 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(viewModel.metadata().getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
+        verify(sharePresenter).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
         presenter.onShare();
 
-        verify(shareOperations, never())
+        verify(sharePresenter, never())
                 .share(any(Context.class), any(TrackItem.class),
                        any(EventContextMetadata.class), any(PromotedSourceInfo.class));
     }
@@ -362,7 +362,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                                         .pageUrn(viewModel.metadata().getUrn())
                                                                         .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
-        verify(shareOperations).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
+        verify(sharePresenter).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
 
     private EntityMetadata entityMetadata() {

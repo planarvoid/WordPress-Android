@@ -19,7 +19,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
@@ -51,7 +51,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private TextView textView;
-    @Mock private ShareOperations shareOperations;
+    @Mock private SharePresenter sharePresenter;
     @Mock private FeatureFlags featureFlags;
 
     private Activity activityContext;
@@ -77,7 +77,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
                                                          stationHandler,
                                                          accountOperations,
                                                          eventBus,
-                                                         shareOperations).create(textView);
+                                                         sharePresenter).create(textView);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         controller.onMenuItemClick(share, activityContext);
 
-        verify(shareOperations).share(activityContext, track.getSource(), eventContextMetadata, null);
+        verify(sharePresenter).share(activityContext, track.getSource(), eventContextMetadata, null);
     }
 
     @Test

@@ -19,7 +19,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.IOUtils;
@@ -48,7 +48,7 @@ public class TrackPageMenuController
     private final StartStationHandler stationHandler;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
-    private final ShareOperations shareOperations;
+    private final SharePresenter sharePresenter;
     private final String commentAtUnformatted;
 
     private PlayerTrackState track = PlayerTrackState.EMPTY;
@@ -63,7 +63,7 @@ public class TrackPageMenuController
                                     StartStationHandler stationHandler,
                                     AccountOperations accountOperations,
                                     EventBus eventBus,
-                                    ShareOperations shareOperations) {
+                                    SharePresenter sharePresenter) {
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
         this.activity = context;
@@ -71,7 +71,7 @@ public class TrackPageMenuController
         this.stationHandler = stationHandler;
         this.accountOperations = accountOperations;
         this.eventBus = eventBus;
-        this.shareOperations = shareOperations;
+        this.sharePresenter = sharePresenter;
         this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
         setupMenu();
     }
@@ -150,10 +150,10 @@ public class TrackPageMenuController
 
     void handleShare(Context context) {
         Urn trackUrn = track.getUrn();
-        shareOperations.share(context,
-                              track.getSource(),
-                              getContextMetadata(trackUrn),
-                              playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+        sharePresenter.share(context,
+                             track.getSource(),
+                             getContextMetadata(trackUrn),
+                             playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
     private void handleComment() {
@@ -253,7 +253,7 @@ public class TrackPageMenuController
         private final AccountOperations accountOperations;
         private final EventBus eventBus;
         private final StartStationHandler startStationHandler;
-        private final ShareOperations shareOperations;
+        private final SharePresenter sharePresenter;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
@@ -262,14 +262,14 @@ public class TrackPageMenuController
                 StartStationHandler startStationHandler,
                 AccountOperations accountOperations,
                 EventBus eventBus,
-                ShareOperations shareOperations) {
+                SharePresenter sharePresenter) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.startStationHandler = startStationHandler;
             this.accountOperations = accountOperations;
             this.eventBus = eventBus;
-            this.shareOperations = shareOperations;
+            this.sharePresenter = sharePresenter;
         }
 
         TrackPageMenuController create(View anchorView) {
@@ -281,7 +281,7 @@ public class TrackPageMenuController
                     startStationHandler,
                     accountOperations,
                     eventBus,
-                    shareOperations);
+                    sharePresenter);
         }
     }
 

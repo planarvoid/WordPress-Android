@@ -25,7 +25,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -46,7 +46,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final PlaylistOperations playlistOperations;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
-    private final ShareOperations shareOperations;
+    private final SharePresenter sharePresenter;
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
@@ -71,7 +71,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      PlaylistOperations playlistOperations,
                                      LikeOperations likeOperations,
                                      RepostOperations repostOperations,
-                                     ShareOperations shareOperations,
+                                     SharePresenter sharePresenter,
                                      ScreenProvider screenProvider,
                                      FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations,
@@ -85,7 +85,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.playlistOperations = playlistOperations;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
-        this.shareOperations = shareOperations;
+        this.sharePresenter = sharePresenter;
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
@@ -233,10 +233,10 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         final boolean isPublic = !playlist.isPrivate();
 
         if (isPublic) {
-            shareOperations.share(context,
-                                  playlist.getPermalinkUrl(),
-                                  getEventContextMetadata(), promotedSourceInfo.orNull(),
-                                  EntityMetadata.from(playlist));
+            sharePresenter.share(context,
+                                 playlist.getPermalinkUrl(),
+                                 getEventContextMetadata(), promotedSourceInfo.orNull(),
+                                 EntityMetadata.from(playlist));
         }
     }
 

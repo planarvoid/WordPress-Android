@@ -35,7 +35,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
@@ -70,7 +70,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final PlaybackToastHelper playbackToastHelper;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
-    private final ShareOperations shareOperations;
+    private final SharePresenter sharePresenter;
     private final PlayQueueHelper playQueueHelper;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private FeatureFlags featureFlags;
@@ -102,7 +102,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             PlaybackToastHelper playbackToastHelper,
                             LikeOperations likeOperations,
                             RepostOperations repostOperations,
-                            ShareOperations shareOperations,
+                            SharePresenter sharePresenter,
                             OfflinePropertiesProvider offlinePropertiesProvider,
                             PlayQueueHelper playQueueHelper,
                             PlaylistCoverRenderer playlistCoverRenderer,
@@ -122,7 +122,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.playbackToastHelper = playbackToastHelper;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
-        this.shareOperations = shareOperations;
+        this.sharePresenter = sharePresenter;
         this.playQueueHelper = playQueueHelper;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
@@ -410,11 +410,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         if (viewModel != null) {
             final Optional<String> permalinkUrl = viewModel.metadata().permalinkUrl();
             if (!viewModel.metadata().isPrivate() && permalinkUrl.isPresent()) {
-                shareOperations.share(activity,
-                                      permalinkUrl.get(),
-                                      getEventContext(),
-                                      playSessionSource.getPromotedSourceInfo(),
-                                      createEntityMetadata());
+                sharePresenter.share(activity,
+                                     permalinkUrl.get(),
+                                     getEventContext(),
+                                     playSessionSource.getPromotedSourceInfo(),
+                                     createEntityMetadata());
             }
         }
     }

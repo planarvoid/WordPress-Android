@@ -27,7 +27,7 @@ import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -53,7 +53,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
-    private final ShareOperations shareOperations;
+    private final SharePresenter sharePresenter;
     private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
     private final StartStationHandler stationHandler;
@@ -95,7 +95,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            RepostOperations repostOperations,
                            PlaylistOperations playlistOperations,
                            ScreenProvider screenProvider,
-                           ShareOperations shareOperations,
+                           SharePresenter sharePresenter,
                            StartStationHandler stationHandler,
                            AccountOperations accountOperations,
                            PlayQueueConfiguration playQueueConfiguration,
@@ -112,7 +112,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
         this.stationHandler = stationHandler;
-        this.shareOperations = shareOperations;
+        this.sharePresenter = sharePresenter;
         this.accountOperations = accountOperations;
         this.playQueueConfiguration = playQueueConfiguration;
         this.playQueueManager = playQueueManager;
@@ -276,7 +276,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleShare(Context context) {
-        shareOperations.share(context, track, eventContextMetadata, getPromotedSource());
+        sharePresenter.share(context, track, eventContextMetadata, getPromotedSource());
     }
 
     private void showAddToPlaylistDialog() {

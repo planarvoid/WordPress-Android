@@ -27,7 +27,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.share.ShareOperations;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -52,7 +52,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     private static final String SCREEN = "screen";
     @Mock TrackRepository trackRepository;
     @Mock LikeOperations likeOperations;
-    @Mock ShareOperations shareOperations;
+    @Mock SharePresenter sharePresenter;
     @Mock RepostOperations repostOperations;
     @Mock PlaylistOperations playlistOperations;
     @Mock ScreenProvider screenProvider;
@@ -97,7 +97,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                repostOperations,
                                                playlistOperations,
                                                screenProvider,
-                                               shareOperations,
+                                               sharePresenter,
                                                stationHandler,
                                                accountOperations,
                                                playQueueConfiguration,
@@ -146,7 +146,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                     .pageUrn(Urn.NOT_SET)
                                     .isFromOverflow(true)
                                     .build();
-        verify(shareOperations).share(context, trackItem, eventContextMetadata, null);
+        verify(sharePresenter).share(context, trackItem, eventContextMetadata, null);
     }
 
     @Test
