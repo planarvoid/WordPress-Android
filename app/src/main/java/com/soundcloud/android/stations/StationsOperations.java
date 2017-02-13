@@ -106,18 +106,17 @@ public class StationsOperations {
     }
 
     private Observable<StationWithTracks> loadStationWithTracks(Urn station, Func1<StationRecord, StationRecord> toStation) {
-        return Observable
-                .concat(loadStationWithTracks(station)
-                                .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.getStationInfoTracks().size() > 0),
-                        syncSingleStation(station, toStation).flatMap(o -> loadStationWithTracks(station)))
-                .first();
+        return Observable.concat(loadStationWithTracks(station),
+                                 syncSingleStation(station, toStation).flatMap(o -> loadStationWithTracks(station)))
+                         .first();
     }
 
     private Observable<StationWithTracks> loadStationWithTracks(Urn station) {
-        final Observable<StationWithTrackUrns> stationWithTracksEntities = stationsStorage.stationWithTrackUrns(station);
-        return stationWithTracksEntities.flatMap(entity -> trackRepository.trackListFromUrns(entity.trackUrns())
-                                                                          .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
-                                                                          .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
+        return stationsStorage.stationWithTrackUrns(station)
+                              .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.trackUrns().size() > 0)
+                              .flatMap(entity -> trackRepository.trackListFromUrns(entity.trackUrns())
+                                                                .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
+                                                                .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
     }
 
     private Observable<StationRecord> syncSingleStation(Urn station, Func1<StationRecord, StationRecord> toStation) {

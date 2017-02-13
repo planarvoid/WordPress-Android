@@ -186,7 +186,7 @@ class StationsStorage {
                 final List<Urn> trackUrns = propellerDatabase.query(stationInfoTracksQuery(station)).toList(new StationTrackUrnMapper());
                 return stationWithTracks.copyWithTrackUrns(trackUrns);
             }
-            return stationWithTracks;
+            return null;
         });
     }
 
