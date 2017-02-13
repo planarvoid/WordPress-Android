@@ -267,6 +267,14 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldEnableClicksForNonBlockedTracks() {
+        propertySet.put(TrackProperty.BLOCKED, false);
+        renderer.bindItemView(0, itemView, singletonList(trackItem));
+
+        verify(itemView).setClickable(true);
+    }
+
+    @Test
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;

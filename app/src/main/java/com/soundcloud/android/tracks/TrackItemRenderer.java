@@ -157,9 +157,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         if (listener != null) {
             itemView.setOnClickListener(v -> listener.trackItemClicked(track.getUrn(), position));
         }
-        if (track.isBlocked()) {
-            itemView.setClickable(false);
-        }
+
+        itemView.setClickable(!track.isBlocked());
 
         bindExtraInfoRight(track, trackItemView);
         bindExtraInfoBottom(trackItemView, track, showPostedTime);
