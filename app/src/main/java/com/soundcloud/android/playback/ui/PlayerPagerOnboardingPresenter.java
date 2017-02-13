@@ -61,8 +61,11 @@ public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightC
     public void onResume(PlayerFragment fragment) {
         if (!hasReachedMaxOnboardingRun()) {
             final PlayerTrackPager pager = fragment.getPlayerPager();
-            hasPendingOverlay = willShowPlayQueueOverlay();
-            subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new ShowOnboardingSubscriber(pager));
+
+            if (pager != null) {
+                hasPendingOverlay = willShowPlayQueueOverlay();
+                subscription = eventBus.subscribe(EventQueue.PLAYER_UI, new ShowOnboardingSubscriber(pager));
+            }
         }
     }
 

@@ -141,4 +141,14 @@ public class PlayerPagerOnboardingPresenterTest {
         verify(pager).beginFakeDrag();
     }
 
+    @Test
+    public void doNotCrashIfPagerWasNotFound() {
+        when(fragment.getPlayerPager()).thenReturn(null);
+        presenter.onResume(fragment);
+
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        verify(pager, never()).beginFakeDrag();
+    }
+
 }

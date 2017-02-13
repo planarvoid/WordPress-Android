@@ -7,6 +7,7 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,9 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
         return presenter.handleBackPressed();
     }
 
+    @Nullable
     public PlayerTrackPager getPlayerPager() {
-        return (PlayerTrackPager) getView().findViewById(R.id.player_track_pager);
+        View view = getView();
+        return view != null ? (PlayerTrackPager) view.findViewById(R.id.player_track_pager) : null;
     }
 }
