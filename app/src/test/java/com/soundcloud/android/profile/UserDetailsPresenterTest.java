@@ -4,7 +4,9 @@ import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.java.optional.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +39,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -219,7 +222,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingViewFollowersNavigatorsToFollowers() {
+    public void clickingViewFollowersNavigatesToFollowers() {
         presenter.onCreate(fragment, null);
         doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
         presenter.onViewCreated(fragment, view, null);
@@ -229,13 +232,28 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingViewFollowingNavigatorsToFollowings() {
+    public void clickingViewFollowingNavigatesToFollowings() {
         presenter.onCreate(fragment, null);
         doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
         verify(navigator).openFollowings(view.getContext(), USER_URN, searchQuerySourceInfo);
+    }
+
+    @Test
+    public void errorFetchingUserProfileInfoContinuesToShowOldData() {
+        when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.error(new IOException("expected")));
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(userDetailsView).hideEmptyView();
+        verify(userDetailsView, never()).setFollowersCount(any());
+        verify(userDetailsView, never()).setFollowersCount(any());
+        verify(userDetailsView, never()).showBio(any());
+        verify(userDetailsView, never()).showLinks(any());
+        verify(userDetailsView, never()).hideBio();
+        verify(userDetailsView, never()).hideLinks();
     }
 
     private void swipeToRefresh() {

@@ -10,7 +10,6 @@ import com.soundcloud.android.users.SocialMediaLinkItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.optional.Optional;
@@ -160,7 +159,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         public void onError(Throwable e) {
             super.onError(e);
 
-            userDetailsView.showEmptyView(ErrorUtils.emptyViewStatusFromError(e));
+            userDetailsView.hideEmptyView();
 
             if (refreshLayout != null) {
                 refreshLayout.setRefreshing(false);

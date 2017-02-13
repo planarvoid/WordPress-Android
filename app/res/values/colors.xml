@@ -168,7 +168,7 @@
     <color name="stations_bucket_action_text">@color/ak_light_gray</color>
 
     <!-- Profile -->
-    <color name="user_sounds_header">@color/ak_dark_gray</color>
+    <color name="user_profile_section_header">@color/ak_dark_gray</color>
     <color name="user_toggle_button_border">@color/ak_light_gray</color>
     <color name="user_toggle_button_background">@color/ak_sc_orange</color>
 

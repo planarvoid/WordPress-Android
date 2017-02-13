@@ -5,142 +5,148 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/user_details_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_vertical"
+        android:background="@color/page_background">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/user_details_holder"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_vertical"
-            android:background="@color/page_background">
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <View style="@style/Divider.Background" />
+
+            <View style="@style/Divider.Section" />
 
             <LinearLayout
+                android:id="@+id/view_followers"
+                style="@style/Profile.InfoTab.ViewFollows"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.ViewFollowsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="@string/profile_followers" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/followers_count"
+                    style="@style/Profile.InfoTab.ViewFollowsNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Item" />
+
+            <LinearLayout
+                android:id="@+id/view_following"
+                style="@style/Profile.InfoTab.ViewFollows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.ViewFollowsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="@string/profile_following" />
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/followings_count"
+                    style="@style/Profile.InfoTab.ViewFollowsNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right" />
+            </LinearLayout>
+
+            <View style="@style/Divider.Section" />
+
+            <com.soundcloud.android.view.EmptyView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/page_background"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/bio_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <View style="@style/Divider.Background" />
 
                 <View style="@style/Divider.Section" />
 
-                <LinearLayout
-                    android:id="@+id/view_followers"
-                    style="@style/Profile.InfoTab.ViewFollows"
-                    android:layout_width="match_parent"
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.HeadingText"
+                    android:layout_width="wrap_content"
                     android:layout_height="48dp"
-                    android:orientation="horizontal">
+                    android:text="@string/profile_bio" />
 
-                    <com.soundcloud.android.view.CustomFontTextView
-                        style="@style/Profile.InfoTab.ViewFollowsText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="left"
-                        android:text="@string/profile_followers" />
-
-                    <com.soundcloud.android.view.CustomFontTextView
-                        android:id="@+id/followers_count"
-                        style="@style/Profile.InfoTab.ViewFollowsNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="right" />
-                </LinearLayout>
+                <com.soundcloud.android.view.CustomFontTextView
+                    android:id="@+id/bio_text"
+                    style="@style/Profile.InfoTab.BioText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
                 <View style="@style/Divider.Section" />
 
-                <LinearLayout
-                    android:id="@+id/view_following"
-                    style="@style/Profile.InfoTab.ViewFollows"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:orientation="horizontal">
+            </LinearLayout>
 
-                    <com.soundcloud.android.view.CustomFontTextView
-                        style="@style/Profile.InfoTab.ViewFollowsText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="left"
-                        android:text="@string/profile_following" />
+            <LinearLayout
+                android:id="@+id/links_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                    <com.soundcloud.android.view.CustomFontTextView
-                        android:id="@+id/followings_count"
-                        style="@style/Profile.InfoTab.ViewFollowsNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="right" />
-                </LinearLayout>
+                <View style="@style/Divider.Background" />
 
                 <View style="@style/Divider.Section" />
 
-                <LinearLayout
-                    android:id="@+id/bio_section"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <View style="@style/Divider.Background" />
-
-                    <View style="@style/Divider.Section" />
-
-                    <com.soundcloud.android.view.CustomFontTextView
-                        style="@style/Profile.InfoTab.HeadingText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:text="@string/profile_bio" />
-
-                    <com.soundcloud.android.view.CustomFontTextView
-                        android:id="@+id/bio_text"
-                        style="@style/Profile.InfoTab.ContentText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <View style="@style/Divider.Section" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/links_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <View style="@style/Divider.Background" />
-
-                    <View style="@style/Divider.Section" />
-
-                    <com.soundcloud.android.view.CustomFontTextView
-                        style="@style/Profile.InfoTab.HeadingText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:text="@string/profile_links" />
-                </LinearLayout>
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/Profile.InfoTab.HeadingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="@string/profile_links" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/links_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:divider="@drawable/ak_list_divider_item"
-                android:dividerHeight="@dimen/ak_list_divider_horizontal_height"
                 android:orientation="vertical"
-                android:showDividers="middle|end"
                 android:visibility="gone" />
 
+            <LinearLayout
+                android:id="@+id/links_footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" >
+
+                <View
+                    android:layout_height="16dp"
+                    android:layout_width="match_parent"
+                    android:background="@color/white" />
+
+                <View style="@style/Divider.Section" />
             </LinearLayout>
-        </android.support.v4.widget.NestedScrollView>
-
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white" />
-
-    </FrameLayout>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

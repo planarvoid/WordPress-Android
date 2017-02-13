@@ -29,6 +29,7 @@ class UserDetailsView {
     @BindView(R.id.bio_text) TextView bioText;
     @BindView(R.id.links_header) LinearLayout linksHeader;
     @BindView(R.id.links_container) LinearLayout linksContainer;
+    @BindView(R.id.links_footer) View linksFooter;
     @BindView(android.R.id.empty) EmptyView emptyView;
 
     private UserDetailsListener listener;
@@ -67,6 +68,7 @@ class UserDetailsView {
     public void hideLinks() {
         linksHeader.setVisibility(View.GONE);
         linksContainer.setVisibility(View.GONE);
+        linksFooter.setVisibility(View.GONE);
     }
 
     public void showLinks(List<SocialMediaLinkItem> socialMediaLinks) {
@@ -88,6 +90,7 @@ class UserDetailsView {
         }
         linksHeader.setVisibility(View.VISIBLE);
         linksContainer.setVisibility(View.VISIBLE);
+        linksFooter.setVisibility(View.VISIBLE);
     }
 
     void showBio(String contents) {
