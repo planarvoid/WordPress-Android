@@ -5,6 +5,7 @@ import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 import static java.util.Collections.singletonList;
 
+import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
@@ -61,10 +62,22 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
 
         FacebookLoginCallbacks callbacks = activityRef.get();
         if (callbacks != null) {
-            callbacks.onFacebookAuthenticationFailedMessage();
+            handleError(e, callbacks);
         } else {
             log(Log.WARN, ONBOARDING_TAG, "Facebook callback called but activity was garbage collected.");
         }
+    }
+
+    private static void handleError(FacebookException e, FacebookLoginCallbacks callbacks) {
+        if (isConnectionError(e)) {
+            callbacks.onFacebookConnectionErrorMessage();
+        } else {
+            callbacks.onFacebookAuthenticationFailedMessage();
+        }
+    }
+
+    private static boolean isConnectionError(FacebookException e) {
+        return e instanceof FacebookAuthorizationException && e.getMessage().equals("CONNECTION_FAILURE: CONNECTION_FAILURE");
     }
 
     interface FacebookLoginCallbacks {
@@ -73,6 +86,8 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
         void confirmRequestForFacebookEmail();
 
         void onFacebookAuthenticationFailedMessage();
+
+        void onFacebookConnectionErrorMessage();
     }
 
 }

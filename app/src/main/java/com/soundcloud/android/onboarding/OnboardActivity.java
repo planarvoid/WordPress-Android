@@ -873,6 +873,11 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
+    public void onFacebookConnectionErrorMessage() {
+        onError(getString(R.string.authentication_error_no_connection_message), false);
+    }
+
+    @Override
     public void onError(String message, boolean allowUserFeedback) {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(TextUtils.isEmpty(message) ?
