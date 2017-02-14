@@ -37,6 +37,7 @@ enum Feature {
   ALIGNED_USER_INFO,
   VIDEO_INLAYS,
   AUTH_API_MOBILE,
+  RECOMMENDED_PLAYLISTS,
   DYNAMIC_LINK_SHARING;
 }
 
@@ -71,6 +72,7 @@ android {
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
   }
 
@@ -97,6 +99,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
 
@@ -114,6 +117,7 @@ android {
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
 
@@ -134,6 +138,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
 
@@ -147,6 +152,7 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
 
@@ -157,6 +163,7 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
 
@@ -166,6 +173,7 @@ android {
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }
   }

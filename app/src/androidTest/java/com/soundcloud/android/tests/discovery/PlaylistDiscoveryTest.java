@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.PlaylistResultsScreen;
@@ -25,9 +27,20 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.RECOMMENDED_PLAYLISTS);
+    }
+
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         discoveryScreen = mainNavHelper.goToDiscovery();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).reset(Flag.RECOMMENDED_PLAYLISTS);
+        super.tearDown();
     }
 
     public void testPlaylistDiscoveryTags() {

@@ -98,8 +98,8 @@ class DiscoveryModulesProvider {
                 userWelcome(isRefresh),
                 newForYou(isRefresh),
                 recommendedTracks(isRefresh),
-                recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
+                recommendedStations(isRefresh),
                 charts(isRefresh),
                 playlistTags()
         );
@@ -146,7 +146,7 @@ class DiscoveryModulesProvider {
     }
 
     private Observable<DiscoveryItem> recommendedPlaylists(boolean isRefresh) {
-        if (playlistDiscoveryConfig.isEnabled()) {
+        if (featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS) || playlistDiscoveryConfig.isEnabled()) {
             return isRefresh ?
                    recommendedPlaylistsOperations.refreshRecommendedPlaylists() :
                    recommendedPlaylistsOperations.recommendedPlaylists();
@@ -155,6 +155,9 @@ class DiscoveryModulesProvider {
     }
 
     private Observable<DiscoveryItem> playlistTags() {
+        if (featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)) {
+            return Observable.empty();
+        }
         return playlistDiscoveryOperations.playlistTags();
     }
 

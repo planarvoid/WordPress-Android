@@ -70,6 +70,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
         when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(false);
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.emptyList(),
@@ -191,6 +192,23 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsRecommendedPlaylistItemsWhenFeatureFlagEnabled() {
+        when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.ChartItem
         );
     }
 
