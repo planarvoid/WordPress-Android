@@ -241,7 +241,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindsGoLabelAsSelected() {
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());

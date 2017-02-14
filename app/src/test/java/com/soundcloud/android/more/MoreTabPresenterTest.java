@@ -89,7 +89,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void configureSubsSettingsForHighTierUser() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         initFragment();
@@ -335,7 +335,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void usesLegacyHighTierLabelIfMidTierIsNotEnabled() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(false);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
 
         initFragment();
 
@@ -345,7 +345,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void usesLegacyUpsellLabelIfMidTierIsNotEnabled() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(false);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
 
         initFragment();
 

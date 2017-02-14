@@ -27,7 +27,7 @@ public class StreamUpsellItemRenderer extends UpsellItemRenderer<StreamItem> {
     public View createItemView(ViewGroup parent) {
         super.createItemView(parent);
         final View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_upsell_card, parent, false);
-        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER)
+        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                                              ? R.string.upsell_stream_upgrade_title
                                                              : R.string.upsell_stream_upgrade_title_legacy);
         return layout;

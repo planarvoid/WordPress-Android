@@ -105,7 +105,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void showsPlanConversionErrorDialogForAppleError() {
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         when(featureOperations.isPlanManageable()).thenReturn(false);
         when(featureOperations.isPlanVendorApple()).thenReturn(true);
 
@@ -118,7 +118,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void showsPlanConversionErrorDialogForGenericError() {
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         when(featureOperations.isPlanManageable()).thenReturn(false);
         when(featureOperations.isPlanVendorApple()).thenReturn(false);
 
@@ -169,7 +169,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     public void moreProductsButtonEnabledWhenUserIsFreeTierAndMidTierIsAvailable() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
         presenter.onCreate(activity, null);
 

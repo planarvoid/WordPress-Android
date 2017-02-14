@@ -81,7 +81,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void displayProducts() {
         if (products.highTier().isPresent()) {
             displayPrimaryProduct(products.highTier().get());
-            if (featureFlags.isEnabled(Flag.MID_TIER)
+            if (featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
                     && products.midTier().isPresent()
                     && featureOperations.getCurrentPlan() == Plan.FREE_TIER) {
                 view.enableMorePlans();

@@ -180,13 +180,13 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     @PluralsRes
     private int adaptResultCountPlural() {
-        return flags.isEnabled(Flag.MID_TIER)
+        return flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                ? R.plurals.search_premium_content_results_count
                : R.plurals.search_premium_content_results_count_legacy;
     }
 
     private String getViewAllText() {
-        return resources.getString(flags.isEnabled(Flag.MID_TIER)
+        return resources.getString(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                    ? R.string.search_premium_content_view_all
                                    : R.string.search_premium_content_view_all_legacy)
                         .toUpperCase(Locale.getDefault());

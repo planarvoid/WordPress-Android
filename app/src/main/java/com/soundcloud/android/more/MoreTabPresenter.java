@@ -128,7 +128,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         // Ideally tier name resource IDs can be part of the Plan enum, but we need to flag the rename for now
         switch (featureOperations.getCurrentPlan()) {
             case HIGH_TIER:
-                moreView.setSubscriptionTier(resources.getString(featureFlags.isEnabled(Flag.MID_TIER)
+                moreView.setSubscriptionTier(resources.getString(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                                                  ? R.string.tier_plus
                                                                  : R.string.tier_go));
                 break;
@@ -142,7 +142,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     private void setupUpsell(MoreView moreView) {
         if (featureOperations.upsellHighTier()) {
-            moreView.showHighTierUpsell(featureFlags.isEnabled(Flag.MID_TIER)
+            moreView.showHighTierUpsell(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                         ? resources.getString(R.string.more_upsell)
                                         : resources.getString(R.string.more_upsell_legacy));
         }

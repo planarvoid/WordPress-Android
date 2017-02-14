@@ -27,7 +27,7 @@ public class PlaylistUpsellItemRenderer extends UpsellItemRenderer<PlaylistDetai
     public View createItemView(ViewGroup parent) {
         super.createItemView(parent);
         final View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_upsell_item, parent, false);
-        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER)
+        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                                              ? R.string.upsell_playlist_upgrade_title
                                                              : R.string.upsell_playlist_upgrade_title_legacy);
         return layout;

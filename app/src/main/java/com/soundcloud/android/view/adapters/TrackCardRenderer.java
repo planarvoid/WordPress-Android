@@ -77,7 +77,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
         engagementsPresenter.bind(viewHolder, track, getEventContextMetadataBuilder(module).build());
 
-        viewHolder.bindArtworkView(track, flags.isEnabled(Flag.MID_TIER));
+        viewHolder.bindArtworkView(track, flags.isEnabled(Flag.MID_TIER_ROLLOUT));
         showPlayCountOrNowPlaying(viewHolder, track);
         viewHolder.overflowButton.setOnClickListener(overflowButton -> menuPresenter.show(getFragmentActivity(itemView),
                                                                                   viewHolder.overflowButton,

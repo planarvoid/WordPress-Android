@@ -52,7 +52,7 @@ class GoOffboardingView {
 
     @StringRes
     private int adaptDescriptionForLegacyPlanNaming() {
-        return flags.isEnabled(Flag.MID_TIER)
+        return flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                 ? R.string.go_offboard_to_free_description
                 : R.string.go_offboard_to_free_description_legacy;
     }

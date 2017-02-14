@@ -129,7 +129,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetGoLabelSelectedIfMidTierFlagIsEnabled() {
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
         trackItem = TestPropertySets.upsellableTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));

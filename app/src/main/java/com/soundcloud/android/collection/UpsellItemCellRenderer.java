@@ -37,7 +37,7 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         final View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.collections_upsell_item, parent, false);
-        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER)
+        ((TextView) layout.findViewById(R.id.title)).setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                                                              ? R.string.collections_upsell_title
                                                              : R.string.collections_upsell_title_legacy);
         return layout;
@@ -75,7 +75,7 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
             upgrade.setText(upgrade.getResources().getString(R.string.conversion_buy_trial,
                     featureOperations.getHighTierTrialDays()));
         } else {
-            upgrade.setText(flags.isEnabled(Flag.MID_TIER)
+            upgrade.setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                             ? R.string.upsell_upgrade_button
                             : R.string.upsell_upgrade_button_legacy);
         }

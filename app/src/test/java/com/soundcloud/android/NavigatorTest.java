@@ -172,7 +172,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openUpgrade() {
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
         navigator.openUpgrade(activityContext);
 

@@ -66,7 +66,7 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
             action.setText(view.getResources().getString(R.string.conversion_buy_trial,
                     featureOperations.getHighTierTrialDays()));
         } else {
-            action.setText(flags.isEnabled(Flag.MID_TIER)
+            action.setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                            ? R.string.upsell_upgrade_button
                            : R.string.upsell_upgrade_button_legacy);
         }

@@ -76,7 +76,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     private void setGoIndicator(View indicator, TrackPlayQueueUIItem item) {
-        indicator.setSelected(flags.isEnabled(Flag.MID_TIER));
+        indicator.setSelected(flags.isEnabled(Flag.MID_TIER_ROLLOUT));
         indicator.setVisibility(item.isGoTrack()
                                 ? View.VISIBLE
                                 : View.GONE);

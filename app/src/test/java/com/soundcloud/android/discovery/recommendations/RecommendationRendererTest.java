@@ -111,7 +111,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetGoIndicatorSelectedIfMidTierFlagIsEnabled() {
-        when(flags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
         renderer.bindItemView(goTrackPosition, itemView, recommendations);
 

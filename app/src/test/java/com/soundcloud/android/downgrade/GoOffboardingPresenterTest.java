@@ -52,7 +52,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(fragment.getActivity()).thenReturn(activity);
         when(fragment.getContext()).thenReturn(activity);
         when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.FREE_TIER);
-        when(featureFlags.isEnabled(Flag.MID_TIER)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         view = new GoOffboardingViewStub(featureFlags);
         presenter = new GoOffboardingPresenter(navigator, pendingPlanOperations, planChangeOperations, view, eventBus);
     }

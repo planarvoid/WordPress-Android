@@ -48,7 +48,7 @@ class ConversionView {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         setupListener(listener);
-        title.setText(flags.isEnabled(Flag.MID_TIER)
+        title.setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                       ? R.string.conversion_title
                       : R.string.conversion_title_legacy);
     }

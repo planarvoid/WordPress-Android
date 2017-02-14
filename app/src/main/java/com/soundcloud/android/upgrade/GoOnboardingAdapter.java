@@ -47,7 +47,7 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     }
 
     private void adaptContentForRebranding() {
-        if (featureFlags.isEnabled(Flag.MID_TIER)) {
+        if (featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)) {
             pages = Arrays.asList(OnboardingPage.WELCOME_GO_PLUS, OnboardingPage.FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
         } else {
             pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.LEGACY_FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);

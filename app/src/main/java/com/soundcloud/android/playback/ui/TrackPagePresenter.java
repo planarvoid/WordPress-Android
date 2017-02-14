@@ -281,14 +281,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @StringRes
     private int adaptTrialUpsellCopy() {
-        return flags.isEnabled(Flag.MID_TIER)
+        return flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                ? R.string.playback_upsell_button_trial
                : R.string.playback_upsell_button_trial_legacy;
     }
 
     @StringRes
     private int adaptUpsellCopy() {
-        return flags.isEnabled(Flag.MID_TIER)
+        return flags.isEnabled(Flag.MID_TIER_ROLLOUT)
                ? R.string.playback_upsell_button
                : R.string.playback_upsell_button_legacy;
     }
