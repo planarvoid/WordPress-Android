@@ -84,6 +84,20 @@ public abstract class UIEvent extends NewTrackingEvent {
         }
     }
 
+    public enum ShareLinkType {
+        FIREBASE("firebase"),
+        SOUNDCLOUD("soundcloud");
+        private final String key;
+
+        ShareLinkType(String key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return key;
+        }
+    }
+
     public enum MonetizationType {
         PROMOTED("promoted"),
         AUDIO_AD("audio_ad"),
@@ -111,8 +125,9 @@ public abstract class UIEvent extends NewTrackingEvent {
     }
 
     public enum ClickName {
-
-        SHARE("share"),
+        SHARE_REQUEST("share::request"),
+        SHARE_CANCEL("share::cancel"),
+        SHARE_PROMPT("share::prompt"),
         REPOST("repost::add"),
         UNREPOST("repost::remove"),
         LIKE("like::add"),
@@ -232,6 +247,8 @@ public abstract class UIEvent extends NewTrackingEvent {
 
     public abstract Optional<String> playQueueRepeatMode();
 
+    public abstract Optional<ShareLinkType> shareLinkType();
+
     public static UIEvent fromPlayerOpen(boolean manual) {
         return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
@@ -282,17 +299,6 @@ public abstract class UIEvent extends NewTrackingEvent {
 
     public static UIEvent fromComment(EventContextMetadata eventContextMetadata, EntityMetadata playable) {
         return event(Kind.COMMENT).eventContextMetadata(eventContextMetadata).entityMetadata(playable).build();
-    }
-
-    public static UIEvent fromShare(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
-        final Builder builder = event(Kind.SHARE, ClickName.SHARE).clickObjectUrn(Optional.of(resourceUrn))
-                                                                  .clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
-                                                                  .eventContextMetadata(contextMetadata)
-                                                                  .entityMetadata(playable);
-        if (promotedSourceInfo != null) {
-            builder.promotedSourceInfo(promotedSourceInfo);
-        }
-        return builder.build();
     }
 
     public static UIEvent fromShuffle(EventContextMetadata contextMetadata) {
@@ -413,6 +419,41 @@ public abstract class UIEvent extends NewTrackingEvent {
         return event(Kind.MORE_PLAYLISTS_BY_USER, ClickName.MORE_PLAYLISTS_BY_USER).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
+    public static UIEvent fromShareRequest(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        return shareEvent(ClickName.SHARE_REQUEST, resourceUrn, contextMetadata, promotedSourceInfo, playable).build();
+    }
+
+    public static UIEvent fromSharePromptWithFirebaseLink(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable)
+                .shareLinkType(Optional.of(ShareLinkType.FIREBASE))
+                .build();
+    }
+
+    public static UIEvent fromSharePromptWithSoundCloudLink(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable)
+                .shareLinkType(Optional.of(ShareLinkType.SOUNDCLOUD))
+                .build();
+    }
+
+    public static UIEvent fromShareCancel(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
+        return shareEvent(ClickName.SHARE_CANCEL, resourceUrn, contextMetadata, promotedSourceInfo, playable).build();
+    }
+
+    private static UIEvent.Builder shareEvent(ClickName clickName,
+                                              Urn resourceUrn,
+                                              EventContextMetadata contextMetadata,
+                                              @Nullable PromotedSourceInfo promotedSourceInfo,
+                                              EntityMetadata playable) {
+        final Builder builder = event(Kind.SHARE, clickName).clickObjectUrn(Optional.of(resourceUrn))
+                                                            .clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
+                                                            .eventContextMetadata(contextMetadata)
+                                                            .entityMetadata(playable);
+        if (promotedSourceInfo != null) {
+            builder.promotedSourceInfo(promotedSourceInfo);
+        }
+        return builder;
+    }
+
     private static Builder event(Kind kind, ClickName clickName) {
         return event(kind).clickName(Optional.of(clickName));
     }
@@ -453,9 +494,9 @@ public abstract class UIEvent extends NewTrackingEvent {
                                               .monetizationType(Optional.absent())
                                               .monetizableTrackUrn(Optional.absent())
                                               .promoterUrn(Optional.absent())
-                                              .playQueueRepeatMode(Optional.absent());
+                                              .playQueueRepeatMode(Optional.absent())
+                                              .shareLinkType(Optional.absent());
     }
-
 
     @Override
     public UIEvent putReferringEvent(ReferringEvent referringEvent) {
@@ -535,6 +576,8 @@ public abstract class UIEvent extends NewTrackingEvent {
         abstract Builder adArtworkUrl(Optional<Uri> adArtworkUrl);
 
         abstract Builder playQueueRepeatMode(Optional<String> playQueueRepeatMode);
+
+        abstract Builder shareLinkType(Optional<ShareLinkType> shareLinkType);
 
         Builder entityMetadata(EntityMetadata entityMetadata) {
             creatorName(Optional.of(entityMetadata.creatorName));

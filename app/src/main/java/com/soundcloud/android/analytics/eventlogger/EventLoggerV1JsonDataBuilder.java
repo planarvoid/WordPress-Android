@@ -589,6 +589,9 @@ class EventLoggerV1JsonDataBuilder {
         if (event.clickName().isPresent()) {
             eventData.clickName(event.clickName().get().toString());
         }
+        if (event.shareLinkType().isPresent()) {
+            eventData.shareLinkType(event.shareLinkType().get().toString());
+        }
         return eventData;
     }
 

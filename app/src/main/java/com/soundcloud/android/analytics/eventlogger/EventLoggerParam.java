@@ -24,6 +24,7 @@ class EventLoggerParam {
     static final String POLICY = "policy";
     static final String CLIENT_EVENT_ID = "client_event_id";
     static final String PLAY_ID = "play_id";
+    static final String SHARE_LINK_TYPE = "share_link_type";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";

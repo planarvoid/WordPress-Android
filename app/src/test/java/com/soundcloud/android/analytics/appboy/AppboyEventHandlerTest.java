@@ -167,7 +167,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackShareEvents() {
         EventContextMetadata eventContext = eventContextBuilder().pageUrn(Urn.forTrack(123L)).build();
-        UIEvent event = UIEvent.fromShare(Urn.forTrack(123L), eventContext, null, METADATA);
+        UIEvent event = UIEvent.fromShareRequest(Urn.forTrack(123L), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 

@@ -566,8 +566,12 @@ class EventLoggerEventData {
         return this;
     }
 
-
     public EventLoggerEventData searchQuery(String query) {
+        // Not supported by v0
+        return this;
+    }
+
+    public EventLoggerEventData shareLinkType(String shareLinkType) {
         // Not supported by v0
         return this;
     }

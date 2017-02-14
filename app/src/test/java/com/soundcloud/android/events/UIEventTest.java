@@ -995,11 +995,11 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromTrackShare() {
+    public void shouldCreateEventFromTrackShareRequest() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().pageUrn(TRACK_URN).build();
-        UIEvent uiEvent = UIEvent.fromShare(TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromShareRequest(TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SHARE);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE_REQUEST);
         assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
         assertThat(uiEvent.creatorName().get()).isEqualTo(CREATOR_NAME);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(USER_URN);
@@ -1008,11 +1008,11 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromPlaylistShare() {
+    public void shouldCreateEventFromPlaylistShareRequest() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().pageUrn(PLAYLIST_URN).build();
-        UIEvent uiEvent = UIEvent.fromShare(PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromShareRequest(PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SHARE);
-        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE_REQUEST);
         assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
         assertThat(uiEvent.creatorName().get()).isEqualTo(CREATOR_NAME);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(USER_URN);

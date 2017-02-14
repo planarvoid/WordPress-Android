@@ -1,5 +1,7 @@
 package com.soundcloud.android.share;
 
+import static com.soundcloud.java.checks.Preconditions.checkState;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -7,13 +9,13 @@ import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ShareDialog;
+import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.strings.Strings;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -55,6 +57,8 @@ public class SharePresenter {
                       final EventContextMetadata contextMetadata,
                       final PromotedSourceInfo promotedSourceInfo,
                       final EntityMetadata entityMetadata) {
+        eventTracker.trackEngagement(UIEvent.fromShareRequest(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
+
         if (featureFlags.isEnabled(Flag.DYNAMIC_LINKS)) {
             ShareDialog shareDialog = ShareDialog.show(context);
             Subscription subscription = firebaseDynamicLinksApi.createDynamicLink(permalink).observeOn(AndroidSchedulers.mainThread()).subscribe(
@@ -62,7 +66,9 @@ public class SharePresenter {
                         @Override
                         public void onNext(String dynamicLink) {
                             String shortLink = dynamicLink + "?" + Uri.parse(permalink).getPath();
-                            shareAndTrack(context, shortLink, contextMetadata, promotedSourceInfo, entityMetadata);
+                            startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, shortLink);
+                            eventTracker.trackEngagement(UIEvent.fromSharePromptWithFirebaseLink(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
+                            shareDialog.dismiss();
                         }
 
                         @Override
@@ -70,7 +76,8 @@ public class SharePresenter {
                             shareDialog.dismiss();
                             if (throwable instanceof IOException) {
                                 Log.e("Failed to retrieve dynamic link. Falling back to original URL.", throwable);
-                                shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
+                                startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
+                                eventTracker.trackEngagement(UIEvent.fromSharePromptWithSoundCloudLink(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
                             } else {
                                 super.onError(throwable);
                             }
@@ -78,35 +85,24 @@ public class SharePresenter {
 
                         @Override
                         public void onCompleted() {
-                            shareDialog.dismiss();
+                            checkState(!shareDialog.isShowing(), "Share dialog still showing.");
                             super.onCompleted();
                         }
                     });
             shareDialog.onCancelObservable().subscribe(ignored -> {
                 subscription.unsubscribe();
+                eventTracker.trackEngagement(UIEvent.fromShareCancel(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
             });
         } else {
-            shareAndTrack(context, permalink, contextMetadata, promotedSourceInfo, entityMetadata);
+            startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
+            eventTracker.trackEngagement(UIEvent.fromSharePromptWithSoundCloudLink(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
         }
-    }
-
-    private void shareAndTrack(Context context, String permalink, EventContextMetadata contextMetadata, PromotedSourceInfo promotedSourceInfo, EntityMetadata entityMetadata) {
-        startShareActivity(context, entityMetadata.playableTitle, entityMetadata.creatorName, permalink);
-        publishShareTracking(contextMetadata, promotedSourceInfo, entityMetadata.playableUrn, entityMetadata);
     }
 
     private void startShareActivity(Context context,
                                     String title,
                                     String creatorName, String permalink) {
         context.startActivity(buildShareIntent(context, title, creatorName, permalink));
-    }
-
-    private void publishShareTracking(EventContextMetadata contextMetadata, PromotedSourceInfo promotedSourceInfo, Urn urn, EntityMetadata entityMetadata) {
-        eventTracker.trackEngagement(UIEvent.fromShare(
-                urn,
-                contextMetadata,
-                promotedSourceInfo,
-                entityMetadata));
     }
 
     private Intent buildShareIntent(Context context, String title, String creatorName, String permalink) {

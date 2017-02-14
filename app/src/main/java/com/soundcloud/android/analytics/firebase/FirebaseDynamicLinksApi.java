@@ -47,7 +47,7 @@ public class FirebaseDynamicLinksApi {
     /**
      * @see <a href="https://console.firebase.google.com/project/soundcloud.com:soundcloud/durablelinks/links/">Firebase Console</a>
      */
-    private static final String APP_CODE = "g2waz.app.goo.gl";
+    private static final String APP_CODE = "soundcloud.app.goo.gl";
     private static final String JSON_CONTENT_TYPE = "application/json";
 
     private final FirebaseOptions firebaseOptions;

@@ -1,6 +1,8 @@
 package com.soundcloud.android.share;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,35 +73,37 @@ public class SharePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shareTrackPublishesTrackingEvent() throws Exception {
+    public void shareTrackPublishesTrackingEventForRequest() throws Exception {
         operations.share(activityContext, TRACK, eventContext(), null);
 
-        verify(tracker).trackEngagement(uiEventCaptor.capture());
+        verify(tracker, atLeastOnce()).trackEngagement(uiEventCaptor.capture());
 
-        final UIEvent uiEvent = uiEventCaptor.getValue();
+        final UIEvent shareRequestEvent = uiEventCaptor.getAllValues().get(0);
 
-        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
-        assertThat(uiEvent.originScreen().get()).isEqualTo(PAGE_NAME);
-        assertThat(uiEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
+        assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
+        assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
+        assertThat(shareRequestEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
+        assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
+        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
     }
 
     @Test
-    public void sharePromotedTrackPublishesTrackingEvent() throws Exception {
+    public void sharePromotedTrackPublishesTrackingEventForRequest() throws Exception {
         operations.share(activityContext, PROMOTED_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
-        verify(tracker).trackEngagement(uiEventCaptor.capture());
+        verify(tracker, atLeastOnce()).trackEngagement(uiEventCaptor.capture());
 
-        final UIEvent uiEvent = uiEventCaptor.getValue();
+        final UIEvent shareRequestEvent = uiEventCaptor.getAllValues().get(0);
 
-        assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
-        assertThat(uiEvent.originScreen().get()).isEqualTo(PAGE_NAME);
-        assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
-        assertThat(uiEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:12345");
-        assertThat(uiEvent.adUrn().get()).isEqualTo("ad:urn:123");
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
-        assertThat(uiEvent.promoterUrn().get().toString()).isEqualTo("soundcloud:users:193");
+        assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
+        assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
+        assertThat(shareRequestEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
+        assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
+        assertThat(shareRequestEvent.pageUrn().get()).isEqualTo(PAGE_URN);
+        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:12345");
+        assertThat(shareRequestEvent.adUrn().get()).isEqualTo("ad:urn:123");
+        assertThat(shareRequestEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(shareRequestEvent.promoterUrn().get().toString()).isEqualTo("soundcloud:users:193");
     }
 
     @Test
@@ -123,6 +127,49 @@ public class SharePresenterTest extends AndroidUnitTest {
         when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(false);
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         assertShareActivityStarted(TRACK, "http://foo.com/somepath");
+    }
+
+    @Test
+    public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureDisabled() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(false);
+        operations.share(activityContext, TRACK, eventContext(), PROMOTED_SOURCE_INFO);
+        verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
+        UIEvent sharePromptEvent = uiEventCaptor.getAllValues().get(1);
+        assertThat(sharePromptEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_PROMPT);
+        assertThat(sharePromptEvent.shareLinkType().get()).isSameAs(UIEvent.ShareLinkType.SOUNDCLOUD);
+    }
+
+    @Test
+    public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureEnabledAndFirebaseRequestSucceeds() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.just("http://goo.gl/foo?/somepath"));
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
+        UIEvent sharePromptEvent = uiEventCaptor.getAllValues().get(1);
+        assertThat(sharePromptEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_PROMPT);
+        assertThat(sharePromptEvent.shareLinkType().get()).isSameAs(UIEvent.ShareLinkType.FIREBASE);
+    }
+
+    @Test
+    public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureEnabledAndFirebaseRequestFails() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(new IOException()));
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
+        UIEvent sharePromptEvent = uiEventCaptor.getAllValues().get(1);
+        assertThat(sharePromptEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_PROMPT);
+        assertThat(sharePromptEvent.shareLinkType().get()).isSameAs(UIEvent.ShareLinkType.SOUNDCLOUD);
+    }
+
+    @Test
+    public void sharePublishesTrackingEventForCancelWhenFirebaseRequestCanceled() throws Exception {
+        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(PublishSubject.create());
+        operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
+        ShadowDialog.getLatestDialog().cancel();
+        verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
+        UIEvent sharePromptEvent = uiEventCaptor.getAllValues().get(1);
+        assertThat(sharePromptEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_CANCEL);
     }
 
     @Test

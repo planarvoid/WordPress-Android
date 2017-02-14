@@ -1269,10 +1269,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForShareEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
 
         jsonDataBuilder.buildForUIEvent(event);
-        assertEngagementClickEventJson("share", event.getTimestamp());
+        assertEngagementClickEventJson("share::request", event.getTimestamp());
     }
 
     @Test
@@ -1280,11 +1280,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{}));
 
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("share")
+                                               .clickName("share::request")
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(TRACK_URN.toString())
                                                .clickSource(SOURCE)
@@ -1301,11 +1301,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(1234));
 
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("share")
+                                               .clickName("share::request")
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(TRACK_URN.toString())
                                                .clickSource(SOURCE)
@@ -1324,11 +1324,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(2345, 3456));
 
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName("share")
+                                               .clickName("share::request")
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(TRACK_URN.toString())
                                                .clickSource(SOURCE)

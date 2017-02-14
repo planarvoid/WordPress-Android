@@ -90,6 +90,10 @@ public class ShareDialog extends DialogFragment {
         super.onDestroyView();
     }
 
+    public boolean isShowing() {
+        return getDialog() != null && getDialog().isShowing();
+    }
+
     @SuppressLint("InflateParams")
     private void setupLayout(Dialog dialog) {
         View layout = View.inflate(getActivity(), R.layout.share_dialog, null);
