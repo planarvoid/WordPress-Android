@@ -119,6 +119,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
     }
 
     debug {
@@ -154,6 +155,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_HIDE
     }
 
     preRelease {
@@ -165,6 +167,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_HIDE
     }
 
     releaseNonPlayStore {
@@ -175,6 +178,7 @@ android {
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_HIDE
     }
   }
 }
