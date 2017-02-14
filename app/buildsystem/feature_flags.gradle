@@ -76,6 +76,7 @@ android {
 
   buildTypes {
     alpha {
+      buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
@@ -100,6 +101,7 @@ android {
     }
 
     beta {
+      buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
@@ -136,6 +138,7 @@ android {
     }
 
     release {
+      buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
