@@ -5,7 +5,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -38,7 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Singleton
-public class PlayQueueManager implements OriginProvider {
+public class PlayQueueManager {
 
     public enum RepeatMode {
         REPEAT_NONE(""),
@@ -673,7 +672,6 @@ public class PlayQueueManager implements OriginProvider {
         return getCollectionUrn().equals(collection);
     }
 
-    @Override
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
     }
