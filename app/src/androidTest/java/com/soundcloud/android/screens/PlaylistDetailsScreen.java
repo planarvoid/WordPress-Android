@@ -64,11 +64,6 @@ public class PlaylistDetailsScreen extends Screen {
                 .findOnScreenElement(With.id(R.id.toggle_download));
     }
 
-    public ProfileScreen clickArtist() {
-        artist().click();
-        return new ProfileScreen(testDriver);
-    }
-
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
         testDriver
                 .findOnScreenElement(With.id(R.id.playlist_details_overflow_button))
@@ -104,6 +99,14 @@ public class PlaylistDetailsScreen extends Screen {
 
     public VisualPlayerElement clickFirstTrack() {
         return scrollToAndGetFirstTrackItem().click();
+    }
+
+    public VisualPlayerElement clickTrack(int index) {
+        VisualPlayerElement visualPlayerElement = getTracks()
+                .get(index)
+                .click();
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     public String getFirstPlaylistInMoreTitle() {
@@ -145,10 +148,6 @@ public class PlaylistDetailsScreen extends Screen {
 
     private TextElement headerText() {
         return new TextElement(testDriver.findOnScreenElement(With.id(R.id.header_text)));
-    }
-
-    private ViewElement artist() {
-        return testDriver.findOnScreenElement(With.id(R.id.username));
     }
 
     public boolean waitForDownloadToFinish() {
