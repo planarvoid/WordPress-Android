@@ -15,7 +15,6 @@ public class ActiveExperiments {
                                                                                   PlayerUpsellCopyExperiment.CONFIGURATION,
                                                                                   PlaylistDiscoveryConfig.CONFIGURATION,
                                                                                   AutocompleteConfig.CONFIGURATION,
-                                                                                  PlayQueueConfiguration.CONFIGURATION,
                                                                                   MiniplayerExperiment.CONFIGURATION,
                                                                                   FlipperConfiguration.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION,

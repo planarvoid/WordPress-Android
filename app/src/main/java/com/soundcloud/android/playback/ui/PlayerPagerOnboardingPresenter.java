@@ -8,8 +8,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
@@ -36,7 +34,6 @@ public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightC
     private final PlayerPagerOnboardingStorage storage;
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
     private final CastConnectionHelper castConnectionHelper;
-    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final Handler handler;
 
@@ -47,12 +44,10 @@ public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightC
     PlayerPagerOnboardingPresenter(PlayerPagerOnboardingStorage storage,
                                    IntroductoryOverlayOperations introductoryOverlayOperations,
                                    CastConnectionHelper castConnectionHelper,
-                                   FeatureFlags featureFlags,
                                    EventBus eventBus) {
         this.storage = storage;
         this.introductoryOverlayOperations = introductoryOverlayOperations;
         this.castConnectionHelper = castConnectionHelper;
-        this.featureFlags = featureFlags;
         this.eventBus = eventBus;
         this.handler = new Handler();
     }
@@ -74,9 +69,7 @@ public class PlayerPagerOnboardingPresenter extends DefaultSupportFragmentLightC
     }
 
     private boolean willShowPlayQueueOverlay() {
-        return featureFlags.isEnabled(Flag.PLAY_QUEUE) &&
-                !castConnectionHelper.isCasting() &&
-                !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
+        return !castConnectionHelper.isCasting() && !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE);
     }
 
     @Override

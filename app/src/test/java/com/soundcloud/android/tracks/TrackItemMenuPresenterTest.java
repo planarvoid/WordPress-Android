@@ -16,7 +16,6 @@ import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -59,7 +58,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlayQueueManager playQueueManager;
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
-    @Mock PlayQueueConfiguration playQueueConfiguration;
     @Mock StartStationHandler stationHandler;
     @Mock Context context;
     @Mock FragmentActivity activity;
@@ -85,7 +83,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
-        when(playQueueConfiguration.isEnabled()).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.empty());
 
@@ -100,7 +97,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                sharePresenter,
                                                stationHandler,
                                                accountOperations,
-                                               playQueueConfiguration,
                                                playQueueManager,
                                                playbackInitiator,
                                                playbackToastHelper,

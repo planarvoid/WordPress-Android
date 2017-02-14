@@ -10,7 +10,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
@@ -30,7 +29,6 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private EventBus eventBus;
     @Mock private FeatureOperations featureOperations;
-    @Mock private PlayQueueConfiguration playQueueConfiguration;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private AccountOperations accountOperations;
@@ -53,8 +51,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 accountOperations,
                                                 screenProvider,
                                                 eventBus,
-                                                featureOperations,
-                                                playQueueConfiguration);
+                                                featureOperations);
     }
 
     @Test
@@ -76,18 +73,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void doNotShowPlaylist() {
-        when(playQueueConfiguration.isEnabled()).thenReturn(false);
-
-        renderer.render(playlist);
-
-        verify(popupMenuWrapper).setItemVisible(R.id.play_next, false);
-    }
-
-    @Test
-    public void showPlaylist() {
-        when(playQueueConfiguration.isEnabled()).thenReturn(true);
-
+    public void showPlayNext() {
         renderer.render(playlist);
 
         verify(popupMenuWrapper).setItemVisible(R.id.play_next, true);

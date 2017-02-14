@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
-import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -35,8 +35,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -83,7 +81,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
     @Mock private PlayerPagerOnboardingPresenter onboardingPresenter;
-    @Mock private FeatureFlags featureFlags;
 
     @Mock private PlayerTrackPager playerTrackPager;
 
@@ -144,12 +141,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              adOperations,
                                              videoSurfaceProvider,
                                              onboardingPresenter,
-                                             eventBus,
-                                             featureFlags
-        );
+                                             eventBus);
         when(playerFragment.getPlayerPager()).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         presenter.onViewCreated(playerFragment, container, null);
         presenter.setCurrentPlayQueue(playQueue, 0);
 

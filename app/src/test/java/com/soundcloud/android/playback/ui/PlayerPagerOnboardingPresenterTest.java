@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,23 +10,18 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PlayerPagerOnboardingPresenterTest {
     private final TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlayerPagerOnboardingStorage storage;
     @Mock private PlayerFragment fragment;
     @Mock private PlayerTrackPager pager;
-    @Mock private FeatureFlags featureFlags;
     @Mock private IntroductoryOverlayOperations introductoryOverlayOperations;
     @Mock private CastConnectionHelper castConnectionHelper;
 
@@ -35,21 +29,22 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         when(fragment.getPlayerPager()).thenReturn(pager);
         when(pager.getChildCount()).thenReturn(2);
         when(castConnectionHelper.isCasting()).thenReturn(false);
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(false);
         presenter = new PlayerPagerOnboardingPresenter(
                 storage,
                 introductoryOverlayOperations,
                 castConnectionHelper,
-                featureFlags,
                 eventBus
         );
     }
 
     @Test
-    public void showSkipOnboardingWhenPlayerExpends() {
+    public void showSkipOnboardingWhenPlayerExpands() {
+        when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE)).thenReturn(true);
+
         presenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
@@ -77,15 +72,14 @@ public class PlayerPagerOnboardingPresenterTest {
     }
 
     @Test
-    public void showSkipOnboardingOnly3Times() {
+    public void doNotShowSkipWhenItHasBeenDisplayed3Times() {
+        when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE)).thenReturn(true);
+        when(storage.numberOfOnboardingRun()).thenReturn(3);
         presenter.onResume(fragment);
 
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        verify(pager, times(4)).beginFakeDrag();
+        verify(pager, never()).beginFakeDrag();
     }
 
     @Test
@@ -97,9 +91,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void doNotShowSkipOnboardingWhenPlayQueueOverlayIsPending() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
-        when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE)).thenReturn(false);
-
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
@@ -108,7 +99,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void showSkipOnboardingWhenPlayQueueOverlayIsNotPending() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE)).thenReturn(true);
 
         presenter.onResume(fragment);
@@ -119,7 +109,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void doNotShowSkipOnboardingWhenPlayQueueOverlayWasPending() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         when(introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE))
                 .thenReturn(false)
                 .thenReturn(true);
@@ -132,7 +121,6 @@ public class PlayerPagerOnboardingPresenterTest {
 
     @Test
     public void showSkipOnboardingWhenCastingAndIntroOverlayWasAlreadyShown() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         when(castConnectionHelper.isCasting()).thenReturn(true);
 
         presenter.onResume(fragment);

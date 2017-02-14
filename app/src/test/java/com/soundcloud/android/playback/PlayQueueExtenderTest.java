@@ -18,9 +18,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -35,8 +32,6 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
-import android.content.SharedPreferences;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -45,9 +40,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private SharedPreferences sharedPreferences;
     @Mock private CastConnectionHelper castConnectionHelper;
-    @Mock private FeatureFlags featureFlags;
 
     private final Urn LAST_URN = Urn.forTrack(987);
     private final Urn TRACK_URN = Urn.forTrack(123);
@@ -65,7 +58,6 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(playSessionSource);
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
-        when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(true);
         when(playQueueOperations.relatedTracksPlayQueue(eq(LAST_URN), anyBoolean(), any(PlaySessionSource.class)))
                 .thenReturn(Observable.just(recommendedPlayQueue));
         when(castConnectionHelper.isCasting()).thenReturn(false);
@@ -73,10 +65,8 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         PlayQueueExtender extender = new PlayQueueExtender(playQueueManager,
                                                            playQueueOperations,
                                                            stationsOperations,
-                                                           sharedPreferences,
                                                            eventBus,
-                                                           castConnectionHelper,
-                                                           featureFlags);
+                                                           castConnectionHelper);
         extender.subscribe();
     }
 
@@ -113,16 +103,6 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, station, 0));
 
         verify(playQueueManager).appendPlayQueueItems(playQueue);
-    }
-
-    @Test
-    public void doesNotAppendsRecommendedTracksWhenAtEndIfPreferenceOff() {
-        when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(false);
-        setWithinToleranceAtEnd();
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
-
-        verifyZeroInteractions(playQueueOperations);
     }
 
     @Test
@@ -209,10 +189,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void appendsRecommendedTracksWhenPlayQueueFeatureIsEnabledRegardlessOfUserPreference() {
-        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
-        when(sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true)).thenReturn(false);
-
+    public void appendsRecommendedTracks() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).appendPlayQueueItems(recommendedPlayQueue);

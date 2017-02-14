@@ -20,7 +20,6 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -30,8 +29,6 @@ import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
@@ -104,8 +101,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
 
-    private final FeatureFlags featureFlags;
-
     private final LruCache<Urn, ReplaySubject<Track>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
@@ -140,8 +135,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                          AdsOperations adOperations,
                          VideoSurfaceProvider videoSurfaceProvider,
                          PlayerPagerOnboardingPresenter onboardingPresenter,
-                         EventBus eventBus,
-                         FeatureFlags featureFlags) {
+                         EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
@@ -155,7 +149,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         this.onboardingPresenter = onboardingPresenter;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
-        this.featureFlags = featureFlags;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -246,9 +239,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     }
 
     private boolean shouldShowIntroductoryOverlay() {
-        return featureFlags.isEnabled(Flag.PLAY_QUEUE) &&
-                !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE) &&
-                !castConnectionHelper.isCasting();
+        return !introductoryOverlayOperations.wasOverlayShown(IntroductoryOverlayKey.PLAY_QUEUE) && !castConnectionHelper.isCasting();
     }
 
     private void setupTrackChangedSubscriber() {

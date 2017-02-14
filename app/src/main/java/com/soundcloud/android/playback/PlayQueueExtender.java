@@ -6,20 +6,15 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
-import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -35,10 +30,8 @@ public class PlayQueueExtender {
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final StationsOperations stationsOperations;
-    private final SharedPreferences sharedPreferences;
     private final EventBus eventBus;
     private final CastConnectionHelper castConnectionHelper;
-    private final FeatureFlags featureFlags;
 
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
 
@@ -46,17 +39,13 @@ public class PlayQueueExtender {
     PlayQueueExtender(PlayQueueManager playQueueManager,
                       PlayQueueOperations playQueueOperations,
                       StationsOperations stationsOperations,
-                      SharedPreferences sharedPreferences,
                       EventBus eventBus,
-                      CastConnectionHelper castConnectionHelper,
-                      FeatureFlags featureFlags) {
+                      CastConnectionHelper castConnectionHelper) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.stationsOperations = stationsOperations;
-        this.sharedPreferences = sharedPreferences;
         this.eventBus = eventBus;
         this.castConnectionHelper = castConnectionHelper;
-        this.featureFlags = featureFlags;
     }
 
     public void subscribe() {
@@ -113,16 +102,7 @@ public class PlayQueueExtender {
 
     private boolean currentQueueAllowsRecommendations() {
         final boolean isStation = playQueueManager.getCollectionUrn().isStation();
-
-        if (featureFlags.isEnabled(Flag.PLAY_QUEUE)) {
-            return !isStation;
-        } else {
-            final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
-            final boolean isAutoplay = sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true);
-            final boolean isDeeplink = Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
-
-            return !isStation && (isAutoplay || isDeeplink);
-        }
+        return !isStation;
     }
 
     private boolean withinRecommendedFetchTolerance() {

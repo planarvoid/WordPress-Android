@@ -12,7 +12,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -88,7 +87,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final PlayerUpsellCopyExperiment upsellCopyExperiment;
-    private final PlayQueueConfiguration playQueueConfiguration;
     private final FeatureFlags flags;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
@@ -111,7 +109,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        Resources resources,
                        PlayerUpsellImpressionController upsellImpressionController,
                        PlayerUpsellCopyExperiment upsellCopyExperiment,
-                       PlayQueueConfiguration playQueueConfiguration,
                        FeatureFlags flags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
@@ -130,7 +127,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
         this.upsellCopyExperiment = upsellCopyExperiment;
-        this.playQueueConfiguration = playQueueConfiguration;
         this.flags = flags;
     }
 
@@ -241,11 +237,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void updatePlayQueueButton(View view) {
         final TrackPageHolder holder = getViewHolder(view);
-
-        if (playQueueConfiguration.isEnabled()) {
-            holder.playQueueButton.setVisibility(View.VISIBLE);
-        } else {
+        if (castConnectionHelper.isCasting()) {
             holder.playQueueButton.setVisibility(View.GONE);
+        } else {
+            holder.playQueueButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -746,7 +741,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.shareButton.setOnClickListener(shareClickListener);
         holder.likeToggle.setOnClickListener(this::updateLikeStatus);
 
-        holder.populateViewSets(playQueueConfiguration);
+        holder.populateViewSets();
         trackView.setTag(holder);
 
         holder.errorViewController = errorControllerFactory.create(trackView);
@@ -842,7 +837,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         private static final Predicate<View> PRESENT_IN_CONFIG = v -> v != null;
 
 
-        void populateViewSets(PlayQueueConfiguration playQueueConfiguration) {
+        void populateViewSets() {
             List<View> hideOnScrub = Arrays.asList(title,
                                                    user,
                                                    trackContext,
@@ -854,7 +849,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                    bottomClose,
                                                    upsellView,
                                                    topGradient,
-                                                   getPlayQueueButtonOrNull(playQueueConfiguration));
+                                                   playQueueButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> hideOnEmpty = Arrays.asList(playButton, timestamp, bottomClose);
             List<View> clickViews = Arrays.asList(artworkView,
@@ -865,14 +860,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   footerPlayToggle,
                                                   profileLink,
                                                   upsellView.getUpsellButton(),
-                                                  getPlayQueueButtonOrNull(playQueueConfiguration));
-            List<View> trackViews = Arrays.asList(close,
+                                                  playQueueButton);
+                                                  List<View> trackViews = Arrays.asList(close,
                                                   more,
                                                   likeToggle,
                                                   title,
                                                   user,
                                                   timestamp,
-                                                  getPlayQueueButtonOrNull(playQueueConfiguration));
+                                                  playQueueButton);
 
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder,
@@ -891,11 +886,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                     timestamp,
                                                     menuController);
 
-        }
-
-        @Nullable
-        private View getPlayQueueButtonOrNull(PlayQueueConfiguration playQueueConfiguration) {
-            return playQueueConfiguration.isEnabled() ? playQueueButton : null;
         }
 
         private boolean hasNextButton() {

@@ -6,7 +6,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
@@ -48,7 +47,6 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private final PlayQueueConfiguration playQueueConfiguration;
     private OverflowMenuOptions menuOptions;
     private PopupMenuWrapper menu;
     private PlaylistItem playlist;
@@ -60,14 +58,12 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                              @Provided AccountOperations accountOperations,
                              @Provided ScreenProvider screenProvider,
                              @Provided EventBus eventBus,
-                             @Provided FeatureOperations featureOperations,
-                             @Provided PlayQueueConfiguration playQueueConfiguration) {
+                             @Provided FeatureOperations featureOperations) {
         this.listener = listener;
         this.accountOperations = accountOperations;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.playQueueConfiguration = playQueueConfiguration;
         this.menuOptions = menuOptions;
 
         this.menu = popupMenuWrapperFactory.build(button.getContext(), button);
@@ -175,7 +171,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void configurePlayNextOption() {
-        menu.setItemVisible(R.id.play_next, playQueueConfiguration.isEnabled());
+        menu.setItemVisible(R.id.play_next, true);
     }
 
     @Override

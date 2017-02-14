@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -32,7 +31,6 @@ class PlaylistEngagementsRenderer {
     private final Context context;
     private final Resources resources;
     private final FeatureFlags featureFlags;
-    private final PlayQueueConfiguration playQueueConfiguration;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final DownloadStateRenderer downloadStateRenderer;
     private final LikeButtonPresenter likeButtonPresenter;
@@ -42,14 +40,12 @@ class PlaylistEngagementsRenderer {
     @Inject
     PlaylistEngagementsRenderer(Context context,
                                 FeatureFlags featureFlags,
-                                PlayQueueConfiguration playQueueConfiguration,
                                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                 DownloadStateRenderer downloadStateRenderer,
                                 LikeButtonPresenter likeButtonPresenter,
                                 PlaylistDetailInfoProvider infoProvider) {
         this.context = context;
         this.featureFlags = featureFlags;
-        this.playQueueConfiguration = playQueueConfiguration;
         this.likeButtonPresenter = likeButtonPresenter;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -220,7 +216,7 @@ class PlaylistEngagementsRenderer {
     }
 
     private void configurePlayNext(PopupMenuWrapper menu ) {
-        menu.setItemVisible(R.id.play_next, playQueueConfiguration.isEnabled());
+        menu.setItemVisible(R.id.play_next, true);
     }
 
     private void setInfoText(String message, View view) {

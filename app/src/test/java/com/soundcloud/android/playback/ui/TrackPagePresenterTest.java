@@ -19,7 +19,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayQueueConfiguration;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
@@ -90,7 +89,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
     @Mock private ImageOperations imageOperations;
-    @Mock private PlayQueueConfiguration playQueueConfiguration;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
@@ -129,7 +127,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            upsellCopyExperiment,
-                                           playQueueConfiguration,
                                            flags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
@@ -799,6 +796,13 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                                           getHolder(trackView).playQueueButton,
                                                           resources().getString(R.string.play_queue_introductory_overlay_title),
                                                           resources().getString(R.string.play_queue_introductory_overlay_description));
+    }
+
+    @Test
+    public void shouldNotShowPlayQueueButtonWhenCasting() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
+        assertThat(getHolder(trackView).playQueueButton.getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
