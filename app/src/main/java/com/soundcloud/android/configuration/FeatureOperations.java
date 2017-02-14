@@ -3,6 +3,7 @@ package com.soundcloud.android.configuration;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -50,6 +51,10 @@ public class FeatureOperations {
 
     public boolean shouldUseKruxForAdTargeting() {
         return featureStorage.isEnabled(FeatureName.KRUX_ADS, false);
+    }
+
+    public Observable<Boolean> adsEnabled() {
+       return getUpdates(FeatureName.REMOVE_AUDIO_ADS);
     }
 
     public boolean shouldRequestAds() {
