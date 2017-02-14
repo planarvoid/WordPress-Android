@@ -32,7 +32,8 @@
     <ImageView
         android:id="@+id/footer_play_queue_button"
         style="@style/PlayerQueue"
-        android:layout_centerVertical="true"
+        android:layout_height="@dimen/player_footer_control"
+        android:layout_width="@dimen/player_footer_control"
         android:layout_marginRight="12dp" />
 
 </RelativeLayout>
