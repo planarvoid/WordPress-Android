@@ -9,7 +9,7 @@ class MagicBoxPlayQueueUIItem extends PlayQueueUIItem {
     MagicBoxPlayQueueUIItem(PlayState playState,
                             PlayQueueManager.RepeatMode repeatMode,
                             boolean isAutoPlay) {
-        super(playState, repeatMode);
+        super(playState, repeatMode, false);
         this.isAutoPlay = isAutoPlay;
     }
 

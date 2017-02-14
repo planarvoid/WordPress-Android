@@ -14,7 +14,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     private final TrackPlayQueueItemRenderer trackRenderer;
     private final MagicBoxPlayQueueItemRenderer magicBoxRenderer;
-            ;
     private PlayQueueView.DragListener dragListener;
 
     @Inject
@@ -62,12 +61,6 @@ class PlayQueueAdapter extends RecyclerItemAdapter<PlayQueueUIItem, RecyclerItem
 
     void setDragListener(PlayQueueView.DragListener dragListener) {
         this.dragListener = dragListener;
-    }
-
-    @Override
-    public void removeItem(int position) {
-        super.removeItem(position);
-        notifyItemRemoved(position);
     }
 
     void switchItems(int firstItemPosition, int secondItemPosition) {

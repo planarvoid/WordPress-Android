@@ -100,25 +100,28 @@ class PlayQueuePresenter {
     }
 
     private void setUpRebuildStream() {
-       eventSubscriptions.add(rebuildSubject.map(ignored -> items)
-                      .map(items -> Iterables.filter(items, input -> input.isTrack()))
-                      .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
-                          TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
-                          return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
-                      })))
-                      .zipWith(getTitlesObservable(), playQueueUIItemMapper)
-                      .doOnNext(newItems -> items = newItems)
-                      .doOnNext(items -> setNowPlaying())
-                      .subscribe(new PlayQueueSubscriber()));
+        eventSubscriptions.add(rebuildSubject.map(ignored -> items)
+                                             .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
+                                             .doOnNext(newItems -> items = newItems)
+                                             .doOnNext(items -> setNowPlaying())
+                                             .subscribe(new PlayQueueSubscriber()));
     }
 
+    Observable<List<TrackAndPlayQueueItem>> createTracksFromItems(List<PlayQueueUIItem> playQueueUIItems) {
+        return Observable.just(playQueueUIItems)
+                         .map(items -> Iterables.filter(items, input -> input.isTrack()))
+                         .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
+                             TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
+                             return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
+                         })));
+    }
 
     public void undoClicked() {
         if (playQueueView.isPresent() && undoHolder.isPresent()) {
             UndoHolder undoHolder = this.undoHolder.get();
-            items.addAll(undoHolder.adapterPosition, undoHolder.playQueueUIItem);
+            items.addAll(undoHolder.adapterPosition, undoHolder.playQueueUIItems);
             rebuildSubject.onNext(true);
-            playQueueManager.insertItemAtPosition(undoHolder.playQueuePosition, undoHolder.playQueueItem);
+            playQueueManager.insertItemsAtPosition(undoHolder.playQueuePosition, undoHolder.playQueueItems);
 
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemoveUndo(Screen.PLAY_QUEUE));
         }
@@ -223,7 +226,7 @@ class PlayQueuePresenter {
         if (playQueueView.isPresent()) {
             if (adapterPosition >= 0 && adapterPosition < items.size()) {
                 final PlayQueueUIItem item = items.get(adapterPosition);
-                return item.isTrack() && PlayState.COMING_UP.equals(item.getPlayState());
+                return item.isRemoveable();
             }
         }
         return false;
@@ -233,29 +236,64 @@ class PlayQueuePresenter {
         if (playQueueView.isPresent()) {
             final PlayQueueUIItem adapterItem = items.get(adapterPosition);
             if (adapterItem.isTrack()) {
-                playQueueView.get().showUndo();
                 final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) adapterItem).getPlayQueueItem();
                 final int playQueuePosition = playQueueManager.indexOfPlayQueueItem(playQueueItem);
-                if (isHeader(adapterPosition-1) && isHeader(adapterPosition+1)) {
-                    playQueueView.get().removeItem(adapterPosition);
-                    playQueueView.get().removeItem(adapterPosition);
-                    playQueueView.get().removeItem(adapterPosition-1);
-                    List<PlayQueueUIItem> playQueueUIItems = new ArrayList<>(3);
-                    playQueueUIItems.add(items.remove(adapterPosition));
-                    playQueueUIItems.add(items.remove(adapterPosition));
-                    playQueueUIItems.add(items.remove(adapterPosition-1));
-                    undoHolder = Optional.of(new UndoHolder(playQueueItem, playQueuePosition, playQueueUIItems, adapterPosition));
+                if (isSingleTrackSection(adapterPosition)) {
+                    int headerPosition = adapterPosition-1;
+                    removeSection(headerPosition);
                 } else {
-                    playQueueView.get().removeItem(adapterPosition);
-                    undoHolder = Optional.of(new UndoHolder(playQueueItem, playQueuePosition, Lists.newArrayList(items.remove(adapterPosition)), adapterPosition));
+                    removeSingleItem(adapterPosition, playQueueItem, playQueuePosition);
                 }
-
-                if (playQueuePosition >= 0) {
-                    playQueueManager.removeItem(playQueueItem);
-                }
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
+            } else if (adapterItem.isHeader()) {
+                removeSection(adapterPosition);
             }
         }
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
+    }
+
+    private void removeSingleItem(int adapterPosition, PlayQueueItem playQueueItem, int playQueuePosition) {
+        playQueueView.get().showUndo();
+        playQueueView.get().removeItem(adapterPosition);
+        undoHolder = Optional.of(new UndoHolder(Lists.newArrayList(playQueueItem), playQueuePosition, Lists.newArrayList(items.remove(adapterPosition)), adapterPosition));
+        if (playQueuePosition >= 0) {
+            playQueueManager.removeItem(playQueueItem);
+        }
+    }
+
+    private boolean isSingleTrackSection(int adapterPosition) {
+        return isHeader(adapterPosition-1) && isHeader(adapterPosition+1);
+    }
+
+    private void removeSection(int headerPosition) {
+        List<PlayQueueUIItem> playQueueUIItems = new ArrayList<>();
+        playQueueUIItems.add(items.get(headerPosition));
+        for (int i = headerPosition + 1; i < items.size(); i++) {
+            PlayQueueUIItem playQueueUIItem = items.get(i);
+            if (!playQueueUIItem.isTrack()) {
+                break;
+            }
+            if (!playQueueUIItem.isRemoveable()) {
+                return;
+            }
+            playQueueUIItems.add(playQueueUIItem);
+        }
+
+        playQueueView.get().showUndo();
+        items.removeAll(playQueueUIItems);
+        rebuildSubject.onNext(true);
+        List<PlayQueueItem> trackPlayQueueItems = new ArrayList<>();
+        int playQueuePosition = -1;
+        for (PlayQueueUIItem playQueueUIItem : playQueueUIItems) {
+            if (playQueueUIItem.isTrack()) {
+                trackPlayQueueItems.add(((TrackPlayQueueUIItem) playQueueUIItem).getPlayQueueItem());
+                if (playQueuePosition == -1) {
+                    playQueuePosition = playQueueManager.indexOfPlayQueueItem(trackPlayQueueItems.get(0));
+                }
+                playQueueManager.removeItem(((TrackPlayQueueUIItem) playQueueUIItem).getPlayQueueItem());
+            }
+        }
+        undoHolder = Optional.of(new UndoHolder(trackPlayQueueItems, playQueuePosition, playQueueUIItems, headerPosition));
+
     }
 
     private boolean isHeader(int adapterPosition) {
@@ -310,29 +348,26 @@ class PlayQueuePresenter {
         return 0;
     }
 
-    private Observable<Map<Urn, String>> getTitlesObservable() {
-        final Map<Urn, String> titles = new HashMap<>();
+    private Observable<Map<Urn, String>> createTitlesFromItems(List<PlayQueueUIItem> items) {
+        return Observable.just(items)
+                .map(playQueueUIItems -> {
+                    final Map<Urn, String> titles = new HashMap<>();
 
-        for (PlayQueueUIItem item : items) {
-            if (item.isTrack()) {
-                final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
-                final Optional<String> contextTitle = trackUIItem.getContextTitle();
-                if (contextTitle.isPresent()) {
-                    final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
-                    final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
-                    if (urn.isPresent()) {
-                        titles.put(urn.get(), contextTitle.get());
+                    for (PlayQueueUIItem item : items) {
+                        if (item.isTrack()) {
+                            final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
+                            final Optional<String> contextTitle = trackUIItem.getContextTitle();
+                            if (contextTitle.isPresent()) {
+                                final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
+                                final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
+                                if (urn.isPresent()) {
+                                    titles.put(urn.get(), contextTitle.get());
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        }
-        return Observable.just(titles);
-    }
-
-    private boolean isPlayingCurrent() {
-        final int adapterPosition = getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
-        final boolean isWithinRange = adapterPosition < items.size() && adapterPosition >= 0;
-        return isWithinRange && items.get(adapterPosition).isPlayingOrPaused();
+                    return titles;
+                });
     }
 
     private int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
@@ -374,9 +409,11 @@ class PlayQueuePresenter {
             if (item.isTrack()) {
                 final TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) item;
                 setPlayState(position, i, trackItem, isPlaying);
+                trackItem.setRemoveable(trackItem.getPlayState().equals(PlayState.COMING_UP));
                 if (!headerPlayStateSet && lastHeaderPlayQueueUiItem.isPresent()) {
                     headerPlayStateSet = shouldAddHeader(trackItem);
                     lastHeaderPlayQueueUiItem.get().setPlayState(trackItem.getPlayState());
+                    lastHeaderPlayQueueUiItem.get().setRemoveable(trackItem.getPlayState().equals(PlayState.COMING_UP));
                 }
             } else if (item.isHeader()) {
                 lastHeaderPlayQueueUiItem = Optional.of((HeaderPlayQueueUIItem) item);
@@ -405,15 +442,15 @@ class PlayQueuePresenter {
     }
 
     private class UndoHolder {
-        private final PlayQueueItem playQueueItem;
+        private final List<PlayQueueItem> playQueueItems;
         private final int playQueuePosition;
-        private final List<PlayQueueUIItem> playQueueUIItem;
+        private final List<PlayQueueUIItem> playQueueUIItems;
         private final int adapterPosition;
 
-        public UndoHolder(PlayQueueItem playQueueItem, int playQueuePosition, List<PlayQueueUIItem> playQueueUIItem, int adapterPosition) {
-            this.playQueueItem = playQueueItem;
+        public UndoHolder(List<PlayQueueItem> playQueueItems, int playQueuePosition, List<PlayQueueUIItem> playQueueUIItems, int adapterPosition) {
+            this.playQueueItems = playQueueItems;
             this.playQueuePosition = playQueuePosition;
-            this.playQueueUIItem = playQueueUIItem;
+            this.playQueueUIItems = playQueueUIItems;
             this.adapterPosition = adapterPosition;
         }
 

@@ -29,6 +29,8 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
@@ -36,6 +38,10 @@ import rx.Observable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.Subject;
 
+import android.content.res.Resources;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayQueuePresenterTest extends AndroidUnitTest {
@@ -48,13 +54,16 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private PlayQueueUIItem item;
     @Mock private PlaylistExploder playlistExploder;
+    @Mock private Resources resources;
+
+    @Captor private ArgumentCaptor<ArrayList<PlayQueueUIItem>> itemsCaptor;
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        final PlayQueueUIItemMapper playQueueUIItemMapper = new PlayQueueUIItemMapper(context(), playQueueManager);
+        final PlayQueueUIItemMapper playQueueUIItemMapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources);
 
         presenter = new PlayQueuePresenter(
                 playQueueManager,
@@ -67,6 +76,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123)));
         when(item.isTrack()).thenReturn(true);
         when(playbackStateProvider.isSupposedToBePlaying()).thenReturn(true);
         setUIItems();
@@ -74,7 +84,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     private OngoingStubbing<Observable<List<PlayQueueUIItem>>> setUIItems() {
-        List<PlayQueueUIItem> uiItems = Lists.newArrayList(headerPlayQueueUIItem(),
+        List<PlayQueueUIItem> uiItems = Lists.newArrayList(headerPlayQueueUIItem(false),
                                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYED),
                                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
                                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
@@ -115,6 +125,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         TrackPlayQueueUIItem trackPlayQueueUIItem = Mockito.mock(TrackPlayQueueUIItem.class);
         when(trackPlayQueueUIItem.isTrack()).thenReturn(true);
         when(trackPlayQueueUIItem.isGoTrack()).thenReturn(true);
+        when(trackPlayQueueUIItem.getPlayState()).thenReturn(PlayState.COMING_UP);
         uiSubject.onNext(Lists.newArrayList(trackPlayQueueUIItem));
 
         presenter.trackClicked(0);
@@ -153,6 +164,24 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.trackClicked(2);
 
         assertThat(presenter.isRemovable(1)).isFalse();
+    }
+
+    @Test
+    public void returnTrueWhenUpComingHeader() {
+        List<PlayQueueUIItem> uiItems = Lists.newArrayList(headerPlayQueueUIItem(false),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                                           headerPlayQueueUIItem(true),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                                           trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+        uiSubject.onNext(uiItems);
+
+        presenter.trackClicked(1);
+
+        assertThat(presenter.isRemovable(0)).isFalse();
+        assertThat(presenter.isRemovable(1)).isFalse();
+        assertThat(presenter.isRemovable(2)).isTrue();
+        assertThat(presenter.isRemovable(3)).isTrue();
+        assertThat(presenter.isRemovable(4)).isTrue();
     }
 
     @Test
@@ -263,32 +292,49 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotRemoveAHeader() {
-        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem()));
-        reset(playQueueViewContract);
+    public void shouldRemoveSectionWhenHeaderRemoved() {
+        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                            headerPlayQueueUIItem(true),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP)));
+        presenter.trackClicked(1);
 
+        reset(playQueueViewContract);
+        presenter.remove(2);
+
+        verify(playQueueViewContract).setItems(itemsCaptor.capture());
+
+        assertThat(itemsCaptor.getAllValues().get(0).size()).isEqualTo(3);
+    }
+
+    @Test
+    public void shouldNotRemoveAHeaderWhenSectionPlaying() {
+        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
+                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYING)));
+        presenter.trackClicked(1);
+
+        reset(playQueueViewContract);
         presenter.remove(0);
 
+        assertThat(presenter.isRemovable(0)).isFalse();
         verify(playQueueManager, never()).removeItem(any(PlayQueueItem.class));
         verify(playQueueViewContract, never()).showUndo();
         verify(playQueueViewContract, never()).setItems(anyList());
     }
 
     @Test
-    public void shouldRemoveHeaders() {
-        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(),
+    public void shouldRemoveHeadersWhenOneTrackInSection() {
+        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
                                             trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                            headerPlayQueueUIItem()));
+                                            headerPlayQueueUIItem(false)));
         reset(playQueueViewContract);
 
         final int position = 1;
 
         presenter.remove(position);
 
-        verify(playQueueManager).removeItem(any());
         verify(playQueueViewContract).showUndo();
-        verify(playQueueViewContract).removeItem(0);
-        verify(playQueueViewContract, times(2)).removeItem(1);
+        verify(playQueueViewContract).setItems(Collections.emptyList());
     }
 
     @Test
@@ -409,11 +455,11 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         return trackPlayQueueUIItemWithPlayState(playState, Optional.absent());
     }
 
-    private HeaderPlayQueueUIItem headerPlayQueueUIItem() {
-        return new HeaderPlayQueueUIItem(null,
-                                         Optional.absent(),
-                                         PlayState.PLAYING,
-                                         RepeatMode.REPEAT_ONE);
+    private HeaderPlayQueueUIItem headerPlayQueueUIItem(boolean isRemovable) {
+        return new HeaderPlayQueueUIItem(
+                PlayState.PLAYING,
+                RepeatMode.REPEAT_ONE,
+                isRemovable, 0, "header");
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState, Optional<String> contextTitle) {

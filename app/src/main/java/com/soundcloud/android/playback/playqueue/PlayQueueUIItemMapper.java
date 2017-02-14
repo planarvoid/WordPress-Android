@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -7,9 +8,11 @@ import com.soundcloud.android.playback.PlayableQueueItem;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import rx.functions.Func2;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -20,11 +23,13 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
 
     private final Context context;
     private final PlayQueueManager playQueueManager;
+    private final Resources resources;
 
     @Inject
-    PlayQueueUIItemMapper(Context context, PlayQueueManager playQueueManager) {
+    PlayQueueUIItemMapper(Context context, PlayQueueManager playQueueManager, Resources resources) {
         this.context = context;
         this.playQueueManager = playQueueManager;
+        this.resources = resources;
     }
 
     @Override
@@ -81,8 +86,12 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
 
             if (canAddHeader && shouldAddNewHeader(playbackContext)) {
                 lastContext = Optional.of(playbackContext);
-                uiItems.add(new HeaderPlayQueueUIItem(playbackContext, getTitle(playQueueItem),
-                                                      PlayState.COMING_UP, repeatMode));
+
+                long id = System.identityHashCode(playbackContext);
+                uiItems.add(new HeaderPlayQueueUIItem(
+                        PlayState.COMING_UP, repeatMode, false, id, getTitle(playbackContext.bucket(),
+                                                                             playbackContext.query().or(Strings.EMPTY),
+                                                                             getTitle(playQueueItem).or(Strings.EMPTY))));
             }
         }
 
@@ -109,6 +118,45 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
         private boolean isVisible(PlayableQueueItem item) {
             return item.equals(currentPlayQueueItem) || item.isVisible();
         }
+
+        private String getTitle(PlaybackContext.Bucket bucket, String query, String contentTitle) {
+            switch (bucket) {
+                case SEARCH_RESULT:
+                    return resources.getString(R.string.play_queue_header_search, query);
+                case STREAM:
+                    return resources.getString(R.string.play_queue_header_stream);
+                case LINK:
+                    return resources.getString(R.string.play_queue_header_link);
+                case PROFILE:
+                    return resources.getString(R.string.play_queue_header_profile, contentTitle);
+                case PLAYLIST:
+                    return resources.getString(R.string.play_queue_header_playlist, contentTitle);
+                case TRACK_STATION:
+                case AUTO_PLAY:
+                    return resources.getString(R.string.play_queue_header_track_station, contentTitle);
+                case ARTIST_STATION:
+                    return resources.getString(R.string.play_queue_header_artist_station, contentTitle);
+                case YOUR_LIKES:
+                    return resources.getString(R.string.play_queue_header_likes);
+                case LISTENING_HISTORY:
+                    return resources.getString(R.string.play_queue_header_listening_history);
+                case SUGGESTED_TRACKS:
+                    return resources.getString(R.string.play_queue_header_suggested_tracks);
+                case CHARTS_TOP:
+                    return resources.getString(R.string.play_queue_header_charts_top, contentTitle);
+                case CHARTS_TRENDING:
+                    return resources.getString(R.string.play_queue_header_charts_trending, contentTitle);
+                case EXPLICIT:
+                    return resources.getString(R.string.play_queue_header_explicit);
+                case CAST:
+                    return resources.getString(R.string.play_queue_header_cast);
+                case OTHER:
+                    return resources.getString(R.string.play_queue_header_other);
+                default:
+                    throw new IllegalArgumentException("can't render header of type: " + bucket.name());
+            }
+        }
+
     }
 
 }

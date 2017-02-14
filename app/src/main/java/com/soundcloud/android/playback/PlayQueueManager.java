@@ -745,6 +745,10 @@ public class PlayQueueManager {
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
     }
 
+    public void insertItemsAtPosition(int position, List<PlayQueueItem> playQueueItems) {
+        playQueue.insertAllItems(position, playQueueItems);
+    }
+
     public void removeItem(PlayQueueItem item) {
         playQueue.removeItem(item);
         saveQueue(PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));

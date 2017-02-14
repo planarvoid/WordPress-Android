@@ -36,7 +36,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
                          ImageResource imageResource,
                          Optional<String> contextTitle,
                          PlayQueueManager.RepeatMode repeatMode) {
-        super(PlayState.COMING_UP, repeatMode);
+        super(PlayState.COMING_UP, repeatMode, true);
         this.playQueueItem = playQueueItem;
         this.trackItem = trackItem;
         this.uniqueId = uniqueId;

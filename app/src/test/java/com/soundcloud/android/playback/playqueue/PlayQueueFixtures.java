@@ -28,10 +28,11 @@ class PlayQueueFixtures {
     static HeaderPlayQueueUIItem getHeaderPlayQueueUiItem() {
         final PlaybackContext playbackContext = PlaybackContext.create(PlaySessionSource.EMPTY);
         final Optional<String> title = Optional.of("Title");
-        return new HeaderPlayQueueUIItem(playbackContext,
-                                         title,
-                                         PlayState.COMING_UP,
-                                         PlayQueueManager.RepeatMode.REPEAT_NONE);
+        long id = 0;
+        return new HeaderPlayQueueUIItem(
+                PlayState.COMING_UP,
+                PlayQueueManager.RepeatMode.REPEAT_NONE,
+                true, id, "");
     }
 
 

@@ -5,6 +5,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.main.Screen;
@@ -20,6 +22,8 @@ import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import android.content.res.Resources;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,14 +57,17 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                            .build();
 
     @Mock PlayQueueManager playQueueManager;
+    @Mock private Resources resources;
 
     private PlayQueueUIItemMapper mapper;
 
     @Before
     public void setUp() throws Exception {
+        when(resources.getString(anyInt(), any())).thenReturn("some playlist");
+        when(resources.getString(anyInt())).thenReturn("your likes");
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
-        mapper = new PlayQueueUIItemMapper(context(), playQueueManager);
+        mapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources);
     }
 
     @Test
@@ -95,7 +102,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         assertThat(uiItems).hasSize(3);
 
         final HeaderPlayQueueUIItem header = header(uiItems, 0);
-        assertThat(header.getContentTitle()).isEqualTo(Optional.of("some title"));
+        assertThat(header.getHeader()).isEqualTo("some playlist");
     }
 
     @Test
@@ -118,7 +125,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
     @Test
     public void addMultipleHeadersWithTitleWhenMultipleContext() {
         final TrackAndPlayQueueItem track1 = trackAndPlayQueueItem(Urn.forTrack(123L), PLAYLIST_CONTEXT);
-        final TrackAndPlayQueueItem track2 = trackAndPlayQueueItem(Urn.forTrack(789L), PROFILE_CONTEXT);
+        final TrackAndPlayQueueItem track2 = trackAndPlayQueueItem(Urn.forTrack(789L), LIKES_CONTEXT);
         final List<TrackAndPlayQueueItem> tracks = asList(track1, track2);
 
         final Map<Urn, String> urnTitle = new HashMap<>();
@@ -128,9 +135,9 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         final List<PlayQueueUIItem> uiItems = mapper.call(tracks, urnTitle);
 
         assertThat(uiItems).hasSize(5);
-        assertThat(header(uiItems, 0).getContentTitle()).isEqualTo(Optional.of("some playlist"));
+        assertThat(header(uiItems, 0).getHeader()).isEqualTo("some playlist");
         assertThat(track(uiItems, 1).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(123L));
-        assertThat((header(uiItems, 2)).getContentTitle()).isEqualTo(Optional.of("some profile"));
+        assertThat((header(uiItems, 2)).getHeader()).isEqualTo("your likes");
         assertThat((track(uiItems, 3)).getTrackItem().getUrn()).isEqualTo(Urn.forTrack(789L));
         assertThat(uiItems.get(4).getKind()).isEqualTo(Kind.MAGIC_BOX);
     }

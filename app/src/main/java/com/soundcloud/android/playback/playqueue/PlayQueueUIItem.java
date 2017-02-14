@@ -8,10 +8,12 @@ abstract class PlayQueueUIItem {
 
     private PlayState playState;
     private PlayQueueManager.RepeatMode repeatMode;
+    private boolean isRemoveable;
 
-    PlayQueueUIItem(PlayState playState, PlayQueueManager.RepeatMode repeatMode) {
+    PlayQueueUIItem(PlayState playState, PlayQueueManager.RepeatMode repeatMode, boolean isRemoveable) {
         this.playState = playState;
         this.repeatMode = repeatMode;
+        this.isRemoveable = isRemoveable;
     }
 
     abstract Kind getKind();
@@ -24,6 +26,10 @@ abstract class PlayQueueUIItem {
 
     boolean isHeader() {
         return getKind().equals(Kind.HEADER);
+    }
+
+    boolean isMagicBox() {
+        return getKind().equals(Kind.MAGIC_BOX);
     }
 
     PlayState getPlayState() {
@@ -44,5 +50,13 @@ abstract class PlayQueueUIItem {
 
     public void setRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
         this.repeatMode = repeatMode;
+    }
+
+    public boolean isRemoveable() {
+        return isRemoveable;
+    }
+
+    public void setRemoveable(boolean removeable) {
+        isRemoveable = removeable;
     }
 }
