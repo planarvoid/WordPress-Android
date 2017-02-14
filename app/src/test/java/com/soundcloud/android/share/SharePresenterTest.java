@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
+import com.soundcloud.android.configuration.experiments.DynamicLinkSharingConfig;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -17,8 +18,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -55,7 +54,7 @@ public class SharePresenterTest extends AndroidUnitTest {
     private SharePresenter operations;
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
-    @Mock private FeatureFlags features;
+    @Mock private DynamicLinkSharingConfig config;
     @Mock private EventTracker tracker;
     @Mock private FirebaseDynamicLinksApi firebaseApi;
     @Captor ArgumentCaptor<UIEvent> uiEventCaptor;
@@ -63,7 +62,7 @@ public class SharePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         activityContext = activity();
-        operations = new SharePresenter(features, tracker, firebaseApi);
+        operations = new SharePresenter(config, tracker, firebaseApi);
     }
 
     @Test
@@ -116,7 +115,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareStartsShareActivityWithDynamicLinkWhenFeatureEnabled() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.just("http://goo.gl/foo"));
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         assertShareActivityStarted(TRACK, "http://goo.gl/foo?/somepath");
@@ -124,14 +123,14 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareStartsShareActivityWithNonDynamicLinkWhenFeatureDisabled() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(false);
+        when(config.isEnabled()).thenReturn(false);
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         assertShareActivityStarted(TRACK, "http://foo.com/somepath");
     }
 
     @Test
     public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureDisabled() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(false);
+        when(config.isEnabled()).thenReturn(false);
         operations.share(activityContext, TRACK, eventContext(), PROMOTED_SOURCE_INFO);
         verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
         UIEvent sharePromptEvent = uiEventCaptor.getAllValues().get(1);
@@ -141,7 +140,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureEnabledAndFirebaseRequestSucceeds() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.just("http://goo.gl/foo?/somepath"));
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
@@ -152,7 +151,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void sharePublishesTrackingEventForPromptWhenDynamicLinkFeatureEnabledAndFirebaseRequestFails() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(new IOException()));
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         verify(tracker, times(2)).trackEngagement(uiEventCaptor.capture());
@@ -163,7 +162,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void sharePublishesTrackingEventForCancelWhenFirebaseRequestCanceled() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(PublishSubject.create());
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         ShadowDialog.getLatestDialog().cancel();
@@ -174,7 +173,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareStartsShareActivityWithNonDynamicLinkWhenLookupFailsDueToNetworkIssue() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(new IOException()));
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
         assertShareActivityStarted(TRACK, "http://foo.com/somepath");
@@ -182,7 +181,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareDisplaysShareDialogWhileGeneratingDynamicLink() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         PublishSubject<String> observable = PublishSubject.create();
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
         assertShareDialogNotShowing();
@@ -192,7 +191,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareDismissesShareDialogOnErrorGeneratingDynamicLink() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         PublishSubject<String> observable = PublishSubject.create();
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
@@ -203,7 +202,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareDismissesShareDialogWhenDynamicLinkGenerated() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         PublishSubject<String> observable = PublishSubject.create();
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));
@@ -215,7 +214,7 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shareIgnoresDynamicLinkResultWhenDialogCanceled() throws Exception {
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         PublishSubject<String> observable = PublishSubject.create();
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(observable);
         assertShareDialogNotShowing();
@@ -232,7 +231,7 @@ public class SharePresenterTest extends AndroidUnitTest {
     public void shareCrashesAppWhenLookupFailsDueToAppBug() throws Exception {
         AtomicReference<Throwable> error = new AtomicReference<>();
         Thread.setDefaultUncaughtExceptionHandler((t, throwable) -> error.set(throwable));
-        when(features.isEnabled(Flag.DYNAMIC_LINKS)).thenReturn(true);
+        when(config.isEnabled()).thenReturn(true);
         NullPointerException expectedException = new NullPointerException();
         when(firebaseApi.createDynamicLink("http://foo.com/somepath")).thenReturn(Observable.error(expectedException));
         operations.share(activityContext, "http://foo.com/somepath", eventContext(), PROMOTED_SOURCE_INFO, EntityMetadata.from(TRACK));

@@ -6,16 +6,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
+import com.soundcloud.android.configuration.experiments.DynamicLinkSharingConfig;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.ShareDialog;
-import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.strings.Strings;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -31,13 +29,13 @@ public class SharePresenter {
 
     private static final String SHARE_TYPE = "text/plain";
 
-    private final FeatureFlags featureFlags;
+    private final DynamicLinkSharingConfig dynamicLinkSharingConfig;
     private final EventTracker eventTracker;
     private final FirebaseDynamicLinksApi firebaseDynamicLinksApi;
 
     @Inject
-    public SharePresenter(FeatureFlags featureFlags, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
-        this.featureFlags = featureFlags;
+    public SharePresenter(DynamicLinkSharingConfig dynamicLinkSharingConfig, EventTracker eventTracker, FirebaseDynamicLinksApi firebaseDynamicLinksApi) {
+        this.dynamicLinkSharingConfig = dynamicLinkSharingConfig;
         this.eventTracker = eventTracker;
         this.firebaseDynamicLinksApi = firebaseDynamicLinksApi;
     }
@@ -59,7 +57,7 @@ public class SharePresenter {
                       final EntityMetadata entityMetadata) {
         eventTracker.trackEngagement(UIEvent.fromShareRequest(entityMetadata.playableUrn, contextMetadata, promotedSourceInfo, entityMetadata));
 
-        if (featureFlags.isEnabled(Flag.DYNAMIC_LINKS)) {
+        if (dynamicLinkSharingConfig.isEnabled()) {
             ShareDialog shareDialog = ShareDialog.show(context);
             Subscription subscription = firebaseDynamicLinksApi.createDynamicLink(permalink).observeOn(AndroidSchedulers.mainThread()).subscribe(
                     new DefaultSubscriber<String>() {

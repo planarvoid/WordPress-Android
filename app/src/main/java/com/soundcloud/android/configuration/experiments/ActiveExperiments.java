@@ -18,7 +18,8 @@ public class ActiveExperiments {
                                                                                   PlayQueueConfiguration.CONFIGURATION,
                                                                                   MiniplayerExperiment.CONFIGURATION,
                                                                                   FlipperConfiguration.CONFIGURATION,
-                                                                                  SuggestedStationsExperiment.CONFIGURATION);
+                                                                                  SuggestedStationsExperiment.CONFIGURATION,
+                                                                                  DynamicLinkSharingConfig.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 
