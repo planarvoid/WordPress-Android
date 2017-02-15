@@ -44,7 +44,7 @@ public class PlanStorage {
     }
 
     void updateVendor(Optional<String> vendor) {
-        if(vendor.isPresent()) {
+        if (vendor.isPresent()) {
             sharedPreferences.edit().putString(KEY_VENDOR, vendor.get()).apply();
         } else {
             sharedPreferences.edit().remove(KEY_VENDOR).apply();

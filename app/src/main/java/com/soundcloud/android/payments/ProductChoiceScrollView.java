@@ -2,6 +2,7 @@ package com.soundcloud.android.payments;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.Plan;
 
 import android.view.View;
 import android.widget.Button;
@@ -19,9 +20,10 @@ class ProductChoiceScrollView extends ProductChoiceView {
     }
 
     @Override
-    void setupContent(View view, AvailableWebProducts products, Listener listener) {
+    void showContent(View view, AvailableWebProducts products, Listener listener, Plan initialPlan) {
         configureView(ButterKnife.findById(view, R.id.buy_mid_tier), products.midTier().get(), listener);
         configureView(ButterKnife.findById(view, R.id.buy_high_tier), products.highTier().get(), listener);
+        ButterKnife.findById(view, R.id.progress_container).setVisibility(View.GONE);
     }
 
     private void configureView(View view, WebProduct product, Listener listener) {
@@ -41,5 +43,4 @@ class ProductChoiceScrollView extends ProductChoiceView {
         restrictions.setText(formatter.configuredRestrictionsText(product));
         restrictions.setOnClickListener(v -> listener.onRestrictionsClick(product));
     }
-
 }

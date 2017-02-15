@@ -73,13 +73,6 @@ public class MainActivity extends PlayerActivity {
         finish();
     }
 
-    private void setupUpgradeUpsell() {
-        if (getIntent().getBooleanExtra(Navigator.EXTRA_UPGRADE_INTENT, false)) {
-            getIntent().removeExtra(Navigator.EXTRA_UPGRADE_INTENT);
-            navigator.openUpgrade(this);
-        }
-    }
-
     private void fetchFeatureFlags() {
         if (!this.isChangingConfigurations() && featureFlags.isEnabled(Flag.REMOTE_FEATURE_TOGGLES)) {
             featureFlags.fetchRemoteFlags(this);
@@ -94,12 +87,6 @@ public class MainActivity extends PlayerActivity {
             intent = new Intent();
         }
         super.startActivityForResult(intent, requestCode);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setupUpgradeUpsell();
     }
 
     @Override

@@ -14,11 +14,13 @@ import javax.inject.Inject;
 
 class ProductChoiceAdapter extends PagerAdapter {
 
+    static final int PRODUCT_MID_TIER_INDEX = 0;
+    static final int PRODUCT_HIGH_TIER_INDEX = 1;
     private static final int NUM_PRODUCTS = 2;
 
     private final ProductInfoFormatter formatter;
 
-    private AvailableWebProducts products;
+    private AvailableWebProducts products = AvailableWebProducts.empty();
 
     @Inject
     ProductChoiceAdapter(ProductInfoFormatter formatter) {
@@ -28,10 +30,10 @@ class ProductChoiceAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         switch (position) {
-            case 0:
-                return bindView(container, R.layout.product_page_mid, getProduct(0));
-            case 1:
-                return bindView(container, R.layout.product_page_high, getProduct(1));
+            case PRODUCT_MID_TIER_INDEX:
+                return bindView(container, R.layout.product_page_mid, getProduct(PRODUCT_MID_TIER_INDEX));
+            case PRODUCT_HIGH_TIER_INDEX:
+                return bindView(container, R.layout.product_page_high, getProduct(PRODUCT_HIGH_TIER_INDEX));
             default:
                 throw new IllegalStateException("Unexpected index in " + ProductChoiceAdapter.class.getSimpleName());
         }
@@ -61,9 +63,9 @@ class ProductChoiceAdapter extends PagerAdapter {
 
     WebProduct getProduct(int position) {
         switch (position) {
-            case 0:
+            case PRODUCT_MID_TIER_INDEX:
                 return products.midTier().get();
-            case 1:
+            case PRODUCT_HIGH_TIER_INDEX:
                 return products.highTier().get();
             default:
                 throw new IllegalStateException("Unexpected index in " + ProductChoiceAdapter.class.getSimpleName());

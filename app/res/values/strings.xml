@@ -744,6 +744,8 @@
     <string name="plan_conversion_error_dialog_title">Unable to change plans</string>
     <string name="plan_conversion_error_message_generic">Something went wrong and we are unable to change your plan at this time. Please contact our community support team.</string>
     <string name="plan_conversion_error_message_apple">You are currently on an Apple iTunes Subscription. To be able to change plans, you need to first end your Apple iTunes Subscription in the App Store.</string>
+    <string name="product_choice_error_already_subscribed">You are already subscribed</string>
+    <string name="product_choice_error_unavailable">Product unavailable</string>
 
     <!-- PRODUCT_CHOICE -->
     <string name="product_choice_line_1_mid">Discover, stream and share a constantly expanding mix of music from established and emerging artists</string>

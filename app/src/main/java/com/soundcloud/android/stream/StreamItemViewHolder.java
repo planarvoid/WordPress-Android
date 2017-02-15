@@ -238,7 +238,7 @@ public class StreamItemViewHolder implements CardViewHolder {
     }
 
     private void safeSetSelected(View view, boolean selected) {
-        if(view != null) {
+        if (view != null) {
             view.setSelected(selected);
         }
     }

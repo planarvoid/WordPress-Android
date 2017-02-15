@@ -3,6 +3,7 @@ package com.soundcloud.android.payments;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.view.pageindicator.CirclePageIndicator;
 
 import android.support.v4.view.ViewPager;
@@ -19,6 +20,7 @@ class ProductChoicePagerView extends ProductChoiceView implements ViewPager.OnPa
 
     private Listener listener;
 
+    @BindView(R.id.progress_container) View progressContainer;
     @BindView(R.id.buy) Button buyButton;
     @BindView(R.id.product_choice_restrictions) TextView restrictions;
     @BindView(R.id.product_choice_pager) ViewPager pager;
@@ -31,18 +33,22 @@ class ProductChoicePagerView extends ProductChoiceView implements ViewPager.OnPa
     }
 
     @Override
-    void setupContent(View view, AvailableWebProducts products, Listener listener) {
+    void showContent(View view, AvailableWebProducts products, Listener listener, Plan initialPlan) {
         ButterKnife.bind(this, view);
         this.listener = listener;
+        configureView(products, initialPlan);
+    }
+
+    private void configureView(AvailableWebProducts products, Plan plan) {
+        productChoiceAdapter.setProducts(products);
         pager.setAdapter(productChoiceAdapter);
         pager.addOnPageChangeListener(this);
         indicator.setViewPager(pager);
-        displayProducts(products);
-    }
-
-    private void displayProducts(AvailableWebProducts products) {
-        productChoiceAdapter.setProducts(products);
-        configureButtons(productChoiceAdapter.getProduct(0));
+        pager.setCurrentItem(Plan.MID_TIER == plan ?
+                             ProductChoiceAdapter.PRODUCT_MID_TIER_INDEX :
+                             ProductChoiceAdapter.PRODUCT_HIGH_TIER_INDEX);
+        configureButtons(productChoiceAdapter.getProduct(pager.getCurrentItem()));
+        progressContainer.setVisibility(View.GONE);
     }
 
     @Override

@@ -1,61 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:ignore="InconsistentLayout">
-
-    <LinearLayout
-        android:id="@+id/product_choice_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/go_gradient"
-        android:orientation="vertical">
-
-        <View
-            android:id="@+id/status_place_holder"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/translucent_status_height" />
-
-        <ImageView
-            style="@style/ConversionCloud"
-            android:layout_marginLeft="@dimen/conversion_margin"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="16dp"/>
-    </LinearLayout>
-
-    <com.soundcloud.android.view.SafeViewPager
-        android:id="@+id/product_choice_pager"
+    android:layout_height="match_parent">
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/product_choice_header"
-        android:layout_above="@+id/buy" />
+        tools:ignore="InconsistentLayout">
 
-    <com.soundcloud.android.view.CustomFontButton
-        android:id="@+id/buy"
-        style="@style/ConversionButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/conversion_margin"
-        android:layout_marginLeft="@dimen/conversion_margin"
-        android:layout_marginTop="4dp"
-        android:layout_above="@+id/product_choice_restrictions" />
+        <LinearLayout
+            android:id="@+id/product_choice_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/go_gradient"
+            android:orientation="vertical">
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/product_choice_restrictions"
-        style="@style/ConversionText.Restrictions.Product"
-        android:layout_above="@+id/page_indicator"
-        android:layout_centerHorizontal="true" />
+            <View
+                android:id="@+id/status_place_holder"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/translucent_status_height" />
 
-    <com.soundcloud.android.view.pageindicator.CirclePageIndicator
-        android:id="@+id/page_indicator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/ProductChoicePageIndicator"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="16dp"
-        android:layout_alignParentBottom="true" />
+            <ImageView
+                style="@style/ConversionCloud"
+                android:layout_marginLeft="@dimen/conversion_margin"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"/>
+        </LinearLayout>
 
-</RelativeLayout>
+        <com.soundcloud.android.view.SafeViewPager
+            android:id="@+id/product_choice_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/product_choice_header"
+            android:layout_above="@+id/buy" />
+
+        <com.soundcloud.android.view.CustomFontButton
+            android:id="@+id/buy"
+            style="@style/ConversionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/conversion_margin"
+            android:layout_marginLeft="@dimen/conversion_margin"
+            android:layout_marginTop="4dp"
+            android:layout_above="@+id/product_choice_restrictions" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/product_choice_restrictions"
+            style="@style/ConversionText.Restrictions.Product"
+            android:layout_above="@+id/page_indicator"
+            android:layout_centerHorizontal="true" />
+
+        <com.soundcloud.android.view.pageindicator.CirclePageIndicator
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/ProductChoicePageIndicator"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="16dp"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/fullscreen_white_progress" />
+</FrameLayout>
