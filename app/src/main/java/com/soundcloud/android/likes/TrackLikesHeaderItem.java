@@ -1,8 +1,11 @@
 package com.soundcloud.android.likes;
 
-class TrackLikesHeaderItem extends TrackLikesItem {
+import com.google.auto.value.AutoValue;
 
-    TrackLikesHeaderItem() {
-        super(Kind.HeaderItem);
+@AutoValue
+abstract class TrackLikesHeaderItem extends TrackLikesItem {
+
+    public static TrackLikesHeaderItem create() {
+        return new AutoValue_TrackLikesHeaderItem(Kind.HeaderItem);
     }
 }

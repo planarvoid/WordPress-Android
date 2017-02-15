@@ -130,7 +130,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        PlaybackResult playbackResult = setupPlaybackConditions(new TrackLikesTrackItem(ModelFixtures.create(TrackItem.class)));
+        PlaybackResult playbackResult = setupPlaybackConditions(TrackLikesTrackItem.create(ModelFixtures.create(TrackItem.class)));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -141,7 +141,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSendUpsellEventOnMidTierItemClickWhenUserCannotUpgrade() {
-        final TrackLikesTrackItem clickedTrack = new TrackLikesTrackItem(TestPropertySets.highTierTrack());
+        final TrackLikesTrackItem clickedTrack = TrackLikesTrackItem.create(TestPropertySets.highTierTrack());
         setupPlaybackConditions(clickedTrack);
 
         when(adapter.getItem(0)).thenReturn(clickedTrack);
@@ -186,7 +186,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         reset(adapter);
 
         final List<TrackLikesItem> trackLikesTrackItems = new ArrayList<>();
-        trackLikesTrackItems.add(new TrackLikesTrackItem(TrackItem.from(track)));
+        trackLikesTrackItems.add(TrackLikesTrackItem.create(TrackItem.from(track)));
 
         when(adapter.getItems()).thenReturn(trackLikesTrackItems);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloadingEvent);
@@ -205,7 +205,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         reset(adapter);
 
         final List<TrackLikesItem> trackLikesTrackItems = new ArrayList<>();
-        trackLikesTrackItems.add(new TrackLikesTrackItem(TrackItem.from(track)));
+        trackLikesTrackItems.add(TrackLikesTrackItem.create(TrackItem.from(track)));
 
         when(adapter.getItems()).thenReturn(trackLikesTrackItems);
         offlinePropertiesSubject.onNext(OfflineProperties.from(singletonMap(track.getUrn(), OfflineState.DOWNLOADING), OfflineState.NOT_OFFLINE));

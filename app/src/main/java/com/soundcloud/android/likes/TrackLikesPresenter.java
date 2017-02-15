@@ -84,11 +84,11 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             (Func1<TrackLikesPage, Iterable<TrackLikesItem>>) page -> {
         List<TrackLikesItem> trackLikesItems = new ArrayList<>(page.getTrackLikes().size() + EXTRA_LIST_ITEMS);
         if (page.hasHeader() && !page.getTrackLikes().isEmpty()) {
-            trackLikesItems.add(new TrackLikesHeaderItem());
+            trackLikesItems.add(TrackLikesHeaderItem.create());
         }
 
         for (LikeWithTrack likeWithTrack : page.getTrackLikes()) {
-            trackLikesItems.add(new TrackLikesTrackItem(likeWithTrack.trackItem()));
+            trackLikesItems.add(TrackLikesTrackItem.create(likeWithTrack.trackItem()));
         }
         return trackLikesItems;
     };
@@ -173,7 +173,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                 eventBus.subscribe(REPOST_CHANGED, new RepostEntityListSubscriber(adapter)),
 
                 likeOperations.onTrackLiked()
-                              .map(TrackLikesTrackItem::new)
+                              .map(TrackLikesTrackItem::create)
                               .observeOn(AndroidSchedulers.mainThread())
                               .subscribe(new PrependItemToListSubscriber<>(adapter)),
 

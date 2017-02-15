@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -16,53 +17,49 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.optional.Optional;
 
-class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+@AutoValue
+abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
-    private final TrackItem trackItem;
-
-    TrackLikesTrackItem(Track track) {
-        this(TrackItem.from(track));
+    public static TrackLikesTrackItem create(Track track) {
+        return create(TrackItem.from(track));
     }
 
-    TrackLikesTrackItem(TrackItem trackItem) {
-        super(Kind.TrackItem);
-        this.trackItem = trackItem;
+    public static TrackLikesTrackItem create(TrackItem trackItem) {
+        return new AutoValue_TrackLikesTrackItem(Kind.TrackItem, trackItem);
     }
 
-    public TrackItem getTrackItem() {
-        return trackItem;
-    }
+    public abstract TrackItem getTrackItem();
 
     @Override
     public Urn getUrn() {
-        return trackItem.getUrn();
+        return getTrackItem().getUrn();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return trackItem.getImageUrlTemplate();
+        return getTrackItem().getImageUrlTemplate();
     }
 
     @Override
     public TrackLikesTrackItem updatedWithTrackItem(Track track) {
-        return new TrackLikesTrackItem(TrackItem.from(track));
+        return create(TrackItem.from(track));
     }
 
     @Override
     public TrackLikesTrackItem updatedWithOfflineState(OfflineState offlineState) {
-        return new TrackLikesTrackItem(trackItem.updatedWithOfflineState(offlineState));
+        return create(getTrackItem().updatedWithOfflineState(offlineState));
     }
 
     public TrackLikesTrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-        return new TrackLikesTrackItem(trackItem.updatedWithLike(likeStatus));
+        return create(getTrackItem().updatedWithLike(likeStatus));
     }
 
     public TrackLikesTrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
-        return new TrackLikesTrackItem(trackItem.updatedWithRepost(repostStatus));
+        return create(getTrackItem().updatedWithRepost(repostStatus));
     }
 
     @Override
     public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        return trackItem.updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        return getTrackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
     }
 }
