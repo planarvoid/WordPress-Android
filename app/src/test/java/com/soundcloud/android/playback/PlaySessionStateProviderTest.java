@@ -172,7 +172,8 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Test
     public void returnsSavedProgressByUrnIfNoProgressReceivedYet() throws Exception {
         when(playSessionStateStorage.getLastStoredProgress()).thenReturn(123L);
-        assertThat(provider.getLastProgressForItem(TRACK_URN)).isEqualTo(new PlaybackProgress(123, Consts.NOT_SET, TRACK_URN));
+        when(playSessionStateStorage.getLastStoredDuration()).thenReturn(456L);
+        assertThat(provider.getLastProgressForItem(TRACK_URN)).isEqualTo(new PlaybackProgress(123, 456, TRACK_URN));
     }
 
     @Test
@@ -199,7 +200,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionForItemEndSavesQueueWithPositionWithZero() throws Exception {
         provider.onPlayStateTransition(TestPlayerTransitions.complete(), DURATION);
-        verify(playSessionStateStorage).saveProgress(0);
+        verify(playSessionStateStorage).saveProgress(0, 0);
     }
 
     @Test
@@ -211,7 +212,7 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
         provider.onPlayStateTransition(TestPlayerTransitions.idle(123, 456), DURATION);
-        verify(playSessionStateStorage).saveProgress(123);
+        verify(playSessionStateStorage).saveProgress(123, 456);
     }
 
     @Test
@@ -220,14 +221,14 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
         provider.onPlayStateTransition(TestPlayerTransitions.buffering(), DURATION);
 
-        verify(playSessionStateStorage, never()).saveProgress(anyLong());
+        verify(playSessionStateStorage, never()).saveProgress(anyLong(), anyLong());
     }
 
     @Test
     public void onStateTransitionForWithConsecutivePlaylistEventsSavesProgressOnTrackChange() {
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
         provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
-        verify(playSessionStateStorage).saveProgress(34);
+        verify(playSessionStateStorage).saveProgress(34, 456);
     }
 
     @Test

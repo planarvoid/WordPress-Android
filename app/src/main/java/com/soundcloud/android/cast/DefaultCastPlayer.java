@@ -148,7 +148,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     private void loadLocalOnRemote(boolean autoplay) {
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
-        PlaybackProgress lastProgress = playSessionStateProvider.getLastProgressEvent();
+        PlaybackProgress lastProgress = playSessionStateProvider.getLastProgressForItem(currentTrackUrn);
         long playPosition = lastProgress.getPosition();
 
         playStateReporter.reportIdle(PlayStateReason.NONE, currentTrackUrn, playPosition, lastProgress.getDuration());
