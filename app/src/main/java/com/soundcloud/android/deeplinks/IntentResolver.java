@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -14,6 +15,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -27,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -41,6 +45,7 @@ public class IntentResolver {
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final ChartsUriResolver chartsUriResolver;
+    private final FeatureFlags featureFlags;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -52,7 +57,8 @@ public class IntentResolver {
                    EventBus eventBus,
                    Navigator navigator,
                    FeatureOperations featureOperations,
-                   ChartsUriResolver chartsUriResolver) {
+                   ChartsUriResolver chartsUriResolver,
+                   FeatureFlags featureFlags) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -63,6 +69,7 @@ public class IntentResolver {
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.chartsUriResolver = chartsUriResolver;
+        this.featureFlags = featureFlags;
     }
 
     void handleIntent(Intent intent, Context context) {
@@ -109,11 +116,17 @@ public class IntentResolver {
             case WEB_VIEW:
                 startWebView(context, uri, referrer);
                 break;
-            case SOUNDCLOUD_GO_UPSELL:
+            case SOUNDCLOUD_GO_PLUS_UPSELL:
                 showUpgradeScreen(context, referrer);
                 break;
-            case SOUNDCLOUD_GO_BUY:
+            case SOUNDCLOUD_GO_PLUS_BUY:
                 showDirectCheckoutScreen(context, referrer);
+                break;
+            case SOUNDCLOUD_GO_CHOICE:
+                showProductChoiceScreen(context, referrer, Plan.MID_TIER);
+                break;
+            case SOUNDCLOUD_GO_PLUS_CHOICE:
+                showProductChoiceScreen(context, referrer, Plan.HIGH_TIER);
                 break;
             case OFFLINE_SETTINGS:
                 showOfflineSettingsScreen(context, referrer);
@@ -240,6 +253,19 @@ public class IntentResolver {
         if (featureOperations.upsellHighTier()) {
             trackForegroundEvent(referrer, Screen.CONVERSION);
             navigator.openUpgradeOnMain(context);
+        } else {
+            openFallback(context, referrer);
+        }
+    }
+
+    private void showProductChoiceScreen(Context context, String referrer, Plan plan) {
+        if (featureOperations.getCurrentPlan().isGoPlan()) {
+            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
+            openFallback(context, referrer);
+        } else if (featureOperations.upsellHighTierAndMidTier()
+                && featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)) {
+            trackForegroundEvent(referrer, Screen.CONVERSION);
+            navigator.openProductChoiceOnMain(context, plan);
         } else {
             openFallback(context, referrer);
         }

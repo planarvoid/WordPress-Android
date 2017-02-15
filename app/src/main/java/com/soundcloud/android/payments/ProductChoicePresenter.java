@@ -1,19 +1,26 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.Navigator.EXTRA_PRODUCT_CHOICE_PLAN;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.View;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -21,18 +28,22 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
 
     private static final String RESTRICTIONS_DIALOG_TAG = "restrictions_dialog";
 
+    private final WebPaymentOperations operations;
     private final Lazy<ProductChoicePagerView> pagerView;
     private final Lazy<ProductChoiceScrollView> scrollView;
     private final ProductInfoFormatter formatter;
     private final EventBus eventBus;
 
+    private Subscription subscription = RxUtils.invalidSubscription();
     private AppCompatActivity activity;
 
     @Inject
-    ProductChoicePresenter(Lazy<ProductChoicePagerView> pagerView,
+    ProductChoicePresenter(WebPaymentOperations operations,
+                           Lazy<ProductChoicePagerView> pagerView,
                            Lazy<ProductChoiceScrollView> scrollView,
                            ProductInfoFormatter formatter,
                            EventBus eventBus) {
+        this.operations = operations;
         this.pagerView = pagerView;
         this.scrollView = scrollView;
         this.formatter = formatter;
@@ -42,21 +53,34 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
-        final View contentRoot = activity.findViewById(android.R.id.content);
-        ProductChoiceView view = contentRoot.findViewById(R.id.product_choice_pager) == null
-                ? scrollView.get()
-                : pagerView.get();
 
         if (activity.getIntent().hasExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS)) {
             AvailableWebProducts products = activity.getIntent().getParcelableExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS);
-            view.setupContent(contentRoot, products, this);
+            displayProducts(products);
         } else {
-            activity.finish();
+            loadProducts();
         }
+    }
+
+    private void displayProducts(AvailableWebProducts products) {
+        final View contentRoot = activity.findViewById(android.R.id.content);
+        ProductChoiceView productChoiceView = contentRoot.findViewById(R.id.product_choice_pager) == null
+                                 ? scrollView.get()
+                                 : pagerView.get();
+        productChoiceView.showContent(contentRoot, products, this, getInitialPlan());
+    }
+
+    private Plan getInitialPlan() {
+        if (activity.getIntent().hasExtra(EXTRA_PRODUCT_CHOICE_PLAN)) {
+            return (Plan) activity.getIntent().getSerializableExtra(EXTRA_PRODUCT_CHOICE_PLAN);
+        }
+
+        return Plan.MID_TIER;
     }
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
+        subscription.unsubscribe();
         this.activity = null;
     }
 
@@ -72,6 +96,12 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
             default:
                 logTrackingError();
         }
+    }
+
+    private void loadProducts() {
+        subscription = operations.products()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new WebProductsSubscriber());
     }
 
     @Override
@@ -120,4 +150,31 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
         activity.finish();
     }
 
+    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
+        @Override
+        public void onNext(AvailableWebProducts products) {
+            if (products.highTier().isPresent() && products.midTier().isPresent()) {
+                saveProductsInIntent(products);
+                displayProducts(products);
+            } else {
+                showErrorAndFinishActivity();
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            showErrorAndFinishActivity();
+        }
+    }
+
+    private void saveProductsInIntent(AvailableWebProducts products) {
+        activity.getIntent().putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, products);
+    }
+
+    private void showErrorAndFinishActivity() {
+        Toast.makeText(activity,
+                       R.string.product_choice_error_unavailable,
+                       Toast.LENGTH_SHORT).show();
+        activity.finish();
+    }
 }

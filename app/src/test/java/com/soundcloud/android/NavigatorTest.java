@@ -17,6 +17,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -38,6 +39,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
+import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -183,8 +185,15 @@ public class NavigatorTest extends AndroidUnitTest {
     public void openUpgradeFromDeeplink() {
         navigator.openUpgradeOnMain(activityContext);
         assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(MainActivity.class)
-                                   .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);
+                                   .opensActivity(ConversionActivity.class);
+    }
+
+    @Test
+    public void openProductChoiceOnMain() {
+        navigator.openProductChoiceOnMain(activityContext, Plan.MID_TIER);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(ProductChoiceActivity.class)
+                                   .containsExtra(Navigator.EXTRA_PRODUCT_CHOICE_PLAN, Plan.MID_TIER);
     }
 
     @Test

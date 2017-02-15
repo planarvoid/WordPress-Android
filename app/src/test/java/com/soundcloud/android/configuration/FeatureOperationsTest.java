@@ -43,6 +43,13 @@ public class FeatureOperationsTest {
     }
 
     @Test
+    public void upsellHighTierAndMidTierIfUpsellsAvailable() {
+        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER, Plan.MID_TIER));
+
+        assertThat(featureOperations.upsellHighTierAndMidTier()).isTrue();
+    }
+
+    @Test
     public void upsellHighTierIfUpsellAvailable() {
         when(planStorage.getUpsells()).thenReturn(Collections.singletonList(Plan.HIGH_TIER));
 
@@ -81,6 +88,10 @@ public class FeatureOperationsTest {
     public void shouldRequestAdsIsFalseWhenStorageContainsFeatureTrue() {
         when(featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false)).thenReturn(true);
         assertThat(featureOperations.shouldRequestAds()).isFalse();
+    }
+
+    public void upsellHighTierAndMidTierDefaultsFalse() {
+        assertThat(featureOperations.upsellHighTierAndMidTier()).isFalse();
     }
 
     @Test
