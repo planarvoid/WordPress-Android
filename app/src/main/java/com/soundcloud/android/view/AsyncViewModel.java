@@ -27,4 +27,8 @@ public abstract class AsyncViewModel<ViewModelType> {
 
     public abstract Optional<ViewError> error();
 
+    public AsyncViewModel<ViewModelType> withNewData(ViewModelType data){
+        return AsyncViewModel.create(of(data), isRefreshing(), error());
+    }
+
 }

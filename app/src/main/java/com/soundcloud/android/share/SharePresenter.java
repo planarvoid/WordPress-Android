@@ -2,6 +2,7 @@ package com.soundcloud.android.share;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -21,6 +22,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -97,6 +99,10 @@ public class SharePresenter {
         }
     }
 
+    public void share(Context context, ShareOptions shareOptions) {
+        share(context, shareOptions.permalinkUrl(), shareOptions.eventContextMetadata(), shareOptions.promotedSourceInfo(), shareOptions.entityMetadata());
+    }
+
     private void startShareActivity(Context context,
                                     String title,
                                     String creatorName, String permalink) {
@@ -123,5 +129,21 @@ public class SharePresenter {
         } else {
             return context.getString(R.string.share_tracktitle_link, title, permalink);
         }
+    }
+
+    @AutoValue
+    public abstract static class ShareOptions {
+
+        public static ShareOptions create(String permalinkUrl,
+                                          EventContextMetadata eventContextMetadata,
+                                          PromotedSourceInfo promotedSourceInfo,
+                                          EntityMetadata entityMetadata){
+            return new AutoValue_SharePresenter_ShareOptions(permalinkUrl, eventContextMetadata, promotedSourceInfo, entityMetadata);
+        }
+
+        public abstract String permalinkUrl();
+        public abstract EventContextMetadata eventContextMetadata();
+        @Nullable public abstract PromotedSourceInfo promotedSourceInfo();
+        public abstract EntityMetadata entityMetadata();
     }
 }

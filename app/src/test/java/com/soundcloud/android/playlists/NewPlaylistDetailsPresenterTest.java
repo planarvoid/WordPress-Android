@@ -7,6 +7,7 @@ import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
@@ -26,15 +27,19 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.associations.RepostStatuses;
 import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityMetadata;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
@@ -46,6 +51,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackResult.ErrorReason;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -61,6 +67,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowLog;
 import rx.Observable;
 import rx.observers.AssertableSubscriber;
 import rx.subjects.BehaviorSubject;
@@ -90,6 +97,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private RepostOperations repostOperations;
     @Mock private RepostsStateProvider repostsStateProvider;
     @Mock private FeedbackController feedbackController;
+    @Mock private SharePresenter shareOperations;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -116,7 +124,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final PlaylistDetailsViewModel updatedModel = PlaylistDetailFixtures.create(resources(), updatedPlaylist, updatedTrackItems);
     private final Urn playlistUrn = initialPlaylist.urn();
 
-    private final PublishSubject<LikedStatuses> likeStatuses = PublishSubject.create();
+    private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
     private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
     private final PublishSubject<OfflineProperties> offlineProperties = PublishSubject.create();
     private final PublishSubject<SyncJobResult> syncPlaylist = PublishSubject.create();
@@ -132,8 +140,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private NewPlaylistDetailsPresenter newPlaylistPresenter;
 
 
+
     @Before
     public void setUp() throws Exception {
+        ShadowLog.stream = System.out;
         PlaylistDetailsViewModelCreator viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
 
         when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
@@ -142,6 +152,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(dataSourceProviderFactory.create(eq(playlistUrn), any())).thenReturn(dataSourceProvider);
         when(dataSourceProvider.data()).thenReturn(dataSource);
         when(likesStateProvider.likedStatuses()).thenReturn(likeStatuses);
+        when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(repostsStateProvider.repostedStatuses()).thenReturn(repostStatuses);
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(syncPlaylist);
         when(offlinePropertiesProvider.states()).thenReturn(offlineProperties);
@@ -164,7 +175,8 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                viewModelCreator,
                                                                dataSourceProviderFactory,
                                                                repostOperations,
-                                                               feedbackController);
+                                                               feedbackController,
+                                                               accountOperations);
 
     }
 
@@ -236,24 +248,75 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onMakeAvailableOfflineMakesOfflineAvailable() throws Exception {
+    public void makeAvailableOfflineWithOwnerPlaylistMakesAvailableOffline() throws Exception {
+        connect();
+
+        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
+        when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
+        when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_FAILED)); // should not be called, but just being safe
+
+        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+
+        newPlaylistPresenter.onMakeOfflineAvailable();
+
+        offlineSubject.onNext(null);
+
+        assertThat(offlineSubject.hasObservers()).isTrue();
+        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel.updateWithMarkedForOffline(true)));
+    }
+
+    @Test
+    public void makeOfflineDoesNotMakeOtherUsersPlaylistOfflineWithFailedLike() throws Exception {
         connect();
 
         PublishSubject<Void> offlineSubject = PublishSubject.create();
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
+        when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
+        when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_FAILED));
+
+        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
         newPlaylistPresenter.onMakeOfflineAvailable();
 
+        assertThat(offlineSubject.hasObservers()).isFalse();
+        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel));
+    }
+
+   @Test
+    public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
+        connect();
+
+        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
+        when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
+        when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(false);
+        when(likeOperations.toggleLike(playlistUrn, true)).thenReturn(just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+
+        final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
+
+        newPlaylistPresenter.onMakeOfflineAvailable();
+
+        offlineSubject.onNext(null);
+
         assertThat(offlineSubject.hasObservers()).isTrue();
+        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel.updateWithMarkedForOffline(true)));
     }
 
     @Test
     public void onMakeAvailableOfflineEmitsTracking() throws Exception {
         connect();
 
-        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(PublishSubject.create());
+        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
+        when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
         newPlaylistPresenter.onMakeOfflineAvailable();
+
+        offlineSubject.onNext(null);
 
         OfflineInteractionEvent event = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
         assertThat(event.clickObject()).isEqualTo(of(playlistUrn));
@@ -346,7 +409,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onToggleLike(true);
 
-        assertEngagementEvent(UIEvent.Kind.LIKE, UIEvent.ClickName.LIKE);
+        verify(eventTracker).trackEngagement(UIEvent.fromToggleLike(true, playlistUrn, eventContext(initialPlaylist), promotedSourceInfo, createEntityMetadata(initialPlaylist)));
     }
 
     @Test
@@ -371,7 +434,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onToggleLike(false);
 
-        assertEngagementEvent(UIEvent.Kind.UNLIKE, UIEvent.ClickName.UNLIKE);
+        verify(eventTracker).trackEngagement(UIEvent.fromToggleLike(false, playlistUrn, eventContext(initialPlaylist), promotedSourceInfo, createEntityMetadata(initialPlaylist)));
     }
 
     @Test
@@ -391,7 +454,6 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void unpostShowsResult(){
         connect();
 
-        RepostsStatusEvent.RepostStatus repostStatus = RepostsStatusEvent.RepostStatus.createUnposted(playlistUrn);
         when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
 
         AssertableSubscriber<RepostOperations.RepostResult> subscriber = newPlaylistPresenter.onRepostResult().test();
@@ -409,7 +471,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onToggleRepost(true);
 
-        assertEngagementEvent(UIEvent.Kind.REPOST, UIEvent.ClickName.REPOST);
+        verify(eventTracker).trackEngagement(UIEvent.fromToggleRepost(true, playlistUrn, eventContext(initialPlaylist), promotedSourceInfo, createEntityMetadata(initialPlaylist)));
     }
 
     @Test
@@ -420,7 +482,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onToggleRepost(false);
 
-        assertEngagementEvent(UIEvent.Kind.UNREPOST, UIEvent.ClickName.UNREPOST);
+        verify(eventTracker).trackEngagement(UIEvent.fromToggleRepost(false, playlistUrn, eventContext(initialPlaylist), promotedSourceInfo, createEntityMetadata(initialPlaylist)));
     }
 
     @Test
@@ -623,6 +685,76 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         assertThat(saveSubject.hasObservers()).isTrue();
     }
 
+    @Test
+    public void shareShares() throws Exception {
+        connect();
+
+        AssertableSubscriber<SharePresenter.ShareOptions> testSubscriber = newPlaylistPresenter.onShare().test();
+
+        newPlaylistPresenter.onShareClicked();
+
+
+        testSubscriber.assertValue(SharePresenter.ShareOptions.create(initialPlaylist.permalinkUrl().get(),
+                                                                                              eventContext(initialPlaylist),
+                                                                                              promotedSourceInfo,
+                                                                                              createEntityMetadata(initialPlaylist)));
+    }
+
+    @Test
+    public void overflowUpsellTracksAndGoesToUpsell() throws Exception {
+        connect();
+
+        AssertableSubscriber<Urn> testSubscriber = newPlaylistPresenter.goToUpsell().test();
+
+        newPlaylistPresenter.onOverflowUpsell();
+
+        testSubscriber.assertValue(playlistUrn);
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isEqualTo(UpgradeFunnelEvent.forPlaylistOverflowClick(playlistUrn));
+    }
+
+    @Test
+    public void overflowFiresUpsellImpression() throws Exception {
+        connect();
+
+        newPlaylistPresenter.onOverflowUpsellImpression();
+
+        TrackingEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent).isEqualTo(UpgradeFunnelEvent.forPlaylistOverflowImpression(playlistUrn));
+    }
+
+    @Test
+    public void playShuffledPlaysShuffled(){
+        connect();
+
+        AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
+
+        ArgumentCaptor<Observable<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Observable.class);
+        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(just(PlaybackResult.success()));
+
+        newPlaylistPresenter.onPlayShuffled();
+
+        tracklistCaptor.getValue().test().assertValue(transform(trackItems, PlayableItem::getUrn));
+        testSubscriber.assertNoValues();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND)).isEqualTo(PlayerUICommand.expandPlayer());
+    }
+
+    @Test
+    public void playShuffledHandlesError(){
+        connect();
+
+        AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
+
+        ArgumentCaptor<Observable<List<Urn>>> tracklistCaptor = ArgumentCaptor.forClass(Observable.class);
+        when(playbackInitiator.playTracksShuffled(tracklistCaptor.capture(), eq(createPlaySessionSource()))).thenReturn(just(PlaybackResult.error(ErrorReason.TRACK_UNAVAILABLE_CAST)));
+
+        newPlaylistPresenter.onPlayShuffled();
+
+        tracklistCaptor.getValue().test().assertValue(transform(trackItems, PlayableItem::getUrn));
+        testSubscriber.assertValue(ErrorReason.TRACK_UNAVAILABLE_CAST);
+    }
+
     private PlaylistDetailTrackItem getPlaylistDetailTrackItem(TrackItem trackItem) {
         return PlaylistDetailTrackItem.builder().trackItem(trackItem).build();
     }
@@ -661,14 +793,18 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                      .build();
     }
 
-    private void assertEngagementEvent(UIEvent.Kind kind, UIEvent.ClickName clickName) {
-        verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
-        UIEvent uiEvent = uiEventArgumentCaptor.getValue();
-        assertThat(uiEvent.kind()).isEqualTo(kind);
-        assertThat(uiEvent.clickName()).isEqualTo(of(clickName));
-        assertThat(uiEvent.clickCategory()).isEqualTo(of(UIEvent.ClickCategory.ENGAGEMENT));
-        assertThat(uiEvent.clickObjectUrn()).isEqualTo(of(playlistUrn));
-        assertThat(uiEvent.adUrn()).isEqualTo(of("ad-urn"));
+    private EventContextMetadata eventContext(Playlist playlist){
+        return EventContextMetadata.builder()
+                                   .contextScreen(screen)
+                                   .pageName(Screen.PLAYLIST_DETAILS.get())
+                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                                   .pageUrn(playlist.urn())
+                                   .build();
+    }
+
+    private EntityMetadata createEntityMetadata(Playlist playlist) {
+        return EntityMetadata.from(playlist.creatorName(), playlist.creatorUrn(),
+                                   playlist.title(), playlist.urn());
     }
 
 }

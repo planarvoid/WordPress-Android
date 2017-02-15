@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +18,9 @@ public abstract class NewTrackingEvent implements TrackingEvent {
         return System.currentTimeMillis();
     }
 
-    public abstract String id();
+    @IgnoreHashEquals public abstract String id();
 
-    public abstract long timestamp();
+    @IgnoreHashEquals public abstract long timestamp();
 
     public abstract Optional<ReferringEvent> referringEvent();
 

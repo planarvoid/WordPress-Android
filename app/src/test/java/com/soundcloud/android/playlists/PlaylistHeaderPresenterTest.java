@@ -261,7 +261,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenSharingPlayable() {
         setPlaylistInfo();
 
-        presenter.onShare();
+        presenter.onShareClicked();
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
@@ -273,7 +273,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
-        presenter.onShare();
+        presenter.onShareClicked();
 
         verify(sharePresenter, never())
                 .share(any(Context.class), any(TrackItem.class),
@@ -355,7 +355,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldGetContextFromOriginProvider() {
         setPlaylistInfo();
 
-        presenter.onShare();
+        presenter.onShareClicked();
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())

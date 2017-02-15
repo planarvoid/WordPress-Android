@@ -20,7 +20,7 @@ interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onToggleRepost(boolean isReposted);
 
-    void onShare();
+    void onShareClicked();
 
     void onMakeOfflineAvailable();
 

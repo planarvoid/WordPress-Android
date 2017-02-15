@@ -406,7 +406,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onShare() {
+    public void onShareClicked() {
         if (viewModel != null) {
             final Optional<String> permalinkUrl = viewModel.metadata().permalinkUrl();
             if (!viewModel.metadata().isPrivate() && permalinkUrl.isPresent()) {

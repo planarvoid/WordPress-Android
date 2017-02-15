@@ -10,6 +10,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -58,6 +59,7 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     @Inject NewPlaylistDetailsAdapterFactory newPlaylistDetailsAdapterFactory;
     @Inject Navigator navigator;
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject SharePresenter shareOperations;
 
     @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -215,7 +217,11 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribe(ignored -> {
                              getActivity().onBackPressed();
-                         })
+                         }),
+
+                presenter.onShare()
+                        .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions))
         );
     }
 
@@ -269,7 +275,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
             bindToolBar(data);
             bindEditMode(data.metadata().isInEditMode());
         }
-
     }
 
     private void bindEditMode(boolean isInEditMode) {

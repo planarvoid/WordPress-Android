@@ -244,7 +244,7 @@ class PlaylistEngagementsRenderer {
                     listener.onToggleRepost(false);
                     return true;
                 case R.id.share:
-                    listener.onShare();
+                    listener.onShareClicked();
                     return true;
                 case R.id.shuffle:
                     listener.onPlayShuffled();

@@ -35,6 +35,7 @@ ext {
           autoFactory                 : "com.google.auto.factory:auto-factory:1.0-beta3",
           autoParcelProcessor         : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
           autoParcel                  : "com.github.frankiesardo:auto-parcel:0.3.1",
+          autoValueIgnoreEquals       : "com.github.reggar:auto-value-ignore-hash-equals:1.1.2",
 
           // SoundCloud libraries
           androidKit                  : ["com.soundcloud.android-kit:core:$androidKitVersion",

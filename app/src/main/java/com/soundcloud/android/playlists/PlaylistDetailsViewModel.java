@@ -40,6 +40,10 @@ abstract class PlaylistDetailsViewModel {
         return items;
     }
 
+    public PlaylistDetailsViewModel updateWithMarkedForOffline(boolean value) {
+        return toBuilder().metadata(metadata().toBuilder().isMarkedForOffline(value).build()).build();
+    }
+
     abstract Builder toBuilder();
 
     private static void addOtherPlaylists(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
