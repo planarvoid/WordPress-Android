@@ -311,10 +311,18 @@ public class WaveformViewController
         @Override
         public void onNext(WaveformData waveformData) {
             isWaveformLoaded = true;
-            waveformView.setWaveformData(waveformData, adjustedWidth);
+            waveformView.setWaveformData(waveformData, adjustedWidth, getPlayableProportion());
             if (currentState != IDLE) {
                 waveformView.showExpandedWaveform();
             }
+        }
+    }
+
+    private float getPlayableProportion() {
+        if (playDuration > 0 && fullDuration > 0) {
+            return ((float) playDuration) / fullDuration;
+        } else {
+            return 1.0f;
         }
     }
 
