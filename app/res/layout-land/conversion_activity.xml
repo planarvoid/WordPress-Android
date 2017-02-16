@@ -12,13 +12,14 @@
 
         <View
             style="@style/ConversionBackground"
-            android:layout_alignTop="@+id/conversion_content"
+            android:layout_alignParentTop="true"
             android:layout_alignBottom="@+id/conversion_content" />
 
         <include
             android:id="@+id/conversion_content"
             android:layout_width="@dimen/conversion_content"
             android:layout_height="match_parent"
+            android:layout_marginTop="48dp"
             android:layout_centerHorizontal="true"
             layout="@layout/conversion_common" />
 

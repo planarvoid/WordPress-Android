@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;
-import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -23,7 +22,6 @@ public class AnalyticsModule {
 
     static final String TRACKING_DB = "TrackingDB";
     static final String BASE_PROVIDERS = "BaseProviders";
-    static final String TRACKING_HTTP_CLIENT = "TrackingHttpClient";
 
     @Provides
     @Nullable
@@ -59,12 +57,5 @@ public class AnalyticsModule {
     @Named(TRACKING_DB)
     PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
         return new PropellerDatabase(dbHelper.getWritableDatabase());
-    }
-
-    @Provides
-    @Singleton
-    @Named(TRACKING_HTTP_CLIENT)
-    OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
-        return clientBuilder.build();
     }
 }

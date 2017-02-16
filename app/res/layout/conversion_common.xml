@@ -12,8 +12,7 @@
 
     <ImageView
         android:id="@+id/conversion_cloud"
-        style="@style/ConversionCloud"
-        android:layout_marginTop="60dp" />
+        style="@style/ConversionCloud" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/conversion_title"
@@ -46,7 +45,7 @@
     <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/conversion_more_products"
         style="@style/ConversionButton.More"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="18dp"
         android:text="@string/conversion_more_plans"
         android:visibility="gone" />
 

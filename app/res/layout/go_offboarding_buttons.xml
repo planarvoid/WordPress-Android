@@ -14,7 +14,7 @@
         android:id="@+id/btn_offboarding_resubscribe"
         style="@style/GoOffboarding.Button.Primary"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         app:actionText="@string/go_offboard_resubscribe"
         app:retryText="@string/go_onboarding_retry" />
 
@@ -22,7 +22,7 @@
         android:id="@+id/btn_offboarding_continue"
         style="@style/GoOffboarding.Button.Secondary"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         app:actionText="@string/ok_got_it"
         app:retryText="@string/go_onboarding_retry" />
 
