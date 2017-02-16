@@ -68,7 +68,7 @@ public class RemoteConfigTest {
 
         remoteConfig.fetchFeatureFlags(context);
 
-        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME);
+        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME_SECONDS);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RemoteConfigTest {
 
         remoteConfig.fetchFeatureFlags(context);
 
-        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME);
+        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME_SECONDS);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class RemoteConfigTest {
 
         remoteConfig.fetchFeatureFlags(context);
 
-        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME);
+        verify(firebaseRemoteConfig).fetch(RemoteConfig.CACHE_EXPIRATION_TIME_SECONDS);
     }
 
     @Test
