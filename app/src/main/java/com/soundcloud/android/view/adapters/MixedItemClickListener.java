@@ -15,11 +15,13 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -119,6 +121,18 @@ public class MixedItemClickListener {
         } else {
             handleNonTrackItemClick(view.getContext(), clickedItem, module);
         }
+    }
+
+    public void onTrackItemClick(List<TrackItem> trackItems, int position) {
+        handleTrackClick(trackItems, position);
+    }
+
+    public void onPlaylistItemClick(PlaylistItem item, Context context) {
+        handleNonTrackItemClick(context, item, Optional.absent());
+    }
+
+    public void onUserItemClick(UserItem item, Context context) {
+        handleNonTrackItemClick(context, item, Optional.absent());
     }
 
     public void onItemClick(List<? extends ListItem> playables, Context context, int position) {

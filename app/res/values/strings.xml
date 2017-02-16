@@ -403,6 +403,14 @@
     <string name="search_empty">No results found</string>
     <string name="search_empty_subtext">Check the spelling or try a different search</string>
     <string name="search_for_query">Search for \'%s\'</string>
+    <string name="top_results_top_item">Top result</string>
+    <string name="top_results_tracks">Tracks</string>
+    <string name="top_results_go_tracks">SoundCloud Go tracks</string>
+    <string name="top_results_albums">Albums</string>
+    <string name="top_results_playlists">Playlists</string>
+    <string name="top_results_people">People</string>
+    <string name="top_results_view_all">See all %1$d %2$s</string>
+
 
     <!-- __DISCOVERY RECOMMENDATIONS -->
     <string name="activity_title_view_all_recommendations">Discover more tracks</string>

@@ -13,6 +13,7 @@ import java.util.Collections;
 public final class TopResultsFixtures {
 
     static final Urn QUERY_URN = new Urn("soundcloud:query_urn:123");
+    static final String QUERY = "query";
     static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:tracks");
     static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:top");
 

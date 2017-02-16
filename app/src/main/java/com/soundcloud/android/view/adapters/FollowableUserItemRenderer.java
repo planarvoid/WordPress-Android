@@ -38,8 +38,12 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserItem> items) {
-        super.bindItemView(position, itemView, items);
-        setupFollowToggle(itemView, items.get(position), position);
+        this.bindItemView(position, itemView, items.get(position));
+    }
+
+    public void bindItemView(int position, View itemView, UserItem user) {
+        super.bindItemView(itemView, user);
+        setupFollowToggle(itemView, user, position);
     }
 
     private void setupFollowToggle(View itemView, final UserItem user, final int position) {

@@ -2,16 +2,17 @@ package com.soundcloud.android.search.topresults;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.CollectionRenderer;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.BehaviorSubject;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,10 +21,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class TopResultsFragment extends Fragment implements TopResultsPresenter.TopResultsView {
 
@@ -34,9 +33,13 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     private static final String KEY_QUERY_POSITION = "queryPosition";
 
     @Inject TopResultsPresenter presenter;
+    @Inject TopResultsAdapterFactory adapterFactory;
+    @Inject MixedItemClickListener.Factory clickListenerFactory;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
-    private Subscription subscription;
+    private CompositeSubscription subscription;
+
+    private final BehaviorSubject<Pair<String, Optional<Urn>>> searchIntent = BehaviorSubject.create();
 
     public static TopResultsFragment newInstance(String apiQuery,
                                                  String userQuery,
@@ -66,7 +69,8 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        collectionRenderer = new CollectionRenderer<>(new TopResultsAdapter(), this::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), true);
+        searchIntent.onNext(Pair.of(getApiQuery(), getSearchQueryUrn()));
+        collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked()), this::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), true);
         presenter.attachView(this);
         setHasOptionsMenu(true);
     }
@@ -83,7 +87,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public Observable<Pair<String, Optional<Urn>>> searchIntent() {
-        return Observable.just(Pair.of(getApiQuery(), getSearchQueryUrn()));
+        return searchIntent;
     }
 
     @Override
@@ -106,7 +110,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        return inflater.inflate(R.layout.recyclerview_with_refresh_without_empty, container, false);
     }
 
     @Override
@@ -114,11 +118,16 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         super.onViewCreated(view, savedInstanceState);
         collectionRenderer.attach(view, false);
 
-        subscription = presenter
-                .viewModel()
-                .map(TopResultsViewModel::buckets)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(collectionRenderer::render);
+        subscription = new CompositeSubscription();
+
+        subscription.addAll(presenter
+                                    .viewModel()
+                                    .map(TopResultsViewModel::buckets)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(collectionRenderer::render),
+                            presenter.playlistItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onPlaylistItemClick(click.playlistItem(), getActivity())),
+                            presenter.trackItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onTrackItemClick(click.playQueue(), click.position())),
+                            presenter.userItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onUserItemClick(click.userItem(), getActivity())));
     }
 
     @Override
@@ -126,35 +135,5 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         subscription.unsubscribe();
         collectionRenderer.detach();
         super.onDestroyView();
-    }
-
-    static class TopResultsAdapter extends RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> {
-
-        TopResultsAdapter() {
-            super(new BucketRenderer());
-        }
-
-        @Override
-        protected RecyclerView.ViewHolder createViewHolder(View itemView) {
-            return new RecyclerItemAdapter.ViewHolder(itemView);
-        }
-
-        @Override
-        public int getBasicItemViewType(int position) {
-            return 0;
-        }
-    }
-
-    static class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
-
-        @Override
-        public View createItemView(ViewGroup parent) {
-            return LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-        }
-
-        @Override
-        public void bindItemView(int position, View itemView, List<TopResultsBucketViewModel> items) {
-            ((TextView) itemView.findViewById(android.R.id.text1)).setText(String.valueOf(items.get(position)));
-        }
     }
 }

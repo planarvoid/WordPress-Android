@@ -33,7 +33,7 @@ class TopResultsOperations {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
     }
 
-    public Observable<List<ApiTopResultsBucket>> search(Pair<String,Optional<Urn>> pairQuery) {
+    public Observable<List<ApiTopResultsBucket>> search(Pair<String, Optional<Urn>> pairQuery) {
         return search(pairQuery.first(), pairQuery.second());
     }
 

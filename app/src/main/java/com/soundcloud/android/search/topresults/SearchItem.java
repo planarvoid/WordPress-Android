@@ -15,13 +15,15 @@ public abstract class SearchItem {
 
     public abstract Urn urn();
 
+    public abstract int bucketPosition();
+
     public abstract SearchItem withLikeStatus(LikesStatusEvent.LikeStatus likeStatus);
 
     @AutoValue
     public static abstract class User extends SearchItem {
         public abstract UserItem userItem();
-        public static User create(UserItem userItem) {
-            return new AutoValue_SearchItem_User(Kind.USER, userItem.getUrn(), userItem);
+        public static User create(UserItem userItem, int bucketPosition) {
+            return new AutoValue_SearchItem_User(Kind.USER, userItem.getUrn(), bucketPosition, userItem);
         }
 
         @Override
@@ -32,26 +34,26 @@ public abstract class SearchItem {
     @AutoValue
     public static abstract class Track extends SearchItem {
         public abstract TrackItem trackItem();
-        public static Track create(TrackItem trackItem) {
-            return new AutoValue_SearchItem_Track(Kind.TRACK, trackItem.getUrn(), trackItem);
+        public static Track create(TrackItem trackItem, int bucketPosition) {
+            return new AutoValue_SearchItem_Track(Kind.TRACK, trackItem.getUrn(), bucketPosition, trackItem);
         }
 
         @Override
         public SearchItem withLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
-            return create(trackItem().updatedWithLike(likeStatus));
+            return create(trackItem().updatedWithLike(likeStatus), bucketPosition());
         }
     }
     @AutoValue
     public static abstract class Playlist extends SearchItem {
         public abstract PlaylistItem playlistItem();
-        public static Playlist create(PlaylistItem playlistItem) {
-            return new AutoValue_SearchItem_Playlist(Kind.PLAYLIST, playlistItem.getUrn(), playlistItem);
+        public static Playlist create(PlaylistItem playlistItem, int bucketPosition) {
+            return new AutoValue_SearchItem_Playlist(Kind.PLAYLIST, playlistItem.getUrn(), bucketPosition, playlistItem);
         }
 
 
         @Override
         public SearchItem withLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
-            return create(playlistItem().updatedWithLike(likeStatus));
+            return create(playlistItem().updatedWithLike(likeStatus), bucketPosition());
         }
     }
 }

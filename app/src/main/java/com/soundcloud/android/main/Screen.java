@@ -80,6 +80,7 @@ public enum Screen {
     SEARCH_PREMIUM_CONTENT("search:high_tier"),
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
+    SEARCH_TOP_RESULTS("search:top_results"),
 
     // recommendations
     RECOMMENDATIONS_MAIN("personal-recommended:main"),

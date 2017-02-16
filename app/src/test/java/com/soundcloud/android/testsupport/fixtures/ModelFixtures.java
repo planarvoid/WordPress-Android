@@ -5,6 +5,7 @@ import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
@@ -36,6 +37,9 @@ import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
+import com.soundcloud.android.search.topresults.SearchItem;
+import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
+import com.soundcloud.android.search.topresults.TopResultsViewModel;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.stream.StreamItem;
@@ -56,7 +60,9 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemBlueprint;
+import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -500,5 +506,31 @@ public class ModelFixtures {
         } else {
             return TrackStreamItem.create(TrackItem.from(track), streamEntity.createdAt());
         }
+    }
+
+    public static TopResultsViewModel topResultsViewModel(List<SearchItem> firstBucketItems) {
+        final TopResultsBucketViewModel bucket1 = TopResultsBucketViewModel.create(firstBucketItems,
+                                                                                   new Urn("soundcloud:search-buckets:tracks"),
+                                                                                   0,
+                                                                                   Urn.NOT_SET);
+        final TopResultsBucketViewModel bucket2 = TopResultsBucketViewModel.create(Lists.newArrayList(searchTrack(1), searchTrack(1), searchTrack(1), searchUser(1), searchPlaylist(1)),
+                                                                                   new Urn("soundcloud:search-buckets:top"),
+                                                                                   1,
+                                                                                   Urn.NOT_SET);
+
+        CollectionViewState<TopResultsBucketViewModel> collectionViewState = CollectionViewState.<TopResultsBucketViewModel>builder().items(Lists.newArrayList(bucket1, bucket2)).build();
+        return TopResultsViewModel.create(collectionViewState);
+    }
+
+    public static SearchItem.User searchUser(int bucketPosition) {
+        return SearchItem.User.create(create(UserItem.class), bucketPosition);
+    }
+
+    public static SearchItem.Playlist searchPlaylist(int bucketPosition) {
+        return SearchItem.Playlist.create(playlistItem(), bucketPosition);
+    }
+
+    public static SearchItem.Track searchTrack(int bucketPosition) {
+        return SearchItem.Track.create(trackItem(), bucketPosition);
     }
 }

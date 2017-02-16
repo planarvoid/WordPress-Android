@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
-import com.soundcloud.android.presentation.ListItem;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -15,7 +14,7 @@ public class SearchPlayQueueFilter {
         this.playRelatedTracksConfig = playRelatedTracksConfig;
     }
 
-    List<ListItem> correctQueue(List<ListItem> playQueue, int position) {
+    public <T> List<T> correctQueue(List<T> playQueue, int position) {
         if (playRelatedTracksConfig.isEnabled()) {
             return Collections.singletonList(playQueue.get(position));
         } else {
@@ -23,7 +22,7 @@ public class SearchPlayQueueFilter {
         }
     }
 
-    int correctPosition(int position) {
+    public int correctPosition(int position) {
         return playRelatedTracksConfig.isEnabled() ? 0 : position;
     }
 }
