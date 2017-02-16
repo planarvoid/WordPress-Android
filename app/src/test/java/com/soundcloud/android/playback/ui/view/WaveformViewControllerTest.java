@@ -274,7 +274,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     public void displayWaveformWhenNotExpandedAfterSettingWidthDoesNotSetWaveformsOnWaveformView() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.setWaveform(Observable.just(waveformData), true);
-        verify(waveformView, never()).setWaveformData(waveformData, 1000);
+        verify(waveformView, never()).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test
@@ -283,7 +283,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.setWaveform(Observable.just(waveformData), false);
 
-        verify(waveformView, never()).setWaveformData(waveformData, 1000);
+        verify(waveformView, never()).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test
@@ -292,7 +292,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.setWaveform(Observable.just(waveformData), true);
 
-        verify(waveformView).setWaveformData(waveformData, 1000);
+        verify(waveformView).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test
@@ -313,7 +313,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onForeground();
         waveformViewController.setWaveform(Observable.just(waveformData), true);
         waveformViewController.onWaveformViewWidthChanged(500);
-        verify(waveformView).setWaveformData(waveformData, 1000);
+        verify(waveformView).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onPlayerSlide(.99f);
         waveformViewController.setWaveform(Observable.just(waveformData), true);
         waveformViewController.onWaveformViewWidthChanged(500);
-        verify(waveformView, never()).setWaveformData(waveformData, 1000);
+        verify(waveformView, never()).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test
@@ -334,7 +334,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
         waveformViewController.setExpanded();
 
-        verify(waveformView).setWaveformData(waveformData, 1000);
+        verify(waveformView).setWaveformData(waveformData, 1000, 1.0f);
         verify(waveformView, never()).setVisibility(View.VISIBLE);
     }
 
@@ -347,7 +347,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
         waveformViewController.setExpanded();
 
-        verify(waveformView).setWaveformData(waveformData, 1000);
+        verify(waveformView).setWaveformData(waveformData, 1000, 1.0f);
         verify(waveformView).setVisibility(View.VISIBLE);
     }
 
@@ -394,7 +394,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         waveformViewController.onForeground();
 
         waveformViewController.onWaveformViewWidthChanged(500);
-        verify(waveformView).setWaveformData(waveformData, 1000);
+        verify(waveformView).setWaveformData(waveformData, 1000, 1.0f);
     }
 
     @Test

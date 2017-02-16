@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.TextureView;
 
 public class WaveformCanvas extends TextureView implements TextureView.SurfaceTextureListener {
+    private static final float MIN_UNPLAYABLE = 0.99f;
+
     private WaveformData waveformData;
     private Paint abovePaint;
     private Paint belowPaint;
@@ -18,6 +20,8 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
     private Paint unplayableBelowPaint;
     private int barWidth, spaceWidth, baseline;
     private boolean surfaceAvailable = false;
+    private boolean drawn = false;
+    private boolean visible = false;
 
     private float unplayableFromPosition = 1.0f;
 
@@ -36,6 +40,7 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
     }
 
     public void initialize(WaveformData waveformData,
+                           float unplayableFromPosition,
                            Paint abovePaint,
                            Paint belowPaint,
                            Paint unplayableAbovePaint,
@@ -51,12 +56,22 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         this.baseline = baseline;
         this.unplayableAbovePaint = unplayableAbovePaint;
         this.unplayableBelowPaint = unplayableBelowPaint;
-        drawCanvas();
+        this.unplayableFromPosition = unplayableFromPosition;
+        this.drawn = false;
+        this.visible = false;
     }
 
+    // Note: Progress events might have slightly less duration than metadata duration
+    // but they should still be handled as fully-playable
     public void setUnplayableFromPosition(float unplayableFromPosition) {
-        this.unplayableFromPosition = unplayableFromPosition;
-        drawCanvas();
+        boolean isBelowFullPlayable = unplayableFromPosition < MIN_UNPLAYABLE;
+        boolean wasBelowFullPlayable = this.unplayableFromPosition < MIN_UNPLAYABLE;
+
+        if (isBelowFullPlayable != wasBelowFullPlayable) {
+            this.unplayableFromPosition = unplayableFromPosition;
+            this.drawn = false;
+            drawCanvas();
+        }
     }
 
     @Override
@@ -67,6 +82,7 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        drawn = false;
         drawCanvas();
     }
 
@@ -80,8 +96,13 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
+    public void show() {
+        visible = true;
+        drawCanvas();
+    }
+
     public void drawCanvas() {
-        if (!surfaceAvailable) {
+        if (!surfaceAvailable || drawn || !visible) {
             return;
         }
 
@@ -111,6 +132,8 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
                 drawBar(canvas, x, y, unplayableAbovePaint, unplayableBelowPaint);
                 x += w;
             }
+
+            drawn = true;
         }
 
         unlockCanvasAndPost(canvas);

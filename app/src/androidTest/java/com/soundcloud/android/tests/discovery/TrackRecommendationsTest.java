@@ -46,9 +46,10 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickReason();
 
+        player.waitForExpandedPlayer();
+
         assertThat(reason, containsString(player.getTrackTitle()));
 
-        player.waitForExpandedPlayer();
         player.swipeNext();
 
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));

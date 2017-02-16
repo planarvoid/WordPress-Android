@@ -182,6 +182,8 @@ public class WaveformView extends FrameLayout {
 
     void showExpandedWaveform() {
         clearScaleAnimations();
+        leftWaveform.show();
+        rightWaveform.show();
 
         springY = springSystem.createSpring();
         springY.addListener(new SimpleSpringListener() {
@@ -283,13 +285,13 @@ public class WaveformView extends FrameLayout {
     }
 
 
-    public void setWaveformData(WaveformData waveformData, int adjustedWidth) {
+    public void setWaveformData(WaveformData waveformData, int adjustedWidth, float unplayableProportion) {
         double totalSamples = adjustedWidth / (barWidth + spaceWidth);
 
         WaveformData scaled = waveformData.scale(totalSamples);
-        leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint,
+        leftWaveform.initialize(scaled, unplayableProportion, progressAbovePaint, progressBelowPaint,
                                 unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
-        rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint,
+        rightWaveform.initialize(scaled, unplayableProportion, unplayedAbovePaint, unplayedBelowPaint,
                                  unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
         dragViewHolder.setAreaWidth(adjustedWidth);
     }
