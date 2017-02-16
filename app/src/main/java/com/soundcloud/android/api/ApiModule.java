@@ -15,7 +15,6 @@ import okhttp3.OkHttpClient;
 
 import android.content.Context;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -23,13 +22,11 @@ import java.util.concurrent.TimeUnit;
 @Module
 public class ApiModule {
 
-    public static final String API_HTTP_CLIENT = "ApiHttpClient";
-
     private static final int READ_WRITE_TIMEOUT_SECONDS = 20;
     private static final int CONNECT_TIMEOUT_SECONDS = 20;
 
     @Provides
-    public ApiClient provideApiClient(@Named(API_HTTP_CLIENT) OkHttpClient httpClient,
+    public ApiClient provideApiClient(OkHttpClient httpClient,
                                       ApiUrlBuilder urlBuilder,
                                       JsonTransformer jsonTransformer,
                                       DeviceHelper deviceHelper,
@@ -61,9 +58,20 @@ public class ApiModule {
         return UnauthorisedRequestRegistry.getInstance(context);
     }
 
+    /**
+     * Returns an OkHttpClient with default settings appropriate for most uses in the app. Customized clients can be
+     * created by injecting this client and using {@link OkHttpClient#newBuilder()}. This will ensure all clients in
+     * the app share a single connection pool.
+     *
+     * <p>
+     *   <strong>Note that returning a {@link OkHttpClient.Builder} here would not be safe!</strong> If we were to
+     *   return a singleton builder, any customizations to that builder would be global. Alternatively, if we
+     *   were to create a new builder instance each time, they would not share a connection pool.
+     * </p>
+     */
     @Provides
     @Singleton
-    public OkHttpClient.Builder provideOkHttpClientBuilder(ApiUserPlanInterceptor userPlanInterceptor,
+    public OkHttpClient provideOkHttpClient(ApiUserPlanInterceptor userPlanInterceptor,
                                                            ApplicationProperties applicationProperties) {
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
                 .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -75,13 +83,6 @@ public class ApiModule {
             clientBuilder.addNetworkInterceptor(new StethoInterceptor());
         }
 
-        return clientBuilder;
-    }
-
-    @Provides
-    @Singleton
-    @Named(API_HTTP_CLIENT)
-    public OkHttpClient provideOkHttpClient(OkHttpClient.Builder clientBuilder) {
         return clientBuilder.build();
     }
 }

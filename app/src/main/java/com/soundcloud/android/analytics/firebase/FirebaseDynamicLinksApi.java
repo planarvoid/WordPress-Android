@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics.firebase;
 
-import static com.soundcloud.android.analytics.firebase.FirebaseModule.FIREBASE_HTTP_CLIENT;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,16 +9,13 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.java.strings.Charsets;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import rx.Observable;
 import rx.Scheduler;
 
@@ -27,7 +23,6 @@ import android.content.res.Resources;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -71,7 +66,7 @@ public class FirebaseDynamicLinksApi {
     FirebaseDynamicLinksApi(
             FirebaseOptions firebaseOptions,
             Resources resources,
-            @Named(FIREBASE_HTTP_CLIENT) OkHttpClient httpClient,
+            OkHttpClient httpClient,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.firebaseOptions = firebaseOptions;
         this.resources = resources;
