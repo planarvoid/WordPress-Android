@@ -27,7 +27,7 @@
         style="@style/GoOnboarding.PrimaryButton.Transparent"
         android:layout_margin="20dp"
         android:layout_width="@dimen/go_onboarding_text_width"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         app:actionText="@string/go_onboarding_start"

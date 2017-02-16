@@ -49,7 +49,7 @@
 
     <style name="GoOffboarding.Button" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textAllCaps">false</item>
-        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginTop">18dp</item>
         <item name="textSize">@dimen/loading_button_text</item>
     </style>
 
