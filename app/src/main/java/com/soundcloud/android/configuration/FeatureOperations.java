@@ -3,6 +3,7 @@ package com.soundcloud.android.configuration;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -52,6 +53,10 @@ public class FeatureOperations {
         return featureStorage.isEnabled(FeatureName.KRUX_ADS, false);
     }
 
+    public Observable<Boolean> adsEnabled() {
+       return getUpdates(FeatureName.REMOVE_AUDIO_ADS);
+    }
+
     public boolean shouldRequestAds() {
         return !featureStorage.isEnabled(FeatureName.REMOVE_AUDIO_ADS, false);
     }
@@ -77,6 +82,11 @@ public class FeatureOperations {
 
     private boolean isFeatureAvailableInPlan(String featureName, Plan plan) {
         return featureStorage.getPlans(featureName).contains(plan);
+    }
+
+    public boolean upsellHighTierAndMidTier() {
+        return planStorage.getUpsells().contains(Plan.HIGH_TIER) &&
+                planStorage.getUpsells().contains(Plan.MID_TIER);
     }
 
     public boolean upsellHighTier() {

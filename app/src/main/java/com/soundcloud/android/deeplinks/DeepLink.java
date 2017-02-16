@@ -18,8 +18,10 @@ public enum DeepLink {
     RECORD,
     WEB_VIEW,
     ENTITY,
-    SOUNDCLOUD_GO_UPSELL,
-    SOUNDCLOUD_GO_BUY,
+    SOUNDCLOUD_GO_PLUS_UPSELL,
+    SOUNDCLOUD_GO_PLUS_BUY,
+    SOUNDCLOUD_GO_CHOICE,
+    SOUNDCLOUD_GO_PLUS_CHOICE,
     NOTIFICATION_PREFERENCES,
     COLLECTION,
     OFFLINE_SETTINGS,
@@ -43,8 +45,10 @@ public enum DeepLink {
                        TRACK_ENTITY,
                        PLAYLIST_ENTITY,
                        USER_ENTITY,
-                       SOUNDCLOUD_GO_UPSELL,
-                       SOUNDCLOUD_GO_BUY,
+                       SOUNDCLOUD_GO_PLUS_UPSELL,
+                       SOUNDCLOUD_GO_PLUS_BUY,
+                       SOUNDCLOUD_GO_CHOICE,
+                       SOUNDCLOUD_GO_PLUS_CHOICE,
                        NOTIFICATION_PREFERENCES,
                        COLLECTION,
                        OFFLINE_SETTINGS,
@@ -147,10 +151,17 @@ public enum DeepLink {
             case "soundcloudgo":
             case "go":
             case "ht_modal":
-                return SOUNDCLOUD_GO_UPSELL;
+                switch(uri.getPath()) {
+                    case "/soundcloudgo":
+                        return SOUNDCLOUD_GO_CHOICE;
+                    case "/soundcloudgoplus":
+                        return SOUNDCLOUD_GO_PLUS_CHOICE;
+                    default:
+                        return SOUNDCLOUD_GO_PLUS_UPSELL;
+                }
             case "buysoundcloudgo":
             case "buy_ht":
-                return SOUNDCLOUD_GO_BUY;
+                return SOUNDCLOUD_GO_PLUS_BUY;
             case "settings":
                 switch (uri.getPath()) {
                     case "/offline_listening":
@@ -225,9 +236,15 @@ public enum DeepLink {
             case "/ht_modal":
             case "/soundcloudgo":
             case "/go":
-                return SOUNDCLOUD_GO_UPSELL;
+                return SOUNDCLOUD_GO_PLUS_UPSELL;
+            case "/soundcloudgo/soundcloudgo":
+            case "/go/soundcloudgo":
+                return SOUNDCLOUD_GO_CHOICE;
+            case "/soundcloudgo/soundcloudgoplus":
+            case "/go/soundcloudgoplus":
+                return SOUNDCLOUD_GO_PLUS_CHOICE;
             case "/buy_ht":
-                return SOUNDCLOUD_GO_BUY;
+                return SOUNDCLOUD_GO_PLUS_BUY;
             case "/notification_preferences":
             case "/settings/notifications":
             case "/settings/notification_preferences":

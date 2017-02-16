@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.discovery.charts.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -27,6 +28,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -36,6 +39,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowToast;
 import rx.Observable;
 
 import android.content.Context;
@@ -60,6 +64,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private Resources resources;
     @Mock private ChartsUriResolver chartsUriResolver;
+    @Mock private FeatureFlags featureFlags;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -73,7 +78,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
-                                             any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
+                                             any(Screen.class))).thenReturn(Observable.empty());
         when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
     }
 
@@ -409,6 +414,58 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Referrer.OTHER, Screen.CHECKOUT);
         verify(navigator).openDirectCheckout(context);
+    }
+
+    @Test
+    public void shouldLaunchProductChoiceForMidTierUpsell() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
+        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
+        verify(navigator).openProductChoiceOnMain(context, Plan.MID_TIER);
+    }
+
+    @Test
+    public void shouldLaunchProductChoiceForHighTierUpsell() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
+        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgoplus");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
+        verify(navigator).openProductChoiceOnMain(context, Plan.HIGH_TIER);
+    }
+
+    @Test
+    public void shouldNotLaunchProductChoiceIfMidTierFeatureIsDisabled() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
+        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test

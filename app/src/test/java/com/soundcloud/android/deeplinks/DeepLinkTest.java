@@ -46,8 +46,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertThat(DeepLink.DISCOVERY.requiresResolve()).isFalse();
         assertThat(DeepLink.SEARCH.requiresResolve()).isFalse();
         assertThat(DeepLink.RECORD.requiresResolve()).isFalse();
-        assertThat(DeepLink.SOUNDCLOUD_GO_UPSELL.requiresResolve()).isFalse();
-        assertThat(DeepLink.SOUNDCLOUD_GO_BUY.requiresResolve()).isFalse();
+        assertThat(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL.requiresResolve()).isFalse();
+        assertThat(DeepLink.SOUNDCLOUD_GO_PLUS_BUY.requiresResolve()).isFalse();
         assertThat(DeepLink.NOTIFICATION_PREFERENCES.requiresResolve()).isFalse();
         assertThat(DeepLink.COLLECTION.requiresResolve()).isFalse();
         assertThat(DeepLink.OFFLINE_SETTINGS.requiresResolve()).isFalse();
@@ -89,9 +89,13 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggestedtracks_all");
         assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discovery");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_BUY, "soundcloud://buysoundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_CHOICE, "soundcloud://soundcloudgo/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_CHOICE, "soundcloud://go/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_CHOICE, "soundcloud://soundcloudgo/soundcloudgoplus");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_CHOICE, "soundcloud://go/soundcloudgoplus");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_BUY, "soundcloud://buysoundcloudgo");
         assertDeeplink(DeepLink.OFFLINE_SETTINGS, "soundcloud://settings_offlinelistening");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://notification_preferences");
         assertDeeplink(DeepLink.COLLECTION, "soundcloud://collection");
@@ -107,8 +111,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://settings/notification_preferences");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggested_tracks/all");
         assertDeeplink(DeepLink.SHARE_APP, "soundcloud://share_app");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://ht_modal");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_BUY, "soundcloud://buy_ht");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://ht_modal");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_BUY, "soundcloud://buy_ht");
     }
 
     @Test
@@ -135,8 +139,12 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/playlists");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/tracks/search");
         assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/people/search");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/soundcloudgo");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://www.soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://www.soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_CHOICE, "https://www.soundcloud.com/soundcloudgo/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_CHOICE, "https://www.soundcloud.com/go/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_CHOICE, "https://www.soundcloud.com/soundcloudgo/soundcloudgoplus");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_CHOICE, "https://www.soundcloud.com/go/soundcloudgoplus");
         assertDeeplink(DeepLink.OFFLINE_SETTINGS, "https://www.soundcloud.com/settings_offlinelistening");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "https://www.soundcloud.com/notification_preferences");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "https://soundcloud.com/settings/notifications");
@@ -146,15 +154,15 @@ public class DeepLinkTest extends AndroidUnitTest {
 
     @Test
     public void shouldHandleWebSoundcloudGoTypes() {
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://soundcloud.com/go");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://soundcloud.com/go");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://m.soundcloud.com/go");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "http://soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "http://m.soundcloud.com/go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://m.soundcloud.com/go");
 
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://soundcloud.com/soundcloudgo");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://soundcloud.com/soundcloudgo");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "http://m.soundcloud.com/soundcloudgo");
-        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://m.soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "http://soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "http://m.soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "https://m.soundcloud.com/soundcloudgo");
     }
 
     @Test

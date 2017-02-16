@@ -67,11 +67,6 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         return new CastCredentials(accountOperations.getSoundCloudToken(), featureFlags);
     }
 
-    public void requestStatus() {
-        getRemoteMediaClient().requestStatus();
-        Log.d(TAG, "CastProtocol::requestStatus");
-    }
-
     public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {
         MediaInfo mediaInfo = new MediaInfo.Builder(contentId)
                 .setContentType(MIME_TYPE_AUDIO_MPEG)

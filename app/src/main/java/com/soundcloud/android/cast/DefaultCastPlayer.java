@@ -61,7 +61,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     @Override
     public void onConnected() {
-        castProtocol.requestStatus();
+        // no-op
     }
 
     @Override

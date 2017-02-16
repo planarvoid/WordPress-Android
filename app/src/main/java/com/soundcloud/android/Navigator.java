@@ -13,6 +13,7 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -32,6 +33,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
+import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -70,6 +72,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -83,9 +86,8 @@ public class Navigator {
             | Intent.FLAG_ACTIVITY_TASK_ON_HOME
             | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
-    public static final String EXTRA_CHARTS_INTENT = "charts_intent";
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
-    public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
+    public static final String EXTRA_PRODUCT_CHOICE_PLAN = "product_choice_plan";
 
     protected final EventTracker eventTracker;
     protected final FeatureFlags featureFlags;
@@ -128,11 +130,21 @@ public class Navigator {
     }
 
     public void openUpgrade(Context context) {
-        context.startActivity(new Intent(context, ConversionActivity.class));
+        context.startActivity(createConversionIntent(context));
     }
 
     public void openUpgradeOnMain(Context context) {
-        context.startActivity(createHomeIntent(context).putExtra(EXTRA_UPGRADE_INTENT, true));
+        TaskStackBuilder.create(context)
+                        .addNextIntent(createHomeIntent(context))
+                        .addNextIntent(createConversionIntent(context))
+                        .startActivities();
+    }
+
+    public void openProductChoiceOnMain(Context context, Plan plan) {
+        TaskStackBuilder.create(context)
+                        .addNextIntent(createHomeIntent(context))
+                        .addNextIntent(createProductChoiceIntent(context, plan))
+                        .startActivities();
     }
 
     public void openDirectCheckout(Context context) {
@@ -464,6 +476,14 @@ public class Navigator {
 
     private Intent createHomeIntent(Context context) {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
+
+    private Intent createConversionIntent(Context context) {
+        return new Intent(context, ConversionActivity.class);
+    }
+
+    private Intent createProductChoiceIntent(Context context, Plan plan) {
+        return new Intent(context, ProductChoiceActivity.class).putExtra(EXTRA_PRODUCT_CHOICE_PLAN, plan);
     }
 
     private Intent createResolveIntent(Context context, Uri uri) {

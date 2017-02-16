@@ -69,6 +69,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(inlayAdOperations.subscribe(inlayAdHelper)).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
         when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
+        when(featureOperations.adsEnabled()).thenReturn(Observable.just(Boolean.TRUE));
 
         controller.onViewCreated(recycler, adapter);
     }
@@ -106,6 +107,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     public void insertAdsDoesNotFetchInlayAdsIfUserHasShouldntFetchAdsFeature() {
         when(featureOperations.shouldRequestAds()).thenReturn(false);
 
+        controller.onViewCreated(recycler, adapter);
         controller.insertAds();
 
         verify(adsOperations, never()).inlayAds(any(AdRequestData.class));
@@ -292,7 +294,10 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Test
     public void fetchAdsDoesNotFetchInlayAdsWithoutFetchAdsFeature() {
         when(featureOperations.shouldRequestAds()).thenReturn(false);
+
+        controller.onViewCreated(recycler, adapter);
         controller.insertAds();
+
         verify(adsOperations, never()).inlayAds(any(AdRequestData.class));
     }
 

@@ -28,7 +28,7 @@ public class ClearRecentlyPlayedCommand extends Command<Void, Boolean> {
         final ApiResponse apiResponse = apiClient.fetchResponse(request);
         final boolean success = apiResponse.isSuccess();
 
-        if(success) {
+        if (success) {
             storage.clear();
         }
 

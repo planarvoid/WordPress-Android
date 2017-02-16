@@ -21,6 +21,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
@@ -47,15 +48,17 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
 
+    private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription fetchSubscription = RxUtils.invalidSubscription();
-    private Subscription impressionsSubscription = RxUtils.invalidSubscription();
 
     private List<AdData> inlayAds = Collections.emptyList();
+
     private Optional<Long> lastEmptyResponseTime = Optional.absent();
     private Optional<InlayAdHelper> inlayAdHelper = Optional.absent();
 
     private String lastRequestId = Strings.EMPTY;
     private boolean wasScrollingUp;
+    private boolean streamAdsEnabled;
 
     @Inject
     public StreamAdsController(AdsOperations adsOperations,
@@ -78,11 +81,17 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         final StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
         this.inlayAdHelper = Optional.of(inlayAdHelperFactory.create(staggeredGridLayoutManager, adapter));
+
+        subscriptions = new CompositeSubscription();
+        subscriptions.addAll(featureOperations.adsEnabled()
+                                              .startWith(Boolean.TRUE)
+                                              .subscribe(new AdsEnabled()),
+                             inlayAdOperations.subscribe(inlayAdHelper.get()));
     }
 
     public void onDestroyView() {
-        fetchSubscription.unsubscribe();
-        impressionsSubscription.unsubscribe();
+        fetchInlays().unsubscribe();
+        subscriptions.unsubscribe();
         this.inlayAdHelper = Optional.absent();
     }
 
@@ -96,18 +105,14 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         wasScrollingUp = dy < 0;
-        if (streamAdsEnabled() && inlayAdHelper.isPresent()) {
+        if (streamAdsEnabled && inlayAdHelper.isPresent()) {
             inlayAdHelper.get().onScroll();
         }
     }
 
     public void insertAds() {
-        if (streamAdsEnabled()) {
+        if (streamAdsEnabled) {
             clearExpiredAds();
-
-            if (impressionsSubscription.isUnsubscribed() && inlayAdHelper.isPresent()) {
-                impressionsSubscription = inlayAdOperations.subscribe(inlayAdHelper.get());
-            }
 
             if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {
                 fetchSubscription = fetchInlays();
@@ -127,10 +132,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                 })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new FetchAppInstalls());
-    }
-
-    private boolean streamAdsEnabled() {
-        return featureOperations.shouldRequestAds();
     }
 
     private void clearExpiredAds() {
@@ -165,6 +166,13 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                                                                   lastRequestId,
                                                                                   false, true));
             }
+        }
+    }
+
+    private class AdsEnabled extends DefaultSubscriber<Boolean> {
+        @Override
+        public void onNext(Boolean ignored) {
+            streamAdsEnabled = featureOperations.shouldRequestAds();
         }
     }
 
