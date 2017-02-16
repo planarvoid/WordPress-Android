@@ -89,13 +89,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void requestStatusAsSoonAsConnectedToCoverReconnectionAfterSessionSuspension() {
-        castPlayer.onConnected();
-
-        verify(castProtocol).requestStatus();
-    }
-
-    @Test
     public void pushProgressUpdatesPlaySessionProvider() {
         final long progress = 123L;
         final long duration = 456L;
