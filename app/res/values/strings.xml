@@ -975,12 +975,12 @@
 
     <!-- __SEARCH -->
     <plurals name="search_premium_content_results_count_legacy">
-        <item quantity="one">Found %1$d SoundCloud Go result</item>
-        <item quantity="other">Found %1$d SoundCloud Go results</item>
+        <item quantity="one">Found %1$s SoundCloud Go result</item>
+        <item quantity="other">Found %1$s SoundCloud Go results</item>
     </plurals>
     <plurals name="search_premium_content_results_count">
-        <item quantity="one">Found %1$d SoundCloud Go+ result</item>
-        <item quantity="other">Found %1$d SoundCloud Go+ results</item>
+        <item quantity="one">Found %1$s SoundCloud Go+ result</item>
+        <item quantity="other">Found %1$s SoundCloud Go+ results</item>
     </plurals>
     <string name="search_premium_content_view_all_legacy">See all SoundCloud Go results</string>
     <string name="search_premium_content_view_all">See all SoundCloud Go+ results</string>

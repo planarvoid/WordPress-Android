@@ -21,6 +21,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.collections.PropertySet;
@@ -33,10 +34,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class SearchPremiumContentRendererTest extends AndroidUnitTest {
 
@@ -53,6 +56,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     private View playListItemView;
     private View userItemView;
     private View viewAllResultsView;
+    private CondensedNumberFormatter numberFormatter;
 
     @Before
     public void setUp() {
@@ -67,10 +71,12 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         when(playlistRenderer.createItemView(any(ViewGroup.class))).thenReturn(playListItemView);
         when(userRenderer.createItemView(any(ViewGroup.class))).thenReturn(userItemView);
 
+        numberFormatter = CondensedNumberFormatter.create(Locale.getDefault(), resources());
         renderer = new SearchPremiumContentRenderer(trackRenderer,
                                                     playlistRenderer,
                                                     userRenderer,
                                                     resources(),
+                                                    numberFormatter,
                                                     featureOperations,
                                                     flags);
     }
@@ -109,7 +115,18 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         assertThat(playListItemView.hasOnClickListeners()).isTrue();
         assertThat(trackItemView.getVisibility()).isEqualTo(GONE);
         assertThat(userItemView.getVisibility()).isEqualTo(GONE);
+        TextView resultsCountTextView = (TextView) premiumItemView.findViewById(R.id.results_count);
+        assertThat(resultsCountTextView.getText()).contains(numberFormatter.format(1));
         verify(playlistRenderer).bindItemView(eq(0), eq(playListItemView), anyList());
+    }
+
+    @Test
+    public void showResultWithLotsOfItems() {
+        renderer.createItemView(new FrameLayout(context()));
+        renderer.bindItemView(0, premiumItemView, buildSearchPremiumItemWithManyResults(10000));
+
+        TextView resultsCountTextView = (TextView) premiumItemView.findViewById(R.id.results_count);
+        assertThat(resultsCountTextView.getText()).contains(numberFormatter.format(10000));
     }
 
     @Test
@@ -170,17 +187,25 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         assertThat(helpItemView.hasOnClickListeners()).isFalse();
     }
 
+    private List<SearchPremiumItem> buildSearchPremiumItemWithManyResults(int itemCount) {
+        final List<SearchableItem> searchableItems = new ArrayList<>();
+        for (int i = 0; i < itemCount; i++) {
+            searchableItems.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(i))));
+        }
+        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.<Link>absent(), itemCount));
+    }
+
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn... urns) {
-        final List<SearchableItem> propertySets = new ArrayList<>(urns.length);
+        final List<SearchableItem> searchableItems = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
             if (urn.isTrack()) {
-                propertySets.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, urn)));
+                searchableItems.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, urn)));
             } else if (urn.isPlaylist()) {
-                propertySets.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+                searchableItems.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
             } else if (urn.isUser()) {
-                propertySets.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
+                searchableItems.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
             }
         }
-        return Collections.singletonList(new SearchPremiumItem(propertySets, Optional.<Link>absent(), urns.length));
+        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.<Link>absent(), urns.length));
     }
 }

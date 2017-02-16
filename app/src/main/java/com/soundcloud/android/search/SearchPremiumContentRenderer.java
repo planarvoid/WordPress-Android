@@ -12,6 +12,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.checks.Preconditions;
@@ -48,6 +49,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     private final PlaylistItemRenderer playlistItemRenderer;
     private final UserItemRenderer userItemRenderer;
     private final Resources resources;
+    private final CondensedNumberFormatter numberFormatter;
     private final FeatureOperations featureOperations;
     private final FeatureFlags flags;
 
@@ -62,12 +64,14 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                                  PlaylistItemRenderer playlistItemRenderer,
                                  UserItemRenderer userItemRenderer,
                                  Resources resources,
+                                 CondensedNumberFormatter numberFormatter,
                                  FeatureOperations featureOperations,
                                  FeatureFlags flags) {
         this.trackItemRenderer = trackItemRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
         this.userItemRenderer = userItemRenderer;
         this.resources = resources;
+        this.numberFormatter = numberFormatter;
         this.featureOperations = featureOperations;
         this.flags = flags;
     }
@@ -175,7 +179,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     private String getResultsCountText(SearchPremiumItem premiumItem) {
         final int resultsCount = premiumItem.getResultsCount();
-        return resources.getQuantityString(adaptResultCountPlural(), resultsCount, resultsCount);
+        return resources.getQuantityString(adaptResultCountPlural(), resultsCount, numberFormatter.format(resultsCount));
     }
 
     @PluralsRes
