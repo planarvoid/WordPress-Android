@@ -12,6 +12,7 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
+import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 class RemoteConfig {
+    private static final String TAG = RemoteConfig.class.getSimpleName();
+
     @VisibleForTesting
     static final long CACHE_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(2);
     @VisibleForTesting
@@ -41,11 +44,13 @@ class RemoteConfig {
     }
 
     void fetchFeatureFlags(Context context) {
+        Log.d(TAG, "Fetching Remote Feature Flags");
         if (isGooglePlayServicesAvailable(context) && shouldFetchRemoteConfig()) {
             firebaseRemoteConfig
                     .fetch(CACHE_EXPIRATION_TIME_SECONDS)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            Log.d(TAG, "Activating Fetched Remote Config");
                             firebaseRemoteConfig.activateFetched();
                             persistFeatureFlagValues();
                         } else {
@@ -60,6 +65,8 @@ class RemoteConfig {
             final String featureFlagKey = getFlagKey(featureFlag);
             final String featureFlagValue = firebaseRemoteConfig.getString(featureFlagKey);
             if (Strings.isNotBlank(featureFlagValue)) {
+                Log.d(TAG,  String.format("Persisting Remote Flag: '%s' with value: '%s'",
+                        featureFlagKey, Boolean.valueOf(featureFlagValue)));
                 persistentStorage.persist(featureFlagKey, Boolean.valueOf(featureFlagValue));
             }
         }
