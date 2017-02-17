@@ -10,7 +10,9 @@ import rx.Observable;
 import rx.Subscription;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.animation.AnimationUtils;
@@ -25,25 +27,40 @@ public class NewForYouArtworkView extends FrameLayout {
     private LayoutInflater inflater;
     private ViewFlipper artworkAnimator;
     private Subscription subscription = RxUtils.invalidSubscription();
+    int artworkLayout;
+
+    public NewForYouArtworkView(Context context) {
+        super(context);
+        init(context, null);
+    }
 
     public NewForYouArtworkView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        inflateLayout(context);
+        init(context, attrs);
     }
 
     public NewForYouArtworkView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inflateLayout(context);
+        init(context, attrs);
     }
 
-    public NewForYouArtworkView(Context context) {
-        super(context);
-        inflateLayout(context);
-    }
+    private void init(Context context, @Nullable AttributeSet attrs) {
+        int containerLayout;
 
-    private void inflateLayout(Context context) {
+        if (attrs != null) {
+            final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.NewForYouArtworkView);
+            final boolean isLarge = styledAttributes.getBoolean(R.styleable.NewForYouArtworkView_large, false);
+            styledAttributes.recycle();
+
+            containerLayout = isLarge ? R.layout.new_for_you_artwork_container_large : R.layout.new_for_you_artwork_container;
+            artworkLayout = isLarge ? R.layout.new_for_you_artwork_large : R.layout.new_for_you_artwork;
+        } else {
+            containerLayout = R.layout.new_for_you_artwork_container;
+            artworkLayout = R.layout.new_for_you_artwork;
+        }
+
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.new_for_you_artwork_container, this);
+        inflater.inflate(containerLayout, this);
         artworkAnimator = (ViewFlipper) findViewById(R.id.artwork_animator);
     }
 
@@ -53,7 +70,7 @@ public class NewForYouArtworkView extends FrameLayout {
         artworkAnimator.removeAllViews();
 
         for (int i = 0; i < imageResources.size(); i++) {
-            inflater.inflate(R.layout.new_for_you_artwork, artworkAnimator);
+            inflater.inflate(artworkLayout, artworkAnimator);
             final ImageView imageView = (ImageView) artworkAnimator.getChildAt(i);
             observables.add(imageOperations.displayWithPlaceholderObservable(imageResources.get(i),
                                                                              ApiImageSize.getFullImageSize(imageView.getResources()),

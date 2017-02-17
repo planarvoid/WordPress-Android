@@ -21,6 +21,7 @@ import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
+import com.soundcloud.android.discovery.newforyou.NewForYouActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
@@ -443,6 +444,10 @@ public class Navigator {
 
     public void openTrackLikes(Context context) {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
+    }
+
+    public void openNewForYou(Context context) {
+        context.startActivity(new Intent(context, NewForYouActivity.class));
     }
 
     public void openPlayHistory(Context context) {

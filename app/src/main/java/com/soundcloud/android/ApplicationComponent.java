@@ -38,6 +38,8 @@ import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
 import com.soundcloud.android.discovery.charts.GenresFragment;
+import com.soundcloud.android.discovery.newforyou.NewForYouActivity;
+import com.soundcloud.android.discovery.newforyou.NewForYouFragment;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -331,6 +333,8 @@ public interface ApplicationComponent {
     void inject(ChartTracksFragment chartTracksFragment);
     void inject(AllGenresActivity allGenresActivity);
     void inject(GenresFragment genresFragment);
+    void inject(NewForYouActivity newForYouActivity);
+    void inject(NewForYouFragment newForYouFragment);
 
     //CollectionModule
     void inject(CollectionFragment collectionFragment);

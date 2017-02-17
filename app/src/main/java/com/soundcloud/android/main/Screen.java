@@ -100,6 +100,9 @@ public enum Screen {
     RECORD_PROGRESS("record:progress"),
     DEEPLINK_UPLOAD("deeplink:share"),
 
+    // new for you
+    NEW_FOR_YOU("newforyou:main"),
+
     // playlists
     PLAYLIST_DETAILS("playlists:main"),
     PLAYLIST_LIKES("playlists:likes"),

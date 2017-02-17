@@ -206,7 +206,7 @@
         <item name="android:textColor">@color/seventy_percent_white</item>
     </style>
 
-    <!-- New for you bucket -->
+    <!-- New for you -->
     <style name="NewForYouModule" parent="Module" />
 
     <style name="NewForYouModule.Title" parent="NewForYouModule">
@@ -244,6 +244,74 @@
         <item name="android:background">@drawable/new_for_you_mid_stack_bg</item>
         <item name="android:rotation">-5</item>
         <item name="android:alpha">0.5</item>
+    </style>
+
+    <style name="NewForYouHeader" parent="TextAppearance.SoundCloudLightFont" />
+
+    <style name="NewForYouHeader.Container">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/stations_blur_overlay</item>
+    </style>
+
+    <style name="NewForYouHeader.Title">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="minTextSize">16sp</item>
+        <item name="resizeStep">4sp</item>
+    </style>
+
+    <style name="NewForYouHeader.Description">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+    </style>
+
+    <style name="NewForYouHeader.DetailsContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="NewForYouHeader.Duration">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical|left</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="NewForYouHeader.UpdatedAt">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical|right</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="NewForYouHeader.PlayButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:background">@drawable/btn_header_play</item>
     </style>
 
 </resources>

@@ -2,11 +2,9 @@ package com.soundcloud.android.discovery.charts;
 
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
@@ -42,5 +40,4 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
         });
         trackItemRenderer.bindChartTrackView(track.chartTrackItem, itemView, position, trackSourceInfo);
     }
-
 }

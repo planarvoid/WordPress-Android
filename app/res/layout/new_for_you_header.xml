@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:artworkSize="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/blurred_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/ak_medium_gray"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:id="@+id/header_container"
+            style="@style/NewForYouHeader.Container"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+                <com.soundcloud.android.discovery.newforyou.NewForYouArtworkView
+                    android:id="@+id/artwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    artworkSize:large="true" />
+
+            <com.soundcloud.android.view.AutoResizeTextView
+                style="@style/NewForYouHeader.Title"
+                android:text="@string/new_for_you_title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/NewForYouHeader.Description"
+                android:text="@string/new_for_you_header_intro" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout style="@style/NewForYouHeader.DetailsContainer">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/new_for_you_duration"
+            style="@style/NewForYouHeader.Duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="8 tracks, 33:45" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/new_for_you_updated_at"
+            style="@style/NewForYouHeader.UpdatedAt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Updated 3 hours ago" />
+    </FrameLayout>
+
+</LinearLayout>

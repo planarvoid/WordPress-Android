@@ -971,7 +971,9 @@
     <!-- __NEW_FOR_YOU -->
     <string name="new_for_you_title">New for you</string>
     <string name="new_for_you_intro">A daily playlist of fresh, recently posted tracks. Just for you.</string>
+    <string name="new_for_you_header_intro">A daily playlist of fresh, recently posted tracks.\nJust for you.</string>
     <string name="new_for_you_action">See playlist</string>
+    <string name="new_for_you_duration">%1$d tracks, %2$s</string>
 
     <!-- __SEARCH -->
     <plurals name="search_premium_content_results_count_legacy">

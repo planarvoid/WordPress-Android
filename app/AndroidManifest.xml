@@ -296,6 +296,7 @@
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
+        <activity android:label="@string/new_for_you_title" android:name=".discovery.newforyou.NewForYouActivity" android:theme="@style/Theme.SoundCloud" />
 
         <!-- stations -->
         <activity android:label="@string/stations_collection_title_station_page" android:name=".stations.StationInfoActivity" />

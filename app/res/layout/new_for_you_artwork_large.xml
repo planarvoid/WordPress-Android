@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.soundcloud.android.view.ForegroundImageView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/track_artwork"
+    android:layout_width="@dimen/new_for_you_discovery_preview_width_large"
+    android:layout_height="@dimen/new_for_you_discovery_preview_height_large"
+    app:foregroundDrawable="@drawable/artwork_border"
+    app:square="true" />

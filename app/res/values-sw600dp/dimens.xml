@@ -54,4 +54,10 @@
     <dimen name="search_suggestions_list_item_padding">24dp</dimen>
     <dimen name="discovery_search_close_icon_margin_right">8dp</dimen>
 
+
+    <!-- New for you -->
+    <dimen name="new_for_you_discovery_preview_width">300dp</dimen>
+    <dimen name="new_for_you_discovery_preview_height">300dp</dimen>
+    <dimen name="new_for_you_discovery_preview_width_large">300dp</dimen>
+    <dimen name="new_for_you_discovery_preview_height_large">300dp</dimen>
 </resources>

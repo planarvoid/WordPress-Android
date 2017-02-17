@@ -12,6 +12,10 @@
         <attr name="custom_font" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="NewForYouArtworkView">
+        <attr name="large" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="CustomFontTitleToolbar">
         <attr name="darkMode" format="boolean" />
     </declare-styleable>

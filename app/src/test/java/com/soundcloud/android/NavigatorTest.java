@@ -26,6 +26,7 @@ import com.soundcloud.android.discovery.charts.AllGenresActivity;
 import com.soundcloud.android.discovery.charts.AllGenresPresenter;
 import com.soundcloud.android.discovery.charts.ChartActivity;
 import com.soundcloud.android.discovery.charts.ChartTracksFragment;
+import com.soundcloud.android.discovery.newforyou.NewForYouActivity;
 import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -480,6 +481,14 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackLikesActivity.class);
+    }
+
+    @Test
+    public void opensNewForYou() {
+        navigator.openNewForYou(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(NewForYouActivity.class);
     }
 
     @Test

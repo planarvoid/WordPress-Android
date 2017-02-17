@@ -46,7 +46,6 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
     }
 
     private void bindViewAllView(View viewAllView) {
-        // TODO: Open the correct screen
-        viewAllView.setOnClickListener(view -> navigator.openTrackLikes(viewAllView.getContext()));
+        viewAllView.setOnClickListener(view -> navigator.openNewForYou(viewAllView.getContext()));
     }
 }

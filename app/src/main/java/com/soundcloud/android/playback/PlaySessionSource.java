@@ -78,7 +78,7 @@ public class PlaySessionSource implements Parcelable {
         return forArtist(screen.get(), artist);
     }
 
-    public static PlaySessionSource forArtist(String screen, Urn artist) {
+    private static PlaySessionSource forArtist(String screen, Urn artist) {
         final PlaySessionSource source = new PlaySessionSource(screen);
         source.collectionUrn = artist;
         return source;
@@ -98,6 +98,14 @@ public class PlaySessionSource implements Parcelable {
                                              Urn genre) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.chartSourceInfo = ChartSourceInfo.create(chartType, genre);
+        playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        return playSessionSource;
+    }
+
+    public static PlaySessionSource forNewForYou(String screenTag,
+                                             int queryPosition,
+                                             Urn queryUrn) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
         return playSessionSource;
     }
