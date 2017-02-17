@@ -53,18 +53,16 @@ class PlaylistEngagementsRenderer {
         this.infoProvider = infoProvider;
     }
 
-    void bind(View view, PlaylistDetailsViewModel item, PlaylistDetailsInputs onEngagementListener) {
+    void bind(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
         view.findViewById(R.id.playlist_engagement_bar).setVisibility(View.VISIBLE); // it is not visible by default
-        final PlaylistDetailsMetadata metadata = item.metadata();
-        bindEngagementBar(view, item, onEngagementListener);
+        bindEngagementBar(view, onEngagementListener, metadata);
         setInfoText(infoProvider.getPlaylistInfoLabel(metadata.offlineState(), metadata.headerText()), view);
     }
 
-    private void bindEngagementBar(View view, PlaylistDetailsViewModel item, PlaylistDetailsInputs onEngagementListener) {
-        final PlaylistDetailsMetadata metadata = item.metadata();
+    private void bindEngagementBar(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
         configureLikeButton(view, metadata, onEngagementListener);
         configureOverflow(view, metadata, onEngagementListener);
-        configureDownloadToggle(item, view, onEngagementListener);
+        configureDownloadToggle(view, onEngagementListener, metadata);
         downloadStateRenderer.show(metadata.offlineState(), view);
     }
 
@@ -96,9 +94,8 @@ class PlaylistEngagementsRenderer {
         });
     }
 
-    private void configureDownloadToggle(PlaylistDetailsViewModel item, View view, PlaylistDetailsInputs listener) {
+    private void configureDownloadToggle(View view, PlaylistDetailsInputs listener, PlaylistDetailsMetadata metadata) {
         final IconToggleButton downloadToggle = ButterKnife.findById(view, R.id.toggle_download);
-        final PlaylistDetailsMetadata metadata = item.metadata();
         switch (metadata.offlineOptions()) {
             case AVAILABLE:
                 showOfflineOptions(metadata.isMarkedForOffline(), downloadToggle, listener);

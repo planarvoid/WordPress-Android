@@ -164,8 +164,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsMetadata metadata = viewModel.metadata().updatedWithLikeStatus(likesStatusEvent.likeStatusForUrn(viewModel.metadata().getUrn()).get());
         verify(engagementsView).bind(
                 same(view),
-                eq(updateVithMetadata(metadata)),
-                any());
+                any(), eq(metadata));
     }
 
     @Test
@@ -179,8 +178,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsMetadata metadata = viewModel.metadata().updatedWithRepostStatus(repostStatusEvent.repostStatusForUrn(viewModel.metadata().getUrn()).get());
         verify(engagementsView).bind(
                 same(view),
-                eq(updateVithMetadata(metadata)),
-                any());
+                any(), eq(metadata));
     }
 
     @Test
@@ -347,8 +345,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                     .build();
 
         verify(engagementsView).bind(same(view),
-                                     eq(updateVithMetadata(updated)),
-                                     any());
+                                     any(), eq(updated));
     }
 
     @Test
@@ -433,7 +430,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed);
 
         final PlaylistDetailsMetadata metadata = viewModel.metadata().toBuilder().offlineState(removed.state).build();
-        verify(engagementsView).bind(same(view), eq(updateVithMetadata(metadata)), any());
+        verify(engagementsView).bind(same(view), any(), eq(metadata));
     }
 
     @Test
@@ -450,7 +447,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                     .offlineState(requested.state)
                                                     .isMarkedForOffline(true).build();
 
-        verify(engagementsView).bind(same(view), eq(updateVithMetadata(updated)), any());
+        verify(engagementsView).bind(same(view), any(), eq(updated));
     }
 
     @Test
@@ -469,7 +466,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                                                     .offlineState(downloading.state)
                                                     .isMarkedForOffline(true).build();
 
-        verify(engagementsView).bind(same(view), eq(updateVithMetadata(updated)), any());
+        verify(engagementsView).bind(same(view), any(), eq(updated));
     }
 
     @Test
@@ -483,9 +480,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          downloaded);
 
-        PlaylistDetailsViewModel updated = updateVithMetadata(viewModel.metadata().toBuilder()
-                                                                        .offlineState(downloaded.state).isMarkedForOffline(true).build());
-        verify(engagementsView).bind(same(view), eq(updated), any());
+        PlaylistDetailsMetadata updated = viewModel.metadata().toBuilder().offlineState(downloaded.state).isMarkedForOffline(true).build();
+        verify(engagementsView).bind(same(view), any(), eq(updated));
     }
 
     @Test

@@ -14,11 +14,9 @@ import com.soundcloud.java.optional.Optional;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
@@ -54,12 +52,12 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     }
 
-    public void attach(View view, boolean renderEmptyAtTop) {
+    public void attach(View view, boolean renderEmptyAtTop, RecyclerView.LayoutManager layoutmanager) {
         Preconditions.checkArgument(recyclerView == null, "Recycler View already atteched. Did you forget to detach?");
 
         unbinder = ButterKnife.bind(this, view);
 
-        configureRecyclerView(view.getContext());
+        configureRecyclerView(layoutmanager);
         this.emptyAdapter = new EmptyAdapter(emptyStateProvider, renderEmptyAtTop);
         recyclerView.setAdapter(emptyAdapter);
 
@@ -110,8 +108,8 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(supportsChangeAnimations);
     }
 
-    private void configureRecyclerView(Context context) {
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+    private void configureRecyclerView(RecyclerView.LayoutManager layoutManager) {
+        recyclerView.setLayoutManager(layoutManager);
         addListDividers(recyclerView);
     }
 

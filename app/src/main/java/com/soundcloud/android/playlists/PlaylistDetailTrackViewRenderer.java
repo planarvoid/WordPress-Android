@@ -8,6 +8,7 @@ import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
+import com.soundcloud.android.utils.ViewUtils;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrackItem> {
+    private static final int EXTEND_DRAG_HANDLE_DP = 12;
     private final PlaylistTrackItemRenderer playlistTrackItemRenderer;
 
     @Inject
@@ -50,10 +52,12 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
     }
 
     private void bindHandle(View view) {
-        ViewFetcher.handle(view).setVisibility(View.VISIBLE);
+        ImageView handle = ViewFetcher.handle(view);
+        handle.setVisibility(View.VISIBLE);
         ViewFetcher.overflow(view).setVisibility(View.GONE);
         ViewFetcher.preview(view).setVisibility(View.GONE);
         ViewFetcher.hideDuration(view);
+        ViewUtils.extendTouchArea(handle, EXTEND_DRAG_HANDLE_DP);
     }
 
 

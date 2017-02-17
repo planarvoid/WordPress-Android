@@ -15,6 +15,7 @@ import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.CollectionRenderer;
+import com.soundcloud.android.view.SmoothLinearLayoutManager;
 import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
@@ -60,6 +61,8 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     @Inject Navigator navigator;
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject SharePresenter shareOperations;
+    @Inject NewPlaylistDetailsHeaderRendererFactory playlistDetailsHeaderRendererFactory;
+    @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
 
     @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -68,9 +71,9 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
     private NewPlaylistDetailsPresenter presenter;
     private NewPlaylistDetailsAdapter adapter;
+    private PlaylistDetailsHeaderAnimator headerAnimator;
 
     private boolean skipModelUpdates;
-    private View view;
     private CompositeSubscription subscription;
 
     private CollectionRenderer<PlaylistDetailItem, RecyclerView.ViewHolder> collectionRenderer;
@@ -114,13 +117,13 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
         setHasOptionsMenu(true);
 
-        adapter = newPlaylistDetailsAdapterFactory.create(this);
+        adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(presenter));
 
-        collectionRenderer = new CollectionRenderer<>(adapter, this::isTheSameItem, Object::equals, getEmptyStateProvider(), false);
+        collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, getEmptyStateProvider(), false);
     }
 
     private CollectionRenderer.EmptyStateProvider getEmptyStateProvider() {
-        return new CollectionRenderer.EmptyStateProvider(){
+        return new CollectionRenderer.EmptyStateProvider() {
             @Override
             public int waitingView() {
                 return R.layout.emptyview_loading_tracks;
@@ -143,18 +146,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         };
     }
 
-    private boolean isTheSameItem(PlaylistDetailItem item1, PlaylistDetailItem item2) {
-        return isPlaylistDetailTrackItem(item1) && isPlaylistDetailTrackItem(item2)
-                && trackItem(item1).getUrn().equals((trackItem(item2)).getUrn());
-    }
-
-    private PlaylistDetailTrackItem trackItem(PlaylistDetailItem newItem) {
-        return (PlaylistDetailTrackItem) newItem;
-    }
-
-    private boolean isPlaylistDetailTrackItem(PlaylistDetailItem newItem) {
-        return newItem instanceof PlaylistDetailTrackItem;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -164,12 +155,11 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.view = view;
 
         this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
 
         boolean shouldRenderEmptyViewsAtTop = view.findViewById(R.id.appbar) != null;
-        collectionRenderer.attach(view, shouldRenderEmptyViewsAtTop);
+        collectionRenderer.attach(view, shouldRenderEmptyViewsAtTop, new SmoothLinearLayoutManager(view.getContext()));
 
         baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
 
@@ -179,29 +169,29 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         subscription.addAll(
 
                 presenter.viewModel()
-                        .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .filter(ignored -> !skipModelUpdates)
-                        .doOnNext(this::bindViews)
-                        .map(this::convertLegacyModel)
-                        .subscribe(collectionRenderer::render),
+                         .doOnNext(this::bindViews)
+                         .map(this::convertLegacyModel)
+                         .subscribe(collectionRenderer::render),
 
                 collectionRenderer.onRefresh()
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .subscribe(aVoid -> {
-                    presenter.refresh();
-                }),
+                                      presenter.refresh();
+                                  }),
 
                 presenter.goToCreator()
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribe(urn -> {
-                    navigator.legacyOpenProfile(getActivity(), urn);
-                }),
+                             navigator.legacyOpenProfile(getActivity(), urn);
+                         }),
 
                 presenter.goToUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribe(urn -> {
-                    navigator.openUpgrade(getContext());
-                }),
+                             navigator.openUpgrade(getContext());
+                         }),
 
                 presenter.onRepostResult()
                          .observeOn(AndroidSchedulers.mainThread())
@@ -220,9 +210,12 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
                          }),
 
                 presenter.onShare()
-                        .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions))
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions))
         );
+
+        headerAnimator = headerAnimatorFactory.create(ButterKnife.findById(view, R.id.toolbar_id), ButterKnife.findById(view, R.id.top_gradient), ButterKnife.findById(view, R.id.system_bars_holder));
+        headerAnimator.attach(recyclerView(), adapter);
     }
 
 
@@ -262,24 +255,25 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
                 .isRefreshing(playlistDetailsViewModelAsyncViewModel.isRefreshing())
                 .isLoadingNextPage(!items.isPresent() || items.get().waitingForTracks())
                 .hasMorePages(false)
-                .items(items.isPresent() ? items.get().itemsWithoutHeader() : Collections.emptyList())
+                .items(items.isPresent() ? getPlaylistDetailItems(items) : Collections.emptyList())
                 .build();
+    }
+
+    private List<PlaylistDetailItem> getPlaylistDetailItems(Optional<PlaylistDetailsViewModel> items) {
+        return items.get().metadata().isInEditMode() ? items.get().itemsWithoutHeader() : items.get().itemsWithHeader();
     }
 
     private void bindViews(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
         if (asyncViewModel.data().isPresent()) {
             PlaylistDetailsViewModel data = asyncViewModel.data().get();
-            headerScrollHelper.setIsEditing(data.metadata().isInEditMode());
-            bindCover(data);
-            bindEngagementBar(data);
             bindToolBar(data);
             bindEditMode(data.metadata().isInEditMode());
         }
     }
 
     private void bindEditMode(boolean isInEditMode) {
-        recyclerView().setNestedScrollingEnabled(!isInEditMode);
-        headerScrollHelper.setExpanded(!isInEditMode);
+        headerScrollHelper.setIsEditing(isInEditMode);
+        headerAnimator.setIsInEditMode(isInEditMode, recyclerView());
         if (isInEditMode) {
             itemTouchHelper.attachToRecyclerView(recyclerView());
         } else {
@@ -291,20 +285,12 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         toolbarView.setPlaylist(data.metadata());
     }
 
-    private void bindEngagementBar(PlaylistDetailsViewModel data) {
-        playlistEngagementsRenderer.bind(view, data, presenter);
-    }
-
-    private void bindCover(PlaylistDetailsViewModel data) {
-        playlistCoverRenderer.bind(view, data.metadata(), presenter::onHeaderPlayButtonClicked, presenter::onCreatorClicked);
-    }
-
     @Override
     public void onDestroyView() {
         itemTouchHelper = null;
-        view = null;
         toolbarView = null;
         collectionRenderer.detach();
+        headerAnimator.detatch(recyclerView(), adapter);
         subscription.unsubscribe();
         super.onDestroyView();
     }

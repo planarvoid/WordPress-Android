@@ -226,7 +226,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void bingEngagementBars() {
-        playlistEngagementsRenderer.bind(headerView.get(), viewModel, this);
+        playlistEngagementsRenderer.bind(headerView.get(), this, viewModel.metadata());
     }
 
     private void subscribeForOfflineContentUpdates() {

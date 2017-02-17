@@ -17,6 +17,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,7 +117,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        collectionRenderer.attach(view, false);
+        collectionRenderer.attach(view, false, new LinearLayoutManager(view.getContext()));
 
         subscription = new CompositeSubscription();
 

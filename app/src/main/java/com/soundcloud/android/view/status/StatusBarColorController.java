@@ -2,7 +2,6 @@ package com.soundcloud.android.view.status;
 
 import static com.soundcloud.android.utils.ViewUtils.blendColors;
 import static com.soundcloud.android.view.status.StatusBarUtils.isLightStatusBar;
-import static com.soundcloud.android.view.status.StatusBarUtils.setStatusBarColor;
 
 import com.soundcloud.android.R;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -20,6 +19,7 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
     private int expandedStatusColor;
     private boolean setLightStatusBar;
     private boolean expandOnResume;
+    private boolean playerIsExpanded;
     private AppCompatActivity activity;
 
     @Inject
@@ -51,16 +51,23 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
     }
 
     public void setLightStatusBar() {
-        if (activity != null) {
+        if (activity != null && !setLightStatusBar) {
             this.setLightStatusBar = true;
             StatusBarUtils.setLightStatusBar(getView());
         }
     }
 
     public void clearLightStatusBar() {
-        if (activity != null) {
+        if (activity != null && setLightStatusBar) {
             this.setLightStatusBar = false;
             StatusBarUtils.clearLightStatusBar(getView());
+        }
+    }
+
+    public void setStatusBarColor(int value) {
+        statusBarColor = value;
+        if (!playerIsExpanded) {
+            StatusBarUtils.setStatusBarColor(activity, statusBarColor);
         }
     }
 
@@ -69,8 +76,9 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
     }
 
     public void onPlayerExpanded() {
+        playerIsExpanded = true;
         if (activity != null) {
-            setStatusBarColor(activity, expandedStatusColor);
+            StatusBarUtils.setStatusBarColor(activity, expandedStatusColor);
             StatusBarUtils.clearLightStatusBar(getView());
         } else {
             expandOnResume = true;
@@ -80,13 +88,14 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
 
     public void onPlayerSlide(float slideOffset) {
         if (activity != null) {
-            setStatusBarColor(activity, blendColors(statusBarColor, expandedStatusColor, slideOffset));
+            StatusBarUtils.setStatusBarColor(activity, blendColors(statusBarColor, expandedStatusColor, slideOffset));
         }
     }
 
     public void onPlayerCollapsed() {
+        playerIsExpanded = false;
         if (activity != null) {
-            setStatusBarColor(activity, statusBarColor);
+            StatusBarUtils.setStatusBarColor(activity, statusBarColor);
             if (setLightStatusBar) {
                 StatusBarUtils.setLightStatusBar(activity.findViewById(android.R.id.content));
             } else {

@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.status.StatusBarColorController;
 import com.soundcloud.java.collections.Pair;
 
@@ -49,9 +50,9 @@ public class CollapsingToolbarStyleHelper implements AppBarLayout.OnOffsetChange
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
         final float fullRange = scrim.getHeight() - toolbar.getHeight() - positionProvider.getStatusBarHeight();
-        scrim.setAlpha(getCurrentAlpha(verticalOffset, fullRange, positionProvider.scrimAnimateBounds()));
-        toolbar.setTitleAlpha(getCurrentAlpha(verticalOffset, fullRange, positionProvider.toolbarAnimateBounds()));
-        topGradient.setAlpha(getCurrentAlpha(verticalOffset, fullRange, positionProvider.toolbarGradientAnimateBounds()));
+        scrim.setAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, positionProvider.scrimAnimateBounds()));
+        toolbar.setTitleAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, positionProvider.toolbarAnimateBounds()));
+        topGradient.setAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, positionProvider.toolbarGradientAnimateBounds()));
         setStatusBarColor(verticalOffset);
         setToolBarColor(toolbar, verticalOffset, getToolbarStyleChangePosition(appBarLayout));
     }
@@ -85,15 +86,4 @@ public class CollapsingToolbarStyleHelper implements AppBarLayout.OnOffsetChange
         }
     }
 
-    private float getCurrentAlpha(int verticalOffset, float fullRange, Pair<Float,Float> bounds) {
-        final float currentPosition = (fullRange + verticalOffset);
-        final float startPosition = (bounds.first() * fullRange);
-        final float range = (bounds.second() - bounds.first()) * fullRange;
-        final float endPosition = startPosition + range;
-        final float adjustedPosition = bounds.second() > bounds.first() ?
-                                       Math.min(endPosition, Math.max(currentPosition, startPosition)) :
-                                       Math.max(endPosition, Math.min(currentPosition, startPosition));
-        return 1 - Math.abs(adjustedPosition - startPosition) / Math.abs(range);
-
-    }
 }

@@ -5,6 +5,7 @@
     android:layout_height="?android:attr/actionBarSize"
     android:background="@android:color/transparent"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    app:darkMode="true"
     app:layout_collapseMode="pin">
 
 </com.soundcloud.android.view.CustomFontTitleToolbar>
