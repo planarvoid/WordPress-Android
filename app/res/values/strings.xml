@@ -112,7 +112,7 @@
     <string name="authentication_blocked_title">We couldn’t create an account for you</string>
     <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you think this is a mistake, contact SoundCloud support.</string>
     <!-- @Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used? -->
-    <string name="authentication_captcha_message">We’re having some trouble signing you in. Sign in through our mobile website and before signing in again.</string>
+    <string name="authentication_captcha_message">We’re having some trouble signing you in.</string>
     <string name="authentication_email_taken_message">That email address is already associated with an account. Enter a different email address or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
     <string name="authentication_email_other_error_message">Sorry we couldn’t create an account for you with the details you provided.</string>
