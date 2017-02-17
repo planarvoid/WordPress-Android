@@ -49,8 +49,9 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private static final String PROMO_PRICE_KEY = "promo_price";
     private static final String PACKAGE_URN_KEY = "package_urn";
     private static final String PRORATED_PRICE_KEY = "prorated_price";
-    private static final String ENVIRONMENT_KEY = "env";
     private static final String DISCOUNT_PRICE_KEY = "discount_price";
+    private static final String TIER_KEY = "tier";
+    private static final String ENVIRONMENT_KEY = "env";
 
     private final WebCheckoutView view;
     private final AccountOperations operations;
@@ -208,6 +209,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                        .appendQueryParameter(TRIAL_DAYS_KEY, Integer.toString(product.getTrialDays()))
                                        .appendQueryParameter(EXPIRY_DATE_KEY, product.getExpiryDate())
                                        .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
+                                       .appendQueryParameter(TIER_KEY, product.getPlanId())
                                        .appendQueryParameter(ENVIRONMENT_KEY, environment);
 
         appendDiscount(product, builder);
