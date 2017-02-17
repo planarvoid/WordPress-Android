@@ -60,6 +60,8 @@ public class ChartsUriResolver {
             }
 
             return ChartDetails.create(type, Urn.forGenre(genre), ChartCategory.NONE, titleForGenre(genre));
+        } else if (deeplink.startsWith("/")) {
+            return getChartDetailsFromWebScheme(uri);
         } else {
             return ChartDetails.create(ChartType.TRENDING, Urn.forGenre(ALL_API), ChartCategory.NONE, Optional.absent());
         }
@@ -77,6 +79,10 @@ public class ChartsUriResolver {
     }
 
     private static ChartType typeFromString(String type) {
+        if (type.startsWith("/")) {
+            type = type.replaceFirst("/", "");
+        }
+
         switch (type) {
             case "new": return ChartType.TRENDING;
             case "top": return ChartType.TOP;

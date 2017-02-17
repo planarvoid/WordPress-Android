@@ -179,6 +179,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:top:hiphoprap");
         assertDeeplink(DeepLink.CHARTS, "https://soundcloud.com/charts/new?genre=hiphoprap");
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts:new:hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts/new?genre=hiphoprap");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts/top?genre=hiphoprap");
 
         assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:music");
         assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");

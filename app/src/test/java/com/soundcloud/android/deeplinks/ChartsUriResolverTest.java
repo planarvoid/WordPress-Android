@@ -118,6 +118,27 @@ public class ChartsUriResolverTest extends AndroidUnitTest {
         assertThat(details).isEqualTo(ChartDetails.create(ChartType.TOP, Urn.forGenre("all-music"), NONE, Optional.absent()));
     }
 
+    @Test
+    public void resolveExternalSoundcloudIntent_TopElectronic_WithWebScheme() throws Exception {
+        Uri uri = Uri.parse("soundcloud://charts/top?genre=electronic");
+        ChartDetails details = chartsUriResolver.resolveUri(uri);
+        assertThat(details).isEqualTo(ChartDetails.create(ChartType.TOP, Urn.forGenre("electronic"), NONE, electronicHeader()));
+    }
+
+    @Test
+    public void resolveExternalSoundcloudIntent_NewElectronic_WithWebScheme() throws Exception {
+        Uri uri = Uri.parse("soundcloud://charts/new?genre=electronic");
+        ChartDetails details = chartsUriResolver.resolveUri(uri);
+        assertThat(details).isEqualTo(ChartDetails.create(ChartType.TRENDING, Urn.forGenre("electronic"), NONE, electronicHeader()));
+    }
+
+    @Test
+    public void resolveExternalSoundcloudIntent_NewAll_WithWebScheme() throws Exception {
+        Uri uri = Uri.parse("soundcloud://charts/new");
+        ChartDetails details = chartsUriResolver.resolveUri(uri);
+        assertThat(details).isEqualTo(ChartDetails.create(ChartType.TRENDING, Urn.forGenre("all-music"), NONE, Optional.absent()));
+    }
+
     private Optional<String> electronicHeader() {
         return Optional.of(context().getString(R.string.charts_page_header, context().getString(R.string.charts_electronic)));
     }
