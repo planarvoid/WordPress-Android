@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.experiments.NewForYouConfig;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
@@ -55,6 +56,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Mock private RecommendedPlaylistsOperations recommendedPlaylistsOperations;
     @Mock private WelcomeUserOperations welcomeUserOperations;
     @Mock private NewForYouOperations newForYouOperations;
+    @Mock private NewForYouConfig newForYouConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -66,11 +68,13 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                                                                 chartsOperations,
                                                                 playlistDiscoveryOperations,
                                                                 welcomeUserOperations,
-                                                                newForYouOperations);
+                                                                newForYouOperations,
+                                                                newForYouConfig);
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
-        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(false);
+        when(newForYouConfig.isTopPositionEnabled()).thenReturn(false);
+        when(newForYouConfig.isSecondPositionEnabled()).thenReturn(false);
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(false);
 
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.emptyList(),
@@ -178,8 +182,8 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadsAllItemsWithNewForYouWhenFeatureFlagEnabled() {
-        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+    public void loadsAllItemsWithNewForYouOnTopWhenConfigEnabled() {
+        when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
@@ -189,6 +193,24 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.NewForYouItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.ChartItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
+    @Test
+    public void loadsAllItemsWithNewForYouInSecondPositionWhenConfigEnabled() {
+        when(newForYouConfig.isSecondPositionEnabled()).thenReturn(true);
+        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.NewForYouItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -215,7 +237,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Test
     public void loadsItemsWithoutNewForYouWhenNoTracksAvailable() {
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.emptyList());
-        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
@@ -241,7 +263,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
-        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
@@ -266,7 +288,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
-        when(featureFlags.isDisabled(Flag.NEW_FOR_YOU)).thenReturn(false);
+        when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);

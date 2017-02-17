@@ -17,7 +17,8 @@ enum Feature {
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
   NEW_HOME,
-  NEW_FOR_YOU,
+  NEW_FOR_YOU_FIRST,
+  NEW_FOR_YOU_SECOND,
   STREAM_HIGHLIGHTS,
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
@@ -51,7 +52,8 @@ android {
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_FOR_YOU.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
@@ -92,6 +94,8 @@ android {
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
@@ -110,6 +114,8 @@ android {
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
@@ -130,6 +136,8 @@ android {
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
@@ -144,6 +152,8 @@ android {
       buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
@@ -160,6 +170,8 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_HIDE
@@ -169,6 +181,8 @@ android {
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.APPBOY.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE

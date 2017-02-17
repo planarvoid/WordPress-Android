@@ -158,7 +158,7 @@ public class TestUser {
             "engagementsUser",
             "soundcloud.Android.engagementsUser@tests.soundcloud",
             "o89sSQItSUR4sak",
-            "1-21686-287403532-e27b6d761563ae",
+            "1-21686-287403532-f49123aec70a4a",
             287403532,
             true);
     public static final TestUser offlineUser = new TestUser(

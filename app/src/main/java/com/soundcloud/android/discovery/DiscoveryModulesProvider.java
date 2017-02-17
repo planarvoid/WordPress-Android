@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.configuration.experiments.NewForYouConfig;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
 import com.soundcloud.android.discovery.charts.ChartsOperations;
 import com.soundcloud.android.discovery.newforyou.NewForYou;
@@ -22,7 +23,7 @@ import java.util.List;
 
 class DiscoveryModulesProvider {
 
-    public static final int MAX_NEW_FOR_YOU_TRACKS = 5;
+    private static final int MAX_NEW_FOR_YOU_TRACKS = 5;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
     private final FeatureFlags featureFlags;
     private final RecommendedTracksOperations recommendedTracksOperations;
@@ -32,6 +33,7 @@ class DiscoveryModulesProvider {
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
     private final WelcomeUserOperations welcomeUserOperations;
     private final NewForYouOperations newForYouOperations;
+    private final NewForYouConfig newForYouConfig;
 
     @Inject
     DiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
@@ -42,7 +44,8 @@ class DiscoveryModulesProvider {
                              ChartsOperations chartsOperations,
                              PlaylistDiscoveryOperations playlistDiscoveryOperations,
                              WelcomeUserOperations welcomeUserOperations,
-                             NewForYouOperations newForYouOperations) {
+                             NewForYouOperations newForYouOperations,
+                             NewForYouConfig newForYouConfig) {
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -52,6 +55,7 @@ class DiscoveryModulesProvider {
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
         this.welcomeUserOperations = welcomeUserOperations;
         this.newForYouOperations = newForYouOperations;
+        this.newForYouConfig = newForYouConfig;
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
@@ -76,8 +80,9 @@ class DiscoveryModulesProvider {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
                     userWelcome(isRefresh),
-                    newForYou(isRefresh),
+                    newForYouFirst(isRefresh),
                     recommendedTracks(isRefresh),
+                    newForYouSecond(isRefresh),
                     recommendedPlaylists(isRefresh),
                     recommendedStations(isRefresh),
                     charts(isRefresh)
@@ -85,8 +90,9 @@ class DiscoveryModulesProvider {
         }
         return Arrays.asList(
                 userWelcome(isRefresh),
-                newForYou(isRefresh),
+                newForYouFirst(isRefresh),
                 recommendedTracks(isRefresh),
+                newForYouSecond(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
                 charts(isRefresh)
@@ -96,8 +102,9 @@ class DiscoveryModulesProvider {
     private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
                 userWelcome(isRefresh),
-                newForYou(isRefresh),
+                newForYouFirst(isRefresh),
                 recommendedTracks(isRefresh),
+                newForYouSecond(isRefresh),
                 recommendedPlaylists(isRefresh),
                 recommendedStations(isRefresh),
                 charts(isRefresh),
@@ -129,11 +136,23 @@ class DiscoveryModulesProvider {
                chartsOperations.featuredCharts();
     }
 
-    private Observable<DiscoveryItem> newForYou(boolean isRefresh) {
-        if (featureFlags.isDisabled(Flag.NEW_FOR_YOU)) {
+    private Observable<DiscoveryItem> newForYouFirst(boolean isRefresh) {
+        if (!newForYouConfig.isTopPositionEnabled()) {
             return Observable.empty();
         }
 
+        return newForYouItem(isRefresh);
+    }
+
+    private Observable<DiscoveryItem> newForYouSecond(boolean isRefresh) {
+        if (!newForYouConfig.isSecondPositionEnabled()) {
+            return Observable.empty();
+        }
+
+        return newForYouItem(isRefresh);
+    }
+
+    private Observable<DiscoveryItem> newForYouItem(boolean isRefresh) {
         final Observable<NewForYou> newForYouObservable = isRefresh ?
                                                           newForYouOperations.refreshNewForYou() :
                                                           newForYouOperations.newForYou();
