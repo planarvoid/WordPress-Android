@@ -168,7 +168,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
 
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&env=test&locale=en-GB");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&tier=high_tier&env=test&locale=en-GB");
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -180,7 +180,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
 
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&env=test&discount_price=%241&locale=en-GB");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&tier=high_tier&env=test&discount_price=%241&locale=en-GB");
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -192,7 +192,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
 
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=0&expiry_date=later&package_urn=urn%3A123&env=test&promo_days=90&promo_price=%241&locale=en-GB");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=0&expiry_date=later&package_urn=urn%3A123&tier=high_tier&env=test&promo_days=90&promo_price=%241&locale=en-GB");
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -204,7 +204,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
 
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&env=test&prorated_price=%240.50&locale=en-GB");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=later&package_urn=urn%3A123&tier=high_tier&env=test&prorated_price=%240.50&locale=en-GB");
         assertThat(actual).isEqualTo(expected);
     }
 
