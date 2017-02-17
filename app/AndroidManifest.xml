@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="596"
-    android:versionName="2017.02.07"
+    android:versionCode="599"
+    android:versionName="2017.02.17"
     package="com.soundcloud.android">
 
     <uses-sdk android:minSdkVersion="14" tools:overrideLibrary="me.everything, com.moat.analytics.mobile.scl"/>
