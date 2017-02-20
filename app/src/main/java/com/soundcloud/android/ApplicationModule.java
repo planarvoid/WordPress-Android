@@ -43,7 +43,6 @@ import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.LoggingDefaultEventBus;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncModule;
@@ -53,6 +52,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
+import com.soundcloud.rx.eventbus.DefaultEventBus;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import dagger.Module;
@@ -190,7 +190,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public EventBus provideEventBus() {
-        return new LoggingDefaultEventBus(AndroidSchedulers.mainThread());
+        return new DefaultEventBus(AndroidSchedulers.mainThread());
     }
 
     @Provides
