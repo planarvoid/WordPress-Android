@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+    <style name="BaseTheme" parent="BaseTheme.Base"/>
+
+    <style name="BaseTheme.Base" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
@@ -19,7 +21,6 @@
 
         <item name="cropImageStyle">@style/Widget.CropImageView</item>
 
-        <item name="android:windowContentTransitions">true</item>
         <item name="actionModeStyle">@style/Theme.SoundCloud.ActionMode</item>
 
         <!-- warning, this needs to exist for robolectric, as an attribute, or all hell breaks loose. Remove at your own risk -->
@@ -33,7 +34,6 @@
 
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/ak_dark_gray</item>
-        <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>
 
     <style name="Theme.SoundCloud.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
@@ -47,13 +47,9 @@
     </style>
 
     <style name="Theme.SoundCloud.TranslucentStatus">
-        <item name="android:statusBarColor">@color/translucent_status_bar</item>
-        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="Theme.SoundCloud.TransparentStatus">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
     </style>
 

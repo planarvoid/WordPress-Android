@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="BaseTheme" parent="BaseTheme.Base">
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@color/ak_dark_gray</item>
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
+    </style>
+
+    <style name="Theme.SoundCloud.TranslucentStatus">
+        <item name="android:statusBarColor">@color/translucent_status_bar</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="Theme.SoundCloud.TransparentStatus">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+    </style>
+
+
+    <style name="TabsTheme.Scrollable">
+        <item name="tabPaddingStart">16dp</item>
+        <item name="tabPaddingEnd">16dp</item>
+        <item name="tabMode">scrollable</item>
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
+    </style>
+
+    <style name="TabsTheme.Fixed.Elevated">
+        <item name="android:elevation">@dimen/toolbar_elevation</item>
+    </style>
+
+</resources>

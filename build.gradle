@@ -17,7 +17,7 @@ allprojects {
   ext {
     manifestSrcFile = 'AndroidManifest.xml'
     javaSrcDirs = 'src/main/java'
-    resSrcDirs = 'res'
+    resSrcDirs = 'src/main/res'
     assetsSrcDirs = 'assets'
 
     androidCompileSdkVersion = 25
