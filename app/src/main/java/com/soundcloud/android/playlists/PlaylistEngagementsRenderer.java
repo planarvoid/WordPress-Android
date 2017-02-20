@@ -2,6 +2,9 @@ package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -35,6 +38,8 @@ class PlaylistEngagementsRenderer {
     private final DownloadStateRenderer downloadStateRenderer;
     private final LikeButtonPresenter likeButtonPresenter;
     private final PlaylistDetailInfoProvider infoProvider;
+    private final AccountOperations accountOperations;
+    private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
 
     @Inject
@@ -43,7 +48,9 @@ class PlaylistEngagementsRenderer {
                                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                 DownloadStateRenderer downloadStateRenderer,
                                 LikeButtonPresenter likeButtonPresenter,
-                                PlaylistDetailInfoProvider infoProvider) {
+                                PlaylistDetailInfoProvider infoProvider,
+                                AccountOperations accountOperations,
+                                IntroductoryOverlayPresenter introductoryOverlayPresenter) {
         this.context = context;
         this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
@@ -51,6 +58,8 @@ class PlaylistEngagementsRenderer {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.downloadStateRenderer = downloadStateRenderer;
         this.infoProvider = infoProvider;
+        this.accountOperations = accountOperations;
+        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
     }
 
     void bind(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
@@ -92,6 +101,12 @@ class PlaylistEngagementsRenderer {
             menu.setOnMenuItemClickListener(new PopupListener(onEngagementListener));
             menu.show();
         });
+
+        if (accountOperations.isLoggedInUser(item.creatorUrn())) {
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
+                                                      overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
+                                                      resources.getString(R.string.edit_playlists_introductory_overlay_description));
+        }
     }
 
     private void configureDownloadToggle(View view, PlaylistDetailsInputs listener, PlaylistDetailsMetadata metadata) {

@@ -12,8 +12,10 @@ import com.soundcloud.java.optional.Optional;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -111,9 +113,9 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     }
 
     private void addListDividers(RecyclerView recyclerView) {
-        Drawable divider = recyclerView.getResources().getDrawable(com.soundcloud.androidkit.R.drawable.ak_list_divider_item);
+        Drawable divider = ContextCompat.getDrawable(recyclerView.getContext(), com.soundcloud.androidkit.R.drawable.ak_list_divider_item);
         int dividerHeight = recyclerView.getResources().getDimensionPixelSize(com.soundcloud.androidkit.R.dimen.ak_list_divider_horizontal_height);
-        recyclerView.addItemDecoration(new DividerItemDecoration(divider, dividerHeight));
+        recyclerView.addItemDecoration(new NewDividerItemDecoration(divider, dividerHeight));
     }
 
     @NonNull
@@ -184,6 +186,25 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
             final ItemT oldItem = oldItems.get(oldItemPosition);
             final ItemT newItem = newItems.get(newItemPosition);
             return areContentsTheSame.call(oldItem, newItem);
+        }
+    }
+
+    // For some reason, our old DividerItemDecoration did not work without this measurement
+    private static class NewDividerItemDecoration extends DividerItemDecoration {
+
+        private final int thickness;
+
+        NewDividerItemDecoration(Drawable divider, int thickness) {
+            super(divider, thickness);
+            this.thickness = thickness;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            if (parent.getChildAdapterPosition(view) != 0) {
+                outRect.top = thickness;
+            }
         }
     }
 }

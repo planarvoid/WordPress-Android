@@ -84,6 +84,7 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EDIT_PLAYLIST.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
