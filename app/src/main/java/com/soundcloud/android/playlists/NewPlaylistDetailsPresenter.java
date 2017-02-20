@@ -235,7 +235,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         fireAndForget(playlistOperations.editPlaylist(playlistWithExtras.playlist().urn(),
                                                       playlistWithExtras.playlist().title(),
                                                       playlistWithExtras.playlist().isPrivate(),
-                                                      transform(playlistWithExtras.tracks(), Track::urn)));
+                                                      transform(playlistWithExtras.tracks().get(), Track::urn)));
     }
 
     private Subscription emitViewModel() {
@@ -275,7 +275,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return lastModel()
                 .compose(Transformers.takePairWhen(trigger))
                 .withLatestFrom(playSessionSource(), (modelWithItem, playSessionSource) -> {
-                    final List<PlaylistDetailTrackItem> tracks = modelWithItem.first.tracks().get();
+                    final List<PlaylistDetailTrackItem> tracks = modelWithItem.first.tracks();
                     final int position = tracks.indexOf(modelWithItem.second);
                     return playTracksFromPosition(position, playSessionSource, transform(tracks, PlaylistDetailTrackItem::getUrn));
                 })
@@ -301,13 +301,13 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private PlaylistWithExtras getSortedPlaylistWithExtras(List<Urn> urns, PlaylistWithExtras playlistWithExtras) {
         ArrayList<Track> sortedList = new ArrayList<>();
-        for (Track track : playlistWithExtras.tracks()) {
+        for (Track track : playlistWithExtras.tracks().get()) {
             if (urns.contains(track.urn())) {
                 sortedList.add(track);
             }
         }
         Collections.sort(sortedList, (left, right) -> urns.indexOf(left.urn()) - urns.indexOf(right.urn()));
-        return playlistWithExtras.toBuilder().tracks(sortedList).build();
+        return playlistWithExtras.toBuilder().tracks(of(sortedList)).build();
     }
 
     private Subscription onPlaylistDeleted() {
@@ -506,9 +506,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                                                     isEditMode,
                                                                     isEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(urn),
                                                                     createOtherPlaylistsItem(playlistWithExtras, isEditMode)
-            )), playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
+            )), !playlistWithExtras.tracks().isPresent(), playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
         } else {
-            return AsyncViewModel.create(absent(), playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
+            return AsyncViewModel.create(absent(), true, playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
         }
 
     }
@@ -526,13 +526,19 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     }
 
-    private Optional<List<TrackItem>> updateTracks(PlaylistWithExtras playlistWithExtras, OfflineProperties offlineProperties, boolean isInEditMode) {
-        List<Track> tracks = playlistWithExtras.tracks();
-        List<TrackItem> trackItems = new ArrayList<>(tracks.size());
-        for (Track track : tracks) {
-            trackItems.add(TrackItem.from(track).updatedWithOfflineState(isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn())));
+    private List<TrackItem> updateTracks(PlaylistWithExtras playlistWithExtras, OfflineProperties offlineProperties, boolean isInEditMode) {
+        Optional<List<Track>> tracksOpt = playlistWithExtras.tracks();
+        if (tracksOpt.isPresent()) {
+            List<Track> tracks = tracksOpt.get();
+            List<TrackItem> trackItems = new ArrayList<>(tracks.size());
+            for (Track track : tracks) {
+                trackItems.add(TrackItem.from(track).updatedWithOfflineState(isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn())));
+            }
+            return trackItems;
+        } else {
+            return Collections.emptyList();
         }
-        return of(trackItems);
+
     }
 
     void disconnect() {
@@ -653,7 +659,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                    .flatMap(pair -> {
                        PlaylistDetailsViewModel viewModel = pair.first();
                        return playbackInitiator
-                               .playTracksShuffled(just(transform(viewModel.tracks().get(), PlaylistDetailTrackItem::getUrn)), pair.second())
+                               .playTracksShuffled(just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second())
                                .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext(viewModel.metadata().urn()))));
                    }).subscribe(showPlaybackResult());
     }

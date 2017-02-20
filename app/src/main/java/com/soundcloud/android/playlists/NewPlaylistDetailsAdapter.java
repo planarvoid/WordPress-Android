@@ -36,13 +36,15 @@ class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, 
 
     NewPlaylistDetailsAdapter(PlaylistDetailView playlistDetailView,
                               NewPlaylistDetailsHeaderRenderer playlistDetailsHeaderRenderer,
+                              @Provided PlaylistDetailsEmptyItemRenderer emptyItemRenderer,
                               @Provided PlaylistDetailTrackViewRenderer playlistDetailTrackViewRenderer,
                               @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
                               @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
         super(new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistDetailsHeaderRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), playlistDetailTrackViewRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.UpsellItem.ordinal(), upsellItemRenderer),
-              new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer));
+              new CellRendererBinding<>(PlaylistDetailItem.Kind.OtherPlaylists.ordinal(), recommendationsItemRenderer),
+              new CellRendererBinding<>(PlaylistDetailItem.Kind.EmptyItem.ordinal(), emptyItemRenderer));
         this.playlistDetailView = playlistDetailView;
         playlistDetailTrackViewRenderer.setListener(trackClickListener());
         upsellItemRenderer.setListener(upsellClickListener(playlistDetailView));

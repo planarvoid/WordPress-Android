@@ -3,76 +3,80 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:id="@+id/artwork_container"
+    <RelativeLayout
+        android:id="@+id/artwork_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.SquareImageView
+            android:id="@+id/artwork"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:src="@color/gray_background" />
 
-            <com.soundcloud.android.view.SquareImageView
-                android:id="@+id/artwork"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:scaleType="centerCrop"
-                android:src="@color/gray_background" />
+        <ImageButton
+            android:id="@+id/btn_play"
+            style="@style/HeaderPlay" />
 
-            <ImageButton
-                android:id="@+id/btn_play"
-                style="@style/HeaderPlay" />
+    </RelativeLayout>
 
-        </RelativeLayout>
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/username"
+        style="@style/ShrinkWrap.Secondary.Medium.Clickable"
+        android:layout_above="@+id/title"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:enabled="false"
+        android:visibility="invisible" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/username"
-            style="@style/ShrinkWrap.Secondary.Medium.Clickable"
-            android:layout_above="@+id/title"
-            android:layout_marginLeft="@dimen/playlist_header_padding"
-            android:enabled="false"
-            android:visibility="invisible" />
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/title"
+        style="@style/ShrinkWrap.Primary.Medium"
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_marginBottom="@dimen/playlist_header_padding"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_marginTop="4dp"
+        android:visibility="invisible" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/title"
-            style="@style/ShrinkWrap.Primary.Medium"
-            android:layout_alignBottom="@id/artwork_container"
-            android:layout_marginBottom="@dimen/playlist_header_padding"
-            android:layout_marginLeft="@dimen/playlist_header_padding"
-            android:layout_marginRight="@dimen/playlist_header_padding"
-            android:layout_marginTop="4dp"
-            android:visibility="invisible" />
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/title_private"
+        style="@style/ShrinkWrap.Primary.Medium"
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_marginBottom="@dimen/playlist_header_padding"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_marginTop="4dp"
+        android:drawableLeft="@drawable/ic_private_playlist_lock"
+        android:drawablePadding="4dp"
+        android:maxLines="1"
+        android:visibility="gone" />
 
-        <com.soundcloud.android.view.JaggedTextView
-            android:id="@+id/title_private"
-            style="@style/ShrinkWrap.Primary.Medium"
-            android:layout_alignBottom="@id/artwork_container"
-            android:layout_marginBottom="@dimen/playlist_header_padding"
-            android:layout_marginLeft="@dimen/playlist_header_padding"
-            android:layout_marginRight="@dimen/playlist_header_padding"
-            android:layout_marginTop="4dp"
-            android:drawableLeft="@drawable/ic_private_playlist_lock"
-            android:drawablePadding="4dp"
-            android:maxLines="1"
-            android:visibility="gone" />
+    <View
+        android:id="@+id/artwork_divider"
+        style="@style/Divider.Section"
+        android:layout_below="@id/artwork_container" />
 
-        <View
-            android:id="@+id/artwork_divider"
-            style="@style/Divider.Section"
-            android:layout_below="@id/artwork_container" />
+    <include
+        android:id="@+id/playlist_engagement_bar"
+        layout="@layout/playlist_engagement_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/artwork_divider"
+        android:visibility="invisible" />
 
-        <include
-            android:id="@+id/playlist_engagement_bar"
-            layout="@layout/playlist_engagement_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/artwork_divider"
-            android:visibility="invisible" />
+    <View
+        style="@style/Divider.Section"
+        android:layout_below="@id/playlist_engagement_bar" />
 
     <View
         android:id="@+id/scrim"
-        android:layout_height="0dp"
         android:layout_width="0dp"
-        android:layout_alignTop="@id/artwork_container"
+        android:layout_height="0dp"
         android:layout_alignBottom="@id/artwork_container"
         android:layout_alignLeft="@id/artwork_container"
         android:layout_alignRight="@id/artwork_container"
-        android:background="@color/white"/>
+        android:layout_alignTop="@id/artwork_container"
+        android:background="@color/white" />
 
-    </RelativeLayout>
+</RelativeLayout>

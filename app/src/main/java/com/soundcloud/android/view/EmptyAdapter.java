@@ -11,32 +11,24 @@ import android.widget.RelativeLayout;
 
 class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Status status = Status.WAITING;
+    private EmptyStatus emptyStatus = EmptyStatus.WAITING;
     private EmptyViewWrapper emptyStateProvider;
 
-
-    enum Status {
-        WAITING,
-        ERROR,
-        CONNECTION_ERROR,
-        SERVER_ERROR,
-        OK
-    }
 
     EmptyAdapter(CollectionRenderer.EmptyStateProvider emptyStateProvider, boolean renderEmptyAtTop) {
         this.emptyStateProvider = new EmptyViewWrapper(emptyStateProvider, renderEmptyAtTop);
     }
 
-    public void setStatus(Status status) {
-        if (this.status != status) {
-            this.status = status;
+    public void setEmptyStatus(EmptyStatus emptyStatus) {
+        if (this.emptyStatus != emptyStatus) {
+            this.emptyStatus = emptyStatus;
             notifyItemChanged(0);
         }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new RecyclerView.ViewHolder(getEmptyView(parent, Status.values()[viewType])) {
+        return new RecyclerView.ViewHolder(getEmptyView(parent, EmptyStatus.values()[viewType])) {
         };
     }
 
@@ -45,8 +37,8 @@ class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // noop
     }
 
-    private View getEmptyView(ViewGroup parent, Status status) {
-        switch (status) {
+    private View getEmptyView(ViewGroup parent, EmptyStatus emptyStatus) {
+        switch (emptyStatus) {
             case WAITING:
                 return emptyStateProvider.waitingView(parent);
             case CONNECTION_ERROR:
@@ -56,13 +48,13 @@ class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case OK:
                 return emptyStateProvider.emptyView(parent);
             default:
-                throw new IllegalArgumentException("Unknown status " + status);
+                throw new IllegalArgumentException("Unknown status " + emptyStatus);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return status.ordinal();
+        return emptyStatus.ordinal();
     }
 
     @Override

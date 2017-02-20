@@ -29,10 +29,11 @@ class PlaylistDetailsHeaderAnimator {
     private static final Pair<Float, Float> SCRIM_ANIMATE_BOUNDS = Pair.of(.2f, .5f);
     private static final Pair<Float, Float> TOOLBAR_GRADIENT_ANIMATE_BOUNDS = Pair.of(1f, .4f);
     private static final int ANIMATION_DURATION = 300;
-    public static final int SEVEN_PERCENT_OF_255 = 17;
+    private static final int SEVEN_PERCENT_OF_255 = 17;
 
     private final StatusBarColorController statusBarColorController;
     private final CustomFontTitleToolbar toolbar;
+    private final View toolbarShadow;
     private final View topGradient;
     private final View systemBarsHolder;
     private final int elevationTarget;
@@ -76,10 +77,12 @@ class PlaylistDetailsHeaderAnimator {
     };
 
     PlaylistDetailsHeaderAnimator(CustomFontTitleToolbar toolbar,
+                                  View toolbarShadow,
                                   View topGradient,
                                   View systemBarsHolder,
                                   @Provided StatusBarColorController statusBarColorController,
                                   @Provided Resources resources) {
+        this.toolbarShadow = toolbarShadow;
         this.statusBarColorController = statusBarColorController;
         this.toolbar = toolbar;
         this.topGradient = topGradient;
@@ -175,7 +178,7 @@ class PlaylistDetailsHeaderAnimator {
         if (shouldBeOpaque && !opaqueSystemBars) {
             opaqueSystemBars = true;
             statusBarColorController.setLightStatusBar();
-            animateSystemBarElevation(0, elevationTarget);
+            showToolbarSeparation();
 
             if (animateBackground) {
                 animateSystemBarBackground(Color.TRANSPARENT, Color.WHITE);
@@ -186,7 +189,7 @@ class PlaylistDetailsHeaderAnimator {
         } else if (!shouldBeOpaque && opaqueSystemBars) {
             opaqueSystemBars = false;
             statusBarColorController.clearLightStatusBar();
-            animateSystemBarElevation(elevationTarget, 0);
+            hideToolbarSeparation();
 
             if (animateBackground) {
                 animateSystemBarBackground(Color.WHITE, Color.TRANSPARENT);
@@ -195,6 +198,16 @@ class PlaylistDetailsHeaderAnimator {
             }
 
         }
+    }
+
+    private void hideToolbarSeparation() {
+        toolbarShadow.setVisibility(View.GONE);
+        animateSystemBarElevation(elevationTarget, 0);
+    }
+
+    private void showToolbarSeparation() {
+        toolbarShadow.setVisibility(View.VISIBLE);
+        animateSystemBarElevation(0, elevationTarget);
     }
 
     private void animateSystemBarElevation(int from, int to) {

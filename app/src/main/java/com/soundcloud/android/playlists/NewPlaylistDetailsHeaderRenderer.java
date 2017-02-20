@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 @AutoFactory
-public class NewPlaylistDetailsHeaderRenderer implements CellRenderer<PlaylistDetailsMetadata> {
+public class NewPlaylistDetailsHeaderRenderer implements CellRenderer<PlaylistDetailsHeaderItem> {
 
     private final PlaylistCoverRenderer playlistCoverRenderer;
     private final PlaylistEngagementsRenderer playlistEngagementsRenderer;
@@ -32,9 +32,14 @@ public class NewPlaylistDetailsHeaderRenderer implements CellRenderer<PlaylistDe
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PlaylistDetailsMetadata> items) {
-        PlaylistDetailsMetadata metadata = items.get(position);
-        playlistCoverRenderer.bind(itemView, metadata, playlistDetailsInputs::onHeaderPlayButtonClicked, playlistDetailsInputs::onCreatorClicked);
-        playlistEngagementsRenderer.bind(itemView, playlistDetailsInputs, metadata);
+    public void bindItemView(int position, View itemView, List<PlaylistDetailsHeaderItem> items) {
+
+        PlaylistDetailsHeaderItem headerItem = items.get(position);
+        if (headerItem.getMetadataOptional().isPresent()) {
+            PlaylistDetailsMetadata metadata = headerItem.getMetadataOptional().get();
+            playlistCoverRenderer.bind(itemView, metadata, playlistDetailsInputs::onHeaderPlayButtonClicked, playlistDetailsInputs::onCreatorClicked);
+            playlistEngagementsRenderer.bind(itemView, playlistDetailsInputs, metadata);
+        }
+        // if it is not present, we just show whatever is there, which is the blank state, or the old state before a refresh
     }
 }

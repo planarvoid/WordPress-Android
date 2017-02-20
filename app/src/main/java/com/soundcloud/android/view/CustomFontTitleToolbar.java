@@ -39,33 +39,43 @@ public class CustomFontTitleToolbar extends Toolbar {
         applyCustomFont(context, titleText, attrs);
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTitleToolbar);
-        darkMode = array.getBoolean(R.styleable.CustomFontTitleToolbar_darkMode, false);
+        if (array.getBoolean(R.styleable.CustomFontTitleToolbar_darkMode, false)) {
+            setDarkMode();
+        } else {
+            setLightMode();
+        }
         array.recycle();
 
     }
 
     public void setLightMode() {
         Drawable navIcon = getNavigationIcon();
-        if (darkMode && navIcon != null) {
-            darkMode = false;
-            if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
-                navIcon.setColorFilter(getDarkColor(), PorterDuff.Mode.SRC_IN);
-            } else {
-                animateNavIcon(navIcon, getLightColor(), getDarkColor());
+        if (navIcon != null){
+            if (darkMode) {
+                darkMode = false;
+                if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
+                    navIcon.setColorFilter(getDarkColor(), PorterDuff.Mode.SRC_IN);
+                } else {
+                    animateNavIcon(navIcon, getLightColor(), getDarkColor());
+                }
             }
         }
+
     }
 
     public void setDarkMode() {
         Drawable navIcon = getNavigationIcon();
-        if (!darkMode && navIcon != null) {
-            darkMode = true;
-            if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
-                navIcon.setColorFilter(getLightColor(), PorterDuff.Mode.SRC_IN);
-            } else {
-                animateNavIcon(navIcon, getDarkColor(), getLightColor());
+        if (navIcon != null){
+            if (!darkMode) {
+                darkMode = true;
+                if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
+                    navIcon.setColorFilter(getLightColor(), PorterDuff.Mode.SRC_IN);
+                } else {
+                    animateNavIcon(navIcon, getDarkColor(), getLightColor());
+                }
             }
         }
+
     }
 
     @TargetApi(LOLLIPOP)

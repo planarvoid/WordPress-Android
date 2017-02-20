@@ -4,6 +4,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.events.PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist;
 import static com.soundcloud.android.playlists.DataSourceProvider.STALE_TIME_MILLIS;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -71,16 +72,16 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private List<Track> trackItems = singletonList(track1);
     private List<Track> updatedTrackItems = asList(track1, track2);
     //
-    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, emptyList(), emptyList());
-    private PlaylistWithExtras initialPlaylistWithTracks = PlaylistWithExtras.create(playlist, trackItems, emptyList());
-    private PlaylistWithExtras initialPlaylistWithUpdatedTracks = PlaylistWithExtras.create(playlist, updatedTrackItems, emptyList());
-    private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, trackItems, singletonList(otherPlaylist));
-    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist, emptyList(), emptyList());
-    private PlaylistWithExtras updatedPlaylistWithTracks = PlaylistWithExtras.create(updatedPlaylist, updatedTrackItems, emptyList());
-    private PlaylistWithExtras updatedPlaylistWithExtras = PlaylistWithExtras.create(updatedPlaylist, updatedTrackItems, singletonList(otherPlaylist));
-    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, emptyList());
-    private PlaylistWithExtras pushedPlaylistWithTracks = PlaylistWithExtras.create(pushedPlaylist, updatedTrackItems, emptyList());
-    private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, updatedTrackItems, singletonList(otherPlaylist));
+    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, absent(), emptyList());
+    private PlaylistWithExtras initialPlaylistWithTracks = PlaylistWithExtras.create(playlist, of(trackItems), emptyList());
+    private PlaylistWithExtras initialPlaylistWithUpdatedTracks = PlaylistWithExtras.create(playlist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, of(trackItems), singletonList(otherPlaylist));
+    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist,absent(), emptyList());
+    private PlaylistWithExtras updatedPlaylistWithTracks = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras updatedPlaylistWithExtras = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
+    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, absent());
+    private PlaylistWithExtras pushedPlaylistWithTracks = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
     //
     private PublishSubject<List<Track>> tracklistSubject = PublishSubject.create();
     private PublishSubject<ModelCollection<ApiPlaylistPost>> otherUserOtherPlaylists = PublishSubject.create();

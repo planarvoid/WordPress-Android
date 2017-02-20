@@ -1,7 +1,5 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.view.ViewError.CONNECTION_ERROR;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -82,7 +80,6 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     }
 
     public void render(CollectionViewState<ItemT> state) {
-
         swipeRefreshLayout.setRefreshing(state.isRefreshing());
         if (state.items().isEmpty()) {
             if (recyclerView.getAdapter() != emptyAdapter) {
@@ -122,17 +119,7 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     @NonNull
     private void updateEmptyView(CollectionViewState<ItemT> state) {
         Optional<ViewError> viewErrorOptional = state.nextPageError();
-        if (viewErrorOptional.isPresent()) {
-            if (viewErrorOptional.get() == CONNECTION_ERROR) {
-                emptyAdapter.setStatus(EmptyAdapter.Status.CONNECTION_ERROR);
-            } else {
-                emptyAdapter.setStatus(EmptyAdapter.Status.SERVER_ERROR);
-            }
-        } else if (state.isLoadingNextPage()) {
-            emptyAdapter.setStatus(EmptyAdapter.Status.WAITING);
-        } else {
-            emptyAdapter.setStatus(EmptyAdapter.Status.OK);
-        }
+        emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.isLoadingNextPage()));
         emptyAdapter.notifyDataSetChanged();
     }
 

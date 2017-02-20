@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:width="176dp"
+    android:height="64dp"
+    android:viewportHeight="64"
+    android:viewportWidth="176"
+    tools:ignore="UnusedAttribute">
+
+    <group
+        android:name="asset-sheet"
+        android:translateX="-50.000000"
+        android:translateY="-555.000000">
+        <group
+            android:name="list-content-/-track-loading"
+            android:translateX="50.000000"
+            android:translateY="555.000000">
+            <path
+                android:name="artwork"
+                android:fillAlpha="0.6"
+                android:fillColor="#CCCCCC"
+                android:fillType="evenOdd"
+                android:pathData="M 0 0 H 64 V 64 H 0 V 0 Z"
+                android:strokeAlpha="0.6"
+                android:strokeWidth="1" />
+            <path
+                android:name="Rectangle-3"
+                android:fillAlpha="0.6"
+                android:fillColor="#CCCCCC"
+                android:fillType="evenOdd"
+                android:pathData="M 80 28 H 176 V 30 H 80 V 28 Z"
+                android:strokeAlpha="0.6"
+                android:strokeWidth="1" />
+            <path
+                android:name="Rectangle-4"
+                android:fillAlpha="0.6"
+                android:fillColor="#CCCCCC"
+                android:fillType="evenOdd"
+                android:pathData="M 80 44 H 100 V 46 H 80 V 44 Z"
+                android:strokeAlpha="0.6"
+                android:strokeWidth="1" />
+            <path
+                android:name="Rectangle-5"
+                android:fillAlpha="0.6"
+                android:fillColor="#CCCCCC"
+                android:fillType="evenOdd"
+                android:pathData="M 80 12 H 140 V 14 H 80 V 12 Z"
+                android:strokeAlpha="0.6"
+                android:strokeWidth="1" />
+        </group>
+    </group>
+</vector>

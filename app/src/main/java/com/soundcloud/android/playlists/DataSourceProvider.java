@@ -29,6 +29,7 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Func1;
@@ -141,10 +142,10 @@ class DataSourceProvider {
     private Observable<PartialState> emissions(Playlist playlist) {
         return Observable.combineLatest(
                 just(playlist),
-                tracks(playlist.urn()),
+                tracks(playlist.urn()).map(Optional::of),
                 otherPlaylistsByUser(playlist).onErrorResumeNext(empty()),
                 PartialState.PlaylistWithExtrasLoaded::new
-        ).cast(PartialState.class).startWith(new PartialState.PlaylistWithExtrasLoaded(playlist, Collections.emptyList(), Collections.emptyList()));
+        ).cast(PartialState.class).startWith(new PartialState.PlaylistWithExtrasLoaded(playlist, Optional.absent(), Collections.emptyList()));
     }
 
     private Observable<List<Playlist>> otherPlaylistsByUser(Playlist playlist) {

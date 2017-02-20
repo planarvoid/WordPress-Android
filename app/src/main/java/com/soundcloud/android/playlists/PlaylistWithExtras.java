@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.tracks.Track;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -12,11 +13,11 @@ import java.util.List;
 @AutoValue
 abstract class PlaylistWithExtras {
 
-    static PlaylistWithExtras create(Playlist playlist, List<Track> tracks) {
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks) {
         return create(playlist,tracks, Collections.emptyList());
     }
 
-    static PlaylistWithExtras create(Playlist playlist, List<Track> tracks, List<Playlist> otherPlaylistsByCreator) {
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, List<Playlist> otherPlaylistsByCreator) {
         return  new AutoValue_PlaylistWithExtras.Builder()
                 .playlist(playlist)
                 .tracks(tracks)
@@ -26,7 +27,7 @@ abstract class PlaylistWithExtras {
 
     abstract Playlist playlist();
 
-    abstract List<Track> tracks();
+    abstract Optional<List<Track>> tracks();
 
     abstract List<Playlist> otherPlaylistsByCreator();
 
@@ -37,7 +38,7 @@ abstract class PlaylistWithExtras {
 
         abstract Builder playlist(Playlist value);
 
-        abstract Builder tracks(List<Track> value);
+        abstract Builder tracks(Optional<List<Track>> value);
 
         abstract Builder otherPlaylistsByCreator(List<Playlist> value);
 

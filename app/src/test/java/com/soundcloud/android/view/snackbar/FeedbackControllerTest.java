@@ -22,8 +22,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     private FeedbackController feedbackController;
 
     @Mock private SlidingPlayerController playerController;
-    @Mock private PlayerSnackBarWrapper playerSnackBarWrapper;
-    @Mock private DefaultSnackBarWrapper defaultSnackBarWrapper;
+    @Mock private SnackBarWrapper snackBarWrapper;
     @Mock private FragmentActivity fragmentActivity;
     @Mock private FeatureFlags featureFlags;
 
@@ -34,8 +33,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        feedbackController = new FeedbackController(playerSnackBarWrapper,
-                                                    defaultSnackBarWrapper);
+        feedbackController = new FeedbackController(snackBarWrapper);
         when(playerController.getSnackbarHolder()).thenReturn(playerSnackBarView);
     }
 
@@ -43,7 +41,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     public void doesNotShowFeedbackWhenPaused() {
         feedbackController.showFeedback(feedback);
 
-        verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
+        verify(snackBarWrapper, never()).show(any(View.class), any(Feedback.class));
     }
 
     @Test
@@ -54,8 +52,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
         feedbackController.showFeedback(feedback);
 
-        verify(playerSnackBarWrapper).show(playerSnackBarView, feedback);
-        verify(defaultSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
+        verify(snackBarWrapper).show(playerSnackBarView, feedback);
     }
 
     @Test
@@ -67,8 +64,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
         feedbackController.showFeedback(feedback);
 
-        verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
-        verify(defaultSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
+        verify(snackBarWrapper, never()).show(any(View.class), any(Feedback.class));
     }
 
     @Test
@@ -79,8 +75,7 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
         feedbackController.showFeedback(feedback);
 
-        verify(defaultSnackBarWrapper).show(activitySnackBarView, feedback);
-        verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
+        verify(snackBarWrapper).show(activitySnackBarView, feedback);
     }
 
     @Test
@@ -91,7 +86,6 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
         feedbackController.showFeedback(feedback);
 
-        verify(defaultSnackBarWrapper).show(activitySnackBarView, feedback);
-        verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
+        verify(snackBarWrapper).show(activitySnackBarView, feedback);
     }
 }

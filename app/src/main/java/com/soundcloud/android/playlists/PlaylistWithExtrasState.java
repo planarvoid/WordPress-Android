@@ -100,7 +100,7 @@ abstract class PlaylistWithExtrasState {
 
             private final PlaylistWithExtras playlistWithExtras;
 
-            PlaylistWithExtrasLoaded(Playlist playlist, List<Track> trackList, List<Playlist> otherPlaylistsOpt) {
+            PlaylistWithExtrasLoaded(Playlist playlist, Optional<List<Track>> trackList, List<Playlist> otherPlaylistsOpt) {
                 this.playlistWithExtras = PlaylistWithExtras.create(playlist, trackList, otherPlaylistsOpt);
             }
 

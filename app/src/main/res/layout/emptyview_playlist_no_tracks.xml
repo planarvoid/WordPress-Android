@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:paddingTop="16dp"
-    tools:ignore="Overdraw,UseCompoundDrawables,HardcodedText">
+    style="@style/EmptyView.Container">
+
+    <ImageView
+        style="@style/EmptyView.Image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/empty_lists_sounds"/>
 
     <com.soundcloud.android.view.CustomFontTextView
-        style="@style/Collections.BucketEmptyText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Playlist has no tracks" />
+        style="@style/EmptyView.Text.Main"
+        android:text="@string/empty_playlist_main"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/empty_playlist_owner_message"
+        style="@style/EmptyView.Text.Sub"
+        android:text="@string/empty_playlist_sub"/>
 
 </LinearLayout>

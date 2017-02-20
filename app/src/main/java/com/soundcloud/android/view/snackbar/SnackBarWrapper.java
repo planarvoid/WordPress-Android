@@ -1,12 +1,16 @@
 package com.soundcloud.android.view.snackbar;
 
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
 
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class SnackBarWrapper {
@@ -14,9 +18,10 @@ public class SnackBarWrapper {
     private final int bgColor;
     private final int textColor;
 
-    public SnackBarWrapper(int bgColor, int textColor) {
-        this.bgColor = bgColor;
-        this.textColor = textColor;
+    @Inject
+    public SnackBarWrapper(Resources resources) {
+        this.bgColor = resources.getColor(R.color.snack_bar_bg_dark);
+        this.textColor = Color.WHITE;
     }
 
     public void show(View anchor, Feedback feedback) {

@@ -58,7 +58,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment>
-        implements CellRenderer<PlaylistDetailsMetadata>, PlaylistDetailsInputs {
+        implements CellRenderer<PlaylistDetailsHeaderItem>, PlaylistDetailsInputs {
 
     private final EventBus eventBus;
     private final EventTracker eventTracker;
@@ -190,8 +190,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PlaylistDetailsMetadata> items) {
-        // todo : use this, instead of bind
+    public void bindItemView(int position, View itemView, List<PlaylistDetailsHeaderItem> items) {
         headerView = Optional.of(itemView);
         bindItemView();
     }

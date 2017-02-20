@@ -60,6 +60,8 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
 
+        player.waitForExpandedPlayerToStartPlaying();
+
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 

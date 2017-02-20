@@ -18,7 +18,7 @@ import android.content.res.Resources;
 import java.util.List;
 
 @AutoValue
-abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements UpdatablePlaylistItem, ImageResource {
+abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageResource {
 
     static PlaylistDetailsMetadata from(Playlist playlist,
                                         List<TrackItem> trackItems,
@@ -57,10 +57,6 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
         AVAILABLE, UPSELL, NONE
     }
 
-    PlaylistDetailsMetadata() {
-        super(PlaylistDetailItem.Kind.HeaderItem);
-    }
-
     @Override
     public Urn getUrn() {
         return urn();
@@ -73,7 +69,8 @@ abstract class PlaylistDetailsMetadata extends PlaylistDetailItem implements Upd
     abstract public String creatorName();
 
     public boolean canBePlayed() {
-        return trackCount() > 0 && !isInEditMode();
+        // todo: This should be calculated above. Maybe Guillaume remembers why it is not
+        return canShuffle() && !isInEditMode();
     }
 
     abstract public boolean canShuffle();

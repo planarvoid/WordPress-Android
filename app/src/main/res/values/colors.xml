@@ -41,6 +41,10 @@
     <color name="list_secondary">@color/ak_medium_dark_gray</color>
     <color name="list_disabled">@color/ak_medium_gray</color>
 
+    <!-- EmptyViews -->
+    <color name="empty_text_color_main">@color/ak_almost_black</color>
+    <color name="empty_text_color_sub">@color/ak_medium_dark_gray</color>
+
     <!-- Player -->
     <color name="dark_gradient_start">#4c000000</color>
     <color name="player_user_text">#c5c5c5</color>

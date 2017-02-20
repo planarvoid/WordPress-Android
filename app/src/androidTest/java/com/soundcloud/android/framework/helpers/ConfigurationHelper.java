@@ -187,7 +187,6 @@ public class ConfigurationHelper {
     }
 
     public static void disablePromotedAnalytics(Context context) {
-        Log.i("asdf", "Disable promoted analytics");
         getAnalyticsSettingsPreferences(context)
                 .edit()
                 .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS,

@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     tools:ignore="InconsistentLayout">
 
-    <FrameLayout android:id="@+id/playlist_details"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -14,8 +13,9 @@
             android:id="@+id/ak_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/page_background"
             android:clipChildren="false"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false" />
 
         <View
             android:id="@+id/top_gradient"
@@ -24,15 +24,26 @@
             android:background="@drawable/player_gradient_top"
             app:layout_collapseMode="pin" />
 
-        <FrameLayout
-            android:id="@+id/system_bars_holder"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true">
+            android:orientation="vertical">
 
-            <include layout="@layout/toolbar_transparent" />
+            <FrameLayout
+                android:id="@+id/system_bars_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
 
-        </FrameLayout>
+                <include layout="@layout/toolbar_transparent" />
+
+            </FrameLayout>
+
+            <View style="@style/BaseToolbarShadow"
+                android:id="@+id/toolbar_shadow"
+                android:visibility="gone"/>
+
+        </LinearLayout>
 
 
     </FrameLayout>

@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:ignore="UseCompoundDrawables"
-        style="@style/Ak.EmptyCollectionErrorContentHolder">
+<LinearLayout style="@style/EmptyView.Container"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <ImageView
-            android:id="@id/ak_emptyview_error_image"
-            style="@style/Ak.EmptyViewImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ak_emptyview_error_connectivity"/>
+    <ImageView
+        style="@style/EmptyView.Image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ak_emptyview_error_connectivity" />
 
-        <TextView
-            android:id="@id/ak_emptyview_error_message2"
-            style="@style/Ak.EmptyViewContent.EmptyCollection.Main.Error"
-            android:text="@string/ak_error_no_internet"
-            android:visibility="gone" />
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/EmptyView.Text.Main"
+        android:text="@string/empty_no_internet_connection" />
 
-    </LinearLayout>
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/empty_playlist_owner_message"
+        style="@style/EmptyView.Text.Sub"
+        android:text="@string/empty_no_internet_connection_sub" />
+
+</LinearLayout>

@@ -32,7 +32,11 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
     }
 
     public View createItemView(ViewGroup parent) {
-        return playlistTrackItemRenderer.createItemView(parent);
+        View itemView = playlistTrackItemRenderer.createItemView(parent);
+        // this is because we set the list background to gray in playlists.
+        // Should be in the layout when we do that everywhere
+        itemView.setBackgroundResource(android.R.color.white);
+        return itemView;
     }
 
     @Override

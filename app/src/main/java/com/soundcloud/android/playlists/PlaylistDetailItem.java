@@ -12,7 +12,8 @@ public class PlaylistDetailItem {
         HeaderItem,
         TrackItem,
         UpsellItem,
-        OtherPlaylists
+        OtherPlaylists,
+        EmptyItem
     }
 
     PlaylistDetailItem.Kind getPlaylistItemKind() {

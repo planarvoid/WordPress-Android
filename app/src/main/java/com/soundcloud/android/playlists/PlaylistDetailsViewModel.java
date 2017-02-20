@@ -15,15 +15,11 @@ abstract class PlaylistDetailsViewModel {
 
     abstract PlaylistDetailsMetadata metadata();
 
-    abstract Optional<List<PlaylistDetailTrackItem>> tracks();
+    abstract List<PlaylistDetailTrackItem> tracks();
 
     abstract Optional<PlaylistDetailUpsellItem> upsell();
 
     abstract Optional<PlaylistDetailOtherPlaylistsItem> otherPlaylists();
-
-    boolean waitingForTracks() {
-        return !tracks().isPresent();
-    }
 
     List<PlaylistDetailItem> itemsWithHeader() {
         final ArrayList<PlaylistDetailItem> items = new ArrayList<>();
@@ -33,11 +29,34 @@ abstract class PlaylistDetailsViewModel {
         return items;
     }
 
+    List<PlaylistDetailItem> itemsWithHeader(PlaylistDetailEmptyItem emptyItem) {
+        final ArrayList<PlaylistDetailItem> items = new ArrayList<>();
+        addHeader(this, items);
+        addEmptyOrTracks(emptyItem, items);
+        addOtherPlaylists(this, items);
+        return items;
+    }
+
     List<PlaylistDetailItem> itemsWithoutHeader() {
         final ArrayList<PlaylistDetailItem> items = new ArrayList<>();
         addTracksAndUpsell(this, items);
         addOtherPlaylists(this, items);
         return items;
+    }
+
+    List<PlaylistDetailItem> itemsWithoutHeader(PlaylistDetailEmptyItem emptyItem) {
+        final ArrayList<PlaylistDetailItem> items = new ArrayList<>();
+        addEmptyOrTracks(emptyItem, items);
+        addOtherPlaylists(this, items);
+        return items;
+    }
+
+    private void addEmptyOrTracks(PlaylistDetailEmptyItem emptyItem, ArrayList<PlaylistDetailItem> items) {
+        if (tracks().isEmpty()) {
+            items.add(emptyItem);
+        } else {
+            addTracksAndUpsell(this, items);
+        }
     }
 
     public PlaylistDetailsViewModel updateWithMarkedForOffline(boolean value) {
@@ -54,9 +73,8 @@ abstract class PlaylistDetailsViewModel {
     }
 
     private static void addTracksAndUpsell(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
-        Optional<List<PlaylistDetailTrackItem>> tracks = playlistDetailsViewModel.tracks();
-        if (tracks.isPresent()) {
-            for (PlaylistDetailTrackItem trackItem : tracks.get()) {
+        List<PlaylistDetailTrackItem> tracks = playlistDetailsViewModel.tracks();
+            for (PlaylistDetailTrackItem trackItem : tracks) {
                 items.add(trackItem);
                 if (playlistDetailsViewModel.upsell().isPresent()) {
                     final PlaylistDetailUpsellItem upsellItem = playlistDetailsViewModel.upsell().get();
@@ -65,12 +83,10 @@ abstract class PlaylistDetailsViewModel {
                     }
                 }
             }
-        }
-
     }
 
     private static void addHeader(PlaylistDetailsViewModel playlistDetailsViewModel, ArrayList<PlaylistDetailItem> items) {
-        items.add(playlistDetailsViewModel.metadata());
+        items.add(new PlaylistDetailsHeaderItem(Optional.of(playlistDetailsViewModel.metadata())));
     }
 
     @AutoValue.Builder
@@ -83,7 +99,7 @@ abstract class PlaylistDetailsViewModel {
 
         abstract Builder metadata(PlaylistDetailsMetadata value);
 
-        abstract Builder tracks(Optional<List<PlaylistDetailTrackItem>> value);
+        abstract Builder tracks(List<PlaylistDetailTrackItem> value);
 
         Builder upsell(PlaylistDetailUpsellItem playlistDetailUpsellItem) {
             return upsell(Optional.of(playlistDetailUpsellItem));

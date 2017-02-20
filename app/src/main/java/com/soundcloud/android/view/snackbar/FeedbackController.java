@@ -15,18 +15,15 @@ import javax.inject.Singleton;
 @Singleton
 public class FeedbackController {
 
-    private final PlayerSnackBarWrapper playerSnackBarWrapper;
-    private final DefaultSnackBarWrapper defaultSnackBarWrapper;
+    private final SnackBarWrapper snackBarWrapper;
 
     private Optional<SlidingPlayerController> playerControllerOpt = Optional.absent();
     private Optional<View> snackBarHolderOpt = Optional.absent();
 
 
     @Inject
-    public FeedbackController(PlayerSnackBarWrapper playerSnackBarWrapper,
-                              DefaultSnackBarWrapper defaultSnackBarWrapper) {
-        this.playerSnackBarWrapper = playerSnackBarWrapper;
-        this.defaultSnackBarWrapper = defaultSnackBarWrapper;
+    public FeedbackController(SnackBarWrapper snackBarWrapper) {
+        this.snackBarWrapper = snackBarWrapper;
     }
 
     public void register(FragmentActivity activity, SlidingPlayerController playerController) {
@@ -43,9 +40,9 @@ public class FeedbackController {
         if (playerControllerOpt.isPresent()) {
             SlidingPlayerController playerController = playerControllerOpt.get();
             if (playerController.isExpanded()) {
-                playerSnackBarWrapper.show(playerController.getSnackbarHolder(), feedback);
+                snackBarWrapper.show(playerController.getSnackbarHolder(), feedback);
             } else if (snackBarHolderOpt.isPresent()) {
-                defaultSnackBarWrapper.show(snackBarHolderOpt.get(), feedback);
+                snackBarWrapper.show(snackBarHolderOpt.get(), feedback);
             }
         }
     }

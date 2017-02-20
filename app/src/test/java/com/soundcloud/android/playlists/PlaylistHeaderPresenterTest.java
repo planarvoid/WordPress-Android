@@ -542,7 +542,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         return PlaylistDetailsViewModel
                 .builder()
                 .metadata(metaData)
-                .tracks(Optional.absent())
+                .tracks(emptyList())
                 .upsell(Optional.absent())
                 .otherPlaylists(Optional.absent())
                 .build();
@@ -579,9 +579,5 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     protected Context getContext() {
         return fragmentRule.getFragment().getContext();
-    }
-
-    private PlaylistDetailsViewModel updateVithMetadata(PlaylistDetailsMetadata metadata) {
-        return viewModel.toBuilder().metadata(metadata).build();
     }
 }

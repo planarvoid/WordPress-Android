@@ -143,6 +143,14 @@
     <string name="new_empty_user_followings_text">This person isn’t following anyone yet.</string>
 
     <!-- __ERRORS -->
+    <!-- __reusable -->
+    <string name="empty_no_internet_connection">No internet connection</string>
+    <string name="empty_no_internet_connection_sub">Couldn\'t download content, maybe your connection is down? Pull to try again.</string>
+
+    <string name="empty_server_error">@string/ak_error_soundcloud_no_response</string>
+    <string name="empty_server_error_sub">@string/error_server_problems_message</string>
+
+    <!-- __legacy -->
     <!-- @Todo from l10n: move these error messages to other categories -->
     <string name="error_unauthorized_message">We’re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
     <string name="error_unauthorized_title">Account error</string>
@@ -291,6 +299,8 @@
     <string name="delete_playlist">Delete playlist</string>
     <string name="search_playlists">search playlists</string>
     <string name="more_playlists_by">More Playlists by %s</string>
+    <string name="empty_playlist_main">No tracks here yet</string>
+    <string name="empty_playlist_sub">Find some and add them to this playlist</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">Add to playlist...</string>

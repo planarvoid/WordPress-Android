@@ -1,7 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.view.AsyncViewModel.fromIdle;
-import static com.soundcloud.android.view.AsyncViewModel.fromRefreshing;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
@@ -73,6 +71,8 @@ import rx.observers.AssertableSubscriber;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
+import android.support.annotation.NonNull;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -129,10 +129,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final PublishSubject<OfflineProperties> offlineProperties = PublishSubject.create();
     private final PublishSubject<SyncJobResult> syncPlaylist = PublishSubject.create();
 
-    private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, asList(track1, track2));
-    private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, asList(track1, track2, track3));
+    private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)));
+    private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, of(asList(track1, track2, track3)));
     private final Playlist otherPlaylistByUser = ModelFixtures.playlist();
-    private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, asList(track1, track2), singletonList(
+    private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(
             otherPlaylistByUser));
 
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
@@ -198,7 +198,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(initialModel));
+                            .assertValue(getIdleViewModel(initialModel));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems, playlistDetailOtherPlaylistsItem)));
+                            .assertValue(getIdleViewModel(PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems, playlistDetailOtherPlaylistsItem)));
     }
 
     @Test
@@ -232,7 +232,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.onEnterEditMode();
 
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(toEditMode(initialModel)));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(toEditMode(initialModel)));
     }
 
     @Test
@@ -244,7 +244,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.onEnterEditMode();
         newPlaylistPresenter.onExitEditMode();
 
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(toEditMode(initialModel)), fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(toEditMode(initialModel)), getIdleViewModel(initialModel));
     }
 
     @Test
@@ -265,7 +265,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         offlineSubject.onNext(null);
 
         assertThat(offlineSubject.hasObservers()).isTrue();
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel.updateWithMarkedForOffline(true)));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
     }
 
     @Test
@@ -283,7 +283,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.onMakeOfflineAvailable();
 
         assertThat(offlineSubject.hasObservers()).isFalse();
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel));
     }
 
    @Test
@@ -303,7 +303,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         offlineSubject.onNext(null);
 
         assertThat(offlineSubject.hasObservers()).isTrue();
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(initialModel.updateWithMarkedForOffline(true)));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel.updateWithMarkedForOffline(true)));
     }
 
     @Test
@@ -509,13 +509,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel likedPlaylist = initialModel.toBuilder().metadata(likedHeader).build();
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitLikedEntities(Urn.forTrack(123L));
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitLikedEntities(Urn.forTrack(123L), playlistUrn);
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(likedPlaylist));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(likedPlaylist));
     }
 
     @Test
@@ -528,13 +528,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         final PlaylistDetailsViewModel offlinePlaylist = initialModel.toBuilder().metadata(offlineHeader).build();
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(playlistUrn, OfflineState.DOWNLOADED));
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(offlinePlaylist));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(offlinePlaylist));
     }
 
     @Test
@@ -542,15 +542,15 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         emitOfflineEntities(singletonMap(Urn.forTrack(123L), OfflineState.DOWNLOADED));
-        modelUpdates.assertValues(fromIdle(initialModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel));
 
         newPlaylistPresenter.onEnterEditMode();
 
         emitOfflineEntities(singletonMap(playlistUrn, OfflineState.DOWNLOADED));
-        modelUpdates.assertValues(fromIdle(initialModel), fromIdle(toEditMode(initialModel)));
+        modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(toEditMode(initialModel)));
     }
 
     @Test
@@ -586,10 +586,10 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                  .build());
 
         syncPlaylist.onCompleted();
-        modelUpdates.assertValues(fromIdle(initialModel),
-                                  fromRefreshing(initialModel),
-                                  fromRefreshing(updatedModel),
-                                  fromIdle(updatedModel));
+        modelUpdates.assertValues(getIdleViewModel(initialModel),
+                                  getRefreshingModel(initialModel),
+                                  getRefreshingModel(updatedModel),
+                                  getIdleViewModel(updatedModel));
     }
 
     @Test
@@ -634,9 +634,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void onItemTriggeredForTrackStartsPlaybackOnGivenTrack() {
         connect();
 
-        newPlaylistPresenter.onItemTriggered(initialModel.tracks().get().get(1));
+        newPlaylistPresenter.onItemTriggered(initialModel.tracks().get(1));
 
-        final List<Urn> tracks = transform(initialModel.tracks().get(), PlaylistDetailTrackItem::getUrn);
+        final List<Urn> tracks = transform(initialModel.tracks(), PlaylistDetailTrackItem::getUrn);
         verify(playbackInitiator).playTracks(tracks, 1, createPlaySessionSource());
     }
 
@@ -651,12 +651,12 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect();
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        modelUpdates.assertValues(fromIdle(initialModelWithUpsell));
+        modelUpdates.assertValues(getIdleViewModel(initialModelWithUpsell));
 
         when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         newPlaylistPresenter.onItemDismissed(upsellItem);
 
-        modelUpdates.assertValues(fromIdle(initialModelWithUpsell), fromIdle(modelWithoutUpsell));
+        modelUpdates.assertValues(getIdleViewModel(initialModelWithUpsell), getIdleViewModel(modelWithoutUpsell));
     }
 
     @Test
@@ -680,7 +680,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(fromIdle(viewModelWithReversedTracks));
+                            .assertValue(getIdleViewModel(viewModelWithReversedTracks));
 
         assertThat(saveSubject.hasObservers()).isTrue();
     }
@@ -781,14 +781,14 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistDetailsViewModel toEditMode(PlaylistDetailsViewModel source) {
-        final List<PlaylistDetailTrackItem> expectedTracks = transform(source.tracks().get(), track -> track.toBuilder().inEditMode(true).build());
+        final List<PlaylistDetailTrackItem> expectedTracks = transform(source.tracks(), track -> track.toBuilder().inEditMode(true).build());
         final PlaylistDetailsMetadata expectedMetaData = source.metadata()
                                                                .toBuilder()
                                                                .isInEditMode(true)
                                                                .build();
         return source.toBuilder()
                      .metadata(expectedMetaData)
-                     .tracks(of(expectedTracks))
+                     .tracks(expectedTracks)
                      .otherPlaylists(absent())
                      .build();
     }
@@ -807,4 +807,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                    playlist.title(), playlist.urn());
     }
 
+    @NonNull
+    private AsyncViewModel<PlaylistDetailsViewModel> getIdleViewModel(PlaylistDetailsViewModel model) {
+        return AsyncViewModel.create(of(model), false, false, absent());
+    }
+
+    @NonNull
+    private AsyncViewModel<PlaylistDetailsViewModel> getRefreshingModel(PlaylistDetailsViewModel initialModel) {
+        return AsyncViewModel.create(of(initialModel), false, true, absent());
+    }
 }

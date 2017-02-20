@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 public class DefaultEmptyStateProvider implements CollectionRenderer.EmptyStateProvider {
     @Override
     public int waitingView() {
-        return R.layout.emptyview_loading_tracks;
+        return R.layout.emptyview_progress;
     }
 
     @Override
