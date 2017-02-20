@@ -59,6 +59,7 @@
   <string name="ads_now_playing">Aktueller Track</string>
   <string name="ads_now_playing_tracktitle_username">Aktueller Track: %1$s (%2$s)</string>
   <string name="ads_app">App</string>
+  <string name="ads_video">Video</string>
   <plurals name="ads_app_ratings">
     <item quantity="one">%s Bewertung</item>
     <item quantity="other">%s Bewertungen</item>
@@ -600,6 +601,8 @@
   <string name="collections_recently_played_playlist">Playlist</string>
   <string name="collections_recently_played_album">Album</string>
   <string name="collections_recently_played_profile">Profil</string>
+  <string name="collections_upsell_title_legacy">Hol dir SoundCloud Go</string>
+  <string name="collections_upsell_title">Hol dir SoundCloud Go+</string>
   <string name="collections_upsell_body">Hör dir deine Likes, Playlists und Alben offline und ohne Werbung an</string>
   <string name="collections_recently_played_clear_action">Kürzlich gespielte Inhalte löschen</string>
   <string name="collections_recently_played_clear_dialog_title">Kürzlich gespielte Inhalte löschen?</string>
@@ -622,11 +625,13 @@
   <string name="more_notification_settings">Benachrichtigungseinstellungen</string>
   <string name="more_basic_settings">Grundlegende Einstellungen</string>
   <string name="more_report_bug">Fehler melden</string>
-  <string name="more_help_center">Supportbereich</string>
+  <string name="more_help_center">Hilfe</string>
   <string name="more_legal">Rechtliches</string>
   <string name="more_sign_out">Abmelden</string>
   <string name="more_view_public_profile">Öffentliches Profil anzeigen</string>
   <string name="more_app_version">App-Version %s</string>
+  <string name="more_subscription">Abonnement</string>
+  <string name="more_upsell_legacy">Upgrade auf SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s hat eine Playlist %2$s</string>
   <string name="stream_track_header_text">%1$s hat einen Track %2$s</string>
@@ -653,6 +658,8 @@
   <string name="notification_username_started_following_you">folgt dir</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonnieren</string>
+  <string name="conversion_title">Mehr entdecken mit SoundCloud Go+</string>
+  <string name="conversion_title_legacy">Mehr entdecken mit SoundCloud Go</string>
   <string name="conversion_price">%s/Monat</string>
   <string name="conversion_price_promo">%1$s für %2$s</string>
   <string name="conversion_buy_loading">Laden…</string>
@@ -669,7 +676,14 @@
   <string name="conversion_restrictions_dialog_title">Mit Einschränkungen</string>
   <string name="conversion_restrictions_message_trial">Die Testversion gilt nur für einen Zeitraum von %1$d Tagen pro Benutzer. Nach den ersten %2$d Tagen wird das Abonnement automatisch verlängert, sofern vor Ablauf der %3$d-Tage-Frist keine Kündigung erfolgt. Abonnements können auf soundcloud.com jederzeit gekündigt werden. Alle Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer.\n\nIn Québec, Kanada, ansässige Benutzer können die Testversion aufgrund von regionalen Beschränkungen nicht in Anspruch nehmen.</string>
   <string name="conversion_restrictions_message_promo">Dieses Angebot gilt nur für Nutzer, die keine kostenlose Testversiona genutzt haben. Die ersten %1$s des Abonnements kosten insgesamt %2$s. Wenn der Nutzer das Abonnement nicht vor Ablauf dieser %1$s kündigt, verlängert sich das Abonnement zu einem Preis von %3$s/Monat jeden Monat automatisch, bis der Nutzer es kündigt.\n\n„Ohne Werbung“ bedeutet, dass Unterbrechungen durch Audio- und Videoinhalte wegfallen.</string>
-  <string name="ads_why_ads_upsell_dialog_message">Jedes Mal, wenn du dir einen Werbespot ansiehst oder anhörst, klingelt beim jeweiligen Interpreten die Kasse. Nur so kann die Nutzung von SoundCloud kostenfrei bleiben.\n\nSchluss mit Werbeunterbrechungen? Mit SoundCloud Go kannst du deine Lieblingskünstler auch ohne Werbespots unterstützen.</string>
+  <!--PRODUCT_CHOICE-->
+  <string name="product_choice_line_1_mid">Entdecke, streame und teile einen Musikkatalog, der ständig um neue Titel von etablierten Stars und Nachwuchskünstlern ergänzt wird.</string>
+  <string name="product_choice_line_1_high">Erhalte Zugriff auf den weltweit größten Streaming-Katalog für Musik, der ständig um neue Titel von etablierten Stars und Nachwuchskünstlern ergänzt wird.</string>
+  <string name="product_choice_line_2_mid">Mehr als 120 Mio. Tracks</string>
+  <string name="product_choice_line_2_high">Voller Zugriff auf alle 150 Mio. Tracks, Tendenz steigend</string>
+  <string name="product_choice_line_3_common">Offline-Wiedergabe</string>
+  <string name="product_choice_line_4_common">Keine Werbung</string>
+  <string name="product_choice_line_6_common">Tracks in voller Länge</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produkt ist nicht verfügbar</string>
   <string name="payments_error_title_no_billing">Abrechnung nicht verfügbar</string>
@@ -683,6 +697,7 @@
   <string name="payments_error_unavailable">Beim Verbindungsaufbau mit dem App Store ist ein Fehler aufgetreten. Versuch es noch einmal.</string>
   <string name="payments_error_no_billing">Es gibt keinen gültigen App Store auf diesem Gerät.</string>
   <string name="payments_error_already_subscribed">Es besteht bereits ein aktives Abonnement für dein Konto.</string>
+  <string name="payments_error_unconfirmed_email">Bestätige zum Abschluss eines Abonnements deine E-Mail-Adresse. Anweisungen zur Bestätigung findest du in deinem Posteingang.</string>
   <string name="payments_error_cancelled">Der Kaufvorgang konnte nicht abgeschlossen werden. Versuch es noch einmal.</string>
   <string name="payments_error_stale">Das Zeitlimit für die Bestätigung deiner Zahlung wurde überschritten. Falls dieses Problem bestehen bleibt, wende dich an das Support-Team.</string>
   <string name="payments_error_wrong_user">Dein Abonnement gilt für ein anderes SoundCloud-Konto. Achte darauf, dass du das Konto verwendest, das dem Abonnement in deinem Google Play-Konto entspricht.</string>
@@ -709,6 +724,17 @@
   <string name="offline_no_wifi">Kein WLAN</string>
   <string name="offline_no_connection">Keine Verbindung</string>
   <!--__GO ONBOARDING-->
+  <string name="go_onboarding_landing_title">Willkommen bei SoundCloud Go+</string>
+  <string name="go_onboarding_landing_title_legacy">Willkommen bei SoundCloud Go!</string>
+  <string name="go_onboarding_landing_body">SoundCloud funktioniert jetzt etwas anders – besser! </string>
+  <string name="go_onboarding_full_tracks_body">Statt im Vorschaumodus werden Tracks mit SoundCloud Go+ jetzt in voller Länge abgespielt.</string>
+  <string name="go_onboarding_full_tracks_body_legacy">Statt im Vorschaumodus werden Tracks mit SoundCloud Go jetzt in voller Länge abgespielt.</string>
+  <string name="go_onboarding_offline_title">Überall und jederzeit Musik hören</string>
+  <string name="go_onboarding_offline_body">Nimm deine Musik mit, wohin du auch gehst. Tippe auf den Pfeil, um Tracks zur Offline-Wiedergabe herunterzuladen.</string>
+  <string name="go_onboarding_no_ads_title">Keine Werbung</string>
+  <string name="go_onboarding_no_ads_body">Nichts steht mehr zwischen dir und deiner Musik.</string>
+  <string name="go_onboarding_start_title">Los geht\'s</string>
+  <string name="go_onboarding_start_body">Du hast jetzt Zugriff auf mehr Tracks als mit jedem anderen Streaming-Dienst.</string>
   <string name="go_onboarding_start">Los geht’s</string>
   <string name="go_onboarding_retry">Ladefehler. Noch einmal versuchen?</string>
   <string name="go_onboarding_error_dialog_title">Etwas ist schiefgegangen.</string>
@@ -718,7 +744,7 @@
   <string name="go_onboarding_offline_settings_subtext">Durch Auswahl dieser Option kannst du alle deine aktuellen und künftigen Likes, Playlists und Alben automatisch offline speichern.</string>
   <string name="go_onboarding_offline_settings_continue">Okay, verstanden</string>
   <!--__GO OFFBOARDING-->
-  <string name="go_offboard_to_free_description">Schade, dass du nicht mehr dabei bist (ganz ehrlich). Falls du den Offline-Zugriff auf unseren erweiterten Katalog werbefreier Tracks irgendwann vermissen solltest – kein Problem. Wir heißen dich jederzeit wieder willkommen.</string>
+  <string name="go_offboard_to_mid_title">Abowechsel</string>
   <string name="go_offboard_resubscribe">Neu abonnieren</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Automatisch speichern</string>
@@ -746,9 +772,7 @@
   <string name="disable_offline_collection_body">Deine neuen Likes, Playlists und Alben werden nicht mehr automatisch gespeichert und sämtliche gespeicherten Tracks werden aus dem Offline-Speicher entfernt.</string>
   <string name="disable_offline_collection_from_context_title">Aus dem Offline-Speicher entfernen?</string>
   <string name="disable_offline_collection_from_context_body">Bei Auswahl dieser Option wird dieser Inhalt aus dem Offline-Speicher gelöscht. Außerdem werden Playlists und Alben, die du neu erstellst oder mit „Gefällt mir“ markierst, nicht mehr automatisch gespeichert.</string>
-  <!--offline playlist creation-->
   <string name="add_playlist_offline">Offline verfügbar</string>
-  <!--offline settings-->
   <string name="title_offline_settings">Offline-Einstellungen</string>
   <string name="more_offline_sync_settings">Offline-Einstellungen</string>
   <string name="unlimited">unbegrenzt</string>
@@ -766,6 +790,7 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">Du hast die maximale Anzahl an Geräten erreicht</string>
+  <string name="device_management_limit_registered">Du hast die Offline-Wiedergabe schon auf 10 Geräten installiert. Du musst dich auf einem Gerät abmelden, bevor du dich mit diesem hier anmelden kannst.</string>
   <string name="device_management_register">Registrieren</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Derzeit keine Audioinhalte</string>
@@ -793,6 +818,7 @@
   <string name="user_albums_label">Alben</string>
   <string name="user_likes_label">Likes</string>
   <!--Set Type Labels-->
+  <string name="edit_playlist_title">Playlist bearbeiten</string>
   <string name="set_type_default_label">Playlist</string>
   <string name="set_type_album_label">Album</string>
   <string name="set_type_ep_label">EP</string>
@@ -805,7 +831,12 @@
   <string name="set_type_compilation_label_for_text">Compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Werbefrei Musik hören</string>
+  <string name="upsell_upgrade_button_legacy">Hol dir SoundCloud Go</string>
+  <string name="upsell_upgrade_button">Hol dir SoundCloud Go+</string>
+  <string name="upsell_stream_upgrade_title_legacy">Tracks ganz anhören mit SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Erhalte vollen Zugriff auf den weltweit größten Streaming-Katalog und hör dir Musik- und Audiotracks ohne Werbung offline an.</string>
+  <string name="upsell_playlist_upgrade_title_legacy">Tracks in voller Länge abspielen – mit SoundCloud Go</string>
+  <string name="upsell_playlist_upgrade_title">Tracks in voller Länge abspielen – mit SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">Schluss mit dem Vorschaumodus: So entgeht dir keine Sekunde deiner Tracks mehr.</string>
   <string name="upsell_track_preview">Vorschau</string>
   <string name="upsell_track_geo_blocked">In deinem Land nicht verfügbar</string>
@@ -818,10 +849,21 @@
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Wegen Wiedergabe auf einem anderen Gerät angehalten</string>
   <!--__PLAYER-->
+  <string name="playback_empty">Nicht verfügbar</string>
   <string name="playback_error_blocked">In deinem Land nicht verfügbar</string>
   <string name="playback_upsell_1">Schluss mit Vorschau, Tracks jetzt in voller Länge</string>
   <string name="playback_upsell_2">Hol dir alle Tracks in voller Länge – offline und ohne Werbung</string>
+  <string name="playback_upsell_button_legacy">Hol dir SoundCloud Go</string>
+  <string name="playback_upsell_button">Hol dir SoundCloud Go+</string>
+  <string name="playback_upsell_button_trial_legacy">SoundCloud Go testen</string>
+  <string name="playback_upsell_button_trial">SoundCloud Go+ testen</string>
+  <!--__NEW_FOR_YOU-->
+  <string name="new_for_you_title">Neue Vorschläge</string>
+  <string name="new_for_you_intro">Jeden Tag eine Playlist mit neuen, kürzlich hinzugefügten Tracks. Speziell für dich.</string>
+  <string name="new_for_you_action">Playlist anzeigen</string>
   <!--__SEARCH-->
+  <string name="search_premium_content_view_all_legacy">Alle SoundCloud Go-Ergebnisse anzeigen</string>
+  <string name="search_premium_content_view_all">Alle SoundCloud Go+-Ergebnisse anzeigen</string>
   <string name="search_premium_content_upsell">Mit Upgrade kannst du Tracks ganz anhören</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Push-Benachrichtigungen</string>
