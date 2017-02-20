@@ -17,13 +17,11 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.support.annotation.NonNull;
@@ -41,8 +39,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastQueueController castQueueController;
     private final CastPlayStateReporter playStateReporter;
-
-    private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
     @Inject
     DefaultCastPlayer(PlayQueueManager playQueueManager,
@@ -147,15 +143,12 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     private void loadLocalOnRemote(boolean autoplay) {
+        reportPlayerState();
+
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
-        PlaybackProgress lastProgress = playSessionStateProvider.getLastProgressForItem(currentTrackUrn);
-        long playPosition = lastProgress.getPosition();
-
-        playStateReporter.reportIdle(PlayStateReason.NONE, currentTrackUrn, playPosition, lastProgress.getDuration());
-        playCurrentSubscription.unsubscribe();
-
+        long currentTrackPosition = playSessionStateProvider.getLastProgressForItem(currentTrackUrn).getPosition();
         CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
-        castProtocol.sendLoad(currentTrackUrn.toString(), autoplay, playPosition, castPlayQueue);
+        castProtocol.sendLoad(currentTrackUrn.toString(), autoplay, currentTrackPosition, castPlayQueue);
     }
 
     private void updateRemoteQueue(Urn currentLocalTrackUrn) {
