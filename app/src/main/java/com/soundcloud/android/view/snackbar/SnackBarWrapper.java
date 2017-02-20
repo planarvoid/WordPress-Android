@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.snackbar;
 
+import com.soundcloud.java.optional.Optional;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
@@ -11,12 +12,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 
 public class SnackBarWrapper {
 
     private final int bgColor;
     private final int textColor;
+    private Optional<Snackbar> snackbar = Optional.absent();
 
     @Inject
     public SnackBarWrapper(Resources resources) {
@@ -25,15 +26,31 @@ public class SnackBarWrapper {
     }
 
     public void show(View anchor, Feedback feedback) {
-        final Snackbar snackbar = createSnackBar(anchor, feedback.getMessage(), getSnackbarDuration(feedback));
-        final WeakReference<View.OnClickListener> actionListenerRef = feedback.getActionListener();
-        if (actionListenerRef != null) {
-            final View.OnClickListener actionListener = actionListenerRef.get();
-            if (actionListener != null) {
-                snackbar.setAction(feedback.getActionResId(), actionListener);
-            }
+        if (snackbar.isPresent() && snackbar.get().isShown()) {
+            dismissSnackbar(anchor, feedback);
+        } else {
+            showSnackbar(anchor, feedback);
         }
-        snackbar.show();
+    }
+
+    private void dismissSnackbar(final View anchor, final Feedback feedback) {
+        snackbar.get().setCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                showSnackbar(anchor, feedback);
+            }
+        });
+        snackbar.get().dismiss();
+    }
+
+    private void showSnackbar(View anchor, Feedback feedback) {
+        snackbar = Optional.of(createSnackBar(anchor, feedback.getMessage(), getSnackbarDuration(feedback)));
+        final View.OnClickListener actionListenerRef = feedback.getActionListener();
+        if (actionListenerRef != null) {
+            snackbar.get().setAction(feedback.getActionResId(), actionListenerRef);
+        }
+        snackbar.get().show();
     }
 
     public int getSnackbarDuration(Feedback feedback) {

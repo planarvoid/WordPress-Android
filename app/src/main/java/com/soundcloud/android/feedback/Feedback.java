@@ -5,8 +5,6 @@ import com.google.auto.value.AutoValue;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import java.lang.ref.WeakReference;
-
 @AutoValue
 public abstract class Feedback {
 
@@ -23,7 +21,7 @@ public abstract class Feedback {
     }
 
     public static Feedback create(int message, int actionResId, View.OnClickListener onClickListener) {
-        return new AutoValue_Feedback(message, LENGTH_LONG, actionResId, new WeakReference<>(onClickListener));
+        return new AutoValue_Feedback(message, LENGTH_LONG, actionResId, onClickListener);
     }
 
     public abstract int getMessage();
@@ -33,5 +31,5 @@ public abstract class Feedback {
     public abstract int getActionResId();
 
     @Nullable
-    public abstract WeakReference<View.OnClickListener> getActionListener();
+    public abstract View.OnClickListener getActionListener();
 }
