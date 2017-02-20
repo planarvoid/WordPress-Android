@@ -603,6 +603,8 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profile</string>
+  <string name="collections_upsell_title_legacy">Get SoundCloud Go</string>
+  <string name="collections_upsell_title">Get SoundCloud Go+</string>
   <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
   <string name="collections_recently_played_clear_action">Clear recently played</string>
   <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
@@ -625,11 +627,13 @@
   <string name="more_notification_settings">Notification settings</string>
   <string name="more_basic_settings">Basic settings</string>
   <string name="more_report_bug">Report bug</string>
-  <string name="more_help_center">Help centre</string>
+  <string name="more_help_center">Help</string>
   <string name="more_legal">Legal</string>
   <string name="more_sign_out">Sign out</string>
   <string name="more_view_public_profile">View public profile</string>
   <string name="more_app_version">App version %s</string>
+  <string name="more_subscription">Subscription</string>
+  <string name="more_upsell_legacy">Upgrade to SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
   <string name="stream_track_header_text">%1$s %2$s a track</string>
@@ -656,6 +660,8 @@
   <string name="notification_username_started_following_you">started following you</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Subscribe</string>
+  <string name="conversion_title">Discover more with SoundCloud Go+</string>
+  <string name="conversion_title_legacy">Discover more with SoundCloud Go</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
   <string name="conversion_buy_loading">Loading…</string>
@@ -672,6 +678,11 @@
   <string name="conversion_restrictions_dialog_title">Restrictions apply</string>
   <string name="conversion_restrictions_message_trial">Offer limited to one %1$d day trial per user. After the first %2$d days, subscription renews automatically unless cancelled before the end of the %3$d day trial. Subscription may be cancelled at any time on soundcloud.com. All prices include applicable local sales taxes.\n\nResidents of Quebec, Canada are not eligible for trials due to local restrictions.</string>
   <string name="conversion_restrictions_message_promo">Offer is only available for users that have not had a free trial. First %1$s of subscription for total of %2$s. If user does not cancel their subscription before the end of these %1$s, the subscription will auto-renew every month at a price of %3$s/month until user cancels.\n\nAd‑free is defined by the removal of interruptive audio and visual experiences.</string>
+  <!--PRODUCT_CHOICE-->
+  <string name="product_choice_line_2_high">Full access to all 150M+ tracks</string>
+  <string name="product_choice_line_3_common">Offline listening</string>
+  <string name="product_choice_line_4_common">No adverts</string>
+  <string name="product_choice_line_6_common">No previews</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product unavailable</string>
   <string name="payments_error_title_no_billing">Billing unavailable</string>
@@ -685,6 +696,7 @@
   <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
   <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
   <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
+  <string name="payments_error_unconfirmed_email">Confirm your email address to purchase a subscription. Check your inbox for confirmation instructions.</string>
   <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
   <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
   <string name="payments_error_wrong_user">Your subscription is associated with a different SoundCloud account. Please make sure your SoundCloud account matches the subscription in your Google Play account.</string>
@@ -711,6 +723,16 @@
   <string name="offline_no_wifi">No Wi-Fi</string>
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
+  <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
+  <string name="go_onboarding_landing_title_legacy">Welcome to SoundCloud Go!</string>
+  <string name="go_onboarding_landing_body">Things are a little different now, in a good way</string>
+  <string name="go_onboarding_full_tracks_body">All previews are now full tracks with SoundCloud Go+</string>
+  <string name="go_onboarding_full_tracks_body_legacy">All previews are now full tracks with SoundCloud Go</string>
+  <string name="go_onboarding_offline_title">Listen anywhere, anytime</string>
+  <string name="go_onboarding_offline_body">Take your music with you. Tap the arrow to download for offline listening</string>
+  <string name="go_onboarding_no_ads_title">No adverts</string>
+  <string name="go_onboarding_no_ads_body">Now nothing stands between you and the music</string>
+  <string name="go_onboarding_start_title">Let’s go</string>
   <string name="go_onboarding_start">Start listening</string>
   <string name="go_onboarding_retry">Loading failed. Retry?</string>
   <string name="go_onboarding_error_dialog_title">Something went wrong</string>
@@ -720,6 +742,7 @@
   <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes, playlists and albums offline automatically.</string>
   <string name="go_onboarding_offline_settings_continue">Ok, got it</string>
   <!--__GO OFFBOARDING-->
+  <string name="go_offboard_to_mid_title">Change of plans</string>
   <string name="go_offboard_resubscribe">Resubscribe</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Save automatically</string>
@@ -747,9 +770,7 @@
   <string name="disable_offline_collection_body">Your new likes, playlists and albums won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
   <string name="disable_offline_collection_from_context_title">Remove this from offline listening?</string>
   <string name="disable_offline_collection_from_context_body">You’re about to remove this from offline. Additionally, your newly created or liked playlists won’t save offline automatically anymore.</string>
-  <!--offline playlist creation-->
   <string name="add_playlist_offline">Available offline</string>
-  <!--offline settings-->
   <string name="title_offline_settings">Offline listening settings</string>
   <string name="more_offline_sync_settings">Offline listening settings</string>
   <string name="unlimited">unlimited</string>
@@ -767,6 +788,7 @@
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">You’ve reached your device limit</string>
+  <string name="device_management_limit_registered">You already have offline listening on 10 devices. You need to sign out of one device before you can sign in on this one.</string>
   <string name="device_management_register">Register</string>
   <!--__PROFILE-->
   <string name="empty_user_sounds_message">Nothing to hear here</string>
@@ -794,6 +816,7 @@
   <string name="user_albums_label">Albums</string>
   <string name="user_likes_label">Likes</string>
   <!--Set Type Labels-->
+  <string name="edit_playlist_title">Edit playlist</string>
   <string name="set_type_default_label">Playlist</string>
   <string name="set_type_album_label">Album</string>
   <string name="set_type_ep_label">EP</string>
@@ -806,7 +829,12 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Go ad‑free</string>
+  <string name="upsell_upgrade_button_legacy">Get SoundCloud Go</string>
+  <string name="upsell_upgrade_button">Get SoundCloud Go+</string>
+  <string name="upsell_stream_upgrade_title_legacy">Unlock previews with SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad‑free and offline listening.</string>
+  <string name="upsell_playlist_upgrade_title_legacy">Play full tracks with SoundCloud Go</string>
+  <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
   <string name="upsell_track_geo_blocked">Not available in your country</string>
@@ -819,10 +847,21 @@
   <!--__STREAMING-->
   <string name="concurrent_streaming_stopped">Paused because you started playing on another device</string>
   <!--__PLAYER-->
+  <string name="playback_empty">Not available</string>
   <string name="playback_error_blocked">Not available in\nyour country</string>
   <string name="playback_upsell_1">No more previews, just full tracks</string>
   <string name="playback_upsell_2">Get full tracks, offline &amp; ad free</string>
+  <string name="playback_upsell_button_legacy">Get SoundCloud Go</string>
+  <string name="playback_upsell_button">Get SoundCloud Go+</string>
+  <string name="playback_upsell_button_trial_legacy">Try SoundCloud Go</string>
+  <string name="playback_upsell_button_trial">Try SoundCloud Go+</string>
+  <!--__NEW_FOR_YOU-->
+  <string name="new_for_you_title">New for you</string>
+  <string name="new_for_you_intro">A daily playlist of fresh, recently posted tracks. Just for you.</string>
+  <string name="new_for_you_action">See playlist</string>
   <!--__SEARCH-->
+  <string name="search_premium_content_view_all_legacy">See all SoundCloud Go results</string>
+  <string name="search_premium_content_view_all">See all SoundCloud Go+ results</string>
   <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Push notifications</string>
