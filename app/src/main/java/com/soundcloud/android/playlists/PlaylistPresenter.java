@@ -251,10 +251,15 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
     }
 
     private void handleItemClick(int position) {
-        playbackInitiator.playTracks(
-                playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
-                ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn(), position - (useInlineHeader() ? 1 : 0), playSessionSource)
-                         .subscribe(expandPlayerSubscriberProvider.get());
+        if (adapter.getItemCount() > position) {
+            Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn());
+            Urn urn = ((PlaylistDetailTrackItem) adapter.getItem(position)).getUrn();
+            int positionWithoutHeader = position - (useInlineHeader() ? 1 : 0);
+
+            playbackInitiator.playTracks(tracks, urn, positionWithoutHeader, playSessionSource)
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribe(expandPlayerSubscriberProvider.get());
+        }
     }
 
     private Observable<PlaylistDetailsViewModel> loadPlaylistObservable(Urn playlistUrn) {
