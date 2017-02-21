@@ -392,7 +392,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     @Override
     public void onCastUnavailable() {
-        updateCastButton();
+        updateCastViews();
         updatePlayQueueButton();
     }
 
@@ -404,13 +404,13 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     @Override
     public void onCastAvailable() {
-        updateCastButton();
+        updateCastViews();
         updatePlayQueueButton();
     }
 
-    private void updateCastButton() {
+    private void updateCastViews() {
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
-            pagePresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName(), true);
+            pagePresenter(entry.getValue()).updateCastData(entry.getKey(), true);
         }
     }
 
@@ -524,7 +524,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private void onTrackPageSet(View view, int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         trackPagePresenter.onPositionSet(view, position, currentPlayQueue.size());
-        trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName(), false);
+        trackPagePresenter.updateCastData(view, false);
         trackPagePresenter.updatePlayQueueButton(view);
         if (hasAdOverlay(playQueueItem)) {
             final OverlayAdData overlayData = (OverlayAdData) playQueueItem.getAdData().get();

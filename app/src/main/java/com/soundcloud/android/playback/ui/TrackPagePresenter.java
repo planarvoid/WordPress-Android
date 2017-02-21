@@ -214,7 +214,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         configurePlayerStates(trackState, urn, holder);
 
         setClickListener(this, holder.onClickViews);
-        setCastDeviceName(trackView, castConnectionHelper.getDeviceName(), false);
+        updateCastData(trackView, false);
     }
 
     private void configurePlayerStates(PlayerTrackState trackState, Urn urn, TrackPageHolder holder) {
@@ -332,7 +332,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void setCastDeviceName(View view, String deviceName, boolean animate) {
+    public void updateCastData(View view, boolean animate) {
         getViewHolder(view).castPlayerStripController.update(animate);
     }
 
