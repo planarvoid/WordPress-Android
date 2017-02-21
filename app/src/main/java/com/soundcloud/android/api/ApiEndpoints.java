@@ -30,7 +30,7 @@ public enum ApiEndpoints {
     SEARCH_ALL("/search/universal"),
     SEARCH_SUGGESTIONS("/search/suggest"),
     SEARCH_AUTOCOMPLETE("/search/autocomplete"),
-    SEARCH_TOP_RESULTS("/search/top-results"),
+    SEARCH_TOP_RESULTS("/search/top_results"),
 
     // search premium content
     SEARCH_PREMIUM_TRACKS("/search/tracks/premium_content"),

@@ -10,11 +10,10 @@ import java.util.List;
 
 @AutoValue
 public abstract class TopResultsBucketViewModel {
-    //TODO check urns after API is done
     private static final String URN_BUCKET_TOP = "soundcloud:search-buckets:top";
-    private static final String URN_BUCKET_TRACKS = "soundcloud:search-buckets:tracks";
-    private static final String URN_BUCKET_GO_TRACKS = "soundcloud:search-buckets:go-tracks";
-    private static final String URN_BUCKET_PEOPLE = "soundcloud:search-buckets:people";
+    private static final String URN_BUCKET_TRACKS = "soundcloud:search-buckets:freetiertracks";
+    private static final String URN_BUCKET_GO_TRACKS = "soundcloud:search-buckets:hightiertracks";
+    private static final String URN_BUCKET_PEOPLE = "soundcloud:search-buckets:users";
     private static final String URN_BUCKET_PLAYLISTS = "soundcloud:search-buckets:playlists";
     private static final String URN_BUCKET_ALBUMS = "soundcloud:search-buckets:albums";
     private static final int MIN_VIEW_ALL_RESULTS = 0;
@@ -69,7 +68,7 @@ public abstract class TopResultsBucketViewModel {
             case URN_BUCKET_ALBUMS:
                 return ALBUMS;
             default:
-                throw new IllegalArgumentException("Unexpected urn type for search");
+                throw new IllegalArgumentException("Unexpected urn type for search: " + urn);
         }
     }
 

@@ -5,6 +5,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
+import com.soundcloud.android.util.CondensedNumberFormatter;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
@@ -26,11 +27,15 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private final PublishSubject<SearchItem> searchItemClicked;
     private final SearchItemAdapterFactory searchItemAdapterFactory;
+    private final CondensedNumberFormatter numberFormatter;
 
     @Inject
-    BucketRenderer(PublishSubject<SearchItem> searchItemClicked, @Provided SearchItemAdapterFactory searchItemAdapterFactory) {
+    BucketRenderer(PublishSubject<SearchItem> searchItemClicked,
+                   @Provided SearchItemAdapterFactory searchItemAdapterFactory,
+                   @Provided CondensedNumberFormatter numberFormatter) {
         this.searchItemClicked = searchItemClicked;
         this.searchItemAdapterFactory = searchItemAdapterFactory;
+        this.numberFormatter = numberFormatter;
     }
 
     @Override
@@ -65,7 +70,8 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     private void bindViewAll(View itemView, Resources resources, String bucketText, boolean shouldShowViewAll, int totalResults) {
         itemView.findViewById(R.id.bucket_view_all).setVisibility(shouldShowViewAll ? View.VISIBLE : View.GONE);
         if (shouldShowViewAll) {
-            final String viewAllText = resources.getString(R.string.top_results_view_all, totalResults, bucketText);
+            String resultsCountString = numberFormatter.format(totalResults);
+            final String viewAllText = resources.getString(R.string.top_results_view_all, resultsCountString, bucketText);
             ((TextView) itemView.findViewById(R.id.bucket_view_all_text)).setText(viewAllText);
         }
     }

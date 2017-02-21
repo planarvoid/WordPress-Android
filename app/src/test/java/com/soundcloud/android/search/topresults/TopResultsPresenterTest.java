@@ -46,7 +46,7 @@ import android.support.annotation.NonNull;
 public class TopResultsPresenterTest extends AndroidUnitTest {
 
     private static final String QUERY = "query";
-    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:tracks");
+    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
     private static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:top");
     private static final int BUCKET_POSITION = 0;
 

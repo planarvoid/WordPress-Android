@@ -11,7 +11,7 @@ public class TopResultsBucketViewModelTest {
 
     private static final int TOTAL_RESULTS = 5;
     private static final Urn QUERY_URN = new Urn("soundcloud:query:123");
-    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:tracks");
+    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
     private static final Urn PLAYLISTS_BUCKET_URN = new Urn("soundcloud:search-buckets:playlists");
     private static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:top");
 

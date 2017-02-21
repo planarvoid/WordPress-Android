@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -38,7 +39,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
 
     private static final String QUERY = "query";
     private static final Urn QUERY_URN = new Urn("soundcloud:query_urn:123");
-    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:tracks");
+    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
     private static final ApiUniversalSearchItem UNIVERSAL_TRACK_ITEM = new ApiUniversalSearchItem(null, null, ModelFixtures.create(ApiTrack.class));
     private static final TypeToken<ApiTopResults> TYPE_TOKEN = new TypeToken<ApiTopResults>() {
     };
@@ -81,7 +82,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
         verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(TYPE_TOKEN));
         final ApiRequest apiRequest = argumentCaptor.getValue();
         assertThat(apiRequest.isPrivate()).isTrue();
-        assertThat(apiRequest.getUri().toString()).isEqualTo("/search/top-results");
+        assertThat(apiRequest.getUri().toString()).isEqualTo(ApiEndpoints.SEARCH_TOP_RESULTS.path());
         assertThat(apiRequest.getMethod()).isEqualTo("GET");
         assertThat(apiRequest.getQueryParameters().get(TopResultsOperations.QUERY_PARAM).iterator().next()).isEqualTo(QUERY);
         assertThat(apiRequest.getQueryParameters().get(ApiRequest.Param.PAGE_SIZE.toString()).iterator().next()).isEqualTo("3");
