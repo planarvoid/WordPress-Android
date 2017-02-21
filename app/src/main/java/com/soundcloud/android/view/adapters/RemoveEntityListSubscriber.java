@@ -5,6 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
     private final RecyclerItemAdapter adapter;
 
@@ -14,16 +17,27 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
 
     @Override
     public void onNext(final Urn urn) {
-        int adapterCount = adapter.getItemCount();
-        for (int position = 0; position < adapterCount; position++) {
-            final Object item = adapter.getItem(position);
-            if (item instanceof Entity) {
-                Urn itemUrn = ((Entity) item).getUrn();
-                if (itemUrn.equals(urn)) {
-                    removeItemFromAdapterAt(position);
-                    break;
-                }
+        Set<Object> remove = new HashSet<>();
+
+        for (Object input : adapter.getItems()) {
+            if (shouldRemove(input, urn)) {
+                remove.add(input);
             }
+        }
+
+        for (Object o : remove) {
+            removeItem(o);
+        }
+    }
+
+    private boolean shouldRemove(Object item, Urn urn) {
+        return item != null && item instanceof Entity && ((Entity) item).getUrn().equals(urn);
+    }
+
+    private void removeItem(Object item) {
+        int position = adapter.getItems().indexOf(item);
+        if (position >= 0) {
+            removeItemFromAdapterAt(position);
         }
     }
 
