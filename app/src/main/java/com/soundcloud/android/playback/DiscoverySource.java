@@ -11,7 +11,8 @@ public enum DiscoverySource {
     RECENTLY_PLAYED("recently_played"),
     PLAY_NEXT("play_next"),
     RECOMMENDATIONS("personal-recommended"),
-    CAST("cast");
+    CAST("cast"),
+    NEW_FOR_YOU("new_for_you");
 
     private String value;
 

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class NewForYouFragment extends LightCycleSupportFragment<NewForYouFragment> implements RefreshableScreen {
+    public static final String TAG = "NewForYouFragmentTag";
 
     @Inject @LightCycle NewForYouPresenter presenter;
 

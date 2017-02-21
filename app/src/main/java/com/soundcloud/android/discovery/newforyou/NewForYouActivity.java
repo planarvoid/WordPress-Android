@@ -38,7 +38,7 @@ public class NewForYouActivity extends PlayerActivity {
     }
 
     private void attachFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new NewForYouFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new NewForYouFragment(), NewForYouFragment.TAG).commit();
     }
 
 }

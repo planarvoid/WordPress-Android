@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem> implements TrackItemRenderer.Listener, NewForYouHeaderRenderer.Listener {
-    private static final int NUM_EXTRA_ITEMS = 1;
+    static final int NUM_EXTRA_ITEMS = 1;
 
     private final NewForYouOperations operations;
     private final NewForYouAdapter adapter;

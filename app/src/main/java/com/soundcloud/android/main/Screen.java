@@ -101,7 +101,7 @@ public enum Screen {
     DEEPLINK_UPLOAD("deeplink:share"),
 
     // new for you
-    NEW_FOR_YOU("newforyou:main"),
+    NEW_FOR_YOU("new_for_you:main"),
 
     // playlists
     PLAYLIST_DETAILS("playlists:main"),

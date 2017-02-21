@@ -186,6 +186,8 @@ public class PlaySessionSource implements Parcelable {
             return DiscoverySource.STREAM.value();
         } else if (hasDiscoverySource()) {
             return discoverySource.value();
+        } else if (isFromNewForYou()) {
+            return DiscoverySource.NEW_FOR_YOU.value();
         }
         return Strings.EMPTY;
     }
@@ -208,6 +210,10 @@ public class PlaySessionSource implements Parcelable {
 
     private boolean isFromStreamTrack() {
         return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
+    }
+
+    private boolean isFromNewForYou() {
+        return originScreen.equals(Screen.NEW_FOR_YOU.get());
     }
 
     private boolean hasDiscoverySource() {

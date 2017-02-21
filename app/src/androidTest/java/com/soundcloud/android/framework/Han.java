@@ -223,6 +223,17 @@ public class Han {
         scrollVertical(fromY, toY);
     }
 
+    public void scrollDownOneQuarter() {
+        Point deviceSize = new Point();
+        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+
+        final int screenHeight = deviceSize.y;
+        final int fromY = (int) (screenHeight * 0.25);
+        final int toY = 0;
+
+        scrollVertical(fromY, toY);
+    }
+
     public void swipeDown() {
         Point deviceSize = new Point();
         solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
