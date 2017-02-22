@@ -19,6 +19,7 @@ public class ActiveExperiments {
                                                                                   FlipperConfiguration.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION,
                                                                                   DynamicLinkSharingConfig.CONFIGURATION,
+                                                                                  SearchPlayRelatedTracksConfig.CONFIGURATION,
                                                                                   NewForYouConfig.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};

@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 public class SearchPlayRelatedTracksConfig {
-    private static final String NAME = "no_visible_play_queue_on_android";
+    private static final String NAME = "no_visible_play_queue_on_android_2";
     private static final String CONTROL = "control";
     private static final String PLAY_RELATED_TRACKS = "related_tracks_on_search_results";
 
