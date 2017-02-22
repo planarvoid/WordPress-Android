@@ -63,15 +63,15 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
     }
 
     public String getTitle() {
-        return source.getTitle();
+        return source.title();
     }
 
     public String getUserName() {
-        return source.getCreatorName();
+        return source.creatorName();
     }
 
     public Urn getUserUrn() {
-        return source.getCreatorUrn();
+        return source.creatorUrn();
     }
 
     @Override
@@ -99,12 +99,12 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
     }
 
     long getFullDuration() {
-        return source.getFullDuration();
+        return source.fullDuration();
     }
 
     @Nullable
     String getWaveformUrl() {
-        return source.getWaveformUrl();
+        return source.waveformUrl();
     }
 
     boolean isUserLike() {
@@ -116,11 +116,11 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
     }
 
     int getLikeCount() {
-        return source.getLikesCount();
+        return source.likesCount();
     }
 
     public String getPermalinkUrl() {
-        return source.getPermalinkUrl();
+        return source.permalinkUrl();
     }
 
     public boolean isPrivate() {
@@ -128,7 +128,7 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
     }
 
     public boolean isCommentable() {
-        return source.isCommentable();
+        return source.commentable();
     }
 
     public boolean isEmpty() {

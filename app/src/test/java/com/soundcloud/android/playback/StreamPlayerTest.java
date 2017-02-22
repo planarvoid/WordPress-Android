@@ -23,11 +23,9 @@ import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
@@ -48,12 +46,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private Urn trackUrn = Urn.forTrack(123L);
-    private TrackItem track = TestPropertySets.trackWith(PropertySet.from(
-            TrackProperty.URN.bind(trackUrn),
-            TrackProperty.SNIPPED.bind(false),
-            TrackProperty.SNIPPET_DURATION.bind(345L),
-            TrackProperty.FULL_DURATION.bind(456L)
-    ));
+    private TrackItem track = PlayableFixtures.baseTrackBuilder().getUrn(trackUrn).isSnipped(false).snippetDuration(345L).fullDuration(456L).build();
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
     private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);

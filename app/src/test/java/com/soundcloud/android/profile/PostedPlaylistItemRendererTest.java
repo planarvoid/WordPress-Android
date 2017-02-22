@@ -8,15 +8,12 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,22 +31,20 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
             CondensedNumberFormatter.create(Locale.US, resources());
 
     private View itemView;
-    private PropertySet propertySet;
     private PlaylistItem playlistItem;
 
     private PostedPlaylistItemRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(
-                PlayableProperty.URN.bind(Urn.forPlaylist(123)),
-                PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR_NAME.bind("creator"),
-                PlayableProperty.LIKES_COUNT.bind(5),
-                PlayableProperty.IS_USER_LIKE.bind(false),
-                PlaylistProperty.TRACK_COUNT.bind(11)
-        );
-        playlistItem = PlaylistItem.from(propertySet);
+        playlistItem = ModelFixtures.playlistItemBuilder()
+                                    .getUrn(Urn.forPlaylist(123))
+                                    .title("title")
+                                    .creatorName("creator")
+                                    .likesCount(5)
+                                    .isUserLike(false)
+                                    .trackCount(11)
+                                    .build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
@@ -61,11 +56,12 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindReposterIfAny() {
-        propertySet.put(PostProperty.REPOSTER, "reposter");
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        final String reposter = "reposter";
+        PlaylistItem repostedPlaylist = playlistItem.updateWithReposter(reposter, Urn.NOT_SET);
+        renderer.bindItemView(0, itemView, singletonList(repostedPlaylist));
 
         assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(textView(R.id.reposter).getText()).isEqualTo("reposter");
+        assertThat(textView(R.id.reposter).getText()).isEqualTo(reposter);
     }
 
     @Test

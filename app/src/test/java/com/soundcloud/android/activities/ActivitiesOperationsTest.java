@@ -1,6 +1,6 @@
 package com.soundcloud.android.activities;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.activityTrackLike;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.activityTrackLike;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.sync.SyncInitiator;

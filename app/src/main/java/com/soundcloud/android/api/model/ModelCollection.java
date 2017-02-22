@@ -69,6 +69,10 @@ public class ModelCollection<T> implements Iterable<T> {
         }
     }
 
+    public ModelCollection<T> copyWithItems(List<T> items) {
+        return new ModelCollection<T>(items, getLinks(), queryUrn);
+    }
+
     @Override
     public Iterator<T> iterator() {
         return collection.iterator();

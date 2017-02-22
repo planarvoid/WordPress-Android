@@ -150,8 +150,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               Optional<Module> module,
                               boolean showPostedTime) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
-        trackItemView.setCreator(track.getCreatorName());
-        trackItemView.setTitle(track.getTitle(), track.isBlocked()
+        trackItemView.setCreator(track.creatorName());
+        trackItemView.setTitle(track.title(), track.isBlocked()
                                                  ? trackItemViewFactory.getDisabledTitleColor()
                                                  : trackItemViewFactory.getPrimaryTitleColor());
         if (listener != null) {
@@ -270,7 +270,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void showPlayCount(TrackItemView itemView, TrackItem track) {
-        final int count = track.getPlayCount();
+        final int count = track.playCount();
         if (hasPlayCount(count)) {
             itemView.showPlaycount(numberFormatter.format(count));
         }

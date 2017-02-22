@@ -192,7 +192,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private boolean canRepost(TrackItem track) {
-        return !accountOperations.isLoggedInUser(track.getCreatorUrn()) && !track.isPrivate();
+        return !accountOperations.isLoggedInUser(track.creatorUrn()) && !track.isPrivate();
     }
 
     private void loadTrack(PopupMenuWrapper menu) {
@@ -277,7 +277,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     private void showAddToPlaylistDialog() {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
-                track.getUrn(), track.getTitle(), ScreenElement.LIST.get(),
+                track.getUrn(), track.title(), ScreenElement.LIST.get(),
                 screenProvider.getLastScreenTag());
         from.show(activity.getFragmentManager());
     }

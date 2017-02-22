@@ -24,17 +24,14 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.Pager;
@@ -698,8 +695,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldNotBeIncludedInPaginatedContentWhenAbsent() {
-        final TrackItem trackOne = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
-        final TrackItem trackTwo = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
+        final TrackItem trackOne = ModelFixtures.trackItem(TRACK_ONE_URN);
+        final TrackItem trackTwo = ModelFixtures.trackItem(TRACK_TWO_URN);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);
@@ -712,7 +709,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
     @Test
     public void premiumContentUrnShouldBeIncludedInPaginatedContent() {
-        final TrackItem premiumTrack = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, PREMIUM_TRACK_URN));
+        final TrackItem premiumTrack = ModelFixtures.trackItem(PREMIUM_TRACK_URN);
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(singletonList(premiumTrack),
                                                                                   Optional.absent(), Urn.NOT_SET);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(TrackItem.from(track)),
@@ -730,8 +727,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void contentUpsellUrnShouldNotBeIncludedInPaginatedContent() {
         final UpsellSearchableItem upsellItem = UpsellSearchableItem.forUpsell();
-        final TrackItem trackOne = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_ONE_URN));
-        final TrackItem trackTwo = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_TWO_URN));
+        final TrackItem trackOne = ModelFixtures.trackItem(TRACK_ONE_URN);
+        final TrackItem trackTwo = ModelFixtures.trackItem(TRACK_TWO_URN);
         final SearchResult searchResult = SearchResult.fromSearchableItems(Arrays.asList(upsellItem, trackOne, trackTwo),
                                                                            Optional.absent(),
                                                                            Urn.NOT_SET);

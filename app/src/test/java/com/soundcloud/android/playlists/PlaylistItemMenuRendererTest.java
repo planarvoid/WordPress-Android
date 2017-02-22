@@ -14,6 +14,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void showDeletePlaylistWhenOwnedByCurrentUser() {
-        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
         renderer.render(playlist);
 
@@ -65,7 +66,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void doNotShowDeletePlaylistWhenNotOwnedByCurrentUser() {
-        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(false);
+        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(false);
 
         renderer.render(playlist);
 
@@ -132,9 +133,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     private PlaylistItem buildPlaylist(boolean markedForDownload) {
-        PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        playlist.setMarkedForOffline(markedForDownload);
-        return playlist;
+        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(Optional.of(markedForDownload)).build();
     }
 
 }

@@ -58,16 +58,16 @@ public class CardEngagementsPresenter {
                      final EventContextMetadata contextMetadata) {
 
         viewHolder.showDuration(ScTextUtils.formatTimestamp(playable.getDuration(), TimeUnit.MILLISECONDS));
-        if (isNotBlank(playable.getGenre())) {
-            viewHolder.showGenre(playable.getGenre());
+        if (playable.genre().isPresent() && isNotBlank(playable.genre().get())) {
+            viewHolder.showGenre(playable.genre().get());
         }
 
-        viewHolder.showLikeStats(getCountString(playable.getLikesCount()), playable.isLikedByCurrentUser());
+        viewHolder.showLikeStats(getCountString(playable.likesCount()), playable.isLikedByCurrentUser());
 
-        if (accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
+        if (accountOperations.isLoggedInUser(playable.creatorUrn())) {
             viewHolder.hideRepostStats();
         } else {
-            viewHolder.showRepostStats(getCountString(playable.getRepostCount()), playable.isRepostedByCurrentUser());
+            viewHolder.showRepostStats(getCountString(playable.repostsCount()), playable.isRepostedByCurrentUser());
         }
 
         viewHolder.setEngagementClickListener(new CardEngagementClickListener() {

@@ -42,7 +42,7 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
     }
 
     private void toggleReposterView(TrackItemView itemView, TrackItem track) {
-        final Optional<String> optionalReposter = track.getReposter();
+        final Optional<String> optionalReposter = track.reposter();
         if (optionalReposter.isPresent()) {
             itemView.showReposter(optionalReposter.get());
         } else {

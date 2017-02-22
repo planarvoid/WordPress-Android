@@ -168,13 +168,15 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
-        when(adapter.getItems()).thenReturn(listItems());
+        final List<PlaylistDetailItem> playlistDetailItems = listItems();
+        when(adapter.getItems()).thenReturn(playlistDetailItems);
 
         Urn urn = track1.getUrn();
         final Map<Urn, OfflineState> states = Collections.singletonMap(urn, OfflineState.DOWNLOADING);
         offlinePropertiesSubject.onNext(OfflineProperties.from(states, OfflineState.NOT_OFFLINE));
 
-        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADING);
+        final PlaylistDetailTrackItem playlistDetailTrackItem = (PlaylistDetailTrackItem) playlistDetailItems.get(0);
+        assertThat(playlistDetailTrackItem.trackItem().offlineState()).isEqualTo(OfflineState.DOWNLOADING);
 
         verify(adapter).notifyItemChanged(0);
     }
@@ -186,13 +188,15 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
-        when(adapter.getItems()).thenReturn(listItems());
+        final List<PlaylistDetailItem> items = listItems();
+        when(adapter.getItems()).thenReturn(items);
 
-        Urn urn = track1.getUrn();
+        assertThat(((PlaylistDetailTrackItem) items.get(0)).trackItem().offlineState()).isEqualTo(OfflineState.NOT_OFFLINE);
+        Urn urn = ((PlaylistDetailTrackItem) items.get(0)).trackItem().getUrn();
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
                          OfflineContentChangedEvent.downloading(Collections.singletonList(urn), false));
 
-        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADING);
+        assertThat(((PlaylistDetailTrackItem) items.get(0)).trackItem().offlineState()).isEqualTo(OfflineState.DOWNLOADING);
 
         verify(adapter).notifyItemChanged(0);
     }
@@ -202,14 +206,16 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
-        when(adapter.getItems()).thenReturn(listItems());
+        final List<PlaylistDetailItem> playlistDetailItems = listItems();
+        when(adapter.getItems()).thenReturn(playlistDetailItems);
 
         final Urn urn = track1.getUrn();
         final LikesStatusEvent likedChangedEvent = LikesStatusEvent.create(urn, true, 2);
         eventBus.publish(EventQueue.LIKE_CHANGED, likedChangedEvent);
 
-        assertThat(track1.isLikedByCurrentUser()).isTrue();
-        assertThat(track1.getLikesCount()).isEqualTo(2);
+        final PlaylistDetailTrackItem playlistDetailTrackItem = (PlaylistDetailTrackItem) playlistDetailItems.get(0);
+        assertThat(playlistDetailTrackItem.trackItem().isLikedByCurrentUser()).isTrue();
+        assertThat(playlistDetailTrackItem.trackItem().likesCount()).isEqualTo(2);
         verify(adapter).notifyItemChanged(0);
     }
 

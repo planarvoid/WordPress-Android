@@ -49,7 +49,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
     @Test
     public void enrichesTrackStreamItem() throws Exception {
         final TrackItem trackItem = TrackItem.from(track);
-        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, trackItem.getUrn(), trackItem.getAvatarUrlTemplate()).build();
+        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, trackItem.getUrn(), trackItem.avatarUrlTemplate()).build();
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Observable.just(Collections.singletonMap(track.urn(), track)));
 
@@ -75,7 +75,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
     @Test
     public void enrichesPlaylistStreamItem() throws Exception {
         final PlaylistItem playlistItem = PlaylistItem.from(playlist);
-        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem.getAvatarUrlTemplate()).build();
+        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).build();
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Observable.just(Collections.singletonMap(playlist.urn(), playlist)));
 
@@ -103,10 +103,10 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
     }
 
     private StreamEntity fromPromotedTrackItem(Date createdAt, PromotedTrackItem trackItem) {
-        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.getAvatarUrlTemplate()).promotedProperties(Optional.of(trackItem.promotedProperties)).build();
+        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.avatarUrlTemplate()).promotedProperties(Optional.of(trackItem.promotedProperties())).build();
     }
 
     private StreamEntity fromPromotedPlaylistItem(Date createdAt, PromotedPlaylistItem playlistItem) {
-        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.getAvatarUrlTemplate()).promotedProperties(Optional.of(playlistItem.promotedProperties)).build();
+        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).promotedProperties(Optional.of(playlistItem.promotedProperties())).build();
     }
 }

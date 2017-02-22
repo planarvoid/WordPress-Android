@@ -48,26 +48,45 @@ public class UserProfileOperations {
     private final SpotlightItemStatusLoader spotlightItemStatusLoader;
     private final EventBus eventBus;
 
-    private <T extends PlayableItem> PagedRemoteCollection<T> mergePlayableInfo(PagedRemoteCollection<T> input) {
+    private PagedRemoteCollection<PlayableItem> mergePlayableInfo(PagedRemoteCollection<PlayableItem> input) {
         final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.items().getCollection(), PlayableItem::getUrn));
+        final List<PlayableItem> updatedList = new ArrayList<>();
         for (final PlayableItem resultItem : input) {
             final Urn itemUrn = resultItem.getUrn();
             if (playlistsIsLikedStatus.containsKey(itemUrn)) {
-                resultItem.setLikedByCurrentUser(playlistsIsLikedStatus.get(itemUrn));
+                updatedList.add(resultItem.updateLikeState(playlistsIsLikedStatus.get(itemUrn)));
+            } else {
+                updatedList.add(resultItem);
             }
         }
-        return input;
+        return new PagedRemoteCollection<>(input.items().copyWithItems(updatedList));
+    }
+
+    private PagedRemoteCollection<PlaylistItem> mergePlaylistInfo(PagedRemoteCollection<PlaylistItem> input) {
+        final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.items().getCollection(), PlayableItem::getUrn));
+        final List<PlaylistItem> updatedList = new ArrayList<>();
+        for (final PlaylistItem resultItem : input) {
+            final Urn itemUrn = resultItem.getUrn();
+            if (playlistsIsLikedStatus.containsKey(itemUrn)) {
+                updatedList.add(resultItem.updateLikeState(playlistsIsLikedStatus.get(itemUrn)));
+            } else {
+                updatedList.add(resultItem);
+            }
+        }
+        return new PagedRemoteCollection<>(input.items().copyWithItems(updatedList));
     }
 
     private static final Func2<PagedRemoteCollection<PlayableItem>, User, PagedRemoteCollection<PlayableItem>> MERGE_REPOSTER =
             (remoteCollection, userItem) -> {
+                final List<PlayableItem> updatedItems = new ArrayList<>();
                 for (PlayableItem post : remoteCollection) {
                     if (post.isRepost()) {
-                        post.setReposter(userItem.username());
-                        post.setReposterUrn(userItem.urn());
+                        updatedItems.add(post.updateWithReposter(userItem.username(), userItem.urn()));
+                    } else {
+                        updatedItems.add(post);
                     }
                 }
-                return remoteCollection;
+                return new PagedRemoteCollection<>(remoteCollection.items().copyWithItems(updatedItems));
             };
 
     @Inject
@@ -139,8 +158,8 @@ public class UserProfileOperations {
         final PropertySet postForPlayback = PropertySet.from(
                 EntityProperty.URN.bind(playableItem.getUrn())
         );
-        if (playableItem.getReposterUrn().isPresent()) {
-            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.getReposterUrn().get());
+        if (playableItem.reposterUrn().isPresent()) {
+            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.reposterUrn().get());
         }
         return postForPlayback;
     }
@@ -150,7 +169,7 @@ public class UserProfileOperations {
                          .doOnNext(writeMixedRecordsCommand.toAction1())
                          .map(posts -> posts.transform(post -> PlaylistItem.from(post.getApiPlaylist(), false)))
                          .map(PagedRemoteCollection::new)
-                         .map(UserProfileOperations.this::mergePlayableInfo)
+                         .map(UserProfileOperations.this::mergePlaylistInfo)
                          .subscribeOn(scheduler);
     }
 
@@ -159,7 +178,7 @@ public class UserProfileOperations {
                          .doOnNext(writeMixedRecordsCommand.toAction1())
                          .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
                          .map(PagedRemoteCollection::new)
-                         .map(UserProfileOperations.this::mergePlayableInfo)
+                         .map(UserProfileOperations.this::mergePlaylistInfo)
                          .subscribeOn(scheduler);
     }
 
@@ -243,7 +262,7 @@ public class UserProfileOperations {
                          .doOnNext(writeMixedRecordsCommand.toAction1())
                          .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
                          .map(PagedRemoteCollection::new)
-                         .map(UserProfileOperations.this::mergePlayableInfo)
+                         .map(UserProfileOperations.this::mergePlaylistInfo)
                          .subscribeOn(scheduler);
     }
 
@@ -252,7 +271,7 @@ public class UserProfileOperations {
                   .doOnNext(writeMixedRecordsCommand.toAction1())
                   .map(playlists -> playlists.transform(playlist -> PlaylistItem.from(playlist.getApiPlaylist())))
                   .map(PagedRemoteCollection::new)
-                  .map(UserProfileOperations.this::mergePlayableInfo)
+                  .map(UserProfileOperations.this::mergePlaylistInfo)
                   .subscribeOn(scheduler);
     }
 

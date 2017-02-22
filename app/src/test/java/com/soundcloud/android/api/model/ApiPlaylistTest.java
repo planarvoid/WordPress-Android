@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 public class ApiPlaylistTest extends AndroidUnitTest {
@@ -34,20 +35,20 @@ public class ApiPlaylistTest extends AndroidUnitTest {
         PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist);
 
         assertThat(playlistItem.getUrn()).isEqualTo(apiPlaylist.getUrn());
-        assertThat(playlistItem.getTitle()).isEqualTo(apiPlaylist.getTitle());
+        assertThat(playlistItem.title()).isEqualTo(apiPlaylist.getTitle());
         assertThat(playlistItem.getCreatedAt()).isEqualTo(apiPlaylist.getCreatedAt());
         assertThat(playlistItem.getDuration()).isEqualTo(apiPlaylist.getDuration());
-        assertThat(playlistItem.getPermalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
+        assertThat(playlistItem.permalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
         assertThat(playlistItem.isPrivate()).isEqualTo(!apiPlaylist.isPublic());
         assertThat(playlistItem.getTrackCount()).isEqualTo(apiPlaylist.getTrackCount());
-        assertThat(playlistItem.getLikesCount()).isEqualTo(apiPlaylist.getStats().getLikesCount());
-        assertThat(playlistItem.getRepostCount()).isEqualTo(apiPlaylist.getStats().getRepostsCount());
-        assertThat(playlistItem.getCreatorName()).isEqualTo(apiPlaylist.getUsername());
-        assertThat(playlistItem.getCreatorUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
+        assertThat(playlistItem.likesCount()).isEqualTo(apiPlaylist.getStats().getLikesCount());
+        assertThat(playlistItem.repostsCount()).isEqualTo(apiPlaylist.getStats().getRepostsCount());
+        assertThat(playlistItem.creatorName()).isEqualTo(apiPlaylist.getUsername());
+        assertThat(playlistItem.creatorUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
         assertThat(playlistItem.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
-        assertThat(playlistItem.getSetType()).isEqualTo(apiPlaylist.getSetType());
+        assertThat(playlistItem.getSetType()).isEqualTo(Optional.of(apiPlaylist.getSetType()));
         assertThat(playlistItem.getReleaseDate()).isEqualTo(apiPlaylist.getReleaseDate());
         assertThat(playlistItem.getTags()).isEqualTo(apiPlaylist.getTags());
-        assertThat(playlistItem.getGenre()).isEqualTo(apiPlaylist.getGenre());
+        assertThat(playlistItem.genre().get()).isEqualTo(apiPlaylist.getGenre());
     }
 }

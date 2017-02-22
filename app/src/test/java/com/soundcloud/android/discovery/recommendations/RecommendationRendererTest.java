@@ -68,7 +68,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
         renderer.bindItemView(trackPosition, itemView, recommendations);
 
         Assertions.assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_artist))
-                  .containsText(recommendedTrack.getCreatorName());
+                  .containsText(recommendedTrack.creatorName());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
         renderer.bindItemView(trackPosition, itemView, recommendations);
 
         Assertions.assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_title))
-                  .containsText(recommendedTrack.getTitle());
+                  .containsText(recommendedTrack.title());
     }
 
     @Test
@@ -145,6 +145,6 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         View artistName = itemView.findViewById(R.id.recommendation_artist);
         artistName.performClick();
-        verify(navigator).legacyOpenProfile(artistName.getContext(), recommendedTrack.getCreatorUrn());
+        verify(navigator).legacyOpenProfile(artistName.getContext(), recommendedTrack.creatorUrn());
     }
 }

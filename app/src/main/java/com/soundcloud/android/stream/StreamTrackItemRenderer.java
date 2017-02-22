@@ -81,7 +81,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
 
     private void showPlayCount(StreamItemViewHolder itemView, TrackItem track) {
         if (track.hasPlayCount()) {
-            itemView.showPlayCount(numberFormatter.format(track.getPlayCount()));
+            itemView.showPlayCount(numberFormatter.format(track.playCount()));
         }
     }
 

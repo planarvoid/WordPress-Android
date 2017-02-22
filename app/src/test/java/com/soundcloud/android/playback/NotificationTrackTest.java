@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
@@ -18,7 +18,7 @@ public class NotificationTrackTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackItem = TestPropertySets.expectedTrackForPlayer();
+        trackItem = PlayableFixtures.expectedTrackForPlayer();
     }
 
     @Test
@@ -32,7 +32,7 @@ public class NotificationTrackTest extends AndroidUnitTest {
     public void creatorIsPopulatedForNormalTrack() {
         NotificationTrack viewModel = setupNormalTrack();
 
-        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.getCreatorName());
+        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.creatorName());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class NotificationTrackTest extends AndroidUnitTest {
     public void titleIsTrackTitleForNormalTrack() {
         NotificationTrack viewModel = setupNormalTrack();
 
-        assertThat(viewModel.getTitle()).isEqualTo(trackItem.getTitle());
+        assertThat(viewModel.getTitle()).isEqualTo(trackItem.title());
     }
 
     @NonNull

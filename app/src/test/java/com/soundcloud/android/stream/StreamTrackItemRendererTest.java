@@ -64,7 +64,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsPlayCountAndOverflow() {
         renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
-        verify(viewHolder).showPlayCount(formattedStats(postedTrack.getPlayCount()));
+        verify(viewHolder).showPlayCount(formattedStats(postedTrack.playCount()));
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
     }
 

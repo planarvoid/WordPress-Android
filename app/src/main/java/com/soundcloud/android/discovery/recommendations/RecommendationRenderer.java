@@ -59,8 +59,8 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         final TrackItem track = viewModel.getTrack();
 
         loadTrackArtwork(view, track);
-        bindTrackTitle(view, track.getTitle());
-        bindTrackArtist(view, track.getCreatorName(), track.getCreatorUrn(), viewModel.isPlaying());
+        bindTrackTitle(view, track.title());
+        bindTrackArtist(view, track.creatorName(), track.creatorUrn(), viewModel.isPlaying());
         bindNowPlaying(view, viewModel.isPlaying());
         setOnClickListener(viewModel, view);
         setOverflowMenuClickListener(ButterKnife.findById(view, R.id.overflow_button), track, position);

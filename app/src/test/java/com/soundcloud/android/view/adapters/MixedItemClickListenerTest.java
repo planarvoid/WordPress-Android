@@ -32,7 +32,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -106,7 +106,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnPromotedTrackPlaysWithPromotedSourceInfo() {
-        final PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        final PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setPromotedSourceInfo(promotedSourceInfo);
@@ -152,7 +152,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void itemClickOnPromotedPlaylistSendsPlaylistDetailIntent() {
         Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
-        PromotedPlaylistItem playlistItem = TestPropertySets.expectedPromotedPlaylist();
+        PromotedPlaylistItem playlistItem = PlayableFixtures.expectedPromotedPlaylist();
         PromotedSourceInfo info = PromotedSourceInfo.fromItem(playlistItem);
 
         listener.onItemClick(playables, view, 0, playlistItem);

@@ -5,7 +5,6 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 
 import java.util.List;

@@ -3,16 +3,13 @@ package com.soundcloud.android.search;
 import static com.soundcloud.android.search.SearchPremiumItem.PREMIUM_URN;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +27,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
     }
 
@@ -41,7 +38,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildTrackAsFirstItem() {
-        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(TrackItem.class);
@@ -50,7 +47,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildPlaylistAsFirstItem() {
-        final PlayableItem playableItem = PlayableItem.from(PropertySet.create().put(EntityProperty.URN, PLAYLIST_URN));
+        final PlayableItem playableItem = ModelFixtures.playlistItem(PLAYLIST_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(PlaylistItem.class);
@@ -68,7 +65,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetTrackPlayingIfFirstItemIsTrack() {
-        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
@@ -80,7 +77,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetTrackPlayingWithIncorrectUrn() {
-        final PlayableItem playableItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
+        final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
         final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();

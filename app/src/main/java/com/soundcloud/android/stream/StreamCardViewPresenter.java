@@ -80,7 +80,7 @@ class StreamCardViewPresenter {
         } else {
             loadAvatar(itemView,
                        playableItem.getUserUrn(),
-                       playableItem.getAvatarUrlTemplate(),
+                       playableItem.avatarUrlTemplate(),
                        itemUrn,
                        eventContextMetadata);
             setHeaderText(itemView, playableItem);
@@ -93,10 +93,10 @@ class StreamCardViewPresenter {
                                  PlayableItem playableItem,
                                  EventContextMetadata.Builder eventContextMetadataBuilder) {
         loadArtwork(itemView, playableItem);
-        itemView.setTitle(playableItem.getTitle());
-        itemView.setArtist(playableItem.getCreatorName());
+        itemView.setTitle(playableItem.title());
+        itemView.setArtist(playableItem.creatorName());
         itemView.setArtistClickable(new ProfileClickViewListener(
-                playableItem.getCreatorUrn(),
+                playableItem.creatorUrn(),
                 playableItem.getUrn(),
                 eventContextMetadataBuilder.linkType(LinkType.OWNER).build()));
 
@@ -121,8 +121,8 @@ class StreamCardViewPresenter {
     }
 
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
-        boolean isRepost = playableItem.getReposter().isPresent();
-        final String userName = playableItem.getReposter().or(playableItem.getCreatorName());
+        boolean isRepost = playableItem.reposter().isPresent();
+        final String userName = playableItem.reposter().or(playableItem.creatorName());
         final String action = resources.getString(isRepost ?
                                                   R.string.stream_reposted_action :
                                                   R.string.stream_posted_action);

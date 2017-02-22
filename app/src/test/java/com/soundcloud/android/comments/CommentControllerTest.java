@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -49,7 +49,7 @@ public class CommentControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        track = TestPropertySets.fromApiTrack();
+        track = PlayableFixtures.fromApiTrack();
 
         controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigator);
         controller.onCreate(activity, null);

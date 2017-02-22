@@ -74,14 +74,18 @@ class SearchStrategyFactory {
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
+            List<SearchableItem> result = new ArrayList<>();
             final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
             for (final SearchableItem resultItem : input) {
-                final Urn itemUrn = resultItem.getUrn();
-                if (playlistsIsLikedStatus.containsKey(itemUrn)) {
-                    ((PlaylistItem) resultItem).setLikedByCurrentUser(playlistsIsLikedStatus.get(itemUrn));
+                if (resultItem instanceof PlaylistItem) {
+                    final Urn itemUrn = resultItem.getUrn();
+                    final PlaylistItem playlistItem = (PlaylistItem) resultItem;
+                    result.add(playlistItem.updateLikeState(playlistsIsLikedStatus.containsKey(itemUrn) && playlistsIsLikedStatus.get(itemUrn)));
+                } else {
+                    result.add(resultItem);
                 }
             }
-            return input;
+            return input.copyWithSearchableItems(result);
         }
     };
 

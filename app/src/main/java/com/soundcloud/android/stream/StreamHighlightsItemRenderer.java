@@ -7,7 +7,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
 
@@ -77,7 +76,7 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
     }
 
     private List<String> getTopCreators(List<TrackItem> trackItems) {
-        HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, PlayableItem::getCreatorName));
+        HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, (trackItem) -> trackItem.creatorName()));
         return Lists.newArrayList(strings).subList(0, Math.min(strings.size(), 3));
     }
 

@@ -22,7 +22,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
@@ -101,18 +101,18 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     @Test
     public void presenterUsesMixedPlayableClickListenerForProfilePost() throws Exception {
-        TrackItem trackItem = TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L));
+        TrackItem trackItem = PlayableFixtures.expectedTrackForListItem(Urn.forTrack(123L));
         when(adapter.getItem(1)).thenReturn(trackItem);
 
         presenter.onItemClicked(itemView, 1);
 
         verify(itemClickListener).onProfilePostClick(playableItemArgumentCaptor.capture(), same(itemView), eq(1),
-                                                     same((ListItem) trackItem), same(trackItem.getCreatorUrn()));
+                                                     same((ListItem) trackItem), same(trackItem.creatorUrn()));
     }
 
     @Test
     public void presenterUsesMixedPlayableClickListenerForPlaylistPost() throws Exception {
-        PlaylistItem playlistItem = TestPropertySets.expectedPostedPlaylistForPostsScreen();
+        PlaylistItem playlistItem = PlayableFixtures.expectedPostedPlaylistForPostsScreen();
         when(adapter.getItem(1)).thenReturn(playlistItem);
 
         presenter.onItemClicked(itemView, 1);

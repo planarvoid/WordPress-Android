@@ -62,7 +62,7 @@ import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
@@ -214,7 +214,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensPlaylist() {
-        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
+        PromotedPlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
@@ -236,7 +236,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensPlaylistWithoutSearchQuerySourceInfo() {
-        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
+        PromotedPlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
@@ -253,7 +253,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensLegacyPlaylist() {
-        PromotedPlaylistItem playlist = TestPropertySets.expectedPromotedPlaylist();
+        PromotedPlaylistItem playlist = PlayableFixtures.expectedPromotedPlaylist();
         Urn playlistUrn = playlist.getUrn();
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);

@@ -67,8 +67,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void setsLikeAndRepostsStats() {
         presenter.bind(viewHolder, playableItem, contextMetadata);
-        verify(viewHolder).showLikeStats(formattedStats(playableItem.getLikesCount()), playableItem.isLikedByCurrentUser());
-        verify(viewHolder).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isRepostedByCurrentUser());
+        verify(viewHolder).showLikeStats(formattedStats(playableItem.likesCount()), playableItem.isLikedByCurrentUser());
+        verify(viewHolder).showRepostStats(formattedStats(playableItem.repostsCount()), playableItem.isRepostedByCurrentUser());
     }
 
     @Test
@@ -85,10 +85,10 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotShowRepostStatsForOwnTracks() {
-        when(accountOperations.isLoggedInUser(playableItem.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playableItem.creatorUrn())).thenReturn(true);
         presenter.bind(viewHolder, playableItem, contextMetadata);
 
-        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()),
+        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.repostsCount()),
                                                     playableItem.isRepostedByCurrentUser());
         verify(viewHolder).hideRepostStats();
     }

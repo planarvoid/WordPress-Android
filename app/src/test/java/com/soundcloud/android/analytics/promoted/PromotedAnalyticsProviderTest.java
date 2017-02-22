@@ -31,7 +31,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -176,7 +176,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromotedTrackUrls() {
-        PromotedListItem track = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem track = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent event = PromotedTrackingEvent.forItemClick(track, "stream");
 
         analyticsProvider.handleTrackingEvent(event);

@@ -37,8 +37,8 @@ public class TrackInfoPresenter {
     }
 
     public void bind(View view, final TrackItem trackItem, CommentClickListener commentClickListener) {
-        setTextAndShow(view, R.id.track_info_title, trackItem.getTitle());
-        setTextAndShow(view, R.id.creator, trackItem.getCreatorName());
+        setTextAndShow(view, R.id.track_info_title, trackItem.title());
+        setTextAndShow(view, R.id.creator, trackItem.creatorName());
 
         showView(view, R.id.description_holder);
 
@@ -81,8 +81,8 @@ public class TrackInfoPresenter {
     }
 
     private void bindComments(View view, final TrackItem track, final CommentClickListener commentClickListener) {
-        final boolean isCommentable = track.isCommentable();
-        final int commentsCount = track.getCommentsCount();
+        final boolean isCommentable = track.commentable();
+        final int commentsCount = track.commentsCount();
         if (isCommentable && commentsCount > 0) {
             String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
             setTextAndShow(view, R.id.comments, comments);
@@ -104,9 +104,9 @@ public class TrackInfoPresenter {
     }
 
     private void configureStats(View view, TrackItem trackItem) {
-        setStat(view, R.id.plays, trackItem.getPlayCount());
-        setStat(view, R.id.likes, trackItem.getLikesCount());
-        setStat(view, R.id.reposts, trackItem.getRepostCount());
+        setStat(view, R.id.plays, trackItem.playCount());
+        setStat(view, R.id.likes, trackItem.likesCount());
+        setStat(view, R.id.reposts, trackItem.repostsCount());
 
         toggleDividers(view);
     }

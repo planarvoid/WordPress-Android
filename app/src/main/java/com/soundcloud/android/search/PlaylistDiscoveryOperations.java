@@ -24,13 +24,13 @@ import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -177,22 +177,19 @@ public class PlaylistDiscoveryOperations {
     }
 
     private SearchResult backfillSearchResult(SearchResult result) {
+        final List<SearchableItem> updatedList = new ArrayList<>();
         final List<Urn> urns = Lists.transform(result.getItems(), SearchableItem::getUrn);
         final Map<Urn, Boolean> playlistRepostStatus = loadPlaylistRepostStatuses.call(urns);
         final Map<Urn, Boolean> playlistLikedStatus = loadPlaylistLikedStatuses.call(urns);
 
         for (final SearchableItem resultItem : result) {
             final Urn itemUrn = resultItem.getUrn();
+            boolean isRepostedByCurrentUser = playlistRepostStatus.containsKey(itemUrn) && playlistRepostStatus.get(itemUrn);
+            boolean isLikedByCurrentUser = playlistLikedStatus.containsKey(itemUrn) && playlistLikedStatus.get(itemUrn);
 
-            if (playlistRepostStatus.containsKey(itemUrn)) {
-                ((PlaylistItem) resultItem).setRepostedByCurrentUser(playlistRepostStatus.get(itemUrn));
-            }
-
-            if (playlistLikedStatus.containsKey(itemUrn)) {
-                ((PlaylistItem) resultItem).setLikedByCurrentUser(playlistLikedStatus.get(itemUrn));
-            }
+            updatedList.add(((PlaylistItem) resultItem).updatedWithLikeAndRepostStatus(isLikedByCurrentUser, isRepostedByCurrentUser));
         }
-        return result;
+        return result.copyWithSearchableItems(updatedList);
     }
 
 }

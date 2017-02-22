@@ -6,7 +6,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
@@ -144,9 +143,7 @@ public class StationFixtures {
     }
 
     static StationInfoTrack createStationInfoTrack(int playCount, String artistName) {
-        final TrackItem trackItem = TestPropertySets.fromApiTrack();
-        trackItem.setPlayCount(playCount);
-        trackItem.setCreatorName(artistName);
+        final TrackItem trackItem = ModelFixtures.trackItemBuilder().playCount(playCount).creatorName(artistName).build();
         return StationInfoTrack.from(trackItem);
     }
 

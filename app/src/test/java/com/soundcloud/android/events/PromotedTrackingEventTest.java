@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import org.junit.Test;
 
 public class PromotedTrackingEventTest extends AndroidUnitTest {
 
-    private PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+    private PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
 
     @Test
     public void createsEventForPromoterClick() {
@@ -47,7 +47,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
     @Test
     public void omitsPromoterUrnPropertyIfPromoterIsAbsent() {
-        PromotedListItem noPromoter = TestPropertySets.expectedPromotedTrackWithoutPromoter();
+        PromotedListItem noPromoter = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(noPromoter, "stream");
 
         assertThat(click.promoterUrn().isPresent()).isFalse();

@@ -2,15 +2,11 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PlayerTrackState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.users.User;
-import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
@@ -45,18 +41,6 @@ public class EntityMetadata {
         this.playableUrn = playableUrn;
     }
 
-    public static EntityMetadata fromUser(@Nullable PropertySet userProperties) {
-        if (userProperties == null) {
-            return EMPTY;
-        }
-
-        return new EntityMetadata(
-                userProperties.getOrElse(UserProperty.USERNAME, Strings.EMPTY),
-                userProperties.getOrElse(UserProperty.URN, Urn.NOT_SET),
-                Strings.EMPTY,
-                Urn.NOT_SET);
-    }
-
     public static EntityMetadata fromUser(@Nullable ApiUser apiUser) {
         if (apiUser == null) {
             return EMPTY;
@@ -65,18 +49,6 @@ public class EntityMetadata {
         return new EntityMetadata(
                 apiUser.getUsername(),
                 apiUser.getUrn(),
-                Strings.EMPTY,
-                Urn.NOT_SET);
-    }
-
-    public static EntityMetadata fromUser(@Nullable UserItem userItem) {
-        if (userItem == null) {
-            return EMPTY;
-        }
-
-        return new EntityMetadata(
-                userItem.name(),
-                userItem.getUrn(),
                 Strings.EMPTY,
                 Urn.NOT_SET);
     }
@@ -93,27 +65,15 @@ public class EntityMetadata {
                 Urn.NOT_SET);
     }
 
-    public static EntityMetadata from(@Nullable PropertySet playableProperties) {
-        if (playableProperties == null) {
-            return EMPTY;
-        }
-
-        return new EntityMetadata(
-                playableProperties.getOrElse(PlayableProperty.CREATOR_NAME, Strings.EMPTY),
-                playableProperties.getOrElse(PlayableProperty.CREATOR_URN, Urn.NOT_SET),
-                playableProperties.getOrElse(PlayableProperty.TITLE, Strings.EMPTY),
-                playableProperties.getOrElse(PlayableProperty.URN, Urn.NOT_SET));
-    }
-
     public static EntityMetadata from(@Nullable PlayableItem playable) {
         if (playable == null) {
             return EMPTY;
         }
 
         return new EntityMetadata(
-                playable.getCreatorName(),
-                playable.getCreatorUrn(),
-                playable.getTitle(),
+                playable.creatorName(),
+                playable.creatorUrn(),
+                playable.title(),
                 playable.getUrn());
     }
 

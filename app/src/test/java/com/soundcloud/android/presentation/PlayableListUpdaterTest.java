@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -119,7 +118,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
 
         assertThat(trackItems.get(0).getUrn()).isEqualTo(track1.getUrn());
-        assertThat(trackItems.get(0).getCreatorName()).isEqualTo(UPDATED_CREATOR);
+        assertThat(trackItems.get(0).creatorName()).isEqualTo(UPDATED_CREATOR);
         verify(adapter).notifyItemChanged(0);
     }
 
@@ -136,7 +135,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.TRACK_CHANGED, trackChangedEvent);
 
         assertThat(trackItems.get(0).getUrn()).isEqualTo(track1.getUrn());
-        assertThat(trackItems.get(0).getCreatorName()).isNotEqualTo(UPDATED_CREATOR);
+        assertThat(trackItems.get(0).creatorName()).isNotEqualTo(UPDATED_CREATOR);
         verify(adapter, never()).notifyItemChanged(anyInt());
     }
 
@@ -159,14 +158,18 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void playlistChangedEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
-        PlaylistItem playlist1 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        PlaylistItem playlist2 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        final PlaylistChangedEvent playlistChangedEvent = getPlaylistChangedEvent(playlist1, playlist2);
+        PlaylistItem playlist1 = ModelFixtures.playlistItemBuilder().trackCount(DEFAULT_TRACK_COUNT).build();
+        PlaylistItem playlist2 = ModelFixtures.playlistItem();
+        final List<PlayableItem> items = Arrays.asList(playlist1, playlist2);
+        when(adapter.getItems()).thenReturn(items);
+        final PlaylistChangedEvent playlistChangedEvent = PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlist1.getUrn(), UPDATED_TRACK_COUNT);
 
         updater.onCreate(fragment, null);
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, playlistChangedEvent);
 
-        assertThat(playlist1.getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
+        final PlaylistItem updatedItem = ((PlaylistItem) items.get(0));
+        assertThat((updatedItem).getUrn()).isEqualTo(playlist1.getUrn());
+        assertThat((updatedItem).getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
         verify(adapter).notifyItemChanged(0);
     }
 
@@ -174,7 +177,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     public void likeEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
         TrackItem likedTrack = initTrackForLike();
         TrackItem unlikedTrack = initTrackForLike();
-        when(adapter.getItems()).thenReturn(Arrays.asList(likedTrack, unlikedTrack));
+        final List<PlayableItem> items = Arrays.asList(likedTrack, unlikedTrack);
+        when(adapter.getItems()).thenReturn(items);
 
         final int likesCount = 10;
         LikesStatusEvent.LikeStatus like = LikesStatusEvent.LikeStatus.create(likedTrack.getUrn(), true, likesCount);
@@ -183,8 +187,10 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updater.onCreate(fragment, null);
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        assertThat(likedTrack.getLikesCount()).isEqualTo(likesCount);
-        assertThat(likedTrack.isLikedByCurrentUser()).isTrue();
+        final TrackItem updatedItem = ((TrackItem) items.get(0));
+        assertThat(updatedItem.getUrn()).isEqualTo(likedTrack.getUrn());
+        assertThat(updatedItem.likesCount()).isEqualTo(likesCount);
+        assertThat(updatedItem.isLikedByCurrentUser()).isTrue();
         verify(adapter).notifyItemChanged(0);
     }
 
@@ -203,7 +209,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
-        assertThat(likedTrack.getLikesCount()).isNotEqualTo(likesCount);
+        assertThat(likedTrack.likesCount()).isNotEqualTo(likesCount);
         assertThat(likedTrack.isLikedByCurrentUser()).isFalse();
         verify(adapter, never()).notifyItemChanged(anyInt());
     }
@@ -224,10 +230,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
     }
 
     private TrackItem initTrackForLike() {
-        final TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        trackItem.setLikesCount(0);
-        trackItem.setLikedByCurrentUser(false);
-        return trackItem;
+        return ModelFixtures.trackItemBuilder().likesCount(0).isUserLike(false).build();
     }
 
     private TrackChangedEvent getTrackChangedEvent(Urn updatedItemUrn, List<PlayableItem> trackItems) {
@@ -236,12 +239,6 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updatedTrack.creatorName(UPDATED_CREATOR);
         when(adapter.getItems()).thenReturn(trackItems);
         return TrackChangedEvent.forUpdate(updatedTrack.build());
-    }
-
-    private PlaylistChangedEvent getPlaylistChangedEvent(PlaylistItem playlist1, PlaylistItem playlist2) {
-        playlist1.setTrackCount(DEFAULT_TRACK_COUNT);
-        when(adapter.getItems()).thenReturn(Arrays.asList(playlist1, playlist2));
-        return PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlist1.getUrn(), UPDATED_TRACK_COUNT);
     }
 
     private LikesStatusEvent getLikeStatusEvent(LikesStatusEvent.LikeStatus... likes) {

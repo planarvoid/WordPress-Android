@@ -64,8 +64,8 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
         PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
-        assertThat(viewHolder.title.getText()).isEqualTo(playlistItem.getTitle());
-        assertThat(viewHolder.creator.getText()).isEqualTo(playlistItem.getCreatorName());
+        assertThat(viewHolder.title.getText()).isEqualTo(playlistItem.title());
+        assertThat(viewHolder.creator.getText()).isEqualTo(playlistItem.creatorName());
         assertThat(viewHolder.trackCount.getText()).isEqualTo("2");
         assertThat(viewHolder.tracksView.getText()).isEqualTo("TRACKS");
 

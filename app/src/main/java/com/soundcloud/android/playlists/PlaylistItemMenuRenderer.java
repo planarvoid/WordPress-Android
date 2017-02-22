@@ -97,7 +97,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private boolean isOwned(PlaylistItem playlist) {
-        return accountOperations.isLoggedInUser(playlist.getCreatorUrn());
+        return accountOperations.isLoggedInUser(playlist.creatorUrn());
     }
 
     private void updateLikeActionTitle(boolean isLiked) {

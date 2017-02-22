@@ -39,8 +39,6 @@ import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import android.support.annotation.NonNull;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -178,27 +176,27 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Test
     public void postsForPlaybackReturnsPostsWithReposterInformation() {
-        trackRepostItem.setReposterUrn(USER_URN);
-        playlistRepostItem.setReposterUrn(USER_URN);
+        final TrackItem repostedTrackItem = trackRepostItem.updateWithReposter("reposter", USER_URN);
+        final PlaylistItem repostedPlaylistItem = playlistRepostItem.updateWithReposter("reposter", USER_URN);
         final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
         operations.postsForPlayback(
                 Arrays.asList(
                         trackPostItem,
-                        trackRepostItem,
+                        repostedTrackItem,
                         playlistPostItem,
-                        playlistRepostItem
+                        repostedPlaylistItem
                 )
         ).subscribe(subscriber);
 
         subscriber.assertValues(
                 Arrays.asList(
                         PropertySet.from(TrackProperty.URN.bind(trackPostItem.getUrn())),
-                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getUrn()),
-                                         PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn().get())),
+                        PropertySet.from(TrackProperty.URN.bind(repostedTrackItem.getUrn()),
+                                         PostProperty.REPOSTER_URN.bind(repostedTrackItem.reposterUrn().get())),
                         PropertySet.from(PlaylistProperty.URN.bind(playlistPostItem.getUrn())),
-                        PropertySet.from(PlaylistProperty.URN.bind(playlistRepostItem.getUrn()),
-                                         PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn().get()))
+                        PropertySet.from(PlaylistProperty.URN.bind(repostedPlaylistItem.getUrn()),
+                                         PostProperty.REPOSTER_URN.bind(repostedTrackItem.reposterUrn().get()))
                 )
         );
     }
@@ -206,27 +204,19 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     private void assertAllItemsEmitted() {
         assertItemsEmitted(
                 trackPostItem,
-                attachRepostInfo(trackRepostItem),
+                trackRepostItem.updateWithReposter(USER.username(), USER_URN),
                 playlistPostItem,
-                attachRepostInfo(playlistRepostItem)
+                playlistRepostItem.updateWithReposter(USER.username(), USER_URN)
         );
     }
 
     private void assertItemsEmittedWithLike() {
-        playlistRepostItem.setLikedByCurrentUser(true);
         assertItemsEmitted(
                 trackPostItem,
-                attachRepostInfo(trackRepostItem),
+                trackRepostItem.updateWithReposter(USER.username(), USER_URN),
                 playlistPostItem,
-                attachRepostInfo(playlistRepostItem)
+                playlistRepostItem.updateLikeState(true).updateWithReposter(USER.username(), USER_URN)
         );
-    }
-
-    @NonNull
-    private PlayableItem attachRepostInfo(PlayableItem playableItem) {
-        playableItem.setReposterUrn(USER_URN);
-        playableItem.setReposter(USER.username());
-        return playableItem;
     }
 
     private void assertItemsEmitted(PlayableItem... playableItems) {

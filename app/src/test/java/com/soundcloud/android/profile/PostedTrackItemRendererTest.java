@@ -9,16 +9,13 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemView;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,23 +33,21 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Mock View itemView;
 
     private TrackItem trackItem;
-    private PropertySet propertySet;
     private PostedTrackItemRenderer renderer;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(
-                TrackProperty.TITLE.bind("title"),
-                TrackProperty.CREATOR_NAME.bind("creator"),
-                TrackProperty.SNIPPET_DURATION.bind(227000L),
-                TrackProperty.FULL_DURATION.bind(227000L),
-                TrackProperty.SNIPPED.bind(true),
-                TrackProperty.URN.bind(Urn.forTrack(123)),
-                TrackProperty.PLAY_COUNT.bind(870)
-        );
-        trackItem = TestPropertySets.trackWith(propertySet);
+        trackItem = ModelFixtures.trackItemBuilder()
+                                 .title("title")
+                                 .creatorName("creator")
+                                 .snippetDuration(227000L)
+                                 .fullDuration(227000L)
+                                 .isSnipped(true)
+                                 .getUrn(Urn.forTrack(123))
+                                 .playCount(870)
+                                 .build();
 
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getResources()).thenReturn(resources());
@@ -73,11 +68,11 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindReposterIfAny() {
-        propertySet.put(PostProperty.REPOSTER, "reposter");
-        trackItem = TestPropertySets.trackWith(propertySet);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final String reposter = "reposter";
+        final TrackItem reposterTrack = trackItem.updateWithReposter(reposter, Urn.NOT_SET);
+        renderer.bindItemView(0, itemView, singletonList(reposterTrack));
 
-        verify(trackItemView).showReposter("reposter");
+        verify(trackItemView).showReposter(reposter);
     }
 
     @Test

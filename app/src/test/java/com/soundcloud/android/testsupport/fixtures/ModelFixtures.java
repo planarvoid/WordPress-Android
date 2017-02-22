@@ -252,6 +252,14 @@ public class ModelFixtures {
         return ModelFixtures.create(TrackItem.class);
     }
 
+    public static TrackItem.Default.Builder trackItemBuilder() {
+        return TrackItem.builder(ModelFixtures.trackItem());
+    }
+
+    public static TrackItem trackItem(Urn urn) {
+        return trackItemBuilder().getUrn(urn).build();
+    }
+
     public static Track track() {
         return Track.from(ModelFixtures.create(ApiTrack.class));
     }
@@ -272,10 +280,14 @@ public class ModelFixtures {
         return create(PlaylistItem.class);
     }
 
+    public static PlaylistItem.Default.Builder playlistItemBuilder() {
+        return PlaylistItem.builder(create(PlaylistItem.class));
+    }
+
     public static PlaylistItem playlistItem(Urn urn) {
-        final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        playlistItem.setUrn(urn);
-        return playlistItem;
+        final PlaylistItem.Default.Builder builder = PlaylistItem.builder(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)));
+        builder.getUrn(urn);
+        return builder.build();
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {
@@ -470,7 +482,7 @@ public class ModelFixtures {
                 .urn(trackUrn)
                 .creatorUrn(creatorUrn)
                 .policy(policy)
-                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                .monetizationModel(PlayableFixtures.MONETIZATION_MODEL)
                 .snippetDuration(duration)
                 .fullDuration(duration)
                 .snipped(false)

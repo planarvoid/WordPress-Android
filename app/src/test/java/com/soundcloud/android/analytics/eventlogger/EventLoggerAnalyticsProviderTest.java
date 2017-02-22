@@ -56,7 +56,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -223,7 +223,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikeEventsWithV1() {
-        PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(true,
@@ -242,7 +242,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnlikeEventsWithV1() {
-        PromotedListItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(false,
@@ -261,7 +261,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackFollowEventsWithV1() {
-        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(PlayableFixtures.user());
         EventContextMetadata eventContext = eventContextBuilder().build();
 
         UIEvent event = UIEvent.fromToggleFollow(true,
@@ -279,7 +279,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnFollowEventsV1() {
-        ApiUser userItem = TestPropertySets.user();
+        ApiUser userItem = PlayableFixtures.user();
         EventContextMetadata eventContext = eventContextBuilder().build();
 
         UIEvent event = UIEvent.fromToggleFollow(false,
@@ -297,7 +297,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEventsWithV1() {
-        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(true,
@@ -316,7 +316,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnRepostEventsV1() {
-        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(false,
@@ -378,7 +378,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPromotedTrackEvents() {
-        PromotedTrackItem promotedTrack = TestPropertySets.expectedPromotedTrack();
+        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
         when(dataBuilderv0.build(event)).thenReturn("ForPromotedEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);

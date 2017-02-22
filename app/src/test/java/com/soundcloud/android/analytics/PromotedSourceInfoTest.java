@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import org.junit.Test;
 
 import android.os.Parcel;
@@ -13,7 +13,7 @@ public class PromotedSourceInfoTest extends AndroidUnitTest {
 
     @Test
     public void implementsParcelable() {
-        PromotedListItem promotedListItem = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);
@@ -28,7 +28,7 @@ public class PromotedSourceInfoTest extends AndroidUnitTest {
 
     @Test
     public void parcelsOptionalPromoterUrn() {
-        PromotedListItem promotedListItem = TestPropertySets.expectedPromotedTrackWithoutPromoter();
+        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);

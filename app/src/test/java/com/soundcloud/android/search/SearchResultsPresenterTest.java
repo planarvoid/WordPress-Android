@@ -20,18 +20,15 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -86,7 +83,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         setupFragmentArguments(true);
-        final List<SearchableItem> trackItems = Collections.singletonList(TestPropertySets.trackWith(PropertySet.from(EntityProperty.URN.bind(TRACK_URN))));
+        final List<SearchableItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
                                                                            Optional.<Link>absent(),
                                                                            QUERY_URN);
@@ -227,10 +224,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupAdapterWithPremiumContent();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        final ListItem premiumTrackItemOne = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(
-                PREMIUM_TRACK_URN_ONE)));
-        final ListItem premiumTrackItemTwo = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(
-                PREMIUM_TRACK_URN_TWO)));
+        final ListItem premiumTrackItemOne = ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE);
+        final ListItem premiumTrackItemTwo = ModelFixtures.trackItem(PREMIUM_TRACK_URN_TWO);
         final List<ListItem> premiumItems = Arrays.asList(premiumTrackItemOne, premiumTrackItemTwo);
 
         presenter.onBuildBinding(bundle);
@@ -244,7 +239,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     }
 
     private List<ListItem> setupAdapter() {
-        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Collections.singletonList(trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
@@ -264,13 +259,11 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                screenProvider,
                                                new SearchPlayQueueFilter(playRelatedTracksConfig));
 
-        PropertySet propertySet = PropertySet.create();
-        propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
-        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(TestPropertySets.trackWith(propertySet)),
+        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE)),
                                                            Optional.<Link>absent(),
                                                            1);
-        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
 
         when(adapter.getItem(0)).thenReturn(premiumItem);

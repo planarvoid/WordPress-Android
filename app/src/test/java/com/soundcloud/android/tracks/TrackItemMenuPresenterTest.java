@@ -183,9 +183,9 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        trackItem.setBlocked(true);
+        final TrackItem blockedTrackItem = TrackItem.builder(trackItem).isBlocked(true).build();
 
-        presenter.show(activity, view, trackItem, 0);
+        presenter.show(activity, view, blockedTrackItem, 0);
 
         verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
     }

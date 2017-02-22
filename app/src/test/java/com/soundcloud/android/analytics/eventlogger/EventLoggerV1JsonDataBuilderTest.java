@@ -69,12 +69,11 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -123,7 +122,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
     private EventContextMetadata eventContextMetadata = createEventContextMetadata();
-    private final EntityMetadata entityMetadata = EntityMetadata.from(PropertySet.create());
+    private final EntityMetadata entityMetadata = EntityMetadata.EMPTY;
 
     @Before
     public void setUp() throws Exception {
@@ -145,7 +144,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 createArgs(track, trackSourceInfo, 12L, true));
 
@@ -157,9 +156,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .reposter(Urn.forUser(456L))
                                                .localStoragePlayback(true)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
@@ -176,12 +175,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackStartEvent() throws ApiMapperException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlayStart(
                 createArgs(track, trackSourceInfo, 12L, true));
 
@@ -193,9 +192,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .reposter(Urn.forUser(456L))
                                                .localStoragePlayback(true)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
@@ -211,12 +210,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEventForStationsSeedTrack() throws ApiMapperException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 createArgs(track, trackSourceInfo, 12L, true));
 
@@ -229,9 +228,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .reposter(Urn.forUser(456L))
                                                .localStoragePlayback(true)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
@@ -247,12 +246,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioEventJsonForAudioPlaybackEventForStations() throws ApiMapperException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
                 createArgs(track, trackSourceInfo, 12L, true));
 
@@ -266,9 +265,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .reposter(Urn.forUser(456L))
                                                .localStoragePlayback(true)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
@@ -284,12 +283,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioPauseEventJson() throws ApiMapperException, CreateModelException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
@@ -304,9 +303,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .localStoragePlayback(false)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
@@ -322,13 +321,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryPosition(QUERY_POSITION)
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL)
                                                .reason("concurrent_streaming"));
     }
 
     @Test
     public void createsAudioCheckpointEventJson() throws Exception {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forCheckpoint(
                 createArgs(track, trackSourceInfo, 12L, true));
 
@@ -340,9 +339,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .reposter(Urn.forUser(456L))
                                                .localStoragePlayback(true)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
@@ -359,12 +358,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
     }
 
     @Test
     public void createsAudioPauseEventJsonForStationsForSeedTrack() throws ApiMapperException, CreateModelException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         trackSourceInfo.setStationSourceInfo(QUERY_URN, StationsSourceInfo.create(Urn.NOT_SET));
@@ -380,9 +379,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .localStoragePlayback(false)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
@@ -397,13 +396,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL)
                                                .reason("playback_error"));
     }
 
     @Test
     public void createsAudioPauseEventJsonForStations() throws ApiMapperException, CreateModelException {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         trackSourceInfo.setStationSourceInfo(QUERY_URN,
@@ -420,9 +419,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .localStoragePlayback(false)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
@@ -437,13 +436,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL)
                                                .reason("playback_error"));
     }
 
     @Test
     public void createAudioEventJsonWithAdMetadataForPromotedTrackPlay() throws Exception {
-        final TrackItem track = TestPropertySets.expectedTrackForPlayer();
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123",
                                                                          Urn.forTrack(123L),
                                                                          Optional.of(Urn.forUser(123L)),
@@ -457,9 +456,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
                                                .pageName(event.trackSourceInfo().getOriginScreen())
-                                               .trackLength(track.getFullDuration())
+                                               .trackLength(track.fullDuration())
                                                .track(track.getUrn())
-                                               .trackOwner(track.getCreatorUrn())
+                                               .trackOwner(track.creatorUrn())
                                                .localStoragePlayback(false)
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
@@ -475,7 +474,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clientEventId(CLIENT_EVENT_ID)
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL)
                                                .adUrn("ad:urn:123")
                                                .monetizationType("promoted")
                                                .promotedBy("soundcloud:users:123"));
@@ -636,7 +635,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
-        final PromotedListItem item = TestPropertySets.expectedPromotedPlaylist();
+        final PromotedListItem item = PlayableFixtures.expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
         final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME,
                                                                                                 PLAYLIST_URN,
@@ -1218,7 +1217,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsInteractionEventJsonForFollowEvent() throws ApiMapperException {
-        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(PlayableFixtures.user());
         final Integer position = 0;
         final Module module = Module.create(Module.SINGLE, position);
         final EventContextMetadata eventContextMetadata =
@@ -1246,7 +1245,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsClickEventJsonForFollowEvent() throws ApiMapperException {
-        final EntityMetadata userMetadata = EntityMetadata.fromUser(TestPropertySets.user());
+        final EntityMetadata userMetadata = EntityMetadata.fromUser(PlayableFixtures.user());
         final Integer position = 0;
         final Module module = Module.create(Module.SINGLE, position);
         final EventContextMetadata eventContextMetadata =

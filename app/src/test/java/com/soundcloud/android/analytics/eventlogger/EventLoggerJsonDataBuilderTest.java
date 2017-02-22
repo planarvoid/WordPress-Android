@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -283,7 +283,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackClickJson() throws Exception {
-        PromotedListItem item = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem item = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(item, "stream");
 
         jsonDataBuilder.build(click);
@@ -301,7 +301,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackImpressionJson() throws Exception {
-        PromotedListItem item = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem item = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);
@@ -317,7 +317,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedPlaylistImpressionJson() throws Exception {
-        PromotedListItem item = TestPropertySets.expectedPromotedPlaylist();
+        PromotedListItem item = PlayableFixtures.expectedPromotedPlaylist();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);

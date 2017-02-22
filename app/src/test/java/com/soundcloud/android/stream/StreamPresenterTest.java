@@ -2,9 +2,9 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedLikedPlaylistForPlaylistsScreen;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForListItem;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedLikedPlaylistForPlaylistsScreen;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedTrackForListItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -49,7 +49,7 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
@@ -214,7 +214,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromotedPlaylistItemClick() {
-        final PromotedPlaylistItem clickedPlaylist = TestPropertySets.expectedPromotedPlaylist();
+        final PromotedPlaylistItem clickedPlaylist = PlayableFixtures.expectedPromotedPlaylist();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedPlaylist.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));

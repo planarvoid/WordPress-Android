@@ -44,7 +44,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -177,7 +177,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindItemViewLoadsStationsContext() {
-        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(),
+        final PlayerTrackState trackState = new PlayerTrackState(PlayableFixtures.expectedTrackForPlayer(),
                                                                  true,
                                                                  true,
                                                                  viewVisibilityProvider);
@@ -817,18 +817,17 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void populateTrackPage() {
-        final TrackItem source = TestPropertySets.expectedTrackForPlayer();
-        source.setSnipped(true);
+        final TrackItem source = PlayableFixtures.expectedTrackBuilderForPlayer().isSnipped(true).build();
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 
     private void bindSnippedTrack() {
-        final TrackItem snippedTrack = TestPropertySets.upsellableTrack();
+        final TrackItem snippedTrack = PlayableFixtures.upsellableTrack();
         presenter.bindItemView(trackView, new PlayerTrackState(snippedTrack, true, true, viewVisibilityProvider));
     }
 
     private TrackItem bindUpsellableHighTierTrack() {
-        final TrackItem source = TestPropertySets.upsellableTrackForPlayer();
+        final TrackItem source = PlayableFixtures.upsellableTrackForPlayer();
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
         return source;
     }

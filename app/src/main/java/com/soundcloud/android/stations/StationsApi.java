@@ -8,16 +8,13 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.SuggestedStationsExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -83,16 +80,6 @@ class StationsApi {
                                               .build();
 
         return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {}).getCollection();
-    }
-
-    ApiStationsCollections syncStationsCollections(List<PropertySet> recentStationsToSync) throws ApiRequestException, IOException, ApiMapperException {
-        final ApiRequest request = ApiRequest
-                .post(ApiEndpoints.STATIONS.path())
-                .withContent(new StationsSyncPostBody(recentStationsToSync))
-                .forPrivateApi()
-                .build();
-
-        return apiClient.fetchMappedResponse(request, ApiStationsCollections.class);
     }
 
     Observable<Boolean> requestRecentToLikedMigration() {

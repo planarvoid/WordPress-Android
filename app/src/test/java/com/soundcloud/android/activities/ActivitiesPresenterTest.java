@@ -13,7 +13,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
@@ -60,7 +60,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() {
-        ActivityItem activityItem = TestPropertySets.activityTrackLike();
+        ActivityItem activityItem = PlayableFixtures.activityTrackLike();
         when(operations.initialActivities()).thenReturn(Observable.just(singletonList(activityItem)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -70,7 +70,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingFollower() {
-        final ActivityItem activity = TestPropertySets.activityUserFollow();
+        final ActivityItem activity = PlayableFixtures.activityUserFollow();
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -80,7 +80,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackLike() {
-        final ActivityItem activity = TestPropertySets.activityTrackLike();
+        final ActivityItem activity = PlayableFixtures.activityTrackLike();
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -90,7 +90,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingTrackRepost() {
-        final ActivityItem activity = TestPropertySets.activityTrackRepost();
+        final ActivityItem activity = PlayableFixtures.activityTrackRepost();
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -100,7 +100,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistLike() {
-        final ActivityItem activity = TestPropertySets.activityPlaylistLike();
+        final ActivityItem activity = PlayableFixtures.activityPlaylistLike();
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -110,7 +110,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldGoToUserProfileWhenClickingPlaylistRepost() {
-        final ActivityItem activity = TestPropertySets.activityPlaylistRepost();
+        final ActivityItem activity = PlayableFixtures.activityPlaylistRepost();
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -121,7 +121,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldGoToTrackCommentsWhenClickingTrackComment() {
         final Track track = ModelFixtures.trackBuilder().build();
-        final ActivityItem activity = TestPropertySets.activityTrackComment(track.urn());
+        final ActivityItem activity = PlayableFixtures.activityTrackComment(track.urn());
         when(trackRepository.track(activity.getCommentedTrackUrn().get()))
                 .thenReturn(Observable.just(track));
         when(adapter.getItem(0)).thenReturn(activity);

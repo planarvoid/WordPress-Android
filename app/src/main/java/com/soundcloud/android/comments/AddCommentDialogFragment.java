@@ -10,7 +10,6 @@ import com.soundcloud.java.strings.Strings;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -49,7 +48,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
         final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
 
-        title.setText(getString(R.string.comment_on_tracktitle, track.getTitle()));
+        title.setText(getString(R.string.comment_on_tracktitle, track.title()));
         input.setHint(getString(R.string.comment_at_time, timeFormatted));
 
         return new AlertDialog.Builder(getActivity())

@@ -8,7 +8,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.optional.Optional;
@@ -22,17 +22,17 @@ import java.util.List;
 public class PlaylistUpsellOperationsTest extends AndroidUnitTest {
 
     private final List<TrackItem> defaultTracks = Arrays.asList(
-            TestPropertySets.expectedTrackForListItem(Urn.forTrack(425L)),
-            TestPropertySets.expectedTrackForListItem(Urn.forTrack(752L)));
+            PlayableFixtures.expectedTrackForListItem(Urn.forTrack(425L)),
+            PlayableFixtures.expectedTrackForListItem(Urn.forTrack(752L)));
     private final Playlist playlist = ModelFixtures.playlist();
     @Mock private AccountOperations accountOperations;
     @Mock private InlineUpsellOperations upsellOperations;
 
     private PlaylistUpsellOperations operations;
 
-    private final TrackItem track1 = TestPropertySets.expectedTrackForListItem(Urn.forTrack(987L));
-    private final TrackItem track2 = TestPropertySets.upsellableTrack();
-    private final TrackItem track3 = TestPropertySets.upsellableTrack();
+    private final TrackItem track1 = PlayableFixtures.expectedTrackForListItem(Urn.forTrack(987L));
+    private final TrackItem track2 = PlayableFixtures.upsellableTrack();
+    private final TrackItem track3 = PlayableFixtures.upsellableTrack();
     private final List<TrackItem> upsellableTracks = Arrays.asList(track1, track2, track3);
 
     @Before

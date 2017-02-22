@@ -141,10 +141,9 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
     }
 
     private void assertAllItemsEmittedWithLikeAndRepost() {
-        playlistItem.setLikedByCurrentUser(true);
         assertAllItemsEmitted(
                 trackItem,
-                playlistItem
+                playlistItem.updateLikeState(true)
         );
     }
 

@@ -234,7 +234,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
         if (isPublic) {
             sharePresenter.share(context,
-                                 playlist.getPermalinkUrl(),
+                                 playlist.permalinkUrl(),
                                  getEventContextMetadata(), promotedSourceInfo.orNull(),
                                  EntityMetadata.from(playlist));
         }
@@ -258,7 +258,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     private boolean isPlaylistOwnedByCurrentUser(PlaylistItem playlist) {
-        return accountOperations.isLoggedInUser(playlist.getCreatorUrn());
+        return accountOperations.isLoggedInUser(playlist.creatorUrn());
     }
 
     // this is really ugly. We should introduce a PlaylistRepository.

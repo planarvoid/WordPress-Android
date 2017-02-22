@@ -17,7 +17,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
@@ -70,10 +70,9 @@ public class PlayQueueTest extends AndroidUnitTest {
     @Test
     public void fromPlayableListShouldApplyPlaybackContext() {
         final Urn reposterUrn = Urn.forUser(123L);
-        final TrackItem trackItem = TestPropertySets.fromApiTrack();
-        final PlaylistItem playlistItem = TestPropertySets.fromApiPlaylist();
-        trackItem.setReposterUrn(reposterUrn);
-        playlistItem.setReposterUrn(reposterUrn);
+        final String reposter = "reposter";
+        final TrackItem trackItem = PlayableFixtures.fromApiTrack().updateWithReposter(reposter, reposterUrn);
+        final PlaylistItem playlistItem = PlayableFixtures.fromApiPlaylist().updateWithReposter(reposter, reposterUrn);
         final PlayableWithReposter track = PlayableWithReposter.from(trackItem);
         final PlayableWithReposter playlist = PlayableWithReposter.from(playlistItem);
         final List<PlayableWithReposter> playables = asList(track, playlist);

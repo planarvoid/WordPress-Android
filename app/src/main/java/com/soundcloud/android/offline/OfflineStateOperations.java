@@ -163,7 +163,7 @@ public class OfflineStateOperations {
                 .map(tracks -> Lists.transform(tracks, TrackItem::from))
                 .toBlocking()
                 .first();
-        final Collection<OfflineState> tracksOfflineState = transform(playlistWithTracks, TrackItem::getOfflineState);
+        final Collection<OfflineState> tracksOfflineState = transform(playlistWithTracks, TrackItem::offlineState);
         return getCollectionOfflineState(tracksOfflineState);
     }
 

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ public class MyLikesStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void hasLocalChangesIsTrueIfTrackAdditionsIsNotEmpty() throws Exception {
-        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
+        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(PlayableFixtures.fromApiTrack().getUrn(), new Date())));
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }
@@ -37,7 +37,7 @@ public class MyLikesStateProviderTest extends AndroidUnitTest {
     @Test
     public void hasLocalChangesIsTrueIfTrackRemovalsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
+        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(singletonList(ApiLike.create(PlayableFixtures.fromApiTrack().getUrn(), new Date())));
         when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.emptyList());
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
@@ -46,7 +46,7 @@ public class MyLikesStateProviderTest extends AndroidUnitTest {
     @Test
     public void hasLocalChangesIsTrueIfPlaylistAdditionsIsNotEmpty() throws Exception {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
-        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
+        when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(singletonList(ApiLike.create(PlayableFixtures.fromApiTrack().getUrn(), new Date())));
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }
@@ -56,7 +56,7 @@ public class MyLikesStateProviderTest extends AndroidUnitTest {
         when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
         when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(Collections.emptyList());
         when(loadLikesPendingAddition.call(TYPE_PLAYLIST)).thenReturn(Collections.emptyList());
-        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(singletonList(ApiLike.create(TestPropertySets.fromApiTrack().getUrn(), new Date())));
+        when(loadLikesPendingRemoval.call(TYPE_PLAYLIST)).thenReturn(singletonList(ApiLike.create(PlayableFixtures.fromApiTrack().getUrn(), new Date())));
 
         assertThat(myLikesStateProvider.hasLocalChanges()).isTrue();
     }

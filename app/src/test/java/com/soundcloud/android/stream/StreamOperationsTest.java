@@ -30,7 +30,7 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -78,7 +78,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     private final Track promotedTrack = ModelFixtures.track();
     private final PromotedTrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(promotedTrack, promoter);
     private final StreamEntity promotedStreamTrack = fromPromotedTrackItem(new Date(), promotedTrackItem);
-    private final TrackItem upsellableTrack = TestPropertySets.upsellableTrack();
+    private final TrackItem upsellableTrack = PlayableFixtures.upsellableTrack();
     private final StreamEntity upsellableStreamTrack = builderFromTrackItem(new Date(), upsellableTrack).build();
 
     @Before
@@ -455,7 +455,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
 
     @Override
     protected StreamEntity createTimelineItem(long timestamp) {
-        return TestPropertySets.timelineItem(new Date(timestamp));
+        return PlayableFixtures.timelineItem(new Date(timestamp));
     }
 
     @Override
@@ -537,11 +537,11 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     }
 
     private StreamEntity fromPromotedTrackItem(Date createdAt, PromotedTrackItem promotedTrackItem) {
-        return builderFromTrackItem(createdAt, promotedTrackItem).promotedProperties(Optional.of(promotedTrackItem.promotedProperties)).build();
+        return builderFromTrackItem(createdAt, promotedTrackItem).promotedProperties(Optional.of(promotedTrackItem.promotedProperties())).build();
     }
 
     private StreamEntity.Builder builderFromTrackItem(Date createdAt, TrackItem promotedTrackItem) {
-        return StreamEntity.builder(promotedTrackItem.getUrn(), createdAt, Optional.absent(), Optional.absent(), promotedTrackItem.getAvatarUrlTemplate());
+        return StreamEntity.builder(promotedTrackItem.getUrn(), createdAt, Optional.absent(), Optional.absent(), promotedTrackItem.avatarUrlTemplate());
     }
 
     private void initWithTrack() {

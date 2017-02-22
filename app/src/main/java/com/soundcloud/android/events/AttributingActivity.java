@@ -37,10 +37,10 @@ public abstract class AttributingActivity {
     public static AttributingActivity fromPlayableItem(PlayableItem playableItem) {
         if (playableItem instanceof PromotedListItem) {
             return AttributingActivity.create(PROMOTED, ((PromotedListItem) playableItem).getPromoterUrn());
-        } else if (playableItem.getReposter().isPresent()) {
-            return AttributingActivity.create(REPOSTED, playableItem.getReposterUrn());
+        } else if (playableItem.reposter().isPresent()) {
+            return AttributingActivity.create(REPOSTED, playableItem.reposterUrn());
         } else {
-            return AttributingActivity.create(AttributingActivity.POSTED, Optional.of(playableItem.getCreatorUrn()));
+            return AttributingActivity.create(AttributingActivity.POSTED, Optional.of(playableItem.creatorUrn()));
         }
     }
 }

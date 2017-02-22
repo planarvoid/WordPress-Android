@@ -131,8 +131,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
         final Track first = propSubscriber.getOnNextEvents().get(0);
-        assertThat(first.title()).isEqualTo(trackItem.getTitle());
-        assertThat(first.creatorName()).isEqualTo(trackItem.getCreatorName());
+        assertThat(first.title()).isEqualTo(trackItem.title());
+        assertThat(first.creatorName()).isEqualTo(trackItem.creatorName());
         assertThat(first.description().get()).isEqualTo(DESCRIPTION);
     }
 

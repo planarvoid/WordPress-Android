@@ -37,7 +37,7 @@ public class LoadLocalPlaylistsCommandTest extends StorageIntegrationTest {
 
     private void assertPlaylistContainsLocalFields(LocalPlaylistChange local, PlaylistItem expected) {
         assertThat(local.urn()).isEqualTo(expected.getUrn());
-        assertThat(local.title()).isEqualTo(expected.getTitle());
+        assertThat(local.title()).isEqualTo(expected.title());
         assertThat(local.isPrivate()).isEqualTo(expected.isPrivate());
     }
 }

@@ -10,16 +10,14 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,8 +54,8 @@ public class UIEventTest extends AndroidUnitTest {
                                                                   TRACK_URN,
                                                                   Optional.absent(),
                                                                   null);
-        trackMetadata = EntityMetadata.from(buildPlayablePropertySet(TRACK_URN));
-        playlistMetadata = EntityMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
+        trackMetadata = buildMetadata(TRACK_URN);
+        playlistMetadata = buildMetadata(PLAYLIST_URN);
     }
 
     @Test
@@ -98,8 +96,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToFollow() {
-        PropertySet userProperties = buildUserPropertySet(CREATOR_URN);
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, EntityMetadata.fromUser(userProperties), EventContextMetadata.builder().build());
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, buildUserPropertySet(CREATOR_URN), EventContextMetadata.builder().build());
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.FOLLOW);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.FOLLOW_ADD);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(CREATOR_URN);
@@ -108,8 +105,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        PropertySet userProperties = buildUserPropertySet(CREATOR_URN);
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, EntityMetadata.fromUser(userProperties), EventContextMetadata.builder().build());
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, buildUserPropertySet(CREATOR_URN), EventContextMetadata.builder().build());
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNFOLLOW);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.FOLLOW_REMOVE);
     }
@@ -1251,21 +1247,12 @@ public class UIEventTest extends AndroidUnitTest {
                                    .pageUrn(Urn.NOT_SET);
     }
 
-    private PropertySet buildPlayablePropertySet(Urn urn) {
-        return PropertySet.from(
-                PlayableProperty.URN.bind(urn),
-                PlayableProperty.CREATOR_URN.bind(USER_URN),
-                PlayableProperty.CREATOR_NAME.bind(CREATOR_NAME),
-                PlayableProperty.TITLE.bind(PLAYABLE_TITLE)
-        );
+    private EntityMetadata buildMetadata(Urn urn) {
+        return EntityMetadata.from(CREATOR_NAME, USER_URN, PLAYABLE_TITLE, urn);
     }
 
-    private PropertySet buildUserPropertySet(Urn urn) {
-        return PropertySet.from(
-                UserProperty.URN.bind(urn),
-                UserProperty.USERNAME.bind(CREATOR_NAME),
-                UserProperty.ID.bind(urn.getNumericId())
-        );
+    private EntityMetadata buildUserPropertySet(Urn urn) {
+        return EntityMetadata.from(CREATOR_NAME, urn, Strings.EMPTY, Urn.NOT_SET);
     }
 
 }

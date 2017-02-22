@@ -13,7 +13,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.java.optional.Optional;
@@ -150,7 +150,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadLastPublicPostedTrack() {
-        LastPostedTrack trackOpt = TestPropertySets.expectedLastPostedTrackForPostsScreen();
+        LastPostedTrack trackOpt = PlayableFixtures.expectedLastPostedTrackForPostsScreen();
         when(postStorage.loadLastPublicPostedTrack()).thenReturn(Observable.just(trackOpt));
         TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
@@ -201,7 +201,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     private List<Following> createPageOfFollowings(int size) {
         List<Following> page = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            page.add(TestPropertySets.expectedFollowingForFollowingsScreen(i));
+            page.add(PlayableFixtures.expectedFollowingForFollowingsScreen(i));
         }
         return page;
     }

@@ -10,15 +10,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,20 +45,19 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     private View itemView;
 
-    private PropertySet propertySet;
     private PlaylistItem playlistItem;
+    private PlaylistItem.Default.Builder builder;
 
     @Before
     public void setUp() throws Exception {
-        propertySet = PropertySet.from(
-                PlayableProperty.URN.bind(Urn.forPlaylist(123)),
-                PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR_NAME.bind("creator"),
-                PlayableProperty.LIKES_COUNT.bind(5),
-                PlayableProperty.IS_USER_LIKE.bind(false),
-                PlaylistProperty.TRACK_COUNT.bind(11)
-        );
-        playlistItem = PlaylistItem.from(propertySet);
+        builder = ModelFixtures.playlistItemBuilder()
+                               .getUrn(Urn.forPlaylist(123))
+                               .title("title")
+                               .creatorName("creator")
+                               .likesCount(5)
+                               .isUserLike(false)
+                               .trackCount(11);
+        playlistItem = builder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
@@ -98,8 +96,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountToViewIfPlaylistHasZeroLikes() {
-        propertySet.put(PlayableProperty.LIKES_COUNT, 0);
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(builder.likesCount(0).build()));
 
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
@@ -113,8 +110,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotBindLikesCountToViewIfLikesCountNotSet() {
-        propertySet.put(PlayableProperty.LIKES_COUNT, Consts.NOT_SET);
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(builder.likesCount(Consts.NOT_SET).build()));
 
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
     }
@@ -124,15 +120,13 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
         assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(0);
 
-        propertySet.put(PlayableProperty.IS_USER_LIKE, true);
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(builder.isUserLike(true).build()));
         assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(1);
     }
 
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
-        propertySet.put(PlayableProperty.IS_PRIVATE, true);
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(builder.isPrivate(true).build()));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
@@ -140,8 +134,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
-        propertySet.put(PlayableProperty.IS_PRIVATE, false);
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+        renderer.bindItemView(0, itemView, singletonList(builder.isPrivate(false).build()));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
@@ -149,7 +142,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPromoted() {
-        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -158,7 +151,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountIfPlaylistIsPromoted() {
-        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -167,7 +160,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideAlbumsLabelAndYearIfPlaylistIsPromoted() {
-        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -176,7 +169,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedLabelWithPromoterIfPlaylistIsPromotedByPromoter() {
-        PlaylistItem item = TestPropertySets.expectedPromotedPlaylist();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -186,7 +179,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedLabelWithoutPromoterIfPlaylistIsPromotedWithoutPromoter() {
-        PlaylistItem item = TestPropertySets.expectedPromotedPlaylistWithoutPromoter();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylistWithoutPromoter();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -196,8 +189,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
-        propertySet.put(PlaylistProperty.IS_ALBUM, true);
-        PlaylistItem item = PlaylistItem.from(propertySet);
+        PlaylistItem item = PlaylistItem.builder(playlistItem).isAlbum(true).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -208,10 +200,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisplayAlbumTitleForAlbums() {
-        propertySet.put(PlaylistProperty.IS_ALBUM, true);
-        propertySet.put(PlaylistProperty.SET_TYPE, "ep");
-        propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
-        PlaylistItem item = PlaylistItem.from(propertySet);
+        PlaylistItem item = PlaylistItem.builder(playlistItem).isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 

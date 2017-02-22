@@ -15,11 +15,13 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.ArrayList;
 
 public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
@@ -37,37 +39,39 @@ public class UpdateCurrentDownloadSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void startEventUpdatesItemWithTheSameUrnAndNotifies() {
-        TrackItem track1 = TestPropertySets.expectedTrackForListItem(TRACK1);
-        TrackItem track2 = TestPropertySets.expectedTrackForListItem(TRACK2);
+        TrackItem track1 = PlayableFixtures.expectedTrackForListItem(TRACK1);
+        TrackItem track2 = PlayableFixtures.expectedTrackForListItem(TRACK2);
+        final ArrayList<TrackItem> trackItems = newArrayList(track1, track2);
         when(adapter.getItems()).thenReturn(
-                newArrayList(track1, track2));
+                trackItems);
 
         final OfflineContentChangedEvent event = downloading(singletonList(TRACK1), true);
         subscriber.onNext(event);
 
-        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADING);
-        assertThat(track2.getOfflineState()).isEqualTo(OfflineState.NOT_OFFLINE);
+        assertThat(trackItems.get(0).offlineState()).isEqualTo(OfflineState.DOWNLOADING);
+        assertThat(trackItems.get(1).offlineState()).isEqualTo(OfflineState.NOT_OFFLINE);
         verify(adapter).notifyItemChanged(0);
     }
 
     @Test
     public void stopEventUpdatesItemWithTheSameUrnAndNotifies() {
-        TrackItem track1 = TestPropertySets.expectedTrackForListItem(TRACK1);
-        TrackItem track2 = TestPropertySets.expectedTrackForListItem(TRACK2);
+        TrackItem track1 = PlayableFixtures.expectedTrackForListItem(TRACK1);
+        TrackItem track2 = PlayableFixtures.expectedTrackForListItem(TRACK2);
+        final ArrayList<TrackItem> trackItems = newArrayList(track1, track2);
         when(adapter.getItems()).thenReturn(
-                newArrayList(track1, track2));
+                trackItems);
 
         final OfflineContentChangedEvent event = downloaded(singletonList(TRACK1), false);
         subscriber.onNext(event);
 
-        assertThat(track1.getOfflineState()).isEqualTo(OfflineState.DOWNLOADED);
-        assertThat(track2.getOfflineState()).isEqualTo(OfflineState.NOT_OFFLINE);
+        assertThat(trackItems.get(0).offlineState()).isEqualTo(OfflineState.DOWNLOADED);
+        assertThat(trackItems.get(1).offlineState()).isEqualTo(OfflineState.NOT_OFFLINE);
         verify(adapter).notifyItemChanged(0);
     }
 
     @Test
     public void doesNotNotifyWhenUrnNotPresent() {
-        TrackItem track1 = TestPropertySets.expectedTrackForListItem(TRACK1);
+        TrackItem track1 = PlayableFixtures.expectedTrackForListItem(TRACK1);
         when(adapter.getItems()).thenReturn(
                 newArrayList(track1));
 

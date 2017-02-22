@@ -88,8 +88,8 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
         assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.urn());
-        assertThat(recommendedTrackItem.getTitle()).isEqualTo(RECOMMENDED_TRACK.title());
-        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(RECOMMENDED_TRACK.creatorName());
+        assertThat(recommendedTrackItem.title()).isEqualTo(RECOMMENDED_TRACK.title());
+        assertThat(recommendedTrackItem.creatorName()).isEqualTo(RECOMMENDED_TRACK.creatorName());
         assertThat(recommendedTrackItem.getDuration()).isEqualTo(RECOMMENDED_TRACK.fullDuration());
     }
 
@@ -182,9 +182,8 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         assertThat(recommendationBucket.getRecommendations()
                                        .get(0)
-                                       .getTrack()
-                                       .getTitle()).isEqualTo(RECOMMENDED_TRACK.title());
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(
+                                       .getTrack().title()).isEqualTo(RECOMMENDED_TRACK.title());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().creatorName()).isEqualTo(
                 RECOMMENDED_TRACK.creatorName());
     }
 

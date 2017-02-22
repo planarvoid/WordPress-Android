@@ -15,18 +15,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -66,9 +63,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         final List<SearchableItem> searchableItems =
-                Collections.singletonList(TestPropertySets.trackWith(PropertySet.create()
-                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
-                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO)));
+                Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_TWO));
         final SearchResult searchResult = SearchResult.fromSearchableItems(searchableItems,
                                                                            Optional.absent(),
                                                                            QUERY_URN);
@@ -162,8 +157,8 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     }
 
     private List<ListItem> setupAdapter() {
-        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
-        final List<ListItem> listItems = Collections.singletonList((ListItem) trackItem);
+        final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
+        final List<ListItem> listItems = Collections.singletonList(trackItem);
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
         when(adapter.getResultItems()).thenReturn(listItems);

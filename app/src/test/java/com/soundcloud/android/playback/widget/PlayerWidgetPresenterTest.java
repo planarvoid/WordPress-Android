@@ -18,7 +18,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesWidgetStateWhenPlayStateChanges() {
-        final TrackItem updatedTrack = TestPropertySets.expectedTrackForWidget();
+        final TrackItem updatedTrack = PlayableFixtures.expectedTrackForWidget();
         setupArtworkLoad(updatedTrack, Observable.empty());
         presenter.updateTrackInformation(context(), updatedTrack);
 
@@ -57,7 +57,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesTrackWhenPlayableChanges() {
-        final TrackItem updatedTrack = TestPropertySets.expectedTrackForWidget();
+        final TrackItem updatedTrack = PlayableFixtures.expectedTrackForWidget();
         setupArtworkLoad(updatedTrack, Observable.empty());
         presenter.updateTrackInformation(context(), updatedTrack);
 
@@ -73,7 +73,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribesFromArtworkLoadingWhenResetting() {
-        final TrackItem trackProperties = TestPropertySets.expectedTrackForWidget();
+        final TrackItem trackProperties = PlayableFixtures.expectedTrackForWidget();
         final PublishSubject<Bitmap> subject = PublishSubject.create();
         setupArtworkLoad(trackProperties, subject);
 

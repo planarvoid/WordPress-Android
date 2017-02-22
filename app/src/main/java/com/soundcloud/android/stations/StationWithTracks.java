@@ -21,9 +21,9 @@ class StationWithTracks {
 
     private static final int MAX_NUMBER_OF_MOST_PLAYED_ARTIST = 3;
 
-    private static final Comparator<StationInfoTrack> STATION_INFO_TRACK_COMPARATOR = (trackA, trackB) -> trackB.getTrack().getPlayCount() - trackA.getTrack().getPlayCount();
+    private static final Comparator<StationInfoTrack> STATION_INFO_TRACK_COMPARATOR = (trackA, trackB) -> trackB.getTrack().playCount() - trackA.getTrack().playCount();
 
-    private static final Function<StationInfoTrack, String> TO_CREATOR_NAME = input -> input.getTrack().getCreatorName();
+    private static final Function<StationInfoTrack, String> TO_CREATOR_NAME = input -> input.getTrack().creatorName();
 
     @VisibleForTesting
     static final Function<ApiTrack, StationInfoTrack> TO_STATION_TRACKS =

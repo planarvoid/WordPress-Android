@@ -44,9 +44,9 @@ public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> 
         final PlaylistItem playlist = list.get(position);
 
         setImage(view, playlist);
-        setTitle(view, playlist.getTitle());
+        setTitle(view, playlist.title());
         setTrackCount(view, playlist);
-        setCreator(view, playlist.getCreatorName());
+        setCreator(view, playlist.creatorName());
 
         view.setOnClickListener(goToPlaylist(playlist, position));
         findById(view, R.id.overflow_button).setVisibility(View.GONE);

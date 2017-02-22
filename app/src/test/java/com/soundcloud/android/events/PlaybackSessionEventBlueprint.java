@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
@@ -14,7 +14,7 @@ public class PlaybackSessionEventBlueprint {
         public Object createInstance() {
             return PlaybackSessionEvent.forPlay(
                     PlaybackSessionEventArgs.create(
-                            TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), Urn.forUser(2L)),
+                            PlayableFixtures.expectedTrackForAnalytics(Urn.forTrack(1L), Urn.forUser(2L)),
                             new TrackSourceInfo("screen", true), 456L, "hls", "playa", false, false, "", ""
                     )
             );

@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
@@ -24,12 +24,12 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn CREATOR_URN = Urn.forUser(2L);
     private static final String PROTOCOL = "hls";
-    private static final TrackItem TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN,
+    private static final TrackItem TRACK_DATA = PlayableFixtures.expectedTrackForAnalytics(TRACK_URN,
                                                                                            CREATOR_URN,
                                                                                            "allow",
                                                                                            DURATION);
 
-    private static final TrackItem PROMOTED_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem PROMOTED_TRACK_DATA = PlayableFixtures.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String UUID = "uuid";
     private static final String PLAY_ID = "play-id";

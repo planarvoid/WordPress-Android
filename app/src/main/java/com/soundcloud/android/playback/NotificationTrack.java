@@ -21,13 +21,13 @@ public class NotificationTrack {
     public String getTitle() {
         return isAudioAd()
                ? resources.getString(R.string.ads_advertisement)
-               : source.getTitle();
+               : source.title();
     }
 
     public String getCreatorName() {
         return isAudioAd()
                ? Strings.EMPTY
-               : source.getCreatorName();
+               : source.creatorName();
     }
 
     public boolean isAudioAd() {

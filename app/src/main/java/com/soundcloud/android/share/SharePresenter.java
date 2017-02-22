@@ -46,7 +46,7 @@ public class SharePresenter {
                       PromotedSourceInfo promotedSourceInfo) {
         if (!playable.isPrivate()) {
             share(context,
-                  playable.getPermalinkUrl(),
+                  playable.permalinkUrl(),
                   contextMetadata, promotedSourceInfo,
                   EntityMetadata.from(playable));
         }

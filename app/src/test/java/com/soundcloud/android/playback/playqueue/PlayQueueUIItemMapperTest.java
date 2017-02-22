@@ -16,7 +16,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueUIItem.Kind;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -194,6 +194,6 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
     }
 
     private static TrackItem trackItem(Urn track) {
-        return TestPropertySets.expectedTrackForListItem(track);
+        return PlayableFixtures.expectedTrackForListItem(track);
     }
 }

@@ -70,7 +70,7 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
     private void setDownloadProgressIndicator(View itemView, TrackItem track) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
         if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(track.getOfflineState());
+            downloadProgressIcon.setState(track.offlineState());
         } else {
             downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
         }

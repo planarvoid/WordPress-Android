@@ -4,11 +4,10 @@ package com.soundcloud.android.tracks;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,10 +35,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShowsAllStatsWhenAllStatsAreGreaterZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(10);
-        trackProperties.setRepostsCount(10);
-        trackProperties.setPlayCount(10);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -52,10 +48,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideAllStatsWhenStatsAreZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(0);
-        trackProperties.setRepostsCount(0);
-        trackProperties.setPlayCount(0);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(0).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -68,10 +61,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHidePlaysIfPlaysCountIsZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(10);
-        trackProperties.setRepostsCount(10);
-        trackProperties.setPlayCount(0);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(0).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -84,10 +74,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideLikesIfLikesCountIsZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(0);
-        trackProperties.setRepostsCount(10);
-        trackProperties.setPlayCount(10);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(10).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -100,10 +87,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideRepostsIfRepostsCountIsZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(10);
-        trackProperties.setRepostsCount(0);
-        trackProperties.setPlayCount(10);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(10).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -116,10 +100,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsPlaysWhenLikesAndRepostsAreZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(0);
-        trackProperties.setRepostsCount(0);
-        trackProperties.setPlayCount(10);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(10).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -132,10 +113,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsLikesWhenPlaysAndRepostsAreZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(10);
-        trackProperties.setRepostsCount(0);
-        trackProperties.setPlayCount(0);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(0).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -148,10 +126,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setLikesCount(0);
-        trackProperties.setRepostsCount(10);
-        trackProperties.setPlayCount(0);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(0).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -164,8 +139,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShouldHideCommentsWhenCommentsAreZero() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setCommentsCount(0);
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().commentsCount(0).build();
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -174,8 +148,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShouldShowNoDescriptionWhenDescriptionIsEmpty() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setDescription("");
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("")).build();
 
         presenter.bindDescription(view, trackProperties);
 
@@ -185,8 +158,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test // fixes #2863
     public void bindViewsShouldHideNoDescriptionWhenDescriptionIsNotEmpty() throws Exception {
-        TrackItem trackProperties = TestPropertySets.expectedTrackForPlayer();
-        trackProperties.setDescription("some desc");
+        TrackItem trackProperties = PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("some desc")).build();
 
         presenter.bindDescription(view, trackProperties);
 

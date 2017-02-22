@@ -28,7 +28,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -81,7 +81,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldShowPromotedIndicator() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
-        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrackWithoutPromoter();
+        TrackItem promotedTrackItem = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem, EventContextMetadata.builder());
@@ -93,7 +93,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldShowPromotedIndicatorWithPromoter() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
-        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrack();
+        TrackItem promotedTrackItem = PlayableFixtures.expectedPromotedTrack();
         when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem, EventContextMetadata.builder());
@@ -107,7 +107,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         when(view.getContext()).thenReturn(context());
 
-        PlayableItem promotedListItem = TestPropertySets.expectedPromotedTrack();
+        PlayableItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         presenter.bind(itemView, promotedListItem, EventContextMetadata.builder());
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
@@ -127,7 +127,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder());
 
         verify(headerSpannableBuilder).actionSpannedString(repostedString(), playlistItem.getPlayableType());
-        verify(itemView).setRepostHeader(playlistItem.getReposter().get(), spannable);
+        verify(itemView).setRepostHeader(playlistItem.reposter().get(), spannable);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem, EventContextMetadata.builder());
 
-        verify(headerSpannableBuilder).userActionSpannedString(playlistItem.getCreatorName(), "posted", playlistItem.getPlayableType());
+        verify(headerSpannableBuilder).userActionSpannedString(playlistItem.creatorName(), "posted", playlistItem.getPlayableType());
         verify(itemView).setHeaderText(spannable);
     }
 
@@ -159,7 +159,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         TrackItem postedTrack = postedTrack();
         presenter.bind(itemView, postedTrack, EventContextMetadata.builder());
 
-        verify(headerSpannableBuilder).userActionSpannedString(postedTrack.getCreatorName(), "posted", postedTrack.getPlayableType());
+        verify(headerSpannableBuilder).userActionSpannedString(postedTrack.creatorName(), "posted", postedTrack.getPlayableType());
         verify(itemView).setHeaderText(spannable);
     }
 
@@ -172,7 +172,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
         verify(headerSpannableBuilder).actionSpannedString(repostedString(), trackItem.getPlayableType());
-        verify(itemView).setRepostHeader(trackItem.getReposter().get(), spannable);
+        verify(itemView).setRepostHeader(trackItem.reposter().get(), spannable);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.getReposterUrn().get(), playlistItem.getAvatarUrlTemplate())),
+                        argThat(isImageResourceFor(playlistItem.reposterUrn().get(), playlistItem.avatarUrlTemplate())),
                         any(ApiImageSize.class),
                         eq(imageView));
     }
@@ -198,8 +198,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                         any(ApiImageSize.class),
                         eq(imageView));
 
-        verify(itemView).setTitle(playlistItem.getTitle());
-        verify(itemView).setArtist(playlistItem.getCreatorName());
+        verify(itemView).setTitle(playlistItem.title());
+        verify(itemView).setArtist(playlistItem.creatorName());
     }
 
     @Test
@@ -209,7 +209,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.getCreatorUrn(), playlistItem.getAvatarUrlTemplate())),
+                        argThat(isImageResourceFor(playlistItem.creatorUrn(), playlistItem.avatarUrlTemplate())),
                         any(ApiImageSize.class),
                         eq(imageView));
     }
@@ -222,7 +222,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(imageOperations)
                 .displayCircularInAdapterView(
                         argThat(isImageResourceFor(promotedItem.getPromoterUrn().get(),
-                                                                   promotedItem.getAvatarUrlTemplate())),
+                                                                   promotedItem.avatarUrlTemplate())),
                         any(ApiImageSize.class),
                         eq(imageView));
     }
@@ -282,11 +282,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PromotedPlaylistItem promotedPlaylistItem() {
-        return TestPropertySets.expectedPromotedPlaylist();
+        return PlayableFixtures.expectedPromotedPlaylist();
     }
 
     private PromotedPlaylistItem promotedPlaylistWithoutPromoter() {
-        return TestPropertySets.expectedPromotedPlaylistWithoutPromoter();
+        return PlayableFixtures.expectedPromotedPlaylistWithoutPromoter();
     }
 
     private PlaylistItem postedPlaylist() {
@@ -297,10 +297,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistItem repostedPlaylist() {
-        final PlaylistItem playlistItem = postedPlaylist();
-        playlistItem.setReposter("reposter");
-        playlistItem.setReposterUrn(Urn.forUser(123L));
-        return playlistItem;
+        return postedPlaylist().updateWithReposter("reposter", Urn.forUser(123L));
     }
 
     private TrackItem postedTrack() {
@@ -311,24 +308,15 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem repostedTrack() {
-        final TrackItem trackItem = postedTrack();
-        trackItem.setReposter("reposter");
-        trackItem.setReposterUrn(Urn.forUser(123L));
-        return trackItem;
+        return postedTrack().updateWithReposter("reposter", Urn.forUser(123L));
     }
 
     private TrackItem upsellableTrack() {
-        final TrackItem track = TestPropertySets.upsellableTrack();
-        track.setCreatedAt(createdAtStream);
-
-        return track;
+        return PlayableFixtures.upsellableTrackBuilder().getCreatedAt(createdAtStream).build();
     }
 
     private TrackItem highTierTrack() {
-        final TrackItem track = TestPropertySets.highTierTrack();
-        track.setCreatedAt(createdAtStream);
-
-        return track;
+        return PlayableFixtures.highTierTrackBuilder().getCreatedAt(createdAtStream).build();
     }
 
     private String repostedString() {

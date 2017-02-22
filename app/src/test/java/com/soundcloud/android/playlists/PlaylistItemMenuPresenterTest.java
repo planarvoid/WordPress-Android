@@ -32,7 +32,7 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -181,7 +181,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                                         .build();
 
         verify(sharePresenter).share(context,
-                                     playlist.getPermalinkUrl(),
+                                     playlist.permalinkUrl(),
                                      eventContextMetadata, null,
                                      EntityMetadata.from(playlist));
     }
@@ -203,7 +203,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldSaveOfflineIfPlaylistOwnedByCurrentUser() {
         final PublishSubject<Void> offlineObservable = PublishSubject.create();
-        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
         when(offlineOperations.makePlaylistAvailableOffline(playlist.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
@@ -217,12 +217,12 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldSaveOfflineIfPlaylistLikedByCurrentUser() {
         final PublishSubject<Void> offlineObservable = PublishSubject.create();
-        playlist.setLikedByCurrentUser(true);
-        when(offlineOperations.makePlaylistAvailableOffline(playlist.getUrn())).thenReturn(offlineObservable);
+        final PlaylistItem likedPlaylist = playlist.updateLikeState(true);
+        when(offlineOperations.makePlaylistAvailableOffline(likedPlaylist.getUrn())).thenReturn(offlineObservable);
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
-        presenter.show(button, playlist, menuOptions);
-        presenter.saveOffline(playlist);
+        presenter.show(button, likedPlaylist, menuOptions);
+        presenter.saveOffline(likedPlaylist);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
         verifyZeroInteractions(likeOperations);
@@ -290,7 +290,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false);
+        PlaylistItem likedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false);
 
         playlist = likedPlaylist;
         presenter.show(button, playlist, menuOptions);
@@ -306,10 +306,10 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedAndPostedPlaylist = TestPropertySets.fromApiPlaylist(playlist1, true, false, false);
+        PlaylistItem likedAndPostedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false);
         playlist = likedAndPostedPlaylist;
 
-        when(accountOperations.isLoggedInUser(playlist.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
 
 
         presenter.show(button, playlist, menuOptions);

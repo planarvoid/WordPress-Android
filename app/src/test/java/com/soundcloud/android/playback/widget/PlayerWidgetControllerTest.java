@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.widget;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedPlaylist;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedPromotedTrack;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedPlaylist;
+import static com.soundcloud.android.testsupport.fixtures.PlayableFixtures.expectedPromotedTrack;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;

@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class UpdatePlaylistListSubscriberTest  extends AndroidUnitTest {
 
@@ -36,23 +37,25 @@ public class UpdatePlaylistListSubscriberTest  extends AndroidUnitTest {
 
     @Test
     public void updatesItemWithTheSameUrnAndNotifies() {
-        PlaylistItem playlists1 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        playlists1.setTrackCount(5);
-        PlaylistItem playlists2 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        PlaylistItem playlists1 = ModelFixtures.playlistItemBuilder().trackCount(5).build();
+        PlaylistItem playlists2 = ModelFixtures.playlistItem();
 
-        when(adapter.getItems()).thenReturn(Arrays.asList(playlists1, playlists2));
+        final List<PlaylistItem> items = Arrays.asList(playlists1, playlists2);
+        when(adapter.getItems()).thenReturn(items);
 
         final PlaylistChangedEvent event = PlaylistTrackCountChangedEvent.fromTrackAddedToPlaylist(playlists1.getUrn(), UPDATED_TRACK_COUNT);
         updatePlaylistListSubscriber.onNext(event);
 
-        assertThat(playlists1.getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
+        final PlaylistItem updatedItem = items.get(0);
+        assertThat(updatedItem.getUrn()).isEqualTo(playlists1.getUrn());
+        assertThat(updatedItem.getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
         verify(adapter).notifyItemChanged(0);
     }
 
     @Test
     public void doesNotNotifyWithNoMatchingUrns() {
-        PlaylistItem playlists1 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        PlaylistItem playlists2 = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        PlaylistItem playlists1 = ModelFixtures.playlistItem();
+        PlaylistItem playlists2 = ModelFixtures.playlistItem();
 
         ApiPlaylist changeSet = ModelFixtures.create(ApiPlaylist.class);
 

@@ -15,7 +15,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import java.util.Collections;
 public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     private final Urn track = Urn.forTrack(123L);
-    private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), 123L);
+    private PlaybackItem playbackItem = AudioPlaybackItem.create(PlayableFixtures.fromApiTrack(), 123L);
 
     @Mock private TrackSessionAnalyticsDispatcher trackSessionDispatcher;
     @Mock private AdSessionAnalyticsDispatcher adSessionDispatcher;

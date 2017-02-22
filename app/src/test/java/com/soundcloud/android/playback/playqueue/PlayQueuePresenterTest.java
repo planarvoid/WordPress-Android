@@ -24,7 +24,7 @@ import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -466,7 +466,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         final Urn track = Urn.forTrack(123);
         final TrackPlayQueueUIItem playQueueUIItem = TrackPlayQueueUIItem
                 .from(TestPlayQueueItem.createTrack(track),
-                      TestPropertySets.expectedTrackForListItem(track),
+                      PlayableFixtures.expectedTrackForListItem(track),
                       context(),
                       contextTitle,
                       RepeatMode.REPEAT_ONE);

@@ -4,14 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Test;
 
 public class WidgetItemTest extends AndroidUnitTest {
 
-    private TrackItem trackItem = TestPropertySets.expectedTrackForWidget();
+    private TrackItem trackItem = PlayableFixtures.expectedTrackForWidget();
 
     private WidgetItem viewModel;
 
@@ -19,14 +19,14 @@ public class WidgetItemTest extends AndroidUnitTest {
     public void creatorIsPopulatedForNormalTrack() {
         viewModel = WidgetItem.fromTrackItem(trackItem);
 
-        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.getCreatorName());
+        assertThat(viewModel.getCreatorName()).isEqualTo(trackItem.creatorName());
     }
 
     @Test
     public void titleIsTrackTitleForNormalTrack() {
         viewModel = WidgetItem.fromTrackItem(trackItem);
 
-        assertThat(viewModel.getTitle()).isEqualTo(trackItem.getTitle());
+        assertThat(viewModel.getTitle()).isEqualTo(trackItem.title());
     }
 
     @Test

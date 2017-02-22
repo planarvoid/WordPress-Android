@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -46,9 +47,11 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
         statusMap.put(playlistItem.getUrn(), true);
         when(loadPlaylistLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
-        subject.call(singletonList(playlistItem));
+        final Iterable<PlayableItem> playableItems = subject.call(singletonList(playlistItem));
 
-        assertThat(playlistItem.isLikedByCurrentUser()).isTrue();
+        final PlayableItem updatedPlaylistItem = playableItems.iterator().next();
+        assertThat(updatedPlaylistItem.getUrn()).isEqualTo(playlistItem.getUrn());
+        assertThat(updatedPlaylistItem.isLikedByCurrentUser()).isTrue();
     }
 
     @Test
@@ -66,9 +69,11 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
         statusMap.put(playlistItem.getUrn(), true);
         when(loadPlaylistRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
-        subject.call(singletonList(playlistItem));
+        final Iterable<PlayableItem> playableItems = subject.call(singletonList(playlistItem));
 
-        assertThat(playlistItem.isRepostedByCurrentUser()).isTrue();
+        final PlayableItem updatedPlaylistItem = playableItems.iterator().next();
+        assertThat(updatedPlaylistItem.getUrn()).isEqualTo(playlistItem.getUrn());
+        assertThat(updatedPlaylistItem.isRepostedByCurrentUser()).isTrue();
     }
 
     @Test
@@ -86,9 +91,11 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
         statusMap.put(trackItem.getUrn(), true);
         when(loadTrackLikedStatuses.call(anyIterable())).thenReturn(statusMap);
 
-        subject.call(singletonList(trackItem));
+        final Iterable<PlayableItem> playableItems = subject.call(singletonList(trackItem));
 
-        assertThat(trackItem.isLikedByCurrentUser()).isTrue();
+        final PlayableItem next = playableItems.iterator().next();
+        assertThat(next.getUrn()).isEqualTo(trackItem.getUrn());
+        assertThat(next.isLikedByCurrentUser()).isTrue();
     }
 
     @Test
@@ -106,9 +113,11 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
         statusMap.put(trackItem.getUrn(), true);
         when(loadTrackRepostStatuses.call(anyIterable())).thenReturn(statusMap);
 
-        subject.call(singletonList(trackItem));
+        final Iterable<PlayableItem> playableItems = subject.call(singletonList(trackItem));
 
-        assertThat(trackItem.isUserRepost()).isTrue();
+        final PlayableItem next = playableItems.iterator().next();
+        assertThat(next.getUrn()).isEqualTo(trackItem.getUrn());
+        assertThat(next.isUserRepost()).isTrue();
     }
 
     @Test

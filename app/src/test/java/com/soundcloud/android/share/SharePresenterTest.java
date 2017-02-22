@@ -20,7 +20,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -45,10 +45,12 @@ public class SharePresenterTest extends AndroidUnitTest {
     private static final String SCREEN_TAG = "screen_tag";
     private static final String PAGE_NAME = "page_name";
     private static final Urn PAGE_URN = Urn.forPlaylist(234L);
-    private static final TrackItem TRACK = TestPropertySets.expectedTrackForPlayer();
-    private static final TrackItem PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
-    private static final PlaylistItem PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
-    private static final PromotedTrackItem PROMOTED_TRACK = TestPropertySets.expectedPromotedTrack();
+    private static final TrackItem TRACK = PlayableFixtures.expectedTrackForPlayer();
+    private static final TrackItem PRIVATE_TRACK = PlayableFixtures.expectedPrivateTrackForPlayer();
+    private static final PlaylistItem PLAYLIST = PlayableFixtures.expectedPostedPlaylistsForPostedPlaylistsScreen();
+    public static final String PROMOTED_TRACK_URN = "soundcloud:tracks:12345";
+    public static final String AD_URN = "ad:urn:123";
+    private static final PromotedTrackItem PROMOTED_TRACK = PlayableFixtures.expectedPromotedTrackBuilder(AD_URN).getUrn(new Urn(PROMOTED_TRACK_URN)).build();
     private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PROMOTED_TRACK);
 
     private SharePresenter operations;
@@ -99,8 +101,8 @@ public class SharePresenterTest extends AndroidUnitTest {
         assertThat(shareRequestEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
         assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
         assertThat(shareRequestEvent.pageUrn().get()).isEqualTo(PAGE_URN);
-        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:12345");
-        assertThat(shareRequestEvent.adUrn().get()).isEqualTo("ad:urn:123");
+        assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo(PROMOTED_TRACK_URN);
+        assertThat(shareRequestEvent.adUrn().get()).isEqualTo(AD_URN);
         assertThat(shareRequestEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
         assertThat(shareRequestEvent.promoterUrn().get().toString()).isEqualTo("soundcloud:users:193");
     }
@@ -264,9 +266,9 @@ public class SharePresenterTest extends AndroidUnitTest {
                   .containsAction(Intent.ACTION_CHOOSER)
                   .wrappedIntent()
                   .containsAction(Intent.ACTION_SEND)
-                  .containsExtra(Intent.EXTRA_SUBJECT, playable.getTitle() + " - SoundCloud")
+                  .containsExtra(Intent.EXTRA_SUBJECT, playable.title() + " - SoundCloud")
                   .containsExtra(Intent.EXTRA_TEXT,
-                                 "Listen to " + playable.getTitle() + " by " + playable.getCreatorName() + " #np on #SoundCloud\n" + url);
+                                 "Listen to " + playable.title() + " by " + playable.creatorName() + " #np on #SoundCloud\n" + url);
     }
 
     private void assertShareDialogShowing() {

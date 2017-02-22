@@ -323,6 +323,6 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     private List<LocalPlaylistChange> createLocalPlaylists(int count) {
-        return Lists.transform(ModelFixtures.create(PlaylistItem.class, count), playlist -> LocalPlaylistChange.create(playlist.getUrn(), playlist.getTitle(), playlist.isPrivate()));
+        return Lists.transform(ModelFixtures.create(PlaylistItem.class, count), playlist -> LocalPlaylistChange.create(playlist.getUrn(), playlist.title(), playlist.isPrivate()));
     }
 }

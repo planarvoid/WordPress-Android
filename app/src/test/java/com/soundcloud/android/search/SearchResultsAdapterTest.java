@@ -11,19 +11,16 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,7 +131,7 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
-        final TrackItem trackItem = TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
+        final TrackItem trackItem = ModelFixtures.trackItem(Urn.forTrack(123L));
         return new SearchPremiumItem(Collections.singletonList(trackItem),
                                      Optional.<Link>absent(),
                                      SEARCH_RESULTS_COUNT);

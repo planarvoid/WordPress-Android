@@ -22,7 +22,7 @@ public class TestEvents {
     public static PlaybackSessionEvent playbackSessionPlayEventWithProgress(long playbackProgress, Urn trackUrn) {
         return PlaybackSessionEvent.forPlay(
                 PlaybackSessionEventArgs.create(
-                        TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)),
+                        PlayableFixtures.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)),
                         new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", false, false, "uuid", "play-id"));
     }
 

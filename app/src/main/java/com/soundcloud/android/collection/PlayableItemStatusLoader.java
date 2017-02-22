@@ -12,6 +12,8 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class PlayableItemStatusLoader extends Command<Iterable<PlayableItem>, Iterable<PlayableItem>> {
@@ -33,36 +35,33 @@ public class PlayableItemStatusLoader extends Command<Iterable<PlayableItem>, It
 
     @Override
     public Iterable<PlayableItem> call(Iterable<PlayableItem> input) {
+        final List<PlayableItem> result = new ArrayList<>();
+
         final Iterable<PlayableItem> playlists = filteredItems(input, playlistPredicate());
         final Iterable<Urn> playlistUrns = Iterables.transform(playlists, PlayableItem::getUrn);
         final Map<Urn, Boolean> playlistRepostStatus = loadPlaylistRepostStatuses.call(playlistUrns);
         final Map<Urn, Boolean> playlistLikedStatus = loadPlaylistLikedStatuses.call(playlistUrns);
-        updatePropertySets(input, playlistRepostStatus, playlistLikedStatus);
 
         final Iterable<PlayableItem> tracks = filteredItems(input, trackPredicate());
         final Iterable<Urn> trackUrns = Iterables.transform(tracks, PlayableItem::getUrn);
         final Map<Urn, Boolean> trackRepostStatus = loadTrackRepostStatuses.call(trackUrns);
         final Map<Urn, Boolean> trackLikedStatus = loadTrackLikedStatuses.call(trackUrns);
-        updatePropertySets(input, trackRepostStatus, trackLikedStatus);
 
-        return input;
-    }
-
-    private void updatePropertySets(Iterable<PlayableItem> playableItems,
-                                    Map<Urn, Boolean> repostStatuses,
-                                    Map<Urn, Boolean> likedStatuses) {
-
-        for (final PlayableItem playableItem : playableItems) {
+        for (PlayableItem playableItem : input) {
             final Urn itemUrn = playableItem.getUrn();
-
-            if (repostStatuses.containsKey(itemUrn)) {
-                playableItem.setRepostedByCurrentUser(repostStatuses.get(itemUrn));
+            boolean isLikedByCurrentUser = false;
+            boolean isRepostedByCurrentUser = false;
+            if (itemUrn.isPlaylist()) {
+                isLikedByCurrentUser = playlistLikedStatus.containsKey(itemUrn) && playlistLikedStatus.get(itemUrn);
+                isRepostedByCurrentUser = playlistRepostStatus.containsKey(itemUrn) && playlistRepostStatus.get(itemUrn);
+            } else if (itemUrn.isTrack()) {
+                isLikedByCurrentUser = trackLikedStatus.containsKey(itemUrn) && trackLikedStatus.get(itemUrn);
+                isRepostedByCurrentUser = trackRepostStatus.containsKey(itemUrn) && trackRepostStatus.get(itemUrn);
             }
-
-            if (likedStatuses.containsKey(itemUrn)) {
-                playableItem.setLikedByCurrentUser(likedStatuses.get(itemUrn));
-            }
+            result.add(playableItem.updatedWithLikeAndRepostStatus(isLikedByCurrentUser, isRepostedByCurrentUser));
         }
+
+        return result;
     }
 
     private Iterable<PlayableItem> filteredItems(Iterable<PlayableItem> propertySets, final Predicate<Urn> urnPredicate) {

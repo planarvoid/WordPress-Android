@@ -16,7 +16,7 @@ public abstract class PlayableWithReposter {
     }
 
     public static PlayableWithReposter from(PlayableItem item) {
-        return new AutoValue_PlayableWithReposter(item.getUrn(), item.getReposterUrn());
+        return new AutoValue_PlayableWithReposter(item.getUrn(), item.reposterUrn());
     }
 
     public abstract Urn getUrn();

@@ -85,8 +85,8 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
 
         operations.userAlbums(USER_URN).subscribe(subscriber);
 
-        playlistItem.setLikedByCurrentUser(true);
-        assertResponse(playlistItem);
+        final PlaylistItem likedPlaylist = this.playlistItem.updateLikeState(true);
+        assertResponse(likedPlaylist);
     }
 
     @Test
@@ -99,8 +99,7 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
 
         operations.pagingFunction(nextHref -> operations.userAlbums(nextHref)).call(page1).subscribe(subscriber);
 
-        playlistItem.setLikedByCurrentUser(true);
-        assertResponse(playlistItem);
+        assertResponse(playlistItem.updateLikeState(true));
     }
 
     @Test

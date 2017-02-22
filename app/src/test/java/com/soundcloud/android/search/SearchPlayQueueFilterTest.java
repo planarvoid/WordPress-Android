@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchPlayQueueFilterTest extends AndroidUnitTest {
-    private static final ListItem TRACK_1 = TestPropertySets.expectedPromotedTrack();
-    private static final ListItem TRACK_2 = TestPropertySets.expectedTrackForPlayer();
+    private static final ListItem TRACK_1 = PlayableFixtures.expectedPromotedTrack();
+    private static final ListItem TRACK_2 = PlayableFixtures.expectedTrackForPlayer();
 
     @Mock SearchPlayRelatedTracksConfig playRelatedTracksConfig;
 

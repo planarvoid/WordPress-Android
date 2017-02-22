@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Mock private AppboyWrapper appboy;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
 
-    private static final TrackItem TRACK = TestPropertySets.expectedTrackForPlayer();
+    private static final TrackItem TRACK = PlayableFixtures.expectedTrackForPlayer();
     private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo("origin", true);
     private static final String UUID = "uuid";
     private static final String PLAY_ID = "play_id";
@@ -208,10 +208,10 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaylistCreation() {
-        PlaylistItem playlist = TestPropertySets.expectedPostedPlaylistForPostsScreen();
+        PlaylistItem playlist = PlayableFixtures.expectedPostedPlaylistForPostsScreen();
         UIEvent event = UIEvent.fromCreatePlaylist(EntityMetadata.from(playlist));
         AppboyProperties expectedProperties = new AppboyProperties()
-                .addProperty("playlist_title", playlist.getTitle())
+                .addProperty("playlist_title", playlist.title())
                 .addProperty("playlist_urn", playlist.getUrn().toString());
 
         eventHandler.handleEvent(event);
@@ -319,9 +319,9 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @NonNull
     private static AppboyProperties basePlayableProperties() {
         return new AppboyProperties()
-                .addProperty("creator_display_name", TRACK.getCreatorName())
-                .addProperty("creator_urn", TRACK.getCreatorUrn().toString())
-                .addProperty("playable_title", TRACK.getTitle())
+                .addProperty("creator_display_name", TRACK.creatorName())
+                .addProperty("creator_urn", TRACK.creatorUrn().toString())
+                .addProperty("playable_title", TRACK.title())
                 .addProperty("playable_urn", TRACK.getUrn().toString())
                 .addProperty("playable_type", "track");
     }

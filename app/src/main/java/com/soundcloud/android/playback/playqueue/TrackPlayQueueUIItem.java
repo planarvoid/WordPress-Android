@@ -86,7 +86,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     }
 
     public String getTitle() {
-        return trackItem.getTitle();
+        return trackItem.title();
     }
 
     Optional<String> getContextTitle() {
@@ -94,7 +94,7 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
     }
 
     public String getCreator() {
-        return trackItem.getCreatorName();
+        return trackItem.creatorName();
     }
 
     int getStatusLabelId() {

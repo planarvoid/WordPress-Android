@@ -12,19 +12,15 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -190,7 +186,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     private List<SearchPremiumItem> buildSearchPremiumItemWithManyResults(int itemCount) {
         final List<SearchableItem> searchableItems = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
-            searchableItems.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(i))));
+            searchableItems.add(ModelFixtures.trackItem(Urn.forTrack(i)));
         }
         return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.<Link>absent(), itemCount));
     }
@@ -199,9 +195,9 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         final List<SearchableItem> searchableItems = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
             if (urn.isTrack()) {
-                searchableItems.add(TestPropertySets.trackWith(PropertySet.create().put(EntityProperty.URN, urn)));
+                searchableItems.add(ModelFixtures.trackItem(urn));
             } else if (urn.isPlaylist()) {
-                searchableItems.add(PlaylistItem.from(PropertySet.create().put(EntityProperty.URN, urn)));
+                searchableItems.add(ModelFixtures.playlistItem(urn));
             } else if (urn.isUser()) {
                 searchableItems.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
             }

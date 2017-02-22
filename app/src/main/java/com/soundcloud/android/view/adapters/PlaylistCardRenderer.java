@@ -115,9 +115,9 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private void bindArtworkView(PlaylistViewHolder itemView, final PlayableItem playableItem) {
         loadArtwork(itemView, playableItem);
-        itemView.title.setText(playableItem.getTitle());
-        itemView.creator.setText(playableItem.getCreatorName());
-        itemView.creator.setOnClickListener(v -> navigator.legacyOpenProfile(v.getContext(), playableItem.getCreatorUrn()));
+        itemView.title.setText(playableItem.title());
+        itemView.creator.setText(playableItem.creatorName());
+        itemView.creator.setOnClickListener(v -> navigator.legacyOpenProfile(v.getContext(), playableItem.creatorUrn()));
     }
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {

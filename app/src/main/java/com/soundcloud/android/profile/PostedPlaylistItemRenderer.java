@@ -46,7 +46,7 @@ class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
 
     private void showReposter(View itemView, PlaylistItem playlist) {
         final TextView reposterView = getTextView(itemView, R.id.reposter);
-        final Optional<String> optionalReposter = playlist.getReposter();
+        final Optional<String> optionalReposter = playlist.reposter();
         if (optionalReposter.isPresent()) {
             reposterView.setVisibility(View.VISIBLE);
             reposterView.setText(optionalReposter.get());

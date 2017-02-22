@@ -73,8 +73,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module) {
-        getTextView(itemView, R.id.list_item_header).setText(playlist.getCreatorName());
-        getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
+        getTextView(itemView, R.id.list_item_header).setText(playlist.creatorName());
+        getTextView(itemView, R.id.list_item_subheader).setText(playlist.title());
 
         showTrackCount(itemView, playlist);
         showAdditionalInformation(itemView, playlist);
@@ -166,7 +166,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void showLikeCount(View itemView, PlaylistItem playlist) {
         final TextView likesCountText = getTextView(itemView, R.id.list_item_counter);
-        final int likesCount = playlist.getLikesCount();
+        final int likesCount = playlist.likesCount();
         if (hasLike(likesCount)) {
             likesCountText.setVisibility(View.VISIBLE);
             likesCountText.setText(numberFormatter.format(likesCount));

@@ -8,7 +8,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.discovery.EmptyViewItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
@@ -115,8 +114,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     private static Recommendation createRecommendation(Urn seedUrn, Urn recommendationUrn, int queryPosition) {
-        TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        trackItem.setUrn(recommendationUrn);
+        TrackItem trackItem = ModelFixtures.trackItem(recommendationUrn);
         return new Recommendation(trackItem, seedUrn, false, queryPosition, QUERY_URN);
     }
 

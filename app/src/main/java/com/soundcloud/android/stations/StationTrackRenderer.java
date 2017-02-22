@@ -71,8 +71,8 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         final TrackItem track = items.get(position).getTrack();
 
         loadTrackArtwork(view, track);
-        bindTrackTitle(view, track.getTitle());
-        bindTrackArtist(view, track.getCreatorName(), track.getCreatorUrn(), track.isPlaying());
+        bindTrackTitle(view, track.title());
+        bindTrackArtist(view, track.creatorName(), track.creatorUrn(), track.isPlaying());
 
         view.findViewById(R.id.overflow_button).setTag(Pair.of(track, position));
         view.setTag(position);

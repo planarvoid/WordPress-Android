@@ -22,16 +22,14 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -66,10 +64,10 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private TrackItemView.Factory trackItemViewFactory;
     @Mock private FeatureFlags flags;
 
-    private PropertySet propertySet;
     private TrackItem trackItem;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
+    private TrackItem.Default.Builder trackItemBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -77,22 +75,21 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                          screenProvider, navigator, featureOperations, trackItemViewFactory,
                                          flags);
 
-        propertySet = PropertySet.from(
-                TrackProperty.URN.bind(Urn.forTrack(123)),
-                TrackProperty.TITLE.bind("title"),
-                TrackProperty.CREATOR_NAME.bind("creator"),
-                TrackProperty.CREATOR_URN.bind(Urn.forUser(456L)),
-                TrackProperty.SNIPPET_DURATION.bind(227000L),
-                TrackProperty.FULL_DURATION.bind(237000L),
-                TrackProperty.SNIPPED.bind(true),
-                TrackProperty.IS_USER_LIKE.bind(false),
-                TrackProperty.IS_USER_REPOST.bind(false),
-                TrackProperty.LIKES_COUNT.bind(0),
-                TrackProperty.PERMALINK_URL.bind(Strings.EMPTY),
-                TrackProperty.IS_PRIVATE.bind(false),
-                TrackProperty.PLAY_COUNT.bind(870)
-        );
-        trackItem = TrackItem.from(propertySet);
+        trackItemBuilder = PlayableFixtures.baseTrackBuilder()
+                                           .getUrn(Urn.forTrack(123))
+                                           .title("title")
+                                           .creatorName("creator")
+                                           .creatorUrn(Urn.forUser(456L))
+                                           .snippetDuration(227000L)
+                                           .fullDuration(237000L)
+                                           .isSnipped(true)
+                                           .isUserLike(false)
+                                           .isUserRepost(false)
+                                           .likesCount(0)
+                                           .permalinkUrl(Strings.EMPTY)
+                                           .isPrivate(false)
+                                           .playCount(870);
+        trackItem = trackItemBuilder.build();
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
         when(trackItemView.getImage()).thenReturn(imageView);
@@ -112,8 +109,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindDurationToViewAndHideOtherLabelsIfTrackIsNeitherSnippedNorPrivate() {
-        trackItem = TrackItem.from(propertySet.put(TrackProperty.SNIPPED, false).put(TrackProperty.IS_PRIVATE, false));
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final TrackItem updatedTrackItem = trackItemBuilder.isSnipped(false).isPrivate(false).build();
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
         verify(trackItemView).showDuration("3:57");
@@ -121,7 +118,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetGoLabelSelectedIfMidTierFlagIsDisabled() {
-        trackItem = TestPropertySets.upsellableTrack();
+        trackItem = PlayableFixtures.upsellableTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).setGoLabelSelected(false);
@@ -131,7 +128,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldSetGoLabelSelectedIfMidTierFlagIsEnabled() {
         when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
 
-        trackItem = TestPropertySets.upsellableTrack();
+        trackItem = PlayableFixtures.upsellableTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).setGoLabelSelected(true);
@@ -139,7 +136,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelIfTrackIsHighTierPreview() {
-        trackItem = TestPropertySets.upsellableTrack();
+        trackItem = PlayableFixtures.upsellableTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -150,7 +147,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelIfTrackIsFullHighTierTrack() {
-        trackItem = TestPropertySets.highTierTrack();
+        trackItem = PlayableFixtures.highTierTrack();
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showGoLabel();
@@ -158,7 +155,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowGoLabelForNowPlayingTrack() {
-        trackItem = TestPropertySets.highTierTrack();
+        trackItem = PlayableFixtures.highTierTrack();
         trackItem.setIsPlaying(true);
 
         renderer.bindItemView(0, itemView, singletonList(trackItem));
@@ -169,8 +166,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrivateLabelAndHideOtherLabelsIfTrackIsPrivate() {
-        propertySet.put(TrackProperty.IS_PRIVATE, true);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final TrackItem updatedTrackItem = trackItemBuilder.isPrivate(true).build();
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
         verify(trackItemView).showPrivateIndicator();
@@ -200,8 +197,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackGeoBlockedLabel() {
-        propertySet.put(TrackProperty.BLOCKED, true);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).build();
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).showGeoBlocked();
     }
@@ -209,11 +206,10 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        trackItem.setIsPlaying(true);
-        propertySet.put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
+        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).offlineState(OfflineState.UNAVAILABLE).build();
+        updatedTrackItem.setIsPlaying(true);
 
-        propertySet.put(TrackProperty.BLOCKED, true);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).showGeoBlocked();
     }
@@ -229,7 +225,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedIndicator() {
-        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrackWithoutPromoter();
+        TrackItem promotedTrackItem = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         renderer.bindItemView(0, itemView, singletonList(promotedTrackItem));
 
         verify(trackItemView).showPromotedTrack("Promoted");
@@ -237,7 +233,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPromotedIndicatorWithPromoter() {
-        TrackItem promotedTrackItem = TestPropertySets.expectedPromotedTrack();
+        TrackItem promotedTrackItem = PlayableFixtures.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList(promotedTrackItem));
 
         verify(trackItemView).showPromotedTrack("Promoted by SoundCloud");
@@ -247,7 +243,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         when(itemView.getContext()).thenReturn(context());
-        PromotedListItem promotedListItem = TestPropertySets.expectedPromotedTrack();
+        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList((TrackItem) promotedListItem));
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
@@ -260,16 +256,16 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisableClicksForBlockedTracks() {
-        propertySet.put(TrackProperty.BLOCKED, true);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).build();
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(false);
     }
 
     @Test
     public void shouldEnableClicksForNonBlockedTracks() {
-        propertySet.put(TrackProperty.BLOCKED, false);
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
+        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(false).build();
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);
     }
@@ -279,7 +275,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
         final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack, CATEGORY,
-                                                            GENRE_URN, QUERY_URN);
+                                                                 GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);
@@ -291,7 +287,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
         final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack, CATEGORY,
-                                                            GENRE_URN, QUERY_URN);
+                                                                 GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);

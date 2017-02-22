@@ -154,9 +154,9 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
 
     public void bindArtworkView(PlayableItem playableItem, boolean selected) {
         loadArtwork(playableItem);
-        setTitle(playableItem.getTitle());
-        setArtist(playableItem.getCreatorName());
-        setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
+        setTitle(playableItem.title());
+        setArtist(playableItem.creatorName());
+        setArtistClickable(new ProfileClickViewListener(playableItem.creatorUrn()));
         setupTierIndicator(playableItem, selected);
     }
 

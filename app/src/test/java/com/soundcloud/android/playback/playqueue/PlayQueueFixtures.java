@@ -6,7 +6,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackContext;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
@@ -18,7 +18,7 @@ class PlayQueueFixtures {
         final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version",
                                                                  Optional.<AdData>absent(), false, Urn.NOT_SET,
                                                                  Urn.NOT_SET, false, playbackContext, true);
-        final TrackItem trackItem = TestPropertySets.expectedTrackForListItem(track);
+        final TrackItem trackItem = PlayableFixtures.expectedTrackForListItem(track);
         final int someResourceId = 123;
         final int color = 321;
         return new TrackPlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someResourceId, color, null,

@@ -21,7 +21,7 @@ public class OfflinePlaybackOperations {
 
     public boolean shouldPlayOffline(TrackItem track) {
         return featureOperations.isOfflineContentEnabled()
-                && track.getOfflineState() == OfflineState.DOWNLOADED;
+                && track.offlineState() == OfflineState.DOWNLOADED;
     }
 
     public boolean shouldPlayOffline(Track track) {

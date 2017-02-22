@@ -34,25 +34,25 @@ public class ApiTrackTest extends AndroidUnitTest {
         TrackItem trackItem = TrackItem.from(apiTrack);
 
         assertThat(trackItem.getUrn()).isEqualTo(apiTrack.getUrn());
-        assertThat(trackItem.getTitle()).isEqualTo(apiTrack.getTitle());
+        assertThat(trackItem.title()).isEqualTo(apiTrack.getTitle());
         assertThat(trackItem.getCreatedAt()).isEqualTo(apiTrack.getCreatedAt());
-        assertThat(trackItem.getSnippetDuration()).isEqualTo(apiTrack.getSnippetDuration());
-        assertThat(trackItem.getFullDuration()).isEqualTo(apiTrack.getFullDuration());
+        assertThat(trackItem.snippetDuration()).isEqualTo(apiTrack.getSnippetDuration());
+        assertThat(trackItem.fullDuration()).isEqualTo(apiTrack.getFullDuration());
         assertThat(trackItem.isPrivate()).isEqualTo(apiTrack.isPrivate());
-        assertThat(trackItem.getWaveformUrl()).isEqualTo(apiTrack.getWaveformUrl());
-        assertThat(trackItem.getPermalinkUrl()).isEqualTo(apiTrack.getPermalinkUrl());
-        assertThat(trackItem.isMonetizable()).isEqualTo(apiTrack.isMonetizable());
-        assertThat(trackItem.getPolicy()).isEqualTo(apiTrack.getPolicy());
-        assertThat(trackItem.getPlayCount()).isEqualTo(apiTrack.getStats().getPlaybackCount());
-        assertThat(trackItem.getCommentsCount()).isEqualTo(apiTrack.getStats().getCommentsCount());
-        assertThat(trackItem.getLikesCount()).isEqualTo(apiTrack.getStats().getLikesCount());
-        assertThat(trackItem.getRepostCount()).isEqualTo(apiTrack.getStats().getRepostsCount());
+        assertThat(trackItem.waveformUrl()).isEqualTo(apiTrack.getWaveformUrl());
+        assertThat(trackItem.permalinkUrl()).isEqualTo(apiTrack.getPermalinkUrl());
+        assertThat(trackItem.monetizable()).isEqualTo(apiTrack.isMonetizable());
+        assertThat(trackItem.policy()).isEqualTo(apiTrack.getPolicy());
+        assertThat(trackItem.playCount()).isEqualTo(apiTrack.getStats().getPlaybackCount());
+        assertThat(trackItem.commentsCount()).isEqualTo(apiTrack.getStats().getCommentsCount());
+        assertThat(trackItem.likesCount()).isEqualTo(apiTrack.getStats().getLikesCount());
+        assertThat(trackItem.repostsCount()).isEqualTo(apiTrack.getStats().getRepostsCount());
         assertThat(trackItem.isSubMidTier()).isEqualTo(apiTrack.isSubMidTier().get());
         assertThat(trackItem.isSubHighTier()).isEqualTo(apiTrack.isSubHighTier().get());
-        assertThat(trackItem.getMonetizationModel()).isEqualTo(apiTrack.getMonetizationModel().get());
+        assertThat(trackItem.monetizationModel()).isEqualTo(apiTrack.getMonetizationModel().get());
         assertThat(trackItem.getImageUrlTemplate()).isEqualTo(apiTrack.getImageUrlTemplate());
-        assertThat(trackItem.getCreatorName()).isEqualTo(apiTrack.getUserName());
-        assertThat(trackItem.getCreatorUrn()).isEqualTo(apiTrack.getUser().getUrn());
+        assertThat(trackItem.creatorName()).isEqualTo(apiTrack.getUserName());
+        assertThat(trackItem.creatorUrn()).isEqualTo(apiTrack.getUser().getUrn());
     }
 
 }

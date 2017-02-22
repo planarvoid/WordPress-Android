@@ -35,9 +35,9 @@ class WidgetItem implements ImageResource {
     }
 
     public static WidgetItem fromTrackItem(TrackItem trackItem) {
-        return new WidgetItem(trackItem.getTitle(),
-                              trackItem.getCreatorName(),
-                              trackItem.getCreatorUrn(),
+        return new WidgetItem(trackItem.title(),
+                              trackItem.creatorName(),
+                              trackItem.creatorUrn(),
                               trackItem.getUrn(),
                               trackItem.getImageUrlTemplate(),
                               trackItem.isLikedByCurrentUser());
