@@ -27,7 +27,7 @@ ext {
   rootPackage               = "com.soundcloud.android"
   applicationId             = provideApplicationId()
   testApplicationId         = "${applicationId}.tests"
-  testInstrumentationRunner = "${rootPackage}.framework.runner.RandomizingRunner"
+  testInstrumentationRunner = "${rootPackage}.framework.runner.AndroidTestRunner"
 
   outputsDir            = "$project.buildDir/outputs/apk"
   apkPath               = "$outputsDir/soundcloud-android-$versionName-${pipelineVersion}.apk" // only used by renameApk task (for CI)
@@ -247,8 +247,8 @@ dependencies {
   testCompile unitTestLibraries.sqliteJdbc
 
   /* Acceptance Tests */
-  androidTestCompile(libraries.androidMultidexInstrumentation) {
-    exclude group: 'com.android.support', module: 'multidex'
+  androidTestCompile (acceptanceTestLibraries.androidTestRunner) {
+    exclude group: 'com.android.support', module: 'support-annotations'
   }
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium

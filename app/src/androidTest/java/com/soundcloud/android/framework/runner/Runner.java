@@ -8,7 +8,7 @@ import android.os.Environment;
 import java.io.File;
 
 @SuppressWarnings("UnusedDeclaration")
-public class Runner extends RandomizingRunner {
+public class Runner extends AndroidTestRunner {
     public static final String TEST_DIR = "sc-tests";
     private static final long MIN_BYTES_FREE = (1024 * 1024) * 30;
 

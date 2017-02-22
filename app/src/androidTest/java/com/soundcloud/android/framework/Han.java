@@ -40,7 +40,7 @@ public class Han {
     private final Chewbacca solo;
     private final ViewFetcher viewFetcher;
 
-    private Activity visibleActivity = new EmptyActivity();
+    private Activity visibleActivity;
     private With busyUiIndicator;
 
     @Deprecated
@@ -418,9 +418,6 @@ public class Han {
 
     public Resources getResources() {
         return instrumentation.getTargetContext().getResources();
-    }
-
-    class EmptyActivity extends Activity {
     }
 
     private static class Chewbacca extends Solo {

@@ -1,28 +1,22 @@
 package com.soundcloud.android.framework.runner;
 
-import com.android.test.runner.MultiDexTestRunner;
 import com.soundcloud.android.tests.SoundCloudTestApplication;
 
 import android.app.Application;
 import android.content.Context;
-import android.test.AndroidTestRunner;
+import android.os.Bundle;
+import android.support.multidex.MultiDex;
+import android.support.test.runner.AndroidJUnitRunner;
 
-public class RandomizingRunner extends MultiDexTestRunner {
-    protected AndroidTestRunner runner;
-
+public class AndroidTestRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return super.newApplication(cl, SoundCloudTestApplication.class.getName(), context);
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected AndroidTestRunner getAndroidTestRunner() {
-        runner = super.getAndroidTestRunner();
-        return runner;
+    public void onCreate(Bundle arguments) {
+        MultiDex.install(getTargetContext());
+        super.onCreate(arguments);
     }
 }
