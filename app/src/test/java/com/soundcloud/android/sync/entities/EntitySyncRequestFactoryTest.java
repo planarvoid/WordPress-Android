@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.entities;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
@@ -25,29 +25,29 @@ public class EntitySyncRequestFactoryTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        factory = new EntitySyncRequestFactory(InjectionSupport.lazyOf(tracksSyncJob),
-                                               InjectionSupport.lazyOf(playlistsSyncJob),
-                                               InjectionSupport.lazyOf(usersSyncJob),
+        factory = new EntitySyncRequestFactory(InjectionSupport.providerOf(tracksSyncJob),
+                                               InjectionSupport.providerOf(playlistsSyncJob),
+                                               InjectionSupport.providerOf(usersSyncJob),
                                                new TestEventBus());
     }
 
     @Test
     public void tracksSyncableReturnsTrackSyncJob() {
-        EntitySyncRequest entitySyncRequest = factory.create(Syncable.TRACKS, asList(Urn.forTrack(1L)), resultReceiver);
+        EntitySyncRequest entitySyncRequest = factory.create(Syncable.TRACKS, singletonList(Urn.forTrack(1L)), resultReceiver);
 
         assertThat(entitySyncRequest.getPendingJobs()).containsExactly(tracksSyncJob);
     }
 
     @Test
     public void playlistsSyncableReturnsPlaylistsSyncJob() {
-        EntitySyncRequest entitySyncRequest = factory.create(Syncable.PLAYLISTS, asList(Urn.forPlaylist(1L)), resultReceiver);
+        EntitySyncRequest entitySyncRequest = factory.create(Syncable.PLAYLISTS, singletonList(Urn.forPlaylist(1L)), resultReceiver);
 
         assertThat(entitySyncRequest.getPendingJobs()).containsExactly(playlistsSyncJob);
     }
 
     @Test
     public void usersSyncableReturnsUsersSyncJob() {
-        EntitySyncRequest entitySyncRequest = factory.create(Syncable.USERS, asList(Urn.forUser(1L)), resultReceiver);
+        EntitySyncRequest entitySyncRequest = factory.create(Syncable.USERS, singletonList(Urn.forUser(1L)), resultReceiver);
 
         assertThat(entitySyncRequest.getPendingJobs()).containsExactly(usersSyncJob);
     }

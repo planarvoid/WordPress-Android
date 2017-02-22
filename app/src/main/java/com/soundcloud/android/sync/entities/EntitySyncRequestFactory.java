@@ -5,24 +5,24 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.rx.eventbus.EventBus;
-import dagger.Lazy;
 
 import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.util.List;
 
 public class EntitySyncRequestFactory {
-    private final Lazy<EntitySyncJob> tracksSyncJob;
-    private final Lazy<EntitySyncJob> playlistsSyncJob;
-    private final Lazy<EntitySyncJob> usersSyncJob;
+    private final Provider<EntitySyncJob> tracksSyncJob;
+    private final Provider<EntitySyncJob> playlistsSyncJob;
+    private final Provider<EntitySyncJob> usersSyncJob;
     private final EventBus eventBus;
 
     @Inject
-    public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Lazy<EntitySyncJob> trackSyncJob,
-                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistsSyncJob,
-                                    @Named(EntitySyncModule.USERS_SYNC) Lazy<EntitySyncJob> usersSyncJob,
+    public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Provider<EntitySyncJob> trackSyncJob,
+                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Provider<EntitySyncJob> playlistsSyncJob,
+                                    @Named(EntitySyncModule.USERS_SYNC) Provider<EntitySyncJob> usersSyncJob,
                                     EventBus eventBus) {
         this.tracksSyncJob = trackSyncJob;
         this.playlistsSyncJob = playlistsSyncJob;

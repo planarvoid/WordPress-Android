@@ -1,7 +1,9 @@
 package com.soundcloud.android.sync.entities;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,5 +84,35 @@ public class EntitySyncJobTest extends AndroidUnitTest {
         assertThat(entitySyncJob.resultedInAChange()).isSameAs(false);
     }
 
+    @Test
+    public void notEqualsWhenComparingToNullUrnList() {
+        entitySyncJob.setUrns(asList(Urn.forTrack(123L), Urn.forTrack(456L), Urn.forTrack(789L)));
+        EntitySyncJob otherSyncJob = syncJobWithMockedDependencies();
+        // never calling otherSyncJob::setUrns
+
+        assertThat(entitySyncJob.equals(otherSyncJob)).isFalse();
+    }
+
+    @Test
+    public void notEqualsWhenUrnsAreDifferent() {
+        EntitySyncJob otherSyncJob = syncJobWithMockedDependencies();
+        entitySyncJob.setUrns(asList(Urn.forTrack(123L), Urn.forTrack(456L), Urn.forTrack(789L)));
+        otherSyncJob.setUrns(asList(Urn.forTrack(987L), Urn.forTrack(654L), Urn.forTrack(321L)));
+
+        assertThat(entitySyncJob.equals(otherSyncJob)).isFalse();
+    }
+
+    @Test
+    public void equalsWhenJobUrnsAreTheSameUnordered() {
+        EntitySyncJob otherSyncJob = syncJobWithMockedDependencies();
+        entitySyncJob.setUrns(asList(Urn.forTrack(123L), Urn.forTrack(456L), Urn.forTrack(789L)));
+        otherSyncJob.setUrns(asList(Urn.forTrack(789L), Urn.forTrack(123L), Urn.forTrack(456L)));
+
+        assertThat(entitySyncJob.equals(otherSyncJob)).isTrue();
+    }
+
+    private EntitySyncJob syncJobWithMockedDependencies() {
+        return new EntitySyncJob(mock(BulkFetchCommand.class), mock(StoreTracksCommand.class), mock(PublishUpdateEventCommand.class));
+    }
 
 }

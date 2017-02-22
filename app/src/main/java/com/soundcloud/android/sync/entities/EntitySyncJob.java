@@ -14,7 +14,9 @@ import com.soundcloud.java.optional.Optional;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EntitySyncJob implements SyncJob {
 
@@ -23,11 +25,14 @@ public class EntitySyncJob implements SyncJob {
     private final Command<Collection<? extends ApiSyncable>, Boolean> publishSyncEvent;
 
     private List<Urn> urns = Collections.emptyList();
+    private Set<Urn> uniqueUrns = Collections.emptySet();
     private Collection<? extends ApiSyncable> updatedEntities = Collections.emptyList();
     private Exception exception;
 
     @Inject
-    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable, ? extends ApiSyncable> fetchResources, WriteStorageCommand storeResources, PublishUpdateEventCommand publishSyncEvent) {
+    public EntitySyncJob(BulkFetchCommand<? extends ApiSyncable, ? extends ApiSyncable> fetchResources,
+                         WriteStorageCommand storeResources,
+                         PublishUpdateEventCommand publishSyncEvent) {
         this.fetchResources = fetchResources;
         this.storeResources = storeResources;
         this.publishSyncEvent = publishSyncEvent;
@@ -35,6 +40,7 @@ public class EntitySyncJob implements SyncJob {
 
     public void setUrns(List<Urn> urns) {
         this.urns = urns;
+        this.uniqueUrns = new HashSet<>(urns);
     }
 
     public void publishSyncEvent() {
@@ -77,5 +83,20 @@ public class EntitySyncJob implements SyncJob {
     @Override
     public boolean wasSuccess() {
         return exception == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EntitySyncJob that = (EntitySyncJob) o;
+
+        return uniqueUrns.equals(that.uniqueUrns);
+    }
+
+    @Override
+    public int hashCode() {
+        return uniqueUrns.hashCode();
     }
 }
