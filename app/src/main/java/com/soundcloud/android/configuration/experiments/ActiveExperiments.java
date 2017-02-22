@@ -19,6 +19,7 @@ public class ActiveExperiments {
                                                                                   FlipperConfiguration.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION,
                                                                                   DynamicLinkSharingConfig.CONFIGURATION,
+                                                                                  OtherPlaylistsByUserConfig.CONFIGURATION,
                                                                                   SearchPlayRelatedTracksConfig.CONFIGURATION,
                                                                                   NewForYouConfig.CONFIGURATION);
 

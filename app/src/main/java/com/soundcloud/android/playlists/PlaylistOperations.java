@@ -15,6 +15,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
+import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
 import com.soundcloud.android.events.PlaylistTrackCountChangedEvent;
@@ -24,12 +25,9 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -73,7 +71,7 @@ public class PlaylistOperations {
     private final ProfileApiMobile profileApiMobile;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
+    private final OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
 
     @Inject
@@ -92,7 +90,7 @@ public class PlaylistOperations {
                        ProfileApiMobile profileApiMobile,
                        MyPlaylistsOperations myPlaylistsOperations,
                        AccountOperations accountOperations,
-                       FeatureFlags featureFlags,
+                       OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
                        PlaylistDetailsViewModelCreator viewModelCreator) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
@@ -109,7 +107,7 @@ public class PlaylistOperations {
         this.profileApiMobile = profileApiMobile;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
+        this.otherPlaylistsByUserConfig = otherPlaylistsByUserConfig;
         this.viewModelCreator = viewModelCreator;
     }
 
@@ -184,7 +182,7 @@ public class PlaylistOperations {
                                  .switchIfEmpty(updatedPlaylist(playlistUrn));
     }
 
-    public Observable<Playlist> updatedPlaylist(final Urn playlistUrn) {
+    private Observable<Playlist> updatedPlaylist(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .observeOn(scheduler)
@@ -224,7 +222,7 @@ public class PlaylistOperations {
             final Playlist playlist = playlistWithTracks.first();
             final List<Track> tracks = playlistWithTracks.second();
 
-            if (tracks.isEmpty() || featureFlags.isDisabled(Flag.OTHER_PLAYLISTS_BY_CREATOR)) {
+            if (tracks.isEmpty() || !otherPlaylistsByUserConfig.isEnabled()) {
                 return just(Collections.<Playlist>emptyList())
                         .map(toViewModel(playlist, tracks));
 

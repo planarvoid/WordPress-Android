@@ -22,6 +22,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -31,7 +32,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -78,7 +78,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private ProfileApiMobile profileApiMobile;
     @Mock private PlaylistUpsellOperations upsellOperations;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureOperations featureOperations;
@@ -131,10 +131,11 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             profileApiMobile,
                                             myPlaylistsOperations,
                                             accountOperations,
-                                            featureFlags,
+                                            otherPlaylistsByUserConfig,
                                             viewModelCreator);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
+        when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
     }
 
     @Test
