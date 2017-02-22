@@ -1,6 +1,9 @@
 package com.soundcloud.android.tests;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -32,12 +35,12 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     private boolean runBasedOnTestResource = true;
     private Flag[] requiredEnabledFeatures;
     private Flag[] requiredDisabledFeatures;
-
     protected Han solo;
     protected MainNavigationHelper mainNavHelper;
     protected Waiter waiter;
     protected ToastObserver toastObserver;
     protected NetworkManagerClient networkManagerClient;
+    private WireMockServer wireMockServer;
 
     public ActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -45,6 +48,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     @Override
     protected void setUp() throws Exception {
+        configureWiremock();
+
         solo = new Han(getInstrumentation());
         solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName()));
         solo.setup();
@@ -82,6 +87,26 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         super.setUp(); // do not move, this has to run after the above
     }
 
+    private void configureWiremock() {
+        String apiMobileBaseUrl = getInstrumentation().getTargetContext().getResources().getString(R.string.mobile_api_base_url);
+        WireMockConfiguration wireMockConfiguration = new WireMockConfiguration().port(NetworkMappings.MOCK_API_PORT);
+        wireMockServer = NetworkMappings.create(wireMockConfiguration, apiMobileBaseUrl);
+        wireMockServer.start();
+
+        addInitialStubMappings();
+    }
+
+
+    /***
+     * Add stubs for wiremock, e.g. :
+     *
+     * stubFor(get(urlPathEqualTo("/stream")).willReturn(aResponse().withStatus(500)));
+     *
+     * @see <a href="http://wiremock.org/docs/stubbing/">http://wiremock.org/docs/stubbing/</a>
+     */
+    protected void addInitialStubMappings() {
+    }
+
     protected void beforeStartActivity() {
     }
 
@@ -100,11 +125,15 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         }
         networkManagerClient.switchWifiOn();
         networkManagerClient.unbind();
+        stopWiremock();
         solo = null;
         Log.d("TESTEND:", String.format("%s", testCaseName));
         LogCollector.stopCollecting();
     }
 
+    protected void stopWiremock() {
+        wireMockServer.stop();
+    }
 
     @SuppressWarnings("UnusedDeclaration")
     protected void killSelf() {

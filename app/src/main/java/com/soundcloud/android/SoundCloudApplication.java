@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -51,6 +52,7 @@ import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsController;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
@@ -136,14 +138,12 @@ public class SoundCloudApplication extends MultiDexApplication {
     // even if it appears to be unused
     @Inject @SuppressWarnings("unused") AnalyticsEngine analyticsEngine;
 
-    protected ApplicationComponent objectGraph;
+    protected ApplicationComponent applicationComponent;
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        objectGraph = DaggerApplicationComponent.builder()
-                                                .applicationModule(new ApplicationModule(this))
-                                                .build();
+        this.applicationComponent = getApplicationComponentBuilder().build();
     }
 
     @Override
@@ -155,7 +155,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         setUpCrashReportingIfNeeded();
         initializeFirebase();
 
-        objectGraph.inject(this);
+        applicationComponent.inject(this);
         devTools.initialize(this);
         initializePerformanceEngine();
         bootApplication();
@@ -170,6 +170,13 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void initializePerformanceEngine() {
         performanceEngineFactory.create(stopWatch).trackStartupTime(this);
+    }
+
+    protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
+        return DaggerApplicationComponent.builder()
+                                         .applicationModule(new ApplicationModule(this))
+                                         .apiModule(new ApiModule())
+                                         .storageModule(new StorageModule());
     }
 
     protected void bootApplication() {
@@ -283,7 +290,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             // remove device url so clients resubmit the registration request with
             // device identifier
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id",
-                    () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
+                                () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
             // sync current sets
             AndroidUtils.doOnce(this, "request.sets.sync", this::requestCollectionsSync);
         }
@@ -306,11 +313,11 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @NotNull
     public static ApplicationComponent getObjectGraph() {
-        if (instance == null || instance.objectGraph == null) {
+        if (instance == null || instance.applicationComponent == null) {
             throw new IllegalStateException(
                     "Cannot access the app graph before the application has been created");
         }
-        return instance.objectGraph;
+        return instance.applicationComponent;
     }
 
     /**

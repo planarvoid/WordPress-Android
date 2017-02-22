@@ -151,7 +151,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     protected String getErrorFromResult(Activity activity, LegacyAuthTaskResult result) {
         final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
         final boolean isNetworkUnavailable = !networkConnectionHelper.isNetworkConnected();
-
+        
         if (result.wasServerError()) {
             return activity.getString(R.string.error_server_problems_message);
         } else if (result.wasNetworkError() && isNetworkUnavailable) {

@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.DaggerApplicationComponent;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 
@@ -16,12 +18,12 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     @Override
     public void onCreate() {
-        breforeOnCreate();
+        beforeOnCreate();
         super.onCreate();
         onCreateLatch.countDown();
     }
 
-    private void breforeOnCreate() {
+    private void beforeOnCreate() {
         FeatureFlagsHelper.create(this).disable(Flag.APPBOY);
     }
 
@@ -43,5 +45,10 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
         } else {
             throw new RuntimeException("can't obtain app from context");
         }
+    }
+
+    @Override
+    protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
+        return super.getApplicationComponentBuilder().apiModule(new TestApiModule());
     }
 }

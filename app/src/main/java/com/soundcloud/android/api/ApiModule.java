@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
@@ -14,7 +15,9 @@ import dagger.Provides;
 import okhttp3.OkHttpClient;
 
 import android.content.Context;
+import android.content.res.Resources;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -22,8 +25,24 @@ import java.util.concurrent.TimeUnit;
 @Module
 public class ApiModule {
 
+    protected static final String PUBLIC_API_BASE_URL = "PublicApiBaseUrl";
+    protected static final String MOBILE_API_BASE_URL = "MobileApiBaseUrl";
     private static final int READ_WRITE_TIMEOUT_SECONDS = 20;
     private static final int CONNECT_TIMEOUT_SECONDS = 20;
+
+    @Provides
+    @Singleton
+    @Named(PUBLIC_API_BASE_URL)
+    protected String providePublicApiBaseUrl(Resources resources) {
+        return resources.getString(R.string.public_api_base_url);
+    }
+
+    @Provides
+    @Singleton
+    @Named(MOBILE_API_BASE_URL)
+    protected String provideMobileApiBaseUrl(Resources resources) {
+        return resources.getString(R.string.mobile_api_base_url);
+    }
 
     @Provides
     public ApiClient provideApiClient(OkHttpClient httpClient,
@@ -42,19 +61,19 @@ public class ApiModule {
     }
 
     @Provides
-    public Locale provideDefaultLocale() {
+    Locale provideDefaultLocale() {
         return Locale.getDefault();
     }
 
     @Provides
     @Singleton
-    public JsonTransformer provideJsonTransformer() {
+    JsonTransformer provideJsonTransformer() {
         return new JacksonJsonTransformer();
     }
 
     @Provides
     @Singleton
-    public UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
+    UnauthorisedRequestRegistry provideUnauthorizedRequestRegistry(Context context) {
         return UnauthorisedRequestRegistry.getInstance(context);
     }
 

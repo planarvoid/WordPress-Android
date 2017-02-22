@@ -26,16 +26,19 @@ public class StreamUrlBuilderTest extends AndroidUnitTest {
 
     private StreamUrlBuilder streamUrlBuilder;
     private Urn trackUrn;
+    private String mobileApiBaseUrl;
 
     @Before
     public void setUp() throws Exception {
+        mobileApiBaseUrl = context().getResources().getString(R.string.mobile_api_base_url);
+
         when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        when(resources.getString(R.string.mobile_api_base_url)).thenReturn("https://api-mobile");
         when(oAuth.getClientId()).thenReturn("clientId");
         when(token.getAccessToken()).thenReturn("token");
         when(token.valid()).thenReturn(true);
 
-        ApiUrlBuilder apiUrlBuilder = new ApiUrlBuilder(resources, oAuth);
+        final String publicApiBaseUrl = context().getResources().getString(R.string.public_api_base_url);
+        final ApiUrlBuilder apiUrlBuilder = new ApiUrlBuilder(publicApiBaseUrl, mobileApiBaseUrl, oAuth);
 
         streamUrlBuilder = new StreamUrlBuilder(accountOperations, apiUrlBuilder);
         trackUrn = Urn.forTrack(2L);
@@ -43,20 +46,17 @@ public class StreamUrlBuilderTest extends AndroidUnitTest {
 
     @Test
     public void buildsHttpsStreamUrl() throws Exception {
-        String result = streamUrlBuilder.buildHttpsStreamUrl(trackUrn);
+        final String result = streamUrlBuilder.buildHttpsStreamUrl(trackUrn);
+        final String expectedUrl = mobileApiBaseUrl + "/tracks/soundcloud:tracks:2/streams/https?client_id=clientId&oauth_token=token";
 
-        assertThat(result,
-                   urlEqualTo(
-                           "https://api-mobile/tracks/soundcloud:tracks:2/streams/https?client_id=clientId&oauth_token=token"));
+        assertThat(result, urlEqualTo(expectedUrl));
     }
 
     @Test
     public void buildsHttpStreamUrl() throws Exception {
-        String result = streamUrlBuilder.buildHttpStreamUrl(trackUrn);
+        final String result = streamUrlBuilder.buildHttpStreamUrl(trackUrn);
+        final String expectedUrl = mobileApiBaseUrl + "/tracks/soundcloud:tracks:2/streams/http?client_id=clientId&oauth_token=token";
 
-        assertThat(result,
-                   urlEqualTo(
-                           "https://api-mobile/tracks/soundcloud:tracks:2/streams/http?client_id=clientId&oauth_token=token"));
+        assertThat(result, urlEqualTo(expectedUrl));
     }
-
 }

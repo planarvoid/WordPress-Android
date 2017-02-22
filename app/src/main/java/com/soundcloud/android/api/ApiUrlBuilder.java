@@ -1,14 +1,13 @@
 package com.soundcloud.android.api;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.strings.Strings;
 
-import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class ApiUrlBuilder {
 
@@ -18,10 +17,12 @@ public class ApiUrlBuilder {
     private Uri.Builder uriBuilder;
 
     @Inject
-    public ApiUrlBuilder(Resources resources, OAuth oAuth) {
+    public ApiUrlBuilder(@Named(ApiModule.PUBLIC_API_BASE_URL) String publicApiBaseUrl,
+                         @Named(ApiModule.MOBILE_API_BASE_URL) String mobileApiBaseUrl,
+                         OAuth oAuth) {
         this.oAuth = oAuth;
-        this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
-        this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
+        this.mobileApiBaseUrl = mobileApiBaseUrl;
+        this.publicApiBaseUrl = publicApiBaseUrl;
     }
 
     public ApiUrlBuilder from(ApiEndpoints endpoint, Object... pathParams) {

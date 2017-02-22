@@ -1,31 +1,40 @@
 package com.soundcloud.android.tests.auth.login;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.soundcloud.android.framework.TestUser.GPlusAccount;
 import static com.soundcloud.android.framework.TestUser.scAccount;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
 
 public class OfflineLoginFlowTest extends LoginTest {
+
     private HomeScreen homeScreen;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         homeScreen = new HomeScreen(solo);
+
         networkManagerClient.switchWifiOff();
+        stopWiremock(); // these depend on no connection
     }
 
     @Override
-    public void tearDown() throws Exception {
-        networkManagerClient.switchWifiOn();
-        super.tearDown();
+    protected void addInitialStubMappings() {
+        stubFor(get(urlPathMatching(ApiEndpoints.SIGN_IN.path()))
+                        .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
     }
 
     public void testLoginWithEmailWithoutNetworkConnection() {

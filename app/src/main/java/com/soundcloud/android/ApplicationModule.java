@@ -13,7 +13,6 @@ import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.analytics.appboy.EmptyAppboyWrapper;
 import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
 import com.soundcloud.android.cast.CastPlayer;
@@ -44,7 +43,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -84,8 +82,6 @@ import java.util.Locale;
 
 @Module(
         includes = {
-                ApiModule.class,
-                StorageModule.class,
                 FacebookModule.class,
                 SyncModule.class,
                 PlayerModule.class,

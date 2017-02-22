@@ -28,6 +28,6 @@ public class EmptyViewElement extends Element {
     }
 
     private TextElement messageView() {
-        return new TextElement(emptyView().findOnScreenElement(With.id(R.id.ak_emptyview_message)));
+        return new TextElement(emptyView().findOnScreenElement(With.id(R.id.ak_emptyview_error_message1)));
     }
 }

@@ -253,6 +253,16 @@ dependencies {
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient
+  androidTestCompile(acceptanceTestLibraries.wiremock) {
+    exclude group: 'asm', module: 'asm'
+    exclude group: 'org.ow2.asm'
+    exclude group: 'org.json', module: 'json'
+    exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+    exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
+    exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    exclude group: 'org.hamcrest', module: 'hamcrest-core'
+  }
+  androidTestCompile acceptanceTestLibraries.httpComponents // needed for wiremock
 }
 
 //ADD THIS AT THE BOTTOM

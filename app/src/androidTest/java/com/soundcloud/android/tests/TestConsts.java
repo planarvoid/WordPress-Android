@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.TestUser;
 import android.net.Uri;
 
 public final class TestConsts {
+
     private TestConsts() {
     }
 
