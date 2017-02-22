@@ -102,10 +102,12 @@ class PlaylistEngagementsRenderer {
             menu.show();
         });
 
-        if (accountOperations.isLoggedInUser(item.creatorUrn())) {
-            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
-                                                      overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
-                                                      resources.getString(R.string.edit_playlists_introductory_overlay_description));
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
+            if (accountOperations.isLoggedInUser(item.creatorUrn())) {
+                introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
+                                                          overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
+                                                          resources.getString(R.string.edit_playlists_introductory_overlay_description));
+            }
         }
     }
 
