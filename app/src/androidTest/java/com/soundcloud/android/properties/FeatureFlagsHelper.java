@@ -1,6 +1,7 @@
 package com.soundcloud.android.properties;
 
 import static com.soundcloud.android.storage.StorageModule.PREFS_FEATURE_FLAGS;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.storage.PersistentStorage;
@@ -10,6 +11,8 @@ import com.soundcloud.annotations.VisibleForTesting;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+
+import java.util.Arrays;
 
 /**
  * {@link FeatureFlags} decorator to avoid increasing scope and visibility of
@@ -37,6 +40,10 @@ public class FeatureFlagsHelper {
 
     public void disable(Flag flag) {
         runtimeConfig.setFlagValue(flag, false);
+    }
+
+    public void assertIsEnabled(Flag... requiredEnabledFeatures) {
+        checkState(isLocallyDisabled(requiredEnabledFeatures), "Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures));
     }
 
     public boolean isLocallyEnabled(Flag[] requiredEnabledFeatures) {
