@@ -37,7 +37,8 @@ public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardin
         startEventTracking();
     }
 
-    public void testTrackResubscribeButtonClickAndImpression() throws Exception {
+    // flakey #7203
+    public void ignore_testTrackResubscribeButtonClickAndImpression() throws Exception {
         screen.clickResubscribe();
 
         finishEventTracking(TEST_SCENARIO);
