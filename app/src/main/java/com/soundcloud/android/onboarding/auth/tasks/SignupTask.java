@@ -12,6 +12,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.SignUpOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -20,6 +21,7 @@ import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.utils.Log;
 
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -38,6 +40,7 @@ public class SignupTask extends AuthTask {
     private ApiClient apiClient;
     private final FeatureFlags featureFlags;
     private final SignUpOperations signUpOperations;
+    private final ConfigurationOperations configurationOperations;
 
     public SignupTask(SoundCloudApplication soundCloudApplication,
                       StoreUsersCommand storeUsersCommand,
@@ -45,12 +48,14 @@ public class SignupTask extends AuthTask {
                       ApiClient apiClient,
                       SyncInitiatorBridge syncInitiatorBridge,
                       FeatureFlags featureFlags,
-                      SignUpOperations signUpOperations) {
+                      SignUpOperations signUpOperations,
+                      ConfigurationOperations configurationOperations) {
         super(soundCloudApplication, storeUsersCommand, syncInitiatorBridge);
         this.tokenUtils = tokenUtils;
         this.apiClient = apiClient;
         this.featureFlags = featureFlags;
         this.signUpOperations = signUpOperations;
+        this.configurationOperations = configurationOperations;
     }
 
     @Override
@@ -74,11 +79,20 @@ public class SignupTask extends AuthTask {
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return LegacyAuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
+                registerDevice(token);
             } catch (ApiRequestException e) {
                 return LegacyAuthTaskResult.signUpFailedToLogin(e);
             }
         }
         return result;
+    }
+
+    private void registerDevice(Token token) {
+        try {
+            configurationOperations.registerDevice(token);
+        } catch (ApiRequestException | IOException | ApiMapperException e) {
+            Log.d(SignupTask.class.getSimpleName(), "Error registering device");
+        }
     }
 
     @VisibleForTesting

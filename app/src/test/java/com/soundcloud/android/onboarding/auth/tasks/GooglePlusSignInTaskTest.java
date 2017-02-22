@@ -22,6 +22,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -62,6 +63,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     private final Bundle bundle = new Bundle();
     private ApiUser user = ModelFixtures.create(ApiUser.class);
+    private Configuration configuration = ModelFixtures.create(Configuration.class);
 
     private GooglePlusSignInTask task;
 
@@ -106,7 +108,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException, ApiMapperException, ApiRequestException {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
-                .thenReturn(Me.create(user));
+                .thenReturn(Me.create(user, configuration));
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
                 "validtoken");
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);

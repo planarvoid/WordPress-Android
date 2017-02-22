@@ -8,6 +8,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -27,9 +28,10 @@ public class AuthTaskResultTest {
     public void shouldCreateSuccessResult() throws CreateModelException {
         Token token = Token.EMPTY;
         ApiUser user = ModelFixtures.create(ApiUser.class);
+        Configuration configuration = ModelFixtures.create(Configuration.class);
         SignupVia signupVia = SignupVia.NONE;
 
-        AuthTaskResult result = AuthTaskResult.success(new AuthResponse(token, Me.create(user)), signupVia);
+        AuthTaskResult result = AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), signupVia);
 
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getAuthResponse().me.getUser()).isEqualTo(user);

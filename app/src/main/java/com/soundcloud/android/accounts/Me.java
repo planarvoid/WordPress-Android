@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.configuration.Configuration;
 
 import android.support.annotation.Nullable;
 
@@ -11,11 +12,12 @@ import android.support.annotation.Nullable;
 public abstract class Me {
 
     @JsonCreator
-    public static Me create(@JsonProperty("user") @Nullable ApiUser apiUser) {
+    public static Me create(@JsonProperty("user") @Nullable ApiUser apiUser, @JsonProperty("configuration") @Nullable Configuration configuration) {
         return new AutoValue_Me(
-                apiUser
+                apiUser, configuration
         );
     }
 
     public abstract ApiUser getUser();
+    public abstract Configuration getConfiguration();
 }

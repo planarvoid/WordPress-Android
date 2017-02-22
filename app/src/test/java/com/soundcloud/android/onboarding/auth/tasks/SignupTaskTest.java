@@ -2,8 +2,10 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
@@ -17,6 +19,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.configuration.Configuration;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.SignUpOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
@@ -36,6 +40,8 @@ import android.os.Bundle;
 
 public class SignupTaskTest extends AndroidUnitTest {
 
+    private static final Token TOKEN = new Token("access", "refresh");
+
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private ApiClient apiClient;
     @Mock private StoreUsersCommand storeUsersCommand;
@@ -43,6 +49,7 @@ public class SignupTaskTest extends AndroidUnitTest {
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private FeatureFlags featureFlags;
     @Mock private SignUpOperations signUpOperations;
+    @Mock private ConfigurationOperations configurationOperations;
 
     private SignupTask signupTask;
 
@@ -54,9 +61,22 @@ public class SignupTaskTest extends AndroidUnitTest {
                                     apiClient,
                                     syncInitiatorBridge,
                                     featureFlags,
-                                    signUpOperations);
+                                    signUpOperations,
+                                    configurationOperations);
 
         when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
+    }
+
+    @Test
+    public void shouldRegisterDeviceOnSignUp() throws Exception {
+        PublicApiUser user = new PublicApiUser(123L);
+        setupSignupWithUser(user);
+        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(TOKEN);
+        when(application.addUserAccountAndEnableSync(user.toApiMobileUser(), TOKEN, SignupVia.API)).thenReturn(true);
+
+        signupTask.doInBackground(getParamsBundle());
+
+        verify(configurationOperations).registerDevice(TOKEN);
     }
 
     @Test
@@ -84,6 +104,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email has already been taken", 101));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasEmailTaken()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -91,6 +112,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email domain is blacklisted.", 102));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasDenied()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -101,6 +123,7 @@ public class SignupTaskTest extends AndroidUnitTest {
                                                                  103));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasSpam()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -108,6 +131,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.validationError(null, null, "Email is invalid.", 104));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasEmailInvalid()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -118,6 +142,7 @@ public class SignupTaskTest extends AndroidUnitTest {
                                                                  105));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -128,6 +153,7 @@ public class SignupTaskTest extends AndroidUnitTest {
                                                                  180));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -135,6 +161,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.validationError(null, null, "unknown", -1));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -142,6 +169,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.notAllowed(null, null));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasDenied()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -149,6 +177,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.serverError(null, null));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -156,6 +185,7 @@ public class SignupTaskTest extends AndroidUnitTest {
         setupSignupWithError(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 403, "body")));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
@@ -164,12 +194,13 @@ public class SignupTaskTest extends AndroidUnitTest {
                 .thenThrow(new TokenRetrievalException(new Exception()));
         LegacyAuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
+        verifyZeroInteractions(configurationOperations);
     }
 
     @Test
     public void forwardToOperationsWhenFeatureFlagEnabled() throws Exception {
         Token token = Token.EMPTY;
-        Me me = Me.create(ModelFixtures.create(ApiUser.class));
+        Me me = Me.create(ModelFixtures.create(ApiUser.class), ModelFixtures.create(Configuration.class));
         Bundle bundle = getParamsBundle();
 
         when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(true);
@@ -177,6 +208,7 @@ public class SignupTaskTest extends AndroidUnitTest {
 
         signupTask.doInBackground(bundle);
         verify(signUpOperations).signUp(bundle);
+        verifyZeroInteractions(configurationOperations);
     }
 
     private LegacyAuthTaskResult doSignup() {
@@ -206,7 +238,7 @@ public class SignupTaskTest extends AndroidUnitTest {
     }
 
     private void setupSignupWithUser(PublicApiUser user) throws Exception {
-        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
+        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(TOKEN);
 
         when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)),
                                            eq(PublicApiUser.class)))
@@ -214,7 +246,7 @@ public class SignupTaskTest extends AndroidUnitTest {
     }
 
     private void setupSignupWithError(ApiRequestException exception) throws Exception {
-        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
+        when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(TOKEN);
         when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)),
                                            eq(PublicApiUser.class)))
                 .thenThrow(exception);

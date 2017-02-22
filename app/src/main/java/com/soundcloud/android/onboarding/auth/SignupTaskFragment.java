@@ -89,6 +89,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
                               apiClient,
                               syncInitiatorBridge,
                               featureFlags,
-                              signUpOperations);
+                              signUpOperations,
+                              configurationOperations);
     }
 }

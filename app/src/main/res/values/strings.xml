@@ -119,7 +119,7 @@
     <string name="authentication_error_unable_to_use_google_play_services">Google+ sign in cannot be used without Google Play Services. Please try another sign in method.</string>
 
     <!-- __DEEPLINKS -->
-    <string name="error_toast_user_not_logged_in">Please sign in to open this link.</string>
+    <string name="error_toast_user_not_logged_in">Please sign in or sign up to open this link.</string>
 
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn’t added a profile description yet.</string>

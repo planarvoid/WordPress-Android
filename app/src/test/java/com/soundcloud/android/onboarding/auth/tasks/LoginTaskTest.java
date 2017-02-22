@@ -18,6 +18,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -53,6 +54,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private SignInOperations signInOperations;
     private ApiUser user = ModelFixtures.create(ApiUser.class);
+    private Configuration configuration = ModelFixtures.create(Configuration.class);
     private Bundle bundle;
 
     private LoginTask loginTask;
@@ -67,7 +69,7 @@ public class LoginTaskTest extends AndroidUnitTest {
         when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
-                .thenReturn(Me.create(user));
+                .thenReturn(Me.create(user, configuration));
     }
 
     @Test
@@ -185,7 +187,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Test
     public void callsOperationsWhenFeatureFlagEnabled() throws Exception {
         when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(true);
-        when(signInOperations.signIn(eq(bundle), any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user)), SignupVia.API));
+        when(signInOperations.signIn(eq(bundle), any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), SignupVia.API));
         loginTask.doInBackground(bundle);
         verify(signInOperations).signIn(eq(bundle), any());
     }

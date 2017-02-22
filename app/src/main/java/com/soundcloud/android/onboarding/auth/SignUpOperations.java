@@ -15,6 +15,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.request.SignUpBody;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -32,16 +33,18 @@ public class SignUpOperations {
     private final ApiClient apiClient;
     private final OAuth oAuth;
     private final SoundCloudApplication applicationContext;
+    private final ConfigurationOperations configurationOperations;
 
     @Inject
     public SignUpOperations(Context context,
                             ApiClient apiClient,
-                            OAuth oAuth) {
+                            OAuth oAuth,
+                            ConfigurationOperations configurationOperations) {
         applicationContext = (SoundCloudApplication) context.getApplicationContext();
         this.apiClient = apiClient;
         this.oAuth = oAuth;
+        this.configurationOperations = configurationOperations;
     }
-
 
     public AuthTaskResult signUp(Bundle bundle) {
         final AuthTaskResult result = doSignup(bundle);
@@ -51,9 +54,9 @@ public class SignUpOperations {
             if (token == null || !applicationContext.addUserAccountAndEnableSync(result.getAuthResponse().me.getUser(), token, SignupVia.API)) {
                 return AuthTaskResult.failure(applicationContext.getString(R.string.authentication_signup_error_message));
             }
+            configurationOperations.saveConfiguration(result.getAuthResponse().me.getConfiguration());
         }
         return result;
-
     }
 
     private AuthTaskResult doSignup(Bundle bundle) {

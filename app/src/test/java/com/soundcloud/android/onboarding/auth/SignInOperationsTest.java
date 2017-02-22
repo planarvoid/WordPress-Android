@@ -15,6 +15,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
@@ -39,7 +40,8 @@ public class SignInOperationsTest extends AndroidUnitTest {
     private static final String USERNAME = "user";
     private static final String PASSWORD = "pass";
     private final ApiUser user = ModelFixtures.create(ApiUser.class);
-    private final Me me = Me.create(user);
+    private final Configuration configuration = ModelFixtures.create(Configuration.class);
+    private final Me me = Me.create(user, configuration);
     @Mock Func3<ApiUser, Token, SignupVia, Boolean> function;
     @Mock ApiClient apiClient;
     @Mock OAuth oAuth;

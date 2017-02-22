@@ -197,7 +197,7 @@ public class ConfigurationOperations {
                          .forPrivateApi();
     }
 
-    void saveConfiguration(Configuration configuration) {
+    public void saveConfiguration(Configuration configuration) {
         Log.d(TAG, "Saving new configuration...");
         configurationSettingsStorage.setLastConfigurationUpdateTime(System.currentTimeMillis());
 

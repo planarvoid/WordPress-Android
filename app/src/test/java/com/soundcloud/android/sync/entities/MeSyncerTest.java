@@ -14,6 +14,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
 import com.soundcloud.android.sync.me.MeSyncer;
@@ -41,7 +42,7 @@ public class MeSyncerTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        me = Me.create(ModelFixtures.create(ApiUser.class));
+        me = Me.create(ModelFixtures.create(ApiUser.class), ModelFixtures.create(Configuration.class));
         eventBus = new TestEventBus();
 
         meSyncer = new MeSyncer(apiClient, eventBus, storeUsersCommand);
