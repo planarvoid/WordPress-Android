@@ -6,6 +6,8 @@ import static com.soundcloud.android.discovery.newforyou.NewForYouItem.Kind.TRAC
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
@@ -18,13 +20,17 @@ import android.view.View;
 @AutoFactory(allowSubclasses = true)
 class NewForYouAdapter extends RecyclerItemAdapter<NewForYouItem, RecyclerView.ViewHolder> implements PlayingTrackAware {
 
+    private final PlayQueueManager playQueueManager;
+
     NewForYouAdapter(NewForYouHeaderRenderer.Listener headerItemListener,
                      TrackItemRenderer.Listener trackItemListener,
                      @Provided NewForYouHeaderRendererFactory headerRendererFactory,
-                     @Provided NewForYouTrackRendererFactory trackRendererFactory) {
+                     @Provided NewForYouTrackRendererFactory trackRendererFactory,
+                     @Provided PlayQueueManager playQueueManager) {
         super(new CellRendererBinding<>(HEADER.ordinal(), headerRendererFactory.create(headerItemListener)),
               new CellRendererBinding<>(TRACK.ordinal(), trackRendererFactory.create(trackItemListener))
         );
+        this.playQueueManager = playQueueManager;
     }
 
     @Override
@@ -37,8 +43,10 @@ class NewForYouAdapter extends RecyclerItemAdapter<NewForYouItem, RecyclerView.V
         for (NewForYouItem newForYouItem : getItems()) {
             if (newForYouItem.isTrack()) {
                 final TrackItem track = ((NewForYouItem.NewForYouTrackItem) newForYouItem).track();
+                final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
+                final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
 
-                if (track.getUrn() == currentlyPlayingUrn) {
+                if (track.getUrn() == currentlyPlayingUrn && isPlayingFromNewForYou) {
                     track.setIsPlaying(true);
                 } else {
                     track.setIsPlaying(false);

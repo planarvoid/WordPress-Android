@@ -38,10 +38,9 @@ class NewForYouTrackRenderer implements CellRenderer<NewForYouTrackItem> {
         TrackSourceInfo info = new TrackSourceInfo(Screen.NEW_FOR_YOU.get(), true);
         info.setQuerySourceInfo(QuerySourceInfo.create(position - NewForYouPresenter.NUM_EXTRA_ITEMS, trackItem.newForYou().queryUrn()));
 
-        trackItemRenderer.bindTrackView(items.get(position).track(),
-                                        itemView,
-                                        position,
-                                        Optional.of(info),
-                                        Optional.absent());
+        trackItemRenderer.bindNewForYouTrackView(items.get(position).track(),
+                                                 itemView,
+                                                 position,
+                                                 Optional.of(info));
     }
 }

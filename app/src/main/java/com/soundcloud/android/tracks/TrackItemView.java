@@ -30,6 +30,7 @@ public class TrackItemView {
     private final View privateIndicator;
     private final TextView promoted;
     private final TextView postedTime;
+    private final TextView playsAndPostedTime;
     private final TextView notAvailableOffline;
     private final View previewIndicator;
     private final View goIndicator;
@@ -49,6 +50,7 @@ public class TrackItemView {
         privateIndicator = view.findViewById(R.id.private_indicator);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         postedTime = (TextView) view.findViewById(R.id.posted_time);
+        playsAndPostedTime = (TextView) view.findViewById(R.id.plays_and_posted_time);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
         previewIndicator = view.findViewById(R.id.preview_indicator);
         goIndicator = view.findViewById(R.id.go_indicator);
@@ -110,6 +112,12 @@ public class TrackItemView {
                                                     formatTimeElapsedSince(getResources(), date.getTime(), true)));
     }
 
+    public void showPlaysAndPostedTime(String playCount, Date date) {
+        playsAndPostedTime.setVisibility(View.VISIBLE);
+        playsAndPostedTime.setText(getResources().getString(R.string.plays_and_posted_time, playCount,
+                                                    formatTimeElapsedSince(getResources(), date.getTime(), true)));
+    }
+
     public void showGeoBlocked() {
         geoBlocked.setVisibility(View.VISIBLE);
     }
@@ -148,7 +156,9 @@ public class TrackItemView {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
+        postedTime.setVisibility(View.GONE);
         goIndicator.setVisibility(View.GONE);
+        playsAndPostedTime.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
         geoBlocked.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);

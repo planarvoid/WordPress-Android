@@ -3,8 +3,7 @@ package com.soundcloud.android.discovery.newforyou;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.tracks.TrackItem;
-
-import java.util.List;
+import com.soundcloud.java.optional.Optional;
 
 abstract class NewForYouItem {
 
@@ -37,10 +36,10 @@ abstract class NewForYouItem {
     abstract static class NewForYouHeaderItem extends NewForYouItem {
         abstract String duration();
         abstract String updatedAt();
-        abstract List<ImageResource> imageResources();
+        abstract Optional<ImageResource> mainImage();
 
-        static NewForYouHeaderItem create(NewForYou newForYou, String duration, String updatedAt, List<ImageResource> imageResources) {
-            return new AutoValue_NewForYouItem_NewForYouHeaderItem(Kind.HEADER, newForYou, duration, updatedAt, imageResources);
+        static NewForYouHeaderItem create(NewForYou newForYou, String duration, String updatedAt, Optional<ImageResource> imageResource) {
+            return new AutoValue_NewForYouItem_NewForYouHeaderItem(Kind.HEADER, newForYou, duration, updatedAt, imageResource);
         }
     }
 }

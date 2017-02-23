@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery.newforyou;
 
 import static com.soundcloud.android.discovery.newforyou.NewForYouItem.Kind.TRACK;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouHeaderItem;
@@ -10,7 +9,9 @@ import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouTrackIt
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -22,6 +23,7 @@ import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -30,6 +32,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -48,6 +51,8 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Resources resources;
     private final EventBus eventBus;
+    private final PlayQueueManager playQueueManager;
+    private final PlaySessionStateProvider playSessionStateProvider;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -58,7 +63,9 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
                        PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                        Resources resources,
-                       EventBus eventBus) {
+                       EventBus eventBus,
+                       PlayQueueManager playQueueManager,
+                       PlaySessionStateProvider playSessionStateProvider) {
         super(swipeRefreshAttacher, Options.list().build());
 
         this.operations = operations;
@@ -67,6 +74,8 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.resources = resources;
         this.eventBus = eventBus;
+        this.playQueueManager = playQueueManager;
+        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     @Override
@@ -112,15 +121,29 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
 
             items.add(NewForYouHeaderItem.create(newForYou,
                                                  formatDuration(newForYou.tracks()),
-                                                 ScTextUtils.formatTimeElapsedSince(resources, newForYou.lastUpdate().getTime(), true),
-                                                 transform(newForYou.tracks(), TrackItem::from)));
+                                                 formatUpdatedAt(newForYou),
+                                                 newForYou.tracks().isEmpty() ? Optional.absent() : Optional.of(TrackItem.from(newForYou.tracks().get(0)))));
 
             for (Track track : newForYou.tracks()) {
-                items.add(NewForYouTrackItem.create(newForYou, TrackItem.from(track)));
+                final TrackItem trackItem = TrackItem.from(track);
+                final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
+                final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
+                final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(trackItem.getUrn());
+
+                if (isPlayingFromNewForYou && isTrackPlaying) {
+                    trackItem.setIsPlaying(true);
+                }
+
+                items.add(NewForYouTrackItem.create(newForYou, trackItem));
             }
 
             return items;
         };
+    }
+
+    @NonNull
+    private String formatUpdatedAt(NewForYou newForYou) {
+        return resources.getString(R.string.new_for_you_updated_at, ScTextUtils.formatTimeElapsedSince(resources, newForYou.lastUpdate().getTime(), true));
     }
 
     private String formatDuration(List<Track> tracks) {
@@ -145,9 +168,9 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
 
     private void startPlayback(int adapterPosition, int finalPosition) {
         subscription.add(playbackInitiator.playTracks(getTrackUrns(),
-                                                    finalPosition,
-                                                    getPlaySessionSource(adapterPosition, finalPosition))
-                                        .subscribe(expandPlayerSubscriberProvider.get()));
+                                                      finalPosition,
+                                                      getPlaySessionSource(adapterPosition, finalPosition))
+                                          .subscribe(expandPlayerSubscriberProvider.get()));
     }
 
     private List<Urn> getTrackUrns() {

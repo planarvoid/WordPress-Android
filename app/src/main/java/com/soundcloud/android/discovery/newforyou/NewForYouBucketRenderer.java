@@ -38,14 +38,19 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
         List<ImageResource> imageResources = transform(items.get(position).newForYou().tracks(), TrackItem::from);
 
         bindCoverArtAnimation((NewForYouArtworkView) bucketView.findViewById(R.id.artwork), imageResources);
-        bindViewAllView(bucketView.findViewById(R.id.view_all_container));
+        bindViewAllViews(bucketView.findViewById(R.id.view_all_container), bucketView.findViewById(R.id.new_for_you_bucket_header));
     }
 
     private void bindCoverArtAnimation(NewForYouArtworkView artworkView, List<ImageResource> imageResources) {
-        artworkView.bind(imageOperations, imageResources);
+        artworkView.bindWithAnimation(imageOperations, imageResources);
     }
 
-    private void bindViewAllView(View viewAllView) {
-        viewAllView.setOnClickListener(view -> navigator.openNewForYou(viewAllView.getContext()));
+    private void bindViewAllViews(View viewAllView, View headerView) {
+        viewAllView.setOnClickListener(getOnClickListener(viewAllView));
+        headerView.setOnClickListener(getOnClickListener(viewAllView));
+    }
+
+    private View.OnClickListener getOnClickListener(View viewAllView) {
+        return view -> navigator.openNewForYou(viewAllView.getContext());
     }
 }

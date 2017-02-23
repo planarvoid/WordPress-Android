@@ -43,6 +43,13 @@
                 android:drawableLeft="@drawable/stats_play" />
 
             <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/plays_and_posted_time"
+                style="@style/ListItemText.Numeric.Stats"
+                android:layout_toRightOf="@id/image"
+                android:layout_below="@id/list_item_subheader"
+                android:drawableLeft="@drawable/stats_play" />
+
+            <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/promoted_track"
                 style="@style/ListItemText.TertiaryText"
                 android:layout_toRightOf="@id/image"

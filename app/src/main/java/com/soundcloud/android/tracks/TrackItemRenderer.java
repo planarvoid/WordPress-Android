@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
         void trackItemClicked(Urn urn, int position);
 
+    }
+
+    private enum ActiveFooter {
+        POSTED,
+        PLAYS_AND_POSTED
     }
 
     private final ImageOperations imageOperations;
@@ -59,6 +65,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private Urn playingTrack = Urn.NOT_SET;
     private Listener listener = null;
+    private Optional<ActiveFooter> activeFooter = Optional.absent();
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations,
@@ -83,15 +90,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     protected TrackItemRenderer(Optional<String> moduleName,
-                             ImageOperations imageOperations,
-                             CondensedNumberFormatter numberFormatter,
-                             TrackItemMenuPresenter trackItemMenuPresenter,
-                             EventBus eventBus,
-                             ScreenProvider screenProvider,
-                             Navigator navigator,
-                             FeatureOperations featureOperations,
-                             TrackItemView.Factory trackItemViewFactory,
-                             FeatureFlags flags) {
+                                ImageOperations imageOperations,
+                                CondensedNumberFormatter numberFormatter,
+                                TrackItemMenuPresenter trackItemMenuPresenter,
+                                EventBus eventBus,
+                                ScreenProvider screenProvider,
+                                Navigator navigator,
+                                FeatureOperations featureOperations,
+                                TrackItemView.Factory trackItemViewFactory,
+                                FeatureFlags flags) {
         this.moduleName = moduleName;
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
@@ -131,37 +138,56 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                               final int position,
                               Optional<TrackSourceInfo> trackSourceInfo,
                               Optional<Module> module) {
-        bindTrackView(track, itemView, position, trackSourceInfo, module, false);
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent());
     }
 
     public void bindChartTrackView(final ChartTrackItem chartTrackItem,
-                              View itemView,
-                              final int position,
-                              Optional<TrackSourceInfo> trackSourceInfo) {
-        bindTrackView(chartTrackItem.getTrackItem(), itemView, position, trackSourceInfo, Optional.absent(),
-                      chartTrackItem.chartType() == ChartType.TRENDING);
+                                   View itemView,
+                                   final int position,
+                                   Optional<TrackSourceInfo> trackSourceInfo) {
+        bindTrackView(chartTrackItem.getTrackItem(),
+                      itemView,
+                      position,
+                      trackSourceInfo,
+                      Optional.absent(),
+                      chartTrackItem.chartType() == ChartType.TRENDING ? Optional.of(ActiveFooter.POSTED) : Optional.absent());
+
         showChartPosition(itemView, position);
     }
 
+    public void bindNewForYouTrackView(final TrackItem track,
+                                       View itemView,
+                                       final int position,
+                                       Optional<TrackSourceInfo> trackSourceInfo) {
+        bindTrackView(track,
+                      itemView,
+                      position,
+                      trackSourceInfo,
+                      Optional.absent(),
+                      Optional.of(ActiveFooter.PLAYS_AND_POSTED));
+    }
+
     private void bindTrackView(final TrackItem track,
-                              View itemView,
-                              final int position,
-                              Optional<TrackSourceInfo> trackSourceInfo,
-                              Optional<Module> module,
-                              boolean showPostedTime) {
+                               View itemView,
+                               final int position,
+                               Optional<TrackSourceInfo> trackSourceInfo,
+                               Optional<Module> module,
+                               Optional<ActiveFooter> activeFooter) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.creatorName());
         trackItemView.setTitle(track.title(), track.isBlocked()
-                                                 ? trackItemViewFactory.getDisabledTitleColor()
-                                                 : trackItemViewFactory.getPrimaryTitleColor());
+                                              ? trackItemViewFactory.getDisabledTitleColor()
+                                              : trackItemViewFactory.getPrimaryTitleColor());
         if (listener != null) {
             itemView.setOnClickListener(v -> listener.trackItemClicked(track.getUrn(), position));
         }
 
+        this.activeFooter = activeFooter;
+
         itemView.setClickable(!track.isBlocked());
 
         bindExtraInfoRight(track, trackItemView);
-        bindExtraInfoBottom(trackItemView, track, showPostedTime);
+        bindExtraInfoBottom(trackItemView, track);
 
         bindArtwork(trackItemView, track);
         bindOverFlow(trackItemView, track, position, trackSourceInfo, module);
@@ -236,7 +262,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, boolean showPostedTime) {
+    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track) {
         itemView.hideInfosViewsBottom();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
@@ -246,8 +272,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
-        } else if (showPostedTime) {
+        } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.POSTED)) {
             itemView.showPostedTime(track.getCreatedAt());
+        } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.PLAYS_AND_POSTED)) {
+            showPlaysAndPostedTime(itemView, track, track.getCreatedAt());
         } else {
             showPlayCount(itemView, track);
         }
@@ -273,6 +301,16 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final int count = track.playCount();
         if (hasPlayCount(count)) {
             itemView.showPlaycount(numberFormatter.format(count));
+        }
+    }
+
+    private void showPlaysAndPostedTime(TrackItemView itemView, TrackItem track, Date createdAt) {
+        final int count = track.playCount();
+
+        if (hasPlayCount(count)) {
+            itemView.showPlaysAndPostedTime(numberFormatter.format(count), createdAt);
+        } else {
+            itemView.showPostedTime(createdAt);
         }
     }
 

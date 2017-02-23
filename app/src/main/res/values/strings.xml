@@ -37,6 +37,7 @@
     <string name="display_name">Name</string>
     <string name="updated_time">Updated %s.</string>
     <string name="posted_time">Posted %s</string>
+    <string name="plays_and_posted_time">%1$s · Posted %2$s</string>
     <string name="filter">Filter</string>
 
     <string name="following_zero">Followed by you</string>
@@ -982,10 +983,11 @@
 
     <!-- __NEW_FOR_YOU -->
     <string name="new_for_you_title">The Upload</string>
-    <string name="new_for_you_intro">A daily playlist of fresh, recently posted tracks. Just for you.</string>
-    <string name="new_for_you_header_intro">A daily playlist of fresh, recently posted tracks.\nJust for you.</string>
+    <string name="new_for_you_intro">New to SoundCloud.\nSelected for you.</string>
+    <string name="new_for_you_header_intro">New to SoundCloud. Selected for you.</string>
     <string name="new_for_you_action">See playlist</string>
     <string name="new_for_you_duration">%1$d tracks, %2$s</string>
+    <string name="new_for_you_updated_at">Updated %s</string>
 
     <!-- __SEARCH -->
     <plurals name="search_premium_content_results_count_legacy">

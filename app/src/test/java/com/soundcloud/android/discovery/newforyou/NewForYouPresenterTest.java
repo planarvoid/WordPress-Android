@@ -13,7 +13,9 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -25,6 +27,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -49,12 +52,12 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
     private static final Date DATE = new TestDateProvider().getCurrentDate();
     private static final List<Track> TRACKS = ModelFixtures.tracks(1);
     private static final TrackItem TRACK_ITEM = TrackItem.from(TRACKS.get(0));
-    private static final ArrayList<ImageResource> IMAGE_RESOURCES = newArrayList(TRACK_ITEM);
+    private static final Optional<ImageResource> IMAGE_RESOURCE = Optional.of(TRACK_ITEM);
     private static final NewForYou NEW_FOR_YOU = NewForYou.create(DATE, QUERY_URN, TRACKS);
     public static final String DURATION = "duration";
     private static final String LAST_UPDATED = "last_updated";
     private static final NewForYouItem.NewForYouTrackItem NEW_FOR_YOU_TRACK_ITEM = NewForYouItem.NewForYouTrackItem.create(NEW_FOR_YOU, TRACK_ITEM);
-    private static final NewForYouHeaderItem NEW_FOR_YOU_HEADER_ITEM = NewForYouHeaderItem.create(NEW_FOR_YOU, DURATION, LAST_UPDATED, IMAGE_RESOURCES);
+    private static final NewForYouHeaderItem NEW_FOR_YOU_HEADER_ITEM = NewForYouHeaderItem.create(NEW_FOR_YOU, DURATION, LAST_UPDATED, IMAGE_RESOURCE);
     private static final ArrayList<NewForYouItem> ADAPTER_ITEMS = newArrayList(
             NEW_FOR_YOU_HEADER_ITEM,
             NEW_FOR_YOU_TRACK_ITEM);
@@ -71,6 +74,8 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
     @Mock NewForYouHeaderRenderer.Listener headerListener;
     @Mock TrackItemRenderer.Listener trackListener;
     @Mock Fragment fragment;
+    @Mock PlayQueueManager playQueueManager;
+    @Mock PlaySessionStateProvider playSessionStateProvider;
 
     @Captor ArgumentCaptor<Iterable<NewForYouItem>> itemsCaptor;
 
@@ -86,7 +91,10 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(NEW_FOR_YOU));
         when(resources.getString(eq(R.string.new_for_you_duration), any(Object.class), any(Object.class))).thenReturn(DURATION);
         when(resources.getQuantityString(eq(R.plurals.elapsed_seconds_ago), any(Integer.class), any(Integer.class))).thenReturn(LAST_UPDATED);
+        when(resources.getString(eq(R.string.new_for_you_updated_at), any(Object.class))).thenReturn(LAST_UPDATED);
         when(playbackInitiator.playTracks(any(List.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(mock(PlaybackResult.class)));
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.forNewForYou("hey", 0, new Urn("this:is:fake")));
+        when(playSessionStateProvider.isCurrentlyPlaying(TRACK_ITEM.getUrn())).thenReturn(false);
 
         presenter = new NewForYouPresenter(swipeRefreshAttacher,
                                            newForYouOperations,
@@ -94,7 +102,9 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
                                            playbackInitiator,
                                            expandPlayerSubscriberProvider,
                                            resources,
-                                           eventBus);
+                                           eventBus,
+                                           playQueueManager,
+                                           playSessionStateProvider);
     }
 
     @Test

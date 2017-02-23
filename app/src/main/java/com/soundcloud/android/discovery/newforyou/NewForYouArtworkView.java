@@ -64,7 +64,15 @@ public class NewForYouArtworkView extends FrameLayout {
         artworkAnimator = (ViewFlipper) findViewById(R.id.artwork_animator);
     }
 
-    void bind(ImageOperations imageOperations, List<? extends ImageResource> imageResources) {
+    void bindWithoutAnimation(ImageOperations imageOperations, ImageResource imageResource) {
+        artworkAnimator.removeAllViews();
+
+        inflater.inflate(artworkLayout, artworkAnimator);
+        final ImageView imageView = (ImageView) artworkAnimator.getChildAt(0);
+        imageOperations.displayWithPlaceholder(imageResource, ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
+    }
+
+    void bindWithAnimation(ImageOperations imageOperations, List<? extends ImageResource> imageResources) {
         List<Observable<Bitmap>> observables = new ArrayList<>(imageResources.size());
 
         artworkAnimator.removeAllViews();

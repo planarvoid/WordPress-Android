@@ -211,18 +211,16 @@
 
     <style name="NewForYouModule.Title" parent="NewForYouModule">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textColor">@color/ak_almost_black</item>
         <item name="android:paddingBottom">6dp</item>
     </style>
 
     <style name="NewForYouModule.Intro" parent="NewForYouModule">
-        <item name="android:paddingTop">44dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingBottom">24dp</item>
     </style>
 
     <style name="NewForYouModule.IntroText" parent="NewForYouModule">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/ak_dark_gray</item>
     </style>
 
@@ -257,8 +255,8 @@
     <style name="NewForYouHeader.Title">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:layout_marginRight">24dp</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:layout_width">match_parent</item>
@@ -273,9 +271,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:layout_marginTop">6dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
         <item name="android:layout_marginBottom">24dp</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginRight">24dp</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>

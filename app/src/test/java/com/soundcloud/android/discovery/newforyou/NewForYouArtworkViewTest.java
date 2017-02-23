@@ -42,7 +42,7 @@ public class NewForYouArtworkViewTest extends AndroidUnitTest {
         final List<ImageResource> entities = Collections.emptyList();
         artworkContainer.addView(new View(context()));
         assertThat(artworkContainer.getChildCount()).isGreaterThan(0);
-        view.bind(imageOperations, entities);
+        view.bindWithAnimation(imageOperations, entities);
 
         assertThat(artworkContainer.getChildCount()).isEqualTo(0);
     }
@@ -56,7 +56,7 @@ public class NewForYouArtworkViewTest extends AndroidUnitTest {
         final Observable<Bitmap> empty = Observable.empty();
         when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(empty);
 
-        view.bind(imageOperations, entities);
+        view.bindWithAnimation(imageOperations, entities);
 
         assertThat(artworkContainer.getChildCount()).isEqualTo(entities.size());
     }
@@ -70,7 +70,7 @@ public class NewForYouArtworkViewTest extends AndroidUnitTest {
 
         when(imageOperations.displayWithPlaceholderObservable(any(ImageResource.class), any(ApiImageSize.class), any(ImageView.class))).thenReturn(observable);
 
-        view.bind(imageOperations, entities);
+        view.bindWithAnimation(imageOperations, entities);
 
         assertThat(artworkContainer.isFlipping()).isTrue();
     }

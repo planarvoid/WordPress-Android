@@ -54,10 +54,12 @@ class NewForYouHeaderRenderer implements CellRenderer<NewForYouHeaderItem> {
         final NewForYouArtworkView artworkView = ButterKnife.findById(itemView, R.id.artwork);
         final ImageView blurredArtworkView = ButterKnife.findById(itemView, R.id.blurred_background);
 
-        artworkView.bind(imageOperations, item.imageResources());
+        if (item.mainImage().isPresent()) {
+            artworkView.bindWithoutAnimation(imageOperations, item.mainImage().get());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && item.imageResources().size() > 0) {
-            simpleBlurredImageLoader.displayBlurredArtwork(item.imageResources().get(0), blurredArtworkView);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                simpleBlurredImageLoader.displayBlurredArtwork(item.mainImage().get(), blurredArtworkView);
+            }
         }
     }
 
