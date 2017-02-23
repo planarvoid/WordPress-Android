@@ -59,7 +59,7 @@ class PlaylistEditionItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-        viewHolder.itemView.setBackgroundResource(R.drawable.queue_item_background);
+        viewHolder.itemView.setBackgroundResource(R.color.white);
     }
 
     @Override
