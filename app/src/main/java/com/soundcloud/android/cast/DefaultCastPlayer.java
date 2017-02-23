@@ -33,6 +33,8 @@ import java.util.Collections;
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
+    private static final long SEEK_CORRECTION_ON_OVERFLOW = 10L;
+
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final CastProtocol castProtocol;
@@ -62,7 +64,10 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     @Override
     public void onDisconnected() {
-        playStateReporter.reportDisconnection(castQueueController.getRemoteCurrentTrackUrn(), getProgress(), getDuration());
+        // fetch progress/duration from the storage since we have no more access to RemoteMediaClient after disconnection
+        long progress = playSessionStateProvider.getLastProgressEvent().getPosition();
+        long duration = playSessionStateProvider.getLastProgressEvent().getDuration();
+        playStateReporter.reportDisconnection(castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
     }
 
     @Override
@@ -82,8 +87,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     void reportPlayerState() {
         final int remotePlayerState = getRemoteMediaClient().getPlayerState();
         final Urn remoteTrackUrn = castQueueController.getRemoteCurrentTrackUrn();
-        final long remoteTrackProgress = getProgress();
-        final long remoteTrackDuration = getDuration();
+        final long remoteTrackProgress = getRemoteMediaClient().getApproximateStreamPosition();
+        final long remoteTrackDuration = getRemoteMediaClient().getStreamDuration();
 
         switch (remotePlayerState) {
             case MediaStatus.PLAYER_STATE_PLAYING:
@@ -143,8 +148,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     private void loadLocalOnRemote(boolean autoplay) {
-        reportPlayerState();
-
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
         long currentTrackPosition = playSessionStateProvider.getLastProgressForItem(currentTrackUrn).getPosition();
         CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
@@ -226,24 +229,20 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
     @Override
     public long seek(long ms) {
-        onProgressUpdated(ms, getDuration());
+        long trackDuration = correctSeekingPositionIfNeeded(ms);
+        onProgressUpdated(ms, trackDuration);
         getRemoteMediaClient().seek(ms);
         return ms;
     }
 
-    public long getProgress() {
-        if (castProtocol.isConnected() && getRemoteMediaClient() != null) {
-            return getRemoteMediaClient().getApproximateStreamPosition();
+    private long correctSeekingPositionIfNeeded(long seekPosition) {
+        final long trackDuration = getRemoteMediaClient().getStreamDuration();
+        if (seekPosition >= trackDuration) {
+            // if the user tries to seek past the end of the track we have to correct it
+            // to avoid weird states because of the syncing time between cast sender & receiver
+            return trackDuration - SEEK_CORRECTION_ON_OVERFLOW;
         } else {
-            return playSessionStateProvider.getLastProgressEvent().getPosition();
-        }
-    }
-
-    private long getDuration() {
-        if (castProtocol.isConnected() && getRemoteMediaClient() != null) {
-            return getRemoteMediaClient().getStreamDuration();
-        } else {
-            return playSessionStateProvider.getLastProgressEvent().getDuration();
+            return trackDuration;
         }
     }
 
