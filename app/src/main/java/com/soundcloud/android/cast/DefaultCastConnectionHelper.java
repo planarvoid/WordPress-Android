@@ -10,7 +10,9 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.content.Context;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.MediaRouteActionProvider;
 import android.support.v7.app.MediaRouteButton;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,6 +36,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
     private final CastContextWrapper castContextWrapper;
+    private final CustomMediaRouteDialogFactory customMediaRouteDialogFactory;
 
     private boolean sessionConnected;
     private boolean isCastDeviceAvailable;
@@ -44,6 +47,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         this.mediaRouteMenuItems = new WeakHashMap<>();
         this.mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
         this.connectionChangeListeners = new HashSet<>();
+        this.customMediaRouteDialogFactory = new CustomMediaRouteDialogFactory();
     }
 
     @Override
@@ -106,6 +110,7 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
         try {
             final MenuItem menuItem = CastButtonFactory.setUpMediaRouteButton(context, menu, itemId);
+            setCustomDialogFactory(menuItem);
             Log.d(TAG, "AddMediaRouterButton called for " + menuItem + " vis : " + isCastDeviceAvailable);
 
             mediaRouteMenuItems.put(context, menuItem);
@@ -118,6 +123,13 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         }
     }
 
+    private void setCustomDialogFactory(MenuItem mediaRouteMenuItem) {
+        MediaRouteActionProvider mediaRouteActionProvider = (MediaRouteActionProvider) MenuItemCompat
+                .getActionProvider(mediaRouteMenuItem);
+
+        mediaRouteActionProvider.setDialogFactory(customMediaRouteDialogFactory);
+    }
+
     @Override
     public void removeMediaRouterButton(Context context, MenuItem castMenu) {
         mediaRouteMenuItems.remove(context);
@@ -127,6 +139,8 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
         try {
             CastButtonFactory.setUpMediaRouteButton(mediaRouteButton.getContext(), mediaRouteButton);
+            mediaRouteButton.setDialogFactory(customMediaRouteDialogFactory);
+
             mediaRouteButtons.add(mediaRouteButton);
             mediaRouteButton.setVisibility(isCastDeviceAvailable ? View.VISIBLE : View.GONE);
             mediaRouteButton.onAttachedToWindow();
