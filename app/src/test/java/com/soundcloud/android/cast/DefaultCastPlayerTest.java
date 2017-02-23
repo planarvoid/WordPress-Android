@@ -252,9 +252,8 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         long progress = 123456L;
         long duration = 1265498413L;
         Urn currentTrackUrn = TRACK_URN1;
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(playbackProgress);
-        when(playbackProgress.getPosition()).thenReturn(progress);
-        when(playbackProgress.getDuration()).thenReturn(duration);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
 
         CastPlayQueue castPlayQueue = new CastPlayQueue(currentTrackUrn, PLAY_QUEUE);
         when(castQueueController.getCurrentQueue()).thenReturn(castPlayQueue);
@@ -313,26 +312,13 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getProgressReturnsGetApproximateStreamPositionFromRemoteMediaPlayerWhenConnected() {
-        when(castProtocol.isConnected()).thenReturn(true);
-        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(123L);
-
-        assertThat(castPlayer.getProgress()).isEqualTo(123L);
-    }
-
-    @Test
-    public void getProgressReturnsLastStateFromProviderWhenNotConnected() {
-        when(castProtocol.isConnected()).thenReturn(false);
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(new PlaybackProgress(123L, 79864L, TRACK_URN1));
-
-        assertThat(castPlayer.getProgress()).isEqualTo(123L);
-    }
-
-    @Test
-    public void onDisconnectedBroadcastsIdleState() {
+    public void onDisconnectedBroadcastsIdleStateUsingPreviouslySavedProgressAndDuration() {
         long progress = 123465L;
         long duration = 451246345L;
-        mockProgressAndDuration(progress, duration);
+        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(playbackProgress);
+        when(playSessionStateProvider.getLastProgressForItem(any(Urn.class))).thenReturn(playbackProgress);
+        when(playbackProgress.getPosition()).thenReturn(progress);
+        when(playbackProgress.getDuration()).thenReturn(duration);
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onDisconnected();
