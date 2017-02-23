@@ -148,7 +148,7 @@
       "jobs": [
         {
           "release_build_of_master_branch_acceptance_tests": {
-            "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest downloadNetworkManagerApkCI runLollipopTestsRelease",
+            "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease assembleAcceptanceTest downloadNetworkManagerApkCI runLollipopTestsRelease && ./scripts/release_build_of_master_branch_acceptance_tests_report.sh",
             "manual": true,
             "schedule": "H 04 * * 2-6",
             "artifacts": [
@@ -183,7 +183,7 @@
     "default-name": "Android_Listeners_Master",
     "git-url": "git@github.com:soundcloud/android-listeners.git",
     "github-url": "https://github.com/soundcloud/android-listeners/",
-    "jenkins-server": "http://old-mobile-jenkins.int.s-cloud.net",
+    "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
     "owner-emails": "android-dev@soundcloud.com",
     "slave-label": "mobile-slave"
   }
