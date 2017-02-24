@@ -61,6 +61,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     public void unregisterCastSession() {
         Log.d(TAG, "CastProtocol::unregisterCastSession() called");
         this.castSession = Optional.absent();
+        this.remoteState = Optional.absent();
     }
 
     private CastCredentials getCredentials() {

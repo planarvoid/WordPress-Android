@@ -172,6 +172,21 @@ public class CastProtocolTest extends AndroidUnitTest {
         verify(listener, times(1)).onQueueReceived(castPlayQueue);
     }
 
+    @Test
+    public void invalidateCachedStateAfterSessionIsUnregistered() {
+        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
+        mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
+        castProtocol.setListener(listener);
+        castProtocol.onMetadataUpdated();
+
+        castProtocol.unregisterCastSession();
+
+        castProtocol.registerCastSession(castSession);
+        castProtocol.onMetadataUpdated();
+
+        verify(listener, times(2)).onQueueReceived(castPlayQueue);
+    }
+
     private void mockRemoteState(int playerState, CastPlayQueue queue) {
         try {
             when(castJsonHandler.parseCastPlayQueue(any(JSONObject.class))).thenReturn(queue);
