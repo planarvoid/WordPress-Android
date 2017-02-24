@@ -319,6 +319,7 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(playSessionStateProvider.getLastProgressForItem(any(Urn.class))).thenReturn(playbackProgress);
         when(playbackProgress.getPosition()).thenReturn(progress);
         when(playbackProgress.getDuration()).thenReturn(duration);
+        when(playbackProgress.getUrn()).thenReturn(TRACK_URN1);
         when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.onDisconnected();
@@ -422,6 +423,19 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
 
         verify(playSessionStateProvider).onProgressEvent(playbackProgressEventArgumentCaptor.capture());
         assertThat(playbackProgressEventArgumentCaptor.getValue().getPlaybackProgress().getPosition()).isEqualTo(progress);
+    }
+
+    @Test
+    public void seekAfterDurationForcesPosition() {
+        long progress = 5000L;
+        long expectedProgress = 3900L;
+        mockProgressAndDuration(progress, 4000L);
+        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+
+        castPlayer.seek(progress);
+
+        verify(playSessionStateProvider).onProgressEvent(playbackProgressEventArgumentCaptor.capture());
+        assertThat(playbackProgressEventArgumentCaptor.getValue().getPlaybackProgress().getPosition()).isEqualTo(expectedProgress);
     }
 
     private void mockProgressAndDuration(long progress, long duration) {

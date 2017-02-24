@@ -33,7 +33,7 @@ import java.util.Collections;
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
 
-    private static final long SEEK_CORRECTION_ON_OVERFLOW = 10L;
+    private static final long SEEK_CORRECTION_ON_OVERFLOW = 100L;
 
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
@@ -65,9 +65,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     @Override
     public void onDisconnected() {
         // fetch progress/duration from the storage since we have no more access to RemoteMediaClient after disconnection
-        long progress = playSessionStateProvider.getLastProgressEvent().getPosition();
-        long duration = playSessionStateProvider.getLastProgressEvent().getDuration();
-        playStateReporter.reportDisconnection(castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
+        PlaybackProgress progress = playSessionStateProvider.getLastProgressEvent();
+        playStateReporter.reportDisconnection(progress.getUrn(), progress.getPosition(), progress.getDuration());
     }
 
     @Override
@@ -228,21 +227,23 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public long seek(long ms) {
-        long trackDuration = correctSeekingPositionIfNeeded(ms);
-        onProgressUpdated(ms, trackDuration);
-        getRemoteMediaClient().seek(ms);
-        return ms;
+    public long seek(long position) {
+        long trackDuration = getRemoteMediaClient().getStreamDuration();
+        long correctedPosition = correctSeekingPositionIfNeeded(position, trackDuration);
+
+        onProgressUpdated(correctedPosition, trackDuration);
+        getRemoteMediaClient().seek(correctedPosition);
+
+        return correctedPosition;
     }
 
-    private long correctSeekingPositionIfNeeded(long seekPosition) {
-        final long trackDuration = getRemoteMediaClient().getStreamDuration();
+    private long correctSeekingPositionIfNeeded(long seekPosition, long trackDuration) {
         if (seekPosition >= trackDuration) {
             // if the user tries to seek past the end of the track we have to correct it
             // to avoid weird states because of the syncing time between cast sender & receiver
             return trackDuration - SEEK_CORRECTION_ON_OVERFLOW;
         } else {
-            return trackDuration;
+            return seekPosition;
         }
     }
 
