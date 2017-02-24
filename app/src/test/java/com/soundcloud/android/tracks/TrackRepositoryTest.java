@@ -249,6 +249,22 @@ public class TrackRepositoryTest extends AndroidUnitTest {
                       .assertCompleted();
     }
 
+    @Test
+    public void tracklistFromUrnsReturnsListWithoutUnavailableTracks() throws Exception {
+        final List<Urn> requestedTracks = asList(track1.urn(), track2.urn());
+        final List<Urn> availableTracks = singletonList(track1.urn());
+        // omit track 2, as if it were unavailable
+        final Map<Urn, Track> actualTrackProperties = singletonMap(track1.urn(), track1);
+
+        when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
+        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(just(getSuccessResult()));
+        when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
+
+        trackRepository.trackListFromUrns(requestedTracks).test().assertValue(
+                singletonList(track1)
+        );
+    }
+
     private Map<Urn, Track> toMap(List<Track> tracks) {
         final Map<Urn, Track> result = new HashMap<>(tracks.size());
         for (Track t : tracks) {

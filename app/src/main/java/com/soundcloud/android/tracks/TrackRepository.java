@@ -11,6 +11,7 @@ import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -69,7 +70,7 @@ public class TrackRepository {
 
     public Observable<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
         return fromUrns(requestedTracks)
-                .map(urnTrackMap -> Lists.transform(requestedTracks, urnTrackMap::get));
+                .map(urnTrackMap -> Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));
     }
 
     public Observable<List<Track>> forPlaylist(Urn playlistUrn) {
