@@ -59,8 +59,13 @@ public class NewForYouStorage {
     @VisibleForTesting
     @AutoValue
     static abstract class NewForYouStorageItem {
+        @JsonProperty("lastUpdated")
         public abstract Date lastUpdated();
+
+        @JsonProperty("queryUrn")
         public abstract String queryUrn();
+
+        @JsonProperty("trackUrns")
         public abstract List<String> trackUrns();
 
         @JsonCreator
