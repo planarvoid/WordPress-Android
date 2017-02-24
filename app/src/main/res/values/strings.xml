@@ -872,8 +872,8 @@
     <string name="pref_offline_remove_all_offline_content">Remove content saved offline</string>
     <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is stored on the device.</string>
     <string name="remove_offline_content_title">Remove everything from offline listening?</string>
-    <string name="remove_offline_content_body_default">You’re about remove everything from offline listening.</string>
-    <string name="remove_offline_content_body_sync_collection">You’re about remove everything from offline listening. Additionally, your new likes, playlists and albums won’t save automatically anymore.</string>
+    <string name="remove_offline_content_body_default">You’re about to remove everything from offline listening.</string>
+    <string name="remove_offline_content_body_sync_collection">You’re about to remove everything from offline listening. Additionally, your new likes, playlists and albums won’t save automatically anymore.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
     <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks, playlists and albums should be saved again.</string>
