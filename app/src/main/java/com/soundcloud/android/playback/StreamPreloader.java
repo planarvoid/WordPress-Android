@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.PlaybackServiceController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -33,6 +34,7 @@ public class StreamPreloader {
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
+    private final CastConnectionHelper castConnectionHelper;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackServiceController serviceController;
     private final StreamCacheConfig.SkippyConfig skippyConfig;
@@ -111,11 +113,13 @@ public class StreamPreloader {
     public StreamPreloader(EventBus eventBus,
                            TrackRepository trackRepository,
                            PlayQueueManager playQueueManager,
+                           CastConnectionHelper castConnectionHelper,
                            OfflinePlaybackOperations offlinePlaybackOperations,
                            PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
+        this.castConnectionHelper = castConnectionHelper;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.serviceController = serviceController;
         this.skippyConfig = skippyConfig;
@@ -124,6 +128,7 @@ public class StreamPreloader {
     public void subscribe() {
         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .doOnNext(unsubscribeFromPreload)
+                .filter(ignore -> !castConnectionHelper.isCasting())
                 .filter(hasNextTrackInPlayQueue)
                 .subscribe(new PreloadCandidateSubscriber());
     }

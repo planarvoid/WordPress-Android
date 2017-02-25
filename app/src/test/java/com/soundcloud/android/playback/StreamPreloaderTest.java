@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -35,6 +36,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackServiceController serviceInitiator;
     @Mock private StreamCacheConfig.SkippyConfig streamCacheConfig;
+    @Mock private CastConnectionHelper castConnectionHelper;
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
@@ -44,10 +46,12 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         preloader = new StreamPreloader(eventBus, trackRepository, playQueueManager,
-                                        offlinePlaybackOperations, serviceInitiator, streamCacheConfig);
+                                        castConnectionHelper, offlinePlaybackOperations,
+                                        serviceInitiator, streamCacheConfig);
         preloader.subscribe();
         track = ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build();
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(track));
+        when(castConnectionHelper.isCasting()).thenReturn(false);
     }
 
     @Test
@@ -60,6 +64,20 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
         verify(serviceInitiator).preload(preloadItem);
     }
+
+    @Test
+    public void doesNotPreloadWhenCasting() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
+        setupValidNextTrack();
+        setupValidSpaceRemaining();
+
+        firePlayQueueItemChanged();
+        publishValidPlaybackConditions();
+
+        verify(serviceInitiator, never()).preload(preloadItem);
+    }
+
 
     @Test
     public void preloadsWhenConditionsMetOnMobileAndWithinProgressTolerance() {
