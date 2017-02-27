@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="270"
-        android:centerColor="@color/play_queue_shadow_center"
-        android:endColor="@color/play_queue_shadow_bottom"
-        android:startColor="@color/play_queue_shadow_top" />
-</shape>

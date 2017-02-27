@@ -119,8 +119,6 @@
   <string name="list_empty_notification_secondary">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
   <string name="list_empty_stream_action">LEUTE ZUM FOLGEN FINDEN</string>
   <string name="list_empty_stream_message">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
-  <string name="custom_empty_playlist_title">%1$s ist leer</string>
-  <string name="custom_empty_playlist_description">%1$s enthält noch keine Tracks.</string>
   <string name="list_empty_you_likes_message">Markiere deine bevorzugten Tracks mit „Gefällt mir“, damit du sie erneut anhören kannst.</string>
   <string name="list_empty_you_following_message">Folge deinen bevorzugten Künstlern, Bands und Kuratoren, um ihre neuesten Tracks zu hören.</string>
   <string name="list_empty_you_followers_message">Du hast noch keine Follower.</string>
@@ -136,7 +134,6 @@
   <string name="error_loading_url">Beim Laden dieser URL ist ein Problem aufgetreten.</string>
   <string name="crop_image_error">Beim Zuschneiden deines Bildes ist ein Fehler aufgetreten.</string>
   <string name="error_server_problems_message">Beim Bearbeiten deiner Anfrage ist ein Problem aufgetreten. Versuch es später noch einmal.</string>
-  <string name="connection_list_error">Es ist ein Problem mit der Verbindung aufgetreten. Versuch es später noch einmal.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Ups! Eine Registrierung war leider nicht möglich.\nAktualisiere die App oder registriere dich auf SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Berechtige SoundCloud zum Zugriff auf deinen externen Speicher, um auf das Bild zugreifen zu können.</string>
@@ -257,7 +254,6 @@
     <item quantity="other">%d Kommentare zu diesem Track</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">Playlist konnte nicht geladen werden</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist-Shuffle</string>
   <string name="add_to_playlist">Zur Playlist hinzufügen</string>
@@ -443,8 +439,6 @@
   <string name="pref_clear_cache">App-Cache löschen</string>
   <string name="pref_clear_cache_desc">Lösche den Anwendungs-Cache für mehr Speicherplatz auf deinem Gerät.</string>
   <string name="pref_privacy">Datenschutz</string>
-  <string name="pref_autoplay_related">Ähnliche Tracks autom. abspielen</string>
-  <string name="pref_autoplay_related_desc">Nach dem Ende der Playlist werden anhand des letzten Tracks ausgewählte weitere Tracks gespielt.</string>
   <string name="pref_revoke_access">Abmelden</string>
   <string name="pref_sync_wifi_only">Daten nur über WLAN aktualisieren</string>
   <string name="pref_sync_wifi_only_description">Nur neue Likes etc. über WLAN aktualisieren</string>
@@ -545,7 +539,6 @@
   <string name="media_route_menu_title">Übertragen</string>
   <string name="cast_introductory_overlay_title">SoundCloud übertragen</string>
   <string name="cast_introductory_overlay_description">Tippe hier, um Musik über den Fernseher und übertragungsfähige Lautsprecher abzuspielen</string>
-  <string name="cast_player_casting_to">Übertragen auf %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoteter Track</string>
   <string name="promoted_by_promotorname">Promoteter Track von %s</string>
@@ -920,7 +913,6 @@
   <string name="play_queue_header_charts_top">Aus den Top 50 der %1$s-Charts</string>
   <string name="play_queue_header_charts_trending">Aus der Kategorie „Neu und angesagt“ der %1$s-Charts</string>
   <string name="play_queue_header_explicit">Von dir hinzugefügt</string>
-  <string name="play_queue_header_auto_play">Automatische Wiedergabe</string>
   <string name="play_queue_header_other">Aus einer kürzlich abgespielten Wiedergabeliste</string>
   <string name="play_queue_introductory_overlay_title">Neu! „Es folgt:“</string>
   <string name="play_queue_introductory_overlay_description">Du kannst den nächsten Track wählen sowie Shuffle oder Wiederholung einschalten</string>
@@ -931,11 +923,4 @@
   <string name="suggested_creators">Vorgeschlagene Künstler</string>
   <string name="suggested_creators_blurb">Folge deinen Lieblingskünstlern, um keine neuen Tracks zu verpassen.</string>
   <string name="suggested_creators_recent_posts">Aktuelle Posts</string>
-  <string name="suggested_creators_relation_listened_to">Du hast dir kürzlich einen Track dieses Künstlers angehört.</string>
-  <string name="suggested_creators_relation_liked">Du hast kürzlich einen Track dieses Künstlers mit „Gefällt mir“ markiert. </string>
-  <string name="suggested_creators_relation_reposted">Du hast kürzlich einen Track dieses Künstlers repostet.</string>
-  <string name="suggested_creators_relation_curated">Du hast kürzlich einen Track dieses Künstlers zu deiner Playlist hinzugefügt.</string>
-  <string name="suggested_creators_relation_followed"></string>
-  <string name="suggested_creators_relation_uploaded"></string>
-  <string name="suggested_creators_relation_unknown"></string>
 </resources>
