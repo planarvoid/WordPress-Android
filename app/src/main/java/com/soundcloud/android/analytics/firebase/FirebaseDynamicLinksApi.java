@@ -45,6 +45,10 @@ public class FirebaseDynamicLinksApi {
     private static final String APP_CODE = "soundcloud.app.goo.gl";
     private static final String JSON_CONTENT_TYPE = "application/json";
 
+    private static final String IOS_BUNDLE_ID = "com.soundcloud.TouchApp";
+    private static final String IOS_CUSTOM_URL_SCHEME = "soundcloud";
+    private static final String IOS_APP_STORE_ID = "336353151";
+
     private final FirebaseOptions firebaseOptions;
     private final Resources resources;
     private final OkHttpClient httpClient;
@@ -95,9 +99,15 @@ public class FirebaseDynamicLinksApi {
         JSONObject androidInfoJson = new JSONObject()
                 .put("androidPackageName", resources.getString(R.string.root_package));
 
+        JSONObject iosInfoJson = new JSONObject()
+                .put("iosBundleId", IOS_BUNDLE_ID)
+                .put("iosCustomScheme", IOS_CUSTOM_URL_SCHEME)
+                .put("iosAppStoreId", IOS_APP_STORE_ID);
+
         JSONObject dynamicLinkInfoJson = new JSONObject()
                 .put("dynamicLinkDomain", APP_CODE)
                 .put("link", originalUrl)
+                .put("iosInfo", iosInfoJson)
                 .put("androidInfo", androidInfoJson);
 
         // Use the shortest URL possible. The alternative is to use long URLs that are harder to guess.
