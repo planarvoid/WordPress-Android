@@ -16,6 +16,8 @@ import java.util.List;
 
 public abstract class ViewElement {
 
+    public abstract ViewElement findOnScreenElementWithPopulatedText(With id);
+
     protected static void log(String msg) {
         Log.i("ViewElement", msg);
     }

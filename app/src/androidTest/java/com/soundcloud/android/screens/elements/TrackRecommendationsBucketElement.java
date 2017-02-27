@@ -36,7 +36,7 @@ public class TrackRecommendationsBucketElement {
     }
 
     public String getFirstRecommendedTrackTitle() {
-        return getText(wrapped.findOnScreenElement(With.id(R.id.recommendation_title)));
+        return getText(wrapped.findOnScreenElementWithPopulatedText(With.id(R.id.recommendation_title)));
     }
 
     public VisualPlayerElement clickFirstRecommendedTrack() {

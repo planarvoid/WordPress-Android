@@ -124,6 +124,23 @@ public abstract class With implements Predicate<ViewElement> {
         }
     }
 
+    public static class WithPopulatedText extends With {
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            try {
+                final String text = new TextElement(viewElement).getText();
+                return !text.isEmpty();
+            } catch (UnsupportedOperationException ignored) {
+                return false;
+            }
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With populated text");
+        }
+    }
+
     static class WithContentDescription extends With {
         private final String description;
 

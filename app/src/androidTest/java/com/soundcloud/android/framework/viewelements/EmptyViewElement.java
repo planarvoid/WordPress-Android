@@ -22,6 +22,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public ViewElement findOnScreenElementWithPopulatedText(With id) {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public ViewElement findOnScreenElement(With with) {
         throw new ViewNotFoundException(selector);
     }
