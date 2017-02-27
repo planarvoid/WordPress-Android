@@ -1,12 +1,14 @@
-package com.soundcloud.android.analytics.appboy;
+package com.soundcloud.android.di.testimplementations;
 
 import com.appboy.AppboyUser;
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 
 import android.app.Activity;
 
 // Empty implementation for acceptance tests
-public class EmptyAppboyWrapper implements AppboyWrapper {
+public class NoopAppboyWrapper implements AppboyWrapper {
+
     @Override
     public void handleRegistration(String token) {
 

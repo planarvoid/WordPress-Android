@@ -14,7 +14,6 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -52,7 +51,6 @@ import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsController;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
@@ -174,9 +172,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
         return DaggerApplicationComponent.builder()
-                                         .applicationModule(new ApplicationModule(this))
-                                         .apiModule(new ApiModule())
-                                         .storageModule(new StorageModule());
+                                         .applicationModule(new ApplicationModule(this));
     }
 
     protected void bootApplication() {

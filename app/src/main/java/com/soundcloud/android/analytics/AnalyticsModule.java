@@ -1,6 +1,9 @@
 package com.soundcloud.android.analytics;
 
+import com.appboy.Appboy;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.soundcloud.android.analytics.appboy.AppboyWrapper;
+import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
@@ -22,6 +25,12 @@ public class AnalyticsModule {
 
     static final String TRACKING_DB = "TrackingDB";
     static final String BASE_PROVIDERS = "BaseProviders";
+
+    @Provides
+    @Singleton
+    protected AppboyWrapper provideAppboy(Context context) {
+        return new RealAppboyWrapper(Appboy.getInstance(context));
+    }
 
     @Provides
     @Nullable
@@ -58,4 +67,5 @@ public class AnalyticsModule {
     PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
         return new PropellerDatabase(dbHelper.getWritableDatabase());
     }
+
 }

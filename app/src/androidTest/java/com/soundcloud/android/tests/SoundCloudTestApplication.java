@@ -2,9 +2,8 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.DaggerApplicationComponent;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 
 import android.content.Context;
 
@@ -24,7 +23,6 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     }
 
     private void beforeOnCreate() {
-        FeatureFlagsHelper.create(this).disable(Flag.APPBOY);
     }
 
     /**
@@ -41,7 +39,7 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     public static SoundCloudTestApplication fromContext(Context c) {
         if (c.getApplicationContext() instanceof SoundCloudTestApplication) {
-            return ((SoundCloudTestApplication) c.getApplicationContext());
+            return (SoundCloudTestApplication) c.getApplicationContext();
         } else {
             throw new RuntimeException("can't obtain app from context");
         }
@@ -49,6 +47,8 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     @Override
     protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
-        return super.getApplicationComponentBuilder().apiModule(new TestApiModule());
+        return super.getApplicationComponentBuilder()
+                    .apiModule(new TestApiModule())
+                    .analyticsModule(new TestAnalyticsModule());
     }
 }

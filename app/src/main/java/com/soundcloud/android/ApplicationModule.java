@@ -2,16 +2,11 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFORM_CACHE_SIZE;
 
-import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
-import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.appboy.AppboyWrapper;
-import com.soundcloud.android.analytics.appboy.EmptyAppboyWrapper;
-import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
 import com.soundcloud.android.analytics.firebase.FirebaseModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastModule;
@@ -41,7 +36,6 @@ import com.soundcloud.android.playlists.PlaylistsModule;
 import com.soundcloud.android.profile.ProfileModule;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -90,7 +84,6 @@ import java.util.Locale;
                 CommentsModule.class,
                 OfflineModule.class,
                 DiscoveryModule.class,
-                AnalyticsModule.class,
                 CastModule.class,
                 PlayQueueModule.class,
                 FirebaseModule.class
@@ -271,15 +264,6 @@ public class ApplicationModule {
     @Provides
     public FacebookSdk provideFacebookSdk() {
         return new FacebookSdk();
-    }
-
-    @Provides
-    @Singleton
-    public AppboyWrapper provideAppboy(Context context, FeatureFlags featureFlags) {
-        if (featureFlags.isEnabled(Flag.APPBOY)) {
-            return new RealAppboyWrapper(Appboy.getInstance(context));
-        }
-        return new EmptyAppboyWrapper();
     }
 
     @Provides

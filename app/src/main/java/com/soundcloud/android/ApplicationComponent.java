@@ -3,8 +3,9 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
-import com.soundcloud.android.cast.CastMediaIntentReceiver;
+import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
+import com.soundcloud.android.cast.CastMediaIntentReceiver;
 import com.soundcloud.android.cast.CastOptionsProvider;
 import com.soundcloud.android.cast.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
@@ -147,7 +148,12 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = { ApplicationModule.class, ApiModule.class, StorageModule.class })
+@Component(modules = {
+        ApplicationModule.class,
+        ApiModule.class,
+        StorageModule.class,
+        AnalyticsModule.class
+})
 public interface ApplicationComponent {
     void inject(SoundCloudApplication application);
 
