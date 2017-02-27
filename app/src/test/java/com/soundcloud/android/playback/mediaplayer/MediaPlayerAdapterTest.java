@@ -42,10 +42,8 @@ import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,20 +92,12 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private VideoAdPlaybackItem videoItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L, 0.5f);
     private int duration = 20000;
-    private PropertySet track;
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        track = PropertySet.from(
-                TrackProperty.URN.bind(trackUrn),
-                TrackProperty.SNIPPET_DURATION.bind(345L),
-                TrackProperty.FULL_DURATION.bind(456L),
-                TrackProperty.SNIPPED.bind(false)
-        );
-
         userUrn = ModelFixtures.create(Urn.class);
         when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);

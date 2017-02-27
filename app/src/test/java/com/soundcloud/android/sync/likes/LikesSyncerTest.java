@@ -19,14 +19,15 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -36,8 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-// AndroidUnitTest because of PropertySets being used
-public class LikesSyncerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class LikesSyncerTest {
 
     private LikesSyncer syncer;
 
@@ -64,7 +65,6 @@ public class LikesSyncerTest extends AndroidUnitTest {
                                  loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
                                  removeLikes, eventBus, TYPE_TRACK);
         trackLike = ModelFixtures.apiTrackLike();
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
 
     @Test

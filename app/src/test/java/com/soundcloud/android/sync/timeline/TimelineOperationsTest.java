@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// AndroidUnitTest because of PropertySet
 public abstract class TimelineOperationsTest<StorageModel, ViewModel, StorageT extends TimelineStorage<StorageModel>>
         extends AndroidUnitTest {
 

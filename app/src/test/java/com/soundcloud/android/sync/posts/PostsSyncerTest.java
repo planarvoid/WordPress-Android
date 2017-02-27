@@ -16,12 +16,13 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-// uses AndroidUnitTest because of PropertySet
-public class PostsSyncerTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PostsSyncerTest {
 
     private PostsSyncer syncer;
 

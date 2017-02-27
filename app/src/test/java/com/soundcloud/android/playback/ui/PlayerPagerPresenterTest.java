@@ -431,35 +431,35 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindTrackViewForTracks() {
-        ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
+        ArgumentCaptor<PlayerTrackState> captorPlayerTrackState = ArgumentCaptor.forClass(PlayerTrackState.class);
 
         presenter.onResume(playerFragment);
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(same(pageView), captorPropertySet.capture());
+        verify(trackPagePresenter).bindItemView(same(pageView), captorPlayerTrackState.capture());
 
-        assertThat(captorPropertySet.getValue().getTrackUrn()).isEqualTo(TRACK1_URN);
-        assertThat(captorPropertySet.getValue().getTitle()).isEqualTo("title");
-        assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
-        assertThat(captorPropertySet.getValue().isForeground()).isTrue();
-        assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
+        assertThat(captorPlayerTrackState.getValue().getTrackUrn()).isEqualTo(TRACK1_URN);
+        assertThat(captorPlayerTrackState.getValue().getTitle()).isEqualTo("title");
+        assertThat(captorPlayerTrackState.getValue().getUserName()).isEqualTo("artist");
+        assertThat(captorPlayerTrackState.getValue().isForeground()).isTrue();
+        assertThat(captorPlayerTrackState.getValue().isCurrentTrack()).isTrue();
     }
 
     @Test
     public void shouldBindTrackViewForTrackWithRelatedTrack() {
-        ArgumentCaptor<PlayerTrackState> captorPropertySet = ArgumentCaptor.forClass(PlayerTrackState.class);
+        ArgumentCaptor<PlayerTrackState> captorPlayerTrackState = ArgumentCaptor.forClass(PlayerTrackState.class);
 
         presenter.onResume(playerFragment);
 
         final View pageView = getPageView();
 
-        verify(trackPagePresenter).bindItemView(same(pageView), captorPropertySet.capture());
+        verify(trackPagePresenter).bindItemView(same(pageView), captorPlayerTrackState.capture());
 
-        assertThat(captorPropertySet.getValue().getTrackUrn()).isEqualTo(TRACK1_URN);
-        assertThat(captorPropertySet.getValue().getTitle()).isEqualTo("title");
-        assertThat(captorPropertySet.getValue().getUserName()).isEqualTo("artist");
-        assertThat(captorPropertySet.getValue().isForeground()).isTrue();
-        assertThat(captorPropertySet.getValue().isCurrentTrack()).isTrue();
+        assertThat(captorPlayerTrackState.getValue().getTrackUrn()).isEqualTo(TRACK1_URN);
+        assertThat(captorPlayerTrackState.getValue().getTitle()).isEqualTo("title");
+        assertThat(captorPlayerTrackState.getValue().getUserName()).isEqualTo("artist");
+        assertThat(captorPlayerTrackState.getValue().isForeground()).isTrue();
+        assertThat(captorPlayerTrackState.getValue().isCurrentTrack()).isTrue();
     }
 
     @Test
@@ -483,13 +483,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void shouldBindAdViewForAudioAds() {
         presenter.onResume(playerFragment);
         View pageView = getAudioAdPageView();
-        ArgumentCaptor<AudioPlayerAd> captorPropertySet = ArgumentCaptor.forClass(AudioPlayerAd.class);
+        ArgumentCaptor<AudioPlayerAd> captorAudioPlayerAd = ArgumentCaptor.forClass(AudioPlayerAd.class);
 
-        verify(audioAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(audioAdPresenter).bindItemView(eq(pageView), captorAudioPlayerAd.capture());
 
-        assertThat(captorPropertySet.getValue().getImage()).isNotNull();
-        assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
-        assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
+        assertThat(captorAudioPlayerAd.getValue().getImage()).isNotNull();
+        assertThat(captorAudioPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorAudioPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
     }
 
     @Test
@@ -498,13 +498,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         setupVideoAd();
         View pageView = getVideoAdPageView();
-        ArgumentCaptor<VideoPlayerAd> captorPropertySet = ArgumentCaptor.forClass(VideoPlayerAd.class);
+        ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
-        verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
         verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
 
-        assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
-        assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
+        assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
     }
 
     @Test

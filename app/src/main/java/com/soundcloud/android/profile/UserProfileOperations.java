@@ -10,8 +10,6 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UserChangedEvent;
-import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -20,7 +18,6 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProfileInfo;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -142,26 +139,6 @@ public class UserProfileOperations {
                                                 .map(UserProfileOperations.this::mergePlayableInfo)
                                                 .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
                                                 .subscribeOn(scheduler));
-    }
-
-    Observable<List<PropertySet>> postsForPlayback(final List<? extends PlayableItem> playableItems) {
-        return Observable.fromCallable(() -> {
-            final List<PropertySet> postsForPlayback = new ArrayList<>();
-            for (PlayableItem playableItem : playableItems) {
-                postsForPlayback.add(createPostForPlayback(playableItem));
-            }
-            return postsForPlayback;
-        });
-    }
-
-    private PropertySet createPostForPlayback(PlayableItem playableItem) {
-        final PropertySet postForPlayback = PropertySet.from(
-                EntityProperty.URN.bind(playableItem.getUrn())
-        );
-        if (playableItem.reposterUrn().isPresent()) {
-            postForPlayback.put(PostProperty.REPOSTER_URN, playableItem.reposterUrn().get());
-        }
-        return postForPlayback;
     }
 
     Observable<PagedRemoteCollection<PlaylistItem>> userPlaylists(Urn user) {

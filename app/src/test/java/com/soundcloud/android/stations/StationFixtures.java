@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
@@ -36,18 +35,6 @@ public class StationFixtures {
     static ApiStation getApiStation(Urn station, List<ApiTrack> tracks) {
         return new ApiStation(getApiStationMetadata(station),
                               new ModelCollection<>(tracks, null, "soundcloud:radio:123123123"));
-    }
-
-    static List<PropertySet> getRecentStationsToSync(PropertySet... stations) {
-        return Arrays.asList(stations);
-    }
-
-    static PropertySet stationProperties() {
-        return PropertySet.from(
-                StationProperty.URN.bind(Urn.forTrackStation(123L)),
-                StationProperty.ADDED_AT.bind(12345L),
-                StationProperty.POSITION.bind(0)
-        );
     }
 
     private static ApiStationMetadata getApiStationMetadata(Urn station) {

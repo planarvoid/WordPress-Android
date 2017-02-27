@@ -37,7 +37,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.jetbrains.annotations.NotNull;
@@ -299,7 +298,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 
-        assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.<List<PropertySet>>finish());
+        assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.finish());
     }
 
     @NonNull

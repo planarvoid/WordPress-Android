@@ -96,7 +96,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToFollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(true, buildUserPropertySet(CREATOR_URN), EventContextMetadata.builder().build());
+        UIEvent uiEvent = UIEvent.fromToggleFollow(true, buildUserMetadata(CREATOR_URN), EventContextMetadata.builder().build());
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.FOLLOW);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.FOLLOW_ADD);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(CREATOR_URN);
@@ -105,7 +105,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        UIEvent uiEvent = UIEvent.fromToggleFollow(false, buildUserPropertySet(CREATOR_URN), EventContextMetadata.builder().build());
+        UIEvent uiEvent = UIEvent.fromToggleFollow(false, buildUserMetadata(CREATOR_URN), EventContextMetadata.builder().build());
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNFOLLOW);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.FOLLOW_REMOVE);
     }
@@ -1251,7 +1251,7 @@ public class UIEventTest extends AndroidUnitTest {
         return EntityMetadata.from(CREATOR_NAME, USER_URN, PLAYABLE_TITLE, urn);
     }
 
-    private EntityMetadata buildUserPropertySet(Urn urn) {
+    private EntityMetadata buildUserMetadata(Urn urn) {
         return EntityMetadata.from(CREATOR_NAME, urn, Strings.EMPTY, Urn.NOT_SET);
     }
 

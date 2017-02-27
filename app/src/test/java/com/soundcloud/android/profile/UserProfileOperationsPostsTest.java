@@ -17,18 +17,14 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -36,7 +32,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
@@ -172,33 +167,6 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
         operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(TO_RECORD_HOLDERS(page));
-    }
-
-    @Test
-    public void postsForPlaybackReturnsPostsWithReposterInformation() {
-        final TrackItem repostedTrackItem = trackRepostItem.updateWithReposter("reposter", USER_URN);
-        final PlaylistItem repostedPlaylistItem = playlistRepostItem.updateWithReposter("reposter", USER_URN);
-        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
-
-        operations.postsForPlayback(
-                Arrays.asList(
-                        trackPostItem,
-                        repostedTrackItem,
-                        playlistPostItem,
-                        repostedPlaylistItem
-                )
-        ).subscribe(subscriber);
-
-        subscriber.assertValues(
-                Arrays.asList(
-                        PropertySet.from(TrackProperty.URN.bind(trackPostItem.getUrn())),
-                        PropertySet.from(TrackProperty.URN.bind(repostedTrackItem.getUrn()),
-                                         PostProperty.REPOSTER_URN.bind(repostedTrackItem.reposterUrn().get())),
-                        PropertySet.from(PlaylistProperty.URN.bind(playlistPostItem.getUrn())),
-                        PropertySet.from(PlaylistProperty.URN.bind(repostedPlaylistItem.getUrn()),
-                                         PostProperty.REPOSTER_URN.bind(repostedTrackItem.reposterUrn().get()))
-                )
-        );
     }
 
     private void assertAllItemsEmitted() {

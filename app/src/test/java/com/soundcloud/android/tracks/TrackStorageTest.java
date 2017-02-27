@@ -115,7 +115,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyPropertySetIfTrackNotFound() {
+    public void shouldReturnEmptyItemIfTrackNotFound() {
         Optional<Track> track = storage.loadTrack(Urn.forTrack(123)).toBlocking().single();
 
         assertThat(track.isPresent()).isFalse();

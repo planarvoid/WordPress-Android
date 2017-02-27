@@ -12,28 +12,28 @@ public class ApiPostItemTest {
     private static final Date CREATED_AT = new Date();
 
     @Test
-    public void shouldConvertToTrackPostPropertySetIfTrackPost() throws Exception {
+    public void shouldConvertToTrackPostItemIfTrackPost() throws Exception {
         ApiPost trackPost = ApiPost.create(Urn.forTrack(123), CREATED_AT);
         ApiPostItem postItem = new ApiPostItem(trackPost, null, null, null);
         assertThat(postItem.getPostRecord()).isEqualTo(ApiPost.create(Urn.forTrack(123), CREATED_AT));
     }
 
     @Test
-    public void shouldConvertToTrackRepostPropertySetIfTrackRepost() throws Exception {
+    public void shouldConvertToTrackRepostItemIfTrackRepost() throws Exception {
         ApiRepost trackRepost = ApiRepost.create(Urn.forTrack(123), CREATED_AT);
         ApiPostItem postItem = new ApiPostItem(null, trackRepost, null, null);
         assertThat(postItem.getPostRecord()).isEqualTo(ApiRepost.create(Urn.forTrack(123), CREATED_AT));
     }
 
     @Test
-    public void shouldConvertToPlaylistPostPropertySetIfPlaylistPost() throws Exception {
+    public void shouldConvertToPlaylistPostItemIfPlaylistPost() throws Exception {
         ApiPost playlistPost = ApiPost.create(Urn.forPlaylist(123), CREATED_AT);
         ApiPostItem postItem = new ApiPostItem(null, null, playlistPost, null);
         assertThat(postItem.getPostRecord()).isEqualTo(ApiPost.create(Urn.forPlaylist(123), CREATED_AT));
     }
 
     @Test
-    public void shouldConvertToPlaylistRepostPropertySetIfPlaylistRepost() throws Exception {
+    public void shouldConvertToPlaylistRepostItemIfPlaylistRepost() throws Exception {
         ApiRepost playlistRepost = ApiRepost.create(Urn.forPlaylist(123), CREATED_AT);
         ApiPostItem postItem = new ApiPostItem(null, null, null, playlistRepost);
         assertThat(postItem.getPostRecord()).isEqualTo(ApiRepost.create(Urn.forPlaylist(123), CREATED_AT));

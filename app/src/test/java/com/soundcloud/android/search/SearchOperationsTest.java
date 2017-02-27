@@ -405,8 +405,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final UserItem followedUser = (UserItem) searchResult.getItems().get(0);
         assertThat(followedUser.isFollowedByMe()).isTrue();
 
-        final UserItem nonFollowedUserPropertySet = (UserItem) searchResult.getItems().get(2);
-        assertThat(nonFollowedUserPropertySet).isEqualTo(UserItem.from(user2));
+        final UserItem nonFollowedUserItem = (UserItem) searchResult.getItems().get(2);
+        assertThat(nonFollowedUserItem).isEqualTo(UserItem.from(user2));
     }
 
     @Test

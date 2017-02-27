@@ -6,14 +6,12 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
 
 import java.util.Date;
-import java.util.List;
 
 public class PostsStorageTest extends StorageIntegrationTest {
 
@@ -24,8 +22,6 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private ApiUser user;
     private LastPostedTrack post1;
     private LastPostedTrack post2;
-
-    final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
 
     @Mock private AccountOperations accountOperations;
 
@@ -71,10 +67,10 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private LastPostedTrack createTrackPostForLastPostedAt(Date postedAt) {
         ApiTrack track = createTrackAt(postedAt);
         createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
-        return createTrackPostForLastPostedPropertySet(track);
+        return createTrackPostForLastPostedApiTrack(track);
     }
 
-    private LastPostedTrack createTrackPostForLastPostedPropertySet(ApiTrack track) {
+    private LastPostedTrack createTrackPostForLastPostedApiTrack(ApiTrack track) {
         return LastPostedTrack.create(track.getUrn(), track.getCreatedAt(), track.getPermalinkUrl());
     }
 
@@ -85,7 +81,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     private LastPostedTrack createPrivateTrackPostForLastPostedAt(Date postedAt) {
         ApiTrack track = createPrivateTrackAt(postedAt);
         createTrackPostWithId(track.getUrn().getNumericId(), postedAt);
-        return createTrackPostForLastPostedPropertySet(track);
+        return createTrackPostForLastPostedApiTrack(track);
     }
 
 }
