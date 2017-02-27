@@ -90,9 +90,9 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         restoreBlock.setVisibility(View.VISIBLE);
     }
 
-    void disableRestoreSubscription() {
-        restore.setClickable(false);
-        restore.setTextColor(restore.getResources().getColor(R.color.ak_medium_dark_gray));
+    void setRestoreSubscriptionEnabled(boolean enabled) {
+        restore.setEnabled(enabled);
+        restore.setClickable(enabled);
     }
 
     @OnClick(R.id.header_layout)

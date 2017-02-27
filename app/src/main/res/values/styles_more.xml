@@ -83,7 +83,7 @@
     <style name="TextAppearance.More.NavItem">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/selector_more_nav_item_text_color</item>
         <item name="android:clickable">true</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>

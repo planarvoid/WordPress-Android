@@ -34,15 +34,15 @@ public class ConfigurationManager {
     }
 
     public void forceConfigurationUpdate() {
-        Log.d(TAG, "Forcing configuration update");
+        Log.d(TAG, "Forcing configuration fetch");
         subscription.unsubscribe();
-        subscription = configurationOperations.update().subscribe(new ConfigurationSubscriber());
+        subscription = configurationOperations.fetch().subscribe(new ConfigurationSubscriber());
     }
 
     void requestConfigurationUpdate() {
-        Log.d(TAG, "Requesting configuration update");
+        Log.d(TAG, "Requesting configuration fetch");
         subscription.unsubscribe();
-        subscription = configurationOperations.updateIfNecessary().subscribe(new ConfigurationSubscriber());
+        subscription = configurationOperations.fetchIfNecessary().subscribe(new ConfigurationSubscriber());
     }
 
     public void checkForForcedApplicationUpdate() {

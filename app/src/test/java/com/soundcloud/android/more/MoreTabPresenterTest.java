@@ -11,11 +11,13 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.TestConfiguration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -30,6 +32,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +43,8 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.view.View;
+
+import java.io.IOException;
 
 public class MoreTabPresenterTest extends AndroidUnitTest {
 
@@ -62,8 +67,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private ApplicationProperties appProperties;
     @Mock private SyncConfig syncConfig;
     @Mock private OfflineSettingsStorage storage;
-    @Mock private ConfigurationManager configurationManager;
+    @Mock private ConfigurationOperations configurationOperations;
     @Mock private FeatureFlags flags;
+    @Mock private FeedbackController feedbackController;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
@@ -83,8 +89,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          bugReporter,
                                          appProperties,
                                          storage,
-                                         configurationManager,
-                                         flags);
+                                         configurationOperations,
+                                         flags,
+                                         feedbackController);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -223,12 +230,25 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onRestoreSubscriptionClickedUpdatesConfiguration() {
+    public void showNotSubscribedToastOnRestoreSubscriptionClicked() {
+        when(configurationOperations.update()).thenReturn(Observable.just(TestConfiguration.highTier()));
         initFragment();
+
         listenerArgumentCaptor.getValue().onRestoreSubscriptionClicked(new View(context()));
 
-        verify(configurationManager).forceConfigurationUpdate();
-        verify(moreView).disableRestoreSubscription();
+        verify(moreView).setRestoreSubscriptionEnabled(true);
+        verify(feedbackController).showFeedback(Feedback.create(R.string.more_subscription_check_not_subscribed));
+    }
+
+    @Test
+    public void showErrorToastOnRestoreSubscriptionClicked() {
+        when(configurationOperations.update()).thenReturn(Observable.error(new IOException("Error getting exception")));
+        initFragment();
+
+        listenerArgumentCaptor.getValue().onRestoreSubscriptionClicked(new View(context()));
+
+        verify(moreView).setRestoreSubscriptionEnabled(true);
+        verify(feedbackController).showFeedback(Feedback.create(R.string.more_subscription_check_error));
     }
 
     @Test

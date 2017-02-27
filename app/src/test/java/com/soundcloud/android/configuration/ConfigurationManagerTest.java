@@ -43,7 +43,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void forceUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
-        when(configurationOperations.update()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
+        when(configurationOperations.fetch()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
         manager.forceConfigurationUpdate();
 
@@ -52,7 +52,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void forceUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
-        when(configurationOperations.update()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
+        when(configurationOperations.fetch()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
@@ -65,7 +65,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void requestedUpdateWithAuthorizedDeviceResponseSavesConfiguration() {
-        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
+        when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.just(AUTHORIZED_DEVICE_CONFIG));
 
         manager.requestConfigurationUpdate();
 
@@ -74,7 +74,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void requestedUpdateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() {
-        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
+        when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.just(UNAUTHORIZED_DEVICE_CONFIG));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
@@ -87,7 +87,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void requestedUnnecessaryUpdateIsNoOp() {
-        when(configurationOperations.updateIfNecessary()).thenReturn(Observable.<Configuration>empty());
+        when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.<Configuration>empty());
 
         manager.requestConfigurationUpdate();
 

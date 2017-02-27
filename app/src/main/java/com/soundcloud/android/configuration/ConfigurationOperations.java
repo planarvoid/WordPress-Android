@@ -106,10 +106,16 @@ public class ConfigurationOperations {
         this.featureFlags = featureFlags;
     }
 
-    Observable<Configuration> update() {
+    Observable<Configuration> fetch() {
         return Observable.defer(() -> fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
                 .subscribeOn(scheduler)
                 .toObservable());
+    }
+
+    public Observable<Configuration> update() {
+        return apiClientRx.mappedResponse(configurationRequestBuilderForGet().build(), Configuration.class)
+                          .subscribeOn(scheduler)
+                          .doOnNext(this::saveConfiguration);
     }
 
     @NonNull
@@ -121,12 +127,12 @@ public class ConfigurationOperations {
         return () -> apiClient.fetchMappedResponse(request, Configuration.class);
     }
 
-    Observable<Configuration> updateIfNecessary() {
+    Observable<Configuration> fetchIfNecessary() {
         final long now = System.currentTimeMillis();
         if (configurationSettingsStorage.getLastConfigurationCheckTime() < now - CONFIGURATION_STALE_TIME_MILLIS) {
-            return update();
+            return fetch();
         } else {
-            Log.d(TAG, "Skipping update; recently updated.");
+            Log.d(TAG, "Skipping fetch; recently updated.");
             return Observable.empty();
         }
     }

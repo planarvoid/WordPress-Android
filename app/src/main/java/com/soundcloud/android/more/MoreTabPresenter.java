@@ -4,11 +4,13 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
-import com.soundcloud.android.configuration.ConfigurationManager;
+import com.soundcloud.android.configuration.Configuration;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.MainPagerAdapter;
@@ -18,13 +20,16 @@ import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
@@ -50,8 +55,12 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
-    private final ConfigurationManager configurationManager;
+    private final ConfigurationOperations configurationOperations;
     private final FeatureFlags featureFlags;
+    private final FeedbackController feedbackController;
+
+    private Subscription userSubscription = RxUtils.invalidSubscription();
+    private Subscription configSubscription = RxUtils.invalidSubscription();
 
     private Optional<MoreView> moreViewOpt = Optional.absent();
     private Optional<More> moreOpt = Optional.absent();
@@ -69,8 +78,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                      BugReporter bugReporter,
                      ApplicationProperties appProperties,
                      OfflineSettingsStorage settingsStorage,
-                     ConfigurationManager configurationManager,
-                     FeatureFlags featureFlags) {
+                     ConfigurationOperations configurationOperations,
+                     FeatureFlags featureFlags,
+                     FeedbackController feedbackController) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -83,14 +93,15 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.settingsStorage = settingsStorage;
-        this.configurationManager = configurationManager;
+        this.configurationOperations = configurationOperations;
         this.featureFlags = featureFlags;
+        this.feedbackController = feedbackController;
     }
 
     @Override
     public void onCreate(MoreFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userRepository.userInfo(accountOperations.getLoggedInUserUrn())
+        userSubscription = userRepository.userInfo(accountOperations.getLoggedInUserUrn())
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new MoreSubscriber());
     }
@@ -171,7 +182,14 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
             moreViewOpt.get().unbind();
             moreViewOpt = Optional.absent();
         }
+        configSubscription.unsubscribe();
         super.onDestroyView(fragment);
+    }
+
+    @Override
+    public void onDestroy(MoreFragment fragment) {
+        userSubscription.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     private void bindUserIfPresent() {
@@ -268,9 +286,15 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onRestoreSubscriptionClicked(View view) {
-        configurationManager.forceConfigurationUpdate();
+        configSubscription = configurationOperations.update()
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(new ConfigurationSubscriber());
+        setRestoreSubscriptionEnabled(false);
+    }
+
+    private void setRestoreSubscriptionEnabled(boolean enabled) {
         if (moreViewOpt.isPresent()) {
-            moreViewOpt.get().disableRestoreSubscription();
+            moreViewOpt.get().setRestoreSubscriptionEnabled(enabled);
         }
     }
 
@@ -305,4 +329,20 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                 .show();
     }
 
+    private class ConfigurationSubscriber extends DefaultSubscriber<Configuration> {
+
+        @Override
+        public void onCompleted() {
+            if(!featureOperations.getCurrentPlan().isGoPlan()) {
+                feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_not_subscribed));
+            }
+            setRestoreSubscriptionEnabled(true);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            feedbackController.showFeedback(Feedback.create(R.string.more_subscription_check_error));
+            setRestoreSubscriptionEnabled(true);
+        }
+    }
 }

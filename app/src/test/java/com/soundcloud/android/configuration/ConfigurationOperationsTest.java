@@ -88,11 +88,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateReturnsConfiguration() throws Exception {
+    public void fetchReturnsConfiguration() throws Exception {
         final Configuration noPlan = TestConfiguration.free();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(noPlan);
 
-        operations.update().subscribe(configSubscriber);
+        operations.fetch().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
 
         configSubscriber.assertValue(noPlan);
@@ -100,14 +100,14 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() throws Exception {
+    public void fetchIfNecessaryUpdatesConfigurationIfLastUpdateTooLongAgo() throws Exception {
         final Configuration noPlan = TestConfiguration.free();
         when(configurationSettingsStorage.getLastConfigurationCheckTime())
                 .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS - 1);
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(noPlan);
 
-        operations.updateIfNecessary().subscribe(configSubscriber);
+        operations.fetchIfNecessary().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
 
         configSubscriber.assertValue(noPlan);
@@ -115,11 +115,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateIfNecessaryDoesNotUpdateConfigurationIfRecentlyUpdated() {
+    public void fetchIfNecessaryDoesNotUpdateConfigurationIfRecentlyUpdated() {
         when(configurationSettingsStorage.getLastConfigurationCheckTime())
                 .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS + 1);
 
-        operations.updateIfNecessary().subscribe(configSubscriber);
+        operations.fetchIfNecessary().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
 
         configSubscriber.assertNoValues();
@@ -127,11 +127,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateIfNecessaryDoesNotSaveUpdateTimestampIfRecentlyUpdated() {
+    public void fetchIfNecessaryDoesNotSaveUpdateTimestampIfRecentlyUpdated() {
         when(configurationSettingsStorage.getLastConfigurationCheckTime())
                 .thenReturn(System.currentTimeMillis() - CONFIGURATION_STALE_TIME_MILLIS + 1);
 
-        operations.updateIfNecessary().subscribe(configSubscriber);
+        operations.fetchIfNecessary().subscribe(configSubscriber);
         scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
 
         verify(configurationSettingsStorage, never()).setLastConfigurationUpdateTime(anyLong());
@@ -262,7 +262,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsExperimentsOnUpdate() throws Exception {
-        operations.update().subscribe(configSubscriber);
+        operations.fetch().subscribe(configSubscriber);
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
         verify(apiClient).fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
@@ -309,6 +309,16 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                                            eq(Configuration.class))).thenReturn(configuration);
 
         assertThat(operations.forceRegisterDevice(token)).isSameAs(configuration.getDeviceManagement());
+    }
+
+    @Test
+    public void updateSavesAndReturnsConfiguration() {
+        operations.update().subscribe(configSubscriber);
+        scheduler.advanceTimeBy(1, TimeUnit.SECONDS);
+
+        assertThat(configSubscriber.getOnNextEvents().get(0)).isSameAs(configuration);
+        configSubscriber.assertCompleted();
+        verify(featureOperations).updatePlan(configuration.getUserPlan());
     }
 
     @Test
