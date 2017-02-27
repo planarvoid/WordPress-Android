@@ -56,6 +56,6 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
 
         newForYouScreen.toggleTrackLike(1);
 
-        finishEventTracking("new_for_you_engagement");
+        finishEventTracking("new_for_you_engagement2");
     }
 }

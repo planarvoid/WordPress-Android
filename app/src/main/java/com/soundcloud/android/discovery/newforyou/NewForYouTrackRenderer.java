@@ -5,10 +5,12 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouTrackItem;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ class NewForYouTrackRenderer implements CellRenderer<NewForYouTrackItem> {
         NewForYouTrackItem trackItem = items.get(position);
 
         TrackSourceInfo info = new TrackSourceInfo(Screen.NEW_FOR_YOU.get(), true);
+        info.setSource(DiscoverySource.NEW_FOR_YOU.value(), Strings.EMPTY);
         info.setQuerySourceInfo(QuerySourceInfo.create(position - NewForYouPresenter.NUM_EXTRA_ITEMS, trackItem.newForYou().queryUrn()));
 
         trackItemRenderer.bindNewForYouTrackView(items.get(position).track(),
