@@ -62,7 +62,7 @@ ext {
           jacksonDataBind             : "com.fasterxml.jackson.core:jackson-databind:2.6.1",
           okHttp                      : "com.squareup.okhttp3:okhttp:3.6.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
-          rxJava                      : "io.reactivex:rxjava:1.2.6",
+          rxJava                      : "io.reactivex:rxjava:1.2.7",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
 
