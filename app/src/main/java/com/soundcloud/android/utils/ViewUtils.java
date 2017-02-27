@@ -76,10 +76,8 @@ public final class ViewUtils {
         if (view != null) {
             final Rect onScreen = new Rect();
             final int area = view.getWidth() * view.getHeight();
-
-            view.getGlobalVisibleRect(onScreen);
-
-            if (area > 0) {
+            final boolean nonEmpty = view.getGlobalVisibleRect(onScreen);
+            if (area > 0 && nonEmpty) {
                 final int viewableArea = onScreen.width() * onScreen.height();
                 return ((float) viewableArea) / ((float) area) * 100;
             }

@@ -7,9 +7,11 @@ import android.view.View;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Pair;
@@ -25,7 +27,12 @@ import org.mockito.Spy;
 import java.util.Date;
 import java.util.List;
 
+import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
@@ -235,7 +242,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(10, untracked, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(10, untracked, CURRENT_DATE));
     }
 
     @Test
@@ -247,7 +254,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test
@@ -261,7 +268,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test
@@ -273,7 +280,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
     }
 
     @Test
@@ -283,7 +290,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onScroll();
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
     }
 
     @Test
@@ -309,6 +316,34 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         assertThat(inserted).isTrue();
         verify(adapter).addItem(7, VIDEO_AD_ITEM);
+    }
+
+    @Test
+    public void forwardsVideoStateTransitionsToViewIfOnScreen() {
+        when(layoutManager.findViewByPosition(8)).thenReturn(Mockito.mock(View.class));
+
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 51);
+        inlayAdHelper.subscribe();
+
+        final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
+        eventBus.publish(EventQueue.INLAY_AD, event);
+
+        verify(videoAdItemRenderer).setPlayState(any(View.class), eq(event.stateTransition()), eq(event.isMuted()));
+    }
+
+    @Test
+    public void dropsVideoStateTransitionsIfViewNotOnScreen() {
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        inlayAdHelper.subscribe();
+
+        final InlayAdEvent.InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
+        eventBus.publish(EventQueue.INLAY_AD, event);
+
+        verify(videoAdItemRenderer, never()).setPlayState(any(View.class), any(PlaybackStateTransition.class), anyBoolean());
     }
 
     private void setEdgeVisiblePosition(int position) {

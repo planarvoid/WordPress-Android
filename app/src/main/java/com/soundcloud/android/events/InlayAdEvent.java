@@ -4,9 +4,9 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 
 import java.util.Date;
-
 
 public abstract class InlayAdEvent {
 
@@ -22,7 +22,13 @@ public abstract class InlayAdEvent {
     }
 
     public boolean forVideoAd() {
-        return (this instanceof WithAdData && ((WithAdData) this).getAd() instanceof VideoAd) || this instanceof NoVideoOnScreen;
+        return (this instanceof WithAdData && ((WithAdData) this).getAd() instanceof VideoAd)
+                || this instanceof NoVideoOnScreen
+                || this instanceof ToggleVolume;
+    }
+
+    public boolean forStateTransition() {
+        return this instanceof InlayPlayStateTransition;
     }
 
     @AutoValue
@@ -43,6 +49,24 @@ public abstract class InlayAdEvent {
     public abstract static class NoVideoOnScreen extends InlayAdEvent {
         public static NoVideoOnScreen create(Date at) {
             return new AutoValue_InlayAdEvent_NoVideoOnScreen(at);
+        }
+    }
+
+    @AutoValue
+    public abstract static class ToggleVolume extends InlayAdEvent implements WithAdData {
+        public static ToggleVolume create(int position, AdData ad, Date at) {
+            return new AutoValue_InlayAdEvent_ToggleVolume(position, ad, at);
+        }
+    }
+
+    @AutoValue
+    public abstract static class InlayPlayStateTransition extends InlayAdEvent {
+        public abstract VideoAd videoAd();
+        public abstract PlaybackStateTransition stateTransition();
+        public abstract boolean isMuted();
+
+        public static InlayPlayStateTransition create(VideoAd videoAd, PlaybackStateTransition transition, boolean isMuted, Date at) {
+            return new AutoValue_InlayAdEvent_InlayPlayStateTransition(at, videoAd, transition, isMuted);
         }
     }
 }

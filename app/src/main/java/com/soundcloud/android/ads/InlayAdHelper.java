@@ -9,6 +9,8 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -20,7 +22,10 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+
+import rx.Subscription;
 
 @AutoFactory(allowSubclasses = true)
 class InlayAdHelper {
@@ -29,6 +34,7 @@ class InlayAdHelper {
     final static int MIN_DISTANCE_BETWEEN_ADS = 4;
     final static int MAX_SEARCH_DISTANCE = 5;
 
+    private final static int MAX_INLAYS_ON_SCREEN = 3;
     private final static float MINIMUM_VIDEO_VIEWABLE_PERCENTAGE = 50.0f;
 
     private final StaggeredGridLayoutManager layoutManager;
@@ -50,6 +56,13 @@ class InlayAdHelper {
         this.videoAdItemRenderer = videoAdItemRenderer;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
+    }
+
+    Subscription subscribe() {
+        return eventBus.queue(EventQueue.INLAY_AD)
+                       .filter(InlayAdEvent::forStateTransition)
+                       .cast(InlayPlayStateTransition.class)
+                       .subscribe(new InlayStateTransitionSubscriber());
     }
 
     boolean insertAd(AdData ad, boolean wasScrollingUp) {
@@ -137,7 +150,7 @@ class InlayAdHelper {
     }
 
     private List<Pair<Integer, AdData>> adsInRangeWithPosition(int minInclusive, int maxInclusive) {
-        final List<Pair<Integer, AdData>> result = new ArrayList<>(3);
+        final List<Pair<Integer, AdData>> result = new ArrayList<>(MAX_INLAYS_ON_SCREEN);
         final int startInclusive = Math.max(minInclusive, 0);
         final int endInclusive = Math.min(maxInclusive, getNumberOfStreamItems() - 1);
 
@@ -225,6 +238,63 @@ class InlayAdHelper {
 
         boolean isMoreViewable(Optional<VideoOnScreen> that) {
             return this.viewablePercentage() > (that.isPresent() ? that.get().viewablePercentage() : 0.0f);
+        }
+    }
+
+    private class InlayStateTransitionSubscriber extends DefaultSubscriber<InlayPlayStateTransition> {
+
+        final HashMap<VideoAd, Integer> positionCache = new HashMap<>(MAX_INLAYS_ON_SCREEN);
+
+        @Override
+        public void onNext(InlayPlayStateTransition event) {
+            final VideoAd video = event.videoAd();
+
+            if (positionCache.containsKey(video)) {
+                if (isVideoAdAtPosition(positionCache.get(video), video)) {
+                    // Cache position is still accurate
+                    forwardTransitionToPresenter(event, positionCache.get(video));
+                } else {
+                    positionCache.remove(video);
+                    searchAndForwardTransition(event, video);
+                }
+            } else {
+                searchAndForwardTransition(event, video);
+            }
+        }
+
+        private void searchAndForwardTransition(InlayPlayStateTransition transition, VideoAd video) {
+            final boolean cacheSuccessfullyUpdated = updatePositionCache(video);
+            if (cacheSuccessfullyUpdated) {
+               forwardTransitionToPresenter(transition, positionCache.get(video));
+            }
+        }
+
+        private void forwardTransitionToPresenter(InlayPlayStateTransition transition, int position) {
+            final View videoView = layoutManager.findViewByPosition(position);
+            if (videoView != null) {
+                videoAdItemRenderer.setPlayState(videoView, transition.stateTransition(), transition.isMuted());
+            }
+        }
+
+        private boolean updatePositionCache(VideoAd video) {
+            for (int i = firstVisibleItemPosition(); i <= lastVisibleItemPosition(); i++) {
+                if (isVideoAdAtPosition(i, video)) {
+                    positionCache.put(video, i);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean isVideoAdAtPosition(int position, VideoAd videoAd) {
+            if (position > 0 && position < getNumberOfStreamItems()) {
+                final StreamItem item = adapter.getItem(position);
+                if (item instanceof StreamItem.Video) {
+                    final StreamItem.Video videoItem = (StreamItem.Video) item;
+                    return videoItem.video().equals(videoAd);
+                }
+            }
+            return false;
         }
     }
 }

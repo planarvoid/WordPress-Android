@@ -86,7 +86,8 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         subscriptions.addAll(featureOperations.adsEnabled()
                                               .startWith(Boolean.TRUE)
                                               .subscribe(new AdsEnabled()),
-                             inlayAdOperations.subscribe(inlayAdHelper.get()));
+                             inlayAdOperations.subscribe(inlayAdHelper.get()),
+                             inlayAdHelper.get().subscribe());
     }
 
     public void onDestroyView() {

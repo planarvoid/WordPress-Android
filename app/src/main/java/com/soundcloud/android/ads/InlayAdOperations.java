@@ -3,7 +3,6 @@ package com.soundcloud.android.ads;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
-import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -22,6 +21,7 @@ import java.util.Date;
 import static com.soundcloud.android.events.InlayAdEvent.ImageLoaded;
 import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
 import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.ToggleVolume;
 import static com.soundcloud.android.events.InlayAdEvent.WithAdData;
 
 class InlayAdOperations {
@@ -44,11 +44,12 @@ class InlayAdOperations {
         return eventBus.queue(EventQueue.INLAY_AD)
                        .filter(InlayAdEvent::forAppInstall)
                        .filter(new OnScreenAndImageLoaded(helper))
+                       .cast(WithAdData.class)
                        .map(event -> {
-                                final InlayAdEvent.WithAdData eventWithAdData = (WithAdData) event;
-                                final AppInstallAd ad = (AppInstallAd) eventWithAdData.getAd();
+                                final long eventTime = ((InlayAdEvent) event).getEventTime().getTime();
+                                final AppInstallAd ad = (AppInstallAd) event.getAd();
                                 ad.setImpressionReported();
-                                return InlayAdImpressionEvent.create(ad, eventWithAdData.getPosition(), event.getEventTime().getTime());
+                                return InlayAdImpressionEvent.create(ad, event.getPosition(), eventTime);
                             })
                        .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
@@ -72,9 +73,11 @@ class InlayAdOperations {
         public void onNext(InlayAdEvent event) {
             if (event instanceof OnScreen) {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
-                inlayAdPlayer.play(VideoAdPlaybackItem.create(videoAd, 0L, 0.0f));
+                inlayAdPlayer.play(videoAd);
             } else if (event instanceof NoVideoOnScreen && inlayAdPlayer.isPlaying()) {
-                inlayAdPlayer.pause();
+                inlayAdPlayer.muteAndPause();
+            } else if (event instanceof ToggleVolume) {
+                inlayAdPlayer.toggleVolume();
             }
         }
     }

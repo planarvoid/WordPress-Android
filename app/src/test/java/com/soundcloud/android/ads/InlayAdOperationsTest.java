@@ -3,14 +3,15 @@ package com.soundcloud.android.ads;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
-import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,23 +83,23 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreen() {
         when(inlayAdPlayer.isPlaying()).thenReturn(false);
-        VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(VideoAdPlaybackItem.create(videoAd, 0L, 0.0f));
+        verify(inlayAdPlayer).play(videoAd);
     }
 
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreenEvenIfPlayerAlreadyPlaying() {
         when(inlayAdPlayer.isPlaying()).thenReturn(true);
-        VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(VideoAdPlaybackItem.create(videoAd, 0L, 0.0f));
+        verify(inlayAdPlayer).play(videoAd);
     }
 
     @Test
@@ -108,7 +109,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
 
-        verify(inlayAdPlayer).pause();
+        verify(inlayAdPlayer).muteAndPause();
     }
 
     @Test
@@ -118,6 +119,28 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
 
-        verify(inlayAdPlayer, never()).pause();
+        verify(inlayAdPlayer, never()).muteAndPause();;
+    }
+
+    @Test
+    public void toggleMuteCommandForwardsCallToInlayAdPlayer() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ToggleVolume.create(0, videoAd, new Date(999)));
+
+        verify(inlayAdPlayer).toggleVolume();
+    }
+
+    @Test
+    public void doesNotDoAnythingWithStateTransitions() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final InlayAdEvent.InlayPlayStateTransition event = InlayAdEvent.InlayPlayStateTransition.create(videoAd, TestPlayerTransitions.idle(), false, new Date(999));
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, event);
+
+        verifyZeroInteractions(inlayAdPlayer);
+        verifyZeroInteractions(inlayAdHelper);
     }
 }

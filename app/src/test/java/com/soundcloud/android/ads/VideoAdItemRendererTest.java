@@ -7,11 +7,15 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 
 import org.assertj.core.data.Offset;
 import org.junit.Before;
@@ -19,11 +23,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class VideoAdItemRendererTest extends AndroidUnitTest {
 
@@ -35,13 +41,16 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
     @Mock private Resources resources;
     @Mock private VideoAdItemRenderer.Listener listener;
+    @Mock private CurrentDateProvider currentDateProvider;
 
+    private TestEventBus eventBus;
     private VideoAdItemRenderer renderer;
     private View adView;
 
     @Before
     public void setUp() {
-        renderer = new VideoAdItemRenderer(resources());
+        eventBus = new TestEventBus();
+        renderer = new VideoAdItemRenderer(resources(), eventBus, currentDateProvider);
         renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
     }
@@ -122,5 +131,15 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         final View titleContainerView = adView.findViewById(R.id.footer_with_title);
         assertThat(VIDEO_AD_1.getTitle().isPresent()).isFalse();
         assertThat(titleContainerView).isNotVisible();
+    }
+
+    @Test
+    public void videoViewClickEmitsToggleMuteEvent() {
+        when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
+        renderer.bindItemView(0, adView, ITEMS);
+
+        adView.findViewById(R.id.video_view).performClick();
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.ToggleVolume.class);
     }
 }

@@ -67,6 +67,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(featureOperations.shouldRequestAds()).thenReturn(true);
         when(adsOperations.kruxSegments()).thenReturn(Observable.just(Optional.absent()));
         when(inlayAdOperations.subscribe(inlayAdHelper)).thenReturn(RxUtils.invalidSubscription());
+        when(inlayAdHelper.subscribe()).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
         when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
         when(featureOperations.adsEnabled()).thenReturn(Observable.just(Boolean.TRUE));

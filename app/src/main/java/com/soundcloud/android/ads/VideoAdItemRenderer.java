@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -8,10 +9,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.Video;
+import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import java.util.List;
 
@@ -23,10 +29,14 @@ import butterknife.ButterKnife;
 public class VideoAdItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
+    private final EventBus eventBus;
+    private final CurrentDateProvider currentDateProvider;
 
     @Inject
-    public VideoAdItemRenderer(Resources resources) {
+    public VideoAdItemRenderer(Resources resources, EventBus eventBus, CurrentDateProvider currentDateProvider) {
         this.resources = resources;
+        this.eventBus = eventBus;
+        this.currentDateProvider = currentDateProvider;
     }
 
     @Override
@@ -48,9 +58,15 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         bindFooter(videoAd, holder);
         bindWhyAdsListener(holder.whyAds);
 
+        holder.videoView.setOnClickListener(view -> publishVolumeToggle(position, videoAd));
+
         if (listener.isPresent()) {
             listener.get().onVideoTextureBind(holder.videoView, videoAd);
         }
+    }
+
+    private void publishVolumeToggle(int position, VideoAd videoAd) {
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ToggleVolume.create(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void bindFooter(VideoAd videoAd, Holder holder) {
@@ -73,6 +89,11 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         callToAction.setOnClickListener(getClickthroughListener(videoAd));
     }
 
+    // TODO
+    public void setPlayState(View itemView, PlaybackStateTransition playbackStateTransition, boolean isMuted) {
+        Log.d("ScAds", "PlaybackTransition: " + playbackStateTransition.toString() + " isMuted:" + isMuted);
+    }
+
     public void onViewAttachedToWindow(View itemView, Optional<AdData> adData) {
         if (listener.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
             final Holder holder = getHolder(itemView);
@@ -80,7 +101,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         }
     }
 
-    public TextureView getVideoView(View itemView) {
+   TextureView getVideoView(View itemView) {
         return getHolder(itemView).videoView;
     }
 
