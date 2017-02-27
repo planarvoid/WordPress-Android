@@ -26,11 +26,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-                <com.soundcloud.android.discovery.newforyou.NewForYouArtworkView
-                    android:id="@+id/artwork"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    artworkSize:large="true" />
+            <com.soundcloud.android.discovery.newforyou.NewForYouArtworkView
+                android:id="@+id/artwork"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                artworkSize:large="true" />
 
             <com.soundcloud.android.view.AutoResizeTextView
                 style="@style/NewForYouHeader.Title"
@@ -38,7 +38,7 @@
 
             <com.soundcloud.android.view.CustomFontTextView
                 style="@style/NewForYouHeader.Description"
-                android:text="@string/new_for_you_header_intro" />
+                android:text="@string/new_for_you_intro" />
         </LinearLayout>
 
     </FrameLayout>

@@ -32,11 +32,11 @@ public class NewForYouSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public long staleTime() {
-        return TimeUnit.DAYS.toMillis(1);
+        return TimeUnit.HOURS.toMillis(12);
     }
 
     @Override
     public boolean usePeriodicSync() {
-        return false;
+        return true;
     }
 }

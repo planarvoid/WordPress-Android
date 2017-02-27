@@ -977,8 +977,7 @@
 
     <!-- __NEW_FOR_YOU -->
     <string name="new_for_you_title">The Upload</string>
-    <string name="new_for_you_intro">New to SoundCloud.\nSelected for you.</string>
-    <string name="new_for_you_header_intro">New to SoundCloud. Selected for you.</string>
+    <string name="new_for_you_intro">New to SoundCloud. Selected for you.</string>
     <string name="new_for_you_action">See playlist</string>
     <string name="new_for_you_duration">%1$d tracks, %2$s</string>
     <string name="new_for_you_updated_at">Updated %s</string>
