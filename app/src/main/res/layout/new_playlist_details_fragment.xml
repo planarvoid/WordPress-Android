@@ -44,8 +44,6 @@
                 android:visibility="gone"/>
 
         </LinearLayout>
-
-
     </FrameLayout>
 
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

@@ -1,6 +1,8 @@
 <LinearLayout style="@style/Cards.Footer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:orientation="vertical"
     tools:ignore="InconsistentLayout">
 
@@ -32,6 +34,8 @@
 
     <View
         android:id="@+id/footer_divider"
+        android:layout_marginLeft="@dimen/card_padding_horizontal_negative"
+        android:layout_marginRight="@dimen/card_padding_horizontal_negative"
         style="@style/Divider.Section" />
 
     <RelativeLayout

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/page_background">
@@ -32,6 +32,6 @@
 
         <include layout="@layout/new_items_indicator" />
 
-    </RelativeLayout>
+    </FrameLayout>
 
 </com.soundcloud.android.view.MultiSwipeRefreshLayout>

@@ -154,8 +154,8 @@
 
     <style name="Card" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:background">@drawable/cards</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">@dimen/card_padding_horizontal</item>
+        <item name="android:paddingLeft">@dimen/card_padding_horizontal</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>

@@ -101,6 +101,10 @@
     <dimen name="likes_header_padding_right">8dp</dimen>
     <dimen name="collection_download_state_margin_right">5dp</dimen>
 
+    <!-- Cards -->
+    <dimen name="card_padding_horizontal">16dp</dimen>
+    <dimen name="card_padding_horizontal_negative">-16dp</dimen>
+
     <!-- Discovery -->
     <dimen name="discovery_tags_padding_left_right">12dp</dimen>
     <dimen name="discovery_tags_separation">11dp</dimen>

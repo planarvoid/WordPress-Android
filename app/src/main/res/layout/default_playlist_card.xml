@@ -10,6 +10,8 @@
         style="@style/Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:paddingTop="20dp"
         tools:ignore="UselessParent">

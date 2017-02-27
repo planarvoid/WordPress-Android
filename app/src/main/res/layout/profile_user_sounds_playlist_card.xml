@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:foreground="?android:selectableItemBackground">
 
     <LinearLayout
@@ -10,6 +12,8 @@
         style="@style/Profile.Sounds.Card.Container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         tools:ignore="UselessParent">
 
@@ -23,7 +27,9 @@
             style="@style/Profile.Sounds.Card.Item"
             layout="@layout/default_card_footer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
 
         <View style="@style/Divider.Item" />
 
