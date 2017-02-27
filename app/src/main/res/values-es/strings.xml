@@ -119,8 +119,6 @@
   <string name="list_empty_notification_secondary">Sigue a tus artistas favoritos, bandas y podcasts y escucha sus últimas pistas.</string>
   <string name="list_empty_stream_action">ENCUENTRA GENTE A LA QUE SEGUIR</string>
   <string name="list_empty_stream_message">Sigue a tus artistas favoritos, bandas y podcasts y escucha sus últimas pistas.</string>
-  <string name="custom_empty_playlist_title">%1$s vacía</string>
-  <string name="custom_empty_playlist_description">Esta %1$s aún no tiene pistas.</string>
   <string name="list_empty_you_likes_message">Dale un me gusta a tus pistas favoritas para escucharlas de nuevo.</string>
   <string name="list_empty_you_following_message">Sigue a tus artistas favoritos, bandas y podcasts y escucha sus últimas pistas.</string>
   <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
@@ -256,7 +254,6 @@
     <item quantity="other">%d comentarios sobre esta pista</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">No se ha podido cargar esta lista</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lista aleatoria</string>
   <string name="add_to_playlist">Añadir a la lista</string>
@@ -442,8 +439,6 @@
   <string name="pref_clear_cache">Borrar la caché de la app</string>
   <string name="pref_clear_cache_desc">Borra la caché de la app para liberar memoria en tu dispositivo</string>
   <string name="pref_privacy">Privacidad</string>
-  <string name="pref_autoplay_related">Reproducción automática</string>
-  <string name="pref_autoplay_related_desc">Cuando una lista finaliza, reproduce pistas similares a la última pista reproducida</string>
   <string name="pref_revoke_access">Cerrar sesión</string>
   <string name="pref_sync_wifi_only">Actualizar los datos solamente con conexión Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Actualizar los Me gusta, etc., solamente con conexión Wi-Fi</string>
