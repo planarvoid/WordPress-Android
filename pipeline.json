@@ -185,6 +185,6 @@
     "github-url": "https://github.com/soundcloud/android-listeners/",
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
     "owner-emails": "android-dev@soundcloud.com",
-    "slave-label": "mobile-slave"
+    "slave-label": "android"
   }
 }
