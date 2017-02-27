@@ -1,14 +1,26 @@
 package com.soundcloud.android.search.topresults;
 
 import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.transform;
 
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.FollowingStatuses;
+import com.soundcloud.android.events.AttributingActivity;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.android.tracks.TrackItem;
@@ -20,8 +32,10 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
@@ -43,10 +57,13 @@ public class TopResultsPresenter {
 
     private final BehaviorSubject<TopResultsViewModel> viewModel = BehaviorSubject.create();
     private final PublishSubject<SearchItem> searchItemClicked = PublishSubject.create();
+    private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
 
     private final Subscription loaderSubscription;
     private CompositeSubscription viewSubscription = new CompositeSubscription();
     private final SearchPlayQueueFilter playQueueFilter;
+    private final PlaybackInitiator playbackInitiator;
+    private final EventBus eventBus;
 
     private final BehaviorSubject<Pair<String, Optional<Urn>>> firstPageIntent = BehaviorSubject.create();
     private final BehaviorSubject<Pair<String, Optional<Urn>>> refreshIntent = BehaviorSubject.create();
@@ -55,8 +72,12 @@ public class TopResultsPresenter {
     TopResultsPresenter(TopResultsOperations operations,
                         SearchPlayQueueFilter playQueueFilter,
                         LikesStateProvider likedStatuses,
-                        FollowingStateProvider followingStatuses) {
+                        FollowingStateProvider followingStatuses,
+                        PlaybackInitiator playbackInitiator,
+                        EventBus eventBus) {
         this.playQueueFilter = playQueueFilter;
+        this.playbackInitiator = playbackInitiator;
+        this.eventBus = eventBus;
 
         CollectionLoader<ApiTopResultsBucket, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
                 firstPageIntent,
@@ -75,23 +96,41 @@ public class TopResultsPresenter {
         return searchItemClicked;
     }
 
-    public Observable<TrackItemClick> trackItemClicked() {
-        return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.TRACK)
-                                .map(this::addSearchQuery)
-                                .map(this::toTrackItemClick);
+
+    private Observable<PlaybackResult> playTrack(SearchItem clickedItem, Pair<String, Optional<Urn>> searchQueryPair, TopResultsViewModel viewModel) {
+        final int bucketPosition = clickedItem.bucketPosition();
+        final TopResultsBucketViewModel currentBucket = viewModel.buckets().items().get(bucketPosition);
+        final String query = searchQueryPair.first();
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(currentBucket.queryUrn(),
+                                                                                      bucketPosition,
+                                                                                      clickedItem.urn(),
+                                                                                      query);
+        final List<TrackItem> tracks = Lists.newArrayList(Iterables.transform(filter(currentBucket.items(),
+                                                                                     SearchItem.Track.class),
+                                                                              SearchItem.Track::trackItem));
+        final int position = tracks.indexOf(((SearchItem.Track) clickedItem).trackItem());
+
+        List<TrackItem> adjustedQueue = playQueueFilter.correctQueue(tracks, position);
+        int adjustedPosition = playQueueFilter.correctPosition(position);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_TOP_RESULTS);
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+
+        List<Urn> transform = transform(adjustedQueue, TrackItem::getUrn);
+        return playbackInitiator.playTracks(transform, adjustedPosition, playSessionSource);
     }
 
-    public Observable<PlaylistItemClick> playlistItemClicked() {
+    public Observable<GoToPlaylistArgs> onGoToPlaylist() {
         return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.PLAYLIST)
                                 .map(this::addSearchQuery)
-                                .map(this::toPlaylistItemClick);
+                                .map(this::toGoToPlaylistArgs);
     }
 
-    public Observable<UserItemClick> userItemClicked() {
+    public Observable<GoToProfileArgs> onGoToProfile() {
         return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.USER)
                                 .map(this::addSearchQuery)
-                                .map(this::toUserItemClick)
-                                .doOnError(Throwable::printStackTrace);
+                                .map(this::toGoToProfileArgs);
     }
 
     private Pair<SearchItem, String> addSearchQuery(SearchItem searchItem) {
@@ -103,11 +142,29 @@ public class TopResultsPresenter {
 
         viewSubscription.addAll(
                 topResultsView.searchIntent()
-                        .subscribe(firstPageIntent),
+                              .subscribe(firstPageIntent),
                 topResultsView.refreshIntent()
                               .flatMap(ignored -> topResultsView.searchIntent())
-                              .subscribe(refreshIntent)
+                              .subscribe(refreshIntent),
+
+                searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.TRACK)
+                                 .flatMap(clickedItem ->
+                                                  firstPageIntent.flatMap(searchQueryPair ->
+                                                                                  viewModel.flatMap(viewModel ->
+                                                                                                            playTrack(clickedItem, searchQueryPair, viewModel))))
+                                 .subscribe(LambdaSubscriber.onNext(showPlaybackResult()))
+
         );
+    }
+
+    private Action1<PlaybackResult> showPlaybackResult() {
+        return playbackResult -> {
+            if (playbackResult.isSuccess()) {
+                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+            } else {
+                playbackError.onNext(playbackResult.getErrorReason());
+            }
+        };
     }
 
     @NonNull
@@ -128,6 +185,9 @@ public class TopResultsPresenter {
         return viewModel;
     }
 
+    Observable<PlaybackResult.ErrorReason> playbackError() {
+        return playbackError;
+    }
 
     @NonNull
     static Function<ApiTopResultsBucket, TopResultsBucketViewModel> transformBucket(CollectionViewState<ApiTopResultsBucket> collectionViewState,
@@ -165,34 +225,36 @@ public class TopResultsPresenter {
         return TrackItem.fromLiked(searchItem.track().get(), likedStatuses.isLiked(searchItem.track().get().getUrn()));
     }
 
-    private TrackItemClick toTrackItemClick(Pair<SearchItem, String> data) {
-        final SearchItem.Track clickedItem = (SearchItem.Track) data.first();
-
-        final List<TopResultsBucketViewModel> buckets = viewModel.getValue().buckets().items();
-        final int bucketPosition = clickedItem.bucketPosition();
-        final TopResultsBucketViewModel currentBucket = buckets.get(bucketPosition);
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(currentBucket.queryUrn(), bucketPosition, clickedItem.urn(), data.second());
-        final List<TrackItem> tracks = Lists.newArrayList(Iterables.transform(filter(currentBucket.items(), SearchItem.Track.class), SearchItem.Track::trackItem));
-        final int position = tracks.indexOf(clickedItem.trackItem());
-        return TrackItemClick.create(searchQuerySourceInfo, playQueueFilter.correctQueue(tracks, position), playQueueFilter.correctPosition(position));
-    }
-
-    private PlaylistItemClick toPlaylistItemClick(Pair<SearchItem, String> data) {
+    private GoToPlaylistArgs toGoToPlaylistArgs(Pair<SearchItem, String> data) {
         final SearchItem.Playlist clickedItem = (SearchItem.Playlist) data.first();
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.getValue().buckets().items().get(clickedItem.bucketPosition()).queryUrn(),
                                                                                       clickedItem.bucketPosition(),
                                                                                       clickedItem.urn(),
                                                                                       data.second());
-        return PlaylistItemClick.create(searchQuerySourceInfo, clickedItem.playlistItem());
+        return GoToPlaylistArgs.create(searchQuerySourceInfo,
+                                       clickedItem.playlistItem().getUrn(),
+                                       getEventContextMetadata(clickedItem.playlistItem().creatorUrn()));
     }
 
-    private UserItemClick toUserItemClick(Pair<SearchItem, String> data) {
+    private EventContextMetadata getEventContextMetadata(Urn creatorUrn) {
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(Screen.SEARCH_TOP_RESULTS.get())
+                                                                         .pageName(Screen.SEARCH_TOP_RESULTS.get())
+                                                                         .attributingActivity(AttributingActivity.create(AttributingActivity.POSTED, Optional.of(creatorUrn)))
+                                                                         .linkType(LinkType.SELF);
+
+        return builder.build();
+    }
+
+    private GoToProfileArgs toGoToProfileArgs(Pair<SearchItem, String> data) {
         final SearchItem.User clickedItem = (SearchItem.User) data.first();
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.getValue().buckets().items().get(clickedItem.bucketPosition()).queryUrn(),
                                                                                       clickedItem.bucketPosition(),
                                                                                       clickedItem.urn(),
                                                                                       data.second());
-        return UserItemClick.create(searchQuerySourceInfo, clickedItem.userItem());
+        return GoToProfileArgs.create(searchQuerySourceInfo, clickedItem.userItem().getUrn());
     }
+
 
 }

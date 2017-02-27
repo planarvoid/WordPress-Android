@@ -1,12 +1,14 @@
 package com.soundcloud.android.search.topresults;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.view.CollectionRenderer;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
-import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -35,7 +37,8 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Inject TopResultsPresenter presenter;
     @Inject TopResultsAdapterFactory adapterFactory;
-    @Inject MixedItemClickListener.Factory clickListenerFactory;
+    @Inject Navigator navigator;
+    @Inject PlaybackToastHelper playbackToastHelper;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
     private CompositeSubscription subscription;
@@ -126,9 +129,19 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                     .map(TopResultsViewModel::buckets)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(collectionRenderer::render),
-                            presenter.playlistItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onPlaylistItemClick(click.playlistItem(), getActivity())),
-                            presenter.trackItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onTrackItemClick(click.playQueue(), click.position())),
-                            presenter.userItemClicked().subscribe(click -> clickListenerFactory.create(Screen.SEARCH_TOP_RESULTS, click.searchQuerySourceInfo()).onUserItemClick(click.userItem(), getActivity())));
+
+                            presenter.onGoToProfile()
+                                     .subscribe(args -> navigator.legacyOpenProfile(getContext(), args.user(), Screen.SEARCH_TOP_RESULTS, args.searchQuerySourceInfo())),
+
+                            presenter.onGoToPlaylist()
+                                     .subscribe(args -> navigator.openPlaylist(getContext(),
+                                                                               args.playlistUrn(),
+                                                                               Screen.SEARCH_TOP_RESULTS,
+                                                                               args.searchQuerySourceInfo(),
+                                                                               null, // top results cannot be promoted *yet
+                                                                               UIEvent.fromNavigation(args.playlistUrn(), args.eventContextMetadata()))),
+                            presenter.playbackError().subscribe(playbackToastHelper::showToastOnPlaybackError)
+        );
     }
 
     @Override

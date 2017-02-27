@@ -14,14 +14,21 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.FollowingStatuses;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
@@ -32,6 +39,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,6 +49,8 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
+
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class TopResultsPresenterTest extends AndroidUnitTest {
@@ -59,6 +69,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Mock private FollowingStateProvider followingStateProvider;
     @Mock private TopResultsPresenter.TopResultsView topResultsView;
     @Mock private SearchPlayQueueFilter playQueueFilter;
+    @Mock private PlaybackInitiator playbackInitiator;
 
     private final ApiTrack apiTrack = ModelFixtures.apiTrack();
     private final ApiUser apiUser = ModelFixtures.apiUser();
@@ -68,12 +79,15 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     private final PublishSubject<Pair<String, Optional<Urn>>> searchIntent = PublishSubject.create();
     private final PublishSubject<Void> refreshIntent = PublishSubject.create();
 
+    private final TestEventBus eventBus = new TestEventBus();
+    private PublishSubject<PlaybackResult> playbackResultSubject;
+
     @Before
     public void setUp() throws Exception {
         when(likesStateProvider.likedStatuses()).thenReturn(likesStatuses);
         when(followingStateProvider.followingStatuses()).thenReturn(followingStatuses);
 
-        presenter = new TopResultsPresenter(operations, playQueueFilter, likesStateProvider, followingStateProvider);
+        presenter = new TopResultsPresenter(operations, playQueueFilter, likesStateProvider, followingStateProvider, playbackInitiator, eventBus);
 
         when(topResultsView.searchIntent()).thenReturn(searchIntent);
         when(topResultsView.refreshIntent()).thenReturn(refreshIntent);
@@ -136,7 +150,27 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void handleTrackItemClick() throws Exception {
+    public void playsTrackOnTrackItemClick() throws Exception {
+        setupPlayback();
+
+        playbackResultSubject.onNext(PlaybackResult.success());
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND)).isEqualTo(PlayerUICommand.expandPlayer());
+
+    }
+
+    @Test
+    public void showsErrorOnTrackItemClick() throws Exception {
+        setupPlayback();
+
+        AssertableSubscriber<PlaybackResult.ErrorReason> assertableSubscriber = presenter.playbackError().test();
+
+        playbackResultSubject.onNext(PlaybackResult.error(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE));
+
+        assertableSubscriber.assertValue(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE);
+    }
+
+    private void setupPlayback() {
         final ApiUniversalSearchItem track1 = searchTrackItem(ModelFixtures.apiTrack());
         final ApiUniversalSearchItem track2 = searchTrackItem(ModelFixtures.apiTrack());
         final ApiUniversalSearchItem track3 = searchTrackItem(ModelFixtures.apiTrack());
@@ -150,20 +184,24 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
         initTopResultsSearch(apiTopResultsBucket);
 
-        final AssertableSubscriber<TrackItemClick> testSubscriber = presenter.trackItemClicked().test();
+        List<Urn> expectedQueue = asList(searchTrack1.trackItem().getUrn(), searchTrack2.trackItem().getUrn(), searchTrack3.trackItem().getUrn());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_TOP_RESULTS);
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(searchQueryPair.second().get(),
+                                                                                      BUCKET_POSITION,
+                                                                                      searchTrack2.trackItem().getUrn(),
+                                                                                      searchQueryPair.first());
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+        this.playbackResultSubject = PublishSubject.create();
+        when(playbackInitiator.playTracks(expectedQueue, 1, playSessionSource)).thenReturn(playbackResultSubject);
 
         presenter.searchItemClicked().onNext(searchTrack2);
 
-        testSubscriber.assertValueCount(1);
-        final TrackItemClick trackItemClick = testSubscriber.getOnNextEvents().get(0);
-        assertThat(trackItemClick.position()).isEqualTo(1);
-        assertThat(trackItemClick.playQueue()).containsExactly(searchTrack1.trackItem(), searchTrack2.trackItem(), searchTrack3.trackItem());
-        assertThat(trackItemClick.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
-        assertThat(trackItemClick.searchQuerySourceInfo().getClickUrn()).isEqualTo(searchTrack2.trackItem().getUrn());
+        assertThat(playbackResultSubject.hasObservers()).isTrue();
     }
 
     @Test
-    public void handlePlaylistItemClick() throws Exception {
+    public void goesToPlaylistOnPlaylistItemClick() throws Exception {
         final ApiUniversalSearchItem playlist = searchPlaylistItem(ModelFixtures.apiPlaylist());
         final PlaylistItem playlistItem = PlaylistItem.fromLiked(playlist.playlist().get(), false);
         final SearchItem.Playlist searchPlaylist = SearchItem.Playlist.create(playlistItem, BUCKET_POSITION);
@@ -171,19 +209,19 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(playlist);
         initTopResultsSearch(apiTopResultsBucket);
 
-        final AssertableSubscriber<PlaylistItemClick> testSubscriber = presenter.playlistItemClicked().test();
+        final AssertableSubscriber<GoToPlaylistArgs> testSubscriber = presenter.onGoToPlaylist().test();
 
         presenter.searchItemClicked().onNext(searchPlaylist);
 
         testSubscriber.assertValueCount(1);
-        final PlaylistItemClick playlistItemClick = testSubscriber.getOnNextEvents().get(0);
-        assertThat(playlistItemClick.playlistItem()).isEqualTo(playlistItem);
-        assertThat(playlistItemClick.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
-        assertThat(playlistItemClick.searchQuerySourceInfo().getClickUrn()).isEqualTo(playlistItem.getUrn());
+        final GoToPlaylistArgs goToPlaylistArgs = testSubscriber.getOnNextEvents().get(0);
+        assertThat(goToPlaylistArgs.playlistUrn()).isEqualTo(playlistItem.getUrn());
+        assertThat(goToPlaylistArgs.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
+        assertThat(goToPlaylistArgs.searchQuerySourceInfo().getClickUrn()).isEqualTo(playlistItem.getUrn());
     }
 
     @Test
-    public void handleUserItemClick() throws Exception {
+    public void goesToProfileOnUserItemClick() throws Exception {
         final ApiUniversalSearchItem user = searchUserItem(ModelFixtures.apiUser());
         final UserItem userItem = UserItem.from(user.user().get());
         final SearchItem.User searchUser = SearchItem.User.create(userItem, BUCKET_POSITION);
@@ -191,15 +229,15 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(user);
         initTopResultsSearch(apiTopResultsBucket);
 
-        final AssertableSubscriber<UserItemClick> testSubscriber = presenter.userItemClicked().test();
+        final AssertableSubscriber<GoToProfileArgs> testSubscriber = presenter.onGoToProfile().test();
 
         presenter.searchItemClicked().onNext(searchUser);
 
         testSubscriber.assertValueCount(1);
-        final UserItemClick userItemClick = testSubscriber.getOnNextEvents().get(0);
-        assertThat(userItemClick.userItem()).isEqualTo(userItem);
-        assertThat(userItemClick.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
-        assertThat(userItemClick.searchQuerySourceInfo().getClickUrn()).isEqualTo(userItem.getUrn());
+        final GoToProfileArgs goToProfileArgs = testSubscriber.getOnNextEvents().get(0);
+        assertThat(goToProfileArgs.user()).isEqualTo(userItem.getUrn());
+        assertThat(goToProfileArgs.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
+        assertThat(goToProfileArgs.searchQuerySourceInfo().getClickUrn()).isEqualTo(userItem.getUrn());
     }
 
     private void initTopResultsSearch(ApiTopResultsBucket apiTopResultsBucket) {
