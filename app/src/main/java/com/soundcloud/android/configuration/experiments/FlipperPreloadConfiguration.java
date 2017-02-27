@@ -8,23 +8,21 @@ import com.soundcloud.android.properties.Flag;
 
 import javax.inject.Inject;
 
-public class FlipperConfiguration {
+public class FlipperPreloadConfiguration {
 
-    private static final String NAME = "flipper_android";
-    static final String VARIANT_CONTROL = "skippy";
-    static final String VARIANT_FLIPPER = "flipper";
+    private static final String NAME = "flipper_android2";
+    static final String VARIANT_CONTROL = "skippy2";
+    static final String VARIANT_FLIPPER = "flipper2";
 
     static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
             .fromName(LISTENING_LAYER, NAME, asList(VARIANT_CONTROL, VARIANT_FLIPPER));
 
     private final ExperimentOperations experimentOperations;
-    private final FlipperPreloadConfiguration flipperPreloadConfiguration;
     private final FeatureFlags featureFlags;
 
     @Inject
-    FlipperConfiguration(ExperimentOperations experimentOperations, FlipperPreloadConfiguration flipperPreloadConfiguration, FeatureFlags featureFlags) {
+    FlipperPreloadConfiguration(ExperimentOperations experimentOperations, FeatureFlags featureFlags) {
         this.experimentOperations = experimentOperations;
-        this.flipperPreloadConfiguration = flipperPreloadConfiguration;
         this.featureFlags = featureFlags;
     }
 
@@ -34,7 +32,7 @@ public class FlipperConfiguration {
                 return true;
             case VARIANT_CONTROL:
             default:
-                return featureFlags.isEnabled(Flag.FLIPPER) || flipperPreloadConfiguration.isEnabled();
+                return featureFlags.isEnabled(Flag.FLIPPER_PRELOAD);
         }
     }
 

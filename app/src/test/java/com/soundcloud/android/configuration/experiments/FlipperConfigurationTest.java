@@ -18,14 +18,16 @@ public class FlipperConfigurationTest {
 
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private FlipperPreloadConfiguration flipperPreloadConfiguration;
 
     private FlipperConfiguration flipperConfiguration;
 
     @Before
     public void setUp() {
         when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(false);
+        when(flipperPreloadConfiguration.isEnabled()).thenReturn(false);
 
-        flipperConfiguration = new FlipperConfiguration(experimentOperations, featureFlags);
+        flipperConfiguration = new FlipperConfiguration(experimentOperations, flipperPreloadConfiguration, featureFlags);
     }
 
     @Test
@@ -38,6 +40,16 @@ public class FlipperConfigurationTest {
     @Test
     public void testNoVariantAndFeatureEnabled() {
         when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
+
+        setPreconditions(Strings.EMPTY);
+
+        assertThat(flipperConfiguration.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void testNoVariantAndPreloadConfigurationEnabled() {
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(false);
+        when(flipperPreloadConfiguration.isEnabled()).thenReturn(true);
 
         setPreconditions(Strings.EMPTY);
 

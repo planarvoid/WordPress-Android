@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.experiments.FlipperPreloadConfiguration;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -26,8 +27,6 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
@@ -58,7 +57,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private static final String PARAM_CAN_SNIP = "can_snip";
 
     private final com.soundcloud.flippernative.api.Player flipper;
-    private final FeatureFlags featureFlags;
+    private final FlipperPreloadConfiguration flipperPreloadConfiguration;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
@@ -89,7 +88,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                    CurrentDateProvider dateProvider,
                    FlipperFactory flipperFactory,
                    EventBus eventBus,
-                   FeatureFlags featureFlags) {
+                   FlipperPreloadConfiguration flipperPreloadConfiguration) {
         this.accountOperations = accountOperations;
         this.stateHandler = stateChangeHandler;
         this.secureFileStorage = secureFileStorage;
@@ -99,14 +98,14 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         this.lockUtil = lockUtil;
         this.eventBus = eventBus;
         this.flipper = flipperFactory.create(this);
-        this.featureFlags = featureFlags;
+        this.flipperPreloadConfiguration = flipperPreloadConfiguration;
         this.playerListener = PlayerListener.EMPTY;
         this.isSeekPending = false;
     }
 
     @Override
     public void preload(PreloadItem preloadItem) {
-        if (featureFlags.isEnabled(Flag.FLIPPER_PRELOAD)) {
+        if (flipperPreloadConfiguration.isEnabled()) {
             final String trackUrl = buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType());
             flipper.prefetch(trackUrl);
         }

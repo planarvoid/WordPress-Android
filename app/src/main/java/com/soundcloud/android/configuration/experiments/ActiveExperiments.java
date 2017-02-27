@@ -17,6 +17,7 @@ public class ActiveExperiments {
                                                                                   AutocompleteConfig.CONFIGURATION,
                                                                                   MiniplayerExperiment.CONFIGURATION,
                                                                                   FlipperConfiguration.CONFIGURATION,
+                                                                                  FlipperPreloadConfiguration.CONFIGURATION,
                                                                                   SuggestedStationsExperiment.CONFIGURATION,
                                                                                   DynamicLinkSharingConfig.CONFIGURATION,
                                                                                   OtherPlaylistsByUserConfig.CONFIGURATION,
