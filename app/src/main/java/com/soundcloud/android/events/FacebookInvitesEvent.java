@@ -8,7 +8,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class FacebookInvitesEvent extends NewTrackingEvent {
+public abstract class FacebookInvitesEvent extends TrackingEvent {
 
     private static final String CATEGORY_INVITE_FRIENDS = "invite_friends";
 
@@ -20,7 +20,7 @@ public abstract class FacebookInvitesEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -38,7 +38,7 @@ public abstract class FacebookInvitesEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -59,7 +59,7 @@ public abstract class FacebookInvitesEvent extends NewTrackingEvent {
         return baseImpressionEvent(withListenerImages(hasPictures));
     }
 
-    public static TrackingEvent forCreatorShown() {
+    public static FacebookInvitesEvent forCreatorShown() {
         return baseImpressionEvent(TYPE_CREATOR_WITH_IMAGES);
     }
 
@@ -80,7 +80,7 @@ public abstract class FacebookInvitesEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public FacebookInvitesEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_FacebookInvitesEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 

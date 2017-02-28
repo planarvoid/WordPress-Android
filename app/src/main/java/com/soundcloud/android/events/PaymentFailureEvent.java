@@ -6,7 +6,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class PaymentFailureEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class PaymentFailureEvent extends TrackingEvent implements MetricEvent {
 
     private static final String PAYMENT_FAIL_METRIC = "Payment failure";
     public abstract String reason();

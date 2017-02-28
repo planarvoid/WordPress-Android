@@ -9,13 +9,11 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.strings.Strings;
@@ -28,12 +26,6 @@ import java.util.ArrayList;
 public class EventLoggerJsonDataBuilder {
 
     // event types
-    private static final String PAGEVIEW_EVENT = "pageview";
-    private static final String CLICK_EVENT = "click";
-    private static final String IMPRESSION_EVENT = "impression";
-    private static final String FOREGROUND_EVENT = "foreground";
-    private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
-    private static final String AUDIO_ERROR_EVENT = "audio_error";
     private static final String BOOGALOO_VERSION = "v0.0.0";
     private final int appId;
     protected final DeviceHelper deviceHelper;
@@ -56,7 +48,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(AdOverlayTrackingEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event)
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().key(), event)
                 .adUrn(event.adUrn().toString())
                 .externalMedia(event.adArtworkUrl())
                 .monetizedObject(event.monetizableTrack().toString());
@@ -64,7 +56,7 @@ public class EventLoggerJsonDataBuilder {
             eventData.pageName(event.originScreen().get());
         }
         if (event.impressionName().isPresent()) {
-            eventData.impressionName(event.impressionName().get().toString());
+            eventData.impressionName(event.impressionName().get().key());
         }
         if (event.impressionObject().isPresent()) {
             eventData.impressionObject(event.impressionObject().get().toString());
@@ -79,26 +71,26 @@ public class EventLoggerJsonDataBuilder {
             eventData.clickTarget(event.clickTarget().get().toString());
         }
         if (event.monetizationType().isPresent()) {
-            eventData.monetizationType(event.monetizationType().get().toString());
+            eventData.monetizationType(event.monetizationType().get().key());
         }
 
         return transform(eventData);
     }
 
     public String build(VisualAdImpressionEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(IMPRESSION_EVENT, event)
+        final EventLoggerEventData eventData = buildBaseEvent(VisualAdImpressionEvent.EVENT_NAME, event)
                 .adUrn(event.adUrn())
                 .pageName(event.originScreen())
-                .impressionName(event.impressionName().toString())
+                .impressionName(event.impressionName().key())
                 .monetizedObject(event.trackUrn())
-                .monetizationType(event.monetizationType().toString())
+                .monetizationType(event.monetizationType().key())
                 .externalMedia(event.adArtworkUrl());
 
         return transform(eventData);
     }
 
     public String build(PromotedTrackingEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(event.kind().toString(), event)
+        final EventLoggerEventData eventData = buildBaseEvent(event.kind().key(), event)
                 .adUrn(event.adUrn())
                 .pageName(event.originScreen())
                 .monetizationType(event.monetizationType());
@@ -118,7 +110,7 @@ public class EventLoggerJsonDataBuilder {
             eventData.impressionObject(event.impressionObject().get().toString());
         }
         if (event.impressionName().isPresent()) {
-            eventData.impressionName(event.impressionName().get().toString());
+            eventData.impressionName(event.impressionName().get().key());
         }
 
         return transform(eventData);
@@ -129,7 +121,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildPlaybackPerformanceEvent(PlaybackPerformanceEvent event) {
-        return buildBaseEvent(AUDIO_PERFORMANCE_EVENT, event.getTimestamp())
+        return buildBaseEvent(event.eventName().key(), event.getTimestamp())
                 .latency(event.getMetricValue())
                 .protocol(event.getProtocol().getValue())
                 .playerType(event.getPlayerType().getValue())
@@ -145,21 +137,21 @@ public class EventLoggerJsonDataBuilder {
     }
 
     public String build(ForegroundEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(FOREGROUND_EVENT, event)
+        final EventLoggerEventData eventData = buildBaseEvent(ForegroundEvent.EVENT_NAME, event)
                 .pageName(event.pageName())
                 .referrer(event.referrer());
         if (event.pageUrn().isPresent()) {
             eventData.pageUrn(event.pageUrn().get().toString());
         }
         if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-            eventData.clientEventId(event.getId());
+            eventData.clientEventId(event.id());
         }
 
         return transform(eventData);
     }
 
     private EventLoggerEventData buildPlaybackErrorEvent(PlaybackErrorEvent event) {
-        return buildBaseEvent(AUDIO_ERROR_EVENT, event.getTimestamp())
+        return buildBaseEvent(PlaybackErrorEvent.EVENT_NAME, event.getTimestamp())
                 .protocol(event.getProtocol().getValue())
                 .os(deviceHelper.getUserAgent())
                 .bitrate(String.valueOf(event.getBitrate()))

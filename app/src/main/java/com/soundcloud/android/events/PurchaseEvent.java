@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class PurchaseEvent extends NewTrackingEvent {
+public abstract class PurchaseEvent extends TrackingEvent {
 
     public enum Subscription {
         MID_TIER("cn058f"),
@@ -45,7 +45,7 @@ public abstract class PurchaseEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public PurchaseEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_PurchaseEvent(this.id(), this.timestamp(), Optional.of(referringEvent), this.subscription(), this.price(), this.currency());
     }
 }

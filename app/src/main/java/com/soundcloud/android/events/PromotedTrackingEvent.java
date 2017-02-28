@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 @AutoValue
-public abstract class PromotedTrackingEvent extends NewTrackingEvent {
+public abstract class PromotedTrackingEvent extends TrackingEvent {
 
     public static final String CLICK_NAME = "item_navigation";
     public enum ImpressionName {
@@ -25,7 +25,7 @@ public abstract class PromotedTrackingEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -39,7 +39,7 @@ public abstract class PromotedTrackingEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -116,8 +116,8 @@ public abstract class PromotedTrackingEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
-        return null;
+    public PromotedTrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_PromotedTrackingEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

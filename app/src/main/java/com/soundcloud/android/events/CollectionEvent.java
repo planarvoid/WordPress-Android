@@ -14,8 +14,9 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class CollectionEvent extends NewTrackingEvent {
+public abstract class CollectionEvent extends TrackingEvent {
 
+    public static final String EVENT_NAME = "click";
     public static final String COLLECTION_CATEGORY = "collection";
 
     public enum ClickName {
@@ -28,8 +29,7 @@ public abstract class CollectionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -44,8 +44,7 @@ public abstract class CollectionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -59,8 +58,7 @@ public abstract class CollectionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -78,8 +76,8 @@ public abstract class CollectionEvent extends NewTrackingEvent {
     public abstract Optional<DiscoverySource> source();
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
-        return null;
+    public CollectionEvent putReferringEvent(ReferringEvent referringEvent) {
+        return new AutoValue_CollectionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
     public static CollectionEvent forClearFilter() {

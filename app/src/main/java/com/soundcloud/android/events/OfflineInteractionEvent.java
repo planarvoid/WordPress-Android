@@ -17,7 +17,7 @@ import com.soundcloud.java.optional.Optional;
 import android.support.annotation.NonNull;
 
 @AutoValue
-public abstract class OfflineInteractionEvent extends NewTrackingEvent {
+public abstract class OfflineInteractionEvent extends TrackingEvent {
     private static final String CATEGORY = "consumer_subs";
 
     public enum EventName {
@@ -28,7 +28,7 @@ public abstract class OfflineInteractionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -53,7 +53,7 @@ public abstract class OfflineInteractionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -68,7 +68,7 @@ public abstract class OfflineInteractionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -164,7 +164,7 @@ public abstract class OfflineInteractionEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public OfflineInteractionEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_OfflineInteractionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 

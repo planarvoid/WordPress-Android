@@ -7,7 +7,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class ScreenEvent extends NewTrackingEvent {
+public abstract class ScreenEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "pageview";
 
     public static final String KIND = "screen";
 

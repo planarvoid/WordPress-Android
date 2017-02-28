@@ -4,10 +4,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.ScrollDepthEvent.Action;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;

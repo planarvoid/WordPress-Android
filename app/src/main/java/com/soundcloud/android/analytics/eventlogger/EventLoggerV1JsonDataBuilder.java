@@ -1,6 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.EVENT_NAME;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
@@ -21,6 +21,7 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -28,7 +29,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
@@ -48,24 +48,13 @@ import java.util.HashMap;
 
 class EventLoggerV1JsonDataBuilder {
 
-    private static final String AUDIO_EVENT = "audio";
     private static final String CLICK_EVENT = "click";
-    private static final String OFFLINE_SYNC_EVENT = "offline_sync";
-    private static final String IMPRESSION_EVENT = "impression";
     private static final String INTERACTION_EVENT = "item_interaction";
-    private static final String PAGEVIEW_EVENT = "pageview";
-    private static final String LIST_INTERACTION_EVENT = "list_view_interaction";
 
     // Ads specific events
-    private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
-    private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     private static final String BOOGALOO_VERSION = "v1.26.0";
-
-    static final String FOLLOW_ADD = "follow::add";
-    static final String FOLLOW_REMOVE = "follow::remove";
-    static final String PLAY_NEXT = "play_next";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -97,8 +86,8 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForScrollDepthEvent(ScrollDepthEvent event) {
-        final EventLoggerEventData data = buildBaseEvent(LIST_INTERACTION_EVENT, event)
-                .clientEventId(event.getId())
+        final EventLoggerEventData data = buildBaseEvent(ScrollDepthEvent.KIND, event)
+                .clientEventId(event.id())
                 .pageName(event.screen().get())
                 .action(event.action().get())
                 .columnCount(event.columnCount())
@@ -116,8 +105,8 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForAdRequest(AdRequestEvent event) {
-        EventLoggerEventData data = buildBaseEvent("ad_request", event)
-                .clientEventId(event.getId())
+        EventLoggerEventData data = buildBaseEvent(AdRequestEvent.EVENT_NAME, event)
+                .clientEventId(event.id())
                 .playerVisible(event.playerVisible())
                 .inForeground(event.inForeground())
                 .adsRequestSuccess(event.adsRequestSuccess())
@@ -134,18 +123,18 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForStreamAd(InlayAdImpressionEvent event) {
-        return transform(buildBaseEvent(event.eventName, event.getTimestamp())
-                                 .clientEventId(event.getId())
-                                 .impressionName(event.impressionName)
+        return transform(buildBaseEvent(InlayAdImpressionEvent.eventName, event.getTimestamp())
+                                 .clientEventId(event.id())
+                                 .impressionName(InlayAdImpressionEvent.impressionName)
                                  .adUrn(event.ad().toString())
-                                 .pageName(event.pageName)
+                                 .pageName(InlayAdImpressionEvent.pageName)
                                  .contextPosition(event.contextPosition())
-                                 .monetizationType(event.monetizationType));
+                                 .monetizationType(InlayAdImpressionEvent.monetizationType));
     }
 
     String buildForAdDelivery(AdDeliveryEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent("ad_delivery", event)
-                .clientEventId(event.getId())
+        final EventLoggerEventData eventData = buildBaseEvent(AdDeliveryEvent.EVENT_NAME, event)
+                .clientEventId(event.id())
                 .adRequestId(event.adRequestId())
                 .playerVisible(event.playerVisible())
                 .inForeground(event.inForeground())
@@ -157,16 +146,16 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
-        final String eventName = eventData.eventName().get().toString();
+        final String eventName = eventData.eventName().get().key();
         final EventLoggerEventData data = buildBaseEvent(eventName, eventData).adUrn(eventData.adUrn().toString())
                                                                               .pageName(eventData.pageName())
                                                                               .monetizedObject(eventData.monetizableTrackUrn().toString())
-                                                                              .monetizationType(eventData.monetizationType().toString());
+                                                                              .monetizationType(eventData.monetizationType().key());
         if (eventData.clickName().isPresent()) {
-            data.clickName(eventData.clickName().get().toString());
+            data.clickName(eventData.clickName().get().key());
         }
         if (eventData.impressionName().isPresent()) {
-            data.impressionName(eventData.impressionName().get().toString());
+            data.impressionName(eventData.impressionName().get().key());
         }
         return transform(data);
     }
@@ -175,19 +164,19 @@ class EventLoggerV1JsonDataBuilder {
         EventLoggerEventData data = buildBaseEvent(eventData.eventName(), eventData)
                 .adUrn(eventData.adUrn().toString())
                 .monetizedObject(eventData.monetizableTrackUrn().toString())
-                .monetizationType(eventData.monetizationType().toString())
+                .monetizationType(eventData.monetizationType().key())
                 .pageName(eventData.pageName())
                 .playheadPosition(eventData.playheadPosition())
                 .clientEventId(eventData.clickEventId())
-                .trigger(eventData.trigger().toString())
+                .trigger(eventData.trigger().key())
                 .protocol(eventData.protocol())
                 .playerType(eventData.playerType())
                 .trackLength(eventData.trackLength());
 
-        data.action(eventData.action().toString());
+        data.action(eventData.action().key());
 
         if (eventData.stopReason().isPresent()) {
-            data.reason(eventData.stopReason().get().toString());
+            data.reason(eventData.stopReason().get().key());
         }
 
         if (eventData.source().isPresent()) {
@@ -219,7 +208,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
-        return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
+        return transform(buildBaseEvent(event.eventName().key(), event.getTimestamp())
                                  .mediaType(event.isVideoAd() ? "video" : "audio")
                                  .protocol(event.getProtocol().getValue())
                                  .playerType(event.getPlayerType().getValue())
@@ -231,7 +220,7 @@ class EventLoggerV1JsonDataBuilder {
 
     String buildForScreenEvent(ScreenEvent event) {
         try {
-            final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
+            final EventLoggerEventData eventData = buildBaseEvent(ScreenEvent.EVENT_NAME, event)
                     .pageName(event.screen());
             if (event.queryUrn().isPresent()) {
                 eventData.queryUrn(event.queryUrn().get().toString());
@@ -243,7 +232,7 @@ class EventLoggerV1JsonDataBuilder {
                 if (event.referringEvent().isPresent()) {
                     eventData.referringEvent(event.referringEvent().get().getId(), event.referringEvent().get().getKind());
                 }
-                eventData.clientEventId(event.getId());
+                eventData.clientEventId(event.id());
             }
 
             return jsonTransformer.toJson(eventData);
@@ -253,7 +242,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
-        final EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
+        final EventLoggerEventData data = buildBaseEvent(AdPlaybackErrorEvent.EVENT_NAME, eventData)
                 .mediaType(eventData.mediaType())
                 .format(eventData.format())
                 .bitrate(eventData.bitrate())
@@ -289,12 +278,12 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForFacebookInvites(FacebookInvitesEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event).pageName(event.pageName());
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().key(), event).pageName(event.pageName());
         if (event.clickName().isPresent()) {
-            eventData.clickName(event.clickName().get().toString());
+            eventData.clickName(event.clickName().get().key());
         }
         if (event.impressionName().isPresent()) {
-            eventData.impressionName(event.impressionName().get().toString());
+            eventData.impressionName(event.impressionName().get().key());
         }
         if (event.clickCategory().isPresent()) {
             eventData.clickCategory(event.clickCategory().get());
@@ -306,7 +295,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForUpsell(UpgradeFunnelEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event);
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().key(), event);
 
         if (event.pageName().isPresent()) {
             eventData.pageName(event.pageName().get());
@@ -317,11 +306,11 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         if (event.clickName().isPresent()) {
-            eventData.clickName(event.clickName().get().toString());
+            eventData.clickName(event.clickName().get().key());
         }
 
         if (event.clickCategory().isPresent()) {
-            eventData.clickCategory(event.clickCategory().get().toString());
+            eventData.clickCategory(event.clickCategory().get().key());
         }
 
         if (event.clickObject().isPresent()) {
@@ -329,7 +318,7 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         if (event.impressionName().isPresent()) {
-            eventData.impressionName(event.impressionName().get().toString());
+            eventData.impressionName(event.impressionName().get().key());
         }
 
         if (event.impressionCategory().isPresent()) {
@@ -375,7 +364,7 @@ class EventLoggerV1JsonDataBuilder {
             case MORE_PLAYLISTS_BY_USER:
                 return transform(buildItemNavigationClickEvent(event));
             case NAVIGATION:
-                return transform(buildInteractionEvent(ACTION_NAVIGATION, event));
+                return transform(buildInteractionEvent(event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -386,7 +375,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildSearchClickEvent(SearchEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
+        final EventLoggerEventData eventData = buildBaseEvent(SearchEvent.EVENT_NAME, event);
         if (event.clickName().isPresent()) {
             eventData.clickName(event.clickName().get().key);
         }
@@ -427,28 +416,11 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForInteractionEvent(UIEvent event) {
-        switch (event.kind()) {
-            case SHARE:
-                return transform(buildInteractionEvent("share", event));
-            case REPOST:
-                return transform(buildInteractionEvent("repost::add", event));
-            case UNREPOST:
-                return transform(buildInteractionEvent("repost::remove", event));
-            case LIKE:
-                return transform(buildInteractionEvent("like::add", event));
-            case UNLIKE:
-                return transform(buildInteractionEvent("like::remove", event));
-            case FOLLOW:
-                return transform(buildInteractionEvent(FOLLOW_ADD, event));
-            case UNFOLLOW:
-                return transform(buildInteractionEvent(FOLLOW_REMOVE, event));
-            default:
-                throw new IllegalStateException("Unexpected UIEvent type: " + event);
-        }
+        return transform(buildInteractionEvent(event));
     }
 
     String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().toString(), event);
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().key(), event);
         if (event.pageName().isPresent()) {
             eventData.pageName(event.pageName().get());
         }
@@ -459,19 +431,19 @@ class EventLoggerV1JsonDataBuilder {
             eventData.impressionCategory(event.impressionCategory().get());
         }
         if (event.clickName().isPresent()) {
-            eventData.clickName(event.clickName().get().toString());
+            eventData.clickName(event.clickName().get().key());
         }
         if (event.clickObject().isPresent()) {
             eventData.clickObject(event.clickObject().get().toString());
         }
         if (event.impressionName().isPresent()) {
-            eventData.impressionName(event.impressionName().get().toString());
+            eventData.impressionName(event.impressionName().get().key());
         }
         if (event.adUrn().isPresent()) {
             eventData.adUrn(event.adUrn().get());
         }
         if (event.monetizationType().isPresent()) {
-            eventData.monetizationType(event.monetizationType().get().toString());
+            eventData.monetizationType(event.monetizationType().get().key());
         }
         if (event.promoterUrn().isPresent()) {
             eventData.promotedBy(event.promoterUrn().get().toString());
@@ -480,8 +452,8 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForOfflinePerformanceEvent(OfflinePerformanceEvent event) {
-        final EventLoggerEventData eventLoggerEventData = buildBaseEvent(OFFLINE_SYNC_EVENT, event)
-                .eventStage(event.kind().toString())
+        final EventLoggerEventData eventLoggerEventData = buildBaseEvent(EVENT_NAME, event)
+                .eventStage(event.kind().key())
                 .track(event.trackUrn())
                 .trackOwner(event.trackOwner())
                 .inOfflineLikes(event.isFromLikes())
@@ -490,7 +462,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForCollectionEvent(CollectionEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event).clickName(event.clickName().toString()).pageName(event.pageName());
+        final EventLoggerEventData eventData = buildBaseEvent(CollectionEvent.EVENT_NAME, event).clickName(event.clickName().key()).pageName(event.pageName());
         if (event.source().isPresent()) {
             eventData.clickSource(event.source().get().value());
         }
@@ -501,7 +473,7 @@ class EventLoggerV1JsonDataBuilder {
             eventData.clickCategory(event.clickCategory().get());
         }
         if (event.target().isPresent()) {
-            eventData.clickTarget(event.target().get().toString());
+            eventData.clickTarget(event.target().get().key());
         }
 
         return transform(eventData);
@@ -521,7 +493,7 @@ class EventLoggerV1JsonDataBuilder {
     private EventLoggerEventData buildClickEvent(UIEvent event) {
         final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event);
         if (event.clickCategory().isPresent()) {
-            eventData.clickCategory(event.clickCategory().get().toString());
+            eventData.clickCategory(event.clickCategory().get().key());
         }
         if (event.originScreen().isPresent()) {
             eventData.pageName(event.originScreen().get());
@@ -530,7 +502,7 @@ class EventLoggerV1JsonDataBuilder {
             eventData.adUrn(event.adUrn().get());
         }
         if (event.monetizationType().isPresent()) {
-            eventData.monetizationType(event.monetizationType().get().toString());
+            eventData.monetizationType(event.monetizationType().get().key());
         }
         if (event.monetizableTrackUrn().isPresent()) {
             eventData.monetizedObject(event.monetizableTrackUrn().get().toString());
@@ -540,7 +512,7 @@ class EventLoggerV1JsonDataBuilder {
             eventData.clickObject(clickObjectFromEvent.get().toString());
         }
         if (event.trigger().isPresent()) {
-            eventData.clickTrigger(event.trigger().get().toString());
+            eventData.clickTrigger(event.trigger().get().key());
         }
         if (event.promoterUrn().isPresent()) {
             eventData.promotedBy(event.promoterUrn().get().toString());
@@ -587,21 +559,28 @@ class EventLoggerV1JsonDataBuilder {
             eventData.clickName(event.clickthroughsKind().get());
         }
         if (event.clickName().isPresent()) {
-            eventData.clickName(event.clickName().get().toString());
+            eventData.clickName(event.clickName().get().key());
         }
         if (event.shareLinkType().isPresent()) {
-            eventData.shareLinkType(event.shareLinkType().get().toString());
+            eventData.shareLinkType(event.shareLinkType().get().key());
         }
         return eventData;
     }
 
-    private EventLoggerEventData buildInteractionEvent(String action, UIEvent event) {
+    private EventLoggerEventData buildInteractionEvent(UIEvent event) {
         final Optional<AttributingActivity> attributingActivity = event.attributingActivity();
         final Optional<Module> module = event.module();
         final Optional<Urn> pageUrn = event.pageUrn();
         final Optional<Urn> clickObjectFromEvent = getClickObjectFromEvent(event);
 
-        final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event).action(action).clientEventId(event.id());
+        final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event).clientEventId(event.id());
+        if (event.action().isPresent()) {
+            eventData.action(event.action().get().key());
+
+            if (event.action().get().equals(UIEvent.Action.NAVIGATION) && event.linkType().isPresent()) {
+                eventData.linkType(event.linkType().get());
+            }
+        }
 
         if (clickObjectFromEvent.isPresent()) {
             eventData.item(clickObjectFromEvent.get().toString());
@@ -613,10 +592,6 @@ class EventLoggerV1JsonDataBuilder {
 
         if (event.referringEvent().isPresent()) {
             eventData.pageviewId(event.referringEvent().get().getId());
-        }
-
-        if (action.equals(ACTION_NAVIGATION) && event.linkType().isPresent()) {
-            eventData.linkType(event.linkType().get());
         }
 
         if (pageUrn.isPresent() && !pageUrn.get().equals(Urn.NOT_SET)) {
@@ -651,8 +626,8 @@ class EventLoggerV1JsonDataBuilder {
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
         final Urn urn = event.trackUrn();
-        EventLoggerEventData data = buildBaseEvent(AUDIO_EVENT, event)
-                .action(event.kind().toString())
+        EventLoggerEventData data = buildBaseEvent(PlaybackSessionEvent.EVENT_NAME, event)
+                .action(event.kind().key())
                 .pageName(event.trackSourceInfo().getOriginScreen())
                 .playheadPosition(event.progress())
                 .trackLength(event.duration())
@@ -678,7 +653,7 @@ class EventLoggerV1JsonDataBuilder {
             data.promotedBy(event.promoterUrn().get().toString());
         }
         if (event.stopReason().isPresent()) {
-            data.reason(event.stopReason().get().toString());
+            data.reason(event.stopReason().get().key());
         }
         if (event.playId().isPresent()) {
             data.playId(event.playId().get());

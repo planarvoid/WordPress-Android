@@ -16,20 +16,19 @@ import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
 @AutoValue
-public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
+public abstract class UpgradeFunnelEvent extends TrackingEvent {
     public enum EventName {
         IMPRESSION("impression"),
         CLICK("click");
 
-        final String name;
+        final String key;
 
-        EventName(String name) {
-            this.name = name;
+        EventName(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return name;
+        public String key() {
+            return key;
         }
     }
 
@@ -46,8 +45,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -55,15 +53,14 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
     public enum ClickCategory {
         CONSUMER_SUBS("consumer_subs");
 
-        private final String name;
+        private final String key;
 
-        ClickCategory(String name) {
-            this.name = name;
+        ClickCategory(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return name;
+        public String key() {
+            return key;
         }
     }
 
@@ -72,15 +69,14 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
         CONSUMER_SUB_UPGRADE_SUCCESS("consumer_sub_upgrade_success"),
         CONSUMER_SUB_RESUBSCRIBE("consumer_sub_resubscribe");
 
-        private final String name;
+        private final String key;
 
-        ImpressionName(String name) {
-            this.name = name;
+        ImpressionName(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return name;
+        public String key() {
+            return key;
         }
     }
 
@@ -88,15 +84,14 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
         CONSUMER_SUB_AD("clickthrough::consumer_sub_ad"),
         CONSUMER_SUB_RESUBSCRIBE("clickthrough::consumer_sub_resubscribe");
 
-        private final String name;
+        private final String key;
 
-        ClickName(String name) {
-            this.name = name;
+        ClickName(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return name;
+        public String key() {
+            return key;
         }
     }
 
@@ -125,8 +120,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
             this.code = code;
         }
 
-        @Override
-        public String toString() {
+        public String code() {
             return "soundcloud:tcode:" + code;
         }
     }
@@ -148,8 +142,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
             this.adjustToken = adjustToken;
         }
 
-        @Override
-        public String toString() {
+        public String adjustToken() {
             return adjustToken;
         }
     }
@@ -203,7 +196,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
         return from(UPSELL_IMPRESSION)
                 .eventName(IMPRESSION)
                 .impressionName(Optional.of(ImpressionName.CONSUMER_SUB_AD))
-                .impressionObject(Optional.of(tcode.toString()));
+                .impressionObject(Optional.of(tcode.code()));
     }
 
     private static Builder fromUpsellClick(TCode tcode) {
@@ -211,7 +204,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
                 .eventName(CLICK)
                 .clickName(Optional.of(ClickName.CONSUMER_SUB_AD))
                 .clickCategory(Optional.of(CONSUMER_SUBS))
-                .clickObject(Optional.of(tcode.toString()));
+                .clickObject(Optional.of(tcode.code()));
     }
 
     public static UpgradeFunnelEvent forWhyAdsImpression() {
@@ -433,7 +426,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
         return UpgradeFunnelEvent.from(RESUBSCRIBE_IMPRESSION)
                                  .eventName(EventName.IMPRESSION)
                                  .impressionName(Optional.of(ImpressionName.CONSUMER_SUB_RESUBSCRIBE))
-                                 .impressionObject(Optional.of(TCode.RESUBSCRIBE_BUTTON.toString()))
+                                 .impressionObject(Optional.of(TCode.RESUBSCRIBE_BUTTON.code()))
                                  .adjustToken(Optional.of(AdjustToken.PLAN_DOWNGRADED))
                                  .pageName(Optional.of(Screen.OFFLINE_OFFBOARDING.get()))
                                  .build();
@@ -444,7 +437,7 @@ public abstract class UpgradeFunnelEvent extends NewTrackingEvent {
                                  .eventName(CLICK)
                                  .clickCategory(Optional.of(ClickCategory.CONSUMER_SUBS))
                                  .clickName(Optional.of(ClickName.CONSUMER_SUB_RESUBSCRIBE))
-                                 .clickObject(Optional.of(TCode.RESUBSCRIBE_BUTTON.toString()))
+                                 .clickObject(Optional.of(TCode.RESUBSCRIBE_BUTTON.code()))
                                  .pageName(Optional.of(Screen.OFFLINE_OFFBOARDING.get()))
                                  .build();
     }

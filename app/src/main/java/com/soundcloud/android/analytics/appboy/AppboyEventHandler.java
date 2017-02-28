@@ -78,7 +78,7 @@ class AppboyEventHandler {
 
     void handleEvent(OfflineInteractionEvent event) {
         if (event.context().isPresent() && event.isEnabled().isPresent()) {
-            tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(event.context().get().toString(), event.isEnabled().get()));
+            tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineProperties(event.context().get().key(), event.isEnabled().get()));
         }
     }
 

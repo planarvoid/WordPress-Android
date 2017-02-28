@@ -11,34 +11,34 @@ import android.net.Uri;
 import java.util.List;
 
 @AutoValue
-public abstract class VisualAdImpressionEvent extends NewTrackingEvent {
+public abstract class VisualAdImpressionEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "impression";
+
     public enum ImpressionName {
         COMPANION_DISPLAY("companion_display");
 
-        private final String name;
+        private final String key;
 
-        ImpressionName(String name) {
-            this.name = name;
+        ImpressionName(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return name;
+        public String key() {
+            return key;
         }
     }
 
     public enum MonetizationType {
         AUDIO_AD("audio_ad");
 
-        private final String type;
+        private final String key;
 
-        MonetizationType(String type) {
-            this.type = type;
+        MonetizationType(String key) {
+            this.key = key;
         }
 
-        @Override
-        public String toString() {
-            return type;
+        public String key() {
+            return key;
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class VisualAdImpressionEvent extends NewTrackingEvent {
     public abstract MonetizationType monetizationType();
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public VisualAdImpressionEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_VisualAdImpressionEvent(id(),
                                                      timestamp(),
                                                      Optional.of(referringEvent),

@@ -1,5 +1,10 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_ADD;
+import static com.soundcloud.android.events.UIEvent.ClickName.FOLLOW_REMOVE;
+import static com.soundcloud.android.events.UIEvent.Kind.FOLLOW;
+import static com.soundcloud.android.events.UIEvent.Kind.UNFOLLOW;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
@@ -20,7 +25,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 @AutoValue
-public abstract class UIEvent extends NewTrackingEvent {
+public abstract class UIEvent extends TrackingEvent {
 
     public enum Kind {
         FOLLOW("follow"),
@@ -61,7 +66,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -79,7 +84,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -93,7 +98,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -119,7 +124,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             }
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -161,7 +166,7 @@ public abstract class UIEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -176,7 +181,27 @@ public abstract class UIEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
+            return key;
+        }
+    }
+
+    public enum Action {
+        SHARE("share"),
+        REPOST_ADD("repost::add"),
+        REPOST_REMOVE("repost::remove"),
+        LIKE_ADD("like::add"),
+        LIKE_REMOVE("like::remove"),
+        FOLLOW_ADD("follow::add"),
+        FOLLOW_REMOVE("follow::remove"),
+        NAVIGATION("item_navigation");
+        private final String key;
+
+        Action(String key) {
+            this.key = key;
+        }
+
+        public String key() {
             return key;
         }
     }
@@ -249,6 +274,8 @@ public abstract class UIEvent extends NewTrackingEvent {
 
     public abstract Optional<ShareLinkType> shareLinkType();
 
+    public abstract Optional<Action> action();
+
     public static UIEvent fromPlayerOpen(boolean manual) {
         return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
@@ -258,17 +285,20 @@ public abstract class UIEvent extends NewTrackingEvent {
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, EntityMetadata userMetadata, EventContextMetadata eventContextMetadata) {
-        final Kind kind = isFollow ? Kind.FOLLOW : Kind.UNFOLLOW;
-        final ClickName clickName = isFollow ? ClickName.FOLLOW_ADD : ClickName.FOLLOW_REMOVE;
-        return event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT)).entityMetadata(userMetadata).eventContextMetadata(eventContextMetadata).build();
+        final Kind kind = isFollow ? FOLLOW : UNFOLLOW;
+        final ClickName clickName = isFollow ? FOLLOW_ADD : FOLLOW_REMOVE;
+        final Action action = isFollow ? Action.FOLLOW_ADD : Action.FOLLOW_REMOVE;
+        return event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT)).entityMetadata(userMetadata).eventContextMetadata(eventContextMetadata).action(Optional.of(action)).build();
     }
 
     public static UIEvent fromToggleLike(boolean isLike, Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
         final Kind kind = isLike ? Kind.LIKE : Kind.UNLIKE;
         final ClickName clickName = isLike ? ClickName.LIKE : ClickName.UNLIKE;
+        final Action action = isLike ? Action.LIKE_ADD : Action.LIKE_REMOVE;
         final Builder builder = event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
                                                       .clickObjectUrn(Optional.of(resourceUrn))
                                                       .eventContextMetadata(contextMetadata)
+                                                      .action(Optional.of(action))
                                                       .entityMetadata(playable);
         if (promotedSourceInfo != null) {
             builder.promotedSourceInfo(promotedSourceInfo);
@@ -283,9 +313,11 @@ public abstract class UIEvent extends NewTrackingEvent {
                                            EntityMetadata entityMetadata) {
         final Kind kind = isRepost ? Kind.REPOST : Kind.UNREPOST;
         final ClickName clickName = isRepost ? ClickName.REPOST : ClickName.UNREPOST;
+        final Action action = isRepost ? Action.REPOST_ADD : Action.REPOST_REMOVE;
         final Builder builder = event(kind, clickName).clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
                                                       .clickObjectUrn(Optional.of(resourceUrn))
                                                       .eventContextMetadata(contextMetadata)
+                                                      .action(Optional.of(action))
                                                       .entityMetadata(entityMetadata);
         if (promotedSourceInfo != null) {
             builder.promotedSourceInfo(promotedSourceInfo);
@@ -383,7 +415,7 @@ public abstract class UIEvent extends NewTrackingEvent {
     }
 
     public static UIEvent fromNavigation(Urn itemUrn, EventContextMetadata contextMetadata) {
-        return event(Kind.NAVIGATION).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
+        return event(Kind.NAVIGATION).action(Optional.of(Action.NAVIGATION)).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
     public static UIEvent fromPlayQueueShuffle(boolean isShuffled) {
@@ -415,7 +447,7 @@ public abstract class UIEvent extends NewTrackingEvent {
     }
 
     public static UIEvent fromMorePlaylistsByUser(Urn itemUrn,
-                                                   EventContextMetadata contextMetadata) {
+                                                  EventContextMetadata contextMetadata) {
         return event(Kind.MORE_PLAYLISTS_BY_USER, ClickName.MORE_PLAYLISTS_BY_USER).clickObjectUrn(Optional.of(itemUrn)).eventContextMetadata(contextMetadata).build();
     }
 
@@ -447,7 +479,8 @@ public abstract class UIEvent extends NewTrackingEvent {
         final Builder builder = event(Kind.SHARE, clickName).clickObjectUrn(Optional.of(resourceUrn))
                                                             .clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
                                                             .eventContextMetadata(contextMetadata)
-                                                            .entityMetadata(playable);
+                                                            .entityMetadata(playable)
+                                                            .action(Optional.of(Action.SHARE));
         if (promotedSourceInfo != null) {
             builder.promotedSourceInfo(promotedSourceInfo);
         }
@@ -495,7 +528,8 @@ public abstract class UIEvent extends NewTrackingEvent {
                                               .monetizableTrackUrn(Optional.absent())
                                               .promoterUrn(Optional.absent())
                                               .playQueueRepeatMode(Optional.absent())
-                                              .shareLinkType(Optional.absent());
+                                              .shareLinkType(Optional.absent())
+                                              .action(Optional.absent());
     }
 
     @Override
@@ -578,6 +612,8 @@ public abstract class UIEvent extends NewTrackingEvent {
         abstract Builder playQueueRepeatMode(Optional<String> playQueueRepeatMode);
 
         abstract Builder shareLinkType(Optional<ShareLinkType> shareLinkType);
+
+        abstract Builder action(Optional<Action> action);
 
         Builder entityMetadata(EntityMetadata entityMetadata) {
             creatorName(Optional.of(entityMetadata.creatorName));

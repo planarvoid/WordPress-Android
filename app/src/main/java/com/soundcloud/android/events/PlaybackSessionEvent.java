@@ -18,7 +18,8 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 @AutoValue
-public abstract class PlaybackSessionEvent extends NewTrackingEvent {
+public abstract class PlaybackSessionEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "audio";
 
     public enum Kind {
         EVENT_KIND_PLAY_START("play_start"),
@@ -31,8 +32,7 @@ public abstract class PlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -177,7 +177,7 @@ public abstract class PlaybackSessionEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public PlaybackSessionEvent putReferringEvent(ReferringEvent referringEvent) {
         return null;
     }
 

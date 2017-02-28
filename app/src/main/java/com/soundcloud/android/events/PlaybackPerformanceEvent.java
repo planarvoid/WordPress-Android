@@ -15,6 +15,20 @@ public final class PlaybackPerformanceEvent {
     public static final int METRIC_CACHE_USAGE_PERCENT = 6;
     public static final int METRIC_UNINTERRUPTED_PLAYTIME_MS = 7;
 
+    public enum EventName {
+        RICH_MEDIA_EVENT_NAME("rich_media_stream_performance"),
+        AUDIO_PERFORMANCE("audio_performance");
+        private final String key;
+
+        EventName(String key) {
+            this.key = key;
+        }
+
+        public String key() {
+            return key;
+        }
+    }
+
     private final long timestamp;
     private final int metric;
     private final long metricValue;
@@ -25,7 +39,9 @@ public final class PlaybackPerformanceEvent {
     private final String cdnHost;
     private final ConnectionType connectionType;
     private final Urn userUrn;
-    private PlaybackType playbackType;
+    private final EventName eventName;
+    private final boolean isAd;
+    private final boolean isVideoAd;
 
     private PlaybackPerformanceEvent(int metric,
                                      long value,
@@ -35,17 +51,22 @@ public final class PlaybackPerformanceEvent {
                                      String cdnHost,
                                      String format,
                                      int bitrate,
-                                     Urn userUrn) {
+                                     Urn userUrn,
+                                     boolean isAd,
+                                     boolean isVideoAd) {
         this.metric = metric;
         this.metricValue = value;
         this.format = format;
         this.bitrate = bitrate;
+        this.isAd = isAd;
+        this.isVideoAd = isVideoAd;
         this.timestamp = System.currentTimeMillis();
         this.protocol = protocol;
         this.playerType = playerType;
         this.cdnHost = cdnHost;
         this.connectionType = connectionType;
         this.userUrn = userUrn;
+        this.eventName = isAd ? EventName.RICH_MEDIA_EVENT_NAME : EventName.AUDIO_PERFORMANCE;
     }
 
     public static PlaybackPerformanceEvent uninterruptedPlaytimeMs(long value,
@@ -64,7 +85,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            Urn.NOT_SET).setPlaybackType(playbackType);
+                                            Urn.NOT_SET,
+                                            isAd(playbackType),
+                                            isVideoAd(playbackType));
     }
 
     public static PlaybackPerformanceEvent cacheUsagePercent(long value,
@@ -82,7 +105,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            Urn.NOT_SET);
+                                            Urn.NOT_SET,
+                                            false,
+                                            false);
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value,
@@ -102,7 +127,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn).setPlaybackType(playbackType);
+                                            urn,
+                                            isAd(playbackType),
+                                            isVideoAd(playbackType));
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value,
@@ -121,7 +148,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn);
+                                            urn,
+                                            false,
+                                            false);
     }
 
     public static PlaybackPerformanceEvent timeToBuffer(long value,
@@ -140,7 +169,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn);
+                                            urn,
+                                            false,
+                                            false);
     }
 
     public static PlaybackPerformanceEvent timeToSeek(long value,
@@ -159,7 +190,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn);
+                                            urn,
+                                            false,
+                                            false);
     }
 
     public static PlaybackPerformanceEvent timeToLoad(long value,
@@ -178,7 +211,9 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn);
+                                            urn,
+                                            false,
+                                            false);
     }
 
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value,
@@ -197,20 +232,21 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn);
+                                            urn,
+                                            false,
+                                            false);
     }
 
-    public PlaybackPerformanceEvent setPlaybackType(PlaybackType playbackType) {
-        this.playbackType = playbackType;
-        return this;
+    public EventName eventName() {
+        return eventName;
     }
 
-    public boolean isAd(){
-        return playbackType == PlaybackType.VIDEO_AD || playbackType == PlaybackType.AUDIO_AD;
+    public boolean isAd() {
+        return isAd;
     }
 
     public boolean isVideoAd() {
-        return playbackType == PlaybackType.VIDEO_AD;
+        return isVideoAd;
     }
 
     public int getMetric() {
@@ -251,5 +287,13 @@ public final class PlaybackPerformanceEvent {
 
     public int getBitrate() {
         return bitrate;
+    }
+
+    private static boolean isAd(PlaybackType playbackType) {
+        return playbackType == PlaybackType.VIDEO_AD || playbackType == PlaybackType.AUDIO_AD;
+    }
+
+    private static boolean isVideoAd(PlaybackType playbackType) {
+        return playbackType == PlaybackType.VIDEO_AD;
     }
 }

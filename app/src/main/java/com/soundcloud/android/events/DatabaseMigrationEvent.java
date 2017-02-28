@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import java.util.Locale;
 
 @AutoValue
-public abstract class DatabaseMigrationEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class DatabaseMigrationEvent extends TrackingEvent implements MetricEvent {
 
     private static final String MIGRATION_STATUS = "MigrationStatus";
 
@@ -23,7 +23,7 @@ public abstract class DatabaseMigrationEvent extends NewTrackingEvent implements
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -46,7 +46,7 @@ public abstract class DatabaseMigrationEvent extends NewTrackingEvent implements
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public DatabaseMigrationEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_DatabaseMigrationEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 
@@ -59,14 +59,14 @@ public abstract class DatabaseMigrationEvent extends NewTrackingEvent implements
     private DataPoint[] getDataPoints() {
         if (kind() == Kind.FAILURE) {
             return new DataPoint[]{
-                    DataPoint.string(MIGRATION_STATUS, kind().toString()),
+                    DataPoint.string(MIGRATION_STATUS, kind().key()),
                     DataPoint.string("FailReason", failureReason().get()),
                     DataPoint.string("FailVersions", versions().get()),
                     DataPoint.numeric("FailDuration", duration())
             };
         }
         return new DataPoint[]{
-                DataPoint.string(MIGRATION_STATUS, kind().toString()),
+                DataPoint.string(MIGRATION_STATUS, kind().key()),
                 DataPoint.numeric("SuccessDuration", duration())
         };
     }

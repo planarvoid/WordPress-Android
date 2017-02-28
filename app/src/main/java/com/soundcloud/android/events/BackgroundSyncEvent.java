@@ -6,7 +6,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class BackgroundSyncEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class BackgroundSyncEvent extends TrackingEvent implements MetricEvent {
 
     abstract int syncableCount();
 
@@ -16,7 +16,7 @@ public abstract class BackgroundSyncEvent extends NewTrackingEvent implements Me
 
     @Override
     public BackgroundSyncEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_BackgroundSyncEvent(getId(), getTimestamp(), Optional.of(referringEvent), syncableCount());
+        return new AutoValue_BackgroundSyncEvent(id(), getTimestamp(), Optional.of(referringEvent), syncableCount());
     }
 
     @Override

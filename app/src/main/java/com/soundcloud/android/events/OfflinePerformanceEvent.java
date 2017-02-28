@@ -12,7 +12,9 @@ import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class OfflinePerformanceEvent extends NewTrackingEvent {
+public abstract class OfflinePerformanceEvent extends TrackingEvent {
+
+    public static final String EVENT_NAME = "offline_sync";
 
     public enum Kind {
         KIND_START("start"),
@@ -26,8 +28,7 @@ public abstract class OfflinePerformanceEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -67,7 +68,7 @@ public abstract class OfflinePerformanceEvent extends NewTrackingEvent {
     public abstract boolean isFromLikes();
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public OfflinePerformanceEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_OfflinePerformanceEvent(id(), timestamp(), Optional.of(referringEvent), kind(), trackUrn(), trackOwner(), partOfPlaylist(), isFromLikes());
     }
 }

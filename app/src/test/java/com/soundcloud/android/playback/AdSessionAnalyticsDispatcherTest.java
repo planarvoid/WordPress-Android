@@ -14,8 +14,8 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider.StopReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -69,7 +69,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(3);
         assertThat(((AdPlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING)).eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
         AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(adEvent.clickName().get().toString()).isEqualTo("ad::first_quartile");
+        assertThat(adEvent.clickName().get().key()).isEqualTo("ad::first_quartile");
     }
 
     @Test

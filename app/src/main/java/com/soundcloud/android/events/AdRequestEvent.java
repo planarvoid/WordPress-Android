@@ -5,7 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AdRequestEvent extends NewTrackingEvent {
+public abstract class AdRequestEvent extends TrackingEvent {
+
+    public static final String EVENT_NAME = "ad_request";
 
     public abstract boolean adsRequestSuccess();
 

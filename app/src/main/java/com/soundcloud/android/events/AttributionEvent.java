@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AttributionEvent extends NewTrackingEvent {
+public abstract class AttributionEvent extends TrackingEvent {
     public static AttributionEvent create(String network, String campaign, String adGroup, String creative) {
         return new AutoValue_AttributionEvent(defaultId(),
                 defaultTimestamp(),
@@ -24,7 +24,7 @@ public abstract class AttributionEvent extends NewTrackingEvent {
     public abstract Optional<String> creative();
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public AttributionEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_AttributionEvent(id(),
                 timestamp(),
                 Optional.of(referringEvent),

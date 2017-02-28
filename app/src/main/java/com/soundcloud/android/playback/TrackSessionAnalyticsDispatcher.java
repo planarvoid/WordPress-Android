@@ -5,10 +5,10 @@ import static com.soundcloud.android.playback.StopReasonProvider.StopReason.*;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -159,7 +159,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private Func1<Track, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
-                                                                             final PlaybackProgressEvent progressEvent) {
+                                                                         final PlaybackProgressEvent progressEvent) {
         return track -> PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
                                                                   progressEvent.getPlaybackProgress(),
                                                                   playStateEvent,

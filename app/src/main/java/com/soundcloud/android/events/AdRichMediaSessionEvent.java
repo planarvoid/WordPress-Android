@@ -14,7 +14,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AdRichMediaSessionEvent extends NewTrackingEvent {
+public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
     private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
 
@@ -29,7 +29,7 @@ public abstract class AdRichMediaSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -42,7 +42,7 @@ public abstract class AdRichMediaSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }

@@ -20,7 +20,7 @@ import android.support.annotation.VisibleForTesting;
 import java.util.List;
 
 @AutoValue
-public abstract class AdOverlayTrackingEvent extends NewTrackingEvent {
+public abstract class AdOverlayTrackingEvent extends TrackingEvent {
 
     public static final String CLICKTHROUGH_FORMAT = "clickthrough::%s";
 
@@ -34,7 +34,7 @@ public abstract class AdOverlayTrackingEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -76,7 +76,7 @@ public abstract class AdOverlayTrackingEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -163,9 +163,9 @@ public abstract class AdOverlayTrackingEvent extends NewTrackingEvent {
 
     private static Optional<String> getClickName(OverlayAdData adData) {
         if (adData instanceof LeaveBehindAd) {
-            return Optional.of(String.format(CLICKTHROUGH_FORMAT, TYPE_LEAVE_BEHIND.toString()));
+            return Optional.of(String.format(CLICKTHROUGH_FORMAT, TYPE_LEAVE_BEHIND.key()));
         } else if (adData instanceof InterstitialAd) {
-            return Optional.of(String.format(CLICKTHROUGH_FORMAT, TYPE_INTERSTITIAL.toString()));
+            return Optional.of(String.format(CLICKTHROUGH_FORMAT, TYPE_INTERSTITIAL.key()));
         }
         return Optional.absent();
     }

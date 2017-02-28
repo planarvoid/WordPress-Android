@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoValue
-public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
+public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     public enum EventName {
         CLICK_EVENT("click"),
@@ -26,7 +26,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
 
@@ -42,7 +42,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -60,7 +60,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -75,7 +75,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -89,7 +89,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -241,7 +241,7 @@ public abstract class AdPlaybackSessionEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public AdPlaybackSessionEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_AdPlaybackSessionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 }

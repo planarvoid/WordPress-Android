@@ -12,7 +12,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class PolicyUpdateFailureEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class PolicyUpdateFailureEvent extends TrackingEvent implements MetricEvent {
     public enum Reason {
 
         KIND_POLICY_FETCH_FAILED("PolicyFetch"),
@@ -23,7 +23,7 @@ public abstract class PolicyUpdateFailureEvent extends NewTrackingEvent implemen
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -37,7 +37,7 @@ public abstract class PolicyUpdateFailureEvent extends NewTrackingEvent implemen
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -57,7 +57,7 @@ public abstract class PolicyUpdateFailureEvent extends NewTrackingEvent implemen
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public PolicyUpdateFailureEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_PolicyUpdateFailureEvent(id(), timestamp(), Optional.of(referringEvent), reason(), context());
     }
 

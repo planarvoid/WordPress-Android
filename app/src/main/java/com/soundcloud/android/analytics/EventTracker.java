@@ -34,7 +34,7 @@ public class EventTracker {
     }
 
     public void trackForegroundEvent(ForegroundEvent event) {
-        publishAndUpdate(event, Optional.<ReferringEvent>absent());
+        publishAndUpdate(event, Optional.absent());
     }
 
     public void trackSearch(SearchEvent searchEvent) {
@@ -71,7 +71,7 @@ public class EventTracker {
     private void publishAndUpdate(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
         attachAndPublish(event, referringEvent);
 
-        trackingStateProvider.update(ReferringEvent.create(event.getId(), event.getKind()));
+        trackingStateProvider.update(ReferringEvent.create(event.id(), event.getKind()));
     }
 
     private TrackingEvent attachReferringEvent(TrackingEvent event, Optional<ReferringEvent> referringEvent) {

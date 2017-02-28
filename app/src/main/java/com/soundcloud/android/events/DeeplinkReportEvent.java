@@ -6,7 +6,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class DeeplinkReportEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class DeeplinkReportEvent extends TrackingEvent implements MetricEvent {
 
     enum Kind {
         SUCCESS("Success"),
@@ -17,7 +17,7 @@ public abstract class DeeplinkReportEvent extends NewTrackingEvent implements Me
             this.key = key;
         }
 
-        public String toString() {
+        public String key() {
             return key;
         }
     }
@@ -35,7 +35,7 @@ public abstract class DeeplinkReportEvent extends NewTrackingEvent implements Me
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public DeeplinkReportEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_DeeplinkReportEvent(id(), timestamp(), Optional.of(referringEvent), kind(), referrer());
     }
 

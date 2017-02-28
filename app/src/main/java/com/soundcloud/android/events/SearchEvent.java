@@ -7,7 +7,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class SearchEvent extends NewTrackingEvent {
+public abstract class SearchEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "click";
 
     public enum ClickName {
         ITEM_NAVIGATION("item_navigation"),

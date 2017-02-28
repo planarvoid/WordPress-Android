@@ -6,7 +6,7 @@ import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.Metric;
 
 @AutoValue
-public abstract class FileAccessEvent extends NewTrackingEvent implements MetricEvent {
+public abstract class FileAccessEvent extends TrackingEvent implements MetricEvent {
 
     private static final String FILE_ACCESS = "FileAccess";
     private static final String FILE_EXISTS = "FileExists";

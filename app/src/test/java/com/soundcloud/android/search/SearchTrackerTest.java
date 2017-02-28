@@ -13,7 +13,6 @@ import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.SearchEvent.ClickName;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -287,7 +286,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
-        final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
+        final UpgradeFunnelEvent event = upgradeFunnelEventCaptor.getValue();
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 
@@ -297,7 +296,7 @@ public class SearchTrackerTest {
 
         verify(eventTracker).trackUpgradeFunnel(upgradeFunnelEventCaptor.capture());
 
-        final TrackingEvent event = upgradeFunnelEventCaptor.getValue();
+        final UpgradeFunnelEvent event = upgradeFunnelEventCaptor.getValue();
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION.toString());
     }
 

@@ -9,8 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @AutoValue
-public abstract class ScrollDepthEvent extends NewTrackingEvent {
-
+public abstract class ScrollDepthEvent extends TrackingEvent {
     public static final String KIND = "list_view_interaction";
 
     public enum Action {
@@ -68,7 +67,7 @@ public abstract class ScrollDepthEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public ScrollDepthEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_ScrollDepthEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 

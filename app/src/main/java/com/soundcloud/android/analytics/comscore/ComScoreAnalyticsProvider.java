@@ -4,8 +4,8 @@ import com.comscore.analytics.comScore;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.PlaybackSessionEvent;
 
 import android.content.Context;
 

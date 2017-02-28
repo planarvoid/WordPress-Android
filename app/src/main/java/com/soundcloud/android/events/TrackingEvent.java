@@ -1,25 +1,33 @@
 package com.soundcloud.android.events;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.soundcloud.android.utils.annotations.IgnoreHashEquals;
+import com.soundcloud.java.optional.Optional;
 
-import java.util.Map;
+import java.util.UUID;
 
-public interface TrackingEvent {
-    String getKind();
+public abstract class TrackingEvent {
 
-    @NotNull
-    String getId();
+    protected static String defaultId() {
+        return UUID.randomUUID().toString();
+    }
 
-    long getTimestamp();
+    protected static long defaultTimestamp() {
+        return System.currentTimeMillis();
+    }
 
-    @Nullable
-    String get(String key);
+    @IgnoreHashEquals public abstract String id();
 
-    boolean contains(String key);
+    @IgnoreHashEquals public abstract long timestamp();
 
-    TrackingEvent putReferringEvent(ReferringEvent referringEvent);
+    public abstract Optional<ReferringEvent> referringEvent();
 
-    @NotNull
-    Map<String, String> getAttributes();
+    public long getTimestamp() {
+        return timestamp();
+    }
+
+    public String getKind() {
+        throw new UnsupportedOperationException("Not implemented in new tracking");
+    }
+
+    public abstract TrackingEvent putReferringEvent(ReferringEvent referringEvent);
 }

@@ -6,7 +6,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AdFailedToBufferEvent extends NewTrackingEvent {
+public abstract class AdFailedToBufferEvent extends TrackingEvent {
 
     public abstract Urn adUrn();
     public abstract long playbackPosition();

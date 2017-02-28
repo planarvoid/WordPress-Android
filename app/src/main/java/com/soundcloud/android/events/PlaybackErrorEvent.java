@@ -4,6 +4,7 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.skippy.Skippy.SkippyMediaType;
 
 public class PlaybackErrorEvent {
+    public static final String EVENT_NAME = "audio_error";
 
     public static final String CATEGORY_OFFLINE_PLAY_UNAVAILABLE = "offline_play_unavailable";
 

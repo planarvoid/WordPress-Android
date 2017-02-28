@@ -83,7 +83,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
         presenter.onBuyImpression(TestProduct.midTier());
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_MID_TIER.toString());
+        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_MID_TIER.code());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
         presenter.onBuyImpression(TestProduct.highTier());
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_HIGH_TIER.toString());
+        assertThat(event.impressionObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_HIGH_TIER.code());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
         presenter.onBuyClick(TestProduct.midTier());
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_MID_TIER.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_MID_TIER.code());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
         presenter.onBuyClick(TestProduct.highTier());
 
         final UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
-        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_HIGH_TIER.toString());
+        assertThat(event.clickObject().get()).isEqualTo(UpgradeFunnelEvent.TCode.CHOOSER_BUY_HIGH_TIER.code());
     }
 
     @Test

@@ -7,7 +7,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class ForegroundEvent extends NewTrackingEvent {
+public abstract class ForegroundEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "foreground";
+
     public static final String KIND_OPEN = "open";
 
     @Override
@@ -40,7 +42,7 @@ public abstract class ForegroundEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public ForegroundEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_ForegroundEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 

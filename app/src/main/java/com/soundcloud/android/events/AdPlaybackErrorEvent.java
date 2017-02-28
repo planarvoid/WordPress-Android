@@ -9,7 +9,9 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AdPlaybackErrorEvent extends NewTrackingEvent {
+public abstract class AdPlaybackErrorEvent extends TrackingEvent {
+    public static final String EVENT_NAME = "rich_media_stream_error";
+
     private static final String ERROR_NAME = "failToBuffer";
 
     private static final String VIDEO_MEDIA_TYPE = "video";

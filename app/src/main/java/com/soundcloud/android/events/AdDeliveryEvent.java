@@ -5,7 +5,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class AdDeliveryEvent extends NewTrackingEvent {
+public abstract class AdDeliveryEvent extends TrackingEvent {
+
+    public static final String EVENT_NAME = "ad_delivery";
 
     public abstract Urn adUrn();
 
@@ -30,7 +32,7 @@ public abstract class AdDeliveryEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public AdDeliveryEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_AdDeliveryEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
     }
 

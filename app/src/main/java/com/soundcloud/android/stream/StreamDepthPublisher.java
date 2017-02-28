@@ -118,7 +118,7 @@ class StreamDepthPublisher extends RecyclerView.OnScrollListener {
     }
 
     private void publishAction(ScrollDepthEvent event) {
-        previousEvent = Optional.of(ReferringEvent.create(event.getId(), ScrollDepthEvent.KIND));
+        previousEvent = Optional.of(ReferringEvent.create(event.id(), ScrollDepthEvent.KIND));
         eventBus.publish(EventQueue.TRACKING, event);
     }
 

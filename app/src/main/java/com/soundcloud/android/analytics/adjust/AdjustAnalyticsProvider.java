@@ -2,8 +2,8 @@ package com.soundcloud.android.analytics.adjust;
 
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 
 import android.content.Context;

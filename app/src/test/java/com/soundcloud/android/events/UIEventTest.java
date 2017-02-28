@@ -1081,7 +1081,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromAppInstallAdClickThrough(appInstall);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
         assertThat(uiEvent.adUrn().get()).isEqualTo(appInstall.getAdUrn().toString());
-        assertThat(uiEvent.monetizationType().get().toString()).isEqualTo("mobile_inlay");
+        assertThat(uiEvent.monetizationType().get().key()).isEqualTo("mobile_inlay");
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::app_install");
         assertThat(uiEvent.adClickthroughUrls().get()).contains("app_click1", "app_click2");

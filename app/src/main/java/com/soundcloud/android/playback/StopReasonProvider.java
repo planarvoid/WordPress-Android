@@ -23,8 +23,7 @@ public class StopReasonProvider {
             this.key = key;
         }
 
-        @Override
-        public String toString() {
+        public String key() {
             return key;
         }
     }

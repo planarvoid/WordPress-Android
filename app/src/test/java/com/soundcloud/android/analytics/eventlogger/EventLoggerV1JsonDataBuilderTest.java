@@ -1,8 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.FOLLOW_ADD;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.PLAY_NEXT;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_CONCURRENT_STREAMING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
@@ -68,8 +66,8 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -109,7 +107,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String PAGE_NAME = "page_name";
     private static final String SOURCE = "stations";
     private static final int QUERY_POSITION = 0;
-    public static final String SEARCH_QUERY = "searchQuery";
+    private static final String SEARCH_QUERY = "searchQuery";
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -495,7 +493,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .columnCount(1)
                                                .itemDetails("earliest_item", details)
                                                .itemDetails("latest_item", details)
-                                               .clientEventId(event.getId())
+                                               .clientEventId(event.id())
                                                .referringEvent(referringEvent));
     }
 
@@ -877,7 +875,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForAdDelivery(event);
 
         verify(jsonTransformer).toJson(getEventData("ad_delivery", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clientEventId(event.getId())
+                                               .clientEventId(event.id())
                                                .adDelivered(AD_URN.toString())
                                                .monetizedObject(TRACK_URN.toString())
                                                .inForeground(true)
@@ -1000,7 +998,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("stream:main")
                                                .impressionName("app_install")
                                                .contextPosition(42)
-                                               .clientEventId(event.getId()));
+                                               .clientEventId(event.id()));
     }
 
     @Test
@@ -1157,7 +1155,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("item_interaction",
                                                     BOOGALOO_VERSION,
                                                     navigationEvent.getTimestamp())
-                                               .clientEventId(navigationEvent.getId())
+                                               .clientEventId(navigationEvent.id())
                                                .item(TRACK_URN.toString())
                                                .pageviewId(pageviewId)
                                                .pageName(PAGE_NAME)
@@ -1201,7 +1199,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("item_interaction",
                                                     BOOGALOO_VERSION,
                                                     navigationEvent.getTimestamp())
-                                               .clientEventId(navigationEvent.getId())
+                                               .clientEventId(navigationEvent.id())
                                                .item(TRACK_URN.toString())
                                                .pageviewId(pageviewId)
                                                .pageName(PAGE_NAME)
@@ -1233,11 +1231,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForInteractionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clientEventId(event.getId())
+                                               .clientEventId(event.id())
                                                .item(userMetadata.creatorUrn.toString())
                                                .pageName(PAGE_NAME)
                                                .pageviewId(pageviewId)
-                                               .action(FOLLOW_ADD)
+                                               .action(UIEvent.Action.FOLLOW_ADD.key())
                                                .module(module.getName())
                                                .modulePosition(position)
         );
@@ -1260,7 +1258,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName(FOLLOW_ADD)
+                                               .clickName(UIEvent.Action.FOLLOW_ADD.key())
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(userMetadata.creatorUrn.toString())
                                                .pageName(PAGE_NAME));
@@ -1626,7 +1624,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForScreenEvent(screenEvent);
 
         verify(jsonTransformer).toJson(eq(getEventData("pageview", BOOGALOO_VERSION, screenEvent.getTimestamp())
-                                                  .clientEventId(screenEvent.getId())
+                                                  .clientEventId(screenEvent.id())
                                                   .referringEvent(referringEventId, ScreenEvent.KIND)
                                                   .pageName(Screen.ACTIVITIES.get())));
     }
@@ -1686,7 +1684,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(shuffleEvent);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, shuffleEvent.getTimestamp())
-                                               .clickName(shuffleEvent.clickName().get().toString())
+                                               .clickName(shuffleEvent.clickName().get().key())
                                                .pageName(shuffleEvent.originScreen().get()));
     }
 
@@ -1740,7 +1738,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                                               .clickName(PLAY_NEXT)
+                                               .clickName(UIEvent.ClickName.PLAY_NEXT.key())
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(urn.toString())
                                                .pageName(PAGE_NAME));

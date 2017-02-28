@@ -9,7 +9,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-public abstract class InlayAdImpressionEvent extends NewTrackingEvent {
+public abstract class InlayAdImpressionEvent extends TrackingEvent {
     public static final String eventName = "impression";
     public static final String impressionName = "app_install";
     public static final String pageName = Screen.STREAM.get();
@@ -28,7 +28,7 @@ public abstract class InlayAdImpressionEvent extends NewTrackingEvent {
     }
 
     @Override
-    public TrackingEvent putReferringEvent(ReferringEvent referringEvent) {
+    public InlayAdImpressionEvent putReferringEvent(ReferringEvent referringEvent) {
         return new AutoValue_InlayAdImpressionEvent(id(), timestamp(), Optional.of(referringEvent), ad(), contextPosition(), impressionUrls());
     }
 }
