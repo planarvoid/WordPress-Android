@@ -1,4 +1,4 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -13,16 +13,17 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
+import android.util.Log;
 
 @AutoFactory(allowSubclasses = true)
-public class PerformanceEngine {
-    private static final String TAG = PerformanceEngine.class.getSimpleName();
+public class PerformanceMetricsEngine {
+    private static final String TAG = PerformanceMetricsEngine.class.getSimpleName();
 
     private final StopWatch stopWatch;
     private final EventBus eventBus;
     private final DeviceHelper deviceHelper;
 
-    PerformanceEngine(StopWatch stopWatch, @Provided EventBus eventBus, @Provided DeviceHelper deviceHelper) {
+    PerformanceMetricsEngine(StopWatch stopWatch, @Provided EventBus eventBus, @Provided DeviceHelper deviceHelper) {
         this.stopWatch = stopWatch;
         this.eventBus = eventBus;
         this.deviceHelper = deviceHelper;
@@ -80,11 +81,18 @@ public class PerformanceEngine {
         public void onActivityDestroyed(Activity activity) {}
 
         private void trackApplicationStartupTime(UiLatencyMetric uiLatencyMetric) {
+            final long startupTimeMillis = stopWatch.getTotalTimeMillis();
             final PerformanceEvent performanceEvent = PerformanceEvent.forApplicationStartupTime(
-                    uiLatencyMetric == UiLatencyMetric.MAIN_AUTHENTICATED, stopWatch.getTotalTimeMillis(),
+                    uiLatencyMetric == UiLatencyMetric.MAIN_AUTHENTICATED, startupTimeMillis,
                     deviceHelper.getAppVersionName(), deviceHelper.getDeviceName(),
                     deviceHelper.getAndroidReleaseVersion());
+
             eventBus.publish(EventQueue.PERFORMANCE, performanceEvent);
+            logApplicationStartupTime(startupTimeMillis);
+        }
+
+        private void logApplicationStartupTime(long startupTimeMillis) {
+            Log.d(TAG, String.format("Application startup time: %s ms", String.valueOf(startupTimeMillis)));
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;

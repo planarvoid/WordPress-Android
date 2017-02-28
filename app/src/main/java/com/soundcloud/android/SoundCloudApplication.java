@@ -14,6 +14,9 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngineFactory;
+import com.soundcloud.android.analytics.performance.StopWatch;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -29,8 +32,6 @@ import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.performance.PerformanceEngineFactory;
-import com.soundcloud.android.performance.StopWatch;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayPublisher;
@@ -126,7 +127,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject SyncInitiator syncInitiator;
     @Inject StationsOperations stationsOperations;
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
-    @Inject PerformanceEngineFactory performanceEngineFactory;
+    @Inject PerformanceMetricsEngineFactory performanceMetricsEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
     @Inject RepostsStateProvider repostsStateProvider;
     @Inject MiniplayerStorage miniplayerStorage;
@@ -167,7 +168,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializePerformanceEngine() {
-        performanceEngineFactory.create(stopWatch).trackStartupTime(this);
+        performanceMetricsEngineFactory.create(stopWatch).trackStartupTime(this);
     }
 
     protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {

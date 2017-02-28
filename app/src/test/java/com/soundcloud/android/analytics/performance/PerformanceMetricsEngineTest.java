@@ -1,4 +1,4 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -8,12 +8,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine.ActivityLifecycle;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PerformanceEvent;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.performance.PerformanceEngine.ActivityLifecycle;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -26,9 +26,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 
-public class PerformanceEngineTest extends AndroidUnitTest {
+public class PerformanceMetricsEngineTest extends AndroidUnitTest {
 
-    private PerformanceEngine performanceEngine;
+    private PerformanceMetricsEngine performanceMetricsEngine;
     private ActivityLifecycle activityLifecycle;
 
     @Mock private StopWatch stopWatch;
@@ -39,7 +39,7 @@ public class PerformanceEngineTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        performanceEngine = new PerformanceEngine(stopWatch, eventBus, deviceHelper);
+        performanceMetricsEngine = new PerformanceMetricsEngine(stopWatch, eventBus, deviceHelper);
         activityLifecycle = new ActivityLifecycle(application, stopWatch, eventBus, deviceHelper);
         when(deviceHelper.getAppVersionName()).thenReturn("beta");
         when(deviceHelper.getDeviceName()).thenReturn("nexus");
@@ -48,7 +48,7 @@ public class PerformanceEngineTest extends AndroidUnitTest {
 
     @Test
     public void shouldRegisterActivityCallbacks() {
-        performanceEngine.trackStartupTime(application);
+        performanceMetricsEngine.trackStartupTime(application);
 
         verify(application).registerActivityLifecycleCallbacks(any(ActivityLifecycle.class));
     }

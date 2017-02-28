@@ -1,4 +1,4 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -1,7 +1,8 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.analytics.performance.StopWatch;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

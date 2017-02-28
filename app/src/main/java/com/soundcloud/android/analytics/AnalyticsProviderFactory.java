@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
-import com.soundcloud.android.analytics.firebase.FirebaseAnalyticsProvider;
+import com.soundcloud.android.analytics.performance.PerformanceAnalyticsProvider;
 import com.soundcloud.android.settings.SettingKey;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public class AnalyticsProviderFactory {
     private final Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
     private final FabricAnalyticsProvider fabricAnalyticsProvider;
-    private final FirebaseAnalyticsProvider firebaseAnalyticsProvider;
+    private final PerformanceAnalyticsProvider performanceAnalyticsProvider;
     private final List<AnalyticsProvider> baseProviders;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
@@ -45,7 +45,7 @@ public class AnalyticsProviderFactory {
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
                                     FabricAnalyticsProvider fabricAnalyticsProvider,
-                                    FirebaseAnalyticsProvider firebaseAnalyticsProvider,
+                                    PerformanceAnalyticsProvider performanceAnalyticsProvider,
                                     @Named(AnalyticsModule.BASE_PROVIDERS) List<AnalyticsProvider> baseProviders) {
         this.sharedPreferences = sharedPreferences;
         this.analyticsProperties = analyticsProperties;
@@ -54,7 +54,7 @@ public class AnalyticsProviderFactory {
         this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.fabricAnalyticsProvider = fabricAnalyticsProvider;
-        this.firebaseAnalyticsProvider = firebaseAnalyticsProvider;
+        this.performanceAnalyticsProvider = performanceAnalyticsProvider;
         this.baseProviders = baseProviders;
     }
 
@@ -88,7 +88,7 @@ public class AnalyticsProviderFactory {
         providers.add(adjustAnalyticsProvider);
         providers.add(fabricAnalyticsProvider);
         providers.add(appboyAnalyticsProvider.get());
-        providers.add(firebaseAnalyticsProvider);
+        providers.add(performanceAnalyticsProvider);
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);

@@ -1,4 +1,4 @@
-package com.soundcloud.android.performance;
+package com.soundcloud.android.analytics.performance;
 
 import java.util.concurrent.TimeUnit;
 
