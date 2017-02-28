@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
@@ -185,6 +187,24 @@ public class CastProtocolTest extends AndroidUnitTest {
         castProtocol.onMetadataUpdated();
 
         verify(listener, times(2)).onQueueReceived(castPlayQueue);
+    }
+
+    @Test
+    public void ignoreIdleStatesAfterLoadMessageWasSent() {
+        String contentId = "fakeId";
+        long position = 123L;
+        JSONObject customData = new JSONObject();
+        when(castJsonHandler.toJson(castPlayQueue)).thenReturn(customData);
+        when(remoteMediaClient.getMediaInfo()).thenReturn(null);
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        castProtocol.setListener(listener);
+
+        castProtocol.sendLoad(contentId, true, position, castPlayQueue);
+
+        castProtocol.onStatusUpdated();
+        castProtocol.onMetadataUpdated();
+
+        verifyZeroInteractions(listener);
     }
 
     private void mockRemoteState(int playerState, CastPlayQueue queue) {

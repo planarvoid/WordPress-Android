@@ -32,6 +32,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private Optional<CastSession> castSession = Optional.absent();
     private Listener listener;
     private Optional<RemoteState> remoteState = Optional.absent();
+    private boolean loadRequestSentForSession;
     private final CastJsonHandler jsonHandler;
     private final AccountOperations accountOperations;
     private final FeatureFlags featureFlags;
@@ -62,6 +63,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         Log.d(TAG, "CastProtocol::unregisterCastSession() called");
         this.castSession = Optional.absent();
         this.remoteState = Optional.absent();
+        this.loadRequestSentForSession = false;
     }
 
     private CastCredentials getCredentials() {
@@ -69,6 +71,8 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     }
 
     public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {
+        this.loadRequestSentForSession = true;
+
         MediaInfo mediaInfo = new MediaInfo.Builder(contentId)
                 .setContentType(MIME_TYPE_AUDIO_MPEG)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
@@ -126,8 +130,15 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     @Override
     public void onStatusUpdated() {
-        if (listener != null) {
-            listener.onStatusUpdated();
+        RemoteMediaClient remoteMediaClient = getRemoteMediaClient();
+        if (listener != null && remoteMediaClient != null) {
+            RemoteMediaClientLogger.logState("onStatusUpdated", getRemoteMediaClient());
+
+            if (wasIdleReceivedAfterLoad(getRemoteMediaClient().getPlayerState())) {
+                Log.w(TAG, "onStatusUpdated() ignored IDLE state: those shouldn't exist after LOAD has been issued");
+            } else {
+                listener.onStatusUpdated();
+            }
         }
     }
 
@@ -138,22 +149,30 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
             RemoteMediaClientLogger.logState("onMetadataUpdated", remoteMediaClient);
 
             int playerState = remoteMediaClient.getPlayerState();
-            Optional<JSONObject> remoteLoadedData = getRemoteLoadedData(remoteMediaClient);
+            if (wasIdleReceivedAfterLoad(playerState)) {
+                Log.w(TAG, "onMetadataUpdated() ignored IDLE state: those shouldn't exist after LOAD has been issued");
+            } else {
+                Optional<JSONObject> remoteLoadedData = getRemoteLoadedData(remoteMediaClient);
 
-            try {
-                if (remoteLoadedData.isPresent()) {
-                    if (playerState != MediaStatus.PLAYER_STATE_UNKNOWN) {
-                        onNonEmptyMetadataReceived(playerState, remoteLoadedData.get());
+                try {
+                    if (remoteLoadedData.isPresent()) {
+                        if (playerState != MediaStatus.PLAYER_STATE_UNKNOWN) {
+                            onNonEmptyMetadataReceived(playerState, remoteLoadedData.get());
+                        }
+                    } else {
+                        if (playerState == MediaStatus.PLAYER_STATE_IDLE) {
+                            onIdleEmptyMetadataReceived();
+                        }
                     }
-                } else {
-                    if (playerState == MediaStatus.PLAYER_STATE_IDLE) {
-                        onIdleEmptyMetadataReceived();
-                    }
+                } catch (IOException | ApiMapperException | JSONException e) {
+                    Log.e(TAG, "Could not parse received queue");
                 }
-            } catch (IOException | ApiMapperException | JSONException e) {
-                Log.e(TAG, "Could not parse received queue");
             }
         }
+    }
+
+    private boolean wasIdleReceivedAfterLoad(int playerState) {
+        return loadRequestSentForSession && playerState == MediaStatus.PLAYER_STATE_IDLE;
     }
 
     private Optional<JSONObject> getRemoteLoadedData(RemoteMediaClient remoteMediaClient) {
