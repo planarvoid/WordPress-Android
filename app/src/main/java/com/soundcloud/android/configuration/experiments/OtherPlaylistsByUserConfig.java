@@ -32,7 +32,7 @@ public class OtherPlaylistsByUserConfig {
     }
 
     private boolean isNewPlaylistScreenEnabled() {
-        return featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2);
+        return featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN);
     }
 
     private boolean isFeatureFlagEnabled() {

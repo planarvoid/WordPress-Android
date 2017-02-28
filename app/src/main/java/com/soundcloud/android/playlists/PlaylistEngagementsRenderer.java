@@ -102,7 +102,7 @@ class PlaylistEngagementsRenderer {
             menu.show();
         });
 
-        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2)) {
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN)) {
             if (accountOperations.isLoggedInUser(item.creatorUrn())) {
                 introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
                                                           overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
@@ -136,7 +136,7 @@ class PlaylistEngagementsRenderer {
 
     private void configureMyOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
         if (item.showOwnerOptions()) {
-            menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2));
+            menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN));
             menu.setItemVisible(R.id.delete_playlist, true);
         } else {
             menu.setItemVisible(R.id.edit_playlist, false);

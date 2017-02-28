@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class VisualPlayerElement extends Element {
     private static final int MILISECONDS_UNTIL_AUDIO_AD_DONE = (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
     private static final int MILISECONDS_UNTIL_VIDEO_AD_DONE = (int) TimeUnit.SECONDS.toMillis(70L); // 67 secs + 3 buffering
+    private static final int MIN_EXPANDED_HEIGHT = 100; // xxxhdpi status bar height
 
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
@@ -175,7 +176,8 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpanded() {
-        return getPlayerHeight() - getFullScreenHeight() == 0;
+        int playerSize = getPlayerHeight() - getFullScreenHeight();
+        return playerSize >= 0 && playerSize < MIN_EXPANDED_HEIGHT;
     }
 
     public boolean isCollapsed() {

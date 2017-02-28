@@ -83,8 +83,8 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
         boolean autoplay = intent.getBooleanExtra(EXTRA_AUTO_PLAY, false);
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
-        Fragment fragment = featureFlags.isEnabled(Flag.EDIT_PLAYLIST_V2) ? NewPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay)
-                                                                          : PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+        Fragment fragment = featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN) ? NewPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay)
+                                                                             : PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
