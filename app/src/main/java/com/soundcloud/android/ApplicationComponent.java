@@ -7,7 +7,9 @@ import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastMediaIntentReceiver;
 import com.soundcloud.android.cast.CastOptionsProvider;
-import com.soundcloud.android.cast.CastRedirectActivity;
+import com.soundcloud.android.cast.activity.CastExpandedControllerRedirectActivity;
+import com.soundcloud.android.cast.activity.CastNotificationRedirectActivity;
+import com.soundcloud.android.cast.activity.CastRedirectActivity;
 import com.soundcloud.android.collection.CollectionFragment;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -208,6 +210,8 @@ public interface ApplicationComponent {
 
     //Cast
     void inject(CastRedirectActivity castRedirectActivity);
+    void inject(CastNotificationRedirectActivity castRedirectActivity);
+    void inject(CastExpandedControllerRedirectActivity castRedirectActivity);
     void inject(CastOptionsProvider castOptionsProvider);
     void inject(CastMediaIntentReceiver castMediaIntentReceiver);
 

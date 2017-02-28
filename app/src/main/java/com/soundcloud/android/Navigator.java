@@ -552,6 +552,16 @@ public class Navigator {
         return intent;
     }
 
+    public Intent createHomeIntentFromCastExpandedController(Context context) {
+        final Intent intent = new Intent(context, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        return intent;
+    }
+
     private Intent createProfileRepostsIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserRepostsActivity.class)
                 .putExtra(UserRepostsActivity.EXTRA_USER_URN, user);

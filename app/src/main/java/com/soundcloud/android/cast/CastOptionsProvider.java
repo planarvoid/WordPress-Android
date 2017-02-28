@@ -9,6 +9,8 @@ import com.google.android.gms.cast.framework.media.MediaIntentReceiver;
 import com.google.android.gms.cast.framework.media.NotificationOptions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.cast.activity.CastExpandedControllerRedirectActivity;
+import com.soundcloud.android.cast.activity.CastNotificationRedirectActivity;
 
 import android.content.Context;
 
@@ -64,13 +66,14 @@ public class CastOptionsProvider implements OptionsProvider {
                 .setRewind10DrawableResId(R.drawable.notifications_previous)
                 .setRewind30DrawableResId(R.drawable.notifications_previous)
                 .setRewindDrawableResId(R.drawable.notifications_previous)
-                .setTargetActivityClassName(CastRedirectActivity.class.getName())
+                .setTargetActivityClassName(CastNotificationRedirectActivity.class.getName())
                 .build();
 
         return new CastMediaOptions.Builder()
                 .setNotificationOptions(notificationOptions)
                 .setImagePicker(new CastImagePicker())
                 .setMediaIntentReceiverClassName(CastMediaIntentReceiver.class.getName())
+                .setExpandedControllerActivityClassName(CastExpandedControllerRedirectActivity.class.getName())
                 .build();
     }
 
