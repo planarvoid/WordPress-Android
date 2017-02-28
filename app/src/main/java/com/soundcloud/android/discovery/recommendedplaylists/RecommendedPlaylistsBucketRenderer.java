@@ -89,14 +89,13 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
         }
     }
 
-    private String getReasonText(Context context, RecommendedPlaylistsBucketItem recommendedPlaylists) {
-        final String playlistName = nameForKey(recommendedPlaylists.key(), recommendedPlaylists.displayName(), context);
-        return context.getString(R.string.recommended_playlists_reason, playlistName.toLowerCase(Locale.US));
-    }
-
-    private String nameForKey(String key, String fallbackName, Context context) {
-        final String headingKey = toResourceKey("scenario_playlist_", key);
+    private String getReasonText(Context context, RecommendedPlaylistsBucketItem bucket) {
+        final String headingKey = toResourceKey("scenario_playlist_", bucket.key());
         final int headingResourceId = resources.getIdentifier(headingKey, "string", context.getPackageName());
-        return (headingResourceId != 0) ? resources.getString(headingResourceId) : fallbackName;
+        if (headingResourceId != 0) {
+            return resources.getString(headingResourceId);
+        }
+
+        return context.getString(R.string.recommended_playlists_reason, bucket.displayName().toLowerCase(Locale.US));
     }
 }

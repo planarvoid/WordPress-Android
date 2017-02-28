@@ -440,7 +440,12 @@
 
     <!-- __DISCOVERY PLAYLISTS -->
     <string name="recommended_playlists_reason">Playlists for %s</string>
-
+    <string name="scenario_playlist_chilling">Playlists for chilling</string>
+    <string name="scenario_playlist_sleeping">Playlists for sleeping</string>
+    <string name="scenario_playlist_studying">Playlists for studying</string>
+    <string name="scenario_playlist_coffeehouse">Playlists for atmosphere</string>
+    <string name="scenario_playlist_workingout">Playlists for working out</string>
+    <string name="scenario_playlist_partying">Playlists for partying</string>
 
     <!-- __DISCOVERY CHARTS -->
     <string name="charts_music">Music</string>
