@@ -54,8 +54,8 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
 
         assertThat(newForYouScreen, is(visible()));
 
-        newForYouScreen.toggleTrackLike(1);
+        newForYouScreen.toggleTrackLike(0);
 
-        finishEventTracking("new_for_you_engagement2");
+        finishEventTracking("new_for_you_engagement3");
     }
 }

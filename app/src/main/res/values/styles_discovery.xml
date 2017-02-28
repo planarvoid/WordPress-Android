@@ -222,6 +222,7 @@
     <style name="NewForYouModule.IntroText" parent="NewForYouModule">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
 
     <style name="NewForYouModule.Action" parent="NewForYouModule">
