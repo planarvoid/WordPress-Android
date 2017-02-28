@@ -21,6 +21,7 @@ public enum Referrer {
     ACTIVITIES_NOTIFICATION("activities_notification"),
     PLAYBACK_NOTIFICATION("playback_notification"),
     PLAYBACK_WIDGET("playback_widget"),
+    LAUNCHER_SHORTCUT("launcher_shortcut"),
     GOOGLE_CRAWLER("google_crawler");
 
     private static final String ORDINAL_EXTRA = "ReferrerOrdinal";

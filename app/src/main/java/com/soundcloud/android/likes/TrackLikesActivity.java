@@ -13,6 +13,7 @@ import javax.inject.Inject;
 public class TrackLikesActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject TrackLikesIntentResolver intentResolver;
 
     public TrackLikesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -26,6 +27,8 @@ public class TrackLikesActivity extends PlayerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        intentResolver.onIntent(getIntent());
 
         if (savedInstanceState == null) {
             attachFragment();

@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -26,6 +27,7 @@ public class MainActivity extends PlayerActivity {
     @Inject Lazy<LegacyCastSessionController> legacyCastSessionController;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
+    @Inject ShortcutController shortcutController;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
@@ -94,6 +96,7 @@ public class MainActivity extends PlayerActivity {
         super.onPostResume();
         fetchFeatureFlags();
         castSessionController.get().onResume(this);
+        shortcutController.manageShortcuts();
     }
 
     @Override

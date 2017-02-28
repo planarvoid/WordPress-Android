@@ -1,5 +1,8 @@
 package com.soundcloud.android.main;
 
+import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.PLAY_LIKES;
+import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.SEARCH;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Actions;
@@ -7,6 +10,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -39,6 +43,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private final Navigator navigator;
     private final EventTracker eventTracker;
     private final NavigationModel navigationModel;
+    private final ShortcutController shortcutController;
     private final FeatureOperations featureOperations;
 
     private RootActivity activity;
@@ -61,6 +66,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       Navigator navigator,
                       EventTracker eventTracker,
                       EnterScreenDispatcher enterScreenDispatcher,
+                      ShortcutController shortcutController,
                       FeatureOperations featureOperations) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
@@ -68,6 +74,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.navigator = navigator;
         this.eventTracker = eventTracker;
         this.enterScreenDispatcher = enterScreenDispatcher;
+        this.shortcutController = shortcutController;
         this.featureOperations = featureOperations;
         enterScreenDispatcher.setListener(this);
     }
@@ -180,6 +187,16 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                 break;
             case Actions.MORE:
                 selectItem(Screen.MORE);
+                break;
+            case Actions.SHORTCUT_SEARCH:
+                shortcutController.reportUsage(SEARCH);
+                selectItem(Screen.SEARCH_MAIN);
+                navigator.openSearchFromShortcut(activity);
+                break;
+            case Actions.SHORTCUT_PLAY_LIKES:
+                shortcutController.reportUsage(PLAY_LIKES);
+                selectItem(Screen.COLLECTIONS);
+                navigator.openTrackLikesFromShortcut(activity, intent);
                 break;
             default:
                 break;

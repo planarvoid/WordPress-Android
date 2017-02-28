@@ -10,7 +10,6 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -26,7 +25,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -63,6 +62,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private static final int EXTRA_LIST_ITEMS = 1;
+    private final TrackLikesIntentResolver intentResolver;
     @LightCycle final TrackLikesHeaderPresenter headerPresenter;
 
     private final DataSource dataSource;
@@ -101,6 +101,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                         SwipeRefreshAttacher swipeRefreshAttacher,
+                        TrackLikesIntentResolver intentResolver,
                         DataSource dataSource,
                         OfflinePropertiesProvider offlinePropertiesProvider,
                         FeatureFlags featureFlags) {
@@ -115,6 +116,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
+        this.intentResolver = intentResolver;
     }
 
     @Override
@@ -147,7 +149,16 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                                                    .flatMap((Func1<Object,Observable<List<Urn>>>) o -> likeOperations.likedTrackUrns())
                                                                    .observeOn(AndroidSchedulers.mainThread())
                                                                    .cache();
-        collectionSubscription = allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
+        collectionSubscription = allLikedTrackUrns
+                .doOnNext(tick -> checkAutoPlayIntent())
+                .map(List::size)
+                .subscribe(LambdaSubscriber.onNext(headerPresenter::updateTrackCount));
+    }
+
+    private void checkAutoPlayIntent() {
+        if (intentResolver.consumePlaybackRequest()) {
+            onItemClicked(null, 1);
+        }
     }
 
     @Override
@@ -185,11 +196,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                         .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 
-        likeSubscription = eventBus.queue(EventQueue.LIKE_CHANGED)
+        likeSubscription = eventBus.queue(LIKE_CHANGED)
                                    .filter(LikesStatusEvent::containsTrackChange)
                                    .flatMap(o -> likeOperations.likedTrackUrns())
+                                   .map(List::size)
                                    .observeOn(AndroidSchedulers.mainThread())
-                                   .subscribe(new AllLikedTracksSubscriber());
+                                   .subscribe(LambdaSubscriber.onNext(headerPresenter::updateTrackCount));
     }
 
     private Subscription subscribeToOfflineContent() {
@@ -235,13 +247,6 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
-    }
-
-    private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
-        @Override
-        public void onNext(List<Urn> allLikedTracks) {
-            headerPresenter.updateTrackCount(allLikedTracks.size());
-        }
     }
 
     @AutoValue

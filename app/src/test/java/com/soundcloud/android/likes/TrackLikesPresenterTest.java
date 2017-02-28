@@ -76,6 +76,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
+    @Mock private TrackLikesIntentResolver intentResolver;
 
     private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
     private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
@@ -96,6 +97,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             expandPlayerSubscriberProvider,
                                             eventBus,
                                             swipeRefreshAttacher,
+                                            intentResolver,
                                             dataSource,
                                             offlinePropertiesProvider,
                                             featureFlags);
@@ -104,6 +106,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.empty());
         when(offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()).thenReturn(Observable.just(true));
+        when(intentResolver.consumePlaybackRequest()).thenReturn(false);
     }
 
     @Test
@@ -151,7 +154,6 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
-
 
     @Test
     public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {

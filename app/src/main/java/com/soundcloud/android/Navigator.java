@@ -26,6 +26,7 @@ import com.soundcloud.android.discovery.recommendations.ViewAllRecommendedTracks
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.TrackLikesActivity;
+import com.soundcloud.android.likes.TrackLikesIntentResolver;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
@@ -202,6 +203,13 @@ public class Navigator {
         homeIntent.setAction(Actions.SEARCH);
         homeIntent.putExtra(EXTRA_SEARCH_INTENT, searchIntent);
         context.startActivity(homeIntent);
+    }
+
+    public void openSearchFromShortcut(Activity activity) {
+        Intent intent = new Intent(activity, SearchActivity.class);
+        Referrer.LAUNCHER_SHORTCUT.addToIntent(intent);
+        Screen.SEARCH_MAIN.addToIntent(intent);
+        activity.startActivity(intent);
     }
 
     public void openSearchPremiumContentResults(Context context,
@@ -444,6 +452,14 @@ public class Navigator {
 
     public void openTrackLikes(Context context) {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
+    }
+
+    public void openTrackLikesFromShortcut(Context context, Intent source) {
+        Intent intent = new Intent(context, TrackLikesActivity.class);
+        intent.putExtra(TrackLikesIntentResolver.EXTRA_SOURCE, source);
+        Referrer.LAUNCHER_SHORTCUT.addToIntent(intent);
+        Screen.LIKES.addToIntent(intent);
+        context.startActivity(intent);
     }
 
     public void openNewForYou(Context context) {

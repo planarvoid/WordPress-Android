@@ -122,6 +122,10 @@
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in or sign up to open this link.</string>
 
+    <!-- APP SHORTCUTS -->
+    <string name="shortcut_search">Search</string>
+    <string name="shortcut_play_likes">Play Likes</string>
+
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn’t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty.</string>

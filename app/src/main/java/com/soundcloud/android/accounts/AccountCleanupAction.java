@@ -12,6 +12,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
@@ -67,6 +68,7 @@ class AccountCleanupAction implements Action0 {
     private final FeatureFlags featureFlags;
     private final DatabaseManager databaseManager;
     private final SuggestedCreatorsStorage suggestedCreatorsStorage;
+    private final ShortcutController shortcutController;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -90,7 +92,8 @@ class AccountCleanupAction implements Action0 {
                          CommentsStorage commentsStorage,
                          FeatureFlags featureFlags,
                          DatabaseManager databaseManager,
-                         SuggestedCreatorsStorage suggestedCreatorsStorage) {
+                         SuggestedCreatorsStorage suggestedCreatorsStorage,
+                         ShortcutController shortcutController) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -116,6 +119,7 @@ class AccountCleanupAction implements Action0 {
         this.featureFlags = featureFlags;
         this.databaseManager = databaseManager;
         this.suggestedCreatorsStorage = suggestedCreatorsStorage;
+        this.shortcutController = shortcutController;
     }
 
     @Override
@@ -143,6 +147,7 @@ class AccountCleanupAction implements Action0 {
         recommendedPlaylistsStorage.clear();
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
+        shortcutController.removeShortcuts();
 
         if (featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)) {
             // Once we are confident that this approach works well (clearing the entire database), and

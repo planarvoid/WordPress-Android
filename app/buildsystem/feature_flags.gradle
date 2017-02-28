@@ -32,6 +32,7 @@ enum Feature {
   WELCOME_USER,
   OFFLINE_PROPERTIES_PROVIDER,
   FORCE_SHOW_WELCOME_USER,
+  LAUNCHER_SHORTCUTS,
   SEARCH_PLAY_RELATED_TRACKS,
   ALIGNED_USER_INFO,
   VIDEO_INLAYS,
@@ -69,6 +70,7 @@ android {
     buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
@@ -98,6 +100,7 @@ android {
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
@@ -118,6 +121,7 @@ android {
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
@@ -141,6 +145,7 @@ android {
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
@@ -158,6 +163,7 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -171,6 +177,7 @@ android {
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
@@ -187,6 +194,7 @@ android {
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.AUTH_API_MOBILE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW

@@ -17,6 +17,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
@@ -78,6 +79,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private DatabaseManager databaseManager;
     @Mock private SuggestedCreatorsStorage suggestedCreatorsStorage;
+    @Mock private ShortcutController shortcutController;
 
     @Before
     public void setup() {
@@ -105,7 +107,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           commentsStorage,
                                           featureFlags,
                                           databaseManager,
-                                          suggestedCreatorsStorage);
+                                          suggestedCreatorsStorage,
+                                          shortcutController);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -282,6 +285,13 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action.call();
 
         verify(databaseManager, never()).clearTables();
+    }
+
+    @Test
+    public void shouldRemoveShortcuts() {
+        action.call();
+
+        verify(shortcutController).removeShortcuts();
     }
 
     @Test

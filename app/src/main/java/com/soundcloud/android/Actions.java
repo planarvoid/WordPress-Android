@@ -29,6 +29,10 @@ public final class Actions {
     // internal actions
     public static final String ACCOUNT_ADDED = BuildConfig.APPLICATION_ID + ".action.ACCOUNT_ADDED";
 
+    // launcher shortcut actions (some duplications from above for easier tracking)
+    public static final String SHORTCUT_PLAY_LIKES = BuildConfig.APPLICATION_ID + ".action.SHORTCUT_PLAY_LIKES";
+    public static final String SHORTCUT_SEARCH = BuildConfig.APPLICATION_ID + ".action.SHORTCUT_SEARCH";
+
     public static final String UPLOAD = BuildConfig.APPLICATION_ID + ".actions.upload";
     public static final String UPLOAD_MONITOR = BuildConfig.APPLICATION_ID + ".actions.upload.monitor";
 }
