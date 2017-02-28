@@ -135,23 +135,6 @@
           }
         },
         {
-          "testdroid_smoke_tests": {
-            "cmd": "cp app/build/outputs/apk/soundcloud-android*$PIPELINE_VERSION*.apk app/build/outputs/apk/soundcloud-android-testdroid.apk",
-            "plugins": {
-              "testdroid": {
-                "appPath": "app/build/outputs/apk/soundcloud-android-testdroid.apk",
-                "deviceGroupId": "2269",
-                "projectId": "29091428",
-                "notificationEmail": "android-dev@soundcloud.com"
-              }
-            },
-            "manual": true,
-            "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk"
-            ]
-          }
-        },
-        {
           "deploy_beta": {
             "cmd": "ln -s /home/mobile/installs/client_secrets.json client_secrets.json \nBUILD_TYPE=beta ./gradlew deployBeta versionizeFollowUpBeta commitVersionBump",
             "manual": true,
