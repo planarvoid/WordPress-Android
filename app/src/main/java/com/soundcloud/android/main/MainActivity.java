@@ -76,7 +76,7 @@ public class MainActivity extends PlayerActivity {
     }
 
     private void fetchFeatureFlags() {
-        if (!this.isChangingConfigurations() && featureFlags.isEnabled(Flag.REMOTE_FEATURE_TOGGLES)) {
+        if (!this.isChangingConfigurations()) {
             featureFlags.fetchRemoteFlags(this);
         }
     }

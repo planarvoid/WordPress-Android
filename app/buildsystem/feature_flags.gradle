@@ -8,7 +8,6 @@ def DEFAULT_HIDE = "\"DEFAULT_HIDE\""
 def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
-  REMOTE_FEATURE_TOGGLES,
   FILTER_COLLECTIONS,
   ARCHER_PUSH,
   MID_TIER_ROLLOUT,
@@ -43,7 +42,6 @@ enum Feature {
 
 android {
   defaultConfig {
-    buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), UNDER_DEVELOPMENT
@@ -153,7 +151,6 @@ android {
     }
 
     release {
-      buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.MID_TIER_ROLLOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
