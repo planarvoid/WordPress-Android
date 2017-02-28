@@ -6,6 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -154,6 +155,23 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         verify(playQueueManager).insertNext(trackItem.getUrn());
+    }
+
+    @Test
+    public void clickIgnoredWhileShowing() {
+        presenter.show(activity, view, trackItem, 0);
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(popupMenuWrapper, times(1)).show();
+    }
+
+    @Test
+    public void clickAfterDismissalShowsPopup() {
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onDismiss();
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(popupMenuWrapper, times(2)).show();
     }
 
     @Test

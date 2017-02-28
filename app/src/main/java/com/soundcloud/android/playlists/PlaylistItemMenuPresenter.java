@@ -64,6 +64,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private Optional<PromotedSourceInfo> promotedSourceInfo;
     private EntityMetadata entityMetadata;
     private PlaylistItemMenuRenderer renderer;
+    private boolean isShowing = false;
 
     @Inject
     public PlaylistItemMenuPresenter(Context appContext,
@@ -101,27 +102,32 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void show(View button, Urn playlistUrn, OverflowMenuOptions menuOptions) {
-        this.menuOptions = menuOptions;
-        this.eventContextMetadataBuilder = Optional.absent();
-        this.renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
-        this.playlistUrn = playlistUrn;
-        this.promotedSourceInfo = Optional.absent();
-        this.entityMetadata = EntityMetadata.EMPTY;
-        loadPlaylist(playlistUrn);
+        if (!isShowing) {
+            this.menuOptions = menuOptions;
+            this.eventContextMetadataBuilder = Optional.absent();
+            this.renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+            this.playlistUrn = playlistUrn;
+            this.promotedSourceInfo = Optional.absent();
+            this.entityMetadata = EntityMetadata.EMPTY;
+            loadPlaylist(playlistUrn);
+            isShowing = true;
+        }
     }
 
     public void show(View button,
                      PlaylistItem playlist,
                      OverflowMenuOptions menuOptions,
                      EventContextMetadata.Builder eventContextMetadataBuilder) {
-
-        this.menuOptions = menuOptions;
-        this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
-        renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
-        playlistUrn = playlist.getUrn();
-        promotedSourceInfo = loadPromotedSourceInfo(playlist);
-        entityMetadata = EntityMetadata.from(playlist);
-        loadPlaylist(playlistUrn);
+        if (!isShowing) {
+            this.menuOptions = menuOptions;
+            this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
+            renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+            playlistUrn = playlist.getUrn();
+            promotedSourceInfo = loadPromotedSourceInfo(playlist);
+            entityMetadata = EntityMetadata.from(playlist);
+            loadPlaylist(playlistUrn);
+            isShowing = true;
+        }
     }
 
     private Optional<PromotedSourceInfo> loadPromotedSourceInfo(PlaylistItem playlist) {
@@ -135,6 +141,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     public void onDismiss() {
         playlistSubscription.unsubscribe();
         playlistSubscription = Subscriptions.empty();
+        isShowing = false;
     }
 
     public void handlePlayNext() {

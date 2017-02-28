@@ -68,6 +68,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private Urn playlistUrn;
     private Urn ownerUrn;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
+    private boolean isShowing = false;
 
     @Nullable private RemoveTrackListener removeTrackListener;
 
@@ -145,14 +146,17 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      RemoveTrackListener removeTrackListener,
                      PromotedSourceInfo promotedSourceInfo,
                      EventContextMetadata.Builder builder) {
-        this.activity = activity;
-        this.track = track;
-        this.removeTrackListener = removeTrackListener;
-        this.promotedSourceInfo = promotedSourceInfo;
-        this.playlistUrn = playlistUrn;
-        this.ownerUrn = ownerUrn;
-        this.eventContextMetadata = builder.isFromOverflow(true).build();
-        loadTrack(setupMenu(button));
+        if (!isShowing) {
+            this.activity = activity;
+            this.track = track;
+            this.removeTrackListener = removeTrackListener;
+            this.promotedSourceInfo = promotedSourceInfo;
+            this.playlistUrn = playlistUrn;
+            this.ownerUrn = ownerUrn;
+            this.eventContextMetadata = builder.isFromOverflow(true).build();
+            loadTrack(setupMenu(button));
+            this.isShowing = true;
+        }
     }
 
     private PopupMenuWrapper setupMenu(View button) {
@@ -209,6 +213,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackSubscription = Subscriptions.empty();
         activity = null;
         track = null;
+        isShowing = false;
     }
 
     @Override
