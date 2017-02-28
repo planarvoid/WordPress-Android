@@ -119,6 +119,8 @@
   <string name="list_empty_notification_secondary">Suivez vos artistes, groupes et podcasts préférés pour écouter leurs derniers titres.</string>
   <string name="list_empty_stream_action">TROUVER DES PERSONNES À SUIVRE</string>
   <string name="list_empty_stream_message">Suivez vos artistes, groupes et podcasts préférés pour écouter leurs derniers titres.</string>
+  <string name="custom_empty_playlist_title">%1$s vide</string>
+  <string name="custom_empty_playlist_description">Cette %1$s ne contient pas encore de titres.</string>
   <string name="list_empty_you_likes_message">Aimez vos titres préférés pour les écouter à nouveau.</string>
   <string name="list_empty_you_following_message">Suivez vos artistes et curateurs préférés pour écouter leurs derniers titres.</string>
   <string name="list_empty_you_followers_message">Vous n\'avez aucun abonné pour l\'instant.</string>
@@ -134,6 +136,7 @@
   <string name="error_loading_url">Un problème est survenu lors du chargement de cette URL.</string>
   <string name="crop_image_error">Une erreur est survenue en recadrant votre image.</string>
   <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre requête. Veuillez réessayer ultérieurement.</string>
+  <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer ultérieurement.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Oups ! Nous n\'avons pas réussi à vous inscrire\nEssayez de mettre à jour l\'application ou inscrivez-vous sur SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Veuillez autoriser SoundCloud à accéder à votre appareil de stockage externe pour pouvoir accéder à votre image.</string>
@@ -259,6 +262,7 @@
     <item quantity="other">%d commentaires sur ce titre</item>
   </plurals>
   <!--__PLAYLISTS-->
+  <string name="playlist_load_error">Impossible de charger cette playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lecture aléatoire</string>
   <string name="add_to_playlist">Ajouter à une playlist</string>
@@ -444,6 +448,8 @@
   <string name="pref_clear_cache">Vider le cache de l\'application</string>
   <string name="pref_clear_cache_desc">Videz le cache de l\'application pour libérer de la mémoire sur votre appareil</string>
   <string name="pref_privacy">Confidentialité</string>
+  <string name="pref_autoplay_related">Lecture automatique</string>
+  <string name="pref_autoplay_related_desc">Lorsqu\'une playlist se termine, écouter des titres similaires</string>
   <string name="pref_revoke_access">Déconnexion</string>
   <string name="pref_sync_wifi_only">Mise à jour des données par Wifi</string>
   <string name="pref_sync_wifi_only_description">Mise à jour des nouveaux favoris, etc. par Wifi uniquement</string>
@@ -544,6 +550,7 @@
   <string name="media_route_menu_title">Diffuser</string>
   <string name="cast_introductory_overlay_title">Diffuser SoundCloud</string>
   <string name="cast_introductory_overlay_description">Appuyez pour diffuser de la musique sur votre télévision et avec les haut-parleurs</string>
+  <string name="cast_player_casting_to">Lecture sur %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Sponsorisé</string>
   <string name="promoted_by_promotorname">Sponsorisé par %s</string>
@@ -918,6 +925,7 @@
   <string name="play_queue_header_charts_top">À partir de %1$s dans le top 50</string>
   <string name="play_queue_header_charts_trending">À partir de %1$s nouveaux titres tendances</string>
   <string name="play_queue_header_explicit">Ajouté par vous</string>
+  <string name="play_queue_header_auto_play">Lecture automatique</string>
   <string name="play_queue_header_other">Issus de titres écoutés récemment</string>
   <string name="play_queue_introductory_overlay_title">Nouveau ! Prochaine écoute</string>
   <string name="play_queue_introductory_overlay_description">Choisissez le titre suivant, la lecture aléatoire ou la répétition du titre</string>
@@ -928,4 +936,11 @@
   <string name="suggested_creators">Artistes suggérés</string>
   <string name="suggested_creators_blurb">Suivez vos artistes préférés pour ne plus manquer aucun titre</string>
   <string name="suggested_creators_recent_posts">Posts récents</string>
+  <string name="suggested_creators_relation_listened_to">Vous avez récemment écouté leur titre</string>
+  <string name="suggested_creators_relation_liked">Vous avez récemment aimé leur titre</string>
+  <string name="suggested_creators_relation_reposted">Vous avez récemment reposté leur titre</string>
+  <string name="suggested_creators_relation_curated">Vous avez récemment ajouté leur titre à une playlist</string>
+  <string name="suggested_creators_relation_followed"></string>
+  <string name="suggested_creators_relation_uploaded"></string>
+  <string name="suggested_creators_relation_unknown"></string>
 </resources>

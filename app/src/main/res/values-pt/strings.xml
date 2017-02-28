@@ -119,6 +119,8 @@
   <string name="list_empty_notification_secondary">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_stream_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
+  <string name="custom_empty_playlist_title">%1$s vazio</string>
+  <string name="custom_empty_playlist_description">Este %1$s ainda não tem faixas.</string>
   <string name="list_empty_you_likes_message">Curta seus sons favoritos para ouvi-los novamente.</string>
   <string name="list_empty_you_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_you_followers_message">Você ainda não tem seguidores.</string>
@@ -134,6 +136,7 @@
   <string name="error_loading_url">Houve um problema ao carregar esse URL.</string>
   <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
   <string name="error_server_problems_message">Houve um problema ao processar sua solicitação. Tente novamente mais tarde.</string>
+  <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente mais tarde.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Ups! Não conseguimos acessar sua conta.\nTente atualizar o aplicativo ou fazer login na SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Conceda acesso à SoundCloud para ler seu armazenamento externo para acessar sua imagem.</string>
@@ -254,6 +257,7 @@
     <item quantity="other">%d comentários nesta faixa</item>
   </plurals>
   <!--__PLAYLISTS-->
+  <string name="playlist_load_error">Não foi possível carregar esta playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist aleatória</string>
   <string name="add_to_playlist">Adicionar à playlist</string>
@@ -439,6 +443,8 @@
   <string name="pref_clear_cache">Limpar cache do aplicativo</string>
   <string name="pref_clear_cache_desc">Limpe o cache do app para liberar memória no dispositivo</string>
   <string name="pref_privacy">Privacidade</string>
+  <string name="pref_autoplay_related">Reproduzir automaticamente faixas relacionadas</string>
+  <string name="pref_autoplay_related_desc">Quando a playlist terminar, reproduzir faixas com base na última faixa</string>
   <string name="pref_revoke_access">Sair</string>
   <string name="pref_sync_wifi_only">Atualizar os dados apenas através de Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Atualizar apenas novas curtidas, etc. através de Wi-Fi</string>
@@ -539,6 +545,7 @@
   <string name="media_route_menu_title">Transmitir</string>
   <string name="cast_introductory_overlay_title">Cast SoundCloud</string>
   <string name="cast_introductory_overlay_description">Toque para transmitir música para alto-falantes habilitados para tevê e para o Cast</string>
+  <string name="cast_player_casting_to">Transmitindo para %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promovido</string>
   <string name="promoted_by_promotorname">Promovida por %s</string>
@@ -911,6 +918,7 @@ vão aparecer aqui.</string>
   <string name="play_queue_header_charts_top">Dos 50 gráficos principais %1$s</string>
   <string name="play_queue_header_charts_trending">De gráficos novos e irados %1$s</string>
   <string name="play_queue_header_explicit">Adicionado por você</string>
+  <string name="play_queue_header_auto_play">Reprodução automática</string>
   <string name="play_queue_header_other">De uma fila de reprodução recente</string>
   <string name="play_queue_introductory_overlay_title">Novo! Próximo para cima</string>
   <string name="play_queue_introductory_overlay_description">Controle o que será reproduzido em seguida, reorganize ou repita</string>
@@ -921,4 +929,11 @@ vão aparecer aqui.</string>
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Siga seus artistas favoritos, assim você nunca perde as faixas mais recentes</string>
   <string name="suggested_creators_recent_posts">Posts recentes</string>
+  <string name="suggested_creators_relation_listened_to">Você ouviu recentemente a faixa</string>
+  <string name="suggested_creators_relation_liked">Você curtiu recentemente a faixa</string>
+  <string name="suggested_creators_relation_reposted">Você republicou recentemente a faixa</string>
+  <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa deles a uma playlist</string>
+  <string name="suggested_creators_relation_followed"></string>
+  <string name="suggested_creators_relation_uploaded"></string>
+  <string name="suggested_creators_relation_unknown"></string>
 </resources>

@@ -119,6 +119,8 @@
   <string name="list_empty_notification_secondary">Follow your favourite artists, bands and podcasts to hear their latest tracks.</string>
   <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
   <string name="list_empty_stream_message">Follow your favourite artists, bands and podcasts to hear their latest tracks.</string>
+  <string name="custom_empty_playlist_title">Empty %1$s</string>
+  <string name="custom_empty_playlist_description">This %1$s has no tracks yet.</string>
   <string name="list_empty_you_likes_message">Like your favourite sounds to hear them again.</string>
   <string name="list_empty_you_following_message">Follow your favourite artists, bands and curators to hear their latest tracks.</string>
   <string name="list_empty_you_followers_message">You don’t have any followers yet.</string>
@@ -134,6 +136,7 @@
   <string name="error_loading_url">There was a problem loading that URL.</string>
   <string name="crop_image_error">There was an error cropping your image.</string>
   <string name="error_server_problems_message">There was a problem processing your request. Please try again soon.</string>
+  <string name="connection_list_error">There seems to be a connection problem. Please try again soon.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Oops! We couldn’t sign you up\nTry updating the app or sign up at SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Please grant SoundCloud access to read your external storage to access your image.</string>
@@ -256,6 +259,7 @@
     <item quantity="other">%d comments on this track</item>
   </plurals>
   <!--__PLAYLISTS-->
+  <string name="playlist_load_error">Could not load this playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Shuffle playlist</string>
   <string name="add_to_playlist">Add to playlist</string>
@@ -441,6 +445,8 @@
   <string name="pref_clear_cache">Clear application cache</string>
   <string name="pref_clear_cache_desc">Clear the application cache to free up memory on your device</string>
   <string name="pref_privacy">Privacy</string>
+  <string name="pref_autoplay_related">Autoplay related tracks</string>
+  <string name="pref_autoplay_related_desc">When a playlist ends, play tracks based on the last track</string>
   <string name="pref_revoke_access">Sign out</string>
   <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
@@ -541,6 +547,7 @@
   <string name="media_route_menu_title">Cast</string>
   <string name="cast_introductory_overlay_title">Cast SoundCloud</string>
   <string name="cast_introductory_overlay_description">Tap to cast music to your TV and Cast enabled speakers</string>
+  <string name="cast_player_casting_to">Casting to %s</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Promoted by %s</string>
@@ -911,6 +918,7 @@
   <string name="play_queue_header_charts_top">From %1$s top 50 charts</string>
   <string name="play_queue_header_charts_trending">From %1$s New &amp; Hot charts </string>
   <string name="play_queue_header_explicit">Added by you</string>
+  <string name="play_queue_header_auto_play">Auto play</string>
   <string name="play_queue_header_other">From a recent play queue</string>
   <string name="play_queue_introductory_overlay_title">New! Next up</string>
   <string name="play_queue_introductory_overlay_description">Control what plays next, shuffle or repeat</string>
@@ -921,4 +929,11 @@
   <string name="suggested_creators">Suggested artists</string>
   <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>
   <string name="suggested_creators_recent_posts">Recent posts</string>
+  <string name="suggested_creators_relation_listened_to">You recently listened to their track</string>
+  <string name="suggested_creators_relation_liked">You recently liked their track</string>
+  <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
+  <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
+  <string name="suggested_creators_relation_followed"></string>
+  <string name="suggested_creators_relation_uploaded"></string>
+  <string name="suggested_creators_relation_unknown"></string>
 </resources>

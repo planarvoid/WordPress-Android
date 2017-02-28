@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.soundcloud.android.view.MultiSwipeRefreshLayout
+        android:id="@+id/str_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <GridView
+                android:id="@android:id/list"
+                style="@style/Explore.GridView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/page_background" />
+
+            <com.soundcloud.android.view.EmptyView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+    </com.soundcloud.android.view.MultiSwipeRefreshLayout>
+
+</FrameLayout>
+

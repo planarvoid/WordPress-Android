@@ -30,7 +30,9 @@
 
     <!-- Go Onboarding  -->
     <dimen name="android_status_bar_stub_height">74dp</dimen>
+    <dimen name="go_onboarding_header_width">350dp</dimen>
     <dimen name="go_onboarding_text_width">370dp</dimen>
+    <dimen name="go_onboarding_header_text_size">48sp</dimen>
     <dimen name="go_onboarding_title_text_size">24sp</dimen>
     <dimen name="go_onboarding_sub_title_text_size">20sp</dimen>
 

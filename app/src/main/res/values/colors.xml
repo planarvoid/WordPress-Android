@@ -28,6 +28,7 @@
     <color name="orange_radio_off_text">#777777</color>
 
     <color name="snack_bar_bg_dark">@color/ak_almost_black</color>
+    <color name="snack_bar_bg_light">@color/page_background</color>
 
     <!-- List items -->
     <!-- Legacy cells -->
@@ -63,6 +64,9 @@
     <color name="play_queue_remove">#ff3300</color>
     <color name="play_queue_playing_background">#37ffffff</color>
     <color name="play_queue_higlighted_background">#1effffff</color>
+    <color name="play_queue_shadow_top">#42000000</color>
+    <color name="play_queue_shadow_center">#19000000</color>
+    <color name="play_queue_shadow_bottom">#00000000</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
@@ -106,6 +110,7 @@
     <color name="page_background">#f3f3f3</color>
 
     <color name="following_text">@color/ak_sc_orange</color>
+    <color name="follow_text">@color/ak_dark_gray</color>
     <color name="gray_text">@color/ak_medium_dark_gray</color>
     <color name="dark_gray_text">@color/ak_almost_black</color>
     <color name="tab_bar_divider">#dddddd</color>

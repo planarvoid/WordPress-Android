@@ -6,6 +6,7 @@
     <dimen name="conversion_content">440dp</dimen>
     <dimen name="conversion_title_text">36dp</dimen>
     <dimen name="conversion_headline_text">48sp</dimen>
+    <dimen name="conversion_headline_width">360dp</dimen>
     <dimen name="conversion_button_text">20sp</dimen>
     <dimen name="conversion_divider_width">80dp</dimen>
     <dimen name="conversion_divider_height">3dp</dimen>
