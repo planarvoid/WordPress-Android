@@ -17,7 +17,6 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -128,8 +127,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     }
 
     private void setupOverFlow(final View button, final RecentlyPlayedPlayableItem playlistItem) {
-        final OverflowMenuOptions options = OverflowMenuOptions.builder().showOffline(true).build();
-        button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem.getUrn(), options));
+        button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem.getUrn()));
         ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
     }
 

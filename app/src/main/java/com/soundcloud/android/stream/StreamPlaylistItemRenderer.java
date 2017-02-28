@@ -1,7 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
-
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -74,7 +72,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
                                       playlistItem,
                                       getEventContextMetadataBuilder(playlistItem, position).build());
 
-        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().showOffline(true).build(),
+        playlistView.setOverflowListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton, playlistItem,
                                                                                   getEventContextMetadataBuilder(playlistItem, position)));
     }
 

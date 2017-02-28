@@ -8,7 +8,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -47,13 +46,11 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private OverflowMenuOptions menuOptions;
     private PopupMenuWrapper menu;
     private PlaylistItem playlist;
 
     PlaylistItemMenuRenderer(Listener listener,
                              View button,
-                             OverflowMenuOptions menuOptions,
                              @Provided PopupMenuWrapper.Factory popupMenuWrapperFactory,
                              @Provided AccountOperations accountOperations,
                              @Provided ScreenProvider screenProvider,
@@ -64,7 +61,6 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.menuOptions = menuOptions;
 
         this.menu = popupMenuWrapperFactory.build(button.getContext(), button);
         menu.inflate(R.menu.playlist_item_actions);
@@ -117,7 +113,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     private void configureOfflineOptions(PlaylistItem playlist) {
         final Optional<Boolean> maybeMarkedForOffline = playlist.isMarkedForOffline();
 
-        if (maybeMarkedForOffline.isPresent() && menuOptions.showOffline()) {
+        if (maybeMarkedForOffline.isPresent()) {
             final boolean markedForOffline = maybeMarkedForOffline.get();
 
             if (featureOperations.isOfflineContentEnabled()) {

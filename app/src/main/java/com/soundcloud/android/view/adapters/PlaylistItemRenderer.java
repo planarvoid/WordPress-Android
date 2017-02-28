@@ -14,7 +14,6 @@ import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -41,8 +40,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final Navigator navigator;
-
-    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
@@ -88,7 +85,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                final Optional<Module> module) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button,
                                                               playlist,
-                                                              menuOptions,
                                                               getEventContextMetaDataBuilder(playlist, module)));
     }
 

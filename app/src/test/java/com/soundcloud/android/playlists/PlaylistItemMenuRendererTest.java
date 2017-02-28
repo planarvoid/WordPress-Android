@@ -12,7 +12,6 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -37,7 +36,6 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private MenuItem menuItem;
 
     private PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-    private OverflowMenuOptions menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
     private PlaylistItemMenuRenderer renderer;
 
     @Before
@@ -47,7 +45,6 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         renderer = new PlaylistItemMenuRenderer(listener,
                                                 button,
-                                                menuOptions,
                                                 popupMenuWrapperFactory,
                                                 accountOperations,
                                                 screenProvider,

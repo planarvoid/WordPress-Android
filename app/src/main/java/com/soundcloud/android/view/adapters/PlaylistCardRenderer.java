@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -99,7 +97,6 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
         playlistView.overflowButton.setOnClickListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
                                                                                                 playlistItem,
-                                                                                                builder().showOffline(true).build(),
                                                                                                 getEventContextMetadataBuilder(module)));
     }
 

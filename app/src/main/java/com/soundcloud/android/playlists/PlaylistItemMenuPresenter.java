@@ -26,7 +26,6 @@ import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
-import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -57,7 +56,6 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final AccountOperations accountOperations;
 
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
-    private OverflowMenuOptions menuOptions;
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
     private Urn playlistUrn;
 
@@ -97,15 +95,14 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.accountOperations = accountOperations;
     }
 
-    public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
-        show(button, playlist, menuOptions, null);
+    public void show(View button, PlaylistItem playlist) {
+        show(button, playlist, null);
     }
 
-    public void show(View button, Urn playlistUrn, OverflowMenuOptions menuOptions) {
+    public void show(View button, Urn playlistUrn) {
         if (!isShowing) {
-            this.menuOptions = menuOptions;
             this.eventContextMetadataBuilder = Optional.absent();
-            this.renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+            this.renderer = playlistItemMenuRendererFactory.create(this, button);
             this.playlistUrn = playlistUrn;
             this.promotedSourceInfo = Optional.absent();
             this.entityMetadata = EntityMetadata.EMPTY;
@@ -116,12 +113,10 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     public void show(View button,
                      PlaylistItem playlist,
-                     OverflowMenuOptions menuOptions,
                      EventContextMetadata.Builder eventContextMetadataBuilder) {
         if (!isShowing) {
-            this.menuOptions = menuOptions;
             this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
-            renderer = playlistItemMenuRendererFactory.create(this, button, menuOptions);
+            renderer = playlistItemMenuRendererFactory.create(this, button);
             playlistUrn = playlist.getUrn();
             promotedSourceInfo = loadPromotedSourceInfo(playlist);
             entityMetadata = EntityMetadata.from(playlist);
@@ -260,7 +255,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     private boolean isUnlikingNotOwnedPlaylistInOfflineMode(boolean addLike, PlaylistItem playlist) {
-        boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled() && menuOptions.showOffline();
+        boolean offlineContentEnabled = featureOperations.isOfflineContentEnabled();
         return offlineContentEnabled && !addLike && !isPlaylistOwnedByCurrentUser(playlist);
     }
 
