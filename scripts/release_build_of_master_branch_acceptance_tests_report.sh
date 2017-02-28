@@ -20,7 +20,7 @@ function getNumberOfFailingTests {
 FAILED_TEST_COUNT=$(getNumberOfFailingTests)
 
 if [ "$FAILED_TEST_COUNT" -le 0 ]; then
-    curl -X POST --data-urlencode payload="$(payload "<$JOB_URL|Nightly Release Build of Master Branch #$BUILD_NUMBER> Passed" $PASS_ICON)" $URL
+    curl -X POST --data-urlencode payload="$(payload "<$BUILD_URL|Nightly Release Build of Master Branch #$BUILD_NUMBER> Passed" $PASS_ICON)" $URL
 else
-    curl -X POST --data-urlencode payload="$(payload "<$JOB_URL|Nightly Release Build of Master Branch #$BUILD_NUMBER> had $FAILED_TEST_COUNT failing tests" $FAIL_ICON)" $URL
+    curl -X POST --data-urlencode payload="$(payload "<$BUILD_URL|Nightly Release Build of Master Branch #$BUILD_NUMBER> had $FAILED_TEST_COUNT failing tests" $FAIL_ICON)" $URL
 fi
