@@ -32,12 +32,55 @@
 
         </RelativeLayout>
 
-        <com.soundcloud.android.view.AspectRatioTextureView
-            android:id="@+id/video_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            style="@style/StreamVideo"/>
+        <RelativeLayout
+            android:id="@+id/video_container"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content">
+
+            <View
+                android:id="@+id/video_background"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/video_view"
+                android:layout_alignBottom="@id/video_view"
+                android:background="@color/black"/>
+
+            <com.soundcloud.android.view.AspectRatioTextureView
+                android:id="@+id/video_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                style="@style/StreamVideo"/>
+
+            <com.soundcloud.android.view.CircularProgressBar
+                android:id="@+id/video_progress"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:visibility="gone"
+                android:layout_centerInParent="true"/>
+
+            <ImageButton
+                android:id="@+id/player_play"
+                style="@style/AdVideoButton.Play"
+                android:layout_centerInParent="true" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="@drawable/player_gradient_top"/>
+
+            <Button
+                android:id="@+id/video_fullscreen_control"
+                style="@style/AdVideoButton.Fullscreen"
+                android:visibility="visible"/>
+
+            <Button
+                android:id="@+id/video_volume_control"
+                style="@style/AdVideoButton.Volume"
+                android:layout_alignParentRight="true"
+                android:enabled="false"
+                android:visibility="visible"/>
+        </RelativeLayout>
 
         <RelativeLayout
             android:paddingBottom="18dp"
@@ -63,6 +106,5 @@
             android:layout_marginBottom="24dp"
             android:layout_width="match_parent"
             style="@style/Stream.Button.CallToAction.Video"/>
-
     </LinearLayout>
 </FrameLayout>

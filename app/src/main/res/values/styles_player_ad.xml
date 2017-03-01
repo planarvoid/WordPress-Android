@@ -86,25 +86,34 @@
         <item name="android:background">@drawable/btn_close_ad</item>
     </style>
 
-    <style name="AdVideoFullscreen">
+     <style name="AdVideoButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">1.5dp</item>
-        <item name="android:layout_marginLeft">1.5dp</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
-        <item name="android:visibility">gone</item>
+         <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="AdVideoButton.Fullscreen">
+        <item name="android:layout_marginTop">1.5dp</item>
+        <item name="android:layout_marginLeft">1.5dp</item>
         <item name="android:background">@drawable/btn_video_ad_fullscreen</item>
     </style>
 
-    <style name="AdVideoShrink">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="AdVideoButton.Play">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/video_play_button</item>
+    </style>
+
+    <style name="AdVideoButton.Volume">
+        <item name="android:layout_marginTop">1.5dp</item>
+        <item name="android:layout_marginRight">1.5dp</item>
+        <item name="android:background">@drawable/btn_video_ad_volume</item>
+    </style>
+
+    <style name="AdVideoButton.Shrink">
         <item name="android:layout_marginTop">12.5dp</item>
         <item name="android:layout_marginLeft">3dp</item>
-        <item name="android:minWidth">0dp</item>
-        <item name="android:minHeight">0dp</item>
-        <item name="android:visibility">gone</item>
         <item name="android:background">@drawable/btn_video_ad_shrink</item>
     </style>
 

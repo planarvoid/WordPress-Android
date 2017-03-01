@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.collections.Lists;
@@ -141,5 +142,104 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_view).performClick();
 
         assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.ToggleVolume.class);
+    }
+
+    @Test
+    public void videoViewInvisibleAfterBind() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        assertThat(adView.findViewById(R.id.video_view)).isInvisible();
+    }
+
+    @Test
+    public void videoViewVisibleWhenPlaybackStarts() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
+
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+    }
+
+    @Test
+    public void volumeToggleEnabledWhenNotMuted() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
+
+        assertThat(adView.findViewById(R.id.video_volume_control)).isEnabled();
+    }
+
+    @Test
+    public void volumeToggleDisabledWhenMuted() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.idle(), true);
+
+        assertThat(adView.findViewById(R.id.video_volume_control)).isDisabled();
+    }
+
+    @Test
+    public void volumeToggleAndFullscreenButtonNotVisibleWhenPlaybackIsFinished() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.complete(), false);
+
+        assertThat(adView.findViewById(R.id.video_volume_control)).isGone();
+        assertThat(adView.findViewById(R.id.video_fullscreen_control)).isGone();
+    }
+
+    @Test
+    public void playButtonVisibleWhenPlaybackPaused() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
+
+        assertThat(adView.findViewById(R.id.player_play)).isVisible();
+    }
+
+    @Test
+    public void playButtonGoneWhenPlaybackPlaying() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
+
+        assertThat(adView.findViewById(R.id.player_play)).isGone();
+    }
+
+    @Test
+    public void playButtonVisibleWhenPlaybackComplete() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.complete(), false);
+
+        assertThat(adView.findViewById(R.id.player_play)).isVisible();
+    }
+
+    @Test
+    public void playButtonGoneWhenBuffering() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.buffering(), false);
+
+        assertThat(adView.findViewById(R.id.player_play)).isGone();
+    }
+
+    @Test
+    public void progressIndicatorVisibleWhenBuffering() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.buffering(), false);
+
+        assertThat(adView.findViewById(R.id.video_progress)).isVisible();
+    }
+
+    @Test
+    public void progressIndicatorGoneWhenPlayingOrIdle() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
+        assertThat(adView.findViewById(R.id.video_progress)).isGone();
+         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
+        assertThat(adView.findViewById(R.id.video_progress)).isGone();
     }
 }

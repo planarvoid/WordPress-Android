@@ -42,11 +42,11 @@
 
         <Button
             android:id="@+id/video_fullscreen_control"
-            style="@style/AdVideoFullscreen" />
+            style="@style/AdVideoButton.Fullscreen" />
 
         <Button
             android:id="@+id/video_shrink_control"
-            style="@style/AdVideoShrink" />
+            style="@style/AdVideoButton.Shrink" />
 
     </FrameLayout>
 

@@ -1,11 +1,12 @@
 package com.soundcloud.android.ads;
 
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
@@ -16,6 +17,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.stream.StreamItem.Video;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
+import com.soundcloud.android.view.CircularProgressBar;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -54,10 +56,12 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
         holder.videoView.setAspectRatio(getVideoProportion(videoAd));
+        holder.videoView.setVisibility(View.INVISIBLE);
 
         bindFooter(videoAd, holder);
         bindWhyAdsListener(holder.whyAds);
 
+        holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> publishVolumeToggle(position, videoAd));
 
         if (listener.isPresent()) {
@@ -89,9 +93,23 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         callToAction.setOnClickListener(getClickthroughListener(videoAd));
     }
 
-    // TODO
-    public void setPlayState(View itemView, PlaybackStateTransition playbackStateTransition, boolean isMuted) {
-        Log.d("ScAds", "PlaybackTransition: " + playbackStateTransition.toString() + " isMuted:" + isMuted);
+    public void setPlayState(View itemView, PlaybackStateTransition stateTransition, boolean isMuted) {
+        final Holder holder = getHolder(itemView);
+        final boolean playbackCompleted = stateTransition.playbackEnded();
+        final boolean isVideoViewVisible = holder.videoView.getVisibility() == View.VISIBLE;
+
+        holder.volumeButton.setEnabled(!isMuted);
+        holder.volumeButton.setVisibility(playbackCompleted ? View.GONE : View.VISIBLE);
+        holder.fullscreenButton.setVisibility(playbackCompleted ? View.GONE : View.VISIBLE);
+
+        holder.playButton.setVisibility(stateTransition.isPaused() || playbackCompleted ? View.VISIBLE : View.GONE);
+        holder.loadingIndicator.setVisibility(stateTransition.isBuffering() ? View.VISIBLE : View.GONE);
+
+        if (!isVideoViewVisible && stateTransition.isPlayerPlaying()) {
+            holder.videoView.setVisibility(View.VISIBLE);
+        } else if (playbackCompleted) {
+            holder.videoView.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void onViewAttachedToWindow(View itemView, Optional<AdData> adData) {
@@ -101,7 +119,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         }
     }
 
-   TextureView getVideoView(View itemView) {
+    TextureView getVideoView(View itemView) {
         return getHolder(itemView).videoView;
     }
 
@@ -118,7 +136,13 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         @BindView(R.id.ad_item) TextView headerText;
 
         @BindView(R.id.why_ads) TextView whyAds;
+
         @BindView(R.id.video_view) AspectRatioTextureView videoView;
+        @BindView(R.id.video_volume_control) Button volumeButton;
+        @BindView(R.id.video_fullscreen_control) Button fullscreenButton;
+        @BindView(R.id.video_progress) CircularProgressBar loadingIndicator;
+
+        @BindView(R.id.player_play) ImageButton playButton;
 
         @BindView(R.id.footer_with_title) View footerWithTitle;
         @BindView(R.id.title) TextView title;
