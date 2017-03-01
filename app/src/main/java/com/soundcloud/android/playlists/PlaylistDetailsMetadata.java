@@ -36,7 +36,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .permalinkUrl(playlist.permalinkUrl())
                 .creatorUrn(playlist.creatorUrn())
                 .creatorName(playlist.creatorName())
-                .canShuffle(trackItems.size() > 1)
+                .canShuffle(!trackItems.isEmpty())
                 .trackCount(trackCount)
                 .isPrivate(playlist.isPrivate())
                 .isRepostedByUser(isReposted)
