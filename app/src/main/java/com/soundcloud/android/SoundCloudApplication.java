@@ -16,7 +16,6 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngineFactory;
 import com.soundcloud.android.analytics.performance.StopWatch;
-import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -216,9 +215,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         configureCast();
 
         trackOfflineStateProvider.subscribe();
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            offlinePropertiesProvider.subscribe();
-        }
         playQueueExtender.subscribe();
         playHistoryController.subscribe();
         playlistExploder.subscribe();
@@ -237,6 +233,9 @@ public class SoundCloudApplication extends MultiDexApplication {
             likesStateProvider.subscribe();
             repostsStateProvider.subscribe();
             followingStateProvider.subscribe();
+            offlinePropertiesProvider.subscribe();
+        } else if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            offlinePropertiesProvider.subscribe();
         }
 
         FacebookSdk.sdkInitialize(getApplicationContext());
