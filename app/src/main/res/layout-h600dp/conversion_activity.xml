@@ -9,8 +9,10 @@
 
     <include layout="@layout/conversion_common"
         android:layout_width="@dimen/conversion_content"
-        android:layout_marginTop="24dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="@dimen/conversion_margin"
+        android:layout_marginLeft="@dimen/conversion_margin"
         android:layout_centerInParent="true" />
 
 </RelativeLayout>
