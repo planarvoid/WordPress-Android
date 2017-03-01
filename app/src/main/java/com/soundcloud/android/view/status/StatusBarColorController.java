@@ -65,6 +65,10 @@ public class StatusBarColorController extends DefaultActivityLightCycle<AppCompa
     }
 
     public void setStatusBarColor(int value) {
+        if (activity == null) {
+            return;
+        }
+
         statusBarColor = value;
         if (!playerIsExpanded) {
             StatusBarUtils.setStatusBarColor(activity, statusBarColor);
