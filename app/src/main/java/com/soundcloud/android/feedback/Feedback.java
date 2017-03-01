@@ -8,9 +8,8 @@ import android.view.View;
 @AutoValue
 public abstract class Feedback {
 
-    public static int LENGTH_SHORT = 0;
-
-    public static int LENGTH_LONG = 1;
+    public static final int LENGTH_SHORT = 0;
+    public static final int LENGTH_LONG = 1;
 
     public static Feedback create(int message) {
         return create(message, LENGTH_SHORT);

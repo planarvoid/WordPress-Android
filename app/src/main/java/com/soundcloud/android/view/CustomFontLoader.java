@@ -17,9 +17,9 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public final class CustomFontLoader {
-    public static String SOUNDCLOUD_INTERSTATE_LIGHT = "fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf";
-    public static String SOUNDCLOUD_INTERSTATE_LIGHT_TNUM = "fonts/InterstateSound_Tnum-Light_fbdOS9y3d6.ttf";
-    public static String SOUNDCLOUD_INTERSTATE_REGULAR = "fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf";
+    public static final String SOUNDCLOUD_INTERSTATE_LIGHT = "fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf";
+    public static final String SOUNDCLOUD_INTERSTATE_LIGHT_TNUM = "fonts/InterstateSound_Tnum-Light_fbdOS9y3d6.ttf";
+    public static final String SOUNDCLOUD_INTERSTATE_REGULAR = "fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf";
 
     private static final Map<String, SoftReference<Typeface>> fontCache;
 

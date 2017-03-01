@@ -63,7 +63,7 @@ public class MyPlaylistsOperations {
         return all;
     };
 
-    private static final Func1<List<PlaylistAssociation>, List<Playlist>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation.GET_PLAYLIST_ITEM);
+    private static final Func1<List<PlaylistAssociation>, List<Playlist>> EXTRACT_PLAYLIST_ITEMS = playlistAssociations -> Lists.transform(playlistAssociations, PlaylistAssociation::getPlaylist);
 
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final PlaylistLikesStorage playlistLikesStorage;

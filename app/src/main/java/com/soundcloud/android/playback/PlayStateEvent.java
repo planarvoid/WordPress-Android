@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 @AutoValue
 public abstract class PlayStateEvent {
 
-    public static PlayStateEvent DEFAULT = create(PlaybackStateTransition.DEFAULT, 0, false, Strings.EMPTY);
+    public static final PlayStateEvent DEFAULT = create(PlaybackStateTransition.DEFAULT, 0, false, Strings.EMPTY);
 
     public static PlayStateEvent create(PlaybackStateTransition transition,
                                         long apiDuration,

@@ -2,10 +2,10 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.creators.record.filter.FadeFilter;
 
-public class TrimPreview {
-    public static long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
-    public static long PREVIEW_FADE_LENGTH = 30; // ms
-    public static int PREVIEW_FADE_EXP_CURVE = 10;
+class TrimPreview {
+    static final long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
+    static final long PREVIEW_FADE_LENGTH = 30; // ms
+    static final int PREVIEW_FADE_EXP_CURVE = 10;
 
     private final PlaybackStream stream;
     long startPos;

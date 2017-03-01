@@ -3,12 +3,9 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.soundcloud.java.functions.Function;
 
 @AutoValue
 public abstract class ApiVideoSource {
-    public static Function<ApiVideoSource, VideoAdSource> toVideoAdSource = apiVideoSource -> VideoAdSource.create(apiVideoSource);
-
     @JsonCreator
     public static ApiVideoSource create(@JsonProperty("type") String type,
                                         @JsonProperty("url") String url,

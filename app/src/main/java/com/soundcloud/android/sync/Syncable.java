@@ -35,5 +35,5 @@ public enum Syncable {
     PLAY_HISTORY,
     RECENTLY_PLAYED;
 
-    public static EnumSet<Syncable> FOREGROUND_ONLY = EnumSet.of(TRACKS, PLAYLISTS, USERS, PLAYLIST, PLAY_HISTORY);
+    public static final EnumSet<Syncable> FOREGROUND_ONLY = EnumSet.of(TRACKS, PLAYLISTS, USERS, PLAYLIST, PLAY_HISTORY);
 }

@@ -30,7 +30,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 apiVideoAd.getTitle(),
                 createdAt,
                 apiVideoAd.getExpiryInMins(),
-                Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoAdSource),
+                Lists.transform(apiVideoAd.getVideoSources(), VideoAdSource::create),
                 apiVideoAd.getClickThroughUrl(),
                 videoTracking.fullScreenUrls,
                 videoTracking.exitFullScreenUrls
