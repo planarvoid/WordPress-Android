@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.model.ApiPlayHistory;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -65,4 +67,8 @@ public class PushPlayHistoryCommandTest extends AndroidUnitTest {
         verify(playHistoryStorage, never()).setSynced(UN_SYNCED_PLAY_HISTORY);
     }
 
+    @Test
+    public void createsValidJson() throws Exception {
+        assertThat(new JacksonJsonTransformer().toJson(API_PLAY_HISTORY_COLLECTION)).isNotNull();
+    }
 }

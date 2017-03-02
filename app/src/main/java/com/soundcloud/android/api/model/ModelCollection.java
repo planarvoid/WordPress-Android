@@ -2,6 +2,7 @@ package com.soundcloud.android.api.model;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -86,10 +87,12 @@ public class ModelCollection<T> implements Iterable<T> {
         return links;
     }
 
+    @JsonIgnore
     public Optional<Link> getNextLink() {
         return Optional.fromNullable(links.get(NEXT_LINK_REL));
     }
 
+    @JsonIgnore
     public Optional<Urn> getQueryUrn() {
         return Optional.fromNullable(queryUrn);
     }
