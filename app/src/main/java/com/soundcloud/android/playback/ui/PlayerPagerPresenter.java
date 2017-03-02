@@ -432,9 +432,15 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                                            .observeOn(AndroidSchedulers.mainThread())
                                            .filter(playerItem -> isPlayerItemRelatedToView(view, playerItem))
                                            .compose(OperationsInstrumentation.reportOverdue())
-                                           .switchIfEmpty(Observable.just(PlayerTrackState.EMPTY))
+                                           .switchIfEmpty(emptyPlayerItem(playQueueItem))
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
         return view;
+    }
+
+    private Observable<PlayerItem> emptyPlayerItem(PlayQueueItem playQueueItem) {
+        return playQueueItem.isAd()
+                ? Observable.just(playerAdForAdData(playQueueItem.getAdData().get()))
+                : Observable.just(PlayerTrackState.EMPTY);
     }
 
     private void setVideoSurface(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
@@ -469,7 +475,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         } else {
             return getTrackObservable(playQueueItem.getUrn(), playQueueItem.getAdData())
                     // Type lifting necessary here
-                    .map(propertySet -> toPlayerTrackState(playQueueItem).call(propertySet));
+                    .map(trackItem -> toPlayerTrackState(playQueueItem).call(trackItem));
         }
     }
 
@@ -507,7 +513,11 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                     adData.setMonetizableTitle(monetizableTrack.title());
                     adData.setMonetizableCreator(monetizableTrack.creatorName());
                     return adData;
-                }).map(adData1 -> adData1 instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData1) : new AudioPlayerAd((AudioAd) adData1));
+                }).map(this::playerAdForAdData);
+    }
+
+    private PlayerAd playerAdForAdData(AdData adData) {
+        return adData instanceof VideoAd ? new VideoPlayerAd((VideoAd) adData) : new AudioPlayerAd((AudioAd) adData);
     }
 
     void onTrackChange() {

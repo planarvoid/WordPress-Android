@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -26,9 +27,13 @@ abstract class PlayerAd extends PlayerItem {
     }
 
     String getPreviewTitle(Resources resources) {
-        final String nextTrackTitle = adData.getMonetizableTitle();
-        final String nextTrackCreator = adData.getMonetizableCreator();
-        return resources.getString(R.string.ads_next_up_tracktitle_creatorname, nextTrackTitle, nextTrackCreator);
+        if (adData.hasMonetizableTitleAndCreator()) {
+            final String nextTrackTitle = adData.getMonetizableTitle();
+            final String nextTrackCreator = adData.getMonetizableCreator();
+            return resources.getString(R.string.ads_next_up_tracktitle_creatorname, nextTrackTitle, nextTrackCreator);
+        } else {
+            return Strings.EMPTY;
+        }
     }
 
     Urn getMonetizableTrack() {

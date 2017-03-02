@@ -42,6 +42,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -493,6 +494,20 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldBindAdViewForAudioAdsWhenTrackRepositoryReturnsEmpty() {
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.empty());
+        presenter.onResume(playerFragment);
+        View pageView = getAudioAdPageView();
+        ArgumentCaptor<AudioPlayerAd> captorAudioPlayerAd = ArgumentCaptor.forClass(AudioPlayerAd.class);
+
+        verify(audioAdPresenter).bindItemView(eq(pageView), captorAudioPlayerAd.capture());
+
+        assertThat(captorAudioPlayerAd.getValue().getImage()).isNotNull();
+        assertThat(captorAudioPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorAudioPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo(Strings.EMPTY);
+    }
+
+    @Test
     public void shouldBindAdViewAndSetVideoSurfaceForVideoAds() {
         when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
         presenter.onResume(playerFragment);
@@ -505,6 +520,22 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
+    }
+
+    @Test
+    public void shouldBindAdViewAndSetVideoSurfaceForVideoAdsWhenTrackRepositoryReturnsEmpty() {
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.empty());
+        when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
+        presenter.onResume(playerFragment);
+        setupVideoAd();
+        View pageView = getVideoAdPageView();
+        ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
+
+        verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
+
+        assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
+        assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo(Strings.EMPTY);
     }
 
     @Test
