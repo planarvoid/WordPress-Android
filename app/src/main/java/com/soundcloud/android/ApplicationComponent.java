@@ -121,6 +121,7 @@ import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.topresults.TopResultsFragment;
+import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.LegalFragment;
@@ -347,6 +348,7 @@ public interface ApplicationComponent {
     void inject(GenresFragment genresFragment);
     void inject(NewForYouActivity newForYouActivity);
     void inject(NewForYouFragment newForYouFragment);
+    void inject(TopResultsBucketActivity viewAllActivity);
 
     //CollectionModule
     void inject(CollectionFragment collectionFragment);

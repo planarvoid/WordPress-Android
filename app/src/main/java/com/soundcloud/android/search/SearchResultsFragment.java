@@ -19,35 +19,38 @@ import javax.inject.Inject;
 public class SearchResultsFragment extends LightCycleSupportFragment<SearchResultsFragment>
         implements RefreshableScreen {
 
-    static final String EXTRA_API_QUERY = "query";
-    static final String EXTRA_USER_QUERY = "userQuery";
-    static final String EXTRA_QUERY_URN = "queryUrn";
-    static final String EXTRA_QUERY_POSITION = "queryPosition";
-    static final String EXTRA_TYPE = "type";
-    static final String EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT = "publishSearchSubmissionEvent";
+    static final String EXTRA_ARGS = "args";
 
     @Inject @LightCycle SearchResultsPresenter presenter;
 
-    public static SearchResultsFragment create(SearchType type,
-                                               String apiQuery,
-                                               String userQuery,
-                                               Optional<Urn> queryUrn,
-                                               Optional<Integer> queryPosition, boolean publishSearchSubmissionEvent) {
+
+    public static SearchResultsFragment createInTab(SearchType type,
+                                                    String apiQuery,
+                                                    String userQuery,
+                                                    Optional<Urn> queryUrn,
+                                                    Optional<Integer> queryPosition,
+                                                    boolean publishSearchSubmissionEvent) {
+        return create(type, apiQuery, userQuery, queryUrn, queryPosition, publishSearchSubmissionEvent, false);
+    }
+
+    public static SearchResultsFragment createForViewAll(SearchType type,
+                                                         String apiQuery,
+                                                         String userQuery,
+                                                         Optional<Urn> queryUrn,
+                                                         Optional<Integer> queryPosition,
+                                                         boolean isPremium) {
+        return create(type, apiQuery, userQuery, queryUrn, queryPosition, false, isPremium);
+    }
+
+    private static SearchResultsFragment create(SearchType type,
+                                                String apiQuery,
+                                                String userQuery,
+                                                Optional<Urn> queryUrn,
+                                                Optional<Integer> queryPosition,
+                                                boolean publishSearchSubmissionEvent,
+                                                boolean isPremium) {
         final Bundle bundle = new Bundle();
-        bundle.putSerializable(EXTRA_TYPE, type);
-        bundle.putString(EXTRA_API_QUERY, apiQuery);
-        bundle.putString(EXTRA_USER_QUERY, userQuery);
-
-        if (queryUrn.isPresent()) {
-            bundle.putParcelable(EXTRA_QUERY_URN, queryUrn.get());
-        }
-
-        if (queryPosition.isPresent()) {
-            bundle.putInt(EXTRA_QUERY_POSITION, queryPosition.get());
-        }
-
-        bundle.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
-
+        bundle.putParcelable(EXTRA_ARGS, SearchFragmentArgs.create(type, apiQuery, userQuery, queryUrn, queryPosition, publishSearchSubmissionEvent, isPremium));
         final SearchResultsFragment fragment = new SearchResultsFragment();
         fragment.setArguments(bundle);
         return fragment;

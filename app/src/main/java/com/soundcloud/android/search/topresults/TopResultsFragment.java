@@ -74,7 +74,12 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         searchIntent.onNext(Pair.of(getApiQuery(), getSearchQueryUrn()));
-        collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked()), this::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), true);
+        collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked(), presenter.viewAllClicked()),
+                                                      this::isTheSameItem,
+                                                      Object::equals,
+                                                      new DefaultEmptyStateProvider(),
+                                                      true,
+                                                      false);
         presenter.attachView(this);
         setHasOptionsMenu(true);
     }
@@ -140,8 +145,12 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                                                                args.searchQuerySourceInfo(),
                                                                                null, // top results cannot be promoted *yet
                                                                                UIEvent.fromNavigation(args.playlistUrn(), args.eventContextMetadata()))),
-                            presenter.playbackError().subscribe(playbackToastHelper::showToastOnPlaybackError)
-        );
+                            presenter.playbackError().subscribe(playbackToastHelper::showToastOnPlaybackError),
+                            presenter.goToViewAllPage()
+                                     .subscribe((clickAndQuery) -> navigator.openSearchViewAll(getContext(),
+                                                                                               clickAndQuery.query().get(),
+                                                                                               clickAndQuery.kind(),
+                                                                                               clickAndQuery.isPremium())));
     }
 
     @Override

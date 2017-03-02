@@ -1,22 +1,18 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_API_QUERY;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_POSITION;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY_URN;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_USER_QUERY;
-
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -29,6 +25,7 @@ import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateUserListSubscriber;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Action1;
@@ -69,6 +66,29 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         }
     };
 
+    private final Func1<SearchResult, SearchResult> addHeaderItem = new Func1<SearchResult, SearchResult>() {
+        @Override
+        public SearchResult call(SearchResult searchResult) {
+            if (featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
+                final SearchResultHeaderRenderer.SearchResultHeader headerItem = SearchResultHeaderRenderer.SearchResultHeader.create(searchType, contentType, searchResult.getResultsCount());
+                searchResult.addItem(0, headerItem);
+            }
+            return searchResult;
+        }
+    };
+
+    private final Func1<SearchResult, SearchResult> addUpsellItem = new Func1<SearchResult, SearchResult>() {
+        @Override
+        public SearchResult call(SearchResult searchResult) {
+            if (contentType == SearchOperations.ContentType.PREMIUM && featureOperations.upsellHighTier()) {
+                searchTracker.trackPremiumResultsUpsellImpression();
+                final UpsellSearchableItem upsellItem = UpsellSearchableItem.forUpsell();
+                searchResult.addItem(0, upsellItem);
+            }
+            return searchResult;
+        }
+    };
+
     private final SearchOperations searchOperations;
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
@@ -77,6 +97,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final SearchTracker searchTracker;
     private final ScreenProvider screenProvider;
     private final SearchPlayQueueFilter playQueueFilter;
+    private final FeatureFlags featureFlags;
+    private final FeatureOperations featureOperations;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
@@ -109,15 +131,19 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private SearchOperations.SearchPagingFunction pagingFunction;
     private Optional<List<ListItem>> premiumItems = Optional.absent();
     private CompositeSubscription fragmentLifeCycle;
-    private Object queryPosition;
+    private SearchOperations.ContentType contentType;
 
     @Inject
-    SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
-                           SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
+    SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                           SearchOperations searchOperations,
+                           SearchResultsAdapter adapter,
+                           MixedItemClickListener.Factory clickListenerFactory,
                            EventBus eventBus, Navigator navigator,
                            SearchTracker searchTracker,
                            ScreenProvider screenProvider,
-                           SearchPlayQueueFilter playQueueFilter) {
+                           SearchPlayQueueFilter playQueueFilter,
+                           FeatureFlags featureFlags,
+                           FeatureOperations featureOperations) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -127,6 +153,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.searchTracker = searchTracker;
         this.screenProvider = screenProvider;
         this.playQueueFilter = playQueueFilter;
+        this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -159,12 +187,24 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
     @Override
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
-        searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_TYPE)).or(SearchType.ALL);
-        apiQuery = bundle.getString(EXTRA_API_QUERY);
-        userQuery = bundle.getString(EXTRA_USER_QUERY);
-        autocompleteUrn = Optional.fromNullable(bundle.<Urn>getParcelable(EXTRA_QUERY_URN));
-        autocompletePosition = Optional.fromNullable(bundle.getInt(EXTRA_QUERY_POSITION));
-        publishSearchSubmissionEvent = bundle.getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT);
+        final SearchFragmentArgs args = bundle.getParcelable(SearchResultsFragment.EXTRA_ARGS);
+        if (args != null) {
+            searchType = args.searchType();
+            apiQuery = args.apiQuery();
+            userQuery = args.userQuery();
+            autocompleteUrn = args.queryUrn();
+            autocompletePosition = args.queryPosition();
+            publishSearchSubmissionEvent = args.publishSearchSubmissionEvent();
+            contentType = args.isPremium() ? SearchOperations.ContentType.PREMIUM : SearchOperations.ContentType.NORMAL;
+        } else {
+            searchType = SearchType.ALL;
+            apiQuery = Strings.EMPTY;
+            userQuery = Strings.EMPTY;
+            autocompleteUrn = Optional.absent();
+            autocompletePosition = Optional.absent();
+            publishSearchSubmissionEvent = false;
+            contentType = SearchOperations.ContentType.NORMAL;
+        }
         return createCollectionBinding();
     }
 
@@ -178,19 +218,22 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchOperations
-                              .searchResult(apiQuery, autocompleteUrn(), searchType)
-                              .doOnNext(trackSearch), toPresentationModels)
+                              .searchResult(apiQuery, autocompleteUrn(), searchType, contentType)
+                              .map(addHeaderItem)
+                              .map(addUpsellItem)
+                              .doOnNext(trackSearch),
+                      toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();
     }
 
     private Optional<Urn> autocompleteUrn() {
-        return searchType == SearchType.ALL ? autocompleteUrn : Optional.<Urn>absent();
+        return searchType == SearchType.ALL ? autocompleteUrn : Optional.absent();
     }
 
     private Optional<Integer> autocompletePosition() {
-        return searchType == SearchType.ALL ? autocompletePosition : Optional.<Integer>absent();
+        return searchType == SearchType.ALL ? autocompletePosition : Optional.absent();
     }
 
     private List<ListItem> buildPlaylistWithPremiumContent(List<ListItem> premiumItems) {

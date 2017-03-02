@@ -38,21 +38,23 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     private final Func2<ItemT, ItemT, Boolean> areContentsTheSame;
     private EmptyAdapter emptyAdapter;
     private boolean animateLayoutChangesInItems;
+    private boolean showDividers;
 
     public CollectionRenderer(RecyclerItemAdapter<ItemT, VH> adapter,
                               Func2<ItemT, ItemT, Boolean> areItemsTheSame,
                               Func2<ItemT, ItemT, Boolean> areContentsTheSame,
                               EmptyStateProvider emptyStateProvider,
-                              boolean animateLayoutChangesInItems) {
+                              boolean animateLayoutChangesInItems, boolean showDividers) {
         this.adapter = adapter;
         this.areItemsTheSame = areItemsTheSame;
         this.areContentsTheSame = areContentsTheSame;
         this.emptyStateProvider = emptyStateProvider;
         this.animateLayoutChangesInItems = animateLayoutChangesInItems;
-
+        this.showDividers = showDividers;
     }
 
     public void attach(View view, boolean renderEmptyAtTop, RecyclerView.LayoutManager layoutmanager) {
+
         Preconditions.checkArgument(recyclerView == null, "Recycler View already atteched. Did you forget to detach?");
 
         unbinder = ButterKnife.bind(this, view);
@@ -109,7 +111,9 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
     private void configureRecyclerView(RecyclerView.LayoutManager layoutManager) {
         recyclerView.setLayoutManager(layoutManager);
-        addListDividers(recyclerView);
+        if (showDividers) {
+            addListDividers(recyclerView);
+        }
     }
 
     private void addListDividers(RecyclerView recyclerView) {

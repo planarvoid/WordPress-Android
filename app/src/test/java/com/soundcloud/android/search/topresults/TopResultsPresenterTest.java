@@ -1,5 +1,6 @@
 package com.soundcloud.android.search.topresults;
 
+import static com.soundcloud.android.search.topresults.TopResultsFixtures.QUERY_URN;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchPlaylistItem;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchTrackItem;
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchUserItem;
@@ -14,6 +15,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -70,11 +72,12 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Mock private TopResultsPresenter.TopResultsView topResultsView;
     @Mock private SearchPlayQueueFilter playQueueFilter;
     @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private Navigator navigator;
 
     private final ApiTrack apiTrack = ModelFixtures.apiTrack();
     private final ApiUser apiUser = ModelFixtures.apiUser();
-    private final ApiPlaylist apiPlaylist = ModelFixtures.apiPlaylist();
 
+    private final ApiPlaylist apiPlaylist = ModelFixtures.apiPlaylist();
     private final Pair<String, Optional<Urn>> searchQueryPair = Pair.of(QUERY, of(TopResultsFixtures.QUERY_URN));
     private final PublishSubject<Pair<String, Optional<Urn>>> searchIntent = PublishSubject.create();
     private final PublishSubject<Void> refreshIntent = PublishSubject.create();
@@ -148,6 +151,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
                 getViewModel(getBucketViewModel(TRACKS_BUCKET_URN, 1, SearchItem.Track.create(getTrackItem(apiTrack, true), BUCKET_POSITION)))
         );
     }
+
 
     @Test
     public void playsTrackOnTrackItemClick() throws Exception {
@@ -238,6 +242,21 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         assertThat(goToProfileArgs.user()).isEqualTo(userItem.getUrn());
         assertThat(goToProfileArgs.searchQuerySourceInfo().getClickPosition()).isEqualTo(BUCKET_POSITION);
         assertThat(goToProfileArgs.searchQuerySourceInfo().getClickUrn()).isEqualTo(userItem.getUrn());
+    }
+
+    @Test
+    public void handleViewAllClick() throws Exception {
+        presenter.attachView(topResultsView);
+        searchIntent.onNext(searchQueryPair);
+        final TopResultsViewAllArgs topResultsViewAllArgs = TopResultsViewAllArgs.create(TopResultsBucketViewModel.Kind.ALBUMS, QUERY_URN);
+
+        final AssertableSubscriber<TopResultsViewAllArgs> testSubscriber = presenter.goToViewAllPage().test();
+
+        presenter.viewAllClicked().onNext(topResultsViewAllArgs);
+
+        testSubscriber.assertValueCount(1);
+        final TopResultsViewAllArgs viewAllClickWithQuery = testSubscriber.getOnNextEvents().get(0);
+        assertThat(viewAllClickWithQuery).isEqualTo(topResultsViewAllArgs.copyWithSearchQuery(QUERY));
     }
 
     private void initTopResultsSearch(ApiTopResultsBucket apiTopResultsBucket) {

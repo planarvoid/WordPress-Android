@@ -35,6 +35,6 @@ class SearchResultItem {
     }
 
     boolean isUpsell() {
-        return urn.equals(SearchUpsellItem.UPSELL_URN);
+        return urn.equals(UpsellSearchableItem.UPSELL_URN);
     }
 }

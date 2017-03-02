@@ -41,7 +41,7 @@ class SearchPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         final SearchType itemType = tabs.get(position);
         final boolean publishSearchSubmissionEvent = itemType.shouldPublishSearchSubmissionEvent();
-        return SearchResultsFragment.create(itemType, apiQuery, userQuery, queryUrn, queryPosition, firstTime && publishSearchSubmissionEvent);
+        return SearchResultsFragment.createInTab(itemType, apiQuery, userQuery, queryUrn, queryPosition, firstTime && publishSearchSubmissionEvent);
     }
 
     @Override

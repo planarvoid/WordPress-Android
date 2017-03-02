@@ -17,7 +17,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-class SearchModelCollection<T> extends ModelCollection<T> {
+public class SearchModelCollection<T> extends ModelCollection<T> {
 
     private final Optional<SearchModelCollection<T>> premiumContent;
     private final int tracksCount;

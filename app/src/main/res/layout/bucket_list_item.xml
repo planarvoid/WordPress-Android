@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/charts_bucket"
-    style="@style/Module.Background"
+<LinearLayout android:id="@+id/charts_bucket"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -19,23 +18,21 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/bucket_items"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
+
 
     <FrameLayout
         android:id="@+id/bucket_view_all"
-        android:visibility="gone"
-        style="@style/ViewAllContainer">
+        style="@style/ViewAllContainer"
+        android:visibility="gone">
+
+        <View style="@style/Divider.Item" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/bucket_view_all_text"
             style="@style/ViewAllText" />
 
     </FrameLayout>
-
-    <View style="@style/Divider.Section" />
-
-    <View style="@style/Divider.Background" />
 
     <View style="@style/Divider.Section" />
 

@@ -38,7 +38,8 @@ class SearchStrategyFactory {
             searchCollection -> SearchResult.fromSearchableItems(
                     searchCollection.getCollection(),
                     searchCollection.getNextLink(),
-                    searchCollection.getQueryUrn());
+                    searchCollection.getQueryUrn(),
+                    searchCollection.resultsCount());
 
     private static final Func1<SearchModelCollection<SearchableItem>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
             searchCollection -> {

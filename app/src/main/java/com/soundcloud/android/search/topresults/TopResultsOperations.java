@@ -1,5 +1,8 @@
 package com.soundcloud.android.search.topresults;
 
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -22,6 +25,7 @@ class TopResultsOperations {
     private static final int RESULT_LIMIT = 3;
     private static final TypeToken<ApiTopResults> TYPE_TOKEN = new TypeToken<ApiTopResults>() {
     };
+
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
@@ -48,7 +52,7 @@ class TopResultsOperations {
         return apiClientRx.mappedResponse(requestBuilder.build(), TYPE_TOKEN)
                           .subscribeOn(scheduler)
                           .doOnNext(this::cacheItems)
-                          .map(topResults -> topResults.buckets().getCollection());
+                          .map(topResults -> newArrayList(filter(topResults.buckets().getCollection(), item -> !item.collection().getCollection().isEmpty())));
 
     }
 

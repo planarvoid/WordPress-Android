@@ -18,7 +18,7 @@ import java.util.List;
 @SuppressFBWarnings(
         value = {"SE_BAD_FIELD"},
         justification = "we never serialize search operations")
-class SearchOperations {
+public class SearchOperations {
 
     enum ContentType {
         NORMAL, PREMIUM
@@ -31,8 +31,12 @@ class SearchOperations {
         this.searchStrategyFactory = searchStrategyFactory;
     }
 
-    Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, SearchType searchType) {
+    public Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, SearchType searchType) {
         return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, queryUrn, ContentType.NORMAL);
+    }
+
+    public Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, SearchType searchType, ContentType contentType) {
+        return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, queryUrn, contentType);
     }
 
     Observable<SearchResult> searchPremiumResultFrom(List<SearchableItem> searchableItems,
@@ -106,8 +110,8 @@ class SearchOperations {
 
         private boolean isFirstItemForUpsell(List<SearchableItem> searchableItems) {
             return !searchableItems.isEmpty() && searchableItems.get(0)
-                                                          .getUrn()
-                                                          .equals(SearchUpsellItem.UPSELL_URN);
+                                                                .getUrn()
+                                                                .equals(UpsellSearchableItem.UPSELL_URN);
         }
 
         @VisibleForTesting

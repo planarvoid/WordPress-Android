@@ -1,9 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_API_QUERY;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
-import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_USER_QUERY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -18,11 +14,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -55,6 +54,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private static final String API_QUERY = "api_query";
     private static final String USER_QUERY = "user_query";
     private static final SearchType SEARCH_TAB = SearchType.ALL;
+    private static final int RESULT_COUNT = 5;
 
     private SearchResultsPresenter presenter;
 
@@ -70,23 +70,24 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
     @Mock private SearchPlayRelatedTracksConfig playRelatedTracksConfig;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
 
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
-
     private TestEventBus eventBus = new TestEventBus();
     private Bundle bundle;
-    private SearchQuerySourceInfo searchQuerySourceInfo;
 
+    private SearchQuerySourceInfo searchQuerySourceInfo;
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
                                                                     new Bundle());
 
     @Before
     public void setUp() throws Exception {
-        setupFragmentArguments(true);
+        setupFragmentArguments(true, SEARCH_TAB);
         final List<SearchableItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
-                                                                           Optional.<Link>absent(),
-                                                                           QUERY_URN);
+                                                                           Optional.absent(),
+                                                                           Optional.of(QUERY_URN), RESULT_COUNT);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher,
@@ -97,7 +98,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                navigator,
                                                searchTracker,
                                                screenProvider,
-                                               searchPlayQueueFilter);
+                                               searchPlayQueueFilter,
+                                               featureFlags,
+                                               featureOperations);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), API_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -106,14 +109,14 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                          any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchResult(anyString(),
                                            any(Optional.class),
-                                           any(SearchType.class))).thenReturn(searchResultObservable);
+                                           any(SearchType.class),
+                                           any(SearchOperations.ContentType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class), any(String.class))).thenReturn(searchQuerySourceInfo);
         when(screenProvider.getLastScreen()).thenReturn(Screen.SEARCH_MAIN);
 
         bundle = new Bundle();
-        bundle.putString(EXTRA_API_QUERY, API_QUERY);
-        bundle.putString(EXTRA_USER_QUERY, USER_QUERY);
+        bundle.putParcelable(SearchResultsFragment.EXTRA_ARGS, SearchFragmentArgs.create(SEARCH_TAB, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), false, false));
     }
 
     @Test
@@ -146,7 +149,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotTrackNonFirstSearch() {
-        setupFragmentArguments(false);
+        setupFragmentArguments(false, SEARCH_TAB);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker, times(0)).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
@@ -158,7 +161,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
-        verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, USER_QUERY, Optional.absent(), Optional.of(0));
+        verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, USER_QUERY, Optional.absent(), Optional.absent());
         verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, API_QUERY);
     }
 
@@ -238,6 +241,33 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         assertThat(playQueue.get(1).getUrn()).isEqualTo(TRACK_URN);
     }
 
+    @Test
+    public void addHeaderWhenFeatureFlagOn() {
+        setupFragmentArguments(false, SearchType.TRACKS);
+        when(featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)).thenReturn(true);
+
+        presenter.onCreate(fragmentRule.getFragment(), bundle);
+
+        verify(adapter).onNext(listArgumentCaptor.capture());
+        final SearchableItem item = ((SearchableItem) listArgumentCaptor.getValue().get(0));
+
+        assertThat(item).isInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
+        final SearchResultHeaderRenderer.SearchResultHeader searchResultHeader = (SearchResultHeaderRenderer.SearchResultHeader) item;
+        assertThat(searchResultHeader.resultCount()).isEqualTo(RESULT_COUNT);
+    }
+
+    @Test
+    public void doNotAddHeaderWhenFeatureFlagOff() {
+        setupFragmentArguments(false, SearchType.TRACKS);
+        when(featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), bundle);
+
+        verify(adapter).onNext(listArgumentCaptor.capture());
+        final SearchableItem item = ((SearchableItem) listArgumentCaptor.getValue().get(0));
+        assertThat(item).isNotInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
+    }
+
     private List<ListItem> setupAdapter() {
         final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Collections.singletonList(trackItem);
@@ -257,11 +287,13 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                navigator,
                                                searchTracker,
                                                screenProvider,
-                                               new SearchPlayQueueFilter(playRelatedTracksConfig));
+                                               new SearchPlayQueueFilter(playRelatedTracksConfig),
+                                               featureFlags,
+                                               featureOperations);
 
 
         final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE)),
-                                                           Optional.<Link>absent(),
+                                                           Optional.absent(),
                                                            1);
         final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
@@ -269,17 +301,14 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(premiumItem);
         when(adapter.getItem(1)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(listItems);
-        when(adapter.getResultItems()).thenReturn(Collections.<ListItem>singletonList(trackItem));
+        when(adapter.getResultItems()).thenReturn(Collections.singletonList(trackItem));
         when(searchPagingFunction.getSearchQuerySourceInfo(eq(0), eq(TRACK_URN), any(String.class))).thenReturn(searchQuerySourceInfo);
         when(playRelatedTracksConfig.isEnabled()).thenReturn(false);
     }
 
-    private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {
+    private void setupFragmentArguments(boolean publishSearchSubmissionEvent, SearchType searchType) {
         final Bundle arguments = new Bundle();
-        arguments.putString(EXTRA_API_QUERY, API_QUERY);
-        arguments.putString(EXTRA_USER_QUERY, USER_QUERY);
-        arguments.putSerializable(EXTRA_TYPE, SEARCH_TAB);
-        arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
+        arguments.putParcelable(SearchResultsFragment.EXTRA_ARGS, SearchFragmentArgs.create(searchType, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), publishSearchSubmissionEvent, false));
         fragmentRule.setFragmentArguments(arguments);
     }
 }

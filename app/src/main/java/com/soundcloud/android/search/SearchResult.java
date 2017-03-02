@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-class SearchResult implements Iterable<SearchableItem> {
+public class SearchResult implements Iterable<SearchableItem> {
     private final List<SearchableItem> items;
     private final int resultsCount;
     final Optional<Link> nextHref;

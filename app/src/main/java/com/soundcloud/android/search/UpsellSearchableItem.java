@@ -7,13 +7,15 @@ import android.os.Parcel;
 
 public class UpsellSearchableItem implements SearchableItem {
 
+    static final Urn UPSELL_URN = new Urn("local:search:upsell");
+
     static UpsellSearchableItem forUpsell() {
         return new UpsellSearchableItem();
     }
 
     @Override
     public Urn getUrn() {
-        return SearchUpsellItem.UPSELL_URN;
+        return UPSELL_URN;
     }
 
     @Override

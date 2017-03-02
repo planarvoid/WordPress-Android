@@ -9,7 +9,7 @@
     <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/charts_header"
+        android:id="@+id/header"
         style="@style/Module.Header"
         android:text="@string/charts_header" />
 

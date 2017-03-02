@@ -1,10 +1,16 @@
 package com.soundcloud.android.search.topresults;
 
-import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.*;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.ALBUMS;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.GO_TRACKS;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.PLAYLISTS;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.TOP_RESULT;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.TRACKS;
+import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel.Kind.USERS;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.search.SearchType;
 
 import java.util.List;
 
@@ -24,7 +30,23 @@ public abstract class TopResultsBucketViewModel {
         GO_TRACKS,
         USERS,
         PLAYLISTS,
-        ALBUMS
+        ALBUMS;
+
+        public SearchType toSearchType() {
+            switch (this) {
+                case GO_TRACKS:
+                case TRACKS:
+                    return SearchType.TRACKS;
+                case USERS:
+                    return SearchType.USERS;
+                case PLAYLISTS:
+                    return SearchType.PLAYLISTS;
+                case ALBUMS:
+                    return SearchType.ALBUMS;
+                default:
+                    throw new IllegalArgumentException("Unexpected kind for search");
+            }
+        }
     }
 
     public abstract Kind kind();
@@ -83,7 +105,7 @@ public abstract class TopResultsBucketViewModel {
             case USERS:
                 return R.string.top_results_people;
             case PLAYLISTS:
-                return R.string.top_results_albums;
+                return R.string.top_results_playlists;
             case ALBUMS:
                 return R.string.top_results_albums;
             default:

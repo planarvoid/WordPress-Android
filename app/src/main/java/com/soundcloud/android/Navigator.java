@@ -52,6 +52,8 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.search.SearchableItem;
+import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
+import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -340,6 +342,14 @@ public class Navigator {
         context.startActivity(intent);
     }
 
+    public void openSearchViewAll(Context context, String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
+        Intent intent = new Intent(context, TopResultsBucketActivity.class);
+        intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY, query);
+        intent.putExtra(TopResultsBucketActivity.EXTRA_BUCKET_KIND, kind);
+        intent.putExtra(TopResultsBucketActivity.EXTRA_IS_PREMIUM, isPremium);
+        context.startActivity(intent);
+    }
+
     private boolean hasMicrophonePermission(Context context) {
         return ContextCompat.checkSelfPermission(context,
                                                  Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
@@ -425,10 +435,10 @@ public class Navigator {
     }
 
     public void openStationInfo(Context context,
-                                      Urn stationUrn,
-                                      Urn seedTrack,
-                                      DiscoverySource source,
-                                      UIEvent navigationEvent) {
+                                Urn stationUrn,
+                                Urn seedTrack,
+                                DiscoverySource source,
+                                UIEvent navigationEvent) {
         eventTracker.trackNavigation(navigationEvent);
 
         context.startActivity(new Intent(context, StationInfoActivity.class)

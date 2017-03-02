@@ -241,7 +241,9 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void displaySearchView(int searchViewIndex) {
-        setElevation(searchViewIndex);
+        if (!featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
+            setElevation(searchViewIndex);
+        }
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
             searchViewFlipper.setDisplayedChild(searchViewIndex);
         }

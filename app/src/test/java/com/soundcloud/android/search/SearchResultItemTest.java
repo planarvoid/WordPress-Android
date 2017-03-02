@@ -59,7 +59,7 @@ public class SearchResultItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldCheckSearchUpsellHasCorrectUrn() {
-        searchResultItem = SearchResultItem.fromUrn(SearchUpsellItem.UPSELL_URN);
+        searchResultItem = SearchResultItem.fromUrn(UpsellSearchableItem.UPSELL_URN);
 
         assertThat(searchResultItem.isUpsell()).isTrue();
         assertThat(searchResultItem.isUser()).isFalse();

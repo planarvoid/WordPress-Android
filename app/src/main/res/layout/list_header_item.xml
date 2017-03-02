@@ -5,12 +5,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View style="@style/Divider.Background" />
+    <View style="@style/Divider.Background"
+        android:id="@+id/top_margin"/>
 
     <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/charts_header"
+        android:id="@+id/header"
         style="@style/Chart.TextItem" />
 
 </LinearLayout>

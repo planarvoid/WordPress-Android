@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class SearchUpsellRenderer implements CellRenderer<SearchUpsellItem> {
+class SearchUpsellRenderer implements CellRenderer<UpsellSearchableItem> {
 
     interface OnUpsellClickListener {
         void onUpsellClicked(Context context);
@@ -31,7 +31,7 @@ class SearchUpsellRenderer implements CellRenderer<SearchUpsellItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<SearchUpsellItem> upsellItems) {
+    public void bindItemView(int position, View itemView, List<UpsellSearchableItem> upsellItems) {
         itemView.findViewById(R.id.search_upsell).setOnClickListener(new UpsellClickListener(upsellClickListener));
     }
 

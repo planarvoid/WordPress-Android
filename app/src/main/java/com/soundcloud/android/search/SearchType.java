@@ -33,7 +33,7 @@ public enum SearchType {
         return publishSearchSubmissionEvent;
     }
 
-    Screen getScreen() {
+    public Screen getScreen() {
         return screen;
     }
 

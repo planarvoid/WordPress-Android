@@ -1,10 +1,11 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_PLAYLIST;
-import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_PREMIUM_CONTENT;
-import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_TRACK;
-import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_UPSELL;
-import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_USER;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_HEADER;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_PLAYLIST;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_PREMIUM_CONTENT;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_TRACK;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_UPSELL;
+import static com.soundcloud.android.search.SearchResultsAdapter.Kind.TYPE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -46,9 +47,9 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     @Mock private SearchUpsellRenderer searchUpsellRenderer;
     @Mock private ViewGroup itemView;
     @Mock private Fragment fragment;
+    @Mock private SearchResultHeaderRenderer searchResultHeaderRenderer;
 
     @Captor private ArgumentCaptor<List<PlaylistItem>> playlistItemCaptor;
-
     private SearchResultsAdapter adapter;
 
     @Before
@@ -57,7 +58,8 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
                                            playlistRenderer,
                                            userRenderer,
                                            premiumContentRenderer,
-                                           searchUpsellRenderer);
+                                           searchUpsellRenderer,
+                                           searchResultHeaderRenderer);
     }
 
     @Test
@@ -67,12 +69,14 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
         adapter.addItem(dummyPlaylistItem());
         adapter.addItem(dummySearchPremiumItem());
         adapter.addItem(dummySearchUpsellItem());
+        adapter.addItem(dummySearchHeaderItem());
 
-        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER);
-        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK);
-        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST);
-        assertThat(adapter.getItemViewType(3)).isEqualTo(TYPE_PREMIUM_CONTENT);
-        assertThat(adapter.getItemViewType(4)).isEqualTo(TYPE_UPSELL);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER.ordinal());
+        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK.ordinal());
+        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST.ordinal());
+        assertThat(adapter.getItemViewType(3)).isEqualTo(TYPE_PREMIUM_CONTENT.ordinal());
+        assertThat(adapter.getItemViewType(4)).isEqualTo(TYPE_UPSELL.ordinal());
+        assertThat(adapter.getItemViewType(5)).isEqualTo(TYPE_HEADER.ordinal());
     }
 
     @Test
@@ -82,12 +86,14 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
         adapter.addItem(dummyPlaylistItem());
         adapter.addItem(dummySearchPremiumItem());
         adapter.addItem(dummySearchUpsellItem());
+        adapter.addItem(dummySearchHeaderItem());
 
-        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER);
-        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK);
-        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST);
-        assertThat(adapter.getItemViewType(3)).isEqualTo(TYPE_PREMIUM_CONTENT);
-        assertThat(adapter.getItemViewType(4)).isEqualTo(TYPE_UPSELL);
+        assertThat(adapter.getItemViewType(0)).isEqualTo(TYPE_USER.ordinal());
+        assertThat(adapter.getItemViewType(1)).isEqualTo(TYPE_TRACK.ordinal());
+        assertThat(adapter.getItemViewType(2)).isEqualTo(TYPE_PLAYLIST.ordinal());
+        assertThat(adapter.getItemViewType(3)).isEqualTo(TYPE_PREMIUM_CONTENT.ordinal());
+        assertThat(adapter.getItemViewType(4)).isEqualTo(TYPE_UPSELL.ordinal());
+        assertThat(adapter.getItemViewType(5)).isEqualTo(TYPE_HEADER.ordinal());
     }
 
     @Test
@@ -137,7 +143,11 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
                                      SEARCH_RESULTS_COUNT);
     }
 
-    private SearchUpsellItem dummySearchUpsellItem() {
-        return new SearchUpsellItem();
+    private UpsellSearchableItem dummySearchUpsellItem() {
+        return new UpsellSearchableItem();
+    }
+
+    private SearchResultHeaderRenderer.SearchResultHeader dummySearchHeaderItem() {
+        return SearchResultHeaderRenderer.SearchResultHeader.create(SearchType.TRACKS, SearchOperations.ContentType.PREMIUM, 0);
     }
 }
