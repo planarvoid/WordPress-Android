@@ -106,9 +106,9 @@
     </style>
 
     <style name="AdVideoButton.Volume">
-        <item name="android:layout_marginTop">1.5dp</item>
-        <item name="android:layout_marginRight">1.5dp</item>
-        <item name="android:background">@drawable/btn_video_ad_volume</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:src">@drawable/btn_video_ad_volume</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="AdVideoButton.Shrink">

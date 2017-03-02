@@ -14,6 +14,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
+import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -135,13 +136,35 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void videoViewClickEmitsToggleMuteEvent() {
+    public void videoViewClickEmitsToggleMuteEventForFirstClick() {
         when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
         renderer.bindItemView(0, adView, ITEMS);
 
         adView.findViewById(R.id.video_view).performClick();
 
         assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.ToggleVolume.class);
+    }
+
+    @Test
+    public void videoViewClickEmitsTogglePlaybackEventForSecondClick() {
+        when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
+        renderer.bindItemView(0, adView, ITEMS);
+
+        adView.findViewById(R.id.video_view).performClick();
+        adView.findViewById(R.id.video_view).performClick();
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.TogglePlayback.class);
+    }
+
+    @Test
+    public void videoViewClickEmitsTogglePlaybackEventIfVolumeToggleClickedFirst() {
+        when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
+        renderer.bindItemView(0, adView, ITEMS);
+
+        adView.findViewById(R.id.video_volume_control).performClick();
+        adView.findViewById(R.id.video_view).performClick();
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.TogglePlayback.class);
     }
 
     @Test
@@ -166,7 +189,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
 
-        assertThat(adView.findViewById(R.id.video_volume_control)).isEnabled();
+        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        assertThat(view.isChecked()).isTrue();
     }
 
     @Test
@@ -175,7 +199,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.idle(), true);
 
-        assertThat(adView.findViewById(R.id.video_volume_control)).isDisabled();
+        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        assertThat(view.isChecked()).isFalse();
     }
 
     @Test

@@ -176,4 +176,37 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         inOrder.verify(adapter).setVolume(1.0f);
         inOrder.verify(adapter).setVolume(0.0f);
     }
+
+    @Test
+    public void togglePlayWillPauseAndResumeVideoIfAlreadyPlaying() {
+        player.play(VIDEO_AD);
+
+        player.onPlaystateChanged(TestPlayerTransitions.playing(VIDEO_AD.getAdUrn()));
+        player.togglePlayback(VIDEO_AD);
+        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.getAdUrn()));
+        player.togglePlayback(VIDEO_AD);
+
+        final InOrder inOrder = Mockito.inOrder(adapter);
+        inOrder.verify(adapter).play(VIDEO_ITEM);
+        inOrder.verify(adapter).pause();
+        inOrder.verify(adapter).resume(VIDEO_ITEM);
+    }
+
+    @Test
+    public void togglePlayWillPlayNonAlreadyPlayingTrack() {
+        player.togglePlayback(VIDEO_AD);
+
+        verify(adapter).play(VIDEO_ITEM);
+    }
+
+    @Test
+    public void togglePlaybackWillRestartFinishedAd() {
+        player.play(VIDEO_AD);
+        player.onPlaystateChanged(TestPlayerTransitions.complete(VIDEO_AD.getAdUrn()));
+        player.togglePlayback(VIDEO_AD);
+
+        final InOrder inOrder = Mockito.inOrder(adapter);
+        inOrder.verify(adapter).play(VIDEO_ITEM);
+        inOrder.verify(adapter).play(VIDEO_ITEM);
+    }
 }

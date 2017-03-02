@@ -143,4 +143,14 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         verifyZeroInteractions(inlayAdPlayer);
         verifyZeroInteractions(inlayAdHelper);
     }
+
+    @Test
+    public void forwardsPlaybackToggleToInlayPlayer() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.TogglePlayback.create(0, videoAd, new Date(999)));
+
+        verify(inlayAdPlayer).togglePlayback(videoAd);
+    }
 }

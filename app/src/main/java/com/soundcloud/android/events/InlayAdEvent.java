@@ -24,7 +24,8 @@ public abstract class InlayAdEvent {
     public boolean forVideoAd() {
         return (this instanceof WithAdData && ((WithAdData) this).getAd() instanceof VideoAd)
                 || this instanceof NoVideoOnScreen
-                || this instanceof ToggleVolume;
+                || this instanceof ToggleVolume
+                || this instanceof TogglePlayback;
     }
 
     public boolean forStateTransition() {
@@ -56,6 +57,13 @@ public abstract class InlayAdEvent {
     public abstract static class ToggleVolume extends InlayAdEvent implements WithAdData {
         public static ToggleVolume create(int position, AdData ad, Date at) {
             return new AutoValue_InlayAdEvent_ToggleVolume(position, ad, at);
+        }
+    }
+
+    @AutoValue
+    public abstract static class TogglePlayback extends InlayAdEvent implements WithAdData {
+        public static TogglePlayback create(int position, AdData ad, Date at) {
+            return new AutoValue_InlayAdEvent_TogglePlayback(position, ad, at);
         }
     }
 

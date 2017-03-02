@@ -63,6 +63,17 @@ class InlayAdPlayer implements Player.PlayerListener {
         }
     }
 
+    public void togglePlayback(VideoAd videoAd) {
+        if (isPlaying()) {
+            pause();
+        } else {
+            if (wasPlaybackComplete(videoAd.getAdUrn())) {
+                currentAd = Optional.absent();
+            }
+            play(videoAd);
+        }
+    }
+
     void toggleVolume() {
         toggleVolume(!isPlayerMuted);
     }
@@ -112,6 +123,10 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     private boolean wasPaused(Urn urn) {
         return lastState.isForUrn(urn) && lastState.isPaused();
+    }
+
+    private boolean wasPlaybackComplete(Urn urn) {
+        return lastState.isForUrn(urn) && lastState.playbackEnded();
     }
 
     private boolean isCurrentAd(VideoAd videoAd) {

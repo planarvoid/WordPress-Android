@@ -74,11 +74,11 @@
                 style="@style/AdVideoButton.Fullscreen"
                 android:visibility="visible"/>
 
-            <Button
+            <com.soundcloud.android.view.IconToggleButton
                 android:id="@+id/video_volume_control"
                 style="@style/AdVideoButton.Volume"
                 android:layout_alignParentRight="true"
-                android:enabled="false"
+                android:checked="false"
                 android:visibility="visible"/>
         </RelativeLayout>
 

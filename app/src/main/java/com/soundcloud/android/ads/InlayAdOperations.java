@@ -21,6 +21,7 @@ import java.util.Date;
 import static com.soundcloud.android.events.InlayAdEvent.ImageLoaded;
 import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
 import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.TogglePlayback;
 import static com.soundcloud.android.events.InlayAdEvent.ToggleVolume;
 import static com.soundcloud.android.events.InlayAdEvent.WithAdData;
 
@@ -78,6 +79,9 @@ class InlayAdOperations {
                 inlayAdPlayer.muteAndPause();
             } else if (event instanceof ToggleVolume) {
                 inlayAdPlayer.toggleVolume();
+            } else if (event instanceof TogglePlayback) {
+                final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
+                inlayAdPlayer.togglePlayback(videoAd);
             }
         }
     }

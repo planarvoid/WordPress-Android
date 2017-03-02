@@ -18,6 +18,7 @@ import com.soundcloud.android.stream.StreamItem.Video;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.android.view.CircularProgressBar;
+import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -57,20 +58,35 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
         holder.videoView.setAspectRatio(getVideoProportion(videoAd));
         holder.videoView.setVisibility(View.INVISIBLE);
+        holder.resetMuteState(holder);
 
         bindFooter(videoAd, holder);
         bindWhyAdsListener(holder.whyAds);
 
-        holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd));
-        holder.videoView.setOnClickListener(view -> publishVolumeToggle(position, videoAd));
+        holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd, holder));
+        holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
+        holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
 
         if (listener.isPresent()) {
             listener.get().onVideoTextureBind(holder.videoView, videoAd);
         }
     }
 
-    private void publishVolumeToggle(int position, VideoAd videoAd) {
+    private void handleVideoViewClick(int position, VideoAd videoAd, Holder holder) {
+        if (holder.previouslyUnmuted) {
+            publishPlayToggle(position, videoAd);
+        } else {
+            publishVolumeToggle(position, videoAd, holder);
+        }
+    }
+
+    private void publishVolumeToggle(int position, VideoAd videoAd, Holder holder) {
+        holder.previouslyUnmuted = true;
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ToggleVolume.create(position, videoAd, currentDateProvider.getCurrentDate()));
+    }
+
+    private void publishPlayToggle(int position, VideoAd videoAd) {
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.TogglePlayback.create(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void bindFooter(VideoAd videoAd, Holder holder) {
@@ -98,7 +114,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         final boolean playbackCompleted = stateTransition.playbackEnded();
         final boolean isVideoViewVisible = holder.videoView.getVisibility() == View.VISIBLE;
 
-        holder.volumeButton.setEnabled(!isMuted);
+        holder.volumeButton.setChecked(!isMuted);
         holder.volumeButton.setVisibility(playbackCompleted ? View.GONE : View.VISIBLE);
         holder.fullscreenButton.setVisibility(playbackCompleted ? View.GONE : View.VISIBLE);
 
@@ -115,6 +131,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
     public void onViewAttachedToWindow(View itemView, Optional<AdData> adData) {
         if (listener.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
             final Holder holder = getHolder(itemView);
+            holder.resetMuteState(holder);
             listener.get().onVideoTextureBind(holder.videoView, (VideoAd) adData.get());
         }
     }
@@ -138,7 +155,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         @BindView(R.id.why_ads) TextView whyAds;
 
         @BindView(R.id.video_view) AspectRatioTextureView videoView;
-        @BindView(R.id.video_volume_control) Button volumeButton;
+        @BindView(R.id.video_volume_control) IconToggleButton volumeButton;
         @BindView(R.id.video_fullscreen_control) Button fullscreenButton;
         @BindView(R.id.video_progress) CircularProgressBar loadingIndicator;
 
@@ -150,8 +167,14 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
         @BindView(R.id.call_to_action_without_title) TextView callToActionWithoutTitle;
 
+        private boolean previouslyUnmuted;
+
         Holder(View view) {
             ButterKnife.bind(this, view);
+        }
+
+        private void resetMuteState(Holder holder) {
+            holder.previouslyUnmuted = false;
         }
     }
 }
