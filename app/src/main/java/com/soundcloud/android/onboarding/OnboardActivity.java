@@ -46,11 +46,9 @@ import com.soundcloud.android.onboarding.auth.SignupLog;
 import com.soundcloud.android.onboarding.auth.SignupMethodLayout;
 import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
@@ -189,7 +187,6 @@ public class OnboardActivity extends FragmentActivity
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
-    @Inject TokenInformationGenerator tokenUtils;
     @Inject Navigator navigator;
     @Inject OAuth oauth;
 
@@ -201,7 +198,6 @@ public class OnboardActivity extends FragmentActivity
     OnboardActivity(ConfigurationManager configurationManager,
                     BugReporter bugReporter,
                     EventBus eventBus,
-                    TokenInformationGenerator tokenUtils,
                     Navigator navigator,
                     FacebookSdk facebookSdk,
                     LoginManager facebookLoginManager,
@@ -209,7 +205,6 @@ public class OnboardActivity extends FragmentActivity
         this.configurationManager = configurationManager;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
-        this.tokenUtils = tokenUtils;
         this.navigator = navigator;
         this.facebookSdk = facebookSdk;
         this.facebookLoginManager = facebookLoginManager;
@@ -846,11 +841,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void loginWithFacebook(String facebookToken) {
-        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
-            login(SignInOperations.getFacebookTokenBundle(facebookToken));
-        } else {
-            login(tokenUtils.getGrantBundle(OAuth.GRANT_TYPE_FACEBOOK, facebookToken));
-        }
+        login(SignInOperations.getFacebookTokenBundle(facebookToken));
     }
 
     public void requestFacebookEmail() {

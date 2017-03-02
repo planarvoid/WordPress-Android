@@ -1,10 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static com.soundcloud.android.creators.record.jni.VorbisConstants.getString;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_BIRTHDAY;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_GENDER;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_PASSWORD;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_USERNAME;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -29,6 +25,11 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 public class SignUpOperations {
+
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_BIRTHDAY = "birthday";
+    public static final String KEY_GENDER = "gender";
 
     private final ApiClient apiClient;
     private final OAuth oAuth;

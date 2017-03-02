@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
-import com.soundcloud.android.onboarding.auth.tasks.LegacyAuthTaskResult;
+import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.auth.tasks.LoginTask;
 import com.soundcloud.android.onboarding.auth.tasks.SignupTask;
 import com.soundcloud.android.profile.BirthdayInfo;
@@ -21,14 +21,14 @@ public class SignupTaskFragment extends AuthTaskFragment {
     private final Handler handler = new Handler();
     private final Runnable loginOperation = () -> getLoginTask().executeOnThreadPool(getArguments());
 
-    private int remainingLoginTries = 0;
+    private int remainingLoginTries;
 
     public static Bundle getParams(String username, String password, BirthdayInfo birthday, String gender) {
         Bundle b = new Bundle();
-        b.putString(SignupTask.KEY_USERNAME, username);
-        b.putString(SignupTask.KEY_PASSWORD, password);
-        b.putSerializable(SignupTask.KEY_BIRTHDAY, birthday);
-        b.putString(SignupTask.KEY_GENDER, gender);
+        b.putString(SignUpOperations.KEY_USERNAME, username);
+        b.putString(SignUpOperations.KEY_PASSWORD, password);
+        b.putSerializable(SignUpOperations.KEY_BIRTHDAY, birthday);
+        b.putString(SignUpOperations.KEY_GENDER, gender);
         return b;
     }
 
@@ -39,7 +39,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    public void onTaskResult(LegacyAuthTaskResult result) {
+    public void onTaskResult(AuthTaskResult result) {
         if (result.wasSignUpFailedToLogin()) {
             setRetryToLogin(MAX_LOGIN_RETRY);
         }
@@ -61,20 +61,15 @@ public class SignupTaskFragment extends AuthTaskFragment {
         handler.postDelayed(loginOperation, DELAY_BEFORE_RETRY);
     }
 
-    private boolean shouldRetryLogin(LegacyAuthTaskResult result) {
+    private boolean shouldRetryLogin(AuthTaskResult result) {
         return !result.wasSuccess() && remainingLoginTries > 0;
     }
 
     private LoginTask getLoginTask() {
         final LoginTask loginTask = new LoginTask((SoundCloudApplication) getActivity().getApplication(),
-                                                  tokenUtils,
                                                   storeUsersCommand,
-                                                  configurationOperations,
-                                                  eventBus,
                                                   accountOperations,
-                                                  apiClient,
                                                   syncInitiatorBridge,
-                                                  featureFlags,
                                                   signInOperations);
         loginTask.setTaskOwner(this);
         return loginTask;
@@ -85,11 +80,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
     AuthTask createAuthTask() {
         return new SignupTask((SoundCloudApplication) getActivity().getApplication(),
                               storeUsersCommand,
-                              tokenUtils,
-                              apiClient,
                               syncInitiatorBridge,
-                              featureFlags,
-                              signUpOperations,
-                              configurationOperations);
+                              signUpOperations);
     }
 }

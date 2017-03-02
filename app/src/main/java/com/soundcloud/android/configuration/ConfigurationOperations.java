@@ -12,7 +12,6 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -57,7 +56,6 @@ public class ConfigurationOperations {
 
     private final Func1<Long, Observable<Configuration>> toFetchConfiguration =
             tick -> fetchConfigurationWithRetry(configurationRequestBuilderForGet().build()).toObservable();
-    private final FeatureFlags featureFlags;
 
     private static Func1<Configuration, Boolean> isExpectedPlan(final Plan plan) {
         return configuration -> configuration.getUserPlan().currentPlan.equals(plan);
@@ -73,11 +71,10 @@ public class ConfigurationOperations {
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
                                    PlanChangeDetector planChangeDetector,
                                    ForceUpdateHandler forceUpdateHandler,
-                                   ImageConfigurationStorage imageConfigurationStorage,
-                                   FeatureFlags featureFlags) {
+                                   ImageConfigurationStorage imageConfigurationStorage) {
         this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler,
              pendingPlanOperations, configurationSettingsStorage, imageConfigurationStorage,
-             tryWithBackOffFactory.withDefaults(), scheduler, featureFlags);
+             tryWithBackOffFactory.withDefaults(), scheduler);
     }
 
     @VisibleForTesting
@@ -90,8 +87,7 @@ public class ConfigurationOperations {
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             ImageConfigurationStorage imageConfigurationStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
-                            @Named(HIGH_PRIORITY) Scheduler scheduler,
-                            FeatureFlags featureFlags) {
+                            @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.planChangeDetector = planChangeDetector;
         this.forceUpdateHandler = forceUpdateHandler;
@@ -103,7 +99,6 @@ public class ConfigurationOperations {
         this.configurationSettingsStorage = configurationSettingsStorage;
         this.tryWithBackOff = tryWithBackOff;
         this.scheduler = scheduler;
-        this.featureFlags = featureFlags;
     }
 
     Observable<Configuration> fetch() {
@@ -169,7 +164,7 @@ public class ConfigurationOperations {
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Registering device");
         final ApiRequest request = configurationRequestBuilderForGet()
-                .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(featureFlags, token)).build();
+                .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token)).build();
 
         Configuration configuration = apiClient.fetchMappedResponse(request, Configuration.class);
         saveConfiguration(configuration);
@@ -180,7 +175,7 @@ public class ConfigurationOperations {
             throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
-                                             .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(featureFlags, token))
+                                             .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
                                              .forPrivateApi()
                                              .build();
 

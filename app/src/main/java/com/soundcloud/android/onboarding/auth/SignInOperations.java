@@ -6,13 +6,13 @@ import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -27,8 +27,8 @@ import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.functions.Func3;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
@@ -47,15 +47,18 @@ public class SignInOperations {
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
+    private final Context context;
     private final ApiClient apiClient;
     private final OAuth oAuth;
 
     @Inject
-    public SignInOperations(ApiClient apiClient,
+    public SignInOperations(Context context,
+                            ApiClient apiClient,
                             OAuth oAuth,
                             ConfigurationOperations configurationOperations,
                             EventBus eventBus,
                             AccountOperations accountOperations) {
+        this.context = context;
         this.apiClient = apiClient;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
@@ -63,7 +66,7 @@ public class SignInOperations {
         this.accountOperations = accountOperations;
     }
 
-    public AuthTaskResult signIn(Bundle data, Func3<ApiUser, Token, SignupVia, Boolean> addAccountFunction) {
+    public AuthTaskResult signIn(Bundle data) {
         try {
             final AuthResponse loginResponse = performSignIn(data);
             final Token token = loginResponse.token;
@@ -76,7 +79,7 @@ public class SignInOperations {
             accountOperations.updateToken(token);
 
             SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
-            if (!addAccountFunction.call(loginResponse.me.getUser(), token, signupVia)) {
+            if (!addAccount(loginResponse, token, signupVia)) {
                 ErrorUtils.handleSilentException(new AddAccountException());
                 return AuthTaskResult.failure(getString(R.string.authentication_login_error_message));
             }
@@ -90,6 +93,10 @@ public class SignInOperations {
             log(INFO, ONBOARDING_TAG, "error retrieving SC API token: " + e.getMessage());
             return AuthTaskResult.failure(new TokenRetrievalException(e));
         }
+    }
+
+    private boolean addAccount(AuthResponse loginResponse, Token token, SignupVia signupVia) {
+        return ((SoundCloudApplication) context.getApplicationContext()).addUserAccountAndEnableSync(loginResponse.me.getUser(), token, signupVia);
     }
 
     private Optional<AuthTaskResult> handleDeviceManagement(Bundle data, Token token) throws ApiRequestException, IOException, ApiMapperException {

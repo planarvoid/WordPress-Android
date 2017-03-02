@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class ApiUrlBuilder {
+    private static final String PARAM_CLIENT_ID = "client_id";
 
     private final String mobileApiBaseUrl;
     private final String publicApiBaseUrl;
@@ -44,7 +45,7 @@ public class ApiUrlBuilder {
     }
 
     private ApiUrlBuilder withOAuthClientIdParam() {
-        return withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
+        return withQueryParam(PARAM_CLIENT_ID, oAuth.getClientId());
     }
 
     public ApiUrlBuilder withQueryParams(MultiMap<String, String> params) {

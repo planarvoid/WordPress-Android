@@ -40,7 +40,7 @@ public final class AuthTaskResult {
         this(kind, null, null, null, null, null);
     }
 
-    private AuthTaskResult(@NotNull TaskResultKind kind,
+    AuthTaskResult(@NotNull TaskResultKind kind,
                            AuthResponse authResponse,
                            SignupVia signupVia,
                            Exception exception,

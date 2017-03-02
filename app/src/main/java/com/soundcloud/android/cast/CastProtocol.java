@@ -7,7 +7,6 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.playback.PlaybackConstants;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
@@ -35,7 +34,6 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private boolean loadRequestSentForSession;
     private final CastJsonHandler jsonHandler;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
 
     public interface Listener extends RemoteMediaClient.ProgressListener {
         void onStatusUpdated();
@@ -47,11 +45,9 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     @Inject
     CastProtocol(CastJsonHandler castJsonHandler,
-                 AccountOperations accountOperations,
-                 FeatureFlags featureFlags) {
+                 AccountOperations accountOperations) {
         this.jsonHandler = castJsonHandler;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
     }
 
     public void registerCastSession(CastSession castSession) {
@@ -67,7 +63,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     }
 
     private CastCredentials getCredentials() {
-        return new CastCredentials(accountOperations.getSoundCloudToken(), featureFlags);
+        return new CastCredentials(accountOperations.getSoundCloudToken());
     }
 
     public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {

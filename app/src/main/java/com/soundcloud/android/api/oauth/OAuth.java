@@ -1,37 +1,14 @@
 package com.soundcloud.android.api.oauth;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.ArrayMap;
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 import java.util.Random;
 
 public class OAuth {
-    public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
-
-    // OAuth2 parameters
-    public static final String PARAM_GRANT_TYPE = "grant_type";
-    public static final String PARAM_CLIENT_ID = "client_id";
-    public static final String PARAM_CLIENT_SECRET = "client_secret";
-    public static final String PARAM_USERNAME = "username";
-    public static final String PARAM_PASSWORD = "password";
-    public static final String PARAM_SCOPE = "scope";
-    public static final String PARAM_REFRESH_TOKEN = "refresh_token";
-
-    // oauth2 grant types
-    public static final String GRANT_TYPE_PASSWORD = "password";
-    public static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
-    public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
-    public static final String GRANT_TYPE_FACEBOOK = "urn:soundcloud:oauth2:grant-type:facebook&access_token="; // oauth2 extension
-    public static final String GRANT_TYPE_GOOGLE_PLUS = "urn:soundcloud:oauth2:grant-type:google_plus&access_token=";
-
     private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     private static final long[] CLIENT_SECRET =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
@@ -40,19 +17,17 @@ public class OAuth {
     private final String clientId;
     private final String clientSecret;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
 
     @Inject
-    public OAuth(AccountOperations accountOperations, FeatureFlags featureFlags) {
-        this(CLIENT_ID, deobfuscate(CLIENT_SECRET), accountOperations, featureFlags);
+    public OAuth(AccountOperations accountOperations) {
+        this(CLIENT_ID, deobfuscate(CLIENT_SECRET), accountOperations);
     }
 
     @VisibleForTesting
-    public OAuth(String clientId, String clientSecret, AccountOperations accountOperations, FeatureFlags featureFlags) {
+    public OAuth(String clientId, String clientSecret, AccountOperations accountOperations) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
     }
 
     public String getClientId() {
@@ -63,68 +38,15 @@ public class OAuth {
         return clientSecret;
     }
 
-    public static String createOAuthHeaderValue(FeatureFlags featureFlags, Token token) {
-        boolean valid = token != null && isTokenValid(featureFlags, token);
+    public static String createOAuthHeaderValue(Token token) {
+        boolean valid = token != null && token.valid();
         String tokenString = valid ? token.getAccessToken() : "invalidated";
         return "OAuth " + tokenString;
     }
 
-    private static boolean isTokenValid(FeatureFlags featureFlags, Token token) {
-        if (featureFlags.isEnabled(Flag.AUTH_API_MOBILE)) {
-            return token.valid();
-        } else {
-            return token.legacyValid();
-        }
-    }
-
     public String getAuthorizationHeaderValue() {
-        return createOAuthHeaderValue(featureFlags, accountOperations.getSoundCloudToken());
+        return createOAuthHeaderValue(accountOperations.getSoundCloudToken());
     }
-
-    public Map<String, String> getTokenRequestParamsFromUserCredentials(String username, String password) {
-        final ArrayMap<String, String> params = new ArrayMap<>(6);
-        params.put(OAuth.PARAM_GRANT_TYPE, OAuth.GRANT_TYPE_PASSWORD);
-        params.put(OAuth.PARAM_CLIENT_ID, clientId);
-        params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_USERNAME, username);
-        params.put(OAuth.PARAM_PASSWORD, password);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
-        return params;
-    }
-
-    public Map<String, String> getTokenRequestParamsFromClientCredentials(String... scopes) {
-        final ArrayMap<String, String> params = new ArrayMap<>(4);
-        params.put(OAuth.PARAM_GRANT_TYPE, OAuth.GRANT_TYPE_CLIENT_CREDENTIALS);
-        params.put(OAuth.PARAM_CLIENT_ID, clientId);
-        params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        if (scopes.length > 0) {
-            params.put(OAuth.PARAM_SCOPE, getScopeParam(scopes));
-        }
-        return params;
-    }
-
-    public Map<String, String> getTokenRequestParamsFromExtensionGrant(String grantType) {
-        final ArrayMap<String, String> params = new ArrayMap<>(4);
-        params.put(OAuth.PARAM_GRANT_TYPE, grantType);
-        params.put(OAuth.PARAM_CLIENT_ID, clientId);
-        params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_SCOPE, getScopeParam(DEFAULT_SCOPES));
-        return params;
-    }
-
-    public Map<String, String> getTokenRequestParamsForRefreshToken(String refreshToken) {
-        final ArrayMap<String, String> params = new ArrayMap<>(4);
-        params.put(OAuth.PARAM_GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
-        params.put(OAuth.PARAM_CLIENT_ID, clientId);
-        params.put(OAuth.PARAM_CLIENT_SECRET, clientSecret);
-        params.put(OAuth.PARAM_REFRESH_TOKEN, refreshToken);
-        return params;
-    }
-
-    private String getScopeParam(String... scopes) {
-        return TextUtils.join(" ", scopes);
-    }
-
 
     /**
      * Based on

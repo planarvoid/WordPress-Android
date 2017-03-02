@@ -201,7 +201,7 @@ public class ApiRequest {
         }
 
         public Builder withToken(FeatureFlags featureFlags, Token token) {
-            withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(featureFlags, token));
+            withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token));
             return this;
         }
     }

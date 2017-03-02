@@ -45,11 +45,11 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
 
         AddUserInfoTask task = new AddUserInfoTask(
                 application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations, syncInitiatorBridge);
-        LegacyAuthTaskResult result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
-        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
-        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
+        assertThat(result.getAuthResponse().me.getUser().getUrn()).isEqualTo(user.getUrn());
+        assertThat(result.getAuthResponse().me.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getAuthResponse().me.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -67,11 +67,11 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 apiClient,
                 accountOperations,
                 syncInitiatorBridge);
-        LegacyAuthTaskResult result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
-        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
-        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
+        assertThat(result.getAuthResponse().me.getUser().getUrn()).isEqualTo(user.getUrn());
+        assertThat(result.getAuthResponse().me.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getAuthResponse().me.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -89,10 +89,10 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    apiClient,
                                                    accountOperations,
                                                    syncInitiatorBridge);
-        LegacyAuthTaskResult result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
-        assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
-        assertThat(result.getUser().getPermalink()).isEqualTo(user.getPermalink());
+        assertThat(result.getAuthResponse().me.getUser().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getAuthResponse().me.getUser().getPermalink()).isEqualTo(user.getPermalink());
     }
 
     @Test
@@ -109,10 +109,10 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    apiClient,
                                                    accountOperations,
                                                    syncInitiatorBridge);
-        LegacyAuthTaskResult result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();
-        assertThat(result.getUser()).isNull();
+        assertThat(result.getAuthResponse()).isNull();
     }
 
 }

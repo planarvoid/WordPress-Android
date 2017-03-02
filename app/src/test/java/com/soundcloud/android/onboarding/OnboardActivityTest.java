@@ -9,7 +9,6 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.ConfigurationManager;
-import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.testsupport.TestActivityController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.BugReporter;
@@ -32,7 +31,6 @@ public class OnboardActivityTest extends AndroidUnitTest {
     @Mock private Intent intent;
     @Mock private ConfigurationManager configurationManager;
     @Mock private BugReporter bugReporter;
-    @Mock private TokenInformationGenerator tokenUtils;
     @Mock private Navigator navigator;
     @Mock private LoginManager facebookLoginManager;
     @Mock private CallbackManager facebookCallbackManager;
@@ -47,7 +45,6 @@ public class OnboardActivityTest extends AndroidUnitTest {
         activity = new OnboardActivityWithSettableBundle(configurationManager,
                                                          bugReporter,
                                                          eventBus,
-                                                         tokenUtils,
                                                          navigator,
                                                          facebookSdk,
                                                          facebookLoginManager,
@@ -97,12 +94,11 @@ public class OnboardActivityTest extends AndroidUnitTest {
         public OnboardActivityWithSettableBundle(ConfigurationManager configurationManager,
                                                  BugReporter bugReporter,
                                                  EventBus eventBus,
-                                                 TokenInformationGenerator tokenUtils,
                                                  Navigator navigator,
                                                  FacebookSdk facebookSdk,
                                                  LoginManager facebookLoginManager,
                                                  CallbackManager facebookCallbackManager) {
-            super(configurationManager, bugReporter, eventBus, tokenUtils, navigator, facebookSdk,
+            super(configurationManager, bugReporter, eventBus, navigator, facebookSdk,
                   facebookLoginManager, facebookCallbackManager);
         }
 

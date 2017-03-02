@@ -38,7 +38,7 @@ public class AuthTaskTest {
     public void setUp() throws IOException {
         authTask = new AuthTask(application, storeUsersCommand, syncInitiatorBridge) {
             @Override
-            protected LegacyAuthTaskResult doInBackground(Bundle... params) {
+            protected AuthTaskResult doInBackground(Bundle... params) {
                 return null;
             }
         };

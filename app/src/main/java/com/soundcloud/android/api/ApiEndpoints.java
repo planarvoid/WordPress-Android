@@ -152,10 +152,7 @@ public enum ApiEndpoints {
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     LEGACY_USERS("/users"),
-    TRACK_COMMENTS("/tracks/%s/comments"),
-
-    OAUTH2_TOKEN("/oauth2/token"),
-    LEGACY_RESET_PASSWORD("/passwords/reset-instructions");
+    TRACK_COMMENTS("/tracks/%s/comments");
 
     private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
     private final String path;

@@ -19,5 +19,6 @@ public abstract class Me {
     }
 
     public abstract ApiUser getUser();
-    public abstract Configuration getConfiguration();
+    // @Nullable can be removed once the AddUserInfoTask is reworked to use api-mobile
+    @Nullable public abstract Configuration getConfiguration();
 }

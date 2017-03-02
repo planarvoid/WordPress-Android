@@ -1,9 +1,9 @@
 package com.soundcloud.android.onboarding.auth;
 
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_BIRTHDAY;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_GENDER;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_PASSWORD;
-import static com.soundcloud.android.onboarding.auth.tasks.SignupTask.KEY_USERNAME;
+import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_BIRTHDAY;
+import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_GENDER;
+import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_PASSWORD;
+import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

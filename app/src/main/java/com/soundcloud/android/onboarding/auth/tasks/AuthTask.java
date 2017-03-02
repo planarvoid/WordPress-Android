@@ -15,7 +15,7 @@ import android.os.Looper;
 
 import java.util.Collections;
 
-public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, LegacyAuthTaskResult> {
+public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskResult> {
 
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
@@ -36,16 +36,8 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, LegacyAut
         fragment = taskOwner;
     }
 
-    protected SoundCloudApplication getSoundCloudApplication() {
-        return app;
-    }
-
-    protected String getString(int resourceId) {
-        return app.getString(resourceId);
-    }
-
     @Override
-    protected void onPostExecute(LegacyAuthTaskResult result) {
+    protected void onPostExecute(AuthTaskResult result) {
         if (fragment == null) {
             return;
         }
@@ -58,7 +50,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, LegacyAut
             if (via != SignupVia.NONE) {
                 // user has signed up, schedule sync of user data to possibly refresh image data
                 // which gets processed asynchronously by the backend and is only available after signup has happened
-                new Handler(Looper.getMainLooper()).postDelayed(() -> syncInitiatorBridge.refreshMe(), ME_SYNC_DELAY_MILLIS);
+                new Handler(Looper.getMainLooper()).postDelayed(syncInitiatorBridge::refreshMe, ME_SYNC_DELAY_MILLIS);
             }
             return true;
         } else {

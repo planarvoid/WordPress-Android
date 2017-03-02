@@ -21,10 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class Token implements Serializable {
 
     public static final Token EMPTY = new Token(null, null);
-    public static final String SCOPE_DEFAULT = "*";
-    public static final String SCOPE_SIGNUP = "signup";
     public static final String SCOPE_NON_EXPIRING = "non-expiring";
-    public static final String SCOPE_PLAYCOUNT = "playcount";
 
     private static final long serialVersionUID = 766168501082045382L;
 
@@ -101,10 +98,6 @@ public class Token implements Serializable {
         return refresh;
     }
 
-    public boolean hasRefreshToken() {
-        return refresh != null;
-    }
-
     @Nullable
     public String getScope() {
         return scope;
@@ -114,33 +107,8 @@ public class Token implements Serializable {
         return expiresAt;
     }
 
-    public String getParameter(String key) {
-        return customParameters.get(key);
-    }
-
     public void invalidate() {
         this.access = null;
-    }
-
-    public boolean hasDefaultScope() {
-        return hasScope(SCOPE_DEFAULT);
-    }
-
-    public boolean hasScope(String scope) {
-        if (this.scope != null) {
-            for (String s : this.scope.split(" ")) {
-                if (scope.equals(s)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    // only use this one for public API. for api-mobile validation use #valid()
-    @Deprecated
-    public boolean legacyValid() {
-        return access != null && (hasScope(SCOPE_NON_EXPIRING) || refresh != null);
     }
 
     public boolean valid() {

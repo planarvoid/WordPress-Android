@@ -3,7 +3,6 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.times;
@@ -23,19 +22,13 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.Configuration;
-import com.soundcloud.android.configuration.ConfigurationOperations;
-import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,14 +44,11 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     private static final String SCOPE = "lulwatscope";
 
     @Mock private SoundCloudApplication app;
-    @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private AccountOperations accountOperations;
     @Mock private ApiClient apiClient;
     @Mock private Token token;
-    @Mock private ConfigurationOperations configurationOperations;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
-    @Mock private FeatureFlags featureFlags;
     @Mock private SignInOperations signInOperations;
 
     private final Bundle bundle = new Bundle();
@@ -69,31 +59,27 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(app.getAccountOperations()).thenReturn(accountOperations);
-        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
-        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
-        when(featureFlags.isEnabled(Flag.AUTH_API_MOBILE)).thenReturn(false);
-        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
-                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge,
-                                        featureFlags, signInOperations);
-
-        when(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).thenReturn(bundle);
+        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, storeUsersCommand,
+                                        accountOperations, syncInitiatorBridge,
+                                        signInOperations);
     }
 
     @Test
-    public void shouldSpecifyTheCorrectGrantTypeWhenCreatingGrantString() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
-                "validtoken");
+    public void shouldTryToLoginWithTheCorrectParameters() throws IOException, GoogleAuthException {
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
+        ArgumentCaptor<Bundle> bundleArgumentCaptor = ArgumentCaptor.forClass(Bundle.class);
+        when(signInOperations.signIn(bundleArgumentCaptor.capture())).thenReturn(AuthTaskResult.success(new AuthResponse(new Token("validtoken", null), Me.create(user, configuration)), SignupVia.GOOGLE_PLUS));
+
         task.doInBackground(bundle);
-        verify(tokenInformationGenerator).getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=",
-                                                         "validtoken");
+
+        assertThat(bundleArgumentCaptor.getValue().containsKey(SignInOperations.GOOGLE_TOKEN_EXTRA));
     }
 
     @Test
     public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException, ApiRequestException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
-                "invalidtoken");
-        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(TokenRetrievalException.class);
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("invalidtoken");
+        when(signInOperations.signIn(any())).thenReturn(AuthTaskResult.failure("Error"));
+
         task.doInBackground(bundle);
         verify(accountOperations, times(2)).invalidateGoogleAccountToken("invalidtoken");
     }
@@ -107,11 +93,11 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException, ApiMapperException, ApiRequestException {
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
-                .thenReturn(Me.create(user, configuration));
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
-                "validtoken");
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class))).thenReturn(Me.create(user, configuration));
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
+        when(signInOperations.signIn(any())).thenReturn(AuthTaskResult.success(new AuthResponse(token, Me.create(user, configuration)), SignupVia.GOOGLE_PLUS));
+
         assertThat(task.doInBackground(bundle).wasSuccess()).isTrue();
     }
 

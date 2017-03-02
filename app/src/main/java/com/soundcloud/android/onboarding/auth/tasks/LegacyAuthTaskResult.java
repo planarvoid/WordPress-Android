@@ -1,16 +1,18 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
+import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
 /**
- *Once the public API usages for authentication are gone we only use {@link AuthTaskResult}
+ * Once the public API usages for authentication are gone we only use {@link AuthTaskResult}
  */
-@Deprecated
+@Deprecated // this can be removed once the "Add more user data" request has been migrated to api-mobiles
 public final class LegacyAuthTaskResult {
 
     private final TaskResultKind kind;
@@ -21,7 +23,7 @@ public final class LegacyAuthTaskResult {
     private final Bundle loginBundle;
 
     // Can be dropped once we move away from public API for signups
-    @Deprecated private String serverErrorMessage;
+    @Deprecated private final String serverErrorMessage;
 
     public static LegacyAuthTaskResult success(ApiUser user, SignupVia signupVia) {
         return new LegacyAuthTaskResult(user, signupVia);
@@ -34,13 +36,13 @@ public final class LegacyAuthTaskResult {
     public static LegacyAuthTaskResult failure(ApiRequestException exception) {
         switch (exception.reason()) {
             case AUTH_ERROR:
-                return LegacyAuthTaskResult.unauthorized(exception);
+                return unauthorized(exception);
             case VALIDATION_ERROR:
-                return LegacyAuthTaskResult.validationError(exception.errorKey(), exception);
+                return validationError(exception.errorKey(), exception);
             case NETWORK_ERROR:
-                return LegacyAuthTaskResult.networkError((Exception) exception.getCause());
+                return networkError((Exception) exception.getCause());
             case SERVER_ERROR:
-                return LegacyAuthTaskResult.serverError(exception);
+                return serverError(exception);
             default:
                 return new LegacyAuthTaskResult(exception);
         }
@@ -70,10 +72,6 @@ public final class LegacyAuthTaskResult {
         return new LegacyAuthTaskResult(TaskResultKind.EMAIL_INVALID, exception);
     }
 
-    public static LegacyAuthTaskResult signUpFailedToLogin(ApiRequestException exception) {
-        return new LegacyAuthTaskResult(TaskResultKind.FLAKY_SIGNUP_ERROR, exception);
-    }
-
     public static LegacyAuthTaskResult unauthorized(ApiRequestException exception) {
         return new LegacyAuthTaskResult(TaskResultKind.UNAUTHORIZED, exception);
     }
@@ -96,15 +94,6 @@ public final class LegacyAuthTaskResult {
 
     public static LegacyAuthTaskResult deviceBlock() {
         return new LegacyAuthTaskResult(TaskResultKind.DEVICE_BLOCK);
-    }
-
-    public boolean wasUnexpectedError() {
-        return kind.isUnexpectedError();
-    }
-
-    public static LegacyAuthTaskResult fromAuthTaskResult(AuthTaskResult result) {
-        ApiUser user = result.getAuthResponse() == null ? null : result.getAuthResponse().me.getUser();
-        return new LegacyAuthTaskResult(result.getKind(), user, result.getSignupVia(), result.getException(), result.getLoginBundle(), result.getErrorMessage());
     }
 
     private LegacyAuthTaskResult(ApiUser user, SignupVia signupVia) {
@@ -158,24 +147,8 @@ public final class LegacyAuthTaskResult {
         return kind == TaskResultKind.DENIED;
     }
 
-    public boolean wasUnauthorized() {
-        return kind == TaskResultKind.UNAUTHORIZED;
-    }
-
-    public boolean wasServerError() {
-        return kind == TaskResultKind.SERVER_ERROR;
-    }
-
-    public boolean wasNetworkError() {
-        return kind == TaskResultKind.NETWORK_ERROR;
-    }
-
     public boolean wasEmailInvalid() {
         return kind == TaskResultKind.EMAIL_INVALID;
-    }
-
-    public boolean wasSignUpFailedToLogin() {
-        return kind == TaskResultKind.FLAKY_SIGNUP_ERROR;
     }
 
     public boolean wasDeviceConflict() {
@@ -209,6 +182,17 @@ public final class LegacyAuthTaskResult {
     @Deprecated
     public String getServerErrorMessage() {
         return serverErrorMessage;
+    }
+
+    public AuthTaskResult toAuthTaskResult() {
+        if (wasSuccess()) {
+            return AuthTaskResult.success(new AuthResponse(null, Me.create(user, null)), signupVia);
+        }
+
+        if (exception instanceof ApiRequestException) {
+            return AuthTaskResult.failure((ApiRequestException) exception);
+        }
+        return AuthTaskResult.failure(exception);
     }
 
     @Override
