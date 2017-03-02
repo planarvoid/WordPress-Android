@@ -37,6 +37,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .creatorUrn(playlist.creatorUrn())
                 .creatorName(playlist.creatorName())
                 .canShuffle(trackItems.size() > 1)
+                .canBePlayed(!trackItems.isEmpty())
                 .trackCount(trackCount)
                 .isPrivate(playlist.isPrivate())
                 .isRepostedByUser(isReposted)
@@ -68,10 +69,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
 
     abstract public String creatorName();
 
-    public boolean canBePlayed() {
-        // todo: This should be calculated above. Maybe Guillaume remembers why it is not
-        return canShuffle() && !isInEditMode();
-    }
+    abstract boolean canBePlayed();
 
     abstract public boolean canShuffle();
 
@@ -165,6 +163,8 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
         abstract Builder creatorName(String value);
 
         abstract Builder canShuffle(boolean value);
+
+        abstract Builder canBePlayed(boolean value);
 
         abstract Builder trackCount(int value);
 

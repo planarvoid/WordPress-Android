@@ -39,7 +39,7 @@ class PlaylistCoverRenderer {
         View playButton = ButterKnife.findById(view, R.id.btn_play);
         playButton.setOnClickListener(v -> onHeaderPlay.call());
 
-        if (item.canBePlayed()) {
+        if (item.canBePlayed() && !item.isInEditMode()) {
             AnimUtils.showView(playButton, true);
         } else {
             AnimUtils.hideView(playButton, true);
