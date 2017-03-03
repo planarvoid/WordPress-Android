@@ -31,6 +31,7 @@ public class ApplicationProperties {
     private boolean googlePlusEnabled;
     private boolean enforceConcurrentStreamingLimitation;
     private boolean logQueries;
+    private boolean failFastOnMappingExceptions;
 
     @VisibleForTesting
     static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
@@ -72,6 +73,7 @@ public class ApplicationProperties {
         googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
         enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);
         logQueries = resources.getBoolean(R.bool.log_queries);
+        failFastOnMappingExceptions = resources.getBoolean(R.bool.fail_fast_on_mapping_exceptions);
     }
 
     public boolean isGooglePlusEnabled() {
@@ -84,6 +86,10 @@ public class ApplicationProperties {
 
     public boolean shouldLogQueries() {
         return logQueries;
+    }
+
+    public boolean shouldFailFastOnMappingExceptions() {
+        return failFastOnMappingExceptions;
     }
 
     public boolean enforceConcurrentStreamingLimitation() {

@@ -73,15 +73,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(localeFormatter.getLocale()).thenReturn(Optional.of("fr-CA"));
-        apiClient = new ApiClient(httpClient,
-                                  apiUrlBuilder,
-                                  jsonTransformer,
-                                  deviceHelper,
-                                  adIdHelper,
-                                  oAuth,
-                                  unauthorisedRequestRegistry,
-                                  accountOperations,
-                                  localeFormatter);
+        apiClient = getApiClient(false);
     }
 
     @Test
@@ -412,6 +404,17 @@ public class ApiClientTest extends AndroidUnitTest {
         apiClient.fetchMappedResponse(request, ApiTrack.class);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void shouldFailFastOnMappingExceptionIfParsedToUnknownResource() throws Exception {
+        apiClient = getApiClient(true);
+
+        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(new UnknownResource());
+        ApiRequest request = ApiRequest.get(URL)
+                                       .forPrivateApi()
+                                       .build();
+        apiClient.fetchMappedResponse(request, ApiTrack.class);
+    }
+
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfResponseBodyIsBlank() throws Exception {
         ApiRequest request = ApiRequest.get(URL)
@@ -450,6 +453,19 @@ public class ApiClientTest extends AndroidUnitTest {
         when(apiUrlBuilder.from(request)).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.withQueryParams(any(MultiMap.class))).thenReturn(apiUrlBuilder);
         when(apiUrlBuilder.build()).thenReturn(request.getUri().toString());
+    }
+
+    private ApiClient getApiClient(boolean failFastOnMapper) {
+        return new ApiClient(httpClient,
+                             apiUrlBuilder,
+                             jsonTransformer,
+                             deviceHelper,
+                             adIdHelper,
+                             oAuth,
+                             unauthorisedRequestRegistry,
+                             accountOperations,
+                             localeFormatter,
+                             failFastOnMapper);
     }
 
 }

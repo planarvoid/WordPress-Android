@@ -53,9 +53,11 @@ public class ApiModule {
                                       OAuth oAuth,
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                       AccountOperations accountOperations,
-                                      LocaleFormatter localeFormatter) {
+                                      LocaleFormatter localeFormatter,
+                                      ApplicationProperties applicationProperties) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
-                                            oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter);
+                                            oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter,
+                                            applicationProperties.shouldFailFastOnMappingExceptions());
         apiClient.setAssertBackgroundThread(true);
         return apiClient;
     }

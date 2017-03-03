@@ -45,13 +45,15 @@ public class ApiClient {
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final AccountOperations accountOperations;
     private final LocaleFormatter localeFormatter;
+    private final boolean failFastOnMapper;
 
     private boolean assertBackgroundThread;
+
 
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
                      OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                     AccountOperations accountOperations, LocaleFormatter localeFormatter) {
+                     AccountOperations accountOperations, LocaleFormatter localeFormatter, boolean failFastOnMapper) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
@@ -61,6 +63,7 @@ public class ApiClient {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.accountOperations = accountOperations;
         this.localeFormatter = localeFormatter;
+        this.failFastOnMapper = failFastOnMapper;
     }
 
     public void setAssertBackgroundThread(boolean assertBackgroundThread) {
@@ -108,6 +111,9 @@ public class ApiClient {
         } catch (IOException e) {
             return new ApiResponse(ApiRequestException.networkError(request, e));
         } catch (ApiMapperException e) {
+            if (failFastOnMapper) {
+                throw new RuntimeException(e);
+            }
             return new ApiResponse(ApiRequestException.malformedInput(request, e));
         }
     }
@@ -197,7 +203,16 @@ public class ApiClient {
 
     public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, TypeToken<ResourceType> resourceType)
             throws IOException, ApiRequestException, ApiMapperException {
-        return mapResponse(fetchResponse(request), resourceType);
+        try {
+            return mapResponse(fetchResponse(request), resourceType);
+
+        } catch (ApiMapperException ex) {
+            if (failFastOnMapper) {
+                throw new RuntimeException(ex);
+            } else {
+                throw ex;
+            }
+        }
     }
 
     public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, Class<ResourceType> resourceType)
