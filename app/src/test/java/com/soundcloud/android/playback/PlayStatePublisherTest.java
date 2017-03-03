@@ -1,15 +1,18 @@
 package com.soundcloud.android.playback;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.UuidProvider;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,19 +30,26 @@ public class PlayStatePublisherTest {
     private static final int DURATION = 456;
 
     private PlayStatePublisher publisher;
+    private TestEventBus eventBus = new TestEventBus();
+
     @Mock private PlaySessionStateProvider sessionStateProvider;
     @Mock private PlaybackAnalyticsController analyticsController;
     @Mock private PlayQueueAdvancer playQueueAdvancer;
     @Mock private AdsController adsController;
     @Mock private UuidProvider uuidProvider;
-    @Mock private EventBus eventBus;
+    @Mock private CastConnectionHelper castConnectionHelper;
 
     @Before
     public void setUp() throws Exception {
-        publisher = new PlayStatePublisher(sessionStateProvider, analyticsController,
-                                           playQueueAdvancer,
-                                           adsController, eventBus);
         when(playQueueAdvancer.onPlayStateChanged(any(PlayStateEvent.class))).thenReturn(PlayQueueAdvancer.Result.NO_OP);
+        when(castConnectionHelper.isCasting()).thenReturn(false);
+
+        publisher = new PlayStatePublisher(sessionStateProvider,
+                                           analyticsController,
+                                           playQueueAdvancer,
+                                           adsController,
+                                           eventBus,
+                                           castConnectionHelper);
     }
 
     @Test
@@ -49,13 +59,13 @@ public class PlayStatePublisherTest {
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
-        publisher.publish(stateTransition, playbackItem, true);
+        publisher.publish(stateTransition, playbackItem);
 
-        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer, eventBus);
+        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
         inOrder.verify(playQueueAdvancer).onPlayStateChanged(playStateEvent);
-        inOrder.verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED)).isEqualTo(playStateEvent);
     }
 
     @Test
@@ -67,13 +77,13 @@ public class PlayStatePublisherTest {
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
         when(playQueueAdvancer.onPlayStateChanged(playStateEvent)).thenReturn(PlayQueueAdvancer.Result.QUEUE_COMPLETE);
 
-        publisher.publish(stateTransition, playbackItem, true);
+        publisher.publish(stateTransition, playbackItem);
 
-        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer, eventBus);
+        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
         inOrder.verify(playQueueAdvancer).onPlayStateChanged(playStateEvent);
-        inOrder.verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, PlayStateEvent.createPlayQueueCompleteEvent(playStateEvent));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED)).isEqualTo(PlayStateEvent.createPlayQueueCompleteEvent(playStateEvent));
     }
 
     @Test
@@ -83,13 +93,36 @@ public class PlayStatePublisherTest {
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, "current-play-id");
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
-        publisher.publish(stateTransition, playbackItem, true);
+        publisher.publish(stateTransition, playbackItem);
 
 
-        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, eventBus);
+        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
-        inOrder.verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED)).isEqualTo(playStateEvent);
+    }
+
+    @Test
+    public void ignorePublishingWhileCasting() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
+        publisher.publish(TestPlayerTransitions.playing(), getPlaybackItem());
+
+        eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
+    }
+
+    @Test
+    public void transitionAdsAndAnalyticsEvenWhileCasting() {
+        AudioPlaybackItem playbackItem = getPlaybackItem();
+        PlaybackStateTransition stateTransition = TestPlayerTransitions.playing();
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
+        when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
+
+        publisher.publish(stateTransition, playbackItem);
+
+        verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
+        verify(adsController).onPlayStateChanged(playStateEvent);
     }
 
     @NonNull

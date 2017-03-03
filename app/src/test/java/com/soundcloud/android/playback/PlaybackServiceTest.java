@@ -226,7 +226,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(playStatePublisher).publish(stateTransition, playbackItem, true);
+        verify(playStatePublisher).publish(stateTransition, playbackItem);
     }
 
     @Test

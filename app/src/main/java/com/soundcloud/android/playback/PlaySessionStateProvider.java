@@ -42,7 +42,7 @@ public class PlaySessionStateProvider {
         this.dateProvider = dateProvider;
     }
 
-    PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
+    public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
         final boolean isNewTrack = !isLastPlayed(stateTransition.getUrn());
         if (isNewTrack) {
             playSessionStateStorage.savePlayInfo(stateTransition.getUrn());

@@ -2,7 +2,6 @@ package com.soundcloud.android.cast;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioPlaybackItem;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackState;
@@ -10,29 +9,32 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 
 public class CastPlayStateReporter {
 
-    private final PlayStatePublisher playStatePublisher;
+    private final CastPlayStatePublisher playStatePublisher;
     private final DateProvider dateProvider;
     private Optional<Listener> listener = Optional.absent();
 
     @Inject
-    public CastPlayStateReporter(PlayStatePublisher playStatePublisher, CurrentDateProvider dateProvider) {
+    public CastPlayStateReporter(CastPlayStatePublisher playStatePublisher, CurrentDateProvider dateProvider) {
         this.playStatePublisher = playStatePublisher;
         this.dateProvider = dateProvider;
     }
 
     private void reportStateChange(PlaybackStateTransition stateTransition) {
+        Log.d(CastProtocol.TAG, "Received new playState " + stateTransition);
+        
         PlaybackProgress playbackProgress = stateTransition.getProgress();
         final AudioPlaybackItem playbackItem = AudioPlaybackItem.create(stateTransition.getUrn(),
                                                                         playbackProgress.getPosition(),
                                                                         playbackProgress.getDuration(),
                                                                         PlaybackType.AUDIO_DEFAULT);
-        playStatePublisher.publish(stateTransition, playbackItem, false);
+        playStatePublisher.publish(stateTransition, playbackItem);
 
         if (listener.isPresent()) {
             listener.get().onStateChangePublished(stateTransition);

@@ -6,10 +6,8 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackResult;
 import rx.Observable;
 
-import java.util.List;
-
 public interface CastPlayer {
-    void onConnected();
+    void onConnected(boolean wasPlaying);
 
     void onDisconnected();
 

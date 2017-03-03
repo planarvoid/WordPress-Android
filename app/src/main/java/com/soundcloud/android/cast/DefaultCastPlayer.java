@@ -42,6 +42,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private final CastQueueController castQueueController;
     private final CastPlayStateReporter playStateReporter;
 
+    private boolean autoplayIfRemoteIsEmpty;
+
     @Inject
     DefaultCastPlayer(PlayQueueManager playQueueManager,
                       EventBus eventBus,
@@ -58,8 +60,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public void onConnected() {
-        // no-op
+    public void onConnected(boolean wasPlaying) {
+        autoplayIfRemoteIsEmpty = wasPlaying;
     }
 
     @Override
@@ -179,7 +181,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     @Override
     public void onRemoteEmptyStateFetched() {
         if (!isLocalEmpty()) {
-            loadLocalOnRemote(playSessionStateProvider.isPlaying());
+            loadLocalOnRemote(autoplayIfRemoteIsEmpty);
         }
     }
 

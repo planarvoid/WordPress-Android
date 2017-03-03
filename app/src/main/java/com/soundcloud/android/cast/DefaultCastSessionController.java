@@ -7,6 +7,7 @@ import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.cast.framework.CastStateListener;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import android.support.v7.app.AppCompatActivity;
@@ -22,13 +23,18 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     private final DefaultCastPlayer castPlayer;
     private final CastContextWrapper castContext;
     private final CastConnectionHelper castConnectionHelper;
+    private final PlaySessionStateProvider playSessionStateProvider;
     private final CastProtocol castProtocol;
+
+    private boolean wasPlayingBeforeServiceStopped;
 
     @Inject
     public DefaultCastSessionController(PlaybackServiceController serviceController,
-                                        AdsOperations adsOperations, DefaultCastPlayer castPlayer,
+                                        AdsOperations adsOperations,
+                                        DefaultCastPlayer castPlayer,
                                         CastContextWrapper castContext,
                                         CastConnectionHelper castConnectionHelper,
+                                        PlaySessionStateProvider playSessionStateProvider,
                                         CastProtocol castProtocol) {
         this.serviceController = serviceController;
         this.adsOperations = adsOperations;
@@ -36,6 +42,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
         this.castContext = castContext;
 
         this.castConnectionHelper = castConnectionHelper;
+        this.playSessionStateProvider = playSessionStateProvider;
         this.castProtocol = castProtocol;
     }
 
@@ -55,6 +62,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     @Override
     public void onSessionStarted(CastSession castSession, String sessionId) {
         Log.d(TAG, "DefaultCastSessionController::onSessionStarted() for id " + sessionId);
+        wasPlayingBeforeServiceStopped = playSessionStateProvider.isPlaying();
         serviceController.stopPlaybackService();
         adsOperations.clearAllAdsFromQueue();
 
@@ -71,7 +79,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     private void onSessionUpdated(CastSession castSession) {
         castProtocol.registerCastSession(castSession);
         castProtocol.setListener(castPlayer);
-        castPlayer.onConnected();
+        castPlayer.onConnected(wasPlayingBeforeServiceStopped);
     }
 
     @Override

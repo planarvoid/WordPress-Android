@@ -2,13 +2,11 @@ package com.soundcloud.android.cast;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackState;
@@ -31,7 +29,7 @@ public class CastPlayStateReporterTest extends AndroidUnitTest {
 
     private CastPlayStateReporter castPlayStateReporter;
 
-    @Mock private PlayStatePublisher playStatePublisher;
+    @Mock private CastPlayStatePublisher playStatePublisher;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private CastPlayStateReporter.Listener listener;
 
@@ -110,7 +108,7 @@ public class CastPlayStateReporterTest extends AndroidUnitTest {
     }
 
     private PlaybackStateTransition captureLastStateTransition() {
-        verify(playStatePublisher, atLeastOnce()).publish(playbackStateTransitionArgumentCaptor.capture(), any(PlaybackItem.class), eq(false));
+        verify(playStatePublisher, atLeastOnce()).publish(playbackStateTransitionArgumentCaptor.capture(), any(PlaybackItem.class));
         final List<PlaybackStateTransition> values = playbackStateTransitionArgumentCaptor.getAllValues();
         return values.isEmpty() ? null : values.get(values.size() - 1);
     }

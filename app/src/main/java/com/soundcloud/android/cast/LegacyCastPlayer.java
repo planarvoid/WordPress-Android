@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -54,7 +53,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     private final ProgressReporter progressReporter;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
-    private final PlayStatePublisher playStatePublisher;
+    private final CastPlayStatePublisher playStatePublisher;
     private final DateProvider dateProvider;
 
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
@@ -65,7 +64,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
                             ProgressReporter progressReporter,
                             PlayQueueManager playQueueManager,
                             EventBus eventBus,
-                            PlayStatePublisher playStatePublisher,
+                            CastPlayStatePublisher playStatePublisher,
                             CurrentDateProvider dateProvider) {
         this.castOperations = castOperations;
         this.castManager = castManager;
@@ -81,12 +80,11 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
 
     @Override
     public void onDisconnected() {
-        reportStateChange(getStateTransition(PlaybackState.IDLE,
-                                             PlayStateReason.NONE)); // possibly show disconnect error here instead?
+        reportStateChange(getStateTransition(PlaybackState.IDLE, PlayStateReason.CAST_DISCONNECTED));
     }
 
     @Override
-    public void onConnected() {
+    public void onConnected(boolean wasPlaying) {
         //no-op
     }
 
@@ -129,7 +127,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
     private void reportStateChange(PlaybackStateTransition stateTransition) {
         final AudioPlaybackItem playbackItem = AudioPlaybackItem.create(castOperations.getRemoteCurrentTrackUrn(), 0,
                                                                         getDuration(), PlaybackType.AUDIO_DEFAULT);
-        playStatePublisher.publish(stateTransition, playbackItem, false);
+        playStatePublisher.publish(stateTransition, playbackItem);
 
         final boolean playerPlaying = stateTransition.isPlayerPlaying();
         if (playerPlaying) {
@@ -284,7 +282,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
 
     private Action1<Throwable> reportPlaybackError(final Urn initialTrackUrnCandidate) {
         return throwable -> reportStateChange(createStateTransition(initialTrackUrnCandidate, PlaybackState.IDLE,
-                                                            PlayStateReason.ERROR_FAILED));
+                                                                    PlayStateReason.ERROR_FAILED));
     }
 
     @NonNull

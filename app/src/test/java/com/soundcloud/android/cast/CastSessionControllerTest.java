@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,6 +10,7 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,14 +29,17 @@ public class CastSessionControllerTest extends AndroidUnitTest {
     @Mock private CastDevice castDevice;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private CastProtocol castProtocol;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
 
     @Before
     public void setUp() throws Exception {
         castSessionController = new DefaultCastSessionController(serviceInitiator,
-                                                                 adsOperations, castPlayer,
+                                                                 adsOperations,
+                                                                 castPlayer,
                                                                  castContext,
                                                                  castConnectionHelper,
+                                                                 playSessionStateProvider,
                                                                  castProtocol);
         when(castSession.getCastDevice()).thenReturn(castDevice);
         when(castDevice.getFriendlyName()).thenReturn("My Cast");
@@ -60,7 +65,7 @@ public class CastSessionControllerTest extends AndroidUnitTest {
 
         callOnConnectedToReceiverApp();
 
-        verify(castPlayer).onConnected();
+        verify(castPlayer).onConnected(anyBoolean());
     }
 
     @Test
@@ -77,6 +82,17 @@ public class CastSessionControllerTest extends AndroidUnitTest {
         callOnConnectedToReceiverApp();
 
         verify(adsOperations).clearAllAdsFromQueue();
+    }
+
+    @Test
+    public void onConnectedForwardsTheSessionStateBeforePlaybackIsForcefullyStopped() {
+        final boolean isPlaying = true;
+        when(playSessionStateProvider.isPlaying()).thenReturn(isPlaying);
+        castSessionController.startListening();
+
+        callOnConnectedToReceiverApp();
+
+        verify(castPlayer).onConnected(isPlaying);
     }
 
     private void callOnConnectedToReceiverApp() {

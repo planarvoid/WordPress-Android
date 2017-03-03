@@ -31,7 +31,6 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -78,7 +77,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlayStatePublisher playStatePublisher;
+    @Mock private CastPlayStatePublisher playStatePublisher;
 
     @Captor private ArgumentCaptor<PlaybackStateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
@@ -501,7 +500,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
 
         final PlaybackStateTransition stateTransition = captureLastStateTransition();
         assertThat(stateTransition.getNewState()).isSameAs(PlaybackState.IDLE);
-        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.NONE);
+        assertThat(stateTransition.getReason()).isSameAs(PlayStateReason.CAST_DISCONNECTED);
     }
 
     private MediaInfo createMediaInfo(Urn urn) {
@@ -517,7 +516,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
 
     private PlaybackStateTransition captureLastStateTransition() {
         final ArgumentCaptor<PlaybackStateTransition> captor = ArgumentCaptor.forClass(PlaybackStateTransition.class);
-        verify(playStatePublisher, atLeastOnce()).publish(captor.capture(), any(PlaybackItem.class), eq(false));
+        verify(playStatePublisher, atLeastOnce()).publish(captor.capture(), any(PlaybackItem.class));
         final List<PlaybackStateTransition> values = captor.getAllValues();
         return values.isEmpty() ? null : values.get(values.size() - 1);
     }

@@ -211,7 +211,7 @@ public class PlaybackService extends Service
                     onIdleState();
                 }
 
-                playStatePublisher.publish(stateTransition, currentPlaybackItem.get(), true);
+                playStatePublisher.publish(stateTransition, currentPlaybackItem.get());
                 long position = stateTransition.getProgress().getPosition();
                 if (stateTransition.isBuffering()) {
                     mediaSessionController.onBuffering(position);

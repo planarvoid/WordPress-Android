@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -109,6 +110,19 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         when(remoteMediaClient.getPlayerState()).thenReturn(playerState);
         when(remoteMediaClient.getIdleReason()).thenReturn(idleReason);
         mockProgressAndDuration(progress, duration);
+    }
+
+    @Test
+    public void localPlaybackStateIsUsedAsAutoplayValueWhenLoadingTheQueueOnAnEmptyReceiver() {
+        final boolean localPlaybackPlayingState = true;
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN1));
+        when(castQueueController.buildCastPlayQueue(any(Urn.class), any())).thenReturn(new CastPlayQueue());
+        mockProgressAndDuration(0L, 1234L);
+
+        castPlayer.onConnected(localPlaybackPlayingState);
+
+        castPlayer.onRemoteEmptyStateFetched();
+        verify(castProtocol).sendLoad(anyString(), eq(localPlaybackPlayingState), anyLong(), any());
     }
 
     @Test

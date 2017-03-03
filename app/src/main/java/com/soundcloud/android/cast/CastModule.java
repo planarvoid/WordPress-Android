@@ -6,7 +6,6 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -86,7 +85,7 @@ public class CastModule {
                                         Lazy<ProgressReporter> progressReporter,
                                         PlayQueueManager playQueueManager,
                                         EventBus eventBus,
-                                        PlayStatePublisher playStatePublisher,
+                                        CastPlayStatePublisher playStatePublisher,
                                         CurrentDateProvider dateProvider,
                                         CastProtocol castProtocol,
                                         PlaySessionStateProvider playSessionStateProvider,
