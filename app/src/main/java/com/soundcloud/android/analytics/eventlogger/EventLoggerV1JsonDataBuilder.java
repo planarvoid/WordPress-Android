@@ -185,12 +185,14 @@ class EventLoggerV1JsonDataBuilder {
         if (eventData.sourceVersion().isPresent()) {
             data.sourceVersion(eventData.sourceVersion().get());
         }
-        if (eventData.inPlaylist().isPresent()) {
+        if (eventData.inPlaylist().isPresent() && !eventData.inPlaylist().get().isLocal()) {
             data.inPlaylist(eventData.inPlaylist().get());
+
+            if (eventData.playlistPosition().isPresent()) {
+                data.playlistPosition(eventData.playlistPosition().get());
+            }
         }
-        if (eventData.playlistPosition().isPresent()) {
-            data.playlistPosition(eventData.playlistPosition().get());
-        }
+
         if (eventData.reposter().isPresent()) {
             data.reposter(eventData.reposter().get());
         }
@@ -723,7 +725,7 @@ class EventLoggerV1JsonDataBuilder {
             data.source(sourceInfo.getSource());
             data.sourceVersion(sourceInfo.getSourceVersion());
         }
-        if (sourceInfo.isFromPlaylist()) {
+        if (sourceInfo.isFromPlaylist() && !sourceInfo.getCollectionUrn().isLocal()) {
             data.inPlaylist(sourceInfo.getCollectionUrn());
             data.playlistPosition(sourceInfo.getPlaylistPosition());
         }

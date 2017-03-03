@@ -177,6 +177,40 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsAudioEventJsonForAudioPlaybackEventOmittingLocalPlaylist() throws ApiMapperException {
+        final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
+                createArgs(track, trackSourceInfo, 12L, true));
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(Urn.newLocalPlaylist(), 2, Urn.forUser(321L));
+        trackSourceInfo.setReposter(Urn.forUser(456L));
+
+        jsonDataBuilder.buildForAudioEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(event.trackSourceInfo().getOriginScreen())
+                                               .trackLength(track.fullDuration())
+                                               .track(track.getUrn())
+                                               .trackOwner(track.creatorUrn())
+                                               .reposter(Urn.forUser(456L))
+                                               .localStoragePlayback(true)
+                                               .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                                               .trigger("manual")
+                                               .action("play")
+                                               .playId(PLAY_ID)
+                                               .playheadPosition(12L)
+                                               .source("source")
+                                               .sourceVersion("source-version")
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .protocol("hls")
+                                               .playerType("PLAYA")
+                                               .clientEventId(CLIENT_EVENT_ID)
+                                               .monetizationModel(PlayableFixtures.MONETIZATION_MODEL));
+    }
+
+    @Test
     public void createsAudioEventJsonForAudioPlaybackStartEvent() throws ApiMapperException {
         final TrackItem track = PlayableFixtures.expectedTrackForPlayer();
         final PlaybackSessionEvent event = PlaybackSessionEvent.forPlayStart(
@@ -793,6 +827,36 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
+                                               .protocol("hls")
+                                               .playerType("player")
+                                               .clientEventId(CLIENT_EVENT_ID)
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                                               .monetizationType("audio_ad"));
+    }
+
+    @Test
+    public void createsJsonFromRichMediaStreamPlayEventOmittingLocalPlaylist() throws ApiMapperException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                                       TestPlayerTransitions.playing(),
+                                                                                       CLIENT_EVENT_ID);
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(Urn.newLocalPlaylist(), 2, Urn.forUser(321L));
+        final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forPlay(audioAd, eventArgs);
+
+        jsonDataBuilder.buildForRichMediaSessionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
+                                               .trackLength(eventArgs.getDuration())
+                                               .trigger("manual")
+                                               .action("play")
+                                               .playheadPosition(0L)
+                                               .source("source")
+                                               .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("player")
                                                .clientEventId(CLIENT_EVENT_ID)
