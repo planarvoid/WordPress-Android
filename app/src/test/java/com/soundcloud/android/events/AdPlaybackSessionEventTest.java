@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -107,7 +108,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithImpressionAndStartUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
@@ -123,8 +124,8 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        videoAd.setStartReported();
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
+        videoAd.setEventReported(PlayableAdData.ReportingEvent.START_EVENT);
+        final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
@@ -138,7 +139,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithFinishUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                 args,
                                                                                 STOP_REASON_TRACK_FINISHED);
@@ -153,7 +154,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithPauseUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                 args,
                                                                                 STOP_REASON_PAUSE);

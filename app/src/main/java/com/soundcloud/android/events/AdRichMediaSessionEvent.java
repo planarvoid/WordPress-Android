@@ -90,19 +90,19 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
     public abstract Optional<Urn> sourceUrn();
 
 
-    public static AdRichMediaSessionEvent forPlay(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    public static AdRichMediaSessionEvent forPlay(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return create(Action.AUDIO_ACTION_PLAY, adData, eventArgs).build();
     }
 
-    public static AdRichMediaSessionEvent forStop(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
+    public static AdRichMediaSessionEvent forStop(PlayableAdData adData, AdSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
         return create(Action.AUDIO_ACTION_PAUSE, adData, eventArgs).stopReason(Optional.of(stopReason)).build();
     }
 
-    public static AdRichMediaSessionEvent forCheckpoint(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    public static AdRichMediaSessionEvent forCheckpoint(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return create(Action.AUDIO_ACTION_CHECKPOINT, adData, eventArgs).build();
     }
 
-    private static Builder create(Action action, PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    private static Builder create(Action action, PlayableAdData adData, AdSessionEventArgs eventArgs) {
         final TrackSourceInfo trackSourceInfo = eventArgs.getTrackSourceInfo();
         return new AutoValue_AdRichMediaSessionEvent.Builder().id(defaultId())
                                                               .timestamp(defaultTimestamp())
@@ -182,7 +182,7 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
         abstract Builder sourceUrn(Optional<Urn> sourceUrn);
 
-        private Builder eventArgs(AdPlaybackSessionEventArgs eventArgs) {
+        private Builder eventArgs(AdSessionEventArgs eventArgs) {
             playheadPosition(eventArgs.getProgress());
             clickEventId(eventArgs.getUuid());
             protocol(eventArgs.getProtocol());

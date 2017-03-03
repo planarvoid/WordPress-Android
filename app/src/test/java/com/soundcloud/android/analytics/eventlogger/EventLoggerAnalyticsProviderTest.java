@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -21,7 +22,7 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AdsReceived;
@@ -483,7 +484,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlaybackImpressionEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+        AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.playing(),
                                                                               "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
@@ -501,7 +502,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdRichMediaEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+        AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.playing(),
                                                                               "123");
         AdRichMediaSessionEvent adRichEvent = AdRichMediaSessionEvent.forPlay(videoAd, adArgs);
@@ -519,8 +520,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdResumeEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        videoAd.setStartReported();
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+        videoAd.setEventReported(PlayableAdData.ReportingEvent.START_EVENT);
+        AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.playing(),
                                                                               "123");
         AdRichMediaSessionEvent adEvent = AdRichMediaSessionEvent.forPlay(videoAd, adArgs);
@@ -537,7 +538,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPauseEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+        AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.idle(),
                                                                               "123");
         AdRichMediaSessionEvent adEvent = AdRichMediaSessionEvent.forStop(videoAd,
@@ -555,7 +556,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdFinishEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+        AdSessionEventArgs adArgs = AdSessionEventArgs.create(trackSourceInfo,
                                                                               TestPlayerTransitions.idle(),
                                                                               "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,

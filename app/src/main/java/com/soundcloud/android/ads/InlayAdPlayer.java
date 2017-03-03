@@ -12,6 +12,7 @@ import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -135,6 +136,7 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
+        Log.d(Log.ADS_TAG, "InlayAdPlayer: " + stateTransition.toString());
         lastState = stateTransition;
 
         if (lastState.playbackEnded() || lastState.wasError()) {

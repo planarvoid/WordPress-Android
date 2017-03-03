@@ -15,12 +15,13 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -354,7 +355,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksImpressionAndStartAdEventsTogetherForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
@@ -375,8 +376,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksResumeAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        videoAd.setStartReported();
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        videoAd.setEventReported(PlayableAdData.ReportingEvent.START_EVENT);
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
@@ -393,7 +394,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksPauseAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                            args,
                                                                                            STOP_REASON_PAUSE);
@@ -412,7 +413,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksFinishAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
                                                                                            args,
                                                                                            STOP_REASON_TRACK_FINISHED);
@@ -437,7 +438,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void sendsTrackingEventAsap() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);

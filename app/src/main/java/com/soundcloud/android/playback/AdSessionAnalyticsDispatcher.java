@@ -1,139 +1,158 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdsOperations;
+import static com.soundcloud.android.ads.PlayableAdData.ReportingEvent;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason;
+
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.UUID;
+
 import java.util.concurrent.TimeUnit;
 
 class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
-    private static final Function<AdData, PlayableAdData> TO_PLAYER_AD = adData -> (PlayableAdData) adData;
-
     private final EventBus eventBus;
-    private final PlayQueueManager playQueueManager;
-    private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
 
-    private Optional<PlayableAdData> currentPlayingAd = Optional.absent();
-    private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
+    private Optional<AdInfo> adInfo = Optional.absent();
+    private boolean lastEventWasPlay;
 
     @Inject
-    public AdSessionAnalyticsDispatcher(EventBus eventBus,
-                                        PlayQueueManager playQueueManager,
-                                        AdsOperations adsOperations,
-                                        StopReasonProvider stopReasonProvider) {
+    public AdSessionAnalyticsDispatcher(EventBus eventBus, StopReasonProvider stopReasonProvider) {
         this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
-        this.adsOperations = adsOperations;
         this.stopReasonProvider = stopReasonProvider;
     }
 
-    @Override
-    public void onProgressEvent(PlaybackProgressEvent progressEvent) {
-        if (currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            final PlayableAdData adData = currentPlayingAd.get();
-            final PlaybackProgress progress = progressEvent.getPlaybackProgress();
-            if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
-                adData.setFirstQuartileReported();
-                publishAdQuartileEvent(AdPlaybackSessionEvent.forFirstQuartile(adData, currentTrackSourceInfo.get()));
-            } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
-                adData.setSecondQuartileReported();
-                publishAdQuartileEvent(AdPlaybackSessionEvent.forSecondQuartile(adData, currentTrackSourceInfo.get()));
-            } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
-                adData.setThirdQuartileReported();
-                publishAdQuartileEvent(AdPlaybackSessionEvent.forThirdQuartile(adData, currentTrackSourceInfo.get()));
-            }
+    public void setAdMetadata(PlayableAdData ad, @Nullable TrackSourceInfo sourceInfo) {
+        if (sourceInfo != null) {
+            adInfo = Optional.of(new AdInfo(ad, sourceInfo));
         }
     }
 
     @Override
     public void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
-        currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
-        if (!currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            currentPlayingAd = getPlayerAdDataIfAvailable();
-            if (currentPlayingAd.isPresent()) {
-                final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
-                sendPlayTrackingEvent(eventArgs);
-                currentPlayingAd.get().setStartReported();
-            } else {
-                ErrorUtils.handleSilentException(new IllegalStateException("AdSessionAnalyticsController couldn't retrieve ad data for play state: " + playStateEvent.getTransition()));
-            }
+        if (adInfo.isPresent() && !lastEventWasPlay) {
+            final PlayableAdData ad = adInfo.get().ad;
+            final TrackSourceInfo sourceInfo = adInfo.get().sourceInfo;
+            final AdSessionEventArgs eventArgs = buildArgs(sourceInfo, playStateEvent.getTransition());
+            sendPlayTrackingEvent(ad, eventArgs);
+            ad.setEventReported(ReportingEvent.START_EVENT);
         }
-    }
-
-    private Optional<PlayableAdData> getPlayerAdDataIfAvailable() {
-        Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
-        if (adData.isPresent() && adData.get() instanceof PlayableAdData) {
-            return adData.transform(TO_PLAYER_AD);
-        }
-        return Optional.absent();
     }
 
     @Override
     public void onStopTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
-        final PlaybackStateTransition transition = playStateEvent.getTransition();
-        publishStopEvent(transition, stopReasonProvider.fromTransition(transition));
+        if (adInfo.isPresent() && lastEventWasPlay) {
+            final PlaybackStateTransition transition = playStateEvent.getTransition();
+            final AdInfo adInfo = this.adInfo.get();
+            sendStopTrackingEvent(adInfo.ad, buildArgs(adInfo.sourceInfo, transition), stopReasonProvider.fromTransition(transition));
+        }
     }
 
     @Override
     public void onSkipTransition(PlayStateEvent playStateEvent) {
-        publishStopEvent(playStateEvent.getTransition(), StopReasonProvider.StopReason.STOP_REASON_SKIP);
+        if (adInfo.isPresent() && lastEventWasPlay) {
+            final AdInfo adInfo = this.adInfo.get();
+            sendStopTrackingEvent(adInfo.ad, buildArgs(adInfo.sourceInfo, playStateEvent.getTransition()), StopReason.STOP_REASON_SKIP);
+        }
     }
 
     @Override
-    public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent, PlaybackProgressEvent progressEvent) {
-        if (currentPlayingAd.isPresent() && previousPlayStateEvent.getPlayingItemUrn().equals(progressEvent.getUrn())) {
-            eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forCheckpoint(currentPlayingAd.get(), buildEventArgs(previousPlayStateEvent.getTransition(), progressEvent.getPlaybackProgress())));
+    public void onProgressCheckpoint(PlayStateEvent previousStateEvent, PlaybackProgressEvent progressEvent) {
+        if (adInfo.isPresent() && lastEventWasPlay && previousStateEvent.getPlayingItemUrn().equals(progressEvent.getUrn())) {
+            final AdInfo adInfo = this.adInfo.get();
+            final AdSessionEventArgs eventArgs = buildArgs(adInfo.sourceInfo, previousStateEvent.getTransition(), progressEvent.getPlaybackProgress());
+            eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forCheckpoint(adInfo.ad, eventArgs));
         }
     }
 
-    private void publishStopEvent(final PlaybackStateTransition stateTransition, final StopReasonProvider.StopReason stopReason) {
-        // Note that we only want to publish a stop event if we have a corresponding play event.
-        if (currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            sendStopTrackingEvent(stateTransition, stopReason);
-            currentPlayingAd = Optional.absent();
+    @Override
+    public void onProgressEvent(PlaybackProgressEvent progressEvent) {
+        if (adInfo.isPresent()) {
+            final PlayableAdData ad = adInfo.get().ad;
+            final TrackSourceInfo sourceInfo = adInfo.get().sourceInfo;
+            final PlaybackProgress progress = progressEvent.getPlaybackProgress();
+
+            if (shouldReportQuartileEvent(ReportingEvent.FIRST_QUARTILE, ad, progress)) {
+                reportQuartileEvent(ReportingEvent.FIRST_QUARTILE, ad, sourceInfo);
+            } else if (shouldReportQuartileEvent(ReportingEvent.SECOND_QUARTILE, ad, progress)) {
+                reportQuartileEvent(ReportingEvent.SECOND_QUARTILE, ad, sourceInfo);
+            } else if (shouldReportQuartileEvent(ReportingEvent.THIRD_QUARTILE, ad, progress)) {
+                reportQuartileEvent(ReportingEvent.THIRD_QUARTILE, ad, sourceInfo);
+            }
         }
     }
 
-    private void publishAdQuartileEvent(AdPlaybackSessionEvent adPlaybackSessionEvent) {
-        eventBus.publish(EventQueue.TRACKING, adPlaybackSessionEvent);
-    }
-
-    private AdPlaybackSessionEventArgs buildEventArgs(PlaybackStateTransition stateTransition) {
-        return buildEventArgs(stateTransition, stateTransition.getProgress());
-    }
-
-    private AdPlaybackSessionEventArgs buildEventArgs(PlaybackStateTransition stateTransition, PlaybackProgress playbackProgress) {
-        return AdPlaybackSessionEventArgs.createWithProgress(currentTrackSourceInfo.get(), playbackProgress, stateTransition,
-                                                             UUID.randomUUID().toString());
-    }
-
-    private void sendPlayTrackingEvent(AdPlaybackSessionEventArgs eventArgs) {
-        if (AdPlaybackSessionEvent.shouldTrackStart(currentPlayingAd.get())) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+    private boolean shouldReportQuartileEvent(ReportingEvent event, PlayableAdData ad, PlaybackProgress progress) {
+        final boolean hasReportedEvent = ad.hasReportedEvent(event);
+        switch (event) {
+            case FIRST_QUARTILE:
+                return !hasReportedEvent && progress.isPastFirstQuartile();
+            case SECOND_QUARTILE:
+                return !hasReportedEvent && progress.isPastSecondQuartile();
+            case THIRD_QUARTILE:
+                return !hasReportedEvent && progress.isPastThirdQuartile();
+            default:
+                return false;
         }
-        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
     }
 
-    private void sendStopTrackingEvent(PlaybackStateTransition stateTransition, StopReasonProvider.StopReason stopReason) {
+    private void reportQuartileEvent(ReportingEvent event, PlayableAdData ad, TrackSourceInfo sourceInfo) {
+        ad.setEventReported(event);
+        switch (event) {
+            case FIRST_QUARTILE:
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forFirstQuartile(ad, sourceInfo));
+                break;
+            case SECOND_QUARTILE:
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forSecondQuartile(ad, sourceInfo));
+                break;
+            case THIRD_QUARTILE:
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forThirdQuartile(ad, sourceInfo));
+                break;
+        }
+    }
+
+    private void sendPlayTrackingEvent(PlayableAdData ad, AdSessionEventArgs args) {
+        lastEventWasPlay = true;
+        if (AdPlaybackSessionEvent.shouldTrackStart(ad)) {
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(ad, args));
+        }
+        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forPlay(ad, args));
+    }
+
+    private void sendStopTrackingEvent(PlayableAdData ad, AdSessionEventArgs args, StopReason stopReason) {
+        lastEventWasPlay = false;
         if (AdPlaybackSessionEvent.shouldTrackFinish(stopReason)) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(ad, args, stopReason));
         }
-        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forStop(currentPlayingAd.get(), buildEventArgs(stateTransition), stopReason));
+        eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forStop(ad, args, stopReason));
     }
 
+    private AdSessionEventArgs buildArgs(TrackSourceInfo sourceInfo, PlaybackStateTransition transition) {
+        return buildArgs(sourceInfo, transition, transition.getProgress());
+    }
+
+    private AdSessionEventArgs buildArgs(TrackSourceInfo sourceInfo, PlaybackStateTransition transition, PlaybackProgress progress) {
+        return AdSessionEventArgs.createWithProgress(sourceInfo, progress, transition);
+    }
+
+    private static class AdInfo {
+        final PlayableAdData ad;
+        final TrackSourceInfo sourceInfo;
+
+        AdInfo(PlayableAdData adData, TrackSourceInfo sourceInfo) {
+            this.ad = adData;
+            this.sourceInfo = sourceInfo;
+        }
+    }
 }

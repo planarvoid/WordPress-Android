@@ -5,13 +5,15 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
-@AutoValue
-public abstract class AdPlaybackSessionEventArgs {
+import java.util.UUID;
 
-    public static AdPlaybackSessionEventArgs create(TrackSourceInfo trackSourceInfo,
-                                                    PlaybackStateTransition transition,
-                                                    String uuid) {
-        return new AutoValue_AdPlaybackSessionEventArgs(
+@AutoValue
+public abstract class AdSessionEventArgs {
+
+    public static AdSessionEventArgs create(TrackSourceInfo trackSourceInfo,
+                                            PlaybackStateTransition transition,
+                                            String uuid) {
+        return new AutoValue_AdSessionEventArgs(
                 trackSourceInfo,
                 transition.getProgress().getPosition(),
                 transition.getProgress().getDuration(),
@@ -20,17 +22,16 @@ public abstract class AdPlaybackSessionEventArgs {
                 uuid);
     }
 
-    public static AdPlaybackSessionEventArgs createWithProgress(TrackSourceInfo trackSourceInfo,
-                                                                PlaybackProgress playbackProgress,
-                                                                PlaybackStateTransition transition,
-                                                                String uuid) {
-        return new AutoValue_AdPlaybackSessionEventArgs(
+    public static AdSessionEventArgs createWithProgress(TrackSourceInfo trackSourceInfo,
+                                                        PlaybackProgress playbackProgress,
+                                                        PlaybackStateTransition transition) {
+        return new AutoValue_AdSessionEventArgs(
                 trackSourceInfo,
                 playbackProgress.getPosition(),
                 playbackProgress.getDuration(),
                 getProtocol(transition),
                 getPlayerType(transition),
-                uuid);
+                UUID.randomUUID().toString());
     }
 
     public abstract TrackSourceInfo getTrackSourceInfo();

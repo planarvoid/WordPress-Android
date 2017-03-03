@@ -28,7 +28,7 @@ import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AdsReceived;
@@ -807,9 +807,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaStreamPlayEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
-                                                                                       TestPlayerTransitions.playing(),
-                                                                                       CLIENT_EVENT_ID);
+        final AdSessionEventArgs eventArgs = AdSessionEventArgs.create(trackSourceInfo,
+                                                                       TestPlayerTransitions.playing(),
+                                                                       CLIENT_EVENT_ID);
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forPlay(audioAd, eventArgs);
@@ -840,9 +840,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaStreamPlayEventOmittingLocalPlaylist() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
-                                                                                       TestPlayerTransitions.playing(),
-                                                                                       CLIENT_EVENT_ID);
+        final AdSessionEventArgs eventArgs = AdSessionEventArgs.create(trackSourceInfo,
+                                                                       TestPlayerTransitions.playing(),
+                                                                       CLIENT_EVENT_ID);
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(Urn.newLocalPlaylist(), 2, Urn.forUser(321L));
         final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forPlay(audioAd, eventArgs);
@@ -870,9 +870,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaStreamStopEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
-                                                                                       TestPlayerTransitions.idle(),
-                                                                                       CLIENT_EVENT_ID);
+        final AdSessionEventArgs eventArgs = AdSessionEventArgs.create(trackSourceInfo,
+                                                                       TestPlayerTransitions.idle(),
+                                                                       CLIENT_EVENT_ID);
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forStop(audioAd,
@@ -1143,9 +1143,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdImpression() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo,
-                                                                                  TestPlayerTransitions.playing(),
-                                                                                  "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo,
+                                                                  TestPlayerTransitions.playing(),
+                                                                  "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
@@ -1160,9 +1160,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdFinish() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo,
-                                                                                  TestPlayerTransitions.idle(),
-                                                                                  "123");
+        final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo,
+                                                                  TestPlayerTransitions.idle(),
+                                                                  "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN),
                                                                             args,
                                                                             STOP_REASON_TRACK_FINISHED);

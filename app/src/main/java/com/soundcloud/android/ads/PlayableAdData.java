@@ -6,41 +6,21 @@ import java.util.List;
 
 public abstract class PlayableAdData extends AdData {
 
-    private boolean startEventsReported;
-    private boolean firstQuartileReported;
-    private boolean secondQuartileReported;
-    private boolean thirdQuartileReported;
-
-    public boolean hasReportedStart() {
-        return startEventsReported;
+    public enum ReportingEvent {
+        START_EVENT,
+        FIRST_QUARTILE,
+        SECOND_QUARTILE,
+        THIRD_QUARTILE
     }
 
-    public boolean hasReportedFirstQuartile() {
-        return firstQuartileReported;
+    private boolean[] eventsReported = new boolean[ReportingEvent.values().length];
+
+    public boolean hasReportedEvent(ReportingEvent event) {
+        return eventsReported[event.ordinal()];
     }
 
-    public boolean hasReportedSecondQuartile() {
-        return secondQuartileReported;
-    }
-
-    public boolean hasReportedThirdQuartile() {
-        return thirdQuartileReported;
-    }
-
-    public void setStartReported() {
-        startEventsReported = true;
-    }
-
-    public void setFirstQuartileReported() {
-        firstQuartileReported = true;
-    }
-
-    public void setSecondQuartileReported() {
-        secondQuartileReported = true;
-    }
-
-    public void setThirdQuartileReported() {
-        thirdQuartileReported = true;
+    public void setEventReported(ReportingEvent event) {
+        eventsReported[event.ordinal()] = true;
     }
 
     public abstract Optional<String> getCallToActionButtonText();

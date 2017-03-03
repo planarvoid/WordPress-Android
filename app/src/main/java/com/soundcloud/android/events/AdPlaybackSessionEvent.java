@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.ads.PlayableAdData.ReportingEvent;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO;
 
@@ -139,10 +140,10 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     public static boolean shouldTrackStart(PlayableAdData adData) {
-        return !adData.hasReportedStart();
+        return !adData.hasReportedEvent(ReportingEvent.START_EVENT);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+    public static AdPlaybackSessionEvent forPlay(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return AdPlaybackSessionEvent.create(EventKind.PLAY, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
                                      .eventName(Optional.of(EventName.IMPRESSION_EVENT))
                                      .impressionName(adData instanceof VideoAd ? Optional.of(ImpressionName.VIDEO_AD) : Optional.of(ImpressionName.AUDIO_AD))
@@ -154,7 +155,7 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         return stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayableAdData adData, AdPlaybackSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayableAdData adData, AdSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
         return AdPlaybackSessionEvent.create(EventKind.STOP, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
                                      .eventName(Optional.of(EventName.CLICK_EVENT))
                                      .clickName(Optional.of(ClickName.AD_FINISH))
@@ -174,7 +175,7 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
                .monetizableTrackUrn(adData.getMonetizableTrackUrn())
                .monetizationType(adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO)
                .trackingUrls(Optional.absent())
-               .shouldReportStartWithPlay(!adData.hasReportedStart())
+               .shouldReportStartWithPlay(!adData.hasReportedEvent(ReportingEvent.START_EVENT))
                .pageName(pageName)
                .clickName(Optional.absent())
                .impressionName(Optional.absent())
@@ -184,7 +185,7 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     private static List<String> getPlayEventTracking(PlayableAdData adData) {
         List<String> trackingUrls;
-        if (!adData.hasReportedStart()) {
+        if (!adData.hasReportedEvent(ReportingEvent.START_EVENT)) {
             trackingUrls = new ArrayList<>();
             trackingUrls.addAll(adData.getImpressionUrls());
             trackingUrls.addAll(adData.getStartUrls());

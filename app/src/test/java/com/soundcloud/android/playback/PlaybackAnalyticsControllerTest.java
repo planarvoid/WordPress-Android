@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -32,13 +33,15 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private TrackSessionAnalyticsDispatcher trackSessionDispatcher;
     @Mock private AdSessionAnalyticsDispatcher adSessionDispatcher;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private AdsOperations adsOperations;
 
     private PlaybackAnalyticsController controller;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlaybackAnalyticsController(trackSessionDispatcher, adSessionDispatcher, playQueueManager);
+        controller = new PlaybackAnalyticsController(trackSessionDispatcher, adSessionDispatcher, playQueueManager, adsOperations);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.absent());
     }
 
     @Test
@@ -147,6 +150,20 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPlaystateChangedSetsAdDataForPlaybackItem() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(track);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(videoAd));
+        playbackItem = VideoAdPlaybackItem.create(videoAd, 0L);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track, 0, 0);
+
+        controller.onStateTransition(playbackItem, wrap(transition));
+
+        verify(adSessionDispatcher).setAdMetadata(videoAd, null);
+    }
+
+    @Test
     public void onPlayTransitionSetsFlagForSameTrack() {
         PlaybackStateTransition transition1 = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                           PlayStateReason.NONE,
@@ -202,7 +219,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                          track, 0, 0);
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:123",
                                                                  track,
-                                                                 Optional.<Urn>absent(),
+                                                                 Optional.absent(),
                                                                  Collections.EMPTY_LIST);
         promotedInfo.setPlaybackStarted();
         PlaySessionSource sessionSource = new PlaySessionSource("stream");
