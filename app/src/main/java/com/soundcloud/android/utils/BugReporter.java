@@ -1,10 +1,18 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.ApplicationModule.BUG_REPORTER;
+import static java.lang.String.format;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.java.strings.Charsets;
+import okio.Okio;
+import rx.Observable;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -12,25 +20,29 @@ import android.support.annotation.ArrayRes;
 import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
-import java.io.IOException;
+import java.util.Locale;
 
 public class BugReporter {
 
     private final ApplicationProperties applicationProperties;
     private final DeviceHelper deviceHelper;
     private final Resources resources;
+    private final Scheduler scheduler;
 
     private static final String EMAIL_MESSAGE_FORMAT_RFC822 = "message/rfc822";
     private static final String LOGCAT_FILE_NAME = "logcat.txt";
 
     @Inject
-    public BugReporter(ApplicationProperties applicationProperties,
-                       DeviceHelper deviceHelper,
-                       Resources resources) {
+    BugReporter(ApplicationProperties applicationProperties,
+                DeviceHelper deviceHelper,
+                Resources resources,
+                @Named(BUG_REPORTER) Scheduler scheduler) {
         this.applicationProperties = applicationProperties;
         this.deviceHelper = deviceHelper;
         this.resources = resources;
+        this.scheduler = scheduler;
     }
 
     public void showGeneralFeedbackDialog(final Context context) {
@@ -62,27 +74,36 @@ public class BugReporter {
     }
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType(EMAIL_MESSAGE_FORMAT_RFC822);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, body);
+
         File outputFile = IOUtils.getExternalStorageDir(context, LOGCAT_FILE_NAME);
-
-        if (outputFile == null) return;
-
-        outputFile.delete();
-
-        try {
-            String writeLogcatToFileCommand = String.format("logcat -v time -df %s", outputFile.getAbsolutePath());
-            Runtime.getRuntime().exec(writeLogcatToFileCommand);
-
-            Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
-            i.putExtra(Intent.EXTRA_EMAIL, new String[]{toEmail});
-            i.putExtra(Intent.EXTRA_SUBJECT, subject);
-            i.putExtra(Intent.EXTRA_TEXT, body);
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
-            context.startActivity(Intent.createChooser(i, chooserText));
-
-        } catch (IOException e) {
-            ErrorUtils.handleSilentException(e);
-            AndroidUtils.showToast(context, R.string.feedback_unable_to_get_logs);
+        if (outputFile == null) {
+            Log.e("Failed to get external storage directory for logcat file. Sending bug report without logs.");
+            context.startActivity(Intent.createChooser(intent, chooserText));
+            return;
         }
+
+        Observable.fromCallable(() -> {
+            if (outputFile.exists() && !outputFile.delete()) {
+                throw new RuntimeException("Failed to delete file: " + outputFile.getAbsolutePath());
+            }
+            Process logcatProcess = new ProcessBuilder()
+                    .redirectErrorStream(true)
+                    .command("logcat", "-v", "time", "-df", outputFile.getAbsolutePath())
+                    .start();
+            int exitCode = logcatProcess.waitFor();
+            if (exitCode != 0) {
+                String output = Okio.buffer(Okio.source(logcatProcess.getInputStream())).readString(Charsets.UTF_8);
+                throw new RuntimeException(format(Locale.US, "logcat failed with exit code %d. Output: %s", exitCode, output));
+            }
+            return null;
+        }).subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(LambdaSubscriber.onNext(t -> {
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
+            context.startActivity(Intent.createChooser(intent, chooserText));
+        }));
     }
 }

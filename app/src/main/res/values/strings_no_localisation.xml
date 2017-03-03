@@ -23,7 +23,6 @@
     <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
-    <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
     <string name="search_text_transition_name">search_text_view</string>
     <string name="search_text_holder_transition_name">search_text_holder</string>

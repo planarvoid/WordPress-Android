@@ -51,6 +51,7 @@ import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
@@ -73,6 +74,7 @@ import android.telephony.TelephonyManager;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 @Module(
         includes = {
@@ -93,6 +95,7 @@ public class ApplicationModule {
     public static final String HIGH_PRIORITY = "HighPriority";
     public static final String LOW_PRIORITY = "LowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
+    public static final String BUG_REPORTER = "BugReporter";
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
     public static final String DEFAULT_LIST_PAGE_SIZE = "DefaultListPageSize";
 
@@ -259,6 +262,13 @@ public class ApplicationModule {
     @Named(LOW_PRIORITY)
     public Scheduler provideLowPriorityScheduler() {
         return ScSchedulers.LOW_PRIO_SCHEDULER;
+    }
+
+    @Provides
+    @Singleton
+    @Named(BUG_REPORTER)
+    protected Scheduler provideBugReporterExecutor() {
+        return Schedulers.from(Executors.newSingleThreadExecutor(r -> new Thread(r, "bugReporterThread")));
     }
 
     @Provides
