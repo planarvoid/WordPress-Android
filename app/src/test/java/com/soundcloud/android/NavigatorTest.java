@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.analytics.EventTracker;
@@ -55,7 +54,6 @@ import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
@@ -174,8 +172,6 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openUpgrade() {
-        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
-
         navigator.openUpgrade(activityContext);
 
         assertThat(activityContext).nextStartedIntent().opensActivity(ConversionActivity.class);

@@ -603,7 +603,6 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profile</string>
-  <string name="collections_upsell_title_legacy">Get SoundCloud Go</string>
   <string name="collections_upsell_title">Get SoundCloud Go+</string>
   <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
   <string name="collections_recently_played_clear_action">Clear recently played</string>
@@ -633,7 +632,6 @@
   <string name="more_view_public_profile">View public profile</string>
   <string name="more_app_version">App version %s</string>
   <string name="more_subscription">Subscription</string>
-  <string name="more_upsell_legacy">Upgrade to SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
   <string name="stream_track_header_text">%1$s %2$s a track</string>
@@ -661,7 +659,6 @@
   <!--__CONVERSION-->
   <string name="conversion_page_title">Subscribe</string>
   <string name="conversion_title">Discover more with SoundCloud Go+</string>
-  <string name="conversion_title_legacy">Discover more with SoundCloud Go</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
   <string name="conversion_buy_loading">Loading…</string>
@@ -724,10 +721,8 @@
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
-  <string name="go_onboarding_landing_title_legacy">Welcome to SoundCloud Go!</string>
   <string name="go_onboarding_landing_body">Things are a little different now, in a good way</string>
   <string name="go_onboarding_full_tracks_body">All previews are now full tracks with SoundCloud Go+</string>
-  <string name="go_onboarding_full_tracks_body_legacy">All previews are now full tracks with SoundCloud Go</string>
   <string name="go_onboarding_offline_title">Listen anywhere, anytime</string>
   <string name="go_onboarding_offline_body">Take your music with you. Tap the arrow to download for offline listening</string>
   <string name="go_onboarding_no_ads_title">No adverts</string>
@@ -829,11 +824,8 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Go ad‑free</string>
-  <string name="upsell_upgrade_button_legacy">Get SoundCloud Go</string>
   <string name="upsell_upgrade_button">Get SoundCloud Go+</string>
-  <string name="upsell_stream_upgrade_title_legacy">Unlock previews with SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad‑free and offline listening.</string>
-  <string name="upsell_playlist_upgrade_title_legacy">Play full tracks with SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
@@ -851,16 +843,13 @@
   <string name="playback_error_blocked">Not available in\nyour country</string>
   <string name="playback_upsell_1">No more previews, just full tracks</string>
   <string name="playback_upsell_2">Get full tracks, offline &amp; ad free</string>
-  <string name="playback_upsell_button_legacy">Get SoundCloud Go</string>
   <string name="playback_upsell_button">Get SoundCloud Go+</string>
-  <string name="playback_upsell_button_trial_legacy">Try SoundCloud Go</string>
   <string name="playback_upsell_button_trial">Try SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">New for you</string>
   <string name="new_for_you_intro">A daily playlist of fresh, recently posted tracks. Just for you.</string>
   <string name="new_for_you_action">See playlist</string>
   <!--__SEARCH-->
-  <string name="search_premium_content_view_all_legacy">See all SoundCloud Go results</string>
   <string name="search_premium_content_view_all">See all SoundCloud Go+ results</string>
   <string name="search_premium_content_upsell">Upgrade to hear full tracks</string>
   <!--__NOTIFICATION SETTINGS-->

@@ -23,8 +23,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
 
-public class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
     @BindView(R.id.image) ImageView image;
     @BindView(R.id.title) TextView title;
     @BindView(R.id.creator) TextView creator;
@@ -43,10 +43,10 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     private final Navigator navigator;
     private final Resources resources;
 
-    public TrackCardViewHolder(View view,
-                               ImageOperations imageOperations,
-                               Navigator navigator,
-                               Resources resources) {
+    TrackCardViewHolder(View view,
+                        ImageOperations imageOperations,
+                        Navigator navigator,
+                        Resources resources) {
         super(view);
         this.imageOperations = imageOperations;
         this.navigator = navigator;
@@ -112,7 +112,7 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         }
     }
 
-    public void resetAdditionalInformation() {
+    void resetAdditionalInformation() {
         playCount.setVisibility(View.GONE);
         nowPlaying.setVisibility(View.GONE);
 
@@ -121,11 +121,11 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         }
     }
 
-    public void showNowPlaying() {
+    void showNowPlaying() {
         nowPlaying.setVisibility(View.VISIBLE);
     }
 
-    public void showPlayCount(String countString) {
+    void showPlayCount(String countString) {
         playCount.setText(countString);
         playCount.setVisibility(View.VISIBLE);
     }
@@ -148,24 +148,23 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         creator.setText(name);
     }
 
-    public void setArtistClickable(View.OnClickListener clickListener) {
+    private void setArtistClickable(View.OnClickListener clickListener) {
         creator.setOnClickListener(clickListener);
     }
 
-    public void bindArtworkView(PlayableItem playableItem, boolean selected) {
+    void bindArtworkView(PlayableItem playableItem) {
         loadArtwork(playableItem);
         setTitle(playableItem.title());
         setArtist(playableItem.creatorName());
         setArtistClickable(new ProfileClickViewListener(playableItem.creatorUrn()));
-        setupTierIndicator(playableItem, selected);
+        setupTierIndicator(playableItem);
     }
 
-    private void setupTierIndicator(PlayableItem playableItem, boolean selected) {
+    private void setupTierIndicator(PlayableItem playableItem) {
         safeSetVisibility(goIndicator, View.GONE);
         if (playableItem instanceof TieredTrack) {
             TieredTrack track = (TieredTrack) playableItem;
             if (isHighTierPreview(track) || isFullHighTierTrack(track)) {
-                safeSetSelected(goIndicator, selected);
                 safeSetVisibility(goIndicator, View.VISIBLE);
             }
         }

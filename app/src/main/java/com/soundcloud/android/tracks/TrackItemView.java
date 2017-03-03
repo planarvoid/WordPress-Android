@@ -60,12 +60,12 @@ public class TrackItemView {
         overflowButton = view.findViewById(R.id.overflow_button);
     }
 
-    public void showOverflow(OverflowListener overflowListener) {
+    void showOverflow(OverflowListener overflowListener) {
         overflowButton.setVisibility(View.VISIBLE);
         setUpOverflowListener(overflowListener);
     }
 
-    public void setUpOverflowListener(OverflowListener overflowListener) {
+    private void setUpOverflowListener(OverflowListener overflowListener) {
         overflowButton.setOnClickListener(v -> {
             if (overflowListener != null) {
                 overflowListener.onOverflow(v);
@@ -82,7 +82,7 @@ public class TrackItemView {
         title.setTextColor(getColor(titleColor));
     }
 
-    public void showPosition(int index) {
+    void showPosition(int index) {
         leftSpacer.setVisibility(View.GONE);
         position.setText(String.valueOf(index));
         position.setVisibility(View.VISIBLE);
@@ -92,7 +92,7 @@ public class TrackItemView {
         return getContext().getResources().getColor(color);
     }
 
-    public void showDuration(String duration) {
+    void showDuration(String duration) {
         this.duration.setText(duration);
         this.duration.setVisibility(View.VISIBLE);
     }
@@ -101,58 +101,54 @@ public class TrackItemView {
         this.duration.setVisibility(View.GONE);
     }
 
-    public void showPromotedTrack(String text) {
+    void showPromotedTrack(String text) {
         promoted.setVisibility(View.VISIBLE);
         promoted.setText(text);
     }
 
-    public void showPostedTime(Date date) {
+    void showPostedTime(Date date) {
         postedTime.setVisibility(View.VISIBLE);
         postedTime.setText(getResources().getString(R.string.posted_time,
                                                     formatTimeElapsedSince(getResources(), date.getTime(), true)));
     }
 
-    public void showPlaysAndPostedTime(String playCount, Date date) {
+    void showPlaysAndPostedTime(String playCount, Date date) {
         playsAndPostedTime.setVisibility(View.VISIBLE);
         playsAndPostedTime.setText(getResources().getString(R.string.plays_and_posted_time, playCount,
                                                     formatTimeElapsedSince(getResources(), date.getTime(), true)));
     }
 
-    public void showGeoBlocked() {
+    void showGeoBlocked() {
         geoBlocked.setVisibility(View.VISIBLE);
     }
 
-    public void setPromotedClickable(View.OnClickListener clickListener) {
+    void setPromotedClickable(View.OnClickListener clickListener) {
         ViewUtils.setTouchClickable(promoted, clickListener);
     }
 
-    public void showPreviewLabel() {
+    void showPreviewLabel() {
         previewIndicator.setVisibility(View.VISIBLE);
     }
 
-    public void setGoLabelSelected(boolean selected) {
-        goIndicator.setSelected(selected);
-    }
-
-    public void showGoLabel() {
+    void showGoLabel() {
         goIndicator.setVisibility(View.VISIBLE);
     }
 
-    public void showNowPlaying() {
+    void showNowPlaying() {
         nowPlaying.setVisibility(View.VISIBLE);
     }
 
-    public void showPrivateIndicator() {
+    void showPrivateIndicator() {
         privateIndicator.setVisibility(View.VISIBLE);
     }
 
-    public void hideInfoViewsRight() {
+    void hideInfoViewsRight() {
         previewIndicator.setVisibility(View.GONE);
         privateIndicator.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
 
-    public void hideInfosViewsBottom() {
+    void hideInfosViewsBottom() {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
@@ -164,7 +160,7 @@ public class TrackItemView {
         ViewUtils.unsetTouchClickable(promoted);
     }
 
-    public void showPlaycount(String playcount) {
+    void showPlaycount(String playcount) {
         playCount.setText(playcount);
         playCount.setVisibility(View.VISIBLE);
     }
@@ -190,11 +186,11 @@ public class TrackItemView {
         return title.getResources();
     }
 
-    public void showNotAvailableOffline() {
+    void showNotAvailableOffline() {
         notAvailableOffline.setVisibility(View.VISIBLE);
     }
 
-    public interface OverflowListener {
+    interface OverflowListener {
         void onOverflow(View overflowButton);
     }
 
@@ -221,11 +217,11 @@ public class TrackItemView {
             this.primaryTitleColor = primaryTitleColor;
         }
 
-        public int getDisabledTitleColor() {
+        int getDisabledTitleColor() {
             return disabledTitleColor;
         }
 
-        public int getPrimaryTitleColor() {
+        int getPrimaryTitleColor() {
             return primaryTitleColor;
         }
 

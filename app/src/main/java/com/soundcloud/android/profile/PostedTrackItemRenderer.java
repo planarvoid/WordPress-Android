@@ -4,7 +4,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -21,15 +20,14 @@ import java.util.List;
 class PostedTrackItemRenderer extends TrackItemRenderer {
 
     @Inject
-    public PostedTrackItemRenderer(ImageOperations imageOperations,
-                                   CondensedNumberFormatter numberFormatter,
-                                   TrackItemMenuPresenter trackItemMenuPresenter,
-                                   EventBus eventBus, ScreenProvider screenProvider,
-                                   Navigator navigator, FeatureOperations featureOperations,
-                                   TrackItemView.Factory trackItemViewFactory,
-                                   FeatureFlags flags) {
+    PostedTrackItemRenderer(ImageOperations imageOperations,
+                            CondensedNumberFormatter numberFormatter,
+                            TrackItemMenuPresenter trackItemMenuPresenter,
+                            EventBus eventBus, ScreenProvider screenProvider,
+                            Navigator navigator, FeatureOperations featureOperations,
+                            TrackItemView.Factory trackItemViewFactory) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
-              screenProvider, navigator, featureOperations, trackItemViewFactory, flags);
+              screenProvider, navigator, featureOperations, trackItemViewFactory);
     }
 
     @Override

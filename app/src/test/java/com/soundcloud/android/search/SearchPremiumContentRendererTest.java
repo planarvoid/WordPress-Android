@@ -73,8 +73,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
                                                     userRenderer,
                                                     resources(),
                                                     numberFormatter,
-                                                    featureOperations,
-                                                    flags);
+                                                    featureOperations);
     }
 
     @Test

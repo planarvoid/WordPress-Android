@@ -37,14 +37,13 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.PlayerUpsellView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
-import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -95,7 +94,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
     @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
     @Mock private CastPlayerStripController castPlayerStripController;
-    @Mock private FeatureFlags flags;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -126,8 +124,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            castConnectionHelper,
                                            resources(),
                                            upsellImpressionController,
-                                           upsellCopyExperiment,
-                                           flags);
+                                           upsellCopyExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

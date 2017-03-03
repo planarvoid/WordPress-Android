@@ -25,7 +25,6 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -90,13 +89,11 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          appProperties,
                                          storage,
                                          configurationOperations,
-                                         flags,
                                          feedbackController);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
     }
 
     @Test
@@ -308,7 +305,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView, never()).setSubscriptionTier(anyString());
-        verify(moreView, never()).showHighTierUpsell(anyString());
+        verify(moreView, never()).showHighTierUpsell();
         verify(moreView, never()).showOfflineSettings();
     }
 
@@ -320,7 +317,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_free));
-        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell));
+        verify(moreView).showHighTierUpsell();
         verify(moreView, never()).showOfflineSettings();
     }
 
@@ -334,42 +331,21 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_go));
-        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell));
+        verify(moreView).showHighTierUpsell();
         verify(moreView).showOfflineSettings();
     }
 
     @Test
     public void configureSubsSettingsForHighTierUser() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         initFragment();
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_plus));
-        verify(moreView, never()).showHighTierUpsell(anyString());
+        verify(moreView, never()).showHighTierUpsell();
         verify(moreView).showOfflineSettings();
-    }
-
-    @Test
-    public void usesLegacyHighTierLabelIfMidTierIsNotEnabled() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
-
-        initFragment();
-
-        verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_go));
-    }
-
-    @Test
-    public void usesLegacyUpsellLabelIfMidTierIsNotEnabled() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
-
-        initFragment();
-
-        verify(moreView).showHighTierUpsell(resources().getString(R.string.more_upsell_legacy));
     }
 
     private void initFragment() {

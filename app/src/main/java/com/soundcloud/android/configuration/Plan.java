@@ -1,9 +1,11 @@
 package com.soundcloud.android.configuration;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.UserPlan.Upsell;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,15 +15,17 @@ import java.util.Set;
 
 public enum Plan {
 
-    UNDEFINED("undefined"),
-    FREE_TIER("none"),
-    MID_TIER("mid_tier"),
-    HIGH_TIER("high_tier");
+    UNDEFINED("undefined", R.string.tier_free),
+    FREE_TIER("none", R.string.tier_free),
+    MID_TIER("mid_tier", R.string.tier_go),
+    HIGH_TIER("high_tier", R.string.tier_plus);
 
     public final String planId;
+    @StringRes public final int tierName;
 
-    Plan(String planId) {
+    Plan(String planId, @StringRes int tierName) {
         this.planId = planId;
+        this.tierName = tierName;
     }
 
     public boolean isUpgradeFrom(@NonNull Plan existingPlan) {

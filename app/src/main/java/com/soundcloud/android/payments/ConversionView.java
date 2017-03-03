@@ -3,8 +3,6 @@ package com.soundcloud.android.payments;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.LoadingButton;
 
 import android.content.res.Resources;
@@ -22,21 +20,18 @@ class ConversionView {
 
     private final Resources resources;
     private final ProductInfoFormatter formatter;
-    private final FeatureFlags flags;
 
     private FragmentManager fragmentManager;
 
-    @BindView(R.id.conversion_title) TextView title;
     @BindView(R.id.conversion_buy) LoadingButton buyButton;
     @BindView(R.id.conversion_price) TextView priceView;
     @BindView(R.id.conversion_restrictions) TextView restrictionsView;
     @BindView(R.id.conversion_more_products) Button moreButton;
 
     @Inject
-    ConversionView(Resources resources, ProductInfoFormatter formatter, FeatureFlags flags) {
+    ConversionView(Resources resources, ProductInfoFormatter formatter) {
         this.resources = resources;
         this.formatter = formatter;
-        this.flags = flags;
     }
 
     interface Listener {
@@ -48,9 +43,6 @@ class ConversionView {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         setupListener(listener);
-        title.setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                      ? R.string.conversion_title
-                      : R.string.conversion_title_legacy);
     }
 
     private void setupListener(final Listener listener) {

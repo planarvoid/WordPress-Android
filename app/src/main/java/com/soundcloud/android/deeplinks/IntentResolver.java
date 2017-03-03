@@ -15,8 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -35,6 +33,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 public class IntentResolver {
+
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
     private final PlaybackServiceController serviceController;
@@ -45,7 +44,6 @@ public class IntentResolver {
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final ChartsUriResolver chartsUriResolver;
-    private final FeatureFlags featureFlags;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -57,8 +55,7 @@ public class IntentResolver {
                    EventBus eventBus,
                    Navigator navigator,
                    FeatureOperations featureOperations,
-                   ChartsUriResolver chartsUriResolver,
-                   FeatureFlags featureFlags) {
+                   ChartsUriResolver chartsUriResolver) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -69,7 +66,6 @@ public class IntentResolver {
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.chartsUriResolver = chartsUriResolver;
-        this.featureFlags = featureFlags;
     }
 
     void handleIntent(Intent intent, Context context) {
@@ -262,8 +258,7 @@ public class IntentResolver {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
             Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
             openFallback(context, referrer);
-        } else if (featureOperations.upsellHighTierAndMidTier()
-                && featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)) {
+        } else if (featureOperations.upsellHighTierAndMidTier()) {
             trackForegroundEvent(referrer, Screen.CONVERSION);
             navigator.openProductChoiceOnMain(context, plan);
         } else {

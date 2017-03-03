@@ -132,7 +132,7 @@
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/more_upsell"
                     style="@style/More.NavItem.Upsell"
-                    android:text="@string/more_upsell_legacy" />
+                    android:text="@string/more_upsell" />
             </LinearLayout>
 
             <View style="@style/Divider.Section" />

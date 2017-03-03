@@ -602,7 +602,6 @@
   <string name="collections_recently_played_playlist">afspeellijst</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profiel</string>
-  <string name="collections_upsell_title_legacy">SoundCloud Go downloaden</string>
   <string name="collections_upsell_title">Abonneer je op SoundCloud Go+</string>
   <string name="collections_upsell_body">Luister naar je likes, afspeellijsten en albums, offline en reclamevrij</string>
   <string name="collections_recently_played_clear_action">Lijst met recent afgespeelde tracks wissen</string>
@@ -633,7 +632,6 @@
   <string name="more_app_version">App-versie %s</string>
   <string name="more_subscription">Abonnement</string>
   <string name="more_subscription_check">Ben je al abonnee? Ga nu kijken</string>
-  <string name="more_upsell_legacy">Upgraden naar SoundCloud Go</string>
   <string name="more_upsell">Upgraden naar SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s een afspeellijst</string>
@@ -662,7 +660,6 @@
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
   <string name="conversion_title">Ontdek meer met SoundCloud Go+</string>
-  <string name="conversion_title_legacy">Ontdek meer met SoundCloud Go</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
   <string name="conversion_description">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie tracks ooit</string>
@@ -735,12 +732,9 @@
   <string name="offline_no_connection">Geen verbinding</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welkom bij SoundCloud Go+</string>
-  <string name="go_onboarding_landing_title_legacy">Welkom bij SoundCloud Go!</string>
   <string name="go_onboarding_landing_body">Er zijn nu wat dingen anders, maar alleen in positieve zin</string>
   <string name="go_onboarding_full_tracks_title">Miljoenen SoundCloud Go+-tracks</string>
   <string name="go_onboarding_full_tracks_body">Alle previews zijn nu volledige tracks met SoundCloud Go+</string>
-  <string name="go_onboarding_full_tracks_title_legacy">Miljoenen SoundCloud Go-tracks</string>
-  <string name="go_onboarding_full_tracks_body_legacy">Alle previews zijn nu volledige tracks met SoundCloud Go</string>
   <string name="go_onboarding_offline_title">Overal en altijd luisteren</string>
   <string name="go_onboarding_offline_body">Neem je muziek met je mee. Tik op de pijl om tracks te downloaden voor offline luisteren.</string>
   <string name="go_onboarding_no_ads_title">Geen reclame</string>
@@ -758,7 +752,6 @@
   <!--__GO OFFBOARDING-->
   <string name="go_offboard_to_free_title">We zullen je missen</string>
   <string name="go_offboard_to_free_description">Je abonnement is verlopen.\n\nJe kunt nu niet meer offline en reclamevrij luisteren, en Go+-tracks kunnen alleen nog als previews worden afgespeeld. Maak je geen zorgen: je kunt je altijd weer opnieuw abonneren.</string>
-  <string name="go_offboard_to_free_description_legacy">Je abonnement is verlopen.\n\nJe kunt nu niet meer offline en reclamevrij luisteren, en Go-tracks kunnen alleen nog als previews worden afgespeeld. Maak je geen zorgen: je kunt je altijd weer opnieuw abonneren.</string>
   <string name="go_offboard_to_mid_title">Abonnementswijziging</string>
   <string name="go_offboard_to_mid_description">Je bent overgestapt van SoundCloud Go+ op SoundCloud Go.\n\nJe kunt nog steeds offline en reclamevrij luisteren, maar Go+-tracks kunnen alleen nog als previews worden afgespeeld. Maak je geen zorgen: je kunt altijd weer terugschakelen.</string>
   <string name="go_offboard_resubscribe">Opnieuw abonneren</string>
@@ -849,12 +842,9 @@
   <string name="set_type_compilation_label_for_text">compilatie</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Kies voor reclamevrij</string>
-  <string name="upsell_upgrade_button_legacy">SoundCloud Go downloaden</string>
   <string name="upsell_upgrade_button">Abonneer je op SoundCloud Go+</string>
-  <string name="upsell_stream_upgrade_title_legacy">Ontgrendel previews met SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Ontgrendel previews met SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_description">Krijg volledige toegang tot \'s werelds grootste catalogus met muziek- en audiostreaming, met reclamevrij en offline luisteren.</string>
-  <string name="upsell_playlist_upgrade_title_legacy">Speel volledige tracks af met SoundCloud Go</string>
   <string name="upsell_playlist_upgrade_title">Speel volledige tracks af met SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">Geen previews meer. Luister naar elke seconde van elke track.</string>
   <string name="upsell_track_preview">Voorbeeld</string>
@@ -872,24 +862,17 @@
   <string name="playback_error_blocked">Niet beschikbaar in\njouw land</string>
   <string name="playback_upsell_1">Geen previews meer, alleen maar volledige tracks</string>
   <string name="playback_upsell_2">Krijg volledige tracks, offline en reclamevrij</string>
-  <string name="playback_upsell_button_legacy">SoundCloud Go downloaden</string>
   <string name="playback_upsell_button">Abonneer je op SoundCloud Go+</string>
-  <string name="playback_upsell_button_trial_legacy">SoundCloud Go proberen</string>
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">Nieuw voor jou</string>
   <string name="new_for_you_intro">Een dagelijkse afspeellijst met verse, recent geposte tracks. Speciaal voor jou.</string>
   <string name="new_for_you_action">Afspeellijst weergeven</string>
   <!--__SEARCH-->
-  <plurals name="search_premium_content_results_count_legacy">
-    <item quantity="one">%1$d SoundCloud Go-resultaat gevonden</item>
-    <item quantity="other">%1$d SoundCloud Go-resultaten gevonden</item>
-  </plurals>
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$d SoundCloud Go+-resultaat gevonden</item>
     <item quantity="other">%1$d SoundCloud Go+-resultaten gevonden</item>
   </plurals>
-  <string name="search_premium_content_view_all_legacy">Zie alle SoundCloud Go-resultaten</string>
   <string name="search_premium_content_view_all">Zie alle SoundCloud Go+-resultaten</string>
   <string name="search_premium_content_upsell">Upgrade om volledige tracks te horen</string>
   <!--__NOTIFICATION SETTINGS-->

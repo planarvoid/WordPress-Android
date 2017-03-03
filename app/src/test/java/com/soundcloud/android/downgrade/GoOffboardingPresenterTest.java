@@ -15,8 +15,6 @@ import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -40,7 +38,6 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
     @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private PlanChangeOperations planChangeOperations;
     @Mock private AppCompatActivity activity;
-    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
     private GoOffboardingViewStub view;
@@ -52,8 +49,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(fragment.getActivity()).thenReturn(activity);
         when(fragment.getContext()).thenReturn(activity);
         when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.FREE_TIER);
-        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
-        view = new GoOffboardingViewStub(featureFlags);
+        view = new GoOffboardingViewStub();
         presenter = new GoOffboardingPresenter(navigator, pendingPlanOperations, planChangeOperations, view, eventBus);
     }
 
@@ -313,8 +309,8 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         private boolean isContinueButtonRetry;
         private boolean isErrorDialogShown;
 
-        GoOffboardingViewStub(FeatureFlags flags) {
-            super(flags);
+        GoOffboardingViewStub() {
+            super();
         }
 
         @Override

@@ -27,8 +27,7 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @BindView(R.id.more_version_text) TextView versionText;
     @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
     @BindView(R.id.more_report_bug) View reportBug;
-    @BindView(R.id.more_upsell_block) View upsellBlock;
-    @BindView(R.id.more_upsell) TextView upsell;
+    @BindView(R.id.more_upsell_block) View upsell;
     @BindView(R.id.more_subscription_block) View subscriptionBlock;
     @BindView(R.id.more_subscription_tier) TextView tier;
     @BindView(R.id.more_restore_subscription_block) View restoreBlock;
@@ -77,13 +76,12 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         subscriptionBlock.setVisibility(View.VISIBLE);
     }
 
-    void showHighTierUpsell(String upsellText) {
-        upsellBlock.setVisibility(View.VISIBLE);
-        upsell.setText(upsellText);
+    void showHighTierUpsell() {
+        upsell.setVisibility(View.VISIBLE);
     }
 
     boolean isUpsellVisible() {
-        return upsellBlock.getVisibility() == View.VISIBLE;
+        return upsell.getVisibility() == View.VISIBLE;
     }
 
     void showRestoreSubscription() {

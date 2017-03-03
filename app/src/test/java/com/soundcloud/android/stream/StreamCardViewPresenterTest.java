@@ -25,7 +25,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -64,7 +63,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                                                navigator, resources(), imageOperations, flags);
+                                                navigator, resources(), imageOperations);
 
         when(itemView.getImage()).thenReturn(imageView);
         when(itemView.getUserImage()).thenReturn(imageView);
@@ -237,24 +236,6 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
                         any(ImageResource.class),
                         any(ApiImageSize.class),
                         any(ImageView.class));
-    }
-
-    @Test
-    public void bindsGoLabelAsSelected() {
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
-
-        TrackItem trackItem = upsellableTrack();
-        presenter.bind(itemView, trackItem, EventContextMetadata.builder());
-
-        verify(itemView).setGoIndicatorSelected(true);
-    }
-
-    @Test
-    public void bindsGoLabelAsNotSelected() {
-        TrackItem trackItem = upsellableTrack();
-        presenter.bind(itemView, trackItem, EventContextMetadata.builder());
-
-        verify(itemView).setGoIndicatorSelected(false);
     }
 
     @Test

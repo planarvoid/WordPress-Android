@@ -18,8 +18,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
@@ -56,7 +54,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
     private final ConfigurationOperations configurationOperations;
-    private final FeatureFlags featureFlags;
     private final FeedbackController feedbackController;
 
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -79,7 +76,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                      ApplicationProperties appProperties,
                      OfflineSettingsStorage settingsStorage,
                      ConfigurationOperations configurationOperations,
-                     FeatureFlags featureFlags,
                      FeedbackController feedbackController) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
@@ -94,7 +90,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.appProperties = appProperties;
         this.settingsStorage = settingsStorage;
         this.configurationOperations = configurationOperations;
-        this.featureFlags = featureFlags;
         this.feedbackController = feedbackController;
     }
 
@@ -136,26 +131,13 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     private void setupTier(MoreView moreView) {
-        // Ideally tier name resource IDs can be part of the Plan enum, but we need to flag the rename for now
-        switch (featureOperations.getCurrentPlan()) {
-            case HIGH_TIER:
-                moreView.setSubscriptionTier(resources.getString(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                                                                 ? R.string.tier_plus
-                                                                 : R.string.tier_go));
-                break;
-            case MID_TIER:
-                moreView.setSubscriptionTier(resources.getString(R.string.tier_go));
-                break;
-            default:
-                moreView.setSubscriptionTier(resources.getString(R.string.tier_free));
-        }
+        String tierName = resources.getString(featureOperations.getCurrentPlan().tierName);
+        moreView.setSubscriptionTier(tierName);
     }
 
     private void setupUpsell(MoreView moreView) {
         if (featureOperations.upsellHighTier()) {
-            moreView.showHighTierUpsell(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                                        ? resources.getString(R.string.more_upsell)
-                                        : resources.getString(R.string.more_upsell_legacy));
+            moreView.showHighTierUpsell();
         }
         if (!featureOperations.getCurrentPlan().isGoPlan()) {
             moreView.showRestoreSubscription();

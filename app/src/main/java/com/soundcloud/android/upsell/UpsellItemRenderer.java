@@ -4,8 +4,6 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.content.Context;
 import android.view.View;
@@ -18,7 +16,6 @@ import java.util.List;
 public class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private final FeatureOperations featureOperations;
-    private final FeatureFlags flags;
 
     public interface Listener {
         void onUpsellItemDismissed(int position);
@@ -29,9 +26,8 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
     private Listener listener;
 
     @Inject
-    UpsellItemRenderer(FeatureOperations featureOperations, FeatureFlags flags) {
+    UpsellItemRenderer(FeatureOperations featureOperations) {
         this.featureOperations = featureOperations;
-        this.flags = flags;
     }
 
     @Override
@@ -66,9 +62,7 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
             action.setText(view.getResources().getString(R.string.conversion_buy_trial,
                     featureOperations.getHighTierTrialDays()));
         } else {
-            action.setText(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                           ? R.string.upsell_upgrade_button
-                           : R.string.upsell_upgrade_button_legacy);
+            action.setText(R.string.upsell_upgrade_button);
         }
     }
 

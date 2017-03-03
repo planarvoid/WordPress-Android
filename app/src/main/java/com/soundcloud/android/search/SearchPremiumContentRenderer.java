@@ -7,8 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
@@ -21,7 +19,6 @@ import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.PluralsRes;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +49,6 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
     private final FeatureOperations featureOperations;
-    private final FeatureFlags flags;
 
     private OnPremiumContentClickListener premiumContentListener;
 
@@ -66,15 +62,13 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
                                  UserItemRenderer userItemRenderer,
                                  Resources resources,
                                  CondensedNumberFormatter numberFormatter,
-                                 FeatureOperations featureOperations,
-                                 FeatureFlags flags) {
+                                 FeatureOperations featureOperations) {
         this.trackItemRenderer = trackItemRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
         this.userItemRenderer = userItemRenderer;
         this.resources = resources;
         this.numberFormatter = numberFormatter;
         this.featureOperations = featureOperations;
-        this.flags = flags;
     }
 
     @Override
@@ -179,20 +173,11 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     private String getResultsCountText(SearchPremiumItem premiumItem) {
         final int resultsCount = premiumItem.getResultsCount();
-        return resources.getQuantityString(adaptResultCountPlural(), resultsCount, numberFormatter.format(resultsCount));
-    }
-
-    @PluralsRes
-    private int adaptResultCountPlural() {
-        return flags.isEnabled(Flag.MID_TIER_ROLLOUT)
-               ? R.plurals.search_premium_content_results_count
-               : R.plurals.search_premium_content_results_count_legacy;
+        return resources.getQuantityString(R.plurals.search_premium_content_results_count, resultsCount, numberFormatter.format(resultsCount));
     }
 
     private String getViewAllText() {
-        return resources.getString(flags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                                   ? R.string.search_premium_content_view_all
-                                   : R.string.search_premium_content_view_all_legacy)
+        return resources.getString(R.string.search_premium_content_view_all)
                         .toUpperCase(Locale.getDefault());
     }
 

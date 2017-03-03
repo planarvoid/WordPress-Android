@@ -8,8 +8,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -35,7 +33,6 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final WebPaymentOperations operations;
     private final ConversionView view;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -46,12 +43,10 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     ConversionPresenter(WebPaymentOperations operations,
                         ConversionView view,
                         EventBus eventBus,
-                        FeatureFlags featureFlags,
                         FeatureOperations featureOperations) {
         this.operations = operations;
         this.view = view;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
     }
 
@@ -81,9 +76,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void displayProducts() {
         if (products.highTier().isPresent()) {
             displayPrimaryProduct(products.highTier().get());
-            if (featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)
-                    && products.midTier().isPresent()
-                    && featureOperations.getCurrentPlan() == Plan.FREE_TIER) {
+            if (products.midTier().isPresent() && featureOperations.getCurrentPlan() == Plan.FREE_TIER) {
                 view.enableMorePlans();
             }
         } else {

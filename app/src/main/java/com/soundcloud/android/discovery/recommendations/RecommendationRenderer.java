@@ -14,8 +14,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 
@@ -34,10 +32,8 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     private final TrackItemMenuPresenter trackItemMenuPresenter;
     private final Navigator navigator;
     private final TrackRecommendationListener listener;
-    private final FeatureFlags flags;
 
     RecommendationRenderer(TrackRecommendationListener listener,
-                           @Provided FeatureFlags flags,
                            @Provided ImageOperations imageOperations,
                            @Provided TrackItemMenuPresenter trackItemMenuPresenter,
                            @Provided Navigator navigator) {
@@ -45,7 +41,6 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.navigator = navigator;
-        this.flags = flags;
     }
 
     @Override
@@ -69,7 +64,6 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
     private void showGoIndicator(View view, TrackItem track) {
         View goIndicator = ButterKnife.findById(view, R.id.go_indicator);
-        goIndicator.setSelected(flags.isEnabled(Flag.MID_TIER_ROLLOUT));
         goIndicator.setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
     }
 

@@ -25,7 +25,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -72,8 +71,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
-                                         screenProvider, navigator, featureOperations, trackItemViewFactory,
-                                         flags);
+                                         screenProvider, navigator, featureOperations, trackItemViewFactory);
 
         trackItemBuilder = PlayableFixtures.baseTrackBuilder()
                                            .getUrn(Urn.forTrack(123))
@@ -114,24 +112,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         verify(trackItemView).hideInfoViewsRight();
         verify(trackItemView).showDuration("3:57");
-    }
-
-    @Test
-    public void shouldNotSetGoLabelSelectedIfMidTierFlagIsDisabled() {
-        trackItem = PlayableFixtures.upsellableTrack();
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
-
-        verify(trackItemView).setGoLabelSelected(false);
-    }
-
-    @Test
-    public void shouldSetGoLabelSelectedIfMidTierFlagIsEnabled() {
-        when(flags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
-
-        trackItem = PlayableFixtures.upsellableTrack();
-        renderer.bindItemView(0, itemView, singletonList(trackItem));
-
-        verify(trackItemView).setGoLabelSelected(true);
     }
 
     @Test

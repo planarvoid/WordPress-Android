@@ -29,7 +29,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -420,7 +419,6 @@ public class IntentResolverTest extends AndroidUnitTest {
     public void shouldLaunchProductChoiceForMidTierUpsell() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
 
         resolver.handleIntent(intent, context);
@@ -433,26 +431,12 @@ public class IntentResolverTest extends AndroidUnitTest {
     public void shouldLaunchProductChoiceForHighTierUpsell() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgoplus");
 
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
         verify(navigator).openProductChoiceOnMain(context, Plan.HIGH_TIER);
-    }
-
-    @Test
-    public void shouldNotLaunchProductChoiceIfMidTierFeatureIsDisabled() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)).thenReturn(false);
-        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openStream(context, Screen.DEEPLINK);
     }
 
     @Test

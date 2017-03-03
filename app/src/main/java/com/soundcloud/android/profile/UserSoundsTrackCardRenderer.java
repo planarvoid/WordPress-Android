@@ -38,7 +38,6 @@ class UserSoundsTrackCardRenderer implements CellRenderer<UserSoundsItem> {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
             trackCardRenderer.bindTrackCard(trackItem.get(),
                                             itemView,
-                                            position,
                                             Optional.of(fromModule(userSoundsItem.getCollectionType(),
                                                                    getPositionInModule(items, userSoundsItem))));
         }

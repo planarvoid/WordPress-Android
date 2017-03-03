@@ -3,8 +3,6 @@ package com.soundcloud.android.upgrade;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -29,28 +27,14 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
     private WeakHashMap<Integer, AnimationDrawable> pendingAnimationMap = new WeakHashMap<>(OnboardingPage.values().length);
     private List<OnboardingPage> pages;
 
-    private final FeatureFlags featureFlags;
-
     @Inject
-    GoOnboardingAdapter(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
-    }
+    GoOnboardingAdapter() {}
 
     void configureContent(Plan plan) {
-        switch (plan) {
-            case MID_TIER:
-                pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS);
-                break;
-            default:
-                adaptContentForRebranding();
-        }
-    }
-
-    private void adaptContentForRebranding() {
-        if (featureFlags.isEnabled(Flag.MID_TIER_ROLLOUT)) {
-            pages = Arrays.asList(OnboardingPage.WELCOME_GO_PLUS, OnboardingPage.FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
+        if (plan == Plan.MID_TIER) {
+            pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS);
         } else {
-            pages = Arrays.asList(OnboardingPage.WELCOME_GO, OnboardingPage.LEGACY_FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
+            pages = Arrays.asList(OnboardingPage.WELCOME_GO_PLUS, OnboardingPage.FULL_TRACKS, OnboardingPage.OFFLINE, OnboardingPage.NO_ADS, OnboardingPage.START);
         }
     }
 
@@ -109,9 +93,8 @@ class GoOnboardingAdapter extends PagerAdapter implements ViewPager.OnPageChange
 
     private enum OnboardingPage {
         WELCOME_GO_PLUS(R.layout.go_onboarding_landing, R.drawable.go_onboarding_cloud, R.string.go_onboarding_landing_title, R.string.go_onboarding_landing_body),
-        WELCOME_GO(R.layout.go_onboarding_landing, R.drawable.go_onboarding_cloud, R.string.go_onboarding_landing_title_legacy, R.string.go_onboarding_landing_body),
+        WELCOME_GO(R.layout.go_onboarding_landing, R.drawable.go_onboarding_cloud, R.string.go_onboarding_landing_title_mid, R.string.go_onboarding_landing_body),
         FULL_TRACKS(R.layout.go_onboarding_page, R.drawable.go_onboarding_preview, R.string.go_onboarding_full_tracks_title, R.string.go_onboarding_full_tracks_body),
-        LEGACY_FULL_TRACKS(R.layout.go_onboarding_page, R.drawable.go_onboarding_preview_legacy, R.string.go_onboarding_full_tracks_title_legacy, R.string.go_onboarding_full_tracks_body_legacy),
         NO_ADS(R.layout.go_onboarding_page, R.drawable.go_onboarding_no_ads, R.string.go_onboarding_no_ads_title, R.string.go_onboarding_no_ads_body),
         OFFLINE(R.layout.go_onboarding_page, R.drawable.go_onboarding_offline, R.string.go_onboarding_offline_title, R.string.go_onboarding_offline_body),
         START(R.layout.go_onboarding_page, R.drawable.go_onboarding_heartburst, R.string.go_onboarding_start_title, R.string.go_onboarding_start_body);
