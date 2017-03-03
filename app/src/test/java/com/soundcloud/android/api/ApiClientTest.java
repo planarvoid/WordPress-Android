@@ -407,7 +407,7 @@ public class ApiClientTest extends AndroidUnitTest {
     public void shouldFailFastOnMappingExceptionIfParsedToUnknownResource() throws Exception {
         apiClient = getApiClient(true);
 
-        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(new UnknownResource());
+        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(null);
         ApiRequest request = ApiRequest.get(URL)
                                        .forPrivateApi()
                                        .build();
