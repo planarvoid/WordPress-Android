@@ -26,7 +26,7 @@ public class TrackRecommendationsBucketElement {
     }
 
     private ViewElement reason() {
-        return wrapped.findOnScreenElement(With.id(R.id.reason));
+        return wrapped.findOnScreenElementWithPopulatedText(With.id(R.id.reason));
     }
 
     public VisualPlayerElement clickReason() {

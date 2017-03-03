@@ -47,11 +47,9 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final VisualPlayerElement player = bucket.clickReason();
 
         player.waitForExpandedPlayer();
-
         assertThat(reason, containsString(player.getTrackTitle()));
 
         player.swipeNext();
-
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
@@ -61,7 +59,6 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
 
         player.waitForExpandedPlayerToStartPlaying();
-
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
@@ -74,11 +71,10 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickReason();
 
+        player.waitForExpandedPlayer();
         assertThat(reason, containsString(player.getTrackTitle()));
 
-        player.waitForExpandedPlayer();
         player.swipeNext();
-
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 
@@ -90,6 +86,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
 
+        player.waitForExpandedPlayer();
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
     }
 }

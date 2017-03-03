@@ -482,7 +482,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public ViewElement getTrackTitleViewElement() {
-        return testDriver.findOnScreenElement(With.id(R.id.track_page_title));
+        return testDriver.findOnScreenElementWithPopulatedText(With.id(R.id.track_page_title));
     }
 
     private static class TextChangedCondition implements Condition {

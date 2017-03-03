@@ -101,6 +101,10 @@ public class Han {
         return viewFetcher.findOnScreenElements(with);
     }
 
+    public  ViewElement findOnScreenElementWithPopulatedText(With id) {
+        return viewFetcher.findOnScreenElement(new With.WithPopulatedText(), id);
+    }
+
     public ViewElement scrollToItem(With... with) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {

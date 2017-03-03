@@ -9,8 +9,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.viewelements.ViewNotFoundException;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 
 import android.os.SystemClock;
 import android.util.Log;
