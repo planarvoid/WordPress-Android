@@ -10,6 +10,7 @@
         <ignore path="**/com.google.auto.value/**/*"/>
         <ignore path="**/com.google.auto.factory/**/*"/>
         <ignore regexp=".*okio.*" />
+        <ignore regexp="com.fasterxml.jackson.databind.ext.Java7SupportImpl" />
     </issue>
 
     <issue id="PrivateResource" severity="informational"/>

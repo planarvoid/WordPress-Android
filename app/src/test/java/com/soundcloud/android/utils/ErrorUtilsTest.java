@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
@@ -138,7 +139,7 @@ public class ErrorUtilsTest extends AndroidUnitTest {
 
     @Test
     public void shouldIncludeJsonProcessingExceptions() {
-        assertThat(ErrorUtils.includeInReports(new JsonParseException(null, null))).isTrue();
+        assertThat(ErrorUtils.includeInReports(new JsonParseException((JsonParser) null, null))).isTrue();
     }
 
     @Test

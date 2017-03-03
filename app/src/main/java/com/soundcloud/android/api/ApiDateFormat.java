@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,6 +41,12 @@ public class ApiDateFormat extends StdDateFormat {
     @Override
     public ApiDateFormat clone() {
         return instance();
+    }
+
+    @Override
+    public Date parse(String dateStr) throws ParseException {
+        final Date d = dateFormat.parse(dateStr);
+        return (d == null) ? super.parse(dateStr) : d;
     }
 
     @Override

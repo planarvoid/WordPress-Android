@@ -6,7 +6,6 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
@@ -238,7 +237,7 @@ public class ApiClient {
                                     TypeToken<T> typeToken) throws IOException, ApiMapperException {
         final T resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), typeToken);
 
-        if (resource == null || UnknownResource.class.isAssignableFrom(resource.getClass())) {
+        if (resource == null) {
             throw new ApiMapperException("Response could not be deserialized, or types do not match");
         }
 

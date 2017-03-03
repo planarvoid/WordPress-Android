@@ -57,9 +57,9 @@ ext {
           moat                        : "com.moat.analytics.mobile:app-kit:2.0.0",
 
           // Utility libraries
-          jacksonAnnotations          : "com.fasterxml.jackson.core:jackson-annotations:2.6.1",
-          jacksonCore                 : "com.fasterxml.jackson.core:jackson-core:2.6.1",
-          jacksonDataBind             : "com.fasterxml.jackson.core:jackson-databind:2.6.1",
+          jacksonAnnotations          : "com.fasterxml.jackson.core:jackson-annotations:2.8.6",
+          jacksonCore                 : "com.fasterxml.jackson.core:jackson-core:2.8.6",
+          jacksonDataBind             : "com.fasterxml.jackson.core:jackson-databind:2.8.6",
           okHttp                      : "com.squareup.okhttp3:okhttp:3.6.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
           rxJava                      : "io.reactivex:rxjava:1.2.7",

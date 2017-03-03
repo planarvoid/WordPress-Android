@@ -14,7 +14,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -395,8 +394,8 @@ public class ApiClientTest extends AndroidUnitTest {
     }
 
     @Test(expected = ApiMapperException.class)
-    public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
-        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(new UnknownResource());
+    public void shouldThrowMappingExceptionIfParsedToNull() throws Exception {
+        when(jsonTransformer.fromJson(eq(JSON_DATA), any(TypeToken.class))).thenReturn(null);
         ApiRequest request = ApiRequest.get(URL)
                                        .forPrivateApi()
                                        .build();
