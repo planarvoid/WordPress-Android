@@ -14,11 +14,12 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
-import com.soundcloud.android.view.CollectionRenderer;
+import com.soundcloud.android.model.CollectionLoadingState;
+import com.soundcloud.android.view.collection.CollectionRenderer;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
-import com.soundcloud.android.view.adapters.CollectionViewState;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
@@ -368,7 +369,7 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     /***
      * This is logic that could easily be moved into the Presenter to get rid of the legacy model, and properly tested. That is the next step
      */
-    static class LegacyModelConverter implements Func1<AsyncViewModel<PlaylistDetailsViewModel>, CollectionViewState<PlaylistDetailItem>>{
+    static class LegacyModelConverter implements Func1<AsyncViewModel<PlaylistDetailsViewModel>, CollectionRendererState<PlaylistDetailItem>> {
 
         private final boolean useInlineHeader;
 
@@ -377,13 +378,9 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         }
 
         @Override
-        public CollectionViewState<PlaylistDetailItem> call(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-            return CollectionViewState.<PlaylistDetailItem>builder()
-                    .nextPageError(asyncViewModel.error())
-                    .isRefreshing(asyncViewModel.isRefreshing())
-                    .hasMorePages(false)
-                    .items(getPlaylistDetailItems(asyncViewModel, useInlineHeader))
-                    .build();
+        public CollectionRendererState<PlaylistDetailItem> call(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
+            final CollectionLoadingState builder = CollectionLoadingState.builder().nextPageError(asyncViewModel.error()).isRefreshing(asyncViewModel.isRefreshing()).hasMorePages(false).build();
+            return CollectionRendererState.create(builder, getPlaylistDetailItems(asyncViewModel, useInlineHeader));
         }
 
         private List<PlaylistDetailItem> getPlaylistDetailItems(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel, boolean inlineHeader) {

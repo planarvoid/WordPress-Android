@@ -23,8 +23,9 @@ import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.CollectionLoader;
-import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.view.collection.CollectionRendererState;
+import com.soundcloud.android.utils.collection.CollectionLoader;
+import com.soundcloud.android.utils.collection.CollectionLoaderState;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
@@ -41,6 +42,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 public class TopResultsPresenter {
@@ -77,24 +79,25 @@ public class TopResultsPresenter {
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
 
-        CollectionLoader<ApiTopResultsBucket, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
+        CollectionLoader<List<ApiTopResultsBucket>, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
                 firstPageIntent,
                 operations::search,
                 refreshIntent,
                 operations::search);
 
-        loaderSubscription = Observable.combineLatest(loader.pages(),
-                                                      likedStatuses.likedStatuses(),
-                                                      followingStatuses.followingStatuses(),
-                                                      this::transformBucketToViewModel)
-                                       .subscribe(viewModel);
+        final Observable<TopResultsViewModel> rObservable = Observable.combineLatest(loader.pages(),
+                                                                   likedStatuses.likedStatuses(),
+                                                                   followingStatuses.followingStatuses(),
+                                                                   this::transformBucketsToViewModel);
+
+        loaderSubscription = rObservable.subscribe(viewModel);
     }
 
     public PublishSubject<SearchItem> searchItemClicked() {
         return searchItemClicked;
     }
 
-    public PublishSubject<TopResultsViewAllArgs> viewAllClicked() {
+    PublishSubject<TopResultsViewAllArgs> viewAllClicked() {
         return viewAllClicked;
     }
 
@@ -123,17 +126,17 @@ public class TopResultsPresenter {
         return playbackInitiator.playTracks(transform, adjustedPosition, playSessionSource);
     }
 
-    public Observable<GoToPlaylistArgs> onGoToPlaylist() {
+    Observable<GoToPlaylistArgs> onGoToPlaylist() {
         return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.PLAYLIST)
                                 .flatMap(clickedItem -> firstPageIntent.map(searchQuery -> toGoToPlaylistArgs(clickedItem, searchQuery.first())));
     }
 
-    public Observable<GoToProfileArgs> onGoToProfile() {
+    Observable<GoToProfileArgs> onGoToProfile() {
         return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.USER)
                                 .flatMap(clickedItem -> firstPageIntent.map(searchQuery -> toGoToProfileArgs(clickedItem, searchQuery.first())));
     }
 
-    public Observable<TopResultsViewAllArgs> goToViewAllPage() {
+    Observable<TopResultsViewAllArgs> goToViewAllPage() {
         return viewAllClicked.flatMap(clickedItem -> firstPageIntent.map(query -> clickedItem.copyWithSearchQuery(query.first())));
     }
 
@@ -168,12 +171,14 @@ public class TopResultsPresenter {
     }
 
     @NonNull
-    private TopResultsViewModel transformBucketToViewModel(
-            CollectionViewState<ApiTopResultsBucket> collectionViewState,
+    private TopResultsViewModel transformBucketsToViewModel(
+            CollectionLoaderState<List<ApiTopResultsBucket>> collectionLoaderState,
             LikedStatuses likedStatuses,
             FollowingStatuses followingStatuses) {
 
-        return TopResultsViewModel.create(collectionViewState.withNewType(transformBucket(collectionViewState, likedStatuses, followingStatuses)));
+        final List<ApiTopResultsBucket> apiTopResultsBuckets = collectionLoaderState.data().or(Collections.emptyList());
+        final List<TopResultsBucketViewModel> viewModelItems = Lists.transform(apiTopResultsBuckets, transformBucket(collectionLoaderState, likedStatuses, followingStatuses));
+        return TopResultsViewModel.create(CollectionRendererState.create(collectionLoaderState.collectionLoadingState(), viewModelItems));
     }
 
     void detachView() {
@@ -189,12 +194,12 @@ public class TopResultsPresenter {
         return playbackError;
     }
 
-    private Function<ApiTopResultsBucket, TopResultsBucketViewModel> transformBucket(CollectionViewState<ApiTopResultsBucket> collectionViewState,
+    private Function<ApiTopResultsBucket, TopResultsBucketViewModel> transformBucket(CollectionLoaderState<List<ApiTopResultsBucket>> collectionLoaderState,
                                                                                      LikedStatuses likedStatuses,
                                                                                      FollowingStatuses followingStatuses) {
         return apiBucket -> {
             final List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
-            final int bucketPosition = collectionViewState.items().indexOf(apiBucket);
+            final int bucketPosition = collectionLoaderState.data().get().indexOf(apiBucket);
             final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(likedStatuses, followingStatuses, apiUniversalSearchItems, bucketPosition);
             return TopResultsBucketViewModel.create(result, apiBucket.urn(), apiBucket.totalResults(), apiBucket.queryUrn().or(Urn.NOT_SET));
         };

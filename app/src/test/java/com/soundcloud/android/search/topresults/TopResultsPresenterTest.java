@@ -38,7 +38,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.model.CollectionLoadingState;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -274,12 +275,11 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         return TopResultsBucketViewModel.create(asList(searchItems), bucketUrn, totalResults, TopResultsFixtures.QUERY_URN);
     }
 
-
     @NonNull
     private TopResultsViewModel getViewModel(TopResultsBucketViewModel... bucketViewModels) {
-        return TopResultsViewModel.create(CollectionViewState.<TopResultsBucketViewModel>builder().hasMorePages(false).items(asList(bucketViewModels)).build());
+        final CollectionLoadingState collectionLoadingState = CollectionLoadingState.builder().hasMorePages(false).build();
+        return TopResultsViewModel.create(CollectionRendererState.create(collectionLoadingState, asList(bucketViewModels)));
     }
-
 
     private TrackItem getTrackItem(ApiTrack apiTrack) {
         return getTrackItem(apiTrack, false);

@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.collection;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -6,7 +6,9 @@ import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.view.EmptyStatus;
+import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import rx.functions.Func2;
@@ -83,8 +85,8 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         unbinder.unbind();
     }
 
-    public void render(CollectionViewState<ItemT> state) {
-        swipeRefreshLayout.setRefreshing(state.isRefreshing());
+    public void render(CollectionRendererState<ItemT> state) {
+        swipeRefreshLayout.setRefreshing(state.collectionLoadingState().isRefreshing());
         if (state.items().isEmpty()) {
             if (recyclerView.getAdapter() != emptyAdapter) {
                 recyclerView.setAdapter(emptyAdapter);
@@ -123,9 +125,9 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
     }
 
     @NonNull
-    private void updateEmptyView(CollectionViewState<ItemT> state) {
-        Optional<ViewError> viewErrorOptional = state.nextPageError();
-        emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.isLoadingNextPage()));
+    private void updateEmptyView(CollectionRendererState<ItemT> state) {
+        Optional<ViewError> viewErrorOptional = state.collectionLoadingState().nextPageError();
+        emptyAdapter.setEmptyStatus(EmptyStatus.fromErrorAndLoading(viewErrorOptional, state.collectionLoadingState().isLoadingNextPage()));
         emptyAdapter.notifyDataSetChanged();
     }
 
@@ -163,7 +165,7 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         private final List<ItemT> oldItems;
         private final List<ItemT> newItems;
 
-        public AdapterDiffCallback(List<ItemT> oldItems, List<ItemT> newItems) {
+        AdapterDiffCallback(List<ItemT> oldItems, List<ItemT> newItems) {
             this.oldItems = oldItems;
             this.newItems = newItems;
         }
@@ -212,4 +214,3 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
         }
     }
 }
-

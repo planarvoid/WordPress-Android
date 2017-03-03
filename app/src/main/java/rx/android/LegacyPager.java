@@ -17,7 +17,7 @@ public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     /**
-     * Used in the paging function to signal the caller that no more pages are available, i.e.
+     * Used in the paging function to signal the caller that no more items are available, i.e.
      * to finish paging by completing the paged sequence.
      *
      * @return the finish token
@@ -27,11 +27,11 @@ public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
     }
 
     /**
-     * Transforms the given sequence to have its subsequent pages pushed into the observer subscribed
+     * Transforms the given sequence to have its subsequent items pushed into the observer subscribed
      * to the new sequence returned by this method. You can advance to the next page by calling {@link #next()}
      *
      * @param source the source sequence, which would be the first page of the sequence to be paged
-     * @return a new sequence based on {@code source}, where subscribers keep receiving pages through subsequent calls
+     * @return a new sequence based on {@code source}, where subscribers keep receiving items through subsequent calls
      * to {@link #next()}
      */
     public Observable<T> page(final Observable<T> source) {
@@ -74,7 +74,7 @@ public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
     }
 
     /**
-     * @return true, if there are more pages to be emitted.
+     * @return true, if there are more items to be emitted.
      */
     public boolean hasNext() {
         return nextPage != FINISH_SEQUENCE;
@@ -82,7 +82,7 @@ public abstract class LegacyPager<T> implements Func1<T, Observable<T>> {
 
     /**
      * Advances the pager by pushing the next page of items into the current observer, is there is one. If the pager
-     * has been unsubscribed from or there are no more pages, this method does nothing.
+     * has been unsubscribed from or there are no more items, this method does nothing.
      */
     public void next() {
         if (!subscription.isUnsubscribed() && hasNext()) {

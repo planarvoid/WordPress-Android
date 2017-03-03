@@ -62,7 +62,8 @@ import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemBlueprint;
-import com.soundcloud.android.view.adapters.CollectionViewState;
+import com.soundcloud.android.model.CollectionLoadingState;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -530,19 +531,19 @@ public class ModelFixtures {
                                                                                    1,
                                                                                    Urn.NOT_SET);
 
-        CollectionViewState<TopResultsBucketViewModel> collectionViewState = CollectionViewState.<TopResultsBucketViewModel>builder().items(Lists.newArrayList(bucket1, bucket2)).build();
+        CollectionRendererState<TopResultsBucketViewModel> collectionViewState = CollectionRendererState.create(CollectionLoadingState.builder().build(), Lists.newArrayList(bucket1, bucket2));
         return TopResultsViewModel.create(collectionViewState);
     }
 
-    public static SearchItem.User searchUser(int bucketPosition) {
+    private static SearchItem.User searchUser(int bucketPosition) {
         return SearchItem.User.create(create(UserItem.class), bucketPosition);
     }
 
-    public static SearchItem.Playlist searchPlaylist(int bucketPosition) {
+    private static SearchItem.Playlist searchPlaylist(int bucketPosition) {
         return SearchItem.Playlist.create(playlistItem(), bucketPosition);
     }
 
-    public static SearchItem.Track searchTrack(int bucketPosition) {
+    private static SearchItem.Track searchTrack(int bucketPosition) {
         return SearchItem.Track.create(trackItem(), bucketPosition);
     }
 }

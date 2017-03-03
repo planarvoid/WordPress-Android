@@ -1,6 +1,7 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.collection;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.view.EmptyStatus;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +20,7 @@ class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.emptyStateProvider = new EmptyViewWrapper(emptyStateProvider, renderEmptyAtTop);
     }
 
-    public void setEmptyStatus(EmptyStatus emptyStatus) {
+    void setEmptyStatus(EmptyStatus emptyStatus) {
         if (this.emptyStatus != emptyStatus) {
             this.emptyStatus = emptyStatus;
             notifyItemChanged(0);

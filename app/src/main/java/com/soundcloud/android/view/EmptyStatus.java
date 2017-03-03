@@ -8,7 +8,7 @@ public enum EmptyStatus {
     SERVER_ERROR,
     OK;
 
-    // Todo : This should accept CollectionViewState when PlaylistDetailFragment stops using AsyncViewModel
+    // Todo : This should accept CollectionLoaderState when PlaylistDetailFragment stops using AsyncViewModel
     public static EmptyStatus fromErrorAndLoading(Optional<ViewError> viewErrorOptional, boolean isLoadingNextPage) {
         if (viewErrorOptional.isPresent()) {
             if (viewErrorOptional.get() == ViewError.CONNECTION_ERROR) {

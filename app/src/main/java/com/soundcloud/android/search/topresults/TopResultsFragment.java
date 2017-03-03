@@ -7,7 +7,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.view.CollectionRenderer;
+import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;

@@ -199,7 +199,7 @@ public class PullToRefreshControllerTest extends AndroidUnitTest {
 
         // emit a subsequent page
         pager.next();
-        // for any subsequent pages, refresh behavior should not fire
+        // for any subsequent items, refresh behavior should not fire
         verify(adapter, never()).onNext(singletonList("page2"));
     }
 

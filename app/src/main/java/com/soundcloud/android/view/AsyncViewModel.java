@@ -5,7 +5,7 @@ import static com.soundcloud.java.optional.Optional.of;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.java.optional.Optional;
 
-@Deprecated // use CollectionViewState
+@Deprecated // use CollectionLoaderState
 @AutoValue
 public abstract class AsyncViewModel<ViewModelType> {
 
