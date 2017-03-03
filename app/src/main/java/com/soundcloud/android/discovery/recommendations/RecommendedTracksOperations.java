@@ -103,7 +103,7 @@ public class RecommendedTracksOperations {
     }
 
     private Observable<DiscoveryItem> loadAllBuckets() {
-        return recommendationsStorage.allSeeds().flatMap(this::loadDiscoveryItem).subscribeOn(scheduler);
+        return recommendationsStorage.allSeeds().concatMapEager(this::loadDiscoveryItem).subscribeOn(scheduler);
 
     }
 

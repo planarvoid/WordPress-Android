@@ -29,6 +29,7 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -167,6 +168,76 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
+    }
+
+    @Test
+    public void allBucketsEmitsEmptyWhenNoSeeds() throws Exception {
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(Observable.just(Result.SYNCED));
+        when(recommendationsStorage.allSeeds()).thenReturn(Observable.empty());
+
+        operations.allBuckets().test()
+                  .assertNoValues()
+                  .assertCompleted();
+    }
+
+    @Test
+    public void allBucketsEmitsItems() throws Exception {
+        int seedId = 1;
+        Urn seedTrackUrn = Urn.forTrack(2);
+        RecommendationSeed recommendationSeed = RecommendationSeed.create(seedId, seedTrackUrn, "Seed", RecommendationReason.LIKED, 0, Urn.NOT_SET);
+        List<Urn> recommendedTracksUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(456));
+        List<Track> recommendedTracks = Arrays.asList(ModelFixtures.trackBuilder().urn(Urn.forTrack(123)).build(), ModelFixtures.trackBuilder().urn(Urn.forTrack(456)).build());
+
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(Observable.just(Result.SYNCED));
+        when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(recommendationSeed));
+        when(recommendationsStorage.recommendedTracksForSeed(seedId)).thenReturn(Observable.just(recommendedTracksUrns));
+        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
+
+        DiscoveryItem discoveryItem = operations.allBuckets().test()
+                                                .assertValueCount(1)
+                                                .assertCompleted()
+                                                .getOnNextEvents().get(0);
+
+        assertThat(((RecommendedTracksBucketItem) discoveryItem).getSeedTrackQueryPosition()).isEqualTo(0);
+        assertThat(((RecommendedTracksBucketItem) discoveryItem).getSeedTrackUrn()).isEqualTo(seedTrackUrn);
+    }
+
+    @Test
+    public void allBucketsRetainOrder() throws Exception {
+        int firstSeedId = 1;
+        Urn firstSeedTrackUrn = Urn.forTrack(2);
+        RecommendationSeed firstRecommendationSeed = RecommendationSeed.create(firstSeedId, firstSeedTrackUrn, "First", RecommendationReason.LIKED, 0, Urn.NOT_SET);
+
+        int secondSeedId = 2;
+        Urn secondSeedTrackUrn = Urn.forTrack(3);
+        RecommendationSeed secondRecommendationSeed = RecommendationSeed.create(secondSeedId, secondSeedTrackUrn, "Second", RecommendationReason.LIKED, 1, Urn.NOT_SET);
+        List<Urn> recommendedTracksUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(456));
+        List<Track> recommendedTracks = Arrays.asList(ModelFixtures.trackBuilder().urn(Urn.forTrack(123)).build(), ModelFixtures.trackBuilder().urn(Urn.forTrack(456)).build());
+
+        PublishSubject<Integer> firstStorageSubject = PublishSubject.create();
+        PublishSubject<Integer> secondStorageSubject = PublishSubject.create();
+
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(Observable.just(Result.SYNCED));
+        when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(firstRecommendationSeed, secondRecommendationSeed));
+        when(recommendationsStorage.recommendedTracksForSeed(firstSeedId)).thenReturn(firstStorageSubject.map(tick -> recommendedTracksUrns));
+        when(recommendationsStorage.recommendedTracksForSeed(secondSeedId)).thenReturn(secondStorageSubject.map(tick -> recommendedTracksUrns));
+        when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
+
+
+        TestSubscriber<DiscoveryItem> testSubscriber = TestSubscriber.create();
+        operations.allBuckets().subscribe(testSubscriber);
+
+        secondStorageSubject.onNext(2);
+        secondStorageSubject.onCompleted();
+        firstStorageSubject.onNext(1);
+        firstStorageSubject.onCompleted();
+
+        testSubscriber.awaitTerminalEvent();
+        testSubscriber.assertValueCount(2);
+
+        List<DiscoveryItem> items = testSubscriber.getOnNextEvents();
+        assertThat(((RecommendedTracksBucketItem) items.get(0)).getSeedTrackQueryPosition()).isEqualTo(0);
+        assertThat(((RecommendedTracksBucketItem) items.get(1)).getSeedTrackQueryPosition()).isEqualTo(1);
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
