@@ -13,6 +13,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -49,17 +50,17 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(SearchResult searchResult) {
-            List<SearchableItem> items = searchResult.getItems();
+            List<ListItem> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
             return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).getUrn(),
                                                                         new PlaySessionSource(Screen.VOICE_COMMAND));
         }
     };
 
-    private final Func1<SearchResult, SearchableItem> toRandomSearchResultItem = new Func1<SearchResult, SearchableItem>() {
+    private final Func1<SearchResult, ListItem> toRandomSearchResultItem = new Func1<SearchResult, ListItem>() {
         @Override
-        public SearchableItem call(SearchResult searchResult) {
-            List<SearchableItem> items = searchResult.getItems();
+        public ListItem call(SearchResult searchResult) {
+            List<ListItem> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
             return items.get(random.nextInt(items.size()));
         }
@@ -156,7 +157,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         }
     }
 
-    private class PlayFromPlaylistSubscriber extends DefaultSubscriber<SearchableItem> {
+    private class PlayFromPlaylistSubscriber extends DefaultSubscriber<ListItem> {
         private final String query;
 
         public PlayFromPlaylistSubscriber(String query) {
@@ -164,7 +165,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         }
 
         @Override
-        public void onNext(SearchableItem result) {
+        public void onNext(ListItem result) {
             navigator.openPlaylistWithAutoPlay(activityContext,
                                                result.getUrn(),
                                                Screen.SEARCH_PLAYLIST_DISCO);

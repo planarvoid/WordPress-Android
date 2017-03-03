@@ -24,12 +24,15 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -69,6 +72,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
     @Mock private FeatureFlags featureFlags;
+    @Mock private TrackRepository trackRepository;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -91,7 +95,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
                                                                     loadFollowingCommand
-        ));
+        ), trackRepository);
     }
 
     @Test
@@ -365,11 +369,11 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toSearchableItem),
+        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toListItem),
                                                                                    Optional.absent(),
                                                                                    Optional.absent());
         final Map<Urn, Boolean> likedPlaylists = Collections.singletonMap(playlist.getUrn(), true);
-        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(expectedSearchResult.getItems(), SearchableItem::getUrn)))).thenReturn(likedPlaylists);
+        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(expectedSearchResult.getItems(), Entity::getUrn)))).thenReturn(likedPlaylists);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
@@ -388,14 +392,14 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forTrack(track),
                 forUser(user2),
                 forPlaylist(playlist));
-        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toSearchableItem),
+        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toListItem),
                                                                                    Optional.absent(),
                                                                                    Optional.absent());
         final Map<Urn, Boolean> userFollowings = Collections.singletonMap(user.getUrn(), true);
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-        when(loadFollowingCommand.call(Lists.transform(expectedSearchResult.getItems(), SearchableItem::getUrn))).thenReturn(userFollowings);
+        when(loadFollowingCommand.call(Lists.transform(expectedSearchResult.getItems(), Entity::getUrn))).thenReturn(userFollowings);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
@@ -424,15 +428,15 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final Map<Urn, Boolean> likedPlaylists = new HashMap<>(2);
         likedPlaylists.put(playlist2.getUrn(), true);
         likedPlaylists.put(playlist.getUrn(), false);
-        when(loadPlaylistLikedStatuses.call(Lists.transform(apiUniversalSearchItems, item -> item.toSearchableItem().getUrn()))).thenReturn(
+        when(loadPlaylistLikedStatuses.call(Lists.transform(apiUniversalSearchItems, item -> item.toListItem().getUrn()))).thenReturn(
                 likedPlaylists);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
-        final SearchableItem playlist1Set = searchResult.getItems().get(0);
-        final SearchableItem playlist2Set = searchResult.getItems().get(2);
+        final ListItem playlist1Set = searchResult.getItems().get(0);
+        final ListItem playlist2Set = searchResult.getItems().get(2);
         // expect things to still be in correct order
         assertThat(playlist1Set.getUrn()).isEqualTo(playlist.getUrn());
         assertThat(playlist2Set.getUrn()).isEqualTo(playlist2.getUrn());
@@ -605,7 +609,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 new SearchModelCollection<>(searchItems);
         mockPremiumSearchApiResponse(searchItems, apiPremiumUniversalSearchItems);
 
-        List<SearchableItem> searchableItems = Lists.transform(searchItems, ApiUniversalSearchItem::toSearchableItem);
+        List<ListItem> searchableItems = Lists.transform(searchItems, ApiUniversalSearchItem::toListItem);
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(searchableItems,
                                                                                   Optional.absent(),
                                                                                   Optional.absent());

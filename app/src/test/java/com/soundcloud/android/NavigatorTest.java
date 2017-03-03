@@ -58,7 +58,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
-import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -493,7 +492,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensSearchPremiumContentResults() {
-        final List<SearchableItem> propertySets = Collections.emptyList();
+        final List<Urn> urns = Collections.emptyList();
         final String searchQuery = "query";
         final SearchType searchType = SearchType.ALL;
         final Optional<Link> nextHref = Optional.absent();
@@ -502,7 +501,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openSearchPremiumContentResults(activityContext,
                                                   searchQuery,
                                                   searchType,
-                                                  propertySets,
+                                                  urns,
                                                   nextHref,
                                                   queryUrn);
 
@@ -510,8 +509,7 @@ public class NavigatorTest extends AndroidUnitTest {
                                    .opensActivity(SearchPremiumResultsActivity.class)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY, searchQuery)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE, searchType)
-                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS,
-                                                  propertySets)
+                                   .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_RESULTS, urns)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN, queryUrn)
                                    .containsExtra(SearchPremiumResultsActivity.EXTRA_PREMIUM_CONTENT_NEXT_HREF,
                                                   nextHref.orNull());

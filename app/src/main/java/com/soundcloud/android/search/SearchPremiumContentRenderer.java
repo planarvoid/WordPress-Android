@@ -16,6 +16,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.java.checks.Preconditions;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -41,7 +42,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         void onPremiumItemClicked(View view, List<ListItem> premiumItems);
 
         void onPremiumContentViewAllClicked(Context context,
-                                            List<SearchableItem> premiumItemsSource,
+                                            List<Urn> premiumItemsSource,
                                             Optional<Link> nextHref);
     }
 
@@ -87,8 +88,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     @Override
     public void bindItemView(int position, View itemView, List<SearchPremiumItem> premiumItems) {
         final SearchPremiumItem premiumItem = premiumItems.get(0);
-        final SearchableItem premiumItemSource = premiumItem.getSourceSet().get(0);
-        final Urn item = premiumItemSource.getUrn();
+        final Urn item = premiumItem.getSourceSet().get(0).getUrn();
 
         if (item.isTrack()) {
             trackItemView.setVisibility(View.VISIBLE);
@@ -213,9 +213,9 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         @Override
         public void onClick(View view) {
             if (listener != null) {
-                final List<SearchableItem> searchableItems = premiumItems.get(0).getSourceSet();
+                final List<ListItem> searchableItems = premiumItems.get(0).getSourceSet();
                 final List<ListItem> premiumItemList = new ArrayList<>(searchableItems.size());
-                for (SearchableItem source : searchableItems) {
+                for (ListItem source : searchableItems) {
                     premiumItemList.add(source);
                 }
                 listener.onPremiumItemClicked(view, premiumItemList);
@@ -237,7 +237,7 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
             if (listener != null) {
                 final SearchPremiumItem searchPremiumItem = premiumItems.get(0);
                 listener.onPremiumContentViewAllClicked(view.getContext(),
-                                                        searchPremiumItem.getSourceSet(),
+                                                        Lists.transform(searchPremiumItem.getSourceSet(), ListItem::getUrn),
                                                         searchPremiumItem.getNextHref());
             }
         }

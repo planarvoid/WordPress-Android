@@ -10,9 +10,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -184,15 +184,15 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
     }
 
     private List<SearchPremiumItem> buildSearchPremiumItemWithManyResults(int itemCount) {
-        final List<SearchableItem> searchableItems = new ArrayList<>();
+        final List<ListItem> searchableItems = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
             searchableItems.add(ModelFixtures.trackItem(Urn.forTrack(i)));
         }
-        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.<Link>absent(), itemCount));
+        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.absent(), itemCount));
     }
 
     private List<SearchPremiumItem> buildSearchPremiumItem(Urn... urns) {
-        final List<SearchableItem> searchableItems = new ArrayList<>(urns.length);
+        final List<ListItem> searchableItems = new ArrayList<>(urns.length);
         for (Urn urn : urns) {
             if (urn.isTrack()) {
                 searchableItems.add(ModelFixtures.trackItem(urn));
@@ -202,6 +202,6 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
                 searchableItems.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
             }
         }
-        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.<Link>absent(), urns.length));
+        return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.absent(), urns.length));
     }
 }

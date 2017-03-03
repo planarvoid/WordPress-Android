@@ -84,7 +84,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         setupFragmentArguments(true, SEARCH_TAB);
-        final List<SearchableItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
+        final List<ListItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
                                                                            Optional.absent(),
                                                                            Optional.of(QUERY_URN), RESULT_COUNT);
@@ -188,7 +188,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        final List<SearchableItem> premiumItemsSource = Collections.emptyList();
+        final List<Urn> premiumItemsSource = Collections.emptyList();
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
@@ -249,7 +249,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
         verify(adapter).onNext(listArgumentCaptor.capture());
-        final SearchableItem item = ((SearchableItem) listArgumentCaptor.getValue().get(0));
+        final ListItem item = listArgumentCaptor.getValue().get(0);
 
         assertThat(item).isInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
         final SearchResultHeaderRenderer.SearchResultHeader searchResultHeader = (SearchResultHeaderRenderer.SearchResultHeader) item;
@@ -264,7 +264,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
         verify(adapter).onNext(listArgumentCaptor.capture());
-        final SearchableItem item = ((SearchableItem) listArgumentCaptor.getValue().get(0));
+        final ListItem item = listArgumentCaptor.getValue().get(0);
         assertThat(item).isNotInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
     }
 

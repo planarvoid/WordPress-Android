@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.playback.Durations.getTrackPlayDuration;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
@@ -302,7 +302,7 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
 
     @VisibleForTesting
     public static TrackItem.Default.Builder builder() {
-        return new AutoParcel_TrackItem_Default.Builder().getUrn(Urn.NOT_SET)
+        return new AutoValue_TrackItem_Default.Builder().getUrn(Urn.NOT_SET)
                                                          .getKind(Kind.PLAYABLE)
                                                          .offlineState(OfflineState.NOT_OFFLINE)
                                                          .isUserLike(false)
@@ -339,12 +339,12 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
 
     public static TrackItem.Default.Builder builder(TrackItem trackItem) {
         if (trackItem instanceof Default) {
-            return new AutoParcel_TrackItem_Default.Builder((Default) trackItem);
+            return new AutoValue_TrackItem_Default.Builder((Default) trackItem);
         }
         throw new IllegalArgumentException("Trying to create builder from promoted track item.");
     }
 
-    @AutoParcel
+    @AutoValue
     public abstract static class Default extends TrackItem {
 
         @Override
@@ -354,11 +354,11 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
 
         @Override
         public TrackItem.Default updatedWithOfflineState(OfflineState offlineState) {
-            return new AutoParcel_TrackItem_Default.Builder(this).offlineState(offlineState).build();
+            return new AutoValue_TrackItem_Default.Builder(this).offlineState(offlineState).build();
         }
 
         public TrackItem.Default updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-            final Default.Builder builder = new AutoParcel_TrackItem_Default.Builder(this).isUserLike(likeStatus.isUserLike());
+            final Default.Builder builder = new AutoValue_TrackItem_Default.Builder(this).isUserLike(likeStatus.isUserLike());
             if (likeStatus.likeCount().isPresent()) {
                 builder.likesCount(likeStatus.likeCount().get());
             }
@@ -366,7 +366,7 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
         }
 
         public TrackItem.Default updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
-            final Default.Builder builder = new AutoParcel_TrackItem_Default.Builder(this).isUserRepost(repostStatus.isReposted());
+            final Default.Builder builder = new AutoValue_TrackItem_Default.Builder(this).isUserRepost(repostStatus.isReposted());
             if (repostStatus.repostCount().isPresent()) {
                 builder.repostsCount(repostStatus.repostCount().get());
             }
@@ -374,20 +374,20 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
         }
 
         public TrackItem.Default updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
-            return new AutoParcel_TrackItem_Default.Builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
+            return new AutoValue_TrackItem_Default.Builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
         }
 
         @Override
         public TrackItem.Default updateLikeState(boolean isLiked) {
-            return new AutoParcel_TrackItem_Default.Builder(this).isUserLike(isLiked).build();
+            return new AutoValue_TrackItem_Default.Builder(this).isUserLike(isLiked).build();
         }
 
         @Override
         public TrackItem.Default updateWithReposter(String reposter, Urn reposterUrn) {
-            return new AutoParcel_TrackItem_Default.Builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
+            return new AutoValue_TrackItem_Default.Builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
         }
 
-        @AutoParcel.Builder
+        @AutoValue.Builder
         public abstract static class Builder {
 
             public abstract Builder isBlocked(boolean isBlocked);

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -87,7 +88,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         assertThat(trackItem.isPlaying()).isFalse();
     }
 
-    private SearchPremiumItem buildWithTrackItem(SearchableItem searchableItem) {
-        return new SearchPremiumItem(Collections.singletonList(searchableItem), Optional.absent(), RESULTS_COUNT);
+    private SearchPremiumItem buildWithTrackItem(ListItem listItem) {
+        return new SearchPremiumItem(Collections.singletonList(listItem), Optional.absent(), RESULTS_COUNT);
     }
 }

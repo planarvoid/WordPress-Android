@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MoreCollections;
@@ -68,15 +67,6 @@ public final class Urns {
     @NonNull
     public static Collection<Long> toIdsColl(Collection<Urn> urns) {
         return MoreCollections.transform(urns, TO_ID);
-    }
-
-    @SuppressWarnings({"PMD.LooseCoupling"}) // we need ArrayList for Parceling
-    public static ArrayList<Urn> extractUrns(List<? extends SearchableItem> entities) {
-        ArrayList<Urn> urns = new ArrayList<>(entities.size());
-        for (SearchableItem searchableItem : entities) {
-            urns.add(searchableItem.getUrn());
-        }
-        return urns;
     }
 
     public static List<Long> extractIds(Iterable<Urn> urns, Optional<Predicate<Urn>> predicate) {

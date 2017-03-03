@@ -52,9 +52,9 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         implements SearchUpsellRenderer.OnUpsellClickListener {
 
     private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = searchResult -> {
-        final List<SearchableItem> sourceSetsItems = searchResult.getItems();
+        final List<ListItem> sourceSetsItems = searchResult.getItems();
         final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + 1);
-        for (SearchableItem source : sourceSetsItems) {
+        for (ListItem source : sourceSetsItems) {
             searchItems.add(source);
         }
         return searchItems;
@@ -155,7 +155,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
-        final List<SearchableItem> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
+        final List<Urn> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(
                 EXTRA_PREMIUM_CONTENT_NEXT_HREF));
         final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);

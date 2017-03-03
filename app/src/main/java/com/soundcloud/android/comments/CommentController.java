@@ -63,14 +63,14 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     public void addComment(AddCommentArguments arguments) {
-        final Urn trackUrn = arguments.getTrack().getUrn();
+        final Urn trackUrn = arguments.trackUrn();
 
         subscription = commentsOperationsLazy.get().addComment(trackUrn, arguments.getCommentText(), arguments.getPosition())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommentAddedSubscriber(trackUrn));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(arguments.getOriginScreen()),
-                EntityMetadata.from(arguments.getTrack())));
+                EntityMetadata.from(arguments.creatorName(), arguments.creatorUrn(), arguments.trackTitle(), arguments.trackUrn())));
     }
 
     private EventContextMetadata getEventContextMetadata(String originScreen) {

@@ -1,6 +1,6 @@
 package com.soundcloud.android.tracks;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
@@ -14,7 +14,7 @@ import com.soundcloud.java.strings.Strings;
 import java.util.Date;
 import java.util.List;
 
-@AutoParcel
+@AutoValue
 public abstract class PromotedTrackItem extends TrackItem implements PromotedListItem {
 
     public abstract PromotedProperties promotedProperties();
@@ -141,7 +141,7 @@ public abstract class PromotedTrackItem extends TrackItem implements PromotedLis
     }
 
     public static PromotedTrackItem.Builder builder(PromotedProperties promotedProperties) {
-        return new AutoParcel_PromotedTrackItem.Builder().getUrn(Urn.NOT_SET)
+        return new AutoValue_PromotedTrackItem.Builder().getUrn(Urn.NOT_SET)
                                                          .getKind(Kind.PROMOTED)
                                                          .offlineState(OfflineState.NOT_OFFLINE)
                                                          .isUserLike(false)
@@ -179,10 +179,10 @@ public abstract class PromotedTrackItem extends TrackItem implements PromotedLis
 
 
     public static PromotedTrackItem.Builder builder(PromotedTrackItem trackItem) {
-        return new AutoParcel_PromotedTrackItem.Builder(trackItem);
+        return new AutoValue_PromotedTrackItem.Builder(trackItem);
     }
 
-    @AutoParcel.Builder
+    @AutoValue.Builder
     public abstract static class Builder {
 
         public abstract Builder getImageUrlTemplate(Optional<String> getImageUrlTemplate);

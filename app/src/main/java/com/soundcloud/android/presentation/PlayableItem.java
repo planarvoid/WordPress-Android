@@ -7,12 +7,11 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.profile.ApiPostSource;
-import com.soundcloud.android.search.SearchableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, SearchableItem, RepostableItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, RepostableItem {
 
     public static final Function<PlayableItem, Urn> TO_URN = item -> item.getUrn();
 

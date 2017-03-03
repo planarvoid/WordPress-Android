@@ -16,6 +16,7 @@ import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicates;
@@ -177,12 +178,12 @@ public class PlaylistDiscoveryOperations {
     }
 
     private SearchResult backfillSearchResult(SearchResult result) {
-        final List<SearchableItem> updatedList = new ArrayList<>();
-        final List<Urn> urns = Lists.transform(result.getItems(), SearchableItem::getUrn);
+        final List<ListItem> updatedList = new ArrayList<>();
+        final List<Urn> urns = Lists.transform(result.getItems(), ListItem::getUrn);
         final Map<Urn, Boolean> playlistRepostStatus = loadPlaylistRepostStatuses.call(urns);
         final Map<Urn, Boolean> playlistLikedStatus = loadPlaylistLikedStatuses.call(urns);
 
-        for (final SearchableItem resultItem : result) {
+        for (final ListItem resultItem : result) {
             final Urn itemUrn = resultItem.getUrn();
             boolean isRepostedByCurrentUser = playlistRepostStatus.containsKey(itemUrn) && playlistRepostStatus.get(itemUrn);
             boolean isLikedByCurrentUser = playlistLikedStatus.containsKey(itemUrn) && playlistLikedStatus.get(itemUrn);

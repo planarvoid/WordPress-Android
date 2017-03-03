@@ -1,10 +1,11 @@
 package com.soundcloud.android.search;
 
-import auto.parcel.AutoParcel;
 import butterknife.ButterKnife;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
 
@@ -40,14 +41,14 @@ public class SearchResultHeaderRenderer implements CellRenderer<SearchResultHead
         textView.setText(itemView.getResources().getString(R.string.search_found_results_header, condensedNumberFormatter.format(header.resultCount()), type));
     }
 
-    @AutoParcel
-    public abstract static class SearchResultHeader implements SearchableItem {
+    @AutoValue
+    public abstract static class SearchResultHeader implements ListItem {
         abstract int typeResource();
 
         abstract int resultCount();
 
         static SearchResultHeader create(SearchType searchType, SearchOperations.ContentType contentType, int resultsCount) {
-            return new AutoParcel_SearchResultHeaderRenderer_SearchResultHeader(Optional.absent(), Urn.NOT_SET, typeToResource(searchType, contentType), resultsCount);
+            return new AutoValue_SearchResultHeaderRenderer_SearchResultHeader(Urn.NOT_SET, Optional.absent(), typeToResource(searchType, contentType), resultsCount);
         }
 
         private static int typeToResource(SearchType searchType, SearchOperations.ContentType contentType) {

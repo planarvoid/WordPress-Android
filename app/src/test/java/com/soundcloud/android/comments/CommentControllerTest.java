@@ -60,7 +60,7 @@ public class CommentControllerTest extends AndroidUnitTest {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(Observable.just(mock(PublicApiComment.class)));
 
-        controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));
+        controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
         verify(feedbackController).showFeedback(feedbackArgumentCaptor.capture());
         assertThat(feedbackArgumentCaptor.getValue().getMessage()).isEqualTo(R.string.comment_posted);
@@ -71,7 +71,7 @@ public class CommentControllerTest extends AndroidUnitTest {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(Observable.<PublicApiComment>error(new IOException()));
 
-        controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));
+        controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
         verify(feedbackController).showFeedback(feedbackArgumentCaptor.capture());
         assertThat(feedbackArgumentCaptor.getValue().getMessage()).isEqualTo(R.string.comment_error);
@@ -83,7 +83,7 @@ public class CommentControllerTest extends AndroidUnitTest {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
                 .thenReturn(subject);
 
-        controller.addComment(AddCommentArguments.create(track, POSITION, COMMENT, ORIGIN));
+        controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 
         assertThat(subject.hasObservers()).isTrue();
 

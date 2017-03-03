@@ -2,9 +2,13 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.Urns;
+import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
@@ -25,10 +29,12 @@ public class SearchOperations {
     }
 
     private final SearchStrategyFactory searchStrategyFactory;
+    private final TrackRepository trackRepository;
 
     @Inject
-    SearchOperations(SearchStrategyFactory searchStrategyFactory) {
+    SearchOperations(SearchStrategyFactory searchStrategyFactory, TrackRepository trackRepository) {
         this.searchStrategyFactory = searchStrategyFactory;
+        this.trackRepository = trackRepository;
     }
 
     public Observable<SearchResult> searchResult(String query, Optional<Urn> queryUrn, SearchType searchType) {
@@ -39,16 +45,18 @@ public class SearchOperations {
         return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query, queryUrn, contentType);
     }
 
-    Observable<SearchResult> searchPremiumResultFrom(List<SearchableItem> searchableItems,
+    Observable<SearchResult> searchPremiumResultFrom(List<Urn> searchableItems,
                                                      Optional<Link> nextHref,
                                                      Urn queryUrn) {
-        final SearchResult searchResult = SearchResult.fromSearchableItems(searchableItems, nextHref, queryUrn);
-        return Observable.just(searchResult);
+        return trackRepository.trackListFromUrns(searchableItems)
+                              .map(tracks -> Lists.transform(tracks, TrackItem::from))
+                              .map(Lists::<ListItem>newArrayList)
+                              .map(trackItems -> SearchResult.fromSearchableItems(trackItems, nextHref, queryUrn));
     }
 
     Observable<SearchResult> searchPremiumResult(String query, SearchType searchType) {
         return searchStrategyFactory.getSearchStrategy(searchType).searchResult(query,
-                                                                                Optional.<Urn>absent(),
+                                                                                Optional.absent(),
                                                                                 ContentType.PREMIUM);
     }
 
@@ -80,7 +88,7 @@ public class SearchOperations {
         @Override
         public Observable<SearchResult> call(SearchResult searchResult) {
             addPremiumItem(searchResult.getPremiumContent());
-            allUrns.addAll(Urns.extractUrns(removeFirstUpsellItemIfAny(searchResult.getItems())));
+            allUrns.addAll(Lists.transform(removeFirstUpsellItemIfAny(searchResult.getItems()), Entity::getUrn));
 
             final Optional<Urn> queryUrn = searchResult.queryUrn;
             if (queryUrn.isPresent()) {
@@ -101,14 +109,14 @@ public class SearchOperations {
             }
         }
 
-        private List<SearchableItem> removeFirstUpsellItemIfAny(List<SearchableItem> resultItems) {
+        private List<ListItem> removeFirstUpsellItemIfAny(List<ListItem> resultItems) {
             if (isFirstItemForUpsell(resultItems)) {
                 return resultItems.subList(1, resultItems.size());
             }
             return resultItems;
         }
 
-        private boolean isFirstItemForUpsell(List<SearchableItem> searchableItems) {
+        private boolean isFirstItemForUpsell(List<ListItem> searchableItems) {
             return !searchableItems.isEmpty() && searchableItems.get(0)
                                                                 .getUrn()
                                                                 .equals(UpsellSearchableItem.UPSELL_URN);

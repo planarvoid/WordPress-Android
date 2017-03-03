@@ -50,12 +50,12 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Func1<SearchResult, List<ListItem>> toPresentationModels = new Func1<SearchResult, List<ListItem>>() {
         @Override
         public List<ListItem> call(SearchResult searchResult) {
-            final List<SearchableItem> searchableItems = searchResult.getItems();
+            final List<ListItem> searchableItems = searchResult.getItems();
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
             final List<ListItem> searchItems = new ArrayList<>(searchableItems.size() + PREMIUM_ITEMS_DISPLAYED);
             if (premiumContent.isPresent()) {
                 final SearchResult premiumSearchResult = premiumContent.get();
-                final List<SearchableItem> premiumSearchResultItems = premiumSearchResult.getItems();
+                final List<ListItem> premiumSearchResultItems = premiumSearchResult.getItems();
                 premiumItems = buildPremiumItemsList(premiumSearchResultItems);
                 searchItems.add(new SearchPremiumItem(premiumSearchResultItems,
                                                       premiumSearchResult.nextHref,
@@ -249,9 +249,9 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         return playables;
     }
 
-    private Optional<List<ListItem>> buildPremiumItemsList(List<SearchableItem> premiumSearchResultItems) {
+    private Optional<List<ListItem>> buildPremiumItemsList(List<ListItem> premiumSearchResultItems) {
         List<ListItem> listItems = new ArrayList<>(premiumSearchResultItems.size());
-        for (SearchableItem source : premiumSearchResultItems) {
+        for (ListItem source : premiumSearchResultItems) {
             listItems.add(source);
         }
         return Optional.of(listItems);
@@ -292,10 +292,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     }
 
     @Override
-    public void onPremiumContentViewAllClicked(Context context, List<SearchableItem> premiumItemsSource,
-                                               Optional<Link> nextHref) {
+    public void onPremiumContentViewAllClicked(Context context, List<Urn> premiumItemsSource, Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn, apiQuery);
-        navigator.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource,
-                                                  nextHref, queryUrn);
+        navigator.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource, nextHref, queryUrn);
     }
 }

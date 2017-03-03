@@ -7,6 +7,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
@@ -35,7 +36,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
 
     private static final Func1<SearchResult, List<PlaylistItem>> TO_PRESENTATION_MODELS = searchResult -> {
         final List<PlaylistItem> result = new ArrayList<>(searchResult.getItems().size());
-        for (SearchableItem source : searchResult) {
+        for (ListItem source : searchResult) {
             if (source instanceof PlaylistItem) {
                 result.add((PlaylistItem) source);
             }

@@ -12,20 +12,20 @@ class SearchPremiumItem implements ListItem {
 
     static final Urn PREMIUM_URN = new Urn("local:search:premium");
 
-    private final List<SearchableItem> sourceSet;
+    private final List<ListItem> sourceSet;
     private final Optional<Link> nextHref;
     private final int resultsCount;
 
     private final ListItem firstItem;
 
-    SearchPremiumItem(List<SearchableItem> sourceSetPremiumItems, Optional<Link> nextHref, int resultsCount) {
+    SearchPremiumItem(List<ListItem> sourceSetPremiumItems, Optional<Link> nextHref, int resultsCount) {
         this.sourceSet = sourceSetPremiumItems;
         this.nextHref = nextHref;
         this.resultsCount = resultsCount;
         this.firstItem = buildFirstListItem(sourceSetPremiumItems);
     }
 
-    private ListItem buildFirstListItem(List<SearchableItem> premiumItems) {
+    private ListItem buildFirstListItem(List<ListItem> premiumItems) {
         return premiumItems.get(0);
     }
 
@@ -39,7 +39,7 @@ class SearchPremiumItem implements ListItem {
         return Optional.absent();
     }
 
-    List<SearchableItem> getSourceSet() {
+    List<ListItem> getSourceSet() {
         return sourceSet;
     }
 

@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
@@ -45,7 +46,7 @@ public class ApiUniversalSearchItem {
     }
 
 
-    public SearchableItem toSearchableItem() {
+    public ListItem toListItem() {
         if (this.track().isPresent()) {
             return TrackItem.from(this.track().get());
         } else if (this.playlist().isPresent()) {

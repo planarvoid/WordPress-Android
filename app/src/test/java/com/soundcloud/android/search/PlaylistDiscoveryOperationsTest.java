@@ -24,6 +24,7 @@ import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -166,7 +167,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         likeStatus.put(playlist.getUrn(), true);
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
-        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(result.getItems(), SearchableItem::getUrn)))).thenReturn(likeStatus);
+        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(result.getItems(), Entity::getUrn)))).thenReturn(likeStatus);
 
         operations.playlistsForTag("tag1").subscribe(observer);
 
@@ -180,7 +181,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         likeStatus.put(playlist.getUrn(), false);
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
-        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(result.getItems(), SearchableItem::getUrn)))).thenReturn(likeStatus);
+        when(loadPlaylistLikedStatuses.call(eq(Lists.transform(result.getItems(), Entity::getUrn)))).thenReturn(likeStatus);
 
         operations.playlistsForTag("tag1").subscribe(observer);
 
@@ -194,7 +195,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         repostStatus.put(playlist.getUrn(), true);
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
-        when(loadPlaylistRepostStatuses.call(eq(Lists.transform(result.getItems(), SearchableItem::getUrn)))).thenReturn(repostStatus);
+        when(loadPlaylistRepostStatuses.call(eq(Lists.transform(result.getItems(), Entity::getUrn)))).thenReturn(repostStatus);
 
         operations.playlistsForTag("tag1").subscribe(observer);
 
@@ -208,7 +209,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         repostStatus.put(playlist.getUrn(), false);
 
         SearchResult result = toSearchResult(buildPlaylistSummariesResponse());
-        when(loadPlaylistRepostStatuses.call(eq(Lists.transform(result.getItems(), SearchableItem::getUrn)))).thenReturn(repostStatus);
+        when(loadPlaylistRepostStatuses.call(eq(Lists.transform(result.getItems(), Entity::getUrn)))).thenReturn(repostStatus);
 
         operations.playlistsForTag("tag1").subscribe(observer);
 

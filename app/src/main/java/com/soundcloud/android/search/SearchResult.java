@@ -2,6 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -11,14 +12,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-public class SearchResult implements Iterable<SearchableItem> {
-    private final List<SearchableItem> items;
+public class SearchResult implements Iterable<ListItem> {
+    private final List<ListItem> items;
     private final int resultsCount;
     final Optional<Link> nextHref;
     final Optional<Urn> queryUrn;
     private final Optional<SearchResult> premiumContent;
 
-    private SearchResult(List<SearchableItem> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
+    private SearchResult(List<ListItem> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
                          Optional<SearchResult> premiumContent, int resultsCount) {
         this.items = items;
         this.resultsCount = resultsCount;
@@ -27,27 +28,27 @@ public class SearchResult implements Iterable<SearchableItem> {
         this.premiumContent = premiumContent;
     }
 
-    static SearchResult fromSearchableItems(List<SearchableItem> items, Optional<Link> nextHref, Urn queryUrn) {
-        return new SearchResult(items, nextHref, Optional.of(queryUrn), Optional.<SearchResult>absent(), 0);
+    static SearchResult fromSearchableItems(List<ListItem> items, Optional<Link> nextHref, Urn queryUrn) {
+        return new SearchResult(items, nextHref, Optional.of(queryUrn), Optional.absent(), 0);
     }
 
-    static SearchResult fromSearchableItems(List<? extends SearchableItem> items,
+    static SearchResult fromSearchableItems(List<? extends ListItem> items,
                                             Optional<Link> nextHref,
                                             Optional<Urn> queryUrn) {
         return fromSearchableItems(items, nextHref, queryUrn, 0);
     }
 
-    static SearchResult fromSearchableItems(List<? extends SearchableItem> items, Optional<Link> nextHref,
+    static SearchResult fromSearchableItems(List<? extends ListItem> items, Optional<Link> nextHref,
                                             Optional<Urn> queryUrn, int resultsCount) {
-        return fromSearchableItems(items, nextHref, queryUrn, Optional.<SearchResult>absent(), resultsCount);
+        return fromSearchableItems(items, nextHref, queryUrn, Optional.absent(), resultsCount);
     }
 
-    static SearchResult fromSearchableItems(List<? extends SearchableItem> items, Optional<Link> nextHref,
+    static SearchResult fromSearchableItems(List<? extends ListItem> items, Optional<Link> nextHref,
                                             Optional<Urn> queryUrn, Optional<SearchResult> premiumContent,
                                             int resultsCount) {
         int emptyItems = 0;
-        List<SearchableItem> nonNullItems = new ArrayList<>(items.size());
-        for (SearchableItem source : items) {
+        List<ListItem> nonNullItems = new ArrayList<>(items.size());
+        for (ListItem source : items) {
             if (source == null) {
                 emptyItems++;
             } else {
@@ -60,11 +61,11 @@ public class SearchResult implements Iterable<SearchableItem> {
         return new SearchResult(nonNullItems, nextHref, queryUrn, premiumContent, resultsCount);
     }
 
-    SearchResult copyWithSearchableItems(List<SearchableItem> items) {
+    SearchResult copyWithSearchableItems(List<ListItem> items) {
         return new SearchResult(items, this.nextHref, this.queryUrn, this.premiumContent, this.resultsCount);
     }
 
-    private static IllegalStateException getMissingItemException(List<? extends SearchableItem> items,
+    private static IllegalStateException getMissingItemException(List<? extends ListItem> items,
                                                                  Optional<Link> nextHref, int emptyItems) {
         return new IllegalStateException(
                 String.format(
@@ -76,15 +77,15 @@ public class SearchResult implements Iterable<SearchableItem> {
     }
 
     @Override
-    public Iterator<SearchableItem> iterator() {
+    public Iterator<ListItem> iterator() {
         return items.iterator();
     }
 
-    List<SearchableItem> getItems() {
+    List<ListItem> getItems() {
         return items;
     }
 
-    SearchResult addItem(int location, SearchableItem searchableItem) {
+    SearchResult addItem(int location, ListItem searchableItem) {
         items.add(location, searchableItem);
         return this;
     }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -283,7 +283,7 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     @VisibleForTesting
     public static Default.Builder builder() {
-        return new AutoParcel_PlaylistItem_Default.Builder().getImageUrlTemplate(Optional.absent())
+        return new AutoValue_PlaylistItem_Default.Builder().getImageUrlTemplate(Optional.absent())
                                                             .getCreatedAt(new Date())
                                                             .getKind(Kind.PLAYABLE)
                                                             .getUrn(Urn.NOT_SET)
@@ -314,21 +314,21 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
     @VisibleForTesting
     public static Default.Builder builder(PlaylistItem playlistItem) {
         if (playlistItem instanceof Default) {
-            return new AutoParcel_PlaylistItem_Default.Builder((Default) playlistItem);
+            return new AutoValue_PlaylistItem_Default.Builder((Default) playlistItem);
         }
         throw new IllegalArgumentException("Trying to create builder from promoted track item.");
     }
 
-    @AutoParcel
+    @AutoValue
     public static abstract class Default extends PlaylistItem {
 
         @Override
         public PlaylistItem updatedWithOfflineState(OfflineState offlineState) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).offlineState(offlineState).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).offlineState(offlineState).build();
         }
 
         public PlaylistItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-            final Default.Builder builder = new AutoParcel_PlaylistItem_Default.Builder(this).isUserLike(likeStatus.isUserLike());
+            final Default.Builder builder = new AutoValue_PlaylistItem_Default.Builder(this).isUserLike(likeStatus.isUserLike());
             if (likeStatus.likeCount().isPresent()) {
                 builder.likesCount(likeStatus.likeCount().get());
             }
@@ -336,12 +336,12 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         }
 
         public PlaylistItem updateLikeState(boolean isLiked) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).isUserLike(isLiked).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).isUserLike(isLiked).build();
         }
 
 
         public PlaylistItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
-            final Default.Builder builder = new AutoParcel_PlaylistItem_Default.Builder(this).isUserRepost(repostStatus.isReposted());
+            final Default.Builder builder = new AutoValue_PlaylistItem_Default.Builder(this).isUserRepost(repostStatus.isReposted());
             if (repostStatus.repostCount().isPresent()) {
                 builder.repostsCount(repostStatus.repostCount().get());
             }
@@ -350,24 +350,24 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
         @Override
         public PlaylistItem updatedWithTrackCount(int trackCount) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).trackCount(trackCount).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).trackCount(trackCount).build();
         }
 
         @Override
         public PlaylistItem updatedWithMarkedForOffline(boolean markedForOffline) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).isMarkedForOffline(Optional.of(markedForOffline)).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).isMarkedForOffline(Optional.of(markedForOffline)).build();
         }
 
         public PlaylistItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
         }
 
         @Override
         public PlaylistItem updateWithReposter(String reposter, Urn reposterUrn) {
-            return new AutoParcel_PlaylistItem_Default.Builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
+            return new AutoValue_PlaylistItem_Default.Builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
         }
 
-        @AutoParcel.Builder
+        @AutoValue.Builder
         public abstract static class Builder {
             public abstract Builder getImageUrlTemplate(Optional<String> getImageUrlTemplate);
 

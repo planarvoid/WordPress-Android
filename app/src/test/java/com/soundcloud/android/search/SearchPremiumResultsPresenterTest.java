@@ -62,7 +62,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        final List<SearchableItem> searchableItems =
+        final List<ListItem> searchableItems =
                 Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_TWO));
         final SearchResult searchResult = SearchResult.fromSearchableItems(searchableItems,
                                                                            Optional.absent(),

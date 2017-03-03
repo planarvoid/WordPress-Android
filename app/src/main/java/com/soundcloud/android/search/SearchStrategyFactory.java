@@ -13,8 +13,10 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.search.SearchOperations.ContentType;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -34,22 +36,22 @@ import java.util.Map;
 
 class SearchStrategyFactory {
 
-    private static final Func1<SearchModelCollection<? extends SearchableItem>, SearchResult> TO_SEARCH_RESULT =
+    private static final Func1<SearchModelCollection<? extends ListItem>, SearchResult> TO_SEARCH_RESULT =
             searchCollection -> SearchResult.fromSearchableItems(
                     searchCollection.getCollection(),
                     searchCollection.getNextLink(),
                     searchCollection.getQueryUrn(),
                     searchCollection.resultsCount());
 
-    private static final Func1<SearchModelCollection<SearchableItem>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
+    private static final Func1<SearchModelCollection<ListItem>, SearchResult> TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT =
             searchCollection -> {
-                final List<SearchableItem> collection = searchCollection.getCollection();
+                final List<ListItem> collection = searchCollection.getCollection();
                 final Optional<Link> nextLink = searchCollection.getNextLink();
                 final Optional<Urn> queryUrn = searchCollection.getQueryUrn();
-                final Optional<? extends SearchModelCollection<SearchableItem>> premiumContent =
+                final Optional<? extends SearchModelCollection<ListItem>> premiumContent =
                         searchCollection.premiumContent();
                 if (premiumContent.isPresent()) {
-                    final SearchModelCollection<SearchableItem> premiumItems = premiumContent.get();
+                    final SearchModelCollection<ListItem> premiumItems = premiumContent.get();
                     final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(premiumItems.getCollection(),
                                                                                               premiumItems.getNextLink(),
                                                                                               premiumItems.getQueryUrn(),
@@ -75,9 +77,9 @@ class SearchStrategyFactory {
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
-            List<SearchableItem> result = new ArrayList<>();
-            final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
-            for (final SearchableItem resultItem : input) {
+            List<ListItem> result = new ArrayList<>();
+            final Map<Urn, Boolean> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(Lists.transform(input.getItems(), Entity::getUrn));
+            for (final ListItem resultItem : input) {
                 if (resultItem instanceof PlaylistItem) {
                     final Urn itemUrn = resultItem.getUrn();
                     final PlaylistItem playlistItem = (PlaylistItem) resultItem;
@@ -93,9 +95,9 @@ class SearchStrategyFactory {
     private final Func1<SearchResult, SearchResult> mergeFollowings = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
-            final Map<Urn, Boolean> userIsFollowing = loadFollowingCommand.call(Lists.transform(input.getItems(), SearchableItem::getUrn));
-            final List<SearchableItem> updatedSearchResult = new ArrayList<>(input.getItems().size());
-            for (final SearchableItem resultItem : input) {
+            final Map<Urn, Boolean> userIsFollowing = loadFollowingCommand.call(Lists.transform(input.getItems(), Entity::getUrn));
+            final List<ListItem> updatedSearchResult = new ArrayList<>(input.getItems().size());
+            for (final ListItem resultItem : input) {
                 final Urn itemUrn = resultItem.getUrn();
                 if (userIsFollowing.containsKey(itemUrn)) {
                     final UserItem updatedUserItem = ((UserItem) resultItem).copyWithFollowing(userIsFollowing.get(itemUrn));
@@ -299,7 +301,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(cacheUniversalSearchCommand)
                               .doOnNext(cachePremiumContent)
-                              .map(item -> item.transform(ApiUniversalSearchItem::toSearchableItem))
+                              .map(item -> item.transform(ApiUniversalSearchItem::toListItem))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
                               .map(mergePlaylistLikeStatus)
                               .map(mergeFollowings);
