@@ -107,13 +107,19 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         final MoreView moreView = moreViewFactory.create(view, this);
         moreViewOpt = Optional.of(moreView);
 
-        if (featureOperations.getCurrentPlan().isGoPlan() || featureOperations.upsellHighTier()) {
+        if (shouldShowGoItems()) {
             setupTier(moreView);
             setupUpsell(moreView);
+            setupRestoreSubscription(moreView);
         }
         setupOfflineSyncSettings(moreView);
         setupFeedback(moreView);
         bindUserIfPresent();
+    }
+
+    private boolean shouldShowGoItems() {
+        return featureOperations.getCurrentPlan().isGoPlan() 
+                || featureOperations.upsellHighTier();
     }
 
     @Override
@@ -131,14 +137,16 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     }
 
     private void setupTier(MoreView moreView) {
-        String tierName = resources.getString(featureOperations.getCurrentPlan().tierName);
-        moreView.setSubscriptionTier(tierName);
+        moreView.setSubscriptionTier(resources.getString(featureOperations.getCurrentPlan().tierName));
     }
 
     private void setupUpsell(MoreView moreView) {
         if (featureOperations.upsellHighTier()) {
             moreView.showHighTierUpsell();
         }
+    }
+
+    private void setupRestoreSubscription(MoreView moreView) {
         if (!featureOperations.getCurrentPlan().isGoPlan()) {
             moreView.showRestoreSubscription();
         }

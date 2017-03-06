@@ -84,13 +84,13 @@ public class FeatureOperations {
         return featureStorage.getPlans(featureName).contains(plan);
     }
 
-    public boolean upsellHighTierAndMidTier() {
-        return planStorage.getUpsells().contains(Plan.HIGH_TIER) &&
-                planStorage.getUpsells().contains(Plan.MID_TIER);
-    }
-
     public boolean upsellHighTier() {
         return planStorage.getUpsells().contains(Plan.HIGH_TIER);
+    }
+
+    public boolean upsellBothTiers() {
+        return planStorage.getUpsells().contains(Plan.HIGH_TIER) &&
+                planStorage.getUpsells().contains(Plan.MID_TIER);
     }
 
     public boolean isHighTierTrialEligible() {

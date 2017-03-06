@@ -418,7 +418,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldLaunchProductChoiceForMidTierUpsell() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
+        when(featureOperations.upsellBothTiers()).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
 
         resolver.handleIntent(intent, context);
@@ -430,7 +430,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Test
     public void shouldLaunchProductChoiceForHighTierUpsell() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(featureOperations.upsellHighTierAndMidTier()).thenReturn(true);
+        when(featureOperations.upsellBothTiers()).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgoplus");
 
         resolver.handleIntent(intent, context);

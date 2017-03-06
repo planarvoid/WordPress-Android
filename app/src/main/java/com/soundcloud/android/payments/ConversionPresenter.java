@@ -5,7 +5,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -76,12 +75,17 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void displayProducts() {
         if (products.highTier().isPresent()) {
             displayPrimaryProduct(products.highTier().get());
-            if (products.midTier().isPresent() && featureOperations.getCurrentPlan() == Plan.FREE_TIER) {
+            if (shouldShowPlanChoice()) {
                 view.enableMorePlans();
             }
         } else {
             view.showRetryState();
         }
+    }
+
+    private boolean shouldShowPlanChoice() {
+        return products.midTier().isPresent()
+                && !featureOperations.getCurrentPlan().isGoPlan();
     }
 
     private void displayPrimaryProduct(WebProduct product) {

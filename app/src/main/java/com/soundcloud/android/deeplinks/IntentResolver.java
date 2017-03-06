@@ -258,7 +258,7 @@ public class IntentResolver {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
             Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
             openFallback(context, referrer);
-        } else if (featureOperations.upsellHighTierAndMidTier()) {
+        } else if (featureOperations.upsellBothTiers()) {
             trackForegroundEvent(referrer, Screen.CONVERSION);
             navigator.openProductChoiceOnMain(context, plan);
         } else {

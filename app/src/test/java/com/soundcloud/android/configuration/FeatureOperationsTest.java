@@ -46,7 +46,7 @@ public class FeatureOperationsTest {
     public void upsellHighTierAndMidTierIfUpsellsAvailable() {
         when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER, Plan.MID_TIER));
 
-        assertThat(featureOperations.upsellHighTierAndMidTier()).isTrue();
+        assertThat(featureOperations.upsellBothTiers()).isTrue();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class FeatureOperationsTest {
     }
 
     public void upsellHighTierAndMidTierDefaultsFalse() {
-        assertThat(featureOperations.upsellHighTierAndMidTier()).isFalse();
+        assertThat(featureOperations.upsellBothTiers()).isFalse();
     }
 
     @Test
