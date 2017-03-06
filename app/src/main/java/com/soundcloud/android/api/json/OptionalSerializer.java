@@ -52,6 +52,10 @@ class OptionalSerializer extends JsonSerializer<Optional> implements ContextualS
     @Override
     public void serialize(Optional value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         checkNotNull(property, "No property set.");
-        serializers.findValueSerializer(property.getType().containedType(0), property).serialize(value.orNull(), gen, serializers);
+        if (value.isPresent()) {
+            serializers.findValueSerializer(property.getType().containedType(0), property).serialize(value.get(), gen, serializers);
+        } else {
+            gen.writeNull();
+        }
     }
 }
