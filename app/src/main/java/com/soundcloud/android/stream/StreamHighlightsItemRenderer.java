@@ -7,6 +7,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
 
@@ -33,7 +34,6 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
 
     @Inject
     StreamHighlightsItemRenderer(ImageOperations imageOperations, Resources resources) {
-        // everything for dagger
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
@@ -51,16 +51,14 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
     @Override
     public void bindItemView(final int position, View itemView, List<StreamItem> notifications) {
         StreamItem.StreamHighlights streamHighlights = (StreamItem.StreamHighlights) notifications.get(position);
-        itemView.setOnClickListener(view -> {
-            listener.onStreamHighlightsClicked(Lists.transform(streamHighlights.suggestedTrackItems(), TrackItem.TO_URN));
-        });
-
-        setThumbnails(streamHighlights.suggestedTrackItems(), ButterKnife.findById(itemView, R.id.stream_highlights_preview));
-        setHighlightsDescription(itemView, streamHighlights);
+        List<TrackItem> trackItems = Lists.transform(streamHighlights.suggestedTrackItems(), TrackStreamItem::trackItem);
+        itemView.setOnClickListener(view -> listener.onStreamHighlightsClicked(Lists.transform(trackItems, TrackItem.TO_URN)));
+        setThumbnails(trackItems, ButterKnife.findById(itemView, R.id.stream_highlights_preview));
+        setHighlightsDescription(itemView, trackItems);
     }
 
-    private void setHighlightsDescription(View itemView, StreamItem.StreamHighlights streamHighlights) {
-        List<String> topCreators = getTopCreators(streamHighlights.suggestedTrackItems());
+    private void setHighlightsDescription(View itemView, List<TrackItem> trackItems) {
+        List<String> topCreators = getTopCreators(trackItems);
         ButterKnife.<TextView>findById(itemView, R.id.stream_highlights_description)
                 .setText(resources.getString(getDescriptionResource(topCreators.size()), topCreators.toArray()));
     }
@@ -76,7 +74,7 @@ class StreamHighlightsItemRenderer implements CellRenderer<StreamItem> {
     }
 
     private List<String> getTopCreators(List<TrackItem> trackItems) {
-        HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, (trackItem) -> trackItem.creatorName()));
+        HashSet<String> strings = new HashSet<>(Lists.transform(trackItems, PlayableItem::creatorName));
         return Lists.newArrayList(strings).subList(0, Math.min(strings.size(), 3));
     }
 

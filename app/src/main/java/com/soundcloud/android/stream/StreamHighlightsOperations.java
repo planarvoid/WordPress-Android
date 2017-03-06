@@ -5,8 +5,8 @@ import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.reflect.TypeToken;
@@ -37,7 +37,7 @@ class StreamHighlightsOperations {
             ApiRequest apiRequest = ApiRequest.get(ApiEndpoints.STREAM_HIGHLIGHTS.path())
                                               .forPrivateApi().build();
 
-            return apiClientRx.mappedResponse(apiRequest, new TypeToken<ModelCollection<ApiTrack>>() {
+            return apiClientRx.mappedResponse(apiRequest, new TypeToken<ModelCollection<ApiStreamItem>>() {
             })
                               .subscribeOn(scheduler)
                               .flatMap(apiTracks -> apiTracks.getCollection().size() < MIN_HIGHLIGHTS ?
