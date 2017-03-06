@@ -16,7 +16,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
@@ -29,10 +28,10 @@ import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FileAccessEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
@@ -54,6 +53,7 @@ import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -114,10 +114,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private Urn trackUrn = Urn.forTrack(123L);
     private TrackItem track;
-    private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn,
-                                                                 0L,
-                                                                 Consts.NOT_SET,
-                                                                 PlaybackType.AUDIO_DEFAULT);
+    private PlaybackItem playbackItem = TestPlaybackItem.audio(trackUrn);
     private TestDateProvider dateProvider;
 
     @Before
@@ -222,8 +219,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playUrlWithTheCurrentUrlAndPositionCallsSeekAndResumeOnSkippy() {
-        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
-        skippyAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
+        skippyAdapter.play(TestPlaybackItem.audio(trackUrn, 0L));
+        skippyAdapter.play(TestPlaybackItem.audio(trackUrn, 123L));
         InOrder inOrder = Mockito.inOrder(skippy);
         inOrder.verify(skippy).seek(123L);
         inOrder.verify(skippy).resume();

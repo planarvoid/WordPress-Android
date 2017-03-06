@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdViewabilityController;
@@ -26,7 +25,6 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
-import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackConstants;
@@ -34,7 +32,6 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
@@ -42,6 +39,7 @@ import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -89,7 +87,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Captor private ArgumentCaptor<PlaybackStateTransition> stateCaptor;
 
     private Urn trackUrn = Urn.forTrack(123L);
-    private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
+    private PlaybackItem trackItem = TestPlaybackItem.audio(trackUrn);
     private VideoAdPlaybackItem videoItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L, 0.5f);
     private int duration = 20000;
 
@@ -209,7 +207,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
 
-        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
+        mediaPlayerAdapter.play(TestPlaybackItem.audio(trackUrn));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -850,7 +848,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void shouldResumePlaybackAtSpecifiedTime() {
         when(mediaPlayer.getDuration()).thenReturn(duration);
 
-        mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
+        mediaPlayerAdapter.play(TestPlaybackItem.audio(trackUrn, 123L));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         InOrder inOrder = inOrder(mediaPlayer);

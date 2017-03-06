@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
-import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlaybackItem;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import org.junit.Test;
 
 public class AdUtilsTest extends AndroidUnitTest {
@@ -53,28 +52,25 @@ public class AdUtilsTest extends AndroidUnitTest {
 
     @Test
     public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsAudioAd() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.AUDIO_AD);
+        PlaybackItem playbackItem = TestPlaybackItem.audioAd(Urn.forTrack(123L), 0L, 1000L);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();
     }
 
     @Test
     public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsVideoDefault() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.VIDEO_AD);
+        PlaybackItem playbackItem = TestPlaybackItem.videoAd(Urn.forTrack(123L), 0L, 1000L);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();
     }
 
     @Test
     public void isAdForPlaybackItemReturnsTrueWhenUrnIsAd() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forAd("totally-an-ad", "yes-it-is"),
-                                                             0L,
-                                                             1000L,
-                                                             PlaybackType.AUDIO_DEFAULT);
+        PlaybackItem playbackItem = TestPlaybackItem.audio(Urn.forAd("totally-an-ad", "yes-it-is"), 0L, 1000L);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();
     }
 
     @Test
     public void isAdForPlaybackItemReturnsFalseWhenIsANormalAudioItem() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.AUDIO_DEFAULT);
+        PlaybackItem playbackItem = TestPlaybackItem.audio(Urn.forTrack(123L), 0L, 1000L);
         assertThat(AdUtils.isAd(playbackItem)).isFalse();
     }
 

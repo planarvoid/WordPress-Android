@@ -10,6 +10,7 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -55,7 +56,7 @@ public class PlayStatePublisherTest {
     @Test
     public void publishesPlayStateForFirstPlayToControllers() {
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
-        final AudioPlaybackItem playbackItem = getPlaybackItem();
+        final AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
@@ -71,7 +72,7 @@ public class PlayStatePublisherTest {
     @Test
     public void publishesPlayQueueCompleteState() {
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
-        final AudioPlaybackItem playbackItem = getPlaybackItem();
+        final AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
 
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, PLAY_ID);
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
@@ -89,7 +90,7 @@ public class PlayStatePublisherTest {
     @Test
     public void publishesPlayStateWithLastPlayIdIfNotFirstPlayEvent() {
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
-        final AudioPlaybackItem playbackItem = getPlaybackItem();
+        final AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, "current-play-id");
         when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
@@ -106,14 +107,14 @@ public class PlayStatePublisherTest {
     public void ignorePublishingWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
 
-        publisher.publish(TestPlayerTransitions.playing(), getPlaybackItem());
+        publisher.publish(TestPlayerTransitions.playing(), TestPlaybackItem.audio());
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
     @Test
     public void transitionAdsAndAnalyticsEvenWhileCasting() {
-        AudioPlaybackItem playbackItem = getPlaybackItem();
+        AudioPlaybackItem playbackItem = TestPlaybackItem.audio();
         PlaybackStateTransition stateTransition = TestPlayerTransitions.playing();
         when(castConnectionHelper.isCasting()).thenReturn(true);
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
@@ -123,10 +124,5 @@ public class PlayStatePublisherTest {
 
         verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         verify(adsController).onPlayStateChanged(playStateEvent);
-    }
-
-    @NonNull
-    private AudioPlaybackItem getPlaybackItem() {
-        return AudioPlaybackItem.create(TestPlayStates.URN, 0, DURATION, PlaybackType.AUDIO_DEFAULT);
     }
 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -184,8 +185,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
                                                  int bitrate,
                                                  Date transitionTime,
                                                  boolean isBufferUnderrun) {
-        final PlaybackItem playbackItem = AudioPlaybackItem.create(itemUrn, 0L, 0L, PlaybackType.AUDIO_DEFAULT);
-        createAndProcessStateTransition(playbackItem, player, newState, format, bitrate, transitionTime, isBufferUnderrun);
+        createAndProcessStateTransition(TestPlaybackItem.audio(itemUrn), player, newState, format, bitrate, transitionTime, isBufferUnderrun);
     }
 
     private void createAndProcessStateTransition(PlaybackItem playbackItem,
