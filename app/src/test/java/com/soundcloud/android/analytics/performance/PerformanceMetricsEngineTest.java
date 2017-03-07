@@ -1,97 +1,90 @@
 package com.soundcloud.android.analytics.performance;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine.ActivityLifecycle;
-import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PerformanceEvent;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.ComponentName;
+import android.os.Bundle;
+
+import java.util.concurrent.TimeUnit;
 
 public class PerformanceMetricsEngineTest extends AndroidUnitTest {
 
+    private static final MetricType METRIC_TYPE = MetricType.APP_ON_CREATE;
+
+    private static final PerformanceMetric START_METRIC = PerformanceMetric.builder()
+                                                                           .timestamp(TimeUnit.MILLISECONDS.toNanos(1000L))
+                                                                           .metricType(METRIC_TYPE)
+                                                                           .build();
+
+    private static final PerformanceMetric END_METRIC = PerformanceMetric.builder()
+                                                                         .timestamp(TimeUnit.MILLISECONDS.toNanos(2500L))
+                                                                         .metricType(METRIC_TYPE)
+                                                                         .build();
+
+    private final TestEventBus eventBus = new TestEventBus();
+
     private PerformanceMetricsEngine performanceMetricsEngine;
-    private ActivityLifecycle activityLifecycle;
-
-    @Mock private StopWatch stopWatch;
-    @Mock private Application application;
-    @Mock private DeviceHelper deviceHelper;
-
-    private TestEventBus eventBus = new TestEventBus();
 
     @Before
-    public void setUp() {
-        performanceMetricsEngine = new PerformanceMetricsEngine(stopWatch, eventBus, deviceHelper);
-        activityLifecycle = new ActivityLifecycle(application, stopWatch, eventBus, deviceHelper);
-        when(deviceHelper.getAppVersionName()).thenReturn("beta");
-        when(deviceHelper.getDeviceName()).thenReturn("nexus");
-        when(deviceHelper.getAndroidReleaseVersion()).thenReturn("lollipop");
+    public void setUp() throws Exception {
+        performanceMetricsEngine = new PerformanceMetricsEngine(eventBus);
     }
 
     @Test
-    public void shouldRegisterActivityCallbacks() {
-        performanceMetricsEngine.trackStartupTime(application);
+    public void publishesPerformanceEventWithDuration() {
+        performanceMetricsEngine.startMeasuring(START_METRIC);
+        performanceMetricsEngine.endMeasuring(END_METRIC);
 
-        verify(application).registerActivityLifecycleCallbacks(any(ActivityLifecycle.class));
+        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
+
+        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
+        assertThat(durationFromEvent(actualEvent)).isEqualTo(1500L);
     }
 
     @Test
-    public void shouldStopStopWatchAndUnregisterCallbacksOnResumeMainActivity() {
-        final InOrder inOrder = inOrder(application, stopWatch);
+    public void publishesPerformanceEventFromAPreviousMetric() {
+        performanceMetricsEngine.endMeasuringFrom(START_METRIC);
 
-        activityLifecycle.onActivityResumed(mockActivity(MainActivity.class));
+        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
 
-        inOrder.verify(application).unregisterActivityLifecycleCallbacks(activityLifecycle);
-        inOrder.verify(stopWatch).stop();
-
-        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE)).hasSize(1);
-        assertThat(eventBus.lastEventOn(EventQueue.PERFORMANCE).name()).isEqualTo(PerformanceEvent.METRIC_APP_STARTUP_TIME);
+        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
+        assertThat(hasDurationKey(actualEvent)).isTrue();
     }
 
     @Test
-    public void shouldStopStopWatchAndUnregisterCallbacksOnResumeOnboardActivity() {
-        final InOrder inOrder = inOrder(application, stopWatch);
+    public void doesNotPublishWithOnlyOneMetric() {
+        performanceMetricsEngine.endMeasuring(END_METRIC);
 
-        activityLifecycle.onActivityResumed(mockActivity(OnboardActivity.class));
-
-        inOrder.verify(application).unregisterActivityLifecycleCallbacks(activityLifecycle);
-        inOrder.verify(stopWatch).stop();
-
-        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE)).hasSize(1);
-        assertThat(eventBus.lastEventOn(EventQueue.PERFORMANCE).name()).isEqualTo(PerformanceEvent.METRIC_APP_STARTUP_TIME);
+        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldNotMeasureIfIsNotMainScreen() {
-        activityLifecycle.onActivityResumed(mockActivity(SearchActivity.class));
+    public void publishesPerformanceEventsWithMetricType() {
+        performanceMetricsEngine.startMeasuring(METRIC_TYPE);
+        performanceMetricsEngine.endMeasuring(METRIC_TYPE);
 
-        verifyZeroInteractions(application, stopWatch);
+        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
+
+        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
+        assertThat(hasDurationKey(actualEvent)).isTrue();
     }
 
-    private Activity mockActivity(Class<? extends Activity> activityClass) {
-        final Activity activity = mock(Activity.class);
-        final ComponentName componentName = mock(ComponentName.class);
-        when(componentName.getClassName()).thenReturn(activityClass.getName());
-        when(activity.getComponentName()).thenReturn(componentName);
-
-        return activity;
+    private long durationFromEvent(PerformanceEvent event) {
+        return bundleFromEvent(event).getLong(MetricKey.TIME_MILLIS.toString());
     }
+
+    private boolean hasDurationKey(PerformanceEvent event) {
+        return bundleFromEvent(event).containsKey(MetricKey.TIME_MILLIS.toString());
+    }
+
+    private Bundle bundleFromEvent(PerformanceEvent event) {
+        return event.metricParams().toBundle();
+    }
+
 }

@@ -1,98 +1,145 @@
 package com.soundcloud.android.analytics.performance;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PerformanceEvent;
-import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.Application.ActivityLifecycleCallbacks;
-import android.os.Bundle;
-import android.util.Log;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-@AutoFactory(allowSubclasses = true)
+/**
+ * <p>Engine class to send performance events: use it whenever a measurement
+ * between two points in time is required.</p>
+ *
+ * <p>A good example would be application startup time since there is a starting and ending point.</p>
+ *
+ * See: {@link PerformanceMetricsEngine#startMeasuring(MetricType)}<br>
+ * See: {@link PerformanceMetricsEngine#endMeasuring(MetricType)}}<br>
+ */
+@Singleton
 public class PerformanceMetricsEngine {
-    private static final String TAG = PerformanceMetricsEngine.class.getSimpleName();
 
-    private final StopWatch stopWatch;
+    private final static String TAG = PerformanceMetricsEngine.class.getSimpleName();
+
     private final EventBus eventBus;
-    private final DeviceHelper deviceHelper;
+    private final ConcurrentHashMap<MetricType, List<PerformanceMetric>> metricTypeList = new ConcurrentHashMap<>();
 
-    PerformanceMetricsEngine(StopWatch stopWatch, @Provided EventBus eventBus, @Provided DeviceHelper deviceHelper) {
-        this.stopWatch = stopWatch;
+    @Inject
+    PerformanceMetricsEngine(EventBus eventBus) {
         this.eventBus = eventBus;
-        this.deviceHelper = deviceHelper;
     }
 
-    public void trackStartupTime(Application application) {
-        application.registerActivityLifecycleCallbacks(new ActivityLifecycle(application, stopWatch, eventBus,
-                deviceHelper));
+    /**
+     * Starts measuring a {@link MetricType} by creating a
+     * {@link PerformanceMetric} with the current {@link System#nanoTime()}.
+     */
+    public void startMeasuring(MetricType type) {
+        startMeasuring(PerformanceMetric.create(type));
     }
 
-    @VisibleForTesting
-    static final class ActivityLifecycle implements ActivityLifecycleCallbacks {
-        private final Application application;
-        private final StopWatch stopWatch;
-        private final EventBus eventBus;
-        private final DeviceHelper deviceHelper;
+    /**
+     * Starts measuring a {@link PerformanceMetric} that is already timestamped.
+     */
 
-        ActivityLifecycle(Application application, StopWatch stopWatch, EventBus eventBus, DeviceHelper deviceHelper) {
-            this.application = application;
-            this.stopWatch = stopWatch;
-            this.eventBus = eventBus;
-            this.deviceHelper = deviceHelper;
+    public void startMeasuring(PerformanceMetric performanceMetric) {
+        addPerformanceMetric(performanceMetric);
+    }
+
+    /**
+     * Ends measuring a {@link MetricType} by creating a
+     * {@link PerformanceMetric} with the current {@link System#nanoTime()}.<br>
+     *
+     * As a result, a new performance event is going to be published.
+     */
+    public void endMeasuring(MetricType type) {
+        endMeasuring(PerformanceMetric.create(type));
+    }
+
+    /**
+     * Ends measuring a {@link PerformanceMetric} that is already timestamped.<br>
+     *
+     * As a result, a new performance event is going to be published.
+     */
+    public void endMeasuring(PerformanceMetric performanceMetric) {
+        addPerformanceMetric(performanceMetric);
+        publish(performanceMetric.metricType());
+    }
+
+    /**
+     * Starts and ends measuring from an initial {@link PerformanceMetric} that is
+     * already timestamped and a new {@link PerformanceMetric} with the current
+     * {@link System#nanoTime()}.<br>
+     *
+     * <p>As a result, a new performance event is going to be published.</p>
+     */
+    public void endMeasuringFrom(PerformanceMetric performanceMetric) {
+        startMeasuring(performanceMetric);
+        endMeasuring(performanceMetric.metricType());
+    }
+
+    private void publish(MetricType metricType) {
+        if (isValidMetric(metricType)) {
+            sendEvent(metricType, calculateDuration(metricType));
+        }
+        removeMetric(metricType);
+    }
+
+    private boolean isValidMetric(MetricType metricType) {
+        // metric should have at least 2 metrics of the same type
+        // (start and end) in order to compute the duration of the event
+        return metricTypeList.get(metricType).size() >= 2;
+    }
+
+    private void addPerformanceMetric(PerformanceMetric performanceMetric) {
+        final MetricType metricType = performanceMetric.metricType();
+
+        if (!metricTypeList.containsKey(metricType)) {
+            metricTypeList.put(metricType, new ArrayList<>());
         }
 
-        @Override
-        public void onActivityCreated(Activity activity, Bundle bundle) {}
+        metricTypeList.get(metricType).add(performanceMetric);
+    }
 
-        @Override
-        public void onActivityStarted(Activity activity) {}
+    private long calculateDuration(MetricType metricType) {
+        List<PerformanceMetric> list = metricTypeList.get(metricType);
 
-        @Override
-        public void onActivityResumed(Activity activity) {
-            try {
-                final UiLatencyMetric uiLatencyMetric = UiLatencyMetric.fromActivity(activity);
-                if (uiLatencyMetric != UiLatencyMetric.NONE) {
-                    application.unregisterActivityLifecycleCallbacks(this);
-                    stopWatch.stop();
-                    trackApplicationStartupTime(uiLatencyMetric);
-                }
-            } catch (Exception exception) {
-                ErrorUtils.handleSilentException(exception);
-            }
+        if (!list.isEmpty()) {
+            long lastTimestamp = list.get(list.size() - 1).timestamp();
+            long firstTimestamp = list.get(0).timestamp();
+            return TimeUnit.NANOSECONDS.toMillis(lastTimestamp - firstTimestamp);
+        }
+        return 0;
+    }
+
+    private void sendEvent(MetricType metricType, long duration) {
+        MetricParams metricParams = buildMetricParams(metricType, duration);
+        PerformanceEvent performanceEvent = PerformanceEvent.create(metricType, metricParams);
+        eventBus.publish(EventQueue.PERFORMANCE, performanceEvent);
+        logPerformanceMetric(metricType, duration);
+    }
+
+    private void logPerformanceMetric(MetricType metricType, long duration) {
+        Log.d(TAG, metricType.toString() + ": " + duration + "ms");
+    }
+
+    private void removeMetric(MetricType metricType) {
+        metricTypeList.remove(metricType);
+    }
+
+    private MetricParams buildMetricParams(MetricType metricType, long duration) {
+        MetricParams metricParams = new MetricParams();
+
+        for (PerformanceMetric performanceMetric : metricTypeList.get(metricType)) {
+            metricParams.putAll(performanceMetric.metricParams());
         }
 
-        @Override
-        public void onActivityPaused(Activity activity) {}
+        metricParams.putLong(MetricKey.TIME_MILLIS, duration);
 
-        @Override
-        public void onActivityStopped(Activity activity) {}
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {}
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {}
-
-        private void trackApplicationStartupTime(UiLatencyMetric uiLatencyMetric) {
-            final long startupTimeMillis = stopWatch.getTotalTimeMillis();
-            final PerformanceEvent performanceEvent = PerformanceEvent.forApplicationStartupTime(
-                    uiLatencyMetric == UiLatencyMetric.MAIN_AUTHENTICATED, startupTimeMillis,
-                    deviceHelper.getAppVersionName(), deviceHelper.getDeviceName(),
-                    deviceHelper.getAndroidReleaseVersion());
-
-            eventBus.publish(EventQueue.PERFORMANCE, performanceEvent);
-            logApplicationStartupTime(startupTimeMillis);
-        }
-
-        private void logApplicationStartupTime(long startupTimeMillis) {
-            Log.d(TAG, String.format("Application startup time: %s ms", String.valueOf(startupTimeMillis)));
-        }
+        return metricParams;
     }
 }

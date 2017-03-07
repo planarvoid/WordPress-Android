@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CREATE;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.facebook.FacebookSdk;
@@ -14,8 +15,8 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngineFactory;
-import com.soundcloud.android.analytics.performance.StopWatch;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -28,6 +29,7 @@ import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.LikesStateProvider;
+import com.soundcloud.android.main.ApplicationStartupMeterFactory;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -79,7 +81,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Performance: we want to start timing when the class loader loads classes.
-    private StopWatch stopWatch = StopWatch.start();
+    private final PerformanceMetric startPerformanceMetric = PerformanceMetric.create(APP_ON_CREATE);
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
@@ -126,11 +128,12 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject SyncInitiator syncInitiator;
     @Inject StationsOperations stationsOperations;
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
-    @Inject PerformanceMetricsEngineFactory performanceMetricsEngineFactory;
     @Inject LikesStateProvider likesStateProvider;
     @Inject RepostsStateProvider repostsStateProvider;
     @Inject MiniplayerStorage miniplayerStorage;
     @Inject FollowingStateProvider followingStateProvider;
+    @Inject PerformanceMetricsEngine performanceMetricsEngine;
+    @Inject ApplicationStartupMeterFactory applicationStartupMeterFactory;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -155,19 +158,16 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         applicationComponent.inject(this);
         devTools.initialize(this);
-        initializePerformanceEngine();
         bootApplication();
+
+        performanceMetricsEngine.endMeasuringFrom(startPerformanceMetric);
     }
 
     private void initializeFirebase() {
         // we do this manually, so that we can support LeakCanary :
         // http://stackoverflow.com/questions/37585090/leakcanary-crashes-with-googles-firebase
-        FirebaseOptions options = FirebaseOptions.fromResource(this);
+        final FirebaseOptions options = FirebaseOptions.fromResource(this);
         FirebaseApp.initializeApp(this, options);
-    }
-
-    private void initializePerformanceEngine() {
-        performanceMetricsEngineFactory.create(stopWatch).trackStartupTime(this);
     }
 
     protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
@@ -211,6 +211,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         adsController.subscribe();
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();
+        applicationStartupMeterFactory.create(this).subscribe();
 
         configureCast();
 

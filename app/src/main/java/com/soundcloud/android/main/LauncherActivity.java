@@ -46,4 +46,5 @@ public class LauncherActivity extends RootActivity {
     private void handleLoggedInUser() {
         navigator.launchHome(this, getIntent().getExtras());
     }
+
 }
