@@ -19,6 +19,7 @@ import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -49,6 +50,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void setUp() throws Exception {
         configureWiremock();
+
+        addActivityMonitors(getInstrumentation());
 
         solo = new Han(getInstrumentation());
         solo.registerBusyUiIndicator(With.classSimpleName(ProgressBar.class.getSimpleName()));
@@ -96,6 +99,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         addInitialStubMappings();
     }
 
+    protected void addActivityMonitors(Instrumentation instrumentation) {
+
+    }
+
 
     /***
      * Add stubs for wiremock, e.g. :
@@ -115,6 +122,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     @Override
     protected void tearDown() throws Exception {
+        removeActivityMonitors(getInstrumentation());
         toastObserver.stopObserving();
 
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
@@ -129,6 +137,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         solo = null;
         Log.d("TESTEND:", String.format("%s", testCaseName));
         LogCollector.stopCollecting();
+    }
+
+    protected void removeActivityMonitors(Instrumentation instrumentation) {
+
     }
 
     protected void stopWiremock() {

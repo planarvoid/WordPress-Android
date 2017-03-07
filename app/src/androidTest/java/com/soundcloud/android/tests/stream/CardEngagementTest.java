@@ -1,6 +1,11 @@
 package com.soundcloud.android.tests.stream;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.soundcloud.android.framework.TestUser.engagementsUser;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +20,8 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
+
+import android.content.res.Resources;
 
 public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
@@ -31,6 +38,14 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         streamScreen = new StreamScreen(solo);
+    }
+
+    @Override
+    protected void addInitialStubMappings() {
+        Resources resources = getInstrumentation().getContext().getResources();
+        String body = readBodyOfFile(resources, "engagements-user-stream.json");
+        stubFor(get(urlPathMatching("/stream"))
+                        .willReturn(aResponse().withStatus(200).withBody(body)));;
     }
 
     @Override
