@@ -62,9 +62,9 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         showGoIndicator(view, track);
     }
 
-    private void showGoIndicator(View view, TrackItem track) {
+    private void showGoIndicator(View view, TrackItem trackItem) {
         View goIndicator = ButterKnife.findById(view, R.id.go_indicator);
-        goIndicator.setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
+        goIndicator.setVisibility(isFullHighTierTrack(trackItem) ? VISIBLE : GONE);
     }
 
     private void bindTrackTitle(View view, String title) {

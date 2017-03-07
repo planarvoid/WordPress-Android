@@ -13,83 +13,32 @@ import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
-import rx.functions.Func1;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public abstract class TrackItem extends PlayableItem implements TieredTrack, UpdatableTrackItem {
+public abstract class TrackItem extends PlayableItem implements UpdatableTrackItem {
 
-
-    public static final TrackItem EMPTY = TrackItem.Default.builder().build();
-
+    public static final String PLAYABLE_TYPE = "track";
 
     public static TrackItem from(Track track) {
-        return TrackItem.create(track.urn(),
-                                track.offlineState(),
+        return TrackItem.create(track.offlineState(),
                                 track.userLike(),
                                 track.likesCount(),
                                 track.userRepost(),
                                 track.repostsCount(),
-                                track.genre(),
-                                track.title(),
-                                track.creatorUrn(),
-                                track.creatorName(),
-                                track.isPrivate(),
-                                false,
-                                track.createdAt(),
-                                track.imageUrlTemplate(),
-                                track.permalinkUrl(),
-                                track.description(),
-                                track.snippetDuration(),
-                                track.fullDuration(),
-                                track.waveformUrl(),
-                                track.monetizable(),
-                                track.blocked(),
-                                track.snipped(),
-                                track.commentable(), track.policy(),
-                                track.subHighTier(),
-                                track.subMidTier(),
-                                track.monetizationModel(),
-                                track.playCount(),
-                                track.commentsCount()).build();
+                                track).build();
     }
 
 
     public static TrackItem fromTrackAndStreamEntity(Track track, StreamEntity streamEntity) {
-        return TrackItem.create(track.urn(),
-                                track.offlineState(),
+        return TrackItem.create(track.offlineState(),
                                 track.userLike(),
                                 track.likesCount(),
                                 track.userRepost(),
                                 track.repostsCount(),
-                                track.genre(),
-                                track.title(),
-                                track.creatorUrn(),
-                                track.creatorName(),
-                                track.isPrivate(),
-                                false,
-                                track.createdAt(),
-                                track.imageUrlTemplate(),
-                                track.permalinkUrl(),
-                                track.description(),
-                                track.snippetDuration(),
-                                track.fullDuration(),
-                                track.waveformUrl(),
-                                track.monetizable(),
-                                track.blocked(),
-                                track.snipped(),
-                                track.commentable(),
-                                track.policy(),
-                                track.subHighTier(),
-                                track.subMidTier(),
-                                track.monetizationModel(),
-                                track.playCount(),
-                                track.commentsCount())
+                                track)
                         .reposter(streamEntity.reposter())
                         .reposterUrn(streamEntity.reposterUrn())
                         .avatarUrlTemplate(streamEntity.avatarUrl()).build();
@@ -107,148 +56,141 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
         return TrackItem.fromApiTrackWithLikeAndRepost(apiTrack, false, repost);
     }
 
-    public static TrackItem.Default from(ApiTrack apiTrack) {
+    public static TrackItem from(ApiTrack apiTrack) {
         return fromApiTrackWithLikeAndRepost(apiTrack, false, false);
     }
 
-    private static TrackItem.Default fromApiTrackWithLikeAndRepost(ApiTrack apiTrack, boolean isLiked, boolean isRepost) {
-        return TrackItem.create(apiTrack.getUrn(),
-                                OfflineState.NOT_OFFLINE,
-                                isLiked,
-                                apiTrack.getLikesCount(),
-                                false,
-                                apiTrack.getRepostsCount(),
-                                Optional.fromNullable(apiTrack.getGenre()),
-                                apiTrack.getTitle(),
-                                apiTrack.getUser() != null ? apiTrack.getUser().getUrn() : Urn.NOT_SET,
-                                apiTrack.getUserName(),
-                                apiTrack.isPrivate(),
-                                isRepost,
-                                apiTrack.getCreatedAt(),
-                                apiTrack.getImageUrlTemplate(),
-                                apiTrack.getPermalinkUrl(),
-                                apiTrack.getDescription(),
-                                apiTrack.getSnippetDuration(),
-                                apiTrack.getFullDuration(),
-                                apiTrack.getWaveformUrl(),
-                                apiTrack.isMonetizable(),
-                                apiTrack.isBlocked(),
-                                apiTrack.isSnipped(),
-                                apiTrack.isCommentable(),
-                                apiTrack.getPolicy(),
-                                apiTrack.isSubHighTier().or(false),
-                                apiTrack.isSubMidTier().or(false),
-                                apiTrack.getMonetizationModel().or(Strings.EMPTY),
-                                apiTrack.getPlaybackCount(),
-                                apiTrack.getCommentsCount()).build();
+    private static TrackItem fromApiTrackWithLikeAndRepost(ApiTrack apiTrack, boolean isLiked, boolean isRepost) {
+        return TrackItem.from(Track.from(apiTrack, isRepost, isLiked));
     }
 
     public static TrackItem fromLiked(ApiTrack apiTrack, boolean liked) {
         return fromApiTrackWithLikeAndRepost(apiTrack, liked, false);
     }
 
-    public static <T extends Iterable<ApiTrack>> Func1<T, List<TrackItem>> fromApiTracks() {
-        return trackList -> {
-            List<TrackItem> trackItems = new ArrayList<>();
-            for (ApiTrack source1 : trackList) {
-                trackItems.add(from(source1));
-            }
-            return trackItems;
-        };
+    abstract Track track();
+
+    public Urn getUrn() {
+        return track().urn();
     }
 
-    public static final String PLAYABLE_TYPE = "track";
+    public Optional<String> getImageUrlTemplate() {
+        return track().imageUrlTemplate();
+    }
 
-    public abstract Optional<String> description();
+    public Date getCreatedAt() {
+        return track().createdAt();
+    }
 
-    public abstract long snippetDuration();
+    public Optional<String> genre() {
+        return track().genre();
+    }
 
-    public abstract long fullDuration();
+    public String title() {
+        return track().title();
+    }
 
-    public abstract String waveformUrl();
+    public Urn creatorUrn() {
+        return track().creatorUrn();
+    }
 
-    public abstract boolean monetizable();
+    public String creatorName() {
+        return track().creatorName();
+    }
 
-    public abstract boolean commentable();
+    public Date createdAt() {
+        return track().createdAt();
+    }
 
-    public abstract String policy();
+    public String permalinkUrl() {
+        return track().permalinkUrl();
+    }
 
-    public abstract String monetizationModel();
+    public boolean isPrivate() {
+        return track().isPrivate();
+    }
 
-    public abstract int playCount();
+    public boolean isRepost() {
+        return track().userRepost();
+    }
 
-    public abstract int commentsCount();
+    public boolean isBlocked() {
+        return track().blocked();
+    }
+
+    public boolean isSnipped() {
+        return track().snipped();
+    }
+
+    public boolean isSubMidTier() {
+        return track().subMidTier();
+    }
+
+    public boolean isSubHighTier() {
+        return track().subHighTier();
+    }
+
+    public boolean isCommentable() {
+        return track().commentable();
+    }
+
+    public String monetizationModel() {
+        return track().monetizationModel();
+    }
+
+    public String policy() {
+        return track().policy();
+    }
+
+    public int playCount() {
+        return track().playCount();
+    }
+
+
+    public int commentsCount() {
+        return track().commentsCount();
+    }
+
+    public long fullDuration() {
+        return track().fullDuration();
+    }
+
+    public long snippetDuration() {
+        return track().snippetDuration();
+    }
+
+    public String waveformUrl() {
+        return track().waveformUrl();
+    }
+
+    public Optional<String> description() {
+        return track().description();
+    }
 
     private boolean isPlaying;
 
-    public static Default.Builder create(Urn urn,
-                                         OfflineState offlineState,
-                                         boolean isUserLike,
-                                         int likesCount,
-                                         boolean isUserRepost,
-                                         int repostsCount,
-                                         Optional<String> genre,
-                                         String title,
-                                         Urn creatorUrn,
-                                         String creatorName,
-                                         boolean isPrivate,
-                                         boolean isRepost,
-                                         Date createdAt,
-                                         Optional<String> imageUrlTemplate,
-                                         String permalinkUrl,
-                                         Optional<String> description,
-                                         long snippetDuration,
-                                         long fullDuration,
-                                         String waveformUrl,
-                                         boolean monetizable,
-                                         boolean blocked,
-                                         boolean snipped,
-                                         boolean commentable, String policy,
-                                         boolean subHighTier,
-                                         boolean subMidTier,
-                                         String monetizationModel,
-                                         int playCount,
-                                         int commentsCount) {
-        return Default.builder().getUrn(urn)
-                      .offlineState(offlineState)
-                      .isUserLike(isUserLike)
-                      .likesCount(likesCount)
-                      .isUserRepost(isUserRepost)
-                      .repostsCount(repostsCount)
-                      .genre(genre)
-                      .title(title)
-                      .creatorUrn(creatorUrn)
-                      .creatorName(creatorName)
-                      .reposter(Optional.absent())
-                      .reposterUrn(Optional.absent())
-                      .avatarUrlTemplate(Optional.absent())
-                      .isPrivate(isPrivate)
-                      .isRepost(isRepost)
-                      .getCreatedAt(createdAt)
-                      .getImageUrlTemplate(imageUrlTemplate)
-                      .permalinkUrl(permalinkUrl)
-                      .description(description)
-                      .snippetDuration(snippetDuration)
-                      .fullDuration(fullDuration)
-                      .waveformUrl(waveformUrl)
-                      .monetizable(monetizable)
-                      .isBlocked(blocked)
-                      .isSnipped(snipped)
-                      .commentable(commentable)
-                      .policy(policy)
-                      .isSubHighTier(subHighTier)
-                      .isSubMidTier(subMidTier)
-                      .monetizationModel(monetizationModel)
-                      .playCount(playCount)
-                      .commentsCount(commentsCount);
+    private static Default.Builder create(OfflineState offlineState,
+                                          boolean isUserLike,
+                                          int likesCount,
+                                          boolean isUserRepost,
+                                          int repostsCount,
+                                          Track track) {
+        return new AutoValue_TrackItem_Default.Builder().getKind(Kind.PLAYABLE)
+                                                        .offlineState(offlineState)
+                                                        .isUserLike(isUserLike)
+                                                        .likesCount(likesCount)
+                                                        .isUserRepost(isUserRepost)
+                                                        .repostsCount(repostsCount)
+                                                        .reposter(Optional.absent())
+                                                        .reposterUrn(Optional.absent())
+                                                        .avatarUrlTemplate(Optional.absent())
+                                                        .track(track);
     }
 
-    @Override
     public String getPlayableType() {
         return PLAYABLE_TYPE;
     }
 
-    @Override
     public long getDuration() {
         return getTrackPlayDuration(this);
     }
@@ -266,7 +208,7 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
     }
 
     public boolean hasPlayCount() {
-        return playCount() > 0;
+        return track().playCount() > 0;
     }
 
     public boolean updateNowPlaying(Urn nowPlaying) {
@@ -276,14 +218,6 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
             return true;
         }
         return false;
-    }
-
-    public String getDescription() {
-        return description().or(Strings.EMPTY);
-    }
-
-    public boolean hasDescription() {
-        return description().isPresent();
     }
 
     public abstract TrackItem updatedWithTrackItem(Track track);
@@ -301,42 +235,6 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
     public abstract TrackItem updateWithReposter(String reposter, Urn reposterUrn);
 
     @VisibleForTesting
-    public static TrackItem.Default.Builder builder() {
-        return new AutoValue_TrackItem_Default.Builder().getUrn(Urn.NOT_SET)
-                                                         .getKind(Kind.PLAYABLE)
-                                                         .offlineState(OfflineState.NOT_OFFLINE)
-                                                         .isUserLike(false)
-                                                         .likesCount(0)
-                                                         .isUserRepost(false)
-                                                         .repostsCount(0)
-                                                         .genre(Optional.absent())
-                                                         .title(Strings.EMPTY)
-                                                         .creatorUrn(Urn.NOT_SET)
-                                                         .creatorName(Strings.EMPTY)
-                                                         .reposter(Optional.absent())
-                                                         .reposterUrn(Optional.absent())
-                                                         .avatarUrlTemplate(Optional.absent())
-                                                         .isPrivate(false)
-                                                         .isRepost(false)
-                                                         .getCreatedAt(new Date())
-                                                         .getImageUrlTemplate(Optional.absent())
-                                                         .permalinkUrl(Strings.EMPTY)
-                                                         .description(Optional.absent())
-                                                         .snippetDuration(0)
-                                                         .fullDuration(0)
-                                                         .waveformUrl(Strings.EMPTY)
-                                                         .monetizable(false)
-                                                         .isBlocked(false)
-                                                         .isSnipped(false)
-                                                         .commentable(false)
-                                                         .policy(Strings.EMPTY)
-                                                         .isSubHighTier(false)
-                                                         .isSubMidTier(false)
-                                                         .monetizationModel(Strings.EMPTY)
-                                                         .playCount(0)
-                                                         .commentsCount(0);
-    }
-
     public static TrackItem.Default.Builder builder(TrackItem trackItem) {
         if (trackItem instanceof Default) {
             return new AutoValue_TrackItem_Default.Builder((Default) trackItem);
@@ -390,31 +288,7 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
         @AutoValue.Builder
         public abstract static class Builder {
 
-            public abstract Builder isBlocked(boolean isBlocked);
-
-            public abstract Builder isSnipped(boolean isSnipped);
-
-            public abstract Builder isSubMidTier(boolean isSubMidTier);
-
-            public abstract Builder isSubHighTier(boolean isSubHighTier);
-
-            public abstract Builder getImageUrlTemplate(Optional<String> getImageUrlTemplate);
-
-            public abstract Builder getCreatedAt(Date getCreatedAt);
-
             public abstract Builder getKind(Kind getKind);
-
-            public abstract Builder getUrn(Urn getUrn);
-
-            public abstract Builder genre(Optional<String> genre);
-
-            public abstract Builder title(String title);
-
-            public abstract Builder creatorUrn(Urn creatorUrn);
-
-            public abstract Builder creatorName(String creatorName);
-
-            public abstract Builder permalinkUrl(String permalinkUrl);
 
             public abstract Builder offlineState(OfflineState offlineState);
 
@@ -430,31 +304,9 @@ public abstract class TrackItem extends PlayableItem implements TieredTrack, Upd
 
             public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
 
-            public abstract Builder isPrivate(boolean isPrivate);
-
-            public abstract Builder isRepost(boolean isRepost);
-
             public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
 
-            public abstract Builder description(Optional<String> description);
-
-            public abstract Builder snippetDuration(long snippetDuration);
-
-            public abstract Builder fullDuration(long fullDuration);
-
-            public abstract Builder waveformUrl(String waveformUrl);
-
-            public abstract Builder monetizable(boolean monetizable);
-
-            public abstract Builder commentable(boolean commentable);
-
-            public abstract Builder policy(String policy);
-
-            public abstract Builder monetizationModel(String monetizationModel);
-
-            public abstract Builder playCount(int playCount);
-
-            public abstract Builder commentsCount(int commentsCount);
+            public abstract Builder track(Track track);
 
             public abstract Default build();
         }

@@ -103,9 +103,9 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void showPlayCount(TrackCardViewHolder itemView, TrackItem track) {
-        if (track.hasPlayCount()) {
-            itemView.showPlayCount(numberFormatter.format(track.playCount()));
+    private void showPlayCount(TrackCardViewHolder itemView, TrackItem trackItem) {
+        if (trackItem.hasPlayCount()) {
+            itemView.showPlayCount(numberFormatter.format(trackItem.playCount()));
         }
     }
 }

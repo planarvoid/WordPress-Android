@@ -100,8 +100,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
         disableBlockedTrackClicks(itemView, trackItems.get(position));
     }
 
-    private void disableBlockedTrackClicks(View itemView, TrackItem track) {
-        if (track.isBlocked()) {
+    private void disableBlockedTrackClicks(View itemView, TrackItem trackItem) {
+        if (trackItem.isBlocked()) {
             // note: TrackItemRenderer already calls `setClickable(false)` but this doesn't appear
             // to work for the ListView widget (it's still clickable, and shows ripples on touch)
             // http://stackoverflow.com/questions/4636270/android-listview-child-view-setenabled-and-setclickable-do-nothing

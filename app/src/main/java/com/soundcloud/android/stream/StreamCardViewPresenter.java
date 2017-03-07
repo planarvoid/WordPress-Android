@@ -16,7 +16,7 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.tracks.TieredTrack;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -101,8 +101,8 @@ class StreamCardViewPresenter {
 
     private void bindHighTierLabel(StreamItemViewHolder item, PlayableItem playableItem) {
         item.resetTierIndicators();
-        if (playableItem instanceof TieredTrack) {
-            TieredTrack tieredTrack = ((TieredTrack) playableItem);
+        if (playableItem instanceof TrackItem) {
+            TrackItem tieredTrack = ((TrackItem) playableItem);
             if (isFullHighTierTrack(tieredTrack) || isHighTierPreview(tieredTrack)) {
                 item.showGoIndicator();
             }

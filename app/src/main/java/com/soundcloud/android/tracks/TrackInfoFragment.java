@@ -112,7 +112,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
                     new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigator);
             presenter.bind(view, trackItem, commentClickListener);
 
-            if (trackItem.hasDescription()) {
+            if (trackItem.description().isPresent()) {
                 presenter.bindDescription(view, trackItem);
             } else {
                 presenter.showSpinner(view);

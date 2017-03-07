@@ -41,7 +41,6 @@ public class ApiTrackTest extends AndroidUnitTest {
         assertThat(trackItem.isPrivate()).isEqualTo(apiTrack.isPrivate());
         assertThat(trackItem.waveformUrl()).isEqualTo(apiTrack.getWaveformUrl());
         assertThat(trackItem.permalinkUrl()).isEqualTo(apiTrack.getPermalinkUrl());
-        assertThat(trackItem.monetizable()).isEqualTo(apiTrack.isMonetizable());
         assertThat(trackItem.policy()).isEqualTo(apiTrack.getPolicy());
         assertThat(trackItem.playCount()).isEqualTo(apiTrack.getStats().getPlaybackCount());
         assertThat(trackItem.commentsCount()).isEqualTo(apiTrack.getStats().getCommentsCount());

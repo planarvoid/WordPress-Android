@@ -214,7 +214,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.LIKE_CHANGED, likedChangedEvent);
 
         final PlaylistDetailTrackItem playlistDetailTrackItem = (PlaylistDetailTrackItem) playlistDetailItems.get(0);
-        assertThat(playlistDetailTrackItem.trackItem().isLikedByCurrentUser()).isTrue();
+        assertThat(playlistDetailTrackItem.trackItem().isUserLike()).isTrue();
         assertThat(playlistDetailTrackItem.trackItem().likesCount()).isEqualTo(2);
         verify(adapter).notifyItemChanged(0);
     }

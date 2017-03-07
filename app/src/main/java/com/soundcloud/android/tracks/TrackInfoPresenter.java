@@ -6,6 +6,7 @@ import static java.lang.System.getProperty;
 import com.soundcloud.android.R;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.text.Spanned;
@@ -53,7 +54,7 @@ public class TrackInfoPresenter {
     }
 
     public void bindDescription(View view, TrackItem trackItem) {
-        final String source = trackItem.getDescription();
+        final String source = trackItem.description().or(Strings.EMPTY);
         if (source.isEmpty()) {
             bindNoDescription(view);
         } else {
@@ -80,9 +81,9 @@ public class TrackInfoPresenter {
         }
     }
 
-    private void bindComments(View view, final TrackItem track, final CommentClickListener commentClickListener) {
-        final boolean isCommentable = track.commentable();
-        final int commentsCount = track.commentsCount();
+    private void bindComments(View view, final TrackItem trackItem, final CommentClickListener commentClickListener) {
+        final boolean isCommentable = trackItem.isCommentable();
+        final int commentsCount = trackItem.commentsCount();
         if (isCommentable && commentsCount > 0) {
             String comments = resources.getQuantityString(R.plurals.trackinfo_comments, commentsCount, commentsCount);
             setTextAndShow(view, R.id.comments, comments);

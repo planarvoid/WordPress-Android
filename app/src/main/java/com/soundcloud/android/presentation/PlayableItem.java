@@ -47,7 +47,6 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
         }
     }
 
-    public abstract Urn getUrn();
     public abstract Optional<String> genre();
     public abstract String title();
     public abstract Urn creatorUrn();
@@ -80,11 +79,4 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
 
     abstract public long getDuration();
 
-    public boolean isLikedByCurrentUser() {
-        return isUserLike();
-    }
-
-    public boolean isRepostedByCurrentUser() {
-        return isUserRepost();
-    }
 }

@@ -156,7 +156,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         ArgumentCaptor<TrackItem> captor = ArgumentCaptor.forClass(TrackItem.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        assertThat(captor.getValue().isLikedByCurrentUser()).isTrue();
+        assertThat(captor.getValue().isUserLike()).isTrue();
     }
 
     @Test

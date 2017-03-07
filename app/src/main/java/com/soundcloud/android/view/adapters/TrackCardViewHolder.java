@@ -13,7 +13,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.TieredTrack;
+import com.soundcloud.android.tracks.TrackItem;
 
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
@@ -162,17 +162,11 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
 
     private void setupTierIndicator(PlayableItem playableItem) {
         safeSetVisibility(goIndicator, View.GONE);
-        if (playableItem instanceof TieredTrack) {
-            TieredTrack track = (TieredTrack) playableItem;
+        if (playableItem instanceof TrackItem) {
+            TrackItem track = (TrackItem) playableItem;
             if (isHighTierPreview(track) || isFullHighTierTrack(track)) {
                 safeSetVisibility(goIndicator, View.VISIBLE);
             }
-        }
-    }
-
-    private void safeSetSelected(View view, boolean selected) {
-        if (view != null) {
-            view.setSelected(selected);
         }
     }
 

@@ -151,7 +151,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void saveOffline(PlaylistItem playlist) {
-        if (playlist.isLikedByCurrentUser() || isPlaylistOwnedByCurrentUser(playlist)) {
+        if (playlist.isUserLike() || isPlaylistOwnedByCurrentUser(playlist)) {
             saveOffline();
         } else {
             likeAndSaveOffline();
@@ -193,7 +193,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     public void handleLike(PlaylistItem playlist) {
-        boolean addLike = !playlist.isLikedByCurrentUser();
+        boolean addLike = !playlist.isUserLike();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(appContext, addLike));

@@ -126,7 +126,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnAddToLikesAddPlaylistLike() {
         final PublishSubject<LikeOperations.LikeResult> likeObservable = PublishSubject.create();
-        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isLikedByCurrentUser())).thenReturn(likeObservable);
+        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.show(button, playlistItem);
@@ -138,12 +138,12 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickRepostItemRepostsPlaylist() {
         final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isRepostedByCurrentUser())).thenReturn(
+        when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(button, playlistItem);
-        presenter.handleRepost(!playlistItem.isRepostedByCurrentUser());
+        presenter.handleRepost(!playlistItem.isUserRepost());
 
         assertThat(repostObservable.hasObservers()).isTrue();
     }
@@ -151,12 +151,12 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnRepostSendsTrackingEvent() {
         final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isRepostedByCurrentUser())).thenReturn(
+        when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(button, playlistItem);
-        presenter.handleRepost(!playlistItem.isRepostedByCurrentUser());
+        presenter.handleRepost(!playlistItem.isUserRepost());
 
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
@@ -231,7 +231,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void shouldLikeAndSaveOffline() {
         final PublishSubject<Void> offlineObservable = PublishSubject.create();
         when(offlineOperations.makePlaylistAvailableOffline(playlistItem.getUrn())).thenReturn(offlineObservable);
-        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isLikedByCurrentUser())).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
+        when(likeOperations.toggleLike(playlistItem.getUrn(), !playlistItem.isUserLike())).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlistItem);

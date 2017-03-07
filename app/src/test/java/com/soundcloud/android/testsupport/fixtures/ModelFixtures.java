@@ -258,7 +258,7 @@ public class ModelFixtures {
     }
 
     public static TrackItem trackItem(Urn urn) {
-        return trackItemBuilder().getUrn(urn).build();
+        return TrackItem.from(trackBuilder().urn(urn).build());
     }
 
     public static Track track() {
@@ -266,7 +266,8 @@ public class ModelFixtures {
     }
 
     public static List<TrackItem> trackItems(int count) {
-        return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
+        final List<ApiTrack> apiTracks = create(ApiTrack.class, count);
+        return Lists.transform(apiTracks, TrackItem::from);
     }
 
     public static List<Track> tracks(int count) {
@@ -460,6 +461,17 @@ public class ModelFixtures {
 
     public static Track.Builder trackBuilder() {
         return Track.builder(Track.from(create(ApiTrack.class)));
+    }
+
+    public static Track.Builder baseTrackBuilder() {
+        return trackBuilder().urn(Urn.forTrack(123L)).snippetDuration(10L).fullDuration(1000L)
+                             .title("someone's favorite song")
+                             .creatorName("someone's favorite band")
+                             .creatorUrn(Urn.forUser(123L))
+                             .userLike(false)
+                             .userRepost(false)
+                             .likesCount(0)
+                             .permalinkUrl("http://soundcloud.com/artist/track_permalink");
     }
 
     public static Track.Builder trackBuilder(ApiTrack apiTrack) {

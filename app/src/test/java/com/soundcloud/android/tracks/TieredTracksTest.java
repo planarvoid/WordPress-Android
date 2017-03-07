@@ -6,12 +6,11 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(org.mockito.junit.MockitoJUnitRunner.class)
 public class TieredTracksTest {
 
-    @Mock private TieredTrack tieredTrack;
+    @Mock private TrackItem tieredTrack;
 
     @Test
     public void shouldIndicateHighTierPreviewIfTrackIsSnippedAndInHighTier() {

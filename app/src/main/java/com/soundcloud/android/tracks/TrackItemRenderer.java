@@ -19,7 +19,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -158,30 +157,30 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       Optional.of(ActiveFooter.PLAYS_AND_POSTED));
     }
 
-    private void bindTrackView(final TrackItem track,
+    private void bindTrackView(final TrackItem trackItem,
                                View itemView,
                                final int position,
                                Optional<TrackSourceInfo> trackSourceInfo,
                                Optional<Module> module,
                                Optional<ActiveFooter> activeFooter) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
-        trackItemView.setCreator(track.creatorName());
-        trackItemView.setTitle(track.title(), track.isBlocked()
+        trackItemView.setCreator(trackItem.creatorName());
+        trackItemView.setTitle(trackItem.title(), trackItem.isBlocked()
                                               ? trackItemViewFactory.getDisabledTitleColor()
                                               : trackItemViewFactory.getPrimaryTitleColor());
         if (listener != null) {
-            itemView.setOnClickListener(v -> listener.trackItemClicked(track.getUrn(), position));
+            itemView.setOnClickListener(v -> listener.trackItemClicked(trackItem.getUrn(), position));
         }
 
         this.activeFooter = activeFooter;
 
-        itemView.setClickable(!track.isBlocked());
+        itemView.setClickable(!trackItem.isBlocked());
 
-        bindExtraInfoRight(track, trackItemView);
-        bindExtraInfoBottom(trackItemView, track);
+        bindExtraInfoRight(trackItem, trackItemView);
+        bindExtraInfoBottom(trackItemView, trackItem);
 
-        bindArtwork(trackItemView, track);
-        bindOverFlow(trackItemView, track, position, trackSourceInfo, module);
+        bindArtwork(trackItemView, trackItem);
+        bindOverFlow(trackItemView, trackItem, position, trackSourceInfo, module);
     }
 
 
@@ -220,7 +219,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                     getEventContextMetaDataBuilder(track, module, trackSourceInfo));
     }
 
-    private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,
+    private EventContextMetadata.Builder getEventContextMetaDataBuilder(TrackItem item,
                                                                         Optional<Module> module,
                                                                         Optional<TrackSourceInfo> trackSourceInfo) {
         final String screen = screenProvider.getLastScreenTag();
@@ -263,11 +262,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
         } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.POSTED)) {
-            itemView.showPostedTime(track.getCreatedAt());
+            itemView.showPostedTime(track.createdAt());
         } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.PLAYS_AND_POSTED)) {
-            showPlaysAndPostedTime(itemView, track, track.getCreatedAt());
+            showPlaysAndPostedTime(itemView, track.createdAt(), track.playCount());
         } else {
-            showPlayCount(itemView, track);
+            showPlayCount(itemView, track.playCount());
         }
     }
 
@@ -287,18 +286,16 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void showPlayCount(TrackItemView itemView, TrackItem track) {
-        final int count = track.playCount();
-        if (hasPlayCount(count)) {
-            itemView.showPlaycount(numberFormatter.format(count));
+    private void showPlayCount(TrackItemView itemView, int playCount) {
+        if (hasPlayCount(playCount)) {
+            itemView.showPlaycount(numberFormatter.format(playCount));
         }
     }
 
-    private void showPlaysAndPostedTime(TrackItemView itemView, TrackItem track, Date createdAt) {
-        final int count = track.playCount();
+    private void showPlaysAndPostedTime(TrackItemView itemView, Date createdAt, int playCount) {
 
-        if (hasPlayCount(count)) {
-            itemView.showPlaysAndPostedTime(numberFormatter.format(count), createdAt);
+        if (hasPlayCount(playCount)) {
+            itemView.showPlaysAndPostedTime(numberFormatter.format(playCount), createdAt);
         } else {
             itemView.showPostedTime(createdAt);
         }

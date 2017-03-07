@@ -74,7 +74,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void setupMenu(PlaylistItem playlist) {
-        updateLikeActionTitle(playlist.isLikedByCurrentUser());
+        updateLikeActionTitle(playlist.isUserLike());
         configureAdditionalEngagementsOptions(playlist);
         configureOfflineOptions(playlist);
         configurePlayNextOption();
@@ -85,7 +85,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
         menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
         menu.setItemVisible(R.id.share, !playlist.isPrivate());
         menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
-        updateRepostActionTitle(playlist.isRepostedByCurrentUser());
+        updateRepostActionTitle(playlist.isUserRepost());
     }
 
     private boolean canRepost(PlaylistItem playlist) {
@@ -181,7 +181,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                 listener.handleLike(playlist);
                 return true;
             case R.id.toggle_repost:
-                listener.handleRepost(!playlist.isRepostedByCurrentUser());
+                listener.handleRepost(!playlist.isUserRepost());
                 return true;
             case R.id.share:
                 listener.handleShare(context, playlist);

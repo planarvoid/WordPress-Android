@@ -18,6 +18,10 @@ abstract class PlayerAd extends PlayerItem {
         this.adData = adData;
     }
 
+    PlayerAd(PlayableAdData adData) {
+        this.adData = adData;
+    }
+
     String getCallToActionButtonText(Resources resources) {
         return adData.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
     }

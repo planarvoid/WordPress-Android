@@ -66,28 +66,28 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     private TrackItem trackItem;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
-    private TrackItem.Default.Builder trackItemBuilder;
+    private Track.Builder trackBuilder;
 
     @Before
     public void setUp() throws Exception {
         renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
                                          screenProvider, navigator, featureOperations, trackItemViewFactory);
 
-        trackItemBuilder = PlayableFixtures.baseTrackBuilder()
-                                           .getUrn(Urn.forTrack(123))
+        trackBuilder = ModelFixtures.baseTrackBuilder()
+                                           .urn(Urn.forTrack(123))
                                            .title("title")
                                            .creatorName("creator")
                                            .creatorUrn(Urn.forUser(456L))
                                            .snippetDuration(227000L)
                                            .fullDuration(237000L)
-                                           .isSnipped(true)
-                                           .isUserLike(false)
-                                           .isUserRepost(false)
+                                           .snipped(true)
+                                           .userLike(false)
+                                           .userRepost(false)
                                            .likesCount(0)
                                            .permalinkUrl(Strings.EMPTY)
                                            .isPrivate(false)
                                            .playCount(870);
-        trackItem = trackItemBuilder.build();
+        trackItem = TrackItem.from(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
         when(trackItemView.getImage()).thenReturn(imageView);
@@ -107,7 +107,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindDurationToViewAndHideOtherLabelsIfTrackIsNeitherSnippedNorPrivate() {
-        final TrackItem updatedTrackItem = trackItemBuilder.isSnipped(false).isPrivate(false).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.snipped(false).isPrivate(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -146,7 +146,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrivateLabelAndHideOtherLabelsIfTrackIsPrivate() {
-        final TrackItem updatedTrackItem = trackItemBuilder.isPrivate(true).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.isPrivate(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -177,7 +177,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackGeoBlockedLabel() {
-        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).showGeoBlocked();
@@ -186,7 +186,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).offlineState(OfflineState.UNAVAILABLE).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
         updatedTrackItem.setIsPlaying(true);
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
@@ -236,7 +236,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisableClicksForBlockedTracks() {
-        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(true).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(false);
@@ -244,7 +244,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldEnableClicksForNonBlockedTracks() {
-        final TrackItem updatedTrackItem = trackItemBuilder.isBlocked(false).build();
+        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);

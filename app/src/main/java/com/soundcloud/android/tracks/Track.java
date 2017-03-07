@@ -83,9 +83,13 @@ public abstract class Track {
     }
 
     public static Track from(ApiTrack apiTrack) {
+        return from(apiTrack, false, false);
+    }
+
+    public static Track from(ApiTrack apiTrack, boolean isRepost, boolean isUserLike) {
         final Optional<Boolean> subHighTier = apiTrack.isSubHighTier();
         final Optional<Boolean> subMidTier = apiTrack.isSubMidTier();
-        final Track.Builder builder = new AutoValue_Track.Builder()
+        final Builder builder = new AutoValue_Track.Builder()
                 .urn(apiTrack.getUrn())
                 .title(apiTrack.getTitle())
                 .createdAt(apiTrack.getCreatedAt())
@@ -110,8 +114,8 @@ public abstract class Track {
                 .genre(Optional.fromNullable(apiTrack.getGenre()))
                 .monetizationModel(apiTrack.getMonetizationModel().or(Strings.EMPTY))
                 .commentable(apiTrack.isCommentable())
-                .userLike(false)
-                .userRepost(false)
+                .userLike(isUserLike)
+                .userRepost(isRepost)
                 .offlineState(OfflineState.NOT_OFFLINE)
                 .description(Optional.absent());
 

@@ -58,8 +58,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
                 numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
-        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isLikedByCurrentUser())).thenReturn(testSubject);
-        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isRepostedByCurrentUser())).thenReturn(repostTestSubject);
+        when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isUserLike())).thenReturn(testSubject);
+        when(repostOperations.toggleRepost(playableItem.getUrn(), !playableItem.isUserRepost())).thenReturn(repostTestSubject);
         when(viewHolder.getContext()).thenReturn(context());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
     }
@@ -67,8 +67,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Test
     public void setsLikeAndRepostsStats() {
         presenter.bind(viewHolder, playableItem, contextMetadata);
-        verify(viewHolder).showLikeStats(formattedStats(playableItem.likesCount()), playableItem.isLikedByCurrentUser());
-        verify(viewHolder).showRepostStats(formattedStats(playableItem.repostsCount()), playableItem.isRepostedByCurrentUser());
+        verify(viewHolder).showLikeStats(formattedStats(playableItem.likesCount()), playableItem.isUserLike());
+        verify(viewHolder).showRepostStats(formattedStats(playableItem.repostsCount()), playableItem.isUserRepost());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         presenter.bind(viewHolder, playableItem, contextMetadata);
 
         verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.repostsCount()),
-                                                    playableItem.isRepostedByCurrentUser());
+                                                    playableItem.isUserRepost());
         verify(viewHolder).hideRepostStats();
     }
 
@@ -99,7 +99,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
         captureListener().onLikeClick(view);
 
-        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isLikedByCurrentUser());
+        verify(likeOperations).toggleLike(playableItem.getUrn(), !playableItem.isUserLike());
         assertThat(testSubject.hasObservers()).isTrue();
     }
 
@@ -109,7 +109,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
 
         captureListener().onRepostClick(view);
 
-        verify(repostOperations).toggleRepost(playableItem.getUrn(), !playableItem.isRepostedByCurrentUser());
+        verify(repostOperations).toggleRepost(playableItem.getUrn(), !playableItem.isUserRepost());
         assertThat(repostTestSubject.hasObservers()).isTrue();
     }
 
@@ -122,9 +122,9 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isRepostedByCurrentUser() ?
-                                                      UIEvent.Kind.UNREPOST :
-                                                      UIEvent.Kind.REPOST);
+        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isUserRepost() ?
+                                                   UIEvent.Kind.UNREPOST :
+                                                   UIEvent.Kind.REPOST);
         assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 
@@ -137,7 +137,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
 
         UIEvent trackingEvent = uiEventArgumentCaptor.getValue();
-        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isLikedByCurrentUser() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
+        assertThat(trackingEvent.kind()).isEqualTo(playableItem.isUserLike() ? UIEvent.Kind.UNLIKE : UIEvent.Kind.LIKE);
         assertThat(trackingEvent.isFromOverflow().get()).isFalse();
     }
 

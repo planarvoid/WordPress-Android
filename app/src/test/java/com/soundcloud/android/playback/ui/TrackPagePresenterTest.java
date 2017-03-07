@@ -814,7 +814,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void populateTrackPage() {
-        final TrackItem source = PlayableFixtures.expectedTrackBuilderForPlayer().isSnipped(true).build();
+        final TrackItem source = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).build());
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 
@@ -830,7 +830,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void bindEmptyTrack() {
-        final TrackItem source = TrackItem.EMPTY;
-        presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
+        presenter.bindItemView(trackView, new PlayerTrackState(true, true, viewVisibilityProvider));
     }
 }

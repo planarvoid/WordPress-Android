@@ -4,14 +4,14 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.stations.StationRecord;
-import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageResource {
+public class PlayerTrackState extends PlayerItem implements ImageResource {
 
-    static final PlayerTrackState EMPTY = new PlayerTrackState(TrackItem.EMPTY, false, false, ViewVisibilityProvider.EMPTY);
+    static final PlayerTrackState EMPTY = new PlayerTrackState(false, false, ViewVisibilityProvider.EMPTY);
 
     private final boolean isCurrentTrack;
     private final boolean isForeground;
@@ -29,7 +29,13 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
         this.viewVisibilityProvider = viewVisibilityProvider;
     }
 
-    public TrackItem getSource() {
+    public PlayerTrackState(boolean isCurrentTrack, boolean isForeground, ViewVisibilityProvider viewVisibilityProvider) {
+        this.isCurrentTrack = isCurrentTrack;
+        this.isForeground = isForeground;
+        this.viewVisibilityProvider = viewVisibilityProvider;
+    }
+
+    public Optional<TrackItem> getSource() {
         return source;
     }
 
@@ -54,85 +60,81 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, ImageRe
     }
 
     public Urn getUrn() {
-        return source.getUrn();
+        return super.getTrackUrn();
     }
 
     @Override
     public Optional<String> getImageUrlTemplate() {
-        return source.getImageUrlTemplate();
+        return source.isPresent() ? source.get().getImageUrlTemplate() : Optional.absent();
     }
 
     public String getTitle() {
-        return source.title();
+        return source.transform(TrackItem::title).or(Strings.EMPTY);
     }
 
     public String getUserName() {
-        return source.creatorName();
+        return source.transform(TrackItem::creatorName).or(Strings.EMPTY);
     }
 
     public Urn getUserUrn() {
-        return source.creatorUrn();
+        return source.transform(TrackItem::creatorUrn).or(Urn.NOT_SET);
     }
 
-    @Override
     public boolean isBlocked() {
-        return source.isBlocked();
+        return source.transform(TrackItem::isBlocked).or(false);
     }
 
-    @Override
     public boolean isSnipped() {
-        return source.isSnipped();
+        return source.transform(TrackItem::isSnipped).or(false);
     }
 
-    @Override
     public boolean isSubMidTier() {
-        return source.isSubMidTier();
+        return source.transform(TrackItem::isSubMidTier).or(false);
     }
 
-    @Override
     public boolean isSubHighTier() {
-        return source.isSubHighTier();
+        return source.transform(TrackItem::isSubHighTier).or(false);
     }
 
     long getPlayableDuration() {
-        return Durations.getTrackPlayDuration(source);
+        return source.isPresent() ? Durations.getTrackPlayDuration(source.get()) : 0L;
     }
 
     long getFullDuration() {
-        return source.fullDuration();
+        return source.transform(TrackItem::fullDuration).or(0L);
     }
 
     @Nullable
     String getWaveformUrl() {
-        return source.waveformUrl();
+        return source.transform(TrackItem::waveformUrl).or(Strings.EMPTY);
     }
 
     boolean isUserLike() {
-        return source.isLikedByCurrentUser();
+        return source.transform(TrackItem::isUserLike).or(false);
     }
 
     public boolean isUserRepost() {
-        return source.isUserRepost();
+        return source.transform(TrackItem::isUserRepost).or(false);
     }
 
     int getLikeCount() {
-        return source.likesCount();
+        return source.transform(TrackItem::likesCount).or(0);
     }
 
     public String getPermalinkUrl() {
-        return source.permalinkUrl();
+        return source.transform(TrackItem::permalinkUrl).or(Strings.EMPTY);
     }
 
     public boolean isPrivate() {
-        return source.isPrivate();
+        return source.transform(TrackItem::isPrivate).or(false);
     }
 
     public boolean isCommentable() {
-        return source.commentable();
+        return source.transform(TrackItem::isCommentable).or(false);
     }
 
     public boolean isEmpty() {
-        return source.equals(TrackItem.EMPTY);
+        return !source.isPresent();
     }
 
 }

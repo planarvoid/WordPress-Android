@@ -50,7 +50,7 @@ public class SharePresenterTest extends AndroidUnitTest {
     private static final PlaylistItem PLAYLIST = PlayableFixtures.expectedPostedPlaylistsForPostedPlaylistsScreen();
     public static final String PROMOTED_TRACK_URN = "soundcloud:tracks:12345";
     public static final String AD_URN = "ad:urn:123";
-    private static final PromotedTrackItem PROMOTED_TRACK = PlayableFixtures.expectedPromotedTrackBuilder(AD_URN).getUrn(new Urn(PROMOTED_TRACK_URN)).build();
+    private static final PromotedTrackItem PROMOTED_TRACK = PlayableFixtures.expectedPromotedTrackBuilder(new Urn(PROMOTED_TRACK_URN), AD_URN).build();
     private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PROMOTED_TRACK);
 
     private SharePresenter operations;

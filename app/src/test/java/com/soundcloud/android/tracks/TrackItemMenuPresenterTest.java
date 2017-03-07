@@ -15,7 +15,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -73,7 +72,8 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final TestEventBus eventBus = new TestEventBus();
-    private TrackItem trackItem = createTrackItem();
+    private Track track = ModelFixtures.track();
+    private TrackItem trackItem = TrackItem.from(track);
 
     private TrackItemMenuPresenter presenter;
 
@@ -107,7 +107,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnAddToLikesAddTrackLike() {
         final PublishSubject<LikeOperations.LikeResult> likeObservable = PublishSubject.create();
-        when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isLikedByCurrentUser())).thenReturn(likeObservable);
+        when(likeOperations.toggleLike(trackItem.getUrn(), !trackItem.isUserLike())).thenReturn(likeObservable);
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         presenter.show(activity, view, trackItem, 0);
@@ -119,7 +119,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickRepostItemRepostsTrack() {
         final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isRepostedByCurrentUser())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isUserRepost())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(activity, view, trackItem, 0);
@@ -201,7 +201,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        final TrackItem blockedTrackItem = TrackItem.builder(trackItem).isBlocked(true).build();
+        final TrackItem blockedTrackItem = TrackItem.from(Track.builder(track).blocked(true).build());
 
         presenter.show(activity, view, blockedTrackItem, 0);
 
@@ -220,9 +220,5 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_NEXT);
         assertThat(event.clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
         assertThat(event.originScreen().get()).isEqualTo(SCREEN);
-    }
-
-    private TrackItem createTrackItem() {
-        return TrackItem.from(ModelFixtures.create(ApiTrack.class));
     }
 }

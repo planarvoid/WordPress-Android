@@ -293,11 +293,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem upsellableTrack() {
-        return PlayableFixtures.upsellableTrackBuilder().getCreatedAt(createdAtStream).build();
+        return TrackItem.from(PlayableFixtures.upsellableTrackBuilder().createdAt(createdAtStream).build());
     }
 
     private TrackItem highTierTrack() {
-        return PlayableFixtures.highTierTrackBuilder().getCreatedAt(createdAtStream).build();
+        return TrackItem.from(PlayableFixtures.highTierTrackBuilder().createdAt(createdAtStream).build());
     }
 
     private String repostedString() {

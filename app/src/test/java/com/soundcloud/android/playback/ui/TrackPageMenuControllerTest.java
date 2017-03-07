@@ -24,6 +24,7 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -58,11 +59,13 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private PublishSubject<RepostOperations.RepostResult> repostSubject = PublishSubject.create();
     private TrackItem sourceTrack;
+    private Track.Builder builder;
 
     @Before
     public void setUp() {
         activityContext = activity();
-        sourceTrack = PlayableFixtures.expectedTrackForPlayer();
+        builder = PlayableFixtures.expectedTrackBuilderForPlayer();
+        sourceTrack = TrackItem.from(builder.build());
         track = new PlayerTrackState(sourceTrack, false, false, null);
         privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, null);
 
@@ -92,7 +95,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void clickingStartStationOnBlockedTrackStartsStationWithoutPrependingSeed() {
-        final TrackItem blockedTrackItem = TrackItem.builder(sourceTrack).isBlocked(true).build();
+        final TrackItem blockedTrackItem = TrackItem.from(builder.blocked(true).build());
         final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, null);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
@@ -115,7 +118,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         controller.onMenuItemClick(share, activityContext);
 
-        verify(sharePresenter).share(activityContext, track.getSource(), eventContextMetadata, null);
+        verify(sharePresenter).share(activityContext, track.getSource().get(), eventContextMetadata, null);
     }
 
     @Test
@@ -240,7 +243,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
-        final TrackItem notCommentable = PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build();
+        final TrackItem notCommentable = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build());
         track = new PlayerTrackState(notCommentable, false, false, null);
         controller.setTrack(track);
 

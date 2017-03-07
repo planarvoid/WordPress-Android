@@ -51,7 +51,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         final PlayableItem updatedPlaylistItem = playableItems.iterator().next();
         assertThat(updatedPlaylistItem.getUrn()).isEqualTo(playlistItem.getUrn());
-        assertThat(updatedPlaylistItem.isLikedByCurrentUser()).isTrue();
+        assertThat(updatedPlaylistItem.isUserLike()).isTrue();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         subject.call(singletonList(playlistItem));
 
-        assertThat(playlistItem.isLikedByCurrentUser()).isFalse();
+        assertThat(playlistItem.isUserLike()).isFalse();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         final PlayableItem updatedPlaylistItem = playableItems.iterator().next();
         assertThat(updatedPlaylistItem.getUrn()).isEqualTo(playlistItem.getUrn());
-        assertThat(updatedPlaylistItem.isRepostedByCurrentUser()).isTrue();
+        assertThat(updatedPlaylistItem.isUserRepost()).isTrue();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         subject.call(singletonList(playlistItem));
 
-        assertThat(playlistItem.isRepostedByCurrentUser()).isFalse();
+        assertThat(playlistItem.isUserRepost()).isFalse();
     }
 
     @Test
@@ -95,7 +95,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         final PlayableItem next = playableItems.iterator().next();
         assertThat(next.getUrn()).isEqualTo(trackItem.getUrn());
-        assertThat(next.isLikedByCurrentUser()).isTrue();
+        assertThat(next.isUserLike()).isTrue();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
 
         subject.call(singletonList(trackItem));
 
-        assertThat(trackItem.isLikedByCurrentUser()).isFalse();
+        assertThat(trackItem.isUserLike()).isFalse();
     }
 
     @Test

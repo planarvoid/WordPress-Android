@@ -62,12 +62,12 @@ public class CardEngagementsPresenter {
             viewHolder.showGenre(playable.genre().get());
         }
 
-        viewHolder.showLikeStats(getCountString(playable.likesCount()), playable.isLikedByCurrentUser());
+        viewHolder.showLikeStats(getCountString(playable.likesCount()), playable.isUserLike());
 
         if (accountOperations.isLoggedInUser(playable.creatorUrn())) {
             viewHolder.hideRepostStats();
         } else {
-            viewHolder.showRepostStats(getCountString(playable.repostsCount()), playable.isRepostedByCurrentUser());
+            viewHolder.showRepostStats(getCountString(playable.repostsCount()), playable.isUserRepost());
         }
 
         viewHolder.setEngagementClickListener(new CardEngagementClickListener() {
@@ -85,7 +85,7 @@ public class CardEngagementsPresenter {
 
     private void handleRepost(View repostButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getUrn();
-        final boolean addRepost = !playableItem.isRepostedByCurrentUser();
+        final boolean addRepost = !playableItem.isUserRepost();
         repostOperations.toggleRepost(entityUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(repostButton.getContext()));
@@ -98,7 +98,7 @@ public class CardEngagementsPresenter {
 
     private void handleLike(View likeButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getUrn();
-        final boolean addLike = !playableItem.isLikedByCurrentUser();
+        final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));

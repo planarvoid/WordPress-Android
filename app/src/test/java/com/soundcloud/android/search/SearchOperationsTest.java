@@ -381,7 +381,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
         final PlaylistItem playlistItem = (PlaylistItem) searchResult.getItems().get(2);
         assertThat(playlistItem.getUrn()).isEqualTo(playlist.getUrn());
-        assertThat(playlistItem.isLikedByCurrentUser()).isTrue();
+        assertThat(playlistItem.isUserLike()).isTrue();
     }
 
     @Test
@@ -456,7 +456,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
         final PlaylistItem playlistItem = (PlaylistItem) searchResult.getItems().get(0);
-        assertThat(playlistItem.isLikedByCurrentUser()).isTrue();
+        assertThat(playlistItem.isUserLike()).isTrue();
     }
 
     @Test
@@ -473,7 +473,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         subscriber.assertValueCount(1);
         final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
         final PlaylistItem albumItem = (PlaylistItem) searchResult.getItems().get(0);
-        assertThat(albumItem.isLikedByCurrentUser()).isTrue();
+        assertThat(albumItem.isUserLike()).isTrue();
     }
 
     @Test

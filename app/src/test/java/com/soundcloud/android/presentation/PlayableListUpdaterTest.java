@@ -190,7 +190,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         final TrackItem updatedItem = ((TrackItem) items.get(0));
         assertThat(updatedItem.getUrn()).isEqualTo(likedTrack.getUrn());
         assertThat(updatedItem.likesCount()).isEqualTo(likesCount);
-        assertThat(updatedItem.isLikedByCurrentUser()).isTrue();
+        assertThat(updatedItem.isUserLike()).isTrue();
         verify(adapter).notifyItemChanged(0);
     }
 
@@ -210,7 +210,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.LIKE_CHANGED, likeEvent);
 
         assertThat(likedTrack.likesCount()).isNotEqualTo(likesCount);
-        assertThat(likedTrack.isLikedByCurrentUser()).isFalse();
+        assertThat(likedTrack.isUserLike()).isFalse();
         verify(adapter, never()).notifyItemChanged(anyInt());
     }
 

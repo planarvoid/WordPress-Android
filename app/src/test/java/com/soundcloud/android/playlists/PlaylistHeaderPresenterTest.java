@@ -316,7 +316,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
         setPlaylistInfo();
 
-        presenter.onItemTriggered(new PlaylistDetailUpsellItem(TrackItem.EMPTY));
+        presenter.onItemTriggered(new PlaylistDetailUpsellItem(ModelFixtures.trackItem()));
 
         verify(navigator).openUpgrade(getContext());
     }

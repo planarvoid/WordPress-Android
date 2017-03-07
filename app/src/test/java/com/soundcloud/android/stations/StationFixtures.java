@@ -130,7 +130,7 @@ public class StationFixtures {
     }
 
     static StationInfoTrack createStationInfoTrack(int playCount, String artistName) {
-        final TrackItem trackItem = ModelFixtures.trackItemBuilder().playCount(playCount).creatorName(artistName).build();
+        final TrackItem trackItem = TrackItem.from(ModelFixtures.trackBuilder().playCount(playCount).creatorName(artistName).build());
         return StationInfoTrack.from(trackItem);
     }
 

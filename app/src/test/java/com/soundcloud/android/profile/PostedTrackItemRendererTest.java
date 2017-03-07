@@ -38,15 +38,15 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackItem = ModelFixtures.trackItemBuilder()
+        trackItem = TrackItem.from(ModelFixtures.trackBuilder()
                                  .title("title")
                                  .creatorName("creator")
                                  .snippetDuration(227000L)
                                  .fullDuration(227000L)
-                                 .isSnipped(true)
-                                 .getUrn(Urn.forTrack(123))
+                                 .snipped(true)
+                                 .urn(Urn.forTrack(123))
                                  .playCount(870)
-                                 .build();
+                                 .build());
 
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getResources()).thenReturn(resources());

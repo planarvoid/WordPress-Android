@@ -150,17 +150,21 @@ public class TrackPageMenuController
 
     void handleShare(Context context) {
         Urn trackUrn = track.getUrn();
-        sharePresenter.share(context,
-                             track.getSource(),
-                             getContextMetadata(trackUrn),
-                             playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+        if (track.getSource().isPresent()) {
+            sharePresenter.share(context,
+                                 track.getSource().get(),
+                                 getContextMetadata(trackUrn),
+                                 playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+        }
     }
 
     private void handleComment() {
-        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(),
-                                                                                  commentPosition,
-                                                                                  playQueueManager.getScreenTag());
-        fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
+        if (track.getSource().isPresent()) {
+            final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource().get(),
+                                                                                      commentPosition,
+                                                                                      playQueueManager.getScreenTag());
+            fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
+        }
     }
 
     private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {

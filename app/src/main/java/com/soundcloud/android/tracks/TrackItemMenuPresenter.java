@@ -191,8 +191,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         menu.setItemEnabled(R.id.play_next, canPlayNext(track));
     }
 
-    private boolean canPlayNext(TrackItem track) {
-        return !track.isBlocked();
+    private boolean canPlayNext(TrackItem trackItem) {
+        return !trackItem.isBlocked();
     }
 
     private boolean canRepost(TrackItem track) {
@@ -305,7 +305,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleLike() {
-        final boolean addLike = !track.isLikedByCurrentUser();
+        final boolean addLike = !track.isUserLike();
         likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(context, addLike));
@@ -314,7 +314,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleRepost() {
-        final boolean repost = !track.isRepostedByCurrentUser();
+        final boolean repost = !track.isUserRepost();
         repostOperations.toggleRepost(track.getUrn(), repost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context));
