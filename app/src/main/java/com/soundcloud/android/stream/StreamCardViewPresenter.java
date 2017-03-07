@@ -52,16 +52,18 @@ class StreamCardViewPresenter {
 
     void bind(StreamItemViewHolder itemView,
               PlayableItem item,
-              EventContextMetadata.Builder eventContextMetadataBuilder) {
+              EventContextMetadata.Builder eventContextMetadataBuilder,
+              Date createdAt) {
 
-        bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder);
+        bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder, createdAt);
         bindArtworkView(itemView, item, eventContextMetadataBuilder);
     }
 
     private void bindHeaderView(StreamItemViewHolder itemView,
                                 PlayableItem playableItem,
                                 Urn itemUrn,
-                                EventContextMetadata.Builder eventContextMetadataBuilder) {
+                                EventContextMetadata.Builder eventContextMetadataBuilder,
+                                Date createdAt) {
         itemView.resetCardView();
 
         final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTOR)
@@ -80,7 +82,7 @@ class StreamCardViewPresenter {
                        itemUrn,
                        eventContextMetadata);
             setHeaderText(itemView, playableItem);
-            showCreatedAt(itemView, playableItem.getCreatedAt());
+            showCreatedAt(itemView, createdAt);
             itemView.togglePrivateIndicator(playableItem.isPrivate());
         }
     }

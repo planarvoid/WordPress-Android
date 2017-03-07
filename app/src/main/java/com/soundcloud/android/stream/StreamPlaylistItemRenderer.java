@@ -50,11 +50,12 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
 
     @Override
     public void bindItemView(int position, View view, List<PlaylistStreamItem> playlistItems) {
-        final PlaylistItem playlistItem = playlistItems.get(position).playlistItem();
+        final PlaylistStreamItem playlistStreamItem = playlistItems.get(position);
+        final PlaylistItem playlistItem = playlistStreamItem.playlistItem();
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
         itemView.resetAdditionalInformation();
 
-        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(playlistItem, position));
+        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(playlistItem, position), playlistStreamItem.createdAt());
         showTrackCount(itemView, playlistItem);
         setupEngagementBar(itemView, playlistItem, position);
     }

@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
@@ -40,8 +41,9 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
 
     private final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private Date createdAt = new Date();
     private final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem,
-                                                                                    playlistItem.getCreatedAt());
+                                                                                    createdAt);
 
     private StreamPlaylistItemRenderer renderer;
     private View itemView;
@@ -60,7 +62,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     public void bindsCardViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
-        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class));
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt));
     }
 
     @Test
@@ -102,7 +104,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
-        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class));
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt));
     }
 
     private String tracksString(int trackCount) {

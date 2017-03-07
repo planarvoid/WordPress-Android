@@ -57,7 +57,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsHeaderViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
 
-        verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class));
+        verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class), eq(postedTrackStreamItem.createdAt()));
     }
 
     @Test
