@@ -65,14 +65,16 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldUpdatePostsTableWithNewPlaylistId() throws Exception {
+        Date createdAt = new Date(456L);
         ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
         ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        newPlaylist.setCreatedAt(createdAt);
         testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
 
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
-        databaseAssertions().assertPlaylistPostInsertedFor(newPlaylist);
+        databaseAssertions().assertPlaylistPostInsertedFor(newPlaylist, createdAt);
     }
 
     @Test

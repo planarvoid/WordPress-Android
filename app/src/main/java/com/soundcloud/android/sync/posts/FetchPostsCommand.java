@@ -5,7 +5,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.LegacyCommand;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
@@ -31,7 +30,7 @@ class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<PostRec
         final ModelCollection<ApiPostItem> apiPosts = apiClient.fetchMappedResponse(request,
                                                                                     new TypeToken<ModelCollection<ApiPostItem>>() {
                                                                                     });
-        final NavigableSet<PostRecord> result = new TreeSet<>(PostProperty.COMPARATOR);
+        final NavigableSet<PostRecord> result = new TreeSet<>(PostRecord.COMPARATOR);
         for (ApiPostItem post : apiPosts) {
             result.add(post.getPostRecord());
         }

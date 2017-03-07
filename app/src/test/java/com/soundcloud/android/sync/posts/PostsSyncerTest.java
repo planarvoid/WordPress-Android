@@ -14,7 +14,6 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -177,7 +176,7 @@ public class PostsSyncerTest {
     }
 
     private void withRemotePlaylistPosts(PostRecord... playlistPosts) throws Exception {
-        final TreeSet<PostRecord> propertySets = new TreeSet<>(PostProperty.COMPARATOR);
+        final TreeSet<PostRecord> propertySets = new TreeSet<>(PostRecord.COMPARATOR);
         propertySets.addAll(Arrays.asList(playlistPosts));
         when(fetcyMyPlaylists.call()).thenReturn(propertySets);
     }

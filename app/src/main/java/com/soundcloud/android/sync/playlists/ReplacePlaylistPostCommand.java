@@ -29,7 +29,7 @@ class ReplacePlaylistPostCommand
     private final PropellerDatabase propeller;
 
     @Inject
-    public ReplacePlaylistPostCommand(PropellerDatabase propeller) {
+    ReplacePlaylistPostCommand(PropellerDatabase propeller) {
         this.propeller = propeller;
     }
 
@@ -78,8 +78,9 @@ class ReplacePlaylistPostCommand
             }
 
             private void updatePostsTable(PropellerDatabase propeller) {
-                final ContentValuesBuilder playlistPostValues = ContentValuesBuilder.values(1);
+                final ContentValuesBuilder playlistPostValues = ContentValuesBuilder.values(2);
                 playlistPostValues.put(Posts.TARGET_ID, newPlaylist.getId());
+                playlistPostValues.put(Posts.CREATED_AT, newPlaylist.getCreatedAt().getTime());
                 step(propeller.update(Posts.TABLE, playlistPostValues.get(), filter()
                         .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
                         .whereEq(Posts.TARGET_TYPE, Tables.Sounds.TYPE_PLAYLIST)));

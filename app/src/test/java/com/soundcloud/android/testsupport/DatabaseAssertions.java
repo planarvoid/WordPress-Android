@@ -625,8 +625,11 @@ public class DatabaseAssertions {
                                   .whereGe(TableColumns.PlaylistTracks.POSITION, tracklist.size()))).counts(0);
     }
 
-    public void assertPlaylistPostInsertedFor(ApiPlaylist playlist) {
-        assertPlaylistPostInsertedFor(playlist.getUrn());
+    public void assertPlaylistPostInsertedFor(ApiPlaylist playlist, Date createdAt) {
+        assertThat(select(from(Posts.TABLE)
+                                  .whereEq(Tables.Posts.TARGET_ID, playlist.getId())
+                                  .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(Posts.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertPlaylistPostInsertedFor(Urn playlistUrn) {

@@ -8,7 +8,6 @@ import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -58,12 +57,12 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        return call(Collections.<Urn>emptyList());
+        return call(Collections.emptyList());
     }
 
     public Boolean call(List<Urn> recentlyPostedUrns) throws Exception {
         final NavigableSet<PostRecord> remotePosts = fetchRemotePosts.call();
-        final Set<PostRecord> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
+        final Set<PostRecord> localPosts = new TreeSet<>(PostRecord.COMPARATOR);
         localPosts.addAll(loadLocalPosts.call());
 
         Log.d(TAG, "Syncing Posts : Local Count = " + localPosts.size() + " , Remote Count = " + remotePosts.size());
@@ -140,7 +139,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     private Set<PostRecord> getSetDifference(Set<PostRecord> set, Set<PostRecord> without) {
-        final Set<PostRecord> difference = new TreeSet<>(PostProperty.COMPARATOR);
+        final Set<PostRecord> difference = new TreeSet<>(PostRecord.COMPARATOR);
         difference.addAll(set);
         difference.removeAll(without);
         return difference;
