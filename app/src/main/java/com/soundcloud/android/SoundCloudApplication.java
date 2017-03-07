@@ -81,7 +81,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
     // Performance: we want to start timing when the class loader loads classes.
-    private final PerformanceMetric startPerformanceMetric = PerformanceMetric.create(APP_ON_CREATE);
+    private final PerformanceMetric appOnCreateMetric = PerformanceMetric.create(APP_ON_CREATE);
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
@@ -160,7 +160,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         devTools.initialize(this);
         bootApplication();
 
-        performanceMetricsEngine.endMeasuringFrom(startPerformanceMetric);
+        performanceMetricsEngine.endMeasuringFrom(appOnCreateMetric);
     }
 
     private void initializeFirebase() {
