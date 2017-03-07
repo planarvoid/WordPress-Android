@@ -288,8 +288,6 @@ public class SoundCloudApplication extends MultiDexApplication {
             // device identifier
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id",
                                 () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
-            // sync current sets
-            AndroidUtils.doOnce(this, "request.sets.sync", this::requestCollectionsSync);
         }
     }
 

@@ -13,7 +13,6 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.SuggestedStationsExperiment;
 import com.soundcloud.android.model.Urn;
@@ -27,7 +26,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import java.io.IOException;
-import java.util.Collections;
 
 public class StationsApiTest extends AndroidUnitTest {
     @Mock ApiClientRx apiClientRx;
@@ -69,25 +67,5 @@ public class StationsApiTest extends AndroidUnitTest {
                                                                            .withQueryParam("variant", "variant_name")), isA(TypeToken.class))).thenReturn(new ModelCollection<>(singletonList(station)));
 
         assertThat(api.fetchStationRecommendations().getCollection()).containsExactly(station);
-    }
-
-    @Test
-    public void shouldReturnTrueWhenMigrationRequestWasSuccessful() {
-        final TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-        when(apiClientRx.response(argThat(isApiRequestTo("PUT", ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path()))))
-                .thenReturn(Observable.just(new ApiResponse(null, 201, "")));
-
-        api.requestRecentToLikedMigration().subscribe(subscriber);
-        subscriber.assertReceivedOnNext(Collections.singletonList(true));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenMigrationRequestFailed() {
-        final TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-        when(apiClientRx.response(argThat(isApiRequestTo("PUT", ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path()))))
-                .thenReturn(Observable.just(new ApiResponse(null, 500, "")));
-
-        api.requestRecentToLikedMigration().subscribe(subscriber);
-        subscriber.assertReceivedOnNext(Collections.singletonList(false));
     }
 }

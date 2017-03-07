@@ -81,12 +81,4 @@ class StationsApi {
 
         return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {}).getCollection();
     }
-
-    Observable<Boolean> requestRecentToLikedMigration() {
-        final ApiRequest request = ApiRequest.put(ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path())
-                .forPrivateApi()
-                .build();
-
-        return apiClientRx.response(request).map(apiResponse -> apiResponse.isSuccess());
-    }
 }

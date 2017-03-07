@@ -39,14 +39,6 @@ public class StationsOperations {
         }
     };
 
-    private final Func1<Boolean, Boolean> markMigrationCompleted = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean wasSuccessful) {
-            stationsStorage.markRecentToLikedMigrationComplete();
-            return true;
-        }
-    };
-
     private final SyncStateStorage syncStateStorage;
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
@@ -149,26 +141,11 @@ public class StationsOperations {
     }
 
     public Observable<SyncJobResult> syncStations(int type) {
-        if (StationsCollectionsTypes.LIKED == type) {
-            return migrateRecentToLikedIfNeeded().flatMap(o -> syncLikedStations());
-        } else {
-            return syncInitiator.sync(typeToSyncable(type));
-        }
+        return syncInitiator.sync(typeToSyncable(type));
     }
 
     Observable<SyncJobResult> syncLikedStations() {
         return syncInitiator.sync(Syncable.LIKED_STATIONS);
-    }
-
-    Observable<Boolean> migrateRecentToLikedIfNeeded() {
-        if (stationsStorage.shouldRunRecentToLikedMigration()) {
-            return stationsApi.requestRecentToLikedMigration()
-                              .filter(IS_TRUE)
-                              .map(markMigrationCompleted)
-                              .subscribeOn(scheduler);
-        } else {
-            return Observable.just(true);
-        }
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {

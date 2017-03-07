@@ -116,7 +116,6 @@ public enum ApiEndpoints {
     STATIONS("/stations"),
     STATIONS_LIKED("/stations/liked"),
     STATIONS_FETCH("/stations/fetch"),
-    STATIONS_MIGRATE_RECENT_TO_LIKED("/stations/recent/migrate-to-liked"),
 
     // timeline features
     STREAM("/stream"),

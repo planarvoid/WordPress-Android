@@ -46,7 +46,6 @@ class StationsStorage {
     private static final String STATION_LIKE = "STATION_LIKE";
     private static final String ONBOARDING_LIKED_STATIONS_DISABLED = "ONBOARDING_LIKED_STATIONS_DISABLED";
     private static final String ONBOARDING_STREAM_ITEM_DISABLED = "ONBOARDING_STREAM_ITEM_DISABLED";
-    private static final String MIGRATE_RECENT_TO_LIKED_STATIONS = "MIGRATE_RECENT_TO_LIKED_STATIONS";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
 
     void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
@@ -312,14 +311,6 @@ class StationsStorage {
 
     void disableLikedStationsOnboarding() {
         sharedPreferences.edit().putBoolean(ONBOARDING_LIKED_STATIONS_DISABLED, true).apply();
-    }
-
-    boolean shouldRunRecentToLikedMigration() {
-        return sharedPreferences.getBoolean(MIGRATE_RECENT_TO_LIKED_STATIONS, true);
-    }
-
-    void markRecentToLikedMigrationComplete() {
-        sharedPreferences.edit().putBoolean(MIGRATE_RECENT_TO_LIKED_STATIONS, false).apply();
     }
 
     private final class StationTrackUrnMapper extends RxResultMapper<Urn> {
