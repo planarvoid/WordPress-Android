@@ -29,6 +29,7 @@ enum Feature {
   FLIPPER_PRELOAD,
   WELCOME_USER,
   OFFLINE_PROPERTIES_PROVIDER,
+  OFFLINE_CONTENT_LOCATION,
   FORCE_SHOW_WELCOME_USER,
   LAUNCHER_SHORTCUTS,
   SEARCH_PLAY_RELATED_TRACKS,
@@ -63,6 +64,7 @@ android {
     buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
@@ -132,6 +134,7 @@ android {
       buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
     }

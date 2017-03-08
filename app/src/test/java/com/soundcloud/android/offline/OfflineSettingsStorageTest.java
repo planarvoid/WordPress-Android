@@ -37,6 +37,12 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
+    public void savesOfflineContentLocation() {
+        storage.setOfflineContentLocation(OfflineContentLocation.SD_CARD);
+        assertThat(storage.getOfflineContentLocation()).isEqualTo(OfflineContentLocation.SD_CARD);
+    }
+
+    @Test
     public void offlineStorageIsUnlimitedByDefault() {
         assertThat(storage.hasStorageLimit()).isFalse();
     }

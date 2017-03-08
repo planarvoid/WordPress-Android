@@ -16,11 +16,12 @@ public class OfflineSettingsStorage {
     public static final String OFFLINE_SETTINGS_ONBOARDING = "offline_settings_onboarding";
 
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
+    private static final String OFFLINE_CONTENT_LOCATION = "offline_content_location";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
 
     private final SharedPreferences sharedPreferences;
 
-    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = key -> OFFLINE_WIFI_ONLY.equals(key);
+    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = OFFLINE_WIFI_ONLY::equals;
 
     private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override
@@ -40,6 +41,14 @@ public class OfflineSettingsStorage {
 
     public void setWifiOnlyEnabled(boolean wifiOnly) {
         sharedPreferences.edit().putBoolean(OFFLINE_WIFI_ONLY, wifiOnly).apply();
+    }
+
+    public OfflineContentLocation getOfflineContentLocation() {
+        return OfflineContentLocation.fromId(sharedPreferences.getString(OFFLINE_CONTENT_LOCATION, OfflineContentLocation.DEVICE_STORAGE.id));
+    }
+
+    public void setOfflineContentLocation(OfflineContentLocation offlineContentLocation) {
+        sharedPreferences.edit().putString(OFFLINE_CONTENT_LOCATION, offlineContentLocation.id).apply();
     }
 
     public boolean hasStorageLimit() {
@@ -62,7 +71,7 @@ public class OfflineSettingsStorage {
         return sharedPreferences.getBoolean(OFFLINE_SETTINGS_ONBOARDING, false);
     }
 
-    public void setOfflineSettingsOnboardingSeen() {
+    void setOfflineSettingsOnboardingSeen() {
         sharedPreferences.edit().putBoolean(OFFLINE_SETTINGS_ONBOARDING, true).apply();
     }
 
