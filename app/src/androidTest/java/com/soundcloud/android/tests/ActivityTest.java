@@ -125,12 +125,13 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         removeActivityMonitors(getInstrumentation());
         toastObserver.stopObserving();
 
-        AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
-        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-
         if (solo != null) {
             solo.finishOpenedActivities();
         }
+
+        AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+
         networkManagerClient.switchWifiOn();
         networkManagerClient.unbind();
         stopWiremock();
