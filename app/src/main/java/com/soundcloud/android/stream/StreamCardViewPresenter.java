@@ -69,9 +69,9 @@ class StreamCardViewPresenter {
         final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTOR)
                                                                                      .build();
 
-        if (playableItem instanceof PromotedListItem) {
+        if (playableItem.isPromoted()) {
             showPromoted(itemView,
-                         (PromotedListItem) playableItem,
+                         playableItem,
                          playableItem.getPlayableType(),
                          itemUrn,
                          eventContextMetadata);
@@ -140,10 +140,10 @@ class StreamCardViewPresenter {
                               EventContextMetadata eventContextMetadata) {
         if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promoted.getPromoterUrn().get(), promoted.getAvatarUrlTemplate(), itemUrn,
+            loadAvatar(itemView, promoted.promoterUrn().get(), promoted.getAvatarUrlTemplate(), itemUrn,
                        eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
-            itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
+            itemView.setPromoterHeader(promoted.promoterName().get(), headerSpannableBuilder.get());
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();

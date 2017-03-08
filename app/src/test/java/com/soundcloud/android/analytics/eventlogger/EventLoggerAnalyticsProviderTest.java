@@ -22,9 +22,9 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
@@ -55,10 +55,10 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
+import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -298,7 +298,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEventsWithV1() {
-        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(true,
@@ -317,7 +317,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnRepostEventsV1() {
-        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(false,
@@ -379,7 +379,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPromotedTrackEvents() {
-        PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
         when(dataBuilderv0.build(event)).thenReturn("ForPromotedEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);

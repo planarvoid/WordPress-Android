@@ -41,12 +41,14 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
     }
 
     void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (int i = 0; i < adapter.getItemCount(); i++) {
-            final TrackItem track = adapter.getItem(i).getTrack();
+        final List<StationInfoTrack> items = adapter.getItems();
+        for (int i = 0; i < items.size(); i++) {
+            final TrackItem track = items.get(i).getTrack();
             final boolean isCurrent = track.getUrn().equals(currentlyPlayingUrn);
 
             if (track.isPlaying() || isCurrent) {
-                track.setIsPlaying(isCurrent);
+                final TrackItem trackItem = track.withPlayingState(isCurrent);
+                items.set(i, StationInfoTrack.from(trackItem));
                 adapter.notifyItemChanged(i);
             }
 

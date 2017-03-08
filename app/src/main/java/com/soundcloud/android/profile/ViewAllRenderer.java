@@ -30,7 +30,7 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
     }
 
     private int getText(UserSoundsItem item) {
-        switch (item.getCollectionType()) {
+        switch (item.collectionType()) {
             case UserSoundsTypes.TRACKS:
                 return R.string.user_profile_sounds_view_all_tracks;
             case UserSoundsTypes.ALBUMS:

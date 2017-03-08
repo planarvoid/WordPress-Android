@@ -24,8 +24,8 @@ class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, Recycle
 
     void setRecommendedTracksBucketItem(RecommendedTracksBucketItem recommendationBucket) {
         clear();
-        bucketId = recommendationBucket.getSeedTrackLocalId();
-        onNext(recommendationBucket.getRecommendations());
+        bucketId = recommendationBucket.seedTrackLocalId();
+        onNext(recommendationBucket.recommendations());
     }
 
     long bucketId() {
@@ -34,10 +34,16 @@ class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, Recycle
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingCollectionUrn) {
-        for (Recommendation viewModel : getItems()) {
-            viewModel.setIsPlaying(viewModel.getTrack().getUrn().equals(currentlyPlayingCollectionUrn));
+        for (int i = 0; i < items.size(); i++) {
+            final Recommendation viewModel = items.get(i);
+
+            final boolean isPlaying = viewModel.getTrack().getUrn().equals(currentlyPlayingCollectionUrn);
+            if (isPlaying != viewModel.isPlaying()) {
+                final Recommendation updatedViewModel = viewModel.toBuilder().setPlaying(isPlaying).build();
+                items.set(i, updatedViewModel);
+                notifyItemChanged(i);
+            }
         }
-        notifyDataSetChanged();
     }
 
     @Override

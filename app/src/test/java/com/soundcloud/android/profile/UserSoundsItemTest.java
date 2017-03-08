@@ -36,8 +36,8 @@ public class UserSoundsItemTest {
     @NonNull
     private UserSoundsItem createUserSoundsItem(int collectionType, int itemType) {
         final UserSoundsItem item = mock(UserSoundsItem.class);
-        when(item.getCollectionType()).thenReturn(collectionType);
-        when(item.getItemType()).thenReturn(itemType);
+        when(item.collectionType()).thenReturn(collectionType);
+        when(item.itemType()).thenReturn(itemType);
         return item;
     }
 }

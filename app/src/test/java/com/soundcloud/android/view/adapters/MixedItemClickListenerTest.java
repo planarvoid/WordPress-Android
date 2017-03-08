@@ -33,7 +33,6 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -106,7 +105,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnPromotedTrackPlaysWithPromotedSourceInfo() {
-        final PromotedTrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        final TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setPromotedSourceInfo(promotedSourceInfo);

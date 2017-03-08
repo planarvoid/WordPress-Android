@@ -48,9 +48,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
@@ -152,9 +151,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void canLoadStreamItems() {
-        final PromotedTrackItem promotedTrackItem = expectedPromotedTrack();
-        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.createForPromoted(promotedTrackItem,
-                                                                                    CREATED_AT);
+        final TrackItem promotedTrackItem = expectedPromotedTrack();
+        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, CREATED_AT);
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
         TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT);
         final PlaylistItem playlistItem = expectedLikedPlaylistForPlaylistsScreen();
@@ -201,10 +199,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromotedTrackItemClick() {
-        final PromotedTrackItem clickedTrack = expectedPromotedTrack();
+        final TrackItem clickedTrack = expectedPromotedTrack();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(TrackStreamItem.createForPromoted(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);

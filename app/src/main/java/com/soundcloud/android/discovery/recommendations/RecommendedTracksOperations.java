@@ -81,11 +81,11 @@ public class RecommendedTracksOperations {
         for (TrackItem trackItem : trackItems) {
             boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
                                                                                        .equals(trackItem.getUrn());
-            recommendations.add(new Recommendation(trackItem,
-                                                   seedUrn,
-                                                   isPlaying,
-                                                   queryPosition,
-                                                   queryUrn));
+            recommendations.add(Recommendation.create(trackItem,
+                                                      seedUrn,
+                                                      isPlaying,
+                                                      queryPosition,
+                                                      queryUrn));
         }
 
         return recommendations;

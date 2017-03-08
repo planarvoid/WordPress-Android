@@ -136,7 +136,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowGoLabelForNowPlayingTrack() {
         trackItem = PlayableFixtures.highTierTrack();
-        trackItem.setIsPlaying(true);
+        trackItem = trackItem.withPlayingState(true);
 
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
@@ -169,7 +169,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHighlightCurrentlyPlayingTrack() {
-        trackItem.setIsPlaying(true);
+        trackItem = trackItem.withPlayingState(true);
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showNowPlaying();
@@ -186,8 +186,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
-        updatedTrackItem.setIsPlaying(true);
+        TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
+        updatedTrackItem = updatedTrackItem.withPlayingState(true);
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 

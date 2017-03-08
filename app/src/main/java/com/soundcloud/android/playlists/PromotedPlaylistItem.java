@@ -5,7 +5,6 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -16,9 +15,10 @@ import java.util.Date;
 import java.util.List;
 
 @AutoValue
-public abstract class PromotedPlaylistItem extends PlaylistItem implements PromotedListItem {
+public abstract class PromotedPlaylistItem extends PlaylistItem {
 
-    public abstract PromotedProperties promotedProperties();
+    @Override
+    public abstract Optional<PromotedProperties> promotedProperties();
 
     public static PromotedPlaylistItem from(Playlist playlist, StreamEntity streamEntity, PromotedProperties promotedStreamProperties) {
         return builder(promotedStreamProperties).getImageUrlTemplate(playlist.imageUrlTemplate())
@@ -87,48 +87,48 @@ public abstract class PromotedPlaylistItem extends PlaylistItem implements Promo
         return builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
     }
 
+
     public PlaylistItem updateWithReposter(String reposter, Urn reposterUrn) {
         return builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
     }
-
     @Override
     public String getAdUrn() {
-        return promotedProperties().adUrn();
+        return promotedProperties().get().adUrn();
     }
 
     @Override
     public boolean hasPromoter() {
-        return promotedProperties().promoterUrn().isPresent();
+        return isPromoted() && promotedProperties().get().promoterUrn().isPresent();
     }
 
     @Override
-    public Optional<String> getPromoterName() {
-        return promotedProperties().promoterName();
+    public Optional<String> promoterName() {
+        return promotedProperties().get().promoterName();
     }
 
     @Override
-    public Optional<Urn> getPromoterUrn() {
-        return promotedProperties().promoterUrn();
+    public Optional<Urn> promoterUrn() {
+        return promotedProperties().get().promoterUrn();
     }
 
     @Override
-    public List<String> getClickUrls() {
-        return promotedProperties().trackClickedUrls();
+    public List<String> clickUrls() {
+        return promotedProperties().get().trackClickedUrls();
     }
 
     @Override
-    public List<String> getImpressionUrls() {
-        return promotedProperties().trackImpressionUrls();
+    public List<String> impressionUrls() {
+        return promotedProperties().get().trackImpressionUrls();
     }
 
     @Override
-    public List<String> getPromoterClickUrls() {
-        return promotedProperties().promoterClickedUrls();
+    public List<String> promoterClickUrls() {
+        return promotedProperties().get().promoterClickedUrls();
     }
 
     @Override
-    public List<String> getPlayUrls() {
-        return promotedProperties().trackPlayedUrls();
+    public List<String> playUrls() {
+        return promotedProperties().get().trackPlayedUrls();
     }
 
     @Override
@@ -165,6 +165,10 @@ public abstract class PromotedPlaylistItem extends PlaylistItem implements Promo
                                                             .duration(0)
                                                             .releaseDate(Strings.EMPTY)
                                                             .promotedProperties(promotedProperties);
+    }
+
+    public boolean isPromoted() {
+        return promotedProperties().isPresent();
     }
 
     private static Builder builder(PromotedPlaylistItem promotedPlaylistItem) {
@@ -225,8 +229,11 @@ public abstract class PromotedPlaylistItem extends PlaylistItem implements Promo
 
         public abstract Builder releaseDate(String releaseDate);
 
-        public abstract Builder promotedProperties(PromotedProperties promotedProperties);
+        public Builder promotedProperties(PromotedProperties promotedProperties) {
+            return promotedProperties(Optional.of(promotedProperties));
+        }
 
+        public abstract Builder promotedProperties(Optional<PromotedProperties> promotedProperties);
 
         public abstract PromotedPlaylistItem build();
     }

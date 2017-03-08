@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
@@ -39,15 +38,15 @@ public class StreamEntityToItemTransformer implements Func1<List<StreamEntity>, 
                                   for (StreamEntity streamEntity : streamEntities) {
                                       final Urn urn = streamEntity.urn();
                                       if (trackMap.containsKey(urn)) {
-                                          if (streamEntity.promotedProperties().isPresent()) {
-                                              final PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(trackMap.get(urn), streamEntity, streamEntity.promotedProperties().get());
-                                              result.add(TrackStreamItem.createForPromoted(promotedTrackItem, streamEntity.createdAt()));
+                                          if (streamEntity.isPromoted()) {
+                                              final TrackItem promotedTrackItem = TrackItem.from(trackMap.get(urn), streamEntity, streamEntity.promotedProperties().get());
+                                              result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt()));
                                           } else {
                                               final TrackItem trackItem = TrackItem.fromTrackAndStreamEntity(trackMap.get(urn), streamEntity);
                                               result.add(TrackStreamItem.create(trackItem, streamEntity.createdAt()));
                                           }
                                       } else if (playlistMap.containsKey(urn)) {
-                                          if (streamEntity.promotedProperties().isPresent()) {
+                                          if (streamEntity.isPromoted()) {
                                               final PromotedPlaylistItem promotedPlaylistItem = PromotedPlaylistItem.from(playlistMap.get(urn), streamEntity, streamEntity.promotedProperties().get());
                                               result.add(PlaylistStreamItem.createForPromoted(promotedPlaylistItem, streamEntity.createdAt()));
                                           } else {

@@ -13,7 +13,6 @@ import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -61,12 +60,12 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
     @Test
     public void enrichesPromotedTrackStreamItem() throws Exception {
-        final PromotedTrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(track, promoter);
+        final TrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(track, promoter);
         final StreamEntity streamEntity = fromPromotedTrackItem(CREATED_AT, promotedTrackItem);
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Observable.just(Collections.singletonMap(track.urn(), track)));
 
-        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.createForPromoted(promotedTrackItem, streamEntity.createdAt());
+        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedTrackStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -102,11 +101,11 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
         return StreamEntity.builder(urn, createdAt, Optional.absent(), Optional.absent(), avatarUrlTemplate);
     }
 
-    private StreamEntity fromPromotedTrackItem(Date createdAt, PromotedTrackItem trackItem) {
-        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.avatarUrlTemplate()).promotedProperties(Optional.of(trackItem.promotedProperties())).build();
+    private StreamEntity fromPromotedTrackItem(Date createdAt, TrackItem trackItem) {
+        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.avatarUrlTemplate()).promotedProperties(trackItem.promotedProperties()).build();
     }
 
     private StreamEntity fromPromotedPlaylistItem(Date createdAt, PromotedPlaylistItem playlistItem) {
-        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).promotedProperties(Optional.of(playlistItem.promotedProperties())).build();
+        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).promotedProperties(playlistItem.promotedProperties()).build();
     }
 }

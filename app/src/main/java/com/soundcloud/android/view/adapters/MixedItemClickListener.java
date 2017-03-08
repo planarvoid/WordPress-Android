@@ -19,7 +19,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
@@ -112,8 +111,8 @@ public class MixedItemClickListener {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-            if (clickedItem instanceof PromotedTrackItem) {
-                playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((PromotedTrackItem) clickedItem));
+            if (item.isPromoted()) {
+                playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((TrackItem) clickedItem));
             }
             playbackInitiator
                     .playPosts(playablesWithReposters, item.getUrn(), position, playSessionSource)

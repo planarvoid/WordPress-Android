@@ -86,15 +86,15 @@ public abstract class PromotedTrackingEvent extends TrackingEvent {
     }
 
     public static PromotedTrackingEvent forPromoterClick(PromotedListItem promotedItem, String screen) {
-        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.getPromoterClickUrls(), screen)
+        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.promoterClickUrls(), screen)
                 .clickObject(Optional.of(promotedItem.getUrn()))
-                .clickTarget(Optional.of(promotedItem.getPromoterUrn().get()))
+                .clickTarget(Optional.of(promotedItem.promoterUrn().get()))
                 .clickName(Optional.of(CLICK_NAME))
                 .build();
     }
 
     public static PromotedTrackingEvent forItemClick(PromotedListItem promotedItem, String screen) {
-        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.getClickUrls(), screen)
+        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.clickUrls(), screen)
                 .clickObject(Optional.of(promotedItem.getUrn()))
                 .clickTarget(Optional.of(promotedItem.getUrn()))
                 .clickName(Optional.of(CLICK_NAME))
@@ -104,15 +104,15 @@ public abstract class PromotedTrackingEvent extends TrackingEvent {
     public static PromotedTrackingEvent forImpression(PromotedListItem promotedItem, String screen) {
         final Urn promotedItemUrn = promotedItem.getUrn();
         final ImpressionName impressionName = promotedItemUrn.isPlaylist() ? PROMOTED_PLAYLIST : PROMOTED_TRACK;
-        return basePromotedEvent(Kind.KIND_IMPRESSION, promotedItem, promotedItem.getImpressionUrls(), screen).impressionObject(Optional.of(promotedItemUrn))
-                                                                                                              .impressionName(Optional.of(impressionName))
-                                                                                                              .build();
+        return basePromotedEvent(Kind.KIND_IMPRESSION, promotedItem, promotedItem.impressionUrls(), screen).impressionObject(Optional.of(promotedItemUrn))
+                                                                                                           .impressionName(Optional.of(impressionName))
+                                                                                                           .build();
     }
 
     @NotNull
     private static PromotedTrackingEvent.Builder basePromotedEvent(Kind kind, PromotedListItem promotedItem,
                                                                    List<String> trackingUrls, String screen) {
-        return PromotedTrackingEvent.create(kind, promotedItem.getAdUrn(), promotedItem.getPromoterUrn(), trackingUrls, screen);
+        return PromotedTrackingEvent.create(kind, promotedItem.getAdUrn(), promotedItem.promoterUrn(), trackingUrls, screen);
     }
 
     @Override

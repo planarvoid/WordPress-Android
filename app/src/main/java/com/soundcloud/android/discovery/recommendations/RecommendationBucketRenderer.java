@@ -113,10 +113,10 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
     }
 
     private Spannable getReasonText(RecommendedTracksBucketItem recommendationBucket, Context context) {
-        final String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
+        final String reason = getReasonType(recommendationBucket.recommendationReason(), context);
         final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle,
                                                     reason,
-                                                    recommendationBucket.getSeedTrackTitle());
+                                                    recommendationBucket.seedTrackTitle());
         final int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
 
         final Spannable spannable = new SpannableString(reasonText);
@@ -145,6 +145,6 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
 
     @NonNull
     private View.OnClickListener buildOnReasonClickListener(final RecommendedTracksBucketItem bucket) {
-        return v -> listener.onReasonClicked(bucket.getSeedTrackUrn());
+        return v -> listener.onReasonClicked(bucket.seedTrackUrn());
     }
 }

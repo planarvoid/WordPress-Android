@@ -253,8 +253,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track) {
         itemView.hideInfosViewsBottom();
-        if (track instanceof PromotedTrackItem) {
-            showPromoted(itemView, (PromotedTrackItem) track);
+        if (track.isPromoted()) {
+            showPromoted(itemView, track);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
         } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
@@ -275,11 +275,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemView.showPosition(position);
     }
 
-    private void showPromoted(TrackItemView itemView, final PromotedTrackItem track) {
+    private void showPromoted(TrackItemView itemView, final TrackItem track) {
         final Context context = itemView.getContext();
         if (track.hasPromoter()) {
-            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname,
-                                                         track.getPromoterName().get()));
+            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.promoterName().get()));
             itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted));

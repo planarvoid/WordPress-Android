@@ -16,7 +16,7 @@ class SearchPremiumItem implements ListItem {
     private final Optional<Link> nextHref;
     private final int resultsCount;
 
-    private final ListItem firstItem;
+    private ListItem firstItem;
 
     SearchPremiumItem(List<ListItem> sourceSetPremiumItems, Optional<Link> nextHref, int resultsCount) {
         this.sourceSet = sourceSetPremiumItems;
@@ -58,7 +58,8 @@ class SearchPremiumItem implements ListItem {
     void setTrackIsPlaying(Urn currentlyPlayingUrn) {
         if (firstItem.getUrn().isTrack()) {
             final TrackItem trackItem = (TrackItem) firstItem;
-            trackItem.setIsPlaying(trackItem.getUrn().equals(currentlyPlayingUrn));
+            final boolean isPlaying = trackItem.getUrn().equals(currentlyPlayingUrn);
+            firstItem = trackItem.withPlayingState(isPlaying);
         }
     }
 }

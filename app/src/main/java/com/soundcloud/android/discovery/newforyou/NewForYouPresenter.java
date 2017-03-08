@@ -125,14 +125,16 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
                                                  newForYou.tracks().isEmpty() ? Optional.absent() : Optional.of(TrackItem.from(newForYou.tracks().get(0)))));
 
             for (Track track : newForYou.tracks()) {
-                final TrackItem trackItem = TrackItem.from(track);
                 final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
                 final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
-                final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(trackItem.getUrn());
+                final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(track.urn());
 
+                final TrackItem.Builder trackItemBuilder = TrackItem.from(track).toBuilder();
                 if (isPlayingFromNewForYou && isTrackPlaying) {
-                    trackItem.setIsPlaying(true);
+                    trackItemBuilder.isPlaying(true);
                 }
+
+                final TrackItem trackItem = trackItemBuilder.build();
 
                 items.add(NewForYouTrackItem.create(newForYou, trackItem));
             }

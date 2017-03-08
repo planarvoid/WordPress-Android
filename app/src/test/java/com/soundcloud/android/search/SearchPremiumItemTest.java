@@ -69,11 +69,14 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
-        final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
-        assertThat(trackItem.isPlaying()).isFalse();
+        assertThat(firstItem().isPlaying()).isFalse();
 
         searchPremiumItem.setTrackIsPlaying(TRACK_URN);
-        assertThat(trackItem.isPlaying()).isTrue();
+        assertThat(firstItem().isPlaying()).isTrue();
+    }
+
+    private TrackItem firstItem() {
+        return (TrackItem) searchPremiumItem.getFirstItem();
     }
 
     @Test
@@ -81,7 +84,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
         final PlayableItem playableItem = ModelFixtures.trackItem(TRACK_URN);
         searchPremiumItem = buildWithTrackItem(playableItem);
 
-        final TrackItem trackItem = (TrackItem) searchPremiumItem.getFirstItem();
+        final TrackItem trackItem = firstItem();
         assertThat(trackItem.isPlaying()).isFalse();
 
         searchPremiumItem.setTrackIsPlaying(USER_URN);

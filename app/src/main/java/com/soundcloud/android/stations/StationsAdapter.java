@@ -20,10 +20,14 @@ class StationsAdapter extends RecyclerItemAdapter<StationViewModel, RecyclerView
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingCollectionUrn) {
-        for (StationViewModel viewModel : getItems()) {
-            viewModel.setIsPlaying(viewModel.getStation().getUrn().equals(currentlyPlayingCollectionUrn));
+        for (int i = 0; i < items.size(); i++) {
+            StationViewModel viewModel = items.get(i);
+            final boolean isPlaying = viewModel.getStation().getUrn().equals(currentlyPlayingCollectionUrn);
+            if (isPlaying != viewModel.isPlaying()) {
+                items.set(i, StationViewModel.create(viewModel.getStation(),isPlaying));
+                notifyItemChanged(i);
+            }
         }
-        notifyDataSetChanged();
     }
 
     @Override

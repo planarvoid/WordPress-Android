@@ -31,7 +31,7 @@ class HeaderRenderer implements CellRenderer<UserSoundsItem> {
     }
 
     public int getText(UserSoundsItem item) {
-        switch (item.getCollectionType()) {
+        switch (item.collectionType()) {
             case UserSoundsTypes.SPOTLIGHT:
                 return R.string.user_profile_sounds_header_spotlight;
             case UserSoundsTypes.TRACKS:

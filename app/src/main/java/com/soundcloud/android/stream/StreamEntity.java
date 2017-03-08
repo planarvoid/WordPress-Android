@@ -24,6 +24,10 @@ public abstract class StreamEntity implements UrnHolder {
         return new AutoValue_StreamEntity.Builder().urn(urn).createdAt(createdAt).reposter(reposter).reposterUrn(reposterUrn).avatarUrl(avatarUrl).promotedProperties(Optional.absent());
     }
 
+    public boolean isPromoted() {
+        return promotedProperties().isPresent();
+    }
+
     @AutoValue.Builder
     public abstract static class Builder {
 

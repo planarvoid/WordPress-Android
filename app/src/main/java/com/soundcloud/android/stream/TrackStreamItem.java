@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
@@ -16,7 +15,7 @@ import com.soundcloud.android.view.adapters.PlayableViewItem;
 import java.util.Date;
 
 @AutoValue
-public abstract class TrackStreamItem extends StreamItem implements PlayableViewItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+public abstract class TrackStreamItem extends StreamItem implements PlayableViewItem<TrackStreamItem>, UpdatableTrackItem, LikeableItem, RepostableItem {
     public abstract TrackItem trackItem();
 
     public abstract boolean promoted();
@@ -24,15 +23,11 @@ public abstract class TrackStreamItem extends StreamItem implements PlayableView
     public abstract Date createdAt();
 
     public static TrackStreamItem create(TrackItem trackItem, Date createdAt) {
-        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, false, createdAt);
+        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, trackItem.isPromoted(), createdAt);
     }
 
     private TrackStreamItem create(TrackItem trackItem) {
         return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, promoted(), createdAt());
-    }
-
-    public static TrackStreamItem createForPromoted(PromotedTrackItem trackItem, Date createdAt) {
-        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, true, createdAt);
     }
 
     @Override
@@ -56,7 +51,8 @@ public abstract class TrackStreamItem extends StreamItem implements PlayableView
     }
 
     @Override
-    public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        return trackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+    public TrackStreamItem updateNowPlaying(CurrentPlayQueueItemEvent event) {
+        final TrackItem updatedTrackItem = trackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        return create(updatedTrackItem);
     }
 }

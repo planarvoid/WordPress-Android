@@ -32,13 +32,13 @@ class UserSoundsTrackCardRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         final UserSoundsItem userSoundsItem = items.get(position);
-        final Optional<TrackItem> trackItem = userSoundsItem.getTrackItem();
+        final Optional<TrackItem> trackItem = userSoundsItem.trackItem();
 
         if (trackItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
             trackCardRenderer.bindTrackCard(trackItem.get(),
                                             itemView,
-                                            Optional.of(fromModule(userSoundsItem.getCollectionType(),
+                                            Optional.of(fromModule(userSoundsItem.collectionType(),
                                                                    getPositionInModule(items, userSoundsItem))));
         }
     }

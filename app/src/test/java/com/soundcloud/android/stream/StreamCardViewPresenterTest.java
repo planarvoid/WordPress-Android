@@ -223,8 +223,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(promotedItem.getPromoterUrn().get(),
-                                                                   promotedItem.avatarUrlTemplate())),
+                        argThat(isImageResourceFor(promotedItem.promoterUrn().get(),
+                                                   promotedItem.avatarUrlTemplate())),
                         any(ApiImageSize.class),
                         eq(imageView));
     }

@@ -18,7 +18,7 @@ import com.soundcloud.android.view.adapters.PlayableViewItem;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem<TrackLikesTrackItem>, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
     public static TrackLikesTrackItem create(Track track) {
         return create(TrackItem.from(track));
@@ -59,7 +59,7 @@ abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableVie
     }
 
     @Override
-    public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        return getTrackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+    public TrackLikesTrackItem updateNowPlaying(CurrentPlayQueueItemEvent event) {
+        return create(getTrackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet()));
     }
 }

@@ -1,39 +1,15 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.java.objects.MoreObjects;
+import com.google.auto.value.AutoValue;
 
-public class StationViewModel {
-    private final StationRecord station;
-    private boolean isPlaying;
+@AutoValue
+public abstract class StationViewModel {
 
-    public StationViewModel(StationRecord station, boolean isPlaying) {
-        this.station = station;
-        this.isPlaying = isPlaying;
+    public static StationViewModel create(StationRecord stationRecord, boolean isPlaying) {
+        return new AutoValue_StationViewModel(stationRecord, isPlaying);
     }
 
-    StationRecord getStation() {
-        return station;
-    }
+    abstract StationRecord getStation();
 
-    boolean isPlaying() {
-        return isPlaying;
-    }
-
-    void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StationViewModel that = (StationViewModel) o;
-        return isPlaying == that.isPlaying &&
-                MoreObjects.equal(station, that.station);
-    }
-
-    @Override
-    public int hashCode() {
-        return MoreObjects.hashCode(station, isPlaying);
-    }
+    abstract boolean isPlaying();
 }

@@ -22,10 +22,11 @@ import java.util.List;
 public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
 
     @Mock private RecyclerItemAdapter adapter;
-    @Mock private PlayableViewItem playableViewItem;
+    @Mock private PlayableViewItem<PlayableViewItem> playableViewItem;
     @Mock private Object differentItem;
     @Mock private CellRenderer<DiscoveryItem> cellRenderer;
     @Mock private CurrentPlayQueueItemEvent eventWithTrackAndCollection;
+    @Mock private PlayableViewItem<CurrentPlayQueueItemEvent> updatedPlayableViewItem;
 
     private UpdatePlayableAdapterSubscriber subscriber;
     private List discoveryItems;
@@ -39,18 +40,18 @@ public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void updatesNowPlayingOfPlayableItemAndNotifiesItemWhenUpdated() {
-        when(playableViewItem.updateNowPlaying(eventWithTrackAndCollection)).thenReturn(true);
+        when(playableViewItem.updateNowPlaying(eventWithTrackAndCollection)).thenReturn(updatedPlayableViewItem);
 
         subscriber.onNext(eventWithTrackAndCollection);
 
         verify(playableViewItem).updateNowPlaying(eventWithTrackAndCollection);
         verifyZeroInteractions(differentItem);
-        verify(adapter).notifyItemChanged(discoveryItems.indexOf(playableViewItem));
+        verify(adapter).notifyItemChanged(discoveryItems.indexOf(updatedPlayableViewItem));
     }
 
     @Test
     public void updatesNowPlayingOfPlayableItemAndDoesNotNotifyItemWhenNotUpdated() {
-        when(playableViewItem.updateNowPlaying(eventWithTrackAndCollection)).thenReturn(false);
+        when(playableViewItem.updateNowPlaying(eventWithTrackAndCollection)).thenReturn(playableViewItem);
 
         subscriber.onNext(eventWithTrackAndCollection);
 

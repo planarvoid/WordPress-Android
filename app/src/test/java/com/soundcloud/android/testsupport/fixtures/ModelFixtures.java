@@ -26,6 +26,7 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
+import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
@@ -55,14 +56,12 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemBlueprint;
-import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -253,8 +252,8 @@ public class ModelFixtures {
         return ModelFixtures.create(TrackItem.class);
     }
 
-    public static TrackItem.Default.Builder trackItemBuilder() {
-        return TrackItem.builder(ModelFixtures.trackItem());
+    public static TrackItem.Builder trackItemBuilder() {
+        return ModelFixtures.trackItem().toBuilder();
     }
 
     public static TrackItem trackItem(Urn urn) {
@@ -464,7 +463,9 @@ public class ModelFixtures {
     }
 
     public static Track.Builder baseTrackBuilder() {
-        return trackBuilder().urn(Urn.forTrack(123L)).snippetDuration(10L).fullDuration(1000L)
+        return trackBuilder().urn(Urn.forTrack(123L))
+                             .snippetDuration(10L)
+                             .fullDuration(1000L)
                              .title("someone's favorite song")
                              .creatorName("someone's favorite band")
                              .creatorUrn(Urn.forUser(123L))
@@ -502,10 +503,10 @@ public class ModelFixtures {
                 .build();
     }
 
-    public static PromotedTrackItem promotedTrackItem(Track track, User promoter) {
+    public static TrackItem promotedTrackItem(Track track, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return PromotedTrackItem.from(track, streamEntity, promotedStreamProperties);
+        return TrackItem.from(track, streamEntity, promotedStreamProperties);
     }
 
     public static PromotedPlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
@@ -526,8 +527,8 @@ public class ModelFixtures {
         final Track track = trackBuilder().urn(streamEntity.urn())
                                           .imageUrlTemplate(streamEntity.avatarUrl())
                                           .build();
-        if (streamEntity.promotedProperties().isPresent()) {
-            return TrackStreamItem.createForPromoted(PromotedTrackItem.from(track, streamEntity, streamEntity.promotedProperties().get()), streamEntity.createdAt());
+        if (streamEntity.isPromoted()) {
+            return TrackStreamItem.create(TrackItem.from(track, streamEntity, streamEntity.promotedProperties().get()), streamEntity.createdAt());
         } else {
             return TrackStreamItem.create(TrackItem.from(track), streamEntity.createdAt());
         }

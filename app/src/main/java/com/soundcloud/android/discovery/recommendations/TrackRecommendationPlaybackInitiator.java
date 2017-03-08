@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.java.functions.Predicate;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,14 +40,14 @@ public class TrackRecommendationPlaybackInitiator {
         int bucketPosition = indexOf(items, isForSeed(seedUrn));
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) items.get(bucketPosition);
         final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(
-                trackingScreen, bucket.getSeedTrackQueryPosition(), bucket.getQueryUrn());
+                trackingScreen, bucket.seedTrackQueryPosition(), bucket.queryUrn());
 
         final List<Urn> backQueue = discoveryItemsToRecommendedTrackUrns(items.subList(0, bucketPosition));
         final List<Urn> seed = singletonList(seedUrn);
         final List<Urn> forwardQueue = discoveryItemsToRecommendedTrackUrns(items.subList(bucketPosition,
                                                                                           items.size()));
         final List<Urn> playQueue = newArrayList(concat(backQueue, seed, forwardQueue));
-        final int playPosition = playQueue.indexOf(bucket.getSeedTrackUrn());
+        final int playPosition = playQueue.indexOf(bucket.seedTrackUrn());
 
         playbackInitiator.playTracks(playQueue, playPosition, playSessionSource)
                          .subscribe(expandPlayerSubscriberProvider.get());
@@ -57,7 +56,7 @@ public class TrackRecommendationPlaybackInitiator {
 
     public void playFromRecommendation(Urn seedUrn, Urn trackUrn, Screen trackingScreen, List<DiscoveryItem> items) {
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) find(items, isForSeed(seedUrn));
-        final Recommendation recommendation = find(bucket.getRecommendations(), isForTrack(trackUrn));
+        final Recommendation recommendation = find(bucket.recommendations(), isForTrack(trackUrn));
         final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(
                 trackingScreen, recommendation.getQueryPosition(), recommendation.getQueryUrn());
 
@@ -75,7 +74,7 @@ public class TrackRecommendationPlaybackInitiator {
     }
 
     private static Predicate<DiscoveryItem> isForSeed(final Urn seedUrn) {
-        return input -> input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem) input).getSeedTrackUrn() == seedUrn;
+        return input -> input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem) input).seedTrackUrn() == seedUrn;
     }
 
     private Predicate<Recommendation> isForTrack(final Urn trackUrn) {

@@ -44,7 +44,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     private final Func1<StationRecord, StationViewModel> toViewModel = new Func1<StationRecord, StationViewModel>() {
         @Override
         public StationViewModel call(StationRecord station) {
-            return new StationViewModel(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
+            return StationViewModel.create(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
         }
     };
 

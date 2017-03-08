@@ -11,7 +11,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, RepostableItem {
+public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, RepostableItem, PromotedListItem {
 
     public static final Function<PlayableItem, Urn> TO_URN = item -> item.getUrn();
 
@@ -78,5 +78,9 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
     abstract public String getPlayableType();
 
     abstract public long getDuration();
+
+    public boolean isPromoted() {
+        return promotedProperties().isPresent();
+    }
 
 }

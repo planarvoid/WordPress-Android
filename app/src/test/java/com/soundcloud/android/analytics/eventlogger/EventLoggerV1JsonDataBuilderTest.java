@@ -682,7 +682,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(PAGE_NAME)
                                                .adUrn(item.getAdUrn())
                                                .monetizationType("promoted")
-                                               .promotedBy(item.getPromoterUrn().get().toString()));
+                                               .promotedBy(item.promoterUrn().get().toString()));
     }
 
     @Test

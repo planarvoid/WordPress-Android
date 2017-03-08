@@ -45,7 +45,8 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
                 final boolean isCurrent = track.getUrn().equals(currentlyPlayingUrn);
 
                 if (track.isPlaying() || isCurrent) {
-                    track.setIsPlaying(isCurrent);
+                    final TrackItem trackItem = track.withPlayingState(isCurrent);
+                    items.set(i, PlayHistoryItemTrack.create(trackItem));
                     notifyItemChanged(i);
                 }
             }

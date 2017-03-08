@@ -6,6 +6,8 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 
+import java.util.List;
+
 @AutoFactory(allowSubclasses = true)
 public class UpdatePlayableAdapterSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
 
@@ -17,10 +19,13 @@ public class UpdatePlayableAdapterSubscriber extends DefaultSubscriber<CurrentPl
 
     @Override
     public void onNext(CurrentPlayQueueItemEvent event) {
-        for (int i = 0; i < adapter.getItems().size(); i++) {
-            final Object object = adapter.getItems().get(i);
+        List items = adapter.getItems();
+        for (int i = 0; i < items.size(); i++) {
+            final Object object = items.get(i);
             if ((object instanceof PlayableViewItem)) {
-                if (((PlayableViewItem) object).updateNowPlaying(event)) {
+                Object updatedObject = ((PlayableViewItem) object).updateNowPlaying(event);
+                items.set(i, updatedObject);
+                if (object != updatedObject) {
                     adapter.notifyItemChanged(i);
                 }
             }

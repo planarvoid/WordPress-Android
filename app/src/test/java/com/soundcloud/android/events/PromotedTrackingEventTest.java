@@ -18,8 +18,8 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         assertCommonProperties(click);
         assertThat(click.kind()).isEqualTo(PromotedTrackingEvent.Kind.KIND_CLICK);
         assertThat(click.clickObject().get()).isEqualTo(promotedTrack.getUrn());
-        assertThat(click.clickTarget().get()).isEqualTo(promotedTrack.getPromoterUrn().get());
-        assertThat(click.promoterUrn().get()).isEqualTo(promotedTrack.getPromoterUrn().get());
+        assertThat(click.clickTarget().get()).isEqualTo(promotedTrack.promoterUrn().get());
+        assertThat(click.promoterUrn().get()).isEqualTo(promotedTrack.promoterUrn().get());
         assertThat(click.impressionObject().isPresent()).isFalse();
     }
 
@@ -31,7 +31,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         assertThat(click.kind()).isEqualTo(PromotedTrackingEvent.Kind.KIND_CLICK);
         assertThat(click.clickObject().get()).isEqualTo(promotedTrack.getUrn());
         assertThat(click.clickTarget().get()).isEqualTo(promotedTrack.getUrn());
-        assertThat(click.promoterUrn().get()).isEqualTo(promotedTrack.getPromoterUrn().get());
+        assertThat(click.promoterUrn().get()).isEqualTo(promotedTrack.promoterUrn().get());
         assertThat(click.impressionObject().isPresent()).isFalse();
     }
 
@@ -41,7 +41,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(impression);
         assertThat(impression.kind()).isEqualTo(PromotedTrackingEvent.Kind.KIND_IMPRESSION);
-        assertThat(impression.promoterUrn().get()).isEqualTo(promotedTrack.getPromoterUrn().get());
+        assertThat(impression.promoterUrn().get()).isEqualTo(promotedTrack.promoterUrn().get());
         assertThat(impression.impressionObject().get()).isEqualTo(promotedTrack.getUrn());
     }
 

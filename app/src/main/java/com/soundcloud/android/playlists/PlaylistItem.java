@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
@@ -191,6 +192,56 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
     public abstract long duration();
 
     public abstract String releaseDate();
+
+    @Override
+    public Optional<PromotedProperties> promotedProperties() {
+        return Optional.absent();
+    }
+
+    @Override
+    public String getAdUrn() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasPromoter() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<String> promoterName() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Urn> promoterUrn() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<String> getAvatarUrlTemplate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> playUrls() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> impressionUrls() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> promoterClickUrls() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> clickUrls() {
+        throw new UnsupportedOperationException();
+    }
 
     protected static PlaylistItem.Default.Builder create(Urn urn,
                                                          OfflineState offlineState,

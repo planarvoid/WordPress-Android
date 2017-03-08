@@ -11,11 +11,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserAssociation;
@@ -33,9 +33,9 @@ public abstract class PlayableFixtures {
         return ModelFixtures.apiUser();
     }
 
-    public static TrackItem.Default.Builder baseTrackBuilder() {
+    public static TrackItem.Builder baseTrackBuilder() {
         final Track track = ModelFixtures.baseTrackBuilder().build();
-        return TrackItem.builder(TrackItem.from(track));
+        return TrackItem.from(track).toBuilder();
     }
 
     public static TrackItem expectedTrackForWidget() {
@@ -57,13 +57,13 @@ public abstract class PlayableFixtures {
         return baseTrackBuilder().offlineState(OfflineState.NOT_OFFLINE).build();
     }
 
-    public static TrackItem.Default expectedTrackForPlayer() {
+    public static TrackItem expectedTrackForPlayer() {
         return expectedTrackItemBuilderForPlayer().build();
     }
 
-    public static TrackItem.Default.Builder expectedTrackItemBuilderForPlayer() {
+    public static TrackItem.Builder expectedTrackItemBuilderForPlayer() {
         final Track.Builder trackBuilder = expectedTrackBuilderForPlayer().policy(Strings.EMPTY);
-        return TrackItem.builder(TrackItem.from(trackBuilder.build()));
+        return TrackItem.from(trackBuilder.build()).toBuilder();
     }
 
     public static Track.Builder expectedTrackBuilderForPlayer() {
@@ -113,29 +113,28 @@ public abstract class PlayableFixtures {
         return TrackItem.from(builder.build());
     }
 
-    public static PromotedTrackItem expectedPromotedTrack() {
-        final PromotedTrackItem.Builder builder = expectedPromotedTrackBuilder("AD_URN");
-        return builder.build();
+    public static TrackItem expectedPromotedTrack() {
+        return expectedPromotedTrackBuilder("AD_URN").build();
     }
 
-    public static PromotedTrackItem.Builder expectedPromotedTrackBuilder(String adUrn) {
+    public static TrackItem.Builder expectedPromotedTrackBuilder(String adUrn) {
         return basePromotedTrack().promotedProperties(getPromotedProperties(Urn.forUser(193L), "SoundCloud", adUrn));
     }
 
-    public static PromotedTrackItem.Builder expectedPromotedTrackBuilder(Urn urn, String adUrn) {
+    public static TrackItem.Builder expectedPromotedTrackBuilder(Urn urn, String adUrn) {
         return basePromotedTrack(urn).promotedProperties(getPromotedProperties(Urn.forUser(193L), "SoundCloud", adUrn));
     }
 
-    public static PromotedTrackItem expectedPromotedTrackWithoutPromoter() {
+    public static TrackItem expectedPromotedTrackWithoutPromoter() {
         return basePromotedTrack().build();
     }
 
-    private static PromotedTrackItem.Builder basePromotedTrack() {
+    private static TrackItem.Builder basePromotedTrack() {
         final Urn urn = Urn.forTrack(12345L);
         return basePromotedTrack(urn);
     }
 
-    private static PromotedTrackItem.Builder basePromotedTrack(Urn urn) {
+    private static TrackItem.Builder basePromotedTrack(Urn urn) {
         final Track track = ModelFixtures.baseTrackBuilder()
                                          .urn(urn)
                                          .title("Title " + urn)
@@ -148,7 +147,10 @@ public abstract class PlayableFixtures {
                                          .likesCount(2)
                                          .createdAt(new Date())
                                          .isPrivate(false).build();
-        return PromotedTrackItem.builder(track, getPromotedProperties());
+        return TrackItem.from(track)
+                        .toBuilder()
+                        .getKind(TypedListItem.Kind.PROMOTED)
+                        .promotedProperties(getPromotedProperties());
     }
 
     private static PromotedProperties getPromotedProperties() {
@@ -262,16 +264,16 @@ public abstract class PlayableFixtures {
         return builderFromApiTrack(apiTrack).build();
     }
 
-    private static TrackItem.Default.Builder builderFromApiTrack(ApiTrack apiTrack) {
+    private static TrackItem.Builder builderFromApiTrack(ApiTrack apiTrack) {
         return builderFromApiTrack(apiTrack, false, false, false);
     }
 
-    private static TrackItem.Default.Builder builderFromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
+    private static TrackItem.Builder builderFromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
         final Track.Builder builder = Track.builder(Track.from(apiTrack));
         builder.isPrivate(isPrivate);
         builder.userLike(isLiked);
         builder.userRepost(isReposted);
-        return TrackItem.builder(TrackItem.from(builder.build()));
+        return TrackItem.from(builder.build()).toBuilder();
     }
 
     public static PlaylistItem fromApiPlaylist() {

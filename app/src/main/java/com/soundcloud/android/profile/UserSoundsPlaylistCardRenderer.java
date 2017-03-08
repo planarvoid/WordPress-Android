@@ -32,13 +32,13 @@ class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
         final UserSoundsItem userSoundsItem = items.get(position);
-        final Optional<PlaylistItem> playlistItem = userSoundsItem.getPlaylistItem();
+        final Optional<PlaylistItem> playlistItem = userSoundsItem.playlistItem();
 
         if (playlistItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
             playlistCardRenderer.bindPlaylistCardView(playlistItem.get(),
                                                       itemView,
-                                                      Optional.of(fromModule(userSoundsItem.getCollectionType(),
+                                                      Optional.of(fromModule(userSoundsItem.collectionType(),
                                                                              getPositionInModule(items,
                                                                                                  userSoundsItem))));
         }

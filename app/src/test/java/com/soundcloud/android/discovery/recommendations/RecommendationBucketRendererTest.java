@@ -33,11 +33,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK,
-                                                                            SEED_TRACK.getUrn(),
-                                                                            false,
-                                                                            QUERY_POSITION,
-                                                                            Urn.NOT_SET);
+    private static final Recommendation RECOMMENDATION = Recommendation.create(RECOMMENDED_TRACK,
+                                                                               SEED_TRACK.getUrn(),
+                                                                               false,
+                                                                               QUERY_POSITION,
+                                                                               Urn.NOT_SET);
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;

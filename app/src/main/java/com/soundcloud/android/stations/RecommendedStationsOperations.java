@@ -86,7 +86,7 @@ public class RecommendedStationsOperations {
         final Urn playingCollectionUrn = playQueueManager.getCollectionUrn();
         for (StationRecord record : records) {
             boolean isPlaying = record.getUrn().equals(playingCollectionUrn);
-            StationViewModel viewModel = new StationViewModel(record, isPlaying);
+            StationViewModel viewModel = StationViewModel.create(record, isPlaying);
             models.add(viewModel);
         }
         return models;

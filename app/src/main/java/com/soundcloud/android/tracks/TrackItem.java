@@ -10,38 +10,62 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@AutoValue
 public abstract class TrackItem extends PlayableItem implements UpdatableTrackItem {
 
     public static final String PLAYABLE_TYPE = "track";
 
     public static TrackItem from(Track track) {
-        return TrackItem.create(track.offlineState(),
-                                track.userLike(),
-                                track.likesCount(),
-                                track.userRepost(),
-                                track.repostsCount(),
-                                track).build();
+        return builder(track).build();
     }
 
+    public static TrackItem from(Track track, StreamEntity streamEntity, PromotedProperties promotedProperties) {
+        return builder(track)
+                .getKind(Kind.PROMOTED)
+                .promotedProperties(promotedProperties)
+                .reposter(streamEntity.reposter())
+                .reposterUrn(streamEntity.reposterUrn())
+                .avatarUrlTemplate(streamEntity.avatarUrl()).build();
+    }
 
     public static TrackItem fromTrackAndStreamEntity(Track track, StreamEntity streamEntity) {
-        return TrackItem.create(track.offlineState(),
-                                track.userLike(),
-                                track.likesCount(),
-                                track.userRepost(),
-                                track.repostsCount(),
-                                track)
-                        .reposter(streamEntity.reposter())
-                        .reposterUrn(streamEntity.reposterUrn())
-                        .avatarUrlTemplate(streamEntity.avatarUrl()).build();
+        return builder(track)
+                .reposter(streamEntity.reposter())
+                .reposterUrn(streamEntity.reposterUrn())
+                .avatarUrlTemplate(streamEntity.avatarUrl()).build();
+    }
+
+    public TrackItem withPlayingState(boolean isPlaying) {
+        return toBuilder().isPlaying(isPlaying).build();
+    }
+
+    private static Builder builder(Track track) {
+        return builder().getKind(Kind.PLAYABLE)
+                        .offlineState(track.offlineState())
+                        .isUserLike(track.userLike())
+                        .likesCount(track.likesCount())
+                        .isUserRepost(track.userRepost())
+                        .repostsCount(track.repostsCount())
+                        .reposter(Optional.absent())
+                        .reposterUrn(Optional.absent())
+                        .avatarUrlTemplate(Optional.absent())
+                        .track(track)
+                        .isPlaying(false)
+                        .promotedProperties(Optional.absent());
+    }
+
+    public static TrackItem.Builder builder() {
+        return new AutoValue_TrackItem.Builder();
     }
 
     public static Map<Urn, TrackItem> convertMap(Map<Urn, Track> map) {
@@ -60,6 +84,11 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return fromApiTrackWithLikeAndRepost(apiTrack, false, false);
     }
 
+    @Override
+    public boolean isPromoted() {
+        return promotedProperties().isPresent();
+    }
+
     private static TrackItem fromApiTrackWithLikeAndRepost(ApiTrack apiTrack, boolean isLiked, boolean isRepost) {
         return TrackItem.from(Track.from(apiTrack, isRepost, isLiked));
     }
@@ -68,7 +97,9 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return fromApiTrackWithLikeAndRepost(apiTrack, liked, false);
     }
 
-    abstract Track track();
+    public abstract Track track();
+
+    public abstract boolean isPlaying();
 
     public Urn getUrn() {
         return track().urn();
@@ -146,7 +177,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().playCount();
     }
 
-
     public int commentsCount() {
         return track().commentsCount();
     }
@@ -167,25 +197,10 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().description();
     }
 
-    private boolean isPlaying;
+    @Override
+    public abstract Optional<PromotedProperties> promotedProperties();
 
-    private static Default.Builder create(OfflineState offlineState,
-                                          boolean isUserLike,
-                                          int likesCount,
-                                          boolean isUserRepost,
-                                          int repostsCount,
-                                          Track track) {
-        return new AutoValue_TrackItem_Default.Builder().getKind(Kind.PLAYABLE)
-                                                        .offlineState(offlineState)
-                                                        .isUserLike(isUserLike)
-                                                        .likesCount(likesCount)
-                                                        .isUserRepost(isUserRepost)
-                                                        .repostsCount(repostsCount)
-                                                        .reposter(Optional.absent())
-                                                        .reposterUrn(Optional.absent())
-                                                        .avatarUrlTemplate(Optional.absent())
-                                                        .track(track);
-    }
+    public abstract TrackItem.Builder toBuilder();
 
     public String getPlayableType() {
         return PLAYABLE_TYPE;
@@ -199,116 +214,143 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return offlineState() == OfflineState.UNAVAILABLE;
     }
 
-    public void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
     public boolean hasPlayCount() {
         return track().playCount() > 0;
     }
 
-    public boolean updateNowPlaying(Urn nowPlaying) {
+    public TrackItem updateNowPlaying(Urn nowPlaying) {
         final boolean isCurrent = getUrn().equals(nowPlaying);
         if (isPlaying() || isCurrent) {
-            setIsPlaying(isCurrent);
-            return true;
+            return withPlayingState(isCurrent);
+        } else {
+            return this;
         }
-        return false;
     }
 
-    public abstract TrackItem updatedWithTrackItem(Track track);
-
-    public abstract TrackItem updatedWithOfflineState(OfflineState offlineState);
-
-    public abstract TrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus);
-
-    public abstract TrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus);
-
-    public abstract TrackItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted);
-
-    public abstract TrackItem updateLikeState(boolean isLiked);
-
-    public abstract TrackItem updateWithReposter(String reposter, Urn reposterUrn);
-
-    @VisibleForTesting
-    public static TrackItem.Default.Builder builder(TrackItem trackItem) {
-        if (trackItem instanceof Default) {
-            return new AutoValue_TrackItem_Default.Builder((Default) trackItem);
-        }
-        throw new IllegalArgumentException("Trying to create builder from promoted track item.");
+    public String getDescription() {
+        return description().or(Strings.EMPTY);
     }
 
-    @AutoValue
-    public abstract static class Default extends TrackItem {
+    public boolean hasDescription() {
+        return description().isPresent();
+    }
 
-        @Override
-        public TrackItem updatedWithTrackItem(Track track) {
-            return TrackItem.from(track);
+    @Override
+    public String getAdUrn() {
+        return promotedProperties().get().adUrn();
+    }
+
+    @Override
+    public boolean hasPromoter() {
+        return isPromoted() && promotedProperties().get().promoterUrn().isPresent();
+    }
+
+    @Override
+    public Optional<String> promoterName() {
+        return promotedProperties().get().promoterName();
+    }
+
+    @Override
+    public Optional<Urn> promoterUrn() {
+        return isPromoted() ? promotedProperties().get().promoterUrn() : Optional.absent();
+    }
+
+    @Override
+    public List<String> clickUrls() {
+        return promotedProperties().get().trackClickedUrls();
+    }
+
+    @Override
+    public List<String> impressionUrls() {
+        return promotedProperties().get().trackImpressionUrls();
+    }
+
+    @Override
+    public List<String> promoterClickUrls() {
+        return promotedProperties().get().promoterClickedUrls();
+    }
+
+    @Override
+    public List<String> playUrls() {
+        return promotedProperties().get().trackPlayedUrls();
+    }
+
+    @Override
+    public Optional<String> getAvatarUrlTemplate() {
+        return avatarUrlTemplate();
+    }
+
+    @Override
+    public TrackItem updatedWithTrackItem(Track track) {
+        return TrackItem.from(track);
+    }
+
+    @Override
+    public TrackItem updatedWithOfflineState(OfflineState offlineState) {
+        return toBuilder().offlineState(offlineState).build();
+    }
+
+    public TrackItem updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
+        final Builder builder = toBuilder().isUserLike(likeStatus.isUserLike());
+        if (likeStatus.likeCount().isPresent()) {
+            builder.likesCount(likeStatus.likeCount().get());
+        }
+        return builder.build();
+    }
+
+    public TrackItem updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
+        final Builder builder = toBuilder().isUserRepost(repostStatus.isReposted());
+        if (repostStatus.repostCount().isPresent()) {
+            builder.repostsCount(repostStatus.repostCount().get());
+        }
+        return builder.build();
+    }
+
+    public TrackItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
+        return toBuilder().isUserLike(isLiked).isUserRepost(isReposted).build();
+    }
+
+    @Override
+    public TrackItem updateLikeState(boolean isLiked) {
+        return toBuilder().isUserLike(isLiked).build();
+    }
+
+    @Override
+    public TrackItem updateWithReposter(String reposter, Urn reposterUrn) {
+        return toBuilder().reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+        public abstract Builder getKind(Kind getKind);
+
+        public abstract Builder offlineState(OfflineState offlineState);
+
+        public abstract Builder isUserLike(boolean isUserLike);
+
+        public abstract Builder isPlaying(boolean isPlaying);
+
+        public abstract Builder likesCount(int likesCount);
+
+        public abstract Builder isUserRepost(boolean isUserRepost);
+
+        public abstract Builder repostsCount(int repostsCount);
+
+        public abstract Builder reposter(Optional<String> reposter);
+
+        public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
+
+        public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
+
+        public abstract Builder track(Track track);
+
+        public Builder promotedProperties(PromotedProperties promotedProperties) {
+            return promotedProperties(Optional.of(promotedProperties));
         }
 
-        @Override
-        public TrackItem.Default updatedWithOfflineState(OfflineState offlineState) {
-            return new AutoValue_TrackItem_Default.Builder(this).offlineState(offlineState).build();
-        }
+        public abstract Builder promotedProperties(Optional<PromotedProperties> promotedProperties);
 
-        public TrackItem.Default updatedWithLike(LikesStatusEvent.LikeStatus likeStatus) {
-            final Default.Builder builder = new AutoValue_TrackItem_Default.Builder(this).isUserLike(likeStatus.isUserLike());
-            if (likeStatus.likeCount().isPresent()) {
-                builder.likesCount(likeStatus.likeCount().get());
-            }
-            return builder.build();
-        }
-
-        public TrackItem.Default updatedWithRepost(RepostsStatusEvent.RepostStatus repostStatus) {
-            final Default.Builder builder = new AutoValue_TrackItem_Default.Builder(this).isUserRepost(repostStatus.isReposted());
-            if (repostStatus.repostCount().isPresent()) {
-                builder.repostsCount(repostStatus.repostCount().get());
-            }
-            return builder.build();
-        }
-
-        public TrackItem.Default updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
-            return new AutoValue_TrackItem_Default.Builder(this).isUserLike(isLiked).isUserRepost(isReposted).build();
-        }
-
-        @Override
-        public TrackItem.Default updateLikeState(boolean isLiked) {
-            return new AutoValue_TrackItem_Default.Builder(this).isUserLike(isLiked).build();
-        }
-
-        @Override
-        public TrackItem.Default updateWithReposter(String reposter, Urn reposterUrn) {
-            return new AutoValue_TrackItem_Default.Builder(this).reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
-        }
-
-        @AutoValue.Builder
-        public abstract static class Builder {
-
-            public abstract Builder getKind(Kind getKind);
-
-            public abstract Builder offlineState(OfflineState offlineState);
-
-            public abstract Builder isUserLike(boolean isUserLike);
-
-            public abstract Builder likesCount(int likesCount);
-
-            public abstract Builder isUserRepost(boolean isUserRepost);
-
-            public abstract Builder repostsCount(int repostsCount);
-
-            public abstract Builder reposter(Optional<String> reposter);
-
-            public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
-
-            public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
-
-            public abstract Builder track(Track track);
-
-            public abstract Default build();
-        }
+        public abstract TrackItem build();
     }
 }

@@ -31,11 +31,11 @@ public class RecommendationsFixtures {
     }
 
     public static Recommendation createHighTierRecommendation(Urn seedUrn) {
-        return new Recommendation(createRecommendedTrack(true), seedUrn, false, QUERY_POSITION, Urn.NOT_SET);
+        return Recommendation.create(createRecommendedTrack(true), seedUrn, false, QUERY_POSITION, Urn.NOT_SET);
     }
 
     public static Recommendation createNonHighTierRecommendation(Urn seedUrn) {
-        return new Recommendation(createRecommendedTrack(false), seedUrn, false, QUERY_POSITION, Urn.NOT_SET);
+        return Recommendation.create(createRecommendedTrack(false), seedUrn, false, QUERY_POSITION, Urn.NOT_SET);
     }
 
     @NonNull

@@ -5,6 +5,7 @@ import static com.soundcloud.android.discovery.newforyou.NewForYouItem.Kind.TRAC
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouTrackItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -40,17 +41,16 @@ class NewForYouAdapter extends RecyclerItemAdapter<NewForYouItem, RecyclerView.V
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (NewForYouItem newForYouItem : getItems()) {
+        for (int i = 0; i < items.size(); i++) {
+            NewForYouItem newForYouItem = items.get(i);
             if (newForYouItem.isTrack()) {
-                final TrackItem track = ((NewForYouItem.NewForYouTrackItem) newForYouItem).track();
+                final TrackItem track = ((NewForYouTrackItem) newForYouItem).track();
                 final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
                 final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
 
-                if (track.getUrn() == currentlyPlayingUrn && isPlayingFromNewForYou) {
-                    track.setIsPlaying(true);
-                } else {
-                    track.setIsPlaying(false);
-                }
+                final boolean isPlaying = track.getUrn() == currentlyPlayingUrn && isPlayingFromNewForYou;
+                final TrackItem trackItem = track.withPlayingState(isPlaying);
+                items.set(i, NewForYouTrackItem.create(newForYouItem.newForYou(), trackItem));
             }
         }
 

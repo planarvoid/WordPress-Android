@@ -143,7 +143,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
-        assertThat(bucket.getRecommendations().get(0).isPlaying()).isTrue();
+        assertThat(bucket.recommendations().get(0).isPlaying()).isTrue();
     }
 
     @Test
@@ -155,7 +155,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
-        assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
+        assertThat(bucket.recommendations().get(0).isPlaying()).isFalse();
     }
 
     @Test
@@ -167,7 +167,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
-        assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
+        assertThat(bucket.recommendations().get(0).isPlaying()).isFalse();
     }
 
     @Test
@@ -198,8 +198,8 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                                                 .assertCompleted()
                                                 .getOnNextEvents().get(0);
 
-        assertThat(((RecommendedTracksBucketItem) discoveryItem).getSeedTrackQueryPosition()).isEqualTo(0);
-        assertThat(((RecommendedTracksBucketItem) discoveryItem).getSeedTrackUrn()).isEqualTo(seedTrackUrn);
+        assertThat(((RecommendedTracksBucketItem) discoveryItem).seedTrackQueryPosition()).isEqualTo(0);
+        assertThat(((RecommendedTracksBucketItem) discoveryItem).seedTrackUrn()).isEqualTo(seedTrackUrn);
     }
 
     @Test
@@ -236,25 +236,25 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         testSubscriber.assertValueCount(2);
 
         List<DiscoveryItem> items = testSubscriber.getOnNextEvents();
-        assertThat(((RecommendedTracksBucketItem) items.get(0)).getSeedTrackQueryPosition()).isEqualTo(0);
-        assertThat(((RecommendedTracksBucketItem) items.get(1)).getSeedTrackQueryPosition()).isEqualTo(1);
+        assertThat(((RecommendedTracksBucketItem) items.get(0)).seedTrackQueryPosition()).isEqualTo(0);
+        assertThat(((RecommendedTracksBucketItem) items.get(1)).seedTrackQueryPosition()).isEqualTo(1);
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
         assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.RecommendedTracksItem);
 
         final RecommendedTracksBucketItem recommendationBucket = (RecommendedTracksBucketItem) discoveryItem;
-        assertThat(recommendationBucket.getSeedTrackLocalId()).isEqualTo(SEED_ID);
-        assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
-        assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());
-        assertThat(recommendationBucket.getRecommendationReason()).isEqualTo(REASON);
-        assertThat(recommendationBucket.getSeedTrackQueryPosition()).isEqualTo(QUERY_POSITION);
-        assertThat(recommendationBucket.getQueryUrn()).isEqualTo(QUERY_URN);
+        assertThat(recommendationBucket.seedTrackLocalId()).isEqualTo(SEED_ID);
+        assertThat(recommendationBucket.seedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
+        assertThat(recommendationBucket.seedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());
+        assertThat(recommendationBucket.recommendationReason()).isEqualTo(REASON);
+        assertThat(recommendationBucket.seedTrackQueryPosition()).isEqualTo(QUERY_POSITION);
+        assertThat(recommendationBucket.queryUrn()).isEqualTo(QUERY_URN);
 
-        assertThat(recommendationBucket.getRecommendations()
+        assertThat(recommendationBucket.recommendations()
                                        .get(0)
                                        .getTrack().title()).isEqualTo(RECOMMENDED_TRACK.title());
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().creatorName()).isEqualTo(
+        assertThat(recommendationBucket.recommendations().get(0).getTrack().creatorName()).isEqualTo(
                 RECOMMENDED_TRACK.creatorName());
     }
 

@@ -1,51 +1,57 @@
 package com.soundcloud.android.discovery.recommendations;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.functions.Function;
 
-class Recommendation {
-    private final TrackItem track;
-    private final Urn seedUrn;
-    private boolean isPlaying;
-    private int queryPosition;
-    private Urn queryUrn;
+@AutoValue
+abstract class Recommendation {
 
-    Recommendation(TrackItem track, Urn seedUrn, boolean isPlaying, int queryPosition, Urn queryUrn) {
-        this.track = track;
-        this.seedUrn = seedUrn;
-        this.isPlaying = isPlaying;
-        this.queryPosition = queryPosition;
-        this.queryUrn = queryUrn;
-    }
+    static final Function<Recommendation, Urn> TO_TRACK_URN = item -> item.getTrack().getUrn();
+
+    abstract TrackItem getTrack();
+
+    abstract Urn getSeedUrn();
+
+    abstract boolean isPlaying();
+
+    abstract int getQueryPosition();
+
+    abstract Urn getQueryUrn();
 
     Urn getTrackUrn() {
-        return track.getUrn();
+        return getTrack().getUrn();
     }
 
-    TrackItem getTrack() {
-        return track;
+    public static Recommendation create(TrackItem newTrack, Urn newSeedUrn, boolean newPlaying, int newQueryPosition, Urn newQueryUrn) {
+        return builder()
+                .setTrack(newTrack)
+                .setSeedUrn(newSeedUrn)
+                .setPlaying(newPlaying)
+                .setQueryPosition(newQueryPosition)
+                .setQueryUrn(newQueryUrn)
+                .build();
     }
 
-    Urn getSeedUrn() {
-        return seedUrn;
+    public abstract Builder toBuilder();
+
+    public static Builder builder() {
+        return new AutoValue_Recommendation.Builder();
     }
 
-    boolean isPlaying() {
-        return isPlaying;
-    }
+    @AutoValue.Builder
+    public abstract static class Builder {
+        public abstract Builder setTrack(TrackItem newTrack);
 
-    void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
+        public abstract Builder setSeedUrn(Urn newSeedUrn);
 
-    int getQueryPosition() {
-        return queryPosition;
-    }
+        public abstract Builder setPlaying(boolean newPlaying);
 
-    Urn getQueryUrn() {
-        return queryUrn;
-    }
+        public abstract Builder setQueryPosition(int newQueryPosition);
 
-    public static final Function<Recommendation, Urn> TO_TRACK_URN = item -> item.getTrack().getUrn();
+        public abstract Builder setQueryUrn(Urn newQueryUrn);
+
+        public abstract Recommendation build();
+    }
 }

@@ -115,7 +115,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
 
     private static Recommendation createRecommendation(Urn seedUrn, Urn recommendationUrn, int queryPosition) {
         TrackItem trackItem = ModelFixtures.trackItem(recommendationUrn);
-        return new Recommendation(trackItem, seedUrn, false, queryPosition, QUERY_URN);
+        return Recommendation.create(trackItem, seedUrn, false, queryPosition, QUERY_URN);
     }
 
 }

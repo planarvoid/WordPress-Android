@@ -3,7 +3,6 @@ package com.soundcloud.android.events;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -35,8 +34,8 @@ public abstract class AttributingActivity {
     }
 
     public static AttributingActivity fromPlayableItem(PlayableItem playableItem) {
-        if (playableItem instanceof PromotedListItem) {
-            return AttributingActivity.create(PROMOTED, ((PromotedListItem) playableItem).getPromoterUrn());
+        if (playableItem.isPromoted()) {
+            return AttributingActivity.create(PROMOTED, playableItem.promoterUrn());
         } else if (playableItem.reposter().isPresent()) {
             return AttributingActivity.create(REPOSTED, playableItem.reposterUrn());
         } else {

@@ -31,7 +31,6 @@ import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
@@ -76,7 +75,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
 
     private final User promoter = ModelFixtures.user();
     private final Track promotedTrack = ModelFixtures.track();
-    private final PromotedTrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(promotedTrack, promoter);
+    private final TrackItem promotedTrackItem = ModelFixtures.promotedTrackItem(promotedTrack, promoter);
     private final StreamEntity promotedStreamTrack = fromPromotedTrackItem(new Date(), promotedTrackItem);
     private final TrackItem upsellableTrack = PlayableFixtures.upsellableTrack();
     private final StreamEntity upsellableStreamTrack = builderFromTrackItem(new Date(), upsellableTrack).build();
@@ -463,7 +462,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         final List<StreamItem> items = new ArrayList<>(dataItems.size());
         for (StreamEntity source : dataItems) {
             if (source.urn().equals(promotedTrackItem.getUrn())) {
-                items.add(TrackStreamItem.createForPromoted(promotedTrackItem, new Date()));
+                items.add(TrackStreamItem.create(promotedTrackItem, new Date()));
             } else if (source.urn().equals(upsellableTrack.getUrn())) {
                 items.add(TrackStreamItem.create(upsellableTrack, new Date()));
             } else {
@@ -536,8 +535,8 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(stationsOperations.onboardingStreamItem()).thenReturn(just(forStationOnboarding()));
     }
 
-    private StreamEntity fromPromotedTrackItem(Date createdAt, PromotedTrackItem promotedTrackItem) {
-        return builderFromTrackItem(createdAt, promotedTrackItem).promotedProperties(Optional.of(promotedTrackItem.promotedProperties())).build();
+    private StreamEntity fromPromotedTrackItem(Date createdAt, TrackItem promotedTrackItem) {
+        return builderFromTrackItem(createdAt, promotedTrackItem).promotedProperties(promotedTrackItem.promotedProperties()).build();
     }
 
     private StreamEntity.Builder builderFromTrackItem(Date createdAt, TrackItem promotedTrackItem) {
@@ -548,7 +547,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(streamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.empty())
                 .thenReturn(just(promotedStreamTrack));
-        List<StreamItem> result = Lists.newArrayList(TrackStreamItem.createForPromoted(promotedTrackItem, promotedStreamTrack.createdAt()));
+        List<StreamItem> result = Lists.newArrayList(TrackStreamItem.create(promotedTrackItem, promotedStreamTrack.createdAt()));
         when(streamEntityToItemTransformer.call(eq(Lists.newArrayList(promotedStreamTrack)))).thenReturn(just(result));
     }
 

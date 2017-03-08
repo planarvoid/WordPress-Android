@@ -85,11 +85,14 @@ class SearchResultsAdapter
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (ListItem viewModel : getItems()) {
+        for (int i = 0; i < items.size(); i++) {
+            ListItem viewModel = items.get(i);
             final SearchResultItem item = SearchResultItem.fromUrn(viewModel.getUrn());
             if (item.isTrack()) {
                 final TrackItem trackModel = (TrackItem) viewModel;
-                trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
+                final boolean isPlaying = trackModel.getUrn().equals(currentlyPlayingUrn);
+                final TrackItem trackItem = trackModel.withPlayingState(isPlaying);
+                items.set(i, trackItem);
             } else if (item.isPremiumContent()) {
                 ((SearchPremiumItem) viewModel).setTrackIsPlaying(currentlyPlayingUrn);
             }

@@ -37,7 +37,7 @@ class UserSoundsItemClickListener {
                             Urn userUrn,
                             SearchQuerySourceInfo searchQuerySourceInfo,
                             Module module) {
-        final int itemType = item.getItemType();
+        final int itemType = item.itemType();
 
         switch (itemType) {
             case UserSoundsItem.TYPE_VIEW_ALL:
@@ -62,7 +62,7 @@ class UserSoundsItemClickListener {
 
     private void handleViewAllClickEvent(View view, UserSoundsItem item, Urn userUrn,
                                          SearchQuerySourceInfo searchQuerySourceInfo) {
-        final int collectionType = item.getCollectionType();
+        final int collectionType = item.collectionType();
 
         switch (collectionType) {
             case UserSoundsTypes.REPOSTS:

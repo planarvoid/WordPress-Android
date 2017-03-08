@@ -52,7 +52,7 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
         assertThat(result.get(3)).isEqualTo(mockUserSoundsItem);
         assertThat(result.get(4)).isEqualTo(mockUserSoundsItem);
         assertThat(result.get(5)).isEqualTo(mockUserSoundsItem);
-        assertThat(result.get(6).getItemType()).isEqualTo(UserSoundsItem.TYPE_END_OF_LIST_DIVIDER);
+        assertThat(result.get(6).itemType()).isEqualTo(UserSoundsItem.TYPE_END_OF_LIST_DIVIDER);
     }
 
     @Test
@@ -66,16 +66,16 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
-        assertThat(result.get(0).getItemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
+        assertThat(result.get(0).itemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
 
-        assertThat(result.get(1).getItemType()).isEqualTo(UserSoundsItem.TYPE_HEADER);
-        assertThat(result.get(1).getCollectionType()).isEqualTo(UserSoundsTypes.TRACKS);
+        assertThat(result.get(1).itemType()).isEqualTo(UserSoundsItem.TYPE_HEADER);
+        assertThat(result.get(1).collectionType()).isEqualTo(UserSoundsTypes.TRACKS);
 
-        assertThat(result.get(2).getItemType()).isEqualTo(UserSoundsItem.TYPE_TRACK);
+        assertThat(result.get(2).itemType()).isEqualTo(UserSoundsItem.TYPE_TRACK);
         assertThat(result.get(2).getUrn())
                 .isEqualTo(trackPost.getUrn());
 
-        assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_PLAYLIST);
+        assertThat(result.get(3).itemType()).isEqualTo(UserSoundsItem.TYPE_PLAYLIST);
         assertThat(result.get(3).getUrn())
                 .isEqualTo(playlistPost.getUrn());
     }
@@ -93,7 +93,7 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
-        assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
+        assertThat(result.get(3).itemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
     }
 
     private void mockEntityHolderMapper(int collectionType, ModelCollection<? extends PlayableItem> collection) {

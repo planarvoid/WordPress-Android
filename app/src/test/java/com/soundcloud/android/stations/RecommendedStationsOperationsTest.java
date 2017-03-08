@@ -166,11 +166,11 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     }
 
     private static StationViewModel viewModelFrom(StationRecord record, boolean isPlaying) {
-        return new StationViewModel(record, isPlaying);
+        return StationViewModel.create(record, isPlaying);
     }
 
     private static StationViewModel viewModelFrom(StationRecord record) {
-        return new StationViewModel(record, false);
+        return StationViewModel.create(record, false);
     }
 
 }

@@ -8,8 +8,8 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
 
         final Track track = ModelFixtures.track();
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), track.createdAt(), Optional.absent(), Optional.absent(), Optional.absent()).build();
-        PromotedTrackItem promotedItem = PromotedTrackItem.from(track, streamEntity, promotedProperties);
+        TrackItem promotedItem = TrackItem.from(track, streamEntity, promotedProperties);
 
         command.call(promotedItem);
 

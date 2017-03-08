@@ -162,7 +162,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                                       clickedItem,
                                       userUrn,
                                       searchQuerySourceInfo,
-                                      fromModule(clickedItem.getCollectionType(),
+                                      fromModule(clickedItem.collectionType(),
                                                  getPositionInModule(userSoundsItems, clickedItem)));
         }
     }

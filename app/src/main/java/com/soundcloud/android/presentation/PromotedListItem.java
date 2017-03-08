@@ -1,27 +1,30 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
 public interface PromotedListItem extends TypedListItem {
 
+    Optional<PromotedProperties> promotedProperties();
+
     String getAdUrn();
 
     boolean hasPromoter();
 
-    Optional<String> getPromoterName();
+    Optional<String> promoterName();
 
-    Optional<Urn> getPromoterUrn();
+    Optional<Urn> promoterUrn();
 
     Optional<String> getAvatarUrlTemplate();
 
-    List<String> getPlayUrls();
+    List<String> playUrls();
 
-    List<String> getImpressionUrls();
+    List<String> impressionUrls();
 
-    List<String> getPromoterClickUrls();
+    List<String> promoterClickUrls();
 
-    List<String> getClickUrls();
+    List<String> clickUrls();
 }

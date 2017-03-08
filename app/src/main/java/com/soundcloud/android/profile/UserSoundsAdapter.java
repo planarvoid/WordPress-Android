@@ -28,12 +28,15 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, Recyc
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (UserSoundsItem userSoundsItem : getItems()) {
-            if (userSoundsItem.getItemType() == UserSoundsItem.TYPE_TRACK) {
-                Optional<TrackItem> trackItem = userSoundsItem.getTrackItem();
+        for (int i = 0; i < items.size(); i++) {
+            UserSoundsItem userSoundsItem = items.get(i);
+            if (userSoundsItem.itemType() == UserSoundsItem.TYPE_TRACK) {
+                final Optional<TrackItem> trackItem = userSoundsItem.trackItem();
 
                 if (trackItem.isPresent()) {
-                    trackItem.get().setIsPlaying(currentlyPlayingUrn.equals(trackItem.get().getUrn()));
+                    final TrackItem updatedTrackItem = trackItem.get().toBuilder().isPlaying(currentlyPlayingUrn.equals(trackItem.get().getUrn())).build();
+                    final UserSoundsItem updatedUserSoundsItem = userSoundsItem.toBuilder().trackItem(updatedTrackItem).build();
+                    items.set(i, updatedUserSoundsItem);
                 }
             }
         }
@@ -44,7 +47,7 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, Recyc
     @NonNull
     private static Boolean spansFullWidth(final UserSoundsItem item) {
         return !item.getPlayableItem().isPresent()
-                || item.getCollectionType() != UserSoundsTypes.SPOTLIGHT;
+                || item.collectionType() != UserSoundsTypes.SPOTLIGHT;
     }
 
     @Inject
@@ -70,7 +73,7 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, Recyc
     public int getBasicItemViewType(int position) {
         final UserSoundsItem item = getItem(position);
 
-        switch (item.getItemType()) {
+        switch (item.itemType()) {
             case UserSoundsItem.TYPE_DIVIDER:
                 return TYPE_DIVIDER;
             case UserSoundsItem.TYPE_HEADER:
@@ -78,13 +81,13 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, Recyc
             case UserSoundsItem.TYPE_VIEW_ALL:
                 return TYPE_VIEW_ALL;
             case UserSoundsItem.TYPE_TRACK:
-                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
+                if (item.collectionType() == UserSoundsTypes.SPOTLIGHT) {
                     return TYPE_TRACK_CARD;
                 } else {
                     return TYPE_TRACK_ITEM;
                 }
             case UserSoundsItem.TYPE_PLAYLIST:
-                if (item.getCollectionType() == UserSoundsTypes.SPOTLIGHT) {
+                if (item.collectionType() == UserSoundsTypes.SPOTLIGHT) {
                     return TYPE_PLAYLIST_CARD;
                 } else {
                     return TYPE_PLAYLIST_ITEM;

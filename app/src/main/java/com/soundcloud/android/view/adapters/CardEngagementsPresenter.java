@@ -13,14 +13,13 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -109,11 +108,10 @@ public class CardEngagementsPresenter {
                                                                      EntityMetadata.from(playableItem)));
     }
 
+    @Nullable
     private PromotedSourceInfo getPromotedSourceInfo(PlayableItem playable) {
-        if (playable instanceof PromotedPlaylistItem) {
-            return PromotedSourceInfo.fromItem((PromotedPlaylistItem) playable);
-        } else if (playable instanceof PromotedTrackItem) {
-            return PromotedSourceInfo.fromItem((PromotedTrackItem) playable);
+        if (playable.isPromoted()) {
+            return PromotedSourceInfo.fromItem(playable);
         } else {
             return null;
         }

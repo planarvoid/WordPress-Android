@@ -89,9 +89,10 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsNowPlaying() {
-        postedTrack.setIsPlaying(true);
+        final TrackItem updatedPostedTrack = postedTrack.withPlayingState(true);
+        final TrackStreamItem updatedPostedTrackStreamItem = TrackStreamItem.create(updatedPostedTrack, updatedPostedTrack.getCreatedAt());
 
-        renderer.bindItemView(0, itemView, singletonList(postedTrackStreamItem));
+        renderer.bindItemView(0, itemView, singletonList(updatedPostedTrackStreamItem));
 
         verify(viewHolder).showNowPlaying();
     }

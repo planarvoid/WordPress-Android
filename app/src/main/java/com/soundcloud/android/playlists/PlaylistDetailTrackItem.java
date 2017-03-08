@@ -19,7 +19,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 
 @AutoValue
-abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem<PlaylistDetailTrackItem>, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
     PlaylistDetailTrackItem() {
         super(PlaylistDetailItem.Kind.TrackItem);
@@ -80,8 +80,9 @@ abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements Typ
     }
 
     @Override
-    public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        return trackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+    public PlaylistDetailTrackItem updateNowPlaying(CurrentPlayQueueItemEvent event) {
+        final TrackItem updatedTrackItem = trackItem().updateNowPlaying(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        return toBuilder().trackItem(updatedTrackItem).build();
     }
 
     @AutoValue.Builder

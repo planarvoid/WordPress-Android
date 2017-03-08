@@ -66,7 +66,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistView(playlists.get(position), itemView, Optional.<Module>absent());
+        bindPlaylistView(playlists.get(position), itemView, Optional.absent());
     }
 
     public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module) {
@@ -116,7 +116,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void showPromotedLabel(View itemView, PromotedPlaylistItem promoted) {
         if (promoted.hasPromoter()) {
-            String label = resources.getString(R.string.promoted_by_promotorname, promoted.getPromoterName().get());
+            String label = resources.getString(R.string.promoted_by_promotorname, promoted.promoterName().get());
             setPromoterClickable(showPromotedLabel(itemView, label), promoted);
         } else {
             showPromotedLabel(itemView, resources.getString(R.string.promoted));

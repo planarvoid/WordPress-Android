@@ -31,7 +31,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -278,7 +277,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForPromotedTrack() {
-        final PromotedTrackItem promotedTrackItem = expectedPromotedTrack();
+        final TrackItem promotedTrackItem = expectedPromotedTrack();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrackItem);
 
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");

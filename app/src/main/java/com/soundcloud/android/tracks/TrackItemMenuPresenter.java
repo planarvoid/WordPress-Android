@@ -130,9 +130,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      View button,
                      TrackItem track,
                      EventContextMetadata.Builder builder) {
-        if (track instanceof PromotedTrackItem) {
-            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null,
-                 PromotedSourceInfo.fromItem((PromotedTrackItem) track), builder);
+        if (track.isPromoted()) {
+            show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, PromotedSourceInfo.fromItem(track), builder);
         } else {
             show(activity, button, track, Urn.NOT_SET, Urn.NOT_SET, null, null, builder);
         }

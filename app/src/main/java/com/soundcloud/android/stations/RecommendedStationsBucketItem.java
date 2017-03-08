@@ -6,6 +6,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AutoValue
@@ -18,16 +19,21 @@ public abstract class RecommendedStationsBucketItem extends DiscoveryItem implem
 
     public abstract List<StationViewModel> getStations();
 
-    public boolean updateNowPlaying(CurrentPlayQueueItemEvent event) {
-        boolean updated = false;
+    public RecommendedStationsBucketItem updateNowPlaying(CurrentPlayQueueItemEvent event) {
         final Urn collectionUrn = event.getCollectionUrn();
-        for (StationViewModel viewModel : getStations()) {
+        final List<StationViewModel> stations = getStations();
+        final List<StationViewModel> updatedStations = new ArrayList<>(stations.size());
+        for (StationViewModel viewModel : stations) {
+            final StationViewModel updatedModel;
+
             final boolean isPlaying = collectionUrn.equals(viewModel.getStation().getUrn());
             if (viewModel.isPlaying() != isPlaying) {
-                viewModel.setIsPlaying(isPlaying);
-                updated = true;
+                updatedModel = StationViewModel.create(viewModel.getStation(), isPlaying);
+            } else {
+                updatedModel = viewModel;
             }
+            updatedStations.add(updatedModel);
         }
-        return updated;
+        return RecommendedStationsBucketItem.create(updatedStations);
     }
 }
