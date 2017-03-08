@@ -1,7 +1,5 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdData;
@@ -112,9 +110,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     public void shouldCreateFromPlayEventWithImpressionAndStartUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
         final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
-        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forStart(videoAd, args);
 
-        assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
+        assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.START);
         assertThat(playEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(playEvent.adUrn()).isEqualTo(AD_URN_2);
         assertThat(playEvent.monetizationType()).isEqualTo(AdData.MonetizationType.VIDEO);
@@ -127,11 +125,11 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        videoAd.setEventReported(PlayableAdData.ReportingEvent.START_EVENT);
+        videoAd.setEventReported(PlayableAdData.ReportingEvent.START);
         final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
-        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forResume(videoAd, args);
 
-        assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
+        assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.RESUME);
         assertThat(playEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(playEvent.adUrn()).isEqualTo(AD_URN_2);
         assertThat(playEvent.monetizationType()).isEqualTo(AdData.MonetizationType.VIDEO);
@@ -143,11 +141,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     public void shouldCreateFromStopEventWithFinishUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
         final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
-        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                                args,
-                                                                                STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forFinish(videoAd, args);
 
-        assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.STOP);
+        assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.FINISH);
         assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(stopEvent.adUrn()).isEqualTo(AD_URN_2);
         assertThat(stopEvent.monetizationType()).isEqualTo(AdData.MonetizationType.VIDEO);
@@ -158,11 +154,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     public void shouldCreateFromStopEventWithPauseUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
         final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.idle(), "123");
-        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                                args,
-                                                                                STOP_REASON_PAUSE);
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forPause(videoAd, args);
 
-        assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.STOP);
+        assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PAUSE);
         assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(stopEvent.adUrn()).isEqualTo(AD_URN_2);
         assertThat(stopEvent.monetizationType()).isEqualTo(AdData.MonetizationType.VIDEO);

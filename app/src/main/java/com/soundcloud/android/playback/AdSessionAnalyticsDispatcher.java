@@ -46,7 +46,6 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
             final TrackSourceInfo sourceInfo = adInfo.get().sourceInfo;
             final AdSessionEventArgs eventArgs = buildArgs(sourceInfo, playStateEvent.getTransition());
             sendPlayTrackingEvent(ad, eventArgs);
-            ad.setEventReported(ReportingEvent.START_EVENT);
         }
     }
 
@@ -124,18 +123,42 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
 
     private void sendPlayTrackingEvent(PlayableAdData ad, AdSessionEventArgs args) {
         lastEventWasPlay = true;
-        if (AdPlaybackSessionEvent.shouldTrackStart(ad)) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(ad, args));
+
+        final AdPlaybackSessionEvent playbackSessionEvent;
+        if (shouldTrackStart(ad)) {
+            ad.setEventReported(ReportingEvent.START);
+            playbackSessionEvent = AdPlaybackSessionEvent.forStart(ad, args);
+        } else {
+            playbackSessionEvent = AdPlaybackSessionEvent.forResume(ad, args);
         }
+
+        eventBus.publish(EventQueue.TRACKING, playbackSessionEvent);
         eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forPlay(ad, args));
     }
 
     private void sendStopTrackingEvent(PlayableAdData ad, AdSessionEventArgs args, StopReason stopReason) {
         lastEventWasPlay = false;
-        if (AdPlaybackSessionEvent.shouldTrackFinish(stopReason)) {
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop(ad, args, stopReason));
+
+        if (shouldTrackFinish(stopReason, ad)) {
+            ad.setEventReported(ReportingEvent.FINISH);
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forFinish(ad, args));
+        } else if (shouldTrackPause(stopReason)){
+            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPause(ad, args));
         }
+
         eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forStop(ad, args, stopReason));
+    }
+
+    private static boolean shouldTrackStart(PlayableAdData adData) {
+        return !adData.hasReportedEvent(ReportingEvent.START);
+    }
+
+    private static boolean shouldTrackFinish(StopReasonProvider.StopReason stopReason, PlayableAdData adData) {
+        return stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED && !adData.hasReportedEvent(ReportingEvent.FINISH);
+    }
+
+    private static boolean shouldTrackPause(StopReasonProvider.StopReason stopReason) {
+        return stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE;
     }
 
     private AdSessionEventArgs buildArgs(TrackSourceInfo sourceInfo, PlaybackStateTransition transition) {

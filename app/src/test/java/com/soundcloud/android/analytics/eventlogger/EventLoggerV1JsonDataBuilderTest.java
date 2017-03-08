@@ -4,7 +4,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTI
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_CONCURRENT_STREAMING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Matchers.eq;
@@ -1172,7 +1171,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo,
                                                                   TestPlayerTransitions.playing(),
                                                                   "123");
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStart(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 
@@ -1189,9 +1188,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo,
                                                                   TestPlayerTransitions.idle(),
                                                                   "123");
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN),
-                                                                            args,
-                                                                            STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forFinish(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdPlaybackSessionEvent(event);
 

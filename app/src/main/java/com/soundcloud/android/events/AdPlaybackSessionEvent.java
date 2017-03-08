@@ -6,7 +6,6 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
 
@@ -28,12 +27,13 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         public String key() {
             return key;
         }
-
     }
 
     public enum EventKind {
-        PLAY("play"),
-        STOP("stop"),
+        START("start"),
+        RESUME("resume"),
+        PAUSE("pause"),
+        FINISH("finish"),
         QUARTILE("quartile_event");
         private final String key;
 
@@ -47,12 +47,10 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     public enum ClickName {
-
         FIRST_QUARTILE_TYPE("ad::first_quartile"),
         SECOND_QUARTILE_TYPE("ad::second_quartile"),
         THIRD_QUARTILE_TYPE("ad::third_quartile"),
         AD_FINISH("ad::finish");
-
         private final String key;
 
         ClickName(String key) {
@@ -97,8 +95,6 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     public abstract String pageName();
 
-    public abstract Optional<StopReasonProvider.StopReason> stopReason();
-
     public abstract boolean shouldReportStartWithPlay();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
@@ -113,9 +109,9 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         return createQuartileEvent(adData, trackSourceInfo, adData.getThirdQuartileUrls(), ClickName.THIRD_QUARTILE_TYPE);
     }
 
-    protected static AdPlaybackSessionEvent createQuartileEvent(PlayableAdData adData,
-                                                                TrackSourceInfo trackSourceInfo,
-                                                                List<String> quartileUrls, ClickName quartileType) {
+    private static AdPlaybackSessionEvent createQuartileEvent(PlayableAdData adData,
+                                                              TrackSourceInfo trackSourceInfo,
+                                                              List<String> quartileUrls, ClickName quartileType) {
         return create(EventKind.QUARTILE, adData, trackSourceInfo.getOriginScreen())
                 .eventName(Optional.of(EventName.CLICK_EVENT))
                 .trackingUrls(Optional.of(quartileUrls))
@@ -123,29 +119,32 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
                 .build();
     }
 
-    public static boolean shouldTrackStart(PlayableAdData adData) {
-        return !adData.hasReportedEvent(ReportingEvent.START_EVENT);
-    }
-
-    public static AdPlaybackSessionEvent forPlay(PlayableAdData adData, AdSessionEventArgs eventArgs) {
-        return AdPlaybackSessionEvent.create(EventKind.PLAY, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+    public static AdPlaybackSessionEvent forStart(PlayableAdData adData, AdSessionEventArgs eventArgs) {
+        return AdPlaybackSessionEvent.create(EventKind.START, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
                                      .eventName(Optional.of(EventName.IMPRESSION_EVENT))
                                      .impressionName(adData instanceof VideoAd ? Optional.of(ImpressionName.VIDEO_AD) : Optional.of(ImpressionName.AUDIO_AD))
-                                     .trackingUrls(Optional.of(getPlayEventTracking(adData)))
+                                     .trackingUrls(Optional.of(getStartTracking(adData)))
                                      .build();
     }
 
-    public static boolean shouldTrackFinish(StopReasonProvider.StopReason stopReason) {
-        return stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
+    public static AdPlaybackSessionEvent forResume(PlayableAdData adData, AdSessionEventArgs eventArgs) {
+        return AdPlaybackSessionEvent.create(EventKind.RESUME, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+                .trackingUrls(Optional.of(adData.getResumeUrls()))
+                .build();
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayableAdData adData, AdSessionEventArgs eventArgs, StopReasonProvider.StopReason stopReason) {
-        return AdPlaybackSessionEvent.create(EventKind.STOP, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
-                                     .eventName(Optional.of(EventName.CLICK_EVENT))
-                                     .clickName(Optional.of(ClickName.AD_FINISH))
-                                     .trackingUrls(getStopEventTrackingUrls(adData, stopReason))
-                                     .stopReason(Optional.of(stopReason))
-                                     .build();
+    public static AdPlaybackSessionEvent forPause(PlayableAdData adData, AdSessionEventArgs eventArgs) {
+        return AdPlaybackSessionEvent.create(EventKind.PAUSE, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+                .trackingUrls(Optional.of(adData.getPauseUrls()))
+                .build();
+    }
+
+    public static AdPlaybackSessionEvent forFinish(PlayableAdData adData, AdSessionEventArgs eventArgs) {
+        return AdPlaybackSessionEvent.create(EventKind.FINISH, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
+                .eventName(Optional.of(EventName.CLICK_EVENT))
+                .clickName(Optional.of(ClickName.AD_FINISH))
+                .trackingUrls(Optional.of(adData.getFinishUrls()))
+                .build();
     }
 
     private static AdPlaybackSessionEvent.Builder create(EventKind kind, PlayableAdData adData, String pageName) {
@@ -159,33 +158,18 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
                .monetizableTrackUrn(Optional.fromNullable(adData.getMonetizableTrackUrn()))
                .monetizationType(adData.getMonetizationType())
                .trackingUrls(Optional.absent())
-               .shouldReportStartWithPlay(!adData.hasReportedEvent(ReportingEvent.START_EVENT))
+               .shouldReportStartWithPlay(!adData.hasReportedEvent(ReportingEvent.START))
                .pageName(pageName)
                .clickName(Optional.absent())
-               .impressionName(Optional.absent())
-               .stopReason(Optional.absent());
+               .impressionName(Optional.absent());
         return builder;
     }
 
-    private static List<String> getPlayEventTracking(PlayableAdData adData) {
-        List<String> trackingUrls;
-        if (!adData.hasReportedEvent(ReportingEvent.START_EVENT)) {
-            trackingUrls = new ArrayList<>();
-            trackingUrls.addAll(adData.getImpressionUrls());
-            trackingUrls.addAll(adData.getStartUrls());
-        } else {
-            trackingUrls = adData.getResumeUrls();
-        }
+    private static List<String> getStartTracking(PlayableAdData adData) {
+        List<String> trackingUrls = new ArrayList<>();
+        trackingUrls.addAll(adData.getImpressionUrls());
+        trackingUrls.addAll(adData.getStartUrls());
         return trackingUrls;
-    }
-
-    private static Optional<List<String>> getStopEventTrackingUrls(PlayableAdData adData, StopReasonProvider.StopReason stopReason) {
-        if (stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED) {
-            return Optional.of(adData.getFinishUrls());
-        } else if (stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE) {
-            return Optional.of(adData.getPauseUrls());
-        }
-        return Optional.absent();
     }
 
     @AutoValue.Builder
@@ -213,8 +197,6 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         abstract Builder impressionName(Optional<ImpressionName> impressionName);
 
         abstract Builder pageName(String pageName);
-
-        abstract Builder stopReason(Optional<StopReasonProvider.StopReason> stopReason);
 
         abstract Builder shouldReportStartWithPlay(boolean shouldReportStartWithPlay);
 

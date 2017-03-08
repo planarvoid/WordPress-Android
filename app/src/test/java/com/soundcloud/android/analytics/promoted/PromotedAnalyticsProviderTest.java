@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics.promoted;
 
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -356,7 +354,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksImpressionAndStartAdEventsTogetherForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStart(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -376,9 +374,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksResumeAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        videoAd.setEventReported(PlayableAdData.ReportingEvent.START_EVENT);
+        videoAd.setEventReported(PlayableAdData.ReportingEvent.START);
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forResume(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -395,9 +393,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksPauseAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                                           args,
-                                                                                           STOP_REASON_PAUSE);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPause(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -414,9 +410,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksFinishAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                                           args,
-                                                                                           STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forFinish(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -439,11 +433,11 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void sendsTrackingEventAsap() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdSessionEventArgs args = AdSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forFinish(videoAd, args);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
-        verify(eventTrackingManager, times(4)).trackEvent(any(TrackingRecord.class));
+        verify(eventTrackingManager, times(2)).trackEvent(any(TrackingRecord.class));
         verify(eventTrackingManager).flush(PromotedAnalyticsProvider.BACKEND_NAME);
     }
 

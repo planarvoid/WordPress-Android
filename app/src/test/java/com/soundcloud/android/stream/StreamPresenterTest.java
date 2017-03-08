@@ -534,7 +534,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNavigateForVideoAdClickthroughs() {
+    public void shouldNavigateAndEmitTrackingEventForVideoAdClickthroughs() {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
@@ -543,6 +543,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onAdItemClicked(view.getContext(), videoAd);
 
         verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.getClickThroughUrl()));
+        final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
 
     @Test

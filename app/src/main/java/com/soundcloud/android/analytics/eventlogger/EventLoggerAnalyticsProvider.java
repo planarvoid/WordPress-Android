@@ -214,7 +214,16 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackSessionEvent(eventData));
+        switch (eventData.eventKind()) {
+            case START:
+            case FINISH:
+            case QUARTILE:
+                trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackSessionEvent(eventData));
+                break;
+            default:
+                // no-op, ignoring certain types
+                break;
+        }
     }
 
     @Override

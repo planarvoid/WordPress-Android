@@ -30,6 +30,7 @@ import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRendere
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -352,13 +353,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onAdItemClicked(Context context, AdData adData) {
-        final String clickthrough = adData instanceof AppInstallAd ? ((AppInstallAd) adData).getClickThroughUrl()
-                                                                   : ((VideoAd) adData).getClickThroughUrl();
-
+        final boolean isAppInstall = adData instanceof AppInstallAd;
+        final String clickthrough = isAppInstall ? ((AppInstallAd) adData).getClickThroughUrl()
+                                                 : ((VideoAd) adData).getClickThroughUrl();
+        final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
+                                           : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
+        eventBus.publish(EventQueue.TRACKING, event);
         navigator.openAdClickthrough(context, Uri.parse(clickthrough));
-        if (adData instanceof AppInstallAd) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData));
-        }
     }
 
     @Override

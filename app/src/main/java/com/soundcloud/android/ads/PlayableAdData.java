@@ -7,10 +7,11 @@ import java.util.List;
 public abstract class PlayableAdData extends AdData {
 
     public enum ReportingEvent {
-        START_EVENT,
+        START,
         FIRST_QUARTILE,
         SECOND_QUARTILE,
-        THIRD_QUARTILE
+        THIRD_QUARTILE,
+        FINISH
     }
 
     private boolean[] eventsReported = new boolean[ReportingEvent.values().length];
