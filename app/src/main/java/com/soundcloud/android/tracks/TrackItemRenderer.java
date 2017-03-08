@@ -24,7 +24,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.view.View;
@@ -57,7 +56,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
     private Optional<String> moduleName = Optional.absent();
 
-    private Urn playingTrack = Urn.NOT_SET;
     private Listener listener = null;
     private Optional<ActiveFooter> activeFooter = Optional.absent();
 
@@ -257,7 +255,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             showPromoted(itemView, track);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
-        } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
+        } else if (track.isPlaying()) {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
             itemView.showNotAvailableOffline();
@@ -302,11 +300,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private boolean hasPlayCount(int playCount) {
         return playCount > 0;
-    }
-
-    @Deprecated // use isPlaying from trackItem
-    public void setPlayingTrack(@NotNull Urn playingTrack) {
-        this.playingTrack = playingTrack;
     }
 
     public void setListener(Listener listener) {

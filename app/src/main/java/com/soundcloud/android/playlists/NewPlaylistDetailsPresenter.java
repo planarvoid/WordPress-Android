@@ -240,6 +240,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription emitViewModel() {
         return combineLatest(
+                currentTrackPlaying(),
                 editMode,
                 dataSource.doOnNext(this::showRefreshErrorIfPresent),
                 likesStateProvider.likedStatuses(),
@@ -249,6 +250,10 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 .distinctUntilChanged()
                 .doOnNext(viewModelSubject::onNext)
                 .subscribe(new CrashOnTerminateSubscriber<>());
+    }
+
+    private Observable<Urn> currentTrackPlaying() {
+        return eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).map(item -> item.getCurrentPlayQueueItem().getUrn()).startWith(Urn.NOT_SET);
     }
 
     private void showRefreshErrorIfPresent(PlaylistWithExtrasState playlistWithExtrasState) {
@@ -487,7 +492,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         refresh.onNext(null);
     }
 
-    private AsyncViewModel<PlaylistDetailsViewModel> combine(Boolean isEditMode,
+    private AsyncViewModel<PlaylistDetailsViewModel> combine(Urn currentTrackPlaying,
+                                                             Boolean isEditMode,
                                                              PlaylistWithExtrasState playlistWithExtrasState,
                                                              LikedStatuses likedStatuses,
                                                              RepostStatuses repostStatuses,
@@ -500,7 +506,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
             Playlist playlist = playlistWithExtras.playlist();
             Urn urn = playlist.urn();
             return AsyncViewModel.create(of(viewModelCreator.create(playlist,
-                                                                    updateTracks(playlistWithExtras, offlineProperties, isEditMode),
+                                                                    updateTracks(currentTrackPlaying, playlistWithExtras, offlineProperties, isEditMode),
                                                                     likedStatuses.isLiked(urn),
                                                                     repostStatuses.isReposted(urn),
                                                                     isEditMode,
@@ -526,13 +532,15 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     }
 
-    private List<TrackItem> updateTracks(PlaylistWithExtras playlistWithExtras, OfflineProperties offlineProperties, boolean isInEditMode) {
+    private List<TrackItem> updateTracks(Urn currentTrackPlaying, PlaylistWithExtras playlistWithExtras, OfflineProperties offlineProperties, boolean isInEditMode) {
         Optional<List<Track>> tracksOpt = playlistWithExtras.tracks();
         if (tracksOpt.isPresent()) {
             List<Track> tracks = tracksOpt.get();
             List<TrackItem> trackItems = new ArrayList<>(tracks.size());
             for (Track track : tracks) {
-                trackItems.add(TrackItem.from(track).updatedWithOfflineState(isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn())));
+                final OfflineState offlineState = isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn());
+                final TrackItem trackItem = TrackItem.from(track).toBuilder().offlineState(offlineState).isPlaying(track.urn().equals(currentTrackPlaying)).build();
+                trackItems.add(trackItem);
             }
             return trackItems;
         } else {

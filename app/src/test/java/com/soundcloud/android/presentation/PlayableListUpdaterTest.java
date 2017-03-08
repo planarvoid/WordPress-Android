@@ -21,7 +21,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,14 +42,13 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     private PlayableListUpdater updater;
 
-    @Mock RecyclerItemAdapter<PlayableItem, ?> adapter;
-    @Mock private TrackItemRenderer trackItemRenderer;
+    @Mock MixedPlayableRecyclerItemAdapter adapter;
     @Mock private Fragment fragment;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        updater = new PlayableListUpdater(eventBus, adapter, trackItemRenderer);
+        updater = new PlayableListUpdater(eventBus, adapter);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                                                                        Urn.NOT_SET,
                                                                        0));
 
-        verify(trackItemRenderer).setPlayingTrack(playingTrack);
+        verify(adapter).updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -76,7 +75,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                                                                        Urn.NOT_SET,
                                                                        0));
 
-        verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
+        verify(adapter, never()).updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -89,7 +88,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                                                                 Urn.NOT_SET,
                                                                 0));
 
-        verify(trackItemRenderer).setPlayingTrack(playingTrack);
+        verify(adapter).updateNowPlaying(playingTrack);
     }
 
     @Test
@@ -103,7 +102,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
                                                                 Urn.NOT_SET,
                                                                 0));
 
-        verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
+        verify(adapter, never()).updateNowPlaying(playingTrack);
     }
 
     @Test

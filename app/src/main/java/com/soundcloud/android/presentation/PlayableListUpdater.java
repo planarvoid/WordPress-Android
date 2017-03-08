@@ -1,9 +1,10 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
@@ -20,25 +21,21 @@ import javax.inject.Inject;
 public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final EventBus eventBus;
-    private final RecyclerItemAdapter<? extends ListItem, ?> adapter;
-    private final TrackItemRenderer trackItemRenderer;
+    private final MixedPlayableRecyclerItemAdapter adapter;
 
     private CompositeSubscription fragmentLifeCycle;
 
     public PlayableListUpdater(EventBus eventBus,
-                               RecyclerItemAdapter<? extends ListItem, ?> adapter,
-                               TrackItemRenderer trackItemRenderer) {
+                               MixedPlayableRecyclerItemAdapter adapter) {
         this.eventBus = eventBus;
         this.adapter = adapter;
-        this.trackItemRenderer = trackItemRenderer;
     }
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         fragmentLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                   new LegacyUpdatePlayingTrackSubscriber(adapter, trackItemRenderer)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.TRACK_CHANGED, new UpdateTrackListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.PLAYLIST_CHANGED, new UpdatePlaylistListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.LIKE_CHANGED, new LikeEntityListSubscriber(adapter)),
@@ -61,9 +58,8 @@ public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragme
             this.eventBus = eventBus;
         }
 
-        public PlayableListUpdater create(RecyclerItemAdapter<? extends ListItem, ?> adapter,
-                                          TrackItemRenderer trackItemRenderer) {
-            return new PlayableListUpdater(eventBus, adapter, trackItemRenderer);
+        public PlayableListUpdater create(MixedPlayableRecyclerItemAdapter adapter, TrackItemRenderer trackItemRenderer) {
+            return new PlayableListUpdater(eventBus, adapter);
         }
     }
 }

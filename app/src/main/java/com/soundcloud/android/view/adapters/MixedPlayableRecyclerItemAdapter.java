@@ -1,21 +1,23 @@
 package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
-import android.support.annotation.VisibleForTesting;
 import android.view.View;
 
 import javax.inject.Inject;
 
 public class MixedPlayableRecyclerItemAdapter
-        extends PagingRecyclerItemAdapter<PlayableItem, RecyclerItemAdapter.ViewHolder> {
+        extends PagingRecyclerItemAdapter<PlayableItem, RecyclerItemAdapter.ViewHolder>
+        implements PlayingTrackAware {
 
-    @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
-    @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
+    private static final int TRACK_ITEM_TYPE = 0;
+    private static final int PLAYLIST_ITEM_TYPE = 1;
 
     private final TrackItemRenderer trackRenderer;
 
@@ -37,6 +39,24 @@ public class MixedPlayableRecyclerItemAdapter
 
     public TrackItemRenderer getTrackRenderer() {
         return trackRenderer;
+    }
+
+    @Override
+    public void updateNowPlaying(Urn currentlyPlayingUrn) {
+        for (int i = 0; i < items.size(); i++) {
+            final PlayableItem playableItem = items.get(i);
+            final Urn urn = playableItem.getUrn();
+            if (urn.isTrack()) {
+                final boolean isCurrentlyPlayingUrn = urn.equals(currentlyPlayingUrn);
+                final TrackItem trackItem = (TrackItem) playableItem;
+
+                if (trackItem.isPlaying() != isCurrentlyPlayingUrn) {
+                    final TrackItem updatedItem = trackItem.withPlayingState(isCurrentlyPlayingUrn);
+                    items.set(i, updatedItem);
+                    notifyItemChanged(i);
+                }
+            }
+        }
     }
 
     @Override
