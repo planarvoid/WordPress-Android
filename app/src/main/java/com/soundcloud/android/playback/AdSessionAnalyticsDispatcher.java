@@ -17,9 +17,9 @@ import javax.inject.Inject;
 
 import java.util.concurrent.TimeUnit;
 
-class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
+public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
-    static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
+    public static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
     private final EventBus eventBus;
     private final StopReasonProvider stopReasonProvider;

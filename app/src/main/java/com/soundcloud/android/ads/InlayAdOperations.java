@@ -74,7 +74,7 @@ class InlayAdOperations {
         public void onNext(InlayAdEvent event) {
             if (event instanceof OnScreen) {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
-                inlayAdPlayer.play(videoAd);
+                inlayAdPlayer.play(videoAd, false);
             } else if (event instanceof NoVideoOnScreen && inlayAdPlayer.isPlaying()) {
                 inlayAdPlayer.muteAndPause();
             } else if (event instanceof ToggleVolume) {

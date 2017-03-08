@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
+import com.soundcloud.android.ads.PlayableAdData.MonetizationType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
@@ -64,23 +65,23 @@ public class AdFixtures {
     }
 
     public static VideoAd getVideoAd(long createdAt) {
-        return VideoAd.create(getApiVideoAd(), createdAt);
+        return VideoAd.create(getApiVideoAd(), createdAt, MonetizationType.MONETIZATION_VIDEO);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn) {
-        return VideoAd.create(getApiVideoAd(), 0, monetizableUrn);
+        return VideoAd.createWithMonetizableTrack(getApiVideoAd(), 0, monetizableUrn);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn, ApiVideoSource videoSource) {
-        return VideoAd.create(getApiVideoAd(videoSource, SKIPPABLE), 0, monetizableUrn);
+        return VideoAd.createWithMonetizableTrack(getApiVideoAd(videoSource, SKIPPABLE), 0, monetizableUrn);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn, List<ApiVideoSource> videoSources) {
-        return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE, Optional.absent(), Optional.absent()), 0, monetizableUrn);
+        return VideoAd.createWithMonetizableTrack(getApiVideoAd(videoSources, SKIPPABLE, Optional.absent(), Optional.absent()), 0, monetizableUrn);
     }
 
     public static VideoAd getNonskippableVideoAd(Urn monetizableUrn) {
-        return VideoAd.create(getApiVideoAd(NOT_SKIPPABLE), 0, monetizableUrn);
+        return VideoAd.createWithMonetizableTrack(getApiVideoAd(NOT_SKIPPABLE), 0, monetizableUrn);
     }
 
     private static ApiDisplayProperties getApiDisplayProperties() {

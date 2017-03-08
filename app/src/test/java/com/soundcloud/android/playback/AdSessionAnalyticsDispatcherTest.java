@@ -100,7 +100,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertCommonEventData(playEvent, richMediaSessionEvent);
         assertThat(playbackSessionEvent.eventKind()).isNotEqualTo(AdPlaybackSessionEvent.EventKind.STOP);
         assertThat(playbackSessionEvent.adUrn()).isEqualTo(audioAd.getAdUrn());
-        assertThat(playbackSessionEvent.monetizableTrackUrn()).isEqualTo(audioAd.getMonetizableTrackUrn());
+        assertThat(playbackSessionEvent.monetizableTrackUrn()).isEqualTo(Optional.of(audioAd.getMonetizableTrackUrn()));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertCommonEventData(stateTransitionFinished, richEvent);
         assertThat(event.stopReason().get()).isEqualTo(STOP_REASON_TRACK_FINISHED);
         assertThat(event.adUrn()).isEqualTo(audioAd.getAdUrn());
-        assertThat(event.monetizableTrackUrn()).isEqualTo(audioAd.getMonetizableTrackUrn());
+        assertThat(event.monetizableTrackUrn()).isEqualTo(Optional.of(audioAd.getMonetizableTrackUrn()));
     }
 
     @Test

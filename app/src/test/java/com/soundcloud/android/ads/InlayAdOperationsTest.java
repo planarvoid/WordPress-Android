@@ -88,7 +88,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(videoAd);
+        verify(inlayAdPlayer).play(videoAd, false);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(videoAd);
+        verify(inlayAdPlayer).play(videoAd, false);
     }
 
     @Test

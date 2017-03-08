@@ -12,6 +12,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
+import com.soundcloud.java.optional.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,9 +36,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.FIRST_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_AUDIO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("audio_quartile1_1", "audio_quartile1_2");
     }
 
@@ -47,9 +49,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.SECOND_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_AUDIO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("audio_quartile2_1", "audio_quartile2_2");
     }
 
@@ -60,9 +62,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.THIRD_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_AUDIO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("audio_quartile3_1", "audio_quartile3_2");
     }
 
@@ -73,9 +75,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.FIRST_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("video_quartile1_1", "video_quartile1_2");
     }
 
@@ -86,9 +88,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.SECOND_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("video_quartile2_1", "video_quartile2_2");
     }
 
@@ -99,9 +101,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
         assertThat(progressEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.QUARTILE);
         assertThat(progressEvent.clickName().get()).isEqualTo(AdPlaybackSessionEvent.ClickName.THIRD_QUARTILE_TYPE);
-        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(progressEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(progressEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(progressEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(progressEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(progressEvent.trackingUrls().get()).containsExactly("video_quartile3_1", "video_quartile3_2");
     }
 
@@ -112,9 +114,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
-        assertThat(playEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(playEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(playEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(playEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(playEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(playEvent.trackingUrls().get()).containsExactly("video_impression1",
                                                                    "video_impression2",
                                                                    "video_start1",
@@ -129,9 +131,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);
 
         assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.PLAY);
-        assertThat(playEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(playEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(playEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(playEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(playEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(playEvent.trackingUrls().get()).containsExactly("video_resume1", "video_resume2");
     }
 
@@ -145,9 +147,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
                                                                                 STOP_REASON_TRACK_FINISHED);
 
         assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.STOP);
-        assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(stopEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(stopEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(stopEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(stopEvent.trackingUrls().get()).containsExactly("video_finish1", "video_finish2");
     }
 
@@ -160,9 +162,9 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
                                                                                 STOP_REASON_PAUSE);
 
         assertThat(stopEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.STOP);
-        assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(stopEvent.monetizableTrackUrn()).isEqualTo(Optional.of(TRACK_URN));
         assertThat(stopEvent.adUrn()).isEqualTo(AD_URN_2);
-        assertThat(stopEvent.monetizationType()).isEqualTo(AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO);
+        assertThat(stopEvent.monetizationType()).isEqualTo(PlayableAdData.MonetizationType.MONETIZATION_VIDEO);
         assertThat(stopEvent.trackingUrls().get()).containsExactly("video_pause1", "video_pause2");
     }
 }

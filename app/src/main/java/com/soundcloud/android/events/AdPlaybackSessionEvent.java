@@ -1,8 +1,6 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.ads.PlayableAdData.ReportingEvent;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
@@ -81,29 +79,15 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         }
     }
 
-    public enum MonetizationType {
-        MONETIZATION_AUDIO("audio_ad"),
-        MONETIZATION_VIDEO("video_ad");
-        private final String key;
-
-        MonetizationType(String key) {
-            this.key = key;
-        }
-
-        public String key() {
-            return key;
-        }
-    }
-
     public abstract Optional<EventName> eventName();
 
     public abstract EventKind eventKind();
 
     public abstract Urn adUrn();
 
-    public abstract Urn monetizableTrackUrn();
+    public abstract Optional<Urn> monetizableTrackUrn();
 
-    public abstract MonetizationType monetizationType();
+    public abstract PlayableAdData.MonetizationType monetizationType();
 
     public abstract Optional<List<String>> trackingUrls();
 
@@ -172,8 +156,8 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
                .eventKind(kind)
                .eventName(Optional.absent())
                .adUrn(adData.getAdUrn())
-               .monetizableTrackUrn(adData.getMonetizableTrackUrn())
-               .monetizationType(adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO)
+               .monetizableTrackUrn(Optional.fromNullable(adData.getMonetizableTrackUrn()))
+               .monetizationType(adData.getMonetizationType())
                .trackingUrls(Optional.absent())
                .shouldReportStartWithPlay(!adData.hasReportedEvent(ReportingEvent.START_EVENT))
                .pageName(pageName)
@@ -204,10 +188,6 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         return Optional.absent();
     }
 
-    public boolean isVideoAd() {
-        return MONETIZATION_VIDEO.equals(monetizationType());
-    }
-
     @AutoValue.Builder
     abstract static class Builder {
         abstract Builder id(String id);
@@ -222,9 +202,9 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
         abstract Builder adUrn(Urn adUrn);
 
-        abstract Builder monetizableTrackUrn(Urn monetizableTrackUrn);
+        abstract Builder monetizableTrackUrn(Optional<Urn> monetizableTrackUrn);
 
-        abstract Builder monetizationType(MonetizationType monetizationType);
+        abstract Builder monetizationType(PlayableAdData.MonetizationType monetizationType);
 
         abstract Builder trackingUrls(Optional<List<String>> trackingUrls);
 

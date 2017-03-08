@@ -149,8 +149,10 @@ class EventLoggerV1JsonDataBuilder {
         final String eventName = eventData.eventName().get().key();
         final EventLoggerEventData data = buildBaseEvent(eventName, eventData).adUrn(eventData.adUrn().toString())
                                                                               .pageName(eventData.pageName())
-                                                                              .monetizedObject(eventData.monetizableTrackUrn().toString())
                                                                               .monetizationType(eventData.monetizationType().key());
+        if (eventData.monetizableTrackUrn().isPresent()) {
+            data.monetizedObject(eventData.monetizableTrackUrn().get().toString());
+        }
         if (eventData.clickName().isPresent()) {
             data.clickName(eventData.clickName().get().key());
         }
@@ -163,7 +165,6 @@ class EventLoggerV1JsonDataBuilder {
     String buildForRichMediaSessionEvent(AdRichMediaSessionEvent eventData) {
         EventLoggerEventData data = buildBaseEvent(eventData.eventName(), eventData)
                 .adUrn(eventData.adUrn().toString())
-                .monetizedObject(eventData.monetizableTrackUrn().toString())
                 .monetizationType(eventData.monetizationType().key())
                 .pageName(eventData.pageName())
                 .playheadPosition(eventData.playheadPosition())
@@ -175,10 +176,12 @@ class EventLoggerV1JsonDataBuilder {
 
         data.action(eventData.action().key());
 
+        if (eventData.monetizableTrackUrn().isPresent()) {
+            data.monetizedObject(eventData.monetizableTrackUrn().get().toString());
+        }
         if (eventData.stopReason().isPresent()) {
             data.reason(eventData.stopReason().get().key());
         }
-
         if (eventData.source().isPresent()) {
             data.source(eventData.source().get());
         }

@@ -10,7 +10,7 @@ import java.util.List;
 @AutoValue
 public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
-    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt) {
+    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt, MonetizationType monetizationType) {
         final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
         return new AutoValue_VideoAd(
                 apiVideoAd.getAdUrn(),
@@ -25,6 +25,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 videoTracking.pauseUrls,
                 videoTracking.resumeUrls,
                 videoTracking.clickUrls,
+                monetizationType,
                 apiVideoAd.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
                 apiVideoAd.getTitle(),
@@ -37,8 +38,8 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         );
     }
 
-    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
-        VideoAd videoAd = create(apiVideoAd, createdAt);
+    public static VideoAd createWithMonetizableTrack(ApiVideoAd apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
+        VideoAd videoAd = create(apiVideoAd, createdAt, MonetizationType.MONETIZATION_VIDEO);
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }

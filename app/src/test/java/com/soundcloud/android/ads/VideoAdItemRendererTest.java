@@ -7,6 +7,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.PlayableAdData.MonetizationType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.stream.StreamItem;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class VideoAdItemRendererTest extends AndroidUnitTest {
 
     private static final VideoAd VIDEO_AD_1 = AdFixtures.getVideoAd(32L);
-    private static final VideoAd VIDEO_AD_2 = VideoAd.create(AdFixtures.getApiVideoAd("title", "custom cta"), 1L);
+    private static final VideoAd VIDEO_AD_2 = VideoAd.create(AdFixtures.getApiVideoAd("title", "custom cta"), 1L, MonetizationType.MONETIZATION_INLAY);
     private static final List<VideoAd> VIDEOS = Arrays.asList(VIDEO_AD_1, VIDEO_AD_2);
 
     private static final List<StreamItem> ITEMS = Lists.transform(VIDEOS, StreamItem::forVideoAd);

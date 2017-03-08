@@ -157,11 +157,11 @@ public class AdsOperations {
         final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableItem.getUrn());
         final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(interstitialData).build();
-        playQueueManager.replace(monetizableItem, Collections.<PlayQueueItem>singletonList(interstitialItem));
+        playQueueManager.replace(monetizableItem, Collections.singletonList(interstitialItem));
     }
 
     private void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
-        final VideoAd videoData = VideoAd.create(apiVideoAd, dateProvider.getCurrentTime(), monetizableItem.getUrn());
+        final VideoAd videoData = VideoAd.createWithMonetizableTrack(apiVideoAd, dateProvider.getCurrentTime(), monetizableItem.getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final VideoAdQueueItem videoItem = new VideoAdQueueItem(videoData);
         playQueueManager.replace(monetizableItem, Arrays.asList(videoItem, newMonetizableItem));
@@ -255,7 +255,7 @@ public class AdsOperations {
         }
 
         static AdRequestData forStreamAds(Optional<String> kruxSegments) {
-            return create(Optional.<Urn>absent(), kruxSegments);
+            return create(Optional.absent(), kruxSegments);
         }
 
         public abstract String getRequestId();

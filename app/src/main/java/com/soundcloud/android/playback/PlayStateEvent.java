@@ -18,6 +18,10 @@ public abstract class PlayStateEvent {
         return new AutoValue_PlayStateEvent(transition.getUrn(), transition, getValidProgress(transition, apiDuration), isFirstPlay, playId, false);
     }
 
+    public static PlayStateEvent create(PlaybackStateTransition transition, long apiDuration) {
+        return create(transition, apiDuration, false, Strings.EMPTY);
+    }
+
     public static PlayStateEvent createPlayQueueCompleteEvent(PlayStateEvent fromEvent) {
         return new AutoValue_PlayStateEvent(fromEvent.getPlayingItemUrn(),
                                             fromEvent.getTransition(),

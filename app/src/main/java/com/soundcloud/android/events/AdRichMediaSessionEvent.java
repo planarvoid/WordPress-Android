@@ -1,11 +1,7 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_AUDIO;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.MonetizationType.MONETIZATION_VIDEO;
-
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
@@ -19,7 +15,6 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
     private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
 
     public enum Action {
-
         AUDIO_ACTION_PLAY("play"),
         AUDIO_ACTION_PAUSE("pause"),
         AUDIO_ACTION_CHECKPOINT("checkpoint");
@@ -53,9 +48,9 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
     public abstract Urn adUrn();
 
-    public abstract Urn monetizableTrackUrn();
+    public abstract Optional<Urn> monetizableTrackUrn();
 
-    public abstract AdPlaybackSessionEvent.MonetizationType monetizationType();
+    public abstract PlayableAdData.MonetizationType monetizationType();
 
     public abstract String pageName();
 
@@ -110,8 +105,8 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
                                                               .eventName(RICH_MEDIA_STREAM_EVENT)
                                                               .action(action)
                                                               .adUrn(adData.getAdUrn())
-                                                              .monetizableTrackUrn(adData.getMonetizableTrackUrn())
-                                                              .monetizationType(adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO)
+                                                              .monetizableTrackUrn(Optional.fromNullable(adData.getMonetizableTrackUrn()))
+                                                              .monetizationType(adData.getMonetizationType())
                                                               .pageName(trackSourceInfo.getOriginScreen())
                                                               .trigger(trackSourceInfo.getIsUserTriggered() ? Trigger.MANUAL : Trigger.AUTO)
                                                               .source(Optional.absent())
@@ -146,9 +141,9 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
         abstract Builder adUrn(Urn adUrn);
 
-        abstract Builder monetizableTrackUrn(Urn monetizableTrackUrn);
+        abstract Builder monetizableTrackUrn(Optional<Urn> monetizableTrackUrn);
 
-        abstract Builder monetizationType(AdPlaybackSessionEvent.MonetizationType monetizationType);
+        abstract Builder monetizationType(PlayableAdData.MonetizationType monetizationType);
 
         abstract Builder pageName(String pageName);
 
@@ -192,11 +187,11 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
         }
 
         private Builder trackSourceInfo(TrackSourceInfo sourceInfo) {
-
             if (sourceInfo.hasSource()) {
                 source(Optional.of(sourceInfo.getSource()));
                 sourceVersion(Optional.of(sourceInfo.getSourceVersion()));
             }
+
             if (sourceInfo.isFromPlaylist()) {
                 inPlaylist(Optional.of(sourceInfo.getCollectionUrn()));
                 playlistPosition(Optional.of(sourceInfo.getPlaylistPosition()));
@@ -225,6 +220,7 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
                 queryUrn(Optional.of(querySourceInfo.getQueryUrn()));
                 queryPosition(Optional.of(querySourceInfo.getQueryPosition()));
             }
+
             return this;
         }
 
