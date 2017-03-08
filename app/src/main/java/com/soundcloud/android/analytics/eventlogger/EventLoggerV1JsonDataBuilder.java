@@ -350,6 +350,8 @@ class EventLoggerV1JsonDataBuilder {
             case BUTTON_SKIP:
             case VIDEO_AD_FULLSCREEN:
             case VIDEO_AD_SHRINK:
+            case VIDEO_AD_MUTE:
+            case VIDEO_AD_UNMUTE:
             case AD_CLICKTHROUGH:
             case SKIP_AD_CLICK:
             case FOLLOW:

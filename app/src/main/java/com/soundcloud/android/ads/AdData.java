@@ -4,6 +4,26 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.strings.Strings;
 
 public abstract class AdData {
+
+    public enum MonetizationType {
+        PROMOTED("promoted"),
+        INTERSTITIAL("interstitial"),
+        LEAVE_BEHIND("leave_behind"),
+        AUDIO("audio_ad"),
+        VIDEO("video_ad"),
+        INLAY("mobile_inlay");
+
+        private final String key;
+
+        MonetizationType(String key) {
+            this.key = key;
+        }
+
+        public String key() {
+            return key;
+        }
+    }
+
     private Urn monetizableTrackUrn;
     private String monetizableTitle = Strings.EMPTY;
     private String monetizableCreator = Strings.EMPTY;
@@ -37,4 +57,6 @@ public abstract class AdData {
     protected void setMonetizableTrackUrn(Urn trackUrn) {
         monetizableTrackUrn = trackUrn;
     }
+
+    public abstract MonetizationType getMonetizationType();
 }

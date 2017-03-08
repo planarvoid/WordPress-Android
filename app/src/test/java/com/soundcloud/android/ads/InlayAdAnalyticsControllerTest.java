@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 public class InlayAdAnalyticsControllerTest extends AndroidUnitTest {
 
-    private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(1L);
+    private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(1L);
 
     @Mock private AdSessionAnalyticsDispatcher adDispatcher;
 

@@ -48,6 +48,8 @@ public abstract class UIEvent extends TrackingEvent {
         PLAYER_CLOSE("player_close"),
         VIDEO_AD_FULLSCREEN("video_ad_fullscreen"),
         VIDEO_AD_SHRINK("video_ad_shrink"),
+        VIDEO_AD_MUTE("video_ad_mute"),
+        VIDEO_AD_UNMUTE("video_ad_unmute"),
         AD_CLICKTHROUGH("ad_click_through"),
         SKIP_AD_CLICK("skip_ad_click"),
         START_STATION("start_station"),
@@ -103,32 +105,6 @@ public abstract class UIEvent extends TrackingEvent {
         }
     }
 
-    public enum MonetizationType {
-        PROMOTED("promoted"),
-        AUDIO_AD("audio_ad"),
-        VIDEO_AD("video_ad"),
-        MOBILE_INLAY("mobile_inlay");
-        private final String key;
-
-        MonetizationType(String key) {
-            this.key = key;
-        }
-
-        private static MonetizationType fromAdData(AdData adData) {
-            if (adData instanceof AudioAd) {
-                return AUDIO_AD;
-            } else if (adData instanceof VideoAd) {
-                return VIDEO_AD;
-            } else {
-                return MOBILE_INLAY;
-            }
-        }
-
-        public String key() {
-            return key;
-        }
-    }
-
     public enum ClickName {
         SHARE_REQUEST("share::request"),
         SHARE_CANCEL("share::cancel"),
@@ -143,6 +119,8 @@ public abstract class UIEvent extends TrackingEvent {
         BUTTON_SKIP("button_skip"),
         VIDEO_AD_FULLSCREEN("ad::full_screen"),
         VIDEO_AD_SHRINK("ad::exit_full_screen"),
+        VIDEO_AD_MUTE("ad::mute"),
+        VIDEO_AD_UNMUTE("ad::unmute"),
         SKIP_AD_CLICK("ad::skip"),
         FOLLOW_ADD("follow::add"),
         FOLLOW_REMOVE("follow::remove"),
@@ -252,17 +230,13 @@ public abstract class UIEvent extends TrackingEvent {
 
     public abstract Optional<String> adUrn();
 
-    public abstract Optional<MonetizationType> monetizationType();
+    public abstract Optional<AdData.MonetizationType> monetizationType();
 
     public abstract Optional<Urn> monetizableTrackUrn();
 
     public abstract Optional<Urn> promoterUrn();
 
-    public abstract Optional<List<String>> videoSizeChangeUrls();
-
-    public abstract Optional<List<String>> adSkipUrls();
-
-    public abstract Optional<List<String>> adClickthroughUrls();
+    public abstract Optional<List<String>> adTrackingUrls();
 
     public abstract Optional<String> clickthroughsKind();
 
@@ -350,21 +324,29 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playerAdAttributes(videoAd, trackSourceInfo).videoSizeChangeUrls(Optional.of(videoAd.getFullScreenUrls())).build();
+        return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.getFullScreenUrls())).build();
     }
 
     public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playerAdAttributes(videoAd, trackSourceInfo).videoSizeChangeUrls(Optional.of(videoAd.getExitFullScreenUrls())).build();
+        return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.getExitFullScreenUrls())).build();
+    }
+
+    public static UIEvent fromVideoMute(VideoAd videoAd, TrackSourceInfo sourceInfo) {
+        return event(Kind.VIDEO_AD_MUTE, ClickName.VIDEO_AD_MUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.getMuteUrls())).build();
+    }
+
+    public static UIEvent fromVideoUnmute(VideoAd videoAd, TrackSourceInfo sourceInfo) {
+        return event(Kind.VIDEO_AD_UNMUTE, ClickName.VIDEO_AD_UNMUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.getUnmuteUrls())).build();
     }
 
     public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playerAdAttributes(adData, trackSourceInfo).adSkipUrls(Optional.of(adData.getSkipUrls())).build();
+        return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playableAdAttributes(adData, trackSourceInfo).adTrackingUrls(Optional.of(adData.getSkipUrls())).build();
     }
 
-    public static UIEvent fromPlayerAdClickThrough(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        final String clickthroughKind = "clickthrough::" + MonetizationType.fromAdData(adData).key;
-        final Builder builder = event(Kind.AD_CLICKTHROUGH).playerAdAttributes(adData, trackSourceInfo)
-                                                           .adClickthroughUrls(Optional.of(adData.getClickUrls()))
+    public static UIEvent fromPlayableClickThrough(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
+        final String clickthroughKind = "clickthrough::" + adData.getMonetizationType().key();
+        final Builder builder = event(Kind.AD_CLICKTHROUGH).playableAdAttributes(adData, trackSourceInfo)
+                                                           .adTrackingUrls(Optional.of(adData.getClickUrls()))
                                                            .clickthroughsKind(Optional.of(clickthroughKind));
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
@@ -379,7 +361,7 @@ public abstract class UIEvent extends TrackingEvent {
 
     public static UIEvent fromAppInstallAdClickThrough(AppInstallAd adData) {
         return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(adData)
-                                          .adClickthroughUrls(Optional.of(adData.getClickUrls()))
+                                          .adTrackingUrls(Optional.of(adData.getClickUrls()))
                                           .clickthroughsUrl(Optional.of(adData.getClickThroughUrl()))
                                           .clickthroughsKind(Optional.of("clickthrough::app_install"))
                                           .build();
@@ -408,7 +390,6 @@ public abstract class UIEvent extends TrackingEvent {
     public static UIEvent fromPlayQueueRemoveUndo(Screen screen) {
         return event(Kind.PLAY_QUEUE_TRACK_REMOVE_UNDO, ClickName.PLAY_QUEUE_TRACK_REMOVE_UNDO).originScreen(Optional.of(screen.get())).build();
     }
-
 
     public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {
         return event(Kind.CREATE_PLAYLIST).entityMetadata(metadata).build();
@@ -496,9 +477,7 @@ public abstract class UIEvent extends TrackingEvent {
                                               .timestamp(defaultTimestamp())
                                               .referringEvent(Optional.absent())
                                               .kind(kind)
-                                              .videoSizeChangeUrls(Optional.absent())
-                                              .adSkipUrls(Optional.absent())
-                                              .adClickthroughUrls(Optional.absent())
+                                              .adTrackingUrls(Optional.absent())
                                               .clickthroughsKind(Optional.absent())
                                               .clickthroughsUrl(Optional.absent())
                                               .adArtworkUrl(Optional.absent())
@@ -591,17 +570,13 @@ public abstract class UIEvent extends TrackingEvent {
 
         abstract Builder adUrn(Optional<String> adUrn);
 
-        abstract Builder monetizationType(Optional<MonetizationType> monetizationType);
+        abstract Builder monetizationType(Optional<AdData.MonetizationType> monetizationType);
 
         abstract Builder monetizableTrackUrn(Optional<Urn> monetizableTrackUrn);
 
         abstract Builder promoterUrn(Optional<Urn> promoterUrn);
 
-        abstract Builder videoSizeChangeUrls(Optional<List<String>> videoSizeChangeUrls);
-
-        abstract Builder adSkipUrls(Optional<List<String>> adSkipUrls);
-
-        abstract Builder adClickthroughUrls(Optional<List<String>> adClickthroughUrls);
+        abstract Builder adTrackingUrls(Optional<List<String>> trackingUrls);
 
         abstract Builder clickthroughsKind(Optional<String> clickthroughsKind);
 
@@ -659,20 +634,20 @@ public abstract class UIEvent extends TrackingEvent {
 
         Builder promotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
             adUrn(Optional.of(promotedSourceInfo.getAdUrn()));
-            monetizationType(Optional.of(MonetizationType.PROMOTED));
+            monetizationType(Optional.of(AdData.MonetizationType.PROMOTED));
             promoterUrn(promotedSourceInfo.getPromoterUrn());
             return this;
         }
 
         Builder basicAdAttributes(AdData adData) {
             adUrn(Optional.of(adData.getAdUrn().toString()));
-            monetizationType(Optional.of(MonetizationType.fromAdData(adData)));
+            monetizationType(Optional.of(adData.getMonetizationType()));
             return this;
         }
 
-        Builder playerAdAttributes(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
+        Builder playableAdAttributes(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
             basicAdAttributes(adData);
-            monetizableTrackUrn(Optional.of(adData.getMonetizableTrackUrn()));
+            monetizableTrackUrn(Optional.fromNullable(adData.getMonetizableTrackUrn()));
             if (trackSourceInfo != null) {
                 originScreen(Optional.fromNullable(trackSourceInfo.getOriginScreen()));
             }

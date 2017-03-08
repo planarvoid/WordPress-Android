@@ -17,6 +17,7 @@ public abstract class AppInstallAd extends AdData implements ExpirableAd {
     public static AppInstallAd create(ApiAppInstallAd apiAppInstallAd, long createdAt) {
         final ApiAdTracking apiAdTracking = apiAppInstallAd.apiAdTracking();
         return new AutoValue_AppInstallAd(apiAppInstallAd.getAdUrn(),
+                                          MonetizationType.INLAY,
                                           createdAt,
                                           apiAppInstallAd.getExpiryInMins(),
                                           apiAppInstallAd.getName(),

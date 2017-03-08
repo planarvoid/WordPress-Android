@@ -11,19 +11,8 @@ public class ApiAdTrackingTest {
 
     @Test
     public void replacesNullValueWithEmptyList() {
-        ApiAdTracking adTracking = new ApiAdTracking(null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null,
-                                                     null);
-
+        ApiAdTracking adTracking = new ApiAdTracking(null, null, null, null, null, null, null,
+                                                     null, null, null, null, null, null, null);
         assertThat(adTracking.clickUrls).isEmpty();
     }
 }

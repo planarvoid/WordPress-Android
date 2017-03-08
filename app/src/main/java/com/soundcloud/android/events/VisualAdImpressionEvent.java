@@ -1,6 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -28,20 +29,6 @@ public abstract class VisualAdImpressionEvent extends TrackingEvent {
         }
     }
 
-    public enum MonetizationType {
-        AUDIO_AD("audio_ad");
-
-        private final String key;
-
-        MonetizationType(String key) {
-            this.key = key;
-        }
-
-        public String key() {
-            return key;
-        }
-    }
-
     public static VisualAdImpressionEvent create(AudioAd adData, Urn userUrn, TrackSourceInfo sessionSource) {
         return new AutoValue_VisualAdImpressionEvent(defaultId(),
                                                      defaultTimestamp(),
@@ -53,7 +40,7 @@ public abstract class VisualAdImpressionEvent extends TrackingEvent {
                                                      adData.getCompanionImageUrl(),
                                                      adData.getCompanionImpressionUrls(),
                                                      ImpressionName.COMPANION_DISPLAY,
-                                                     MonetizationType.AUDIO_AD);
+                                                     AdData.MonetizationType.AUDIO);
     }
 
     public abstract String userUrn();
@@ -70,7 +57,7 @@ public abstract class VisualAdImpressionEvent extends TrackingEvent {
 
     public abstract ImpressionName impressionName();
 
-    public abstract MonetizationType monetizationType();
+    public abstract AdData.MonetizationType monetizationType();
 
     @Override
     public VisualAdImpressionEvent putReferringEvent(ReferringEvent referringEvent) {

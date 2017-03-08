@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.ads.PlayableAdData.MonetizationType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.events.AdsReceived;
@@ -34,7 +33,7 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
             if (input.getAppInstall().isPresent()) {
                 return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
             } else {
-                return VideoAd.create(input.getVideoAd().get(), dateProvider.getCurrentTime(), MonetizationType.MONETIZATION_INLAY);
+                return VideoAd.create(input.getVideoAd().get(), dateProvider.getCurrentTime(), AdData.MonetizationType.INLAY);
             }
         }
     }

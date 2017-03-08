@@ -33,13 +33,15 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 apiVideoAd.getExpiryInMins(),
                 Lists.transform(apiVideoAd.getVideoSources(), VideoAdSource::create),
                 apiVideoAd.getClickThroughUrl(),
+                videoTracking.muteUrls,
+                videoTracking.unmuteUrls,
                 videoTracking.fullScreenUrls,
                 videoTracking.exitFullScreenUrls
         );
     }
 
     public static VideoAd createWithMonetizableTrack(ApiVideoAd apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
-        VideoAd videoAd = create(apiVideoAd, createdAt, MonetizationType.MONETIZATION_VIDEO);
+        VideoAd videoAd = create(apiVideoAd, createdAt, MonetizationType.VIDEO);
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }
@@ -53,6 +55,10 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
     public abstract List<VideoAdSource> getVideoSources();
 
     public abstract String getClickThroughUrl();
+
+    public abstract List<String> getMuteUrls();
+
+    public abstract List<String> getUnmuteUrls();
 
     public abstract List<String> getFullScreenUrls();
 

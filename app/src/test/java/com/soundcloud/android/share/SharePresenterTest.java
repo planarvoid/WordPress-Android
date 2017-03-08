@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.firebase.FirebaseDynamicLinksApi;
@@ -102,7 +103,7 @@ public class SharePresenterTest extends AndroidUnitTest {
         assertThat(shareRequestEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo(PROMOTED_TRACK_URN);
         assertThat(shareRequestEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(shareRequestEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(shareRequestEvent.monetizationType().get()).isEqualTo(AdData.MonetizationType.PROMOTED);
         assertThat(shareRequestEvent.promoterUrn().get().toString()).isEqualTo("soundcloud:users:193");
     }
 

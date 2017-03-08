@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -10,6 +11,7 @@ import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.rx.RxUtils;
@@ -92,6 +94,7 @@ class InlayAdPlayer implements Player.PlayerListener {
         isPlayerMuted = mute;
         currentPlayer.setVolume(mute ? 0.0f : 1.0f);
 
+        publishVolumeToggleEvent(mute);
         if (mute && shouldReturnToPlaySession) {
             returnToPlaySession();
         } else if (!mute) {
@@ -99,6 +102,14 @@ class InlayAdPlayer implements Player.PlayerListener {
         }
 
         onPlaystateChanged(lastState);
+    }
+
+    private void publishVolumeToggleEvent(boolean mute) {
+        if (currentAd.isPresent()) {
+            final UIEvent event = mute ? UIEvent.fromVideoMute(currentAd.get(), getSourceInfo())
+                                       : UIEvent.fromVideoUnmute(currentAd.get(), getSourceInfo());
+            eventBus.publish(EventQueue.TRACKING, event);
+        }
     }
 
     private void pausePlaySessionIfNeeded() {
@@ -147,6 +158,10 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     private void setUserInitiated(boolean isUserInitiated) {
         this.isUserInitiated = isUserInitiated;
+    }
+
+    private TrackSourceInfo getSourceInfo() {
+        return new TrackSourceInfo(Screen.STREAM.get(), isUserInitiated);
     }
 
     @Override

@@ -11,6 +11,7 @@ public abstract class InterstitialAd extends OverlayAdData {
     private static InterstitialAd create(ApiInterstitial apiInterstitial) {
         return new AutoValue_InterstitialAd(
                 apiInterstitial.urn,
+                MonetizationType.INTERSTITIAL,
                 apiInterstitial.imageUrl,
                 Uri.parse(apiInterstitial.clickthroughUrl),
                 apiInterstitial.trackingImpressionUrls,

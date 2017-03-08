@@ -574,7 +574,33 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldVideoAdSkipEvent() {
+    public void shouldTackVideoMuteEvent() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent adEvent = UIEvent.fromVideoMute(videoAd, trackSourceInfo);
+        when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
+    }
+
+    @Test
+    public void shouldTackVideoUnmuteEvent() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        UIEvent adEvent = UIEvent.fromVideoUnmute(videoAd, trackSourceInfo);
+        when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
+    }
+
+    @Test
+    public void shouldTrackVideoAdSkipEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent adEvent = UIEvent.fromSkipAdClick(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
@@ -587,9 +613,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldVideoAdClickthroughEvent() {
+    public void shouldTrackVideoAdClickthroughEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent adEvent = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent adEvent = UIEvent.fromPlayableClickThrough(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

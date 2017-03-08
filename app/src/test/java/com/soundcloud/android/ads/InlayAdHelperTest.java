@@ -49,7 +49,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private static final boolean SCROLLING_UP = true;
     private static final boolean SCROLLING_DOWN = false;
     private static final AppInstallAd APP_INSTALL = appInstall();
-    private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(32L);
+    private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(32L);
     private static final StreamItem VIDEO_AD_ITEM = StreamItem.forVideoAd(VIDEO_AD);
     private static final StreamItem APP_INSTALL_ITEM = StreamItem.forAppInstall(APP_INSTALL);
     private static final StreamItem GO_UPSELL_ITEM = new StreamItem() {
@@ -261,7 +261,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     public void onScrollFiresOnScreenEventForFirstMostVisibleVideoAdOnScreenGreaterThan50PercentVisible() {
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
-        when(adapter.getItem(8)).thenReturn(StreamItem.forVideoAd(AdFixtures.getVideoAd(23L)));
+        when(adapter.getItem(8)).thenReturn(StreamItem.forVideoAd(AdFixtures.getInlayVideoAd(23L)));
         when(adapter.getItem(9)).thenReturn(VIDEO_AD_ITEM);
         setVideoViewVisibility(8, 51);
         setVideoViewVisibility(9, 52);

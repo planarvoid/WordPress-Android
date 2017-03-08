@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.ads.AdData.MonetizationType;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
@@ -187,7 +188,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -206,7 +207,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -229,7 +230,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -295,7 +296,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -318,7 +319,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -341,7 +342,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -413,7 +414,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -435,7 +436,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -493,7 +494,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -515,7 +516,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -660,7 +661,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -681,7 +682,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -741,7 +742,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -762,7 +763,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -783,7 +784,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -851,7 +852,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -868,7 +869,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -889,7 +890,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -927,7 +928,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -948,7 +949,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().get()).isEqualTo(PROMOTER_URN);
     }
 
@@ -969,7 +970,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.originScreen().get()).isEqualTo(ORIGIN_SCREEN_NAME);
 
         assertThat(uiEvent.adUrn().get()).isEqualTo(AD_URN);
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.PROMOTED);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.PROMOTED);
         assertThat(uiEvent.promoterUrn().isPresent()).isFalse();
     }
 
@@ -1029,8 +1030,8 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_FULLSCREEN);
         assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.VIDEO_AD);
-        assertThat(uiEvent.videoSizeChangeUrls().get()).contains("video_fullscreen1", "video_fullscreen2");
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_fullscreen1", "video_fullscreen2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
@@ -1042,36 +1043,62 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_SHRINK);
         assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.VIDEO_AD);
-        assertThat(uiEvent.videoSizeChangeUrls().get()).contains("video_exit_full1", "video_exit_full2");
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_exit_full1", "video_exit_full2");
+        assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
+    }
+
+    @Test
+    public void shouldCreateEventFromVideoAdMuteClick() {
+        VideoAd videoAd = AdFixtures.getInlayVideoAd(321L);
+        UIEvent uiEvent = UIEvent.fromVideoMute(videoAd, trackSourceInfo);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_MUTE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_MUTE);
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.monetizableTrackUrn().isPresent()).isFalse();
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.INLAY);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_mute1", "video_mute2");
+        assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
+    }
+
+    @Test
+    public void shouldCreateEventFromVideoAdUnmuteClick() {
+        VideoAd videoAd = AdFixtures.getInlayVideoAd(321L);
+        UIEvent uiEvent = UIEvent.fromVideoUnmute(videoAd, trackSourceInfo);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_UNMUTE);
+        assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_UNMUTE);
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.monetizableTrackUrn().isPresent()).isFalse();
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.INLAY);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_unmute1", "video_unmute2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
     @Test
     public void shouldCreateEventFromVideoAdClickThrough() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
-        UIEvent uiEvent = UIEvent.fromPlayerAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent uiEvent = UIEvent.fromPlayableClickThrough(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
         assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.VIDEO_AD);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.videoad.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::video_ad");
-        assertThat(uiEvent.adClickthroughUrls().get()).contains("video_click1", "video_click2");
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_click1", "video_click2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
     @Test
     public void shouldCreateEventFromAudioAdClickThrough() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(321L));
-        UIEvent uiEvent = UIEvent.fromPlayerAdClickThrough(audioAd, trackSourceInfo);
+        UIEvent uiEvent = UIEvent.fromPlayableClickThrough(audioAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
         assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.AUDIO_AD);
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.AUDIO);
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.visualad.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::audio_ad");
-        assertThat(uiEvent.adClickthroughUrls().get()).contains("comp_click1", "comp_click2");
+        assertThat(uiEvent.adTrackingUrls().get()).contains("comp_click1", "comp_click2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
@@ -1084,7 +1111,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.monetizationType().get().key()).isEqualTo("mobile_inlay");
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::app_install");
-        assertThat(uiEvent.adClickthroughUrls().get()).contains("app_click1", "app_click2");
+        assertThat(uiEvent.adTrackingUrls().get()).contains("app_click1", "app_click2");
     }
 
     @Test
@@ -1095,8 +1122,8 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SKIP_AD_CLICK);
         assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.VIDEO_AD);
-        assertThat(uiEvent.adSkipUrls().get()).contains("video_skip1", "video_skip2");
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("video_skip1", "video_skip2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
@@ -1108,8 +1135,8 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SKIP_AD_CLICK);
         assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
-        assertThat(uiEvent.monetizationType().get()).isEqualTo(UIEvent.MonetizationType.AUDIO_AD);
-        assertThat(uiEvent.adSkipUrls().get()).contains("audio_skip1", "audio_skip2");
+        assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.AUDIO);
+        assertThat(uiEvent.adTrackingUrls().get()).contains("audio_skip1", "audio_skip2");
         assertThat(uiEvent.originScreen().get()).isEqualTo("origin screen");
     }
 
@@ -1133,7 +1160,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromNavigation() {
         final AttributingActivity attributingActivity = AttributingActivity.create(AttributingActivity.POSTED,
-                                                                                   Optional.<Urn>absent());
+                                                                                   Optional.absent());
 
         EventContextMetadata eventContext = eventContextNoInvokerScreen()
                 .attributingActivity(attributingActivity)

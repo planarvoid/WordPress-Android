@@ -29,7 +29,7 @@ public abstract class AudioAd extends PlayableAdData {
                 adTracking.pauseUrls,
                 adTracking.resumeUrls,
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingClickUrls : Collections.emptyList(),
-                MonetizationType.MONETIZATION_AUDIO,
+                MonetizationType.AUDIO,
                 apiAudioAd.isSkippable(),
                 extractVisualAdDisplayProperties(apiAudioAd),
                 apiAudioAd.hasCompanion() ? Optional.of(apiAudioAd.getCompanion().urn) : Optional.absent(),

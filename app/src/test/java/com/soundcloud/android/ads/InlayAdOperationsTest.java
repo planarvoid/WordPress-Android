@@ -83,7 +83,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreen() {
         when(inlayAdPlayer.isPlaying()).thenReturn(false);
-        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
@@ -94,7 +94,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreenEvenIfPlayerAlreadyPlaying() {
         when(inlayAdPlayer.isPlaying()).thenReturn(true);
-        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
@@ -124,7 +124,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
 
     @Test
     public void toggleMuteCommandForwardsCallToInlayAdPlayer() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ToggleVolume.create(0, videoAd, new Date(999)));
@@ -134,7 +134,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doesNotDoAnythingWithStateTransitions() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
         final InlayAdEvent.InlayPlayStateTransition event = InlayAdEvent.InlayPlayStateTransition.create(videoAd, TestPlayerTransitions.idle(), false, new Date(999));
 
         operations.subscribe(inlayAdHelper);
@@ -146,7 +146,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
 
     @Test
     public void forwardsPlaybackToggleToInlayPlayer() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(1L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.TogglePlayback.create(0, videoAd, new Date(999)));

@@ -19,6 +19,8 @@ public class ApiAdTracking {
 
     public final List<String> pauseUrls;
     public final List<String> resumeUrls;
+    public final List<String> muteUrls;
+    public final List<String> unmuteUrls;
     public final List<String> fullScreenUrls;
     public final List<String> exitFullScreenUrls;
 
@@ -33,6 +35,8 @@ public class ApiAdTracking {
                          @JsonProperty("finish_urls") List<String> finishUrls,
                          @JsonProperty("pause_urls") List<String> pauseUrls,
                          @JsonProperty("resume_urls") List<String> resumeUrls,
+                         @JsonProperty("mute") List<String> muteUrls,
+                         @JsonProperty("unmute") List<String> unmuteUrls,
                          @JsonProperty("fullscreen_urls") List<String> fullScreenUrls,
                          @JsonProperty("exit_fullscreen_urls") List<String> exitFullScreenUrls) {
         this.clickUrls = replaceNull(clickUrls);
@@ -45,11 +49,13 @@ public class ApiAdTracking {
         this.finishUrls = replaceNull(finishUrls);
         this.pauseUrls = replaceNull(pauseUrls);
         this.resumeUrls = replaceNull(resumeUrls);
+        this.muteUrls = replaceNull(muteUrls);
+        this.unmuteUrls = replaceNull(unmuteUrls);
         this.fullScreenUrls = replaceNull(fullScreenUrls);
         this.exitFullScreenUrls = replaceNull(exitFullScreenUrls);
     }
 
     private List<String> replaceNull(List<String> urls) {
-        return urls == null ? Collections.<String>emptyList() : urls;
+        return urls == null ? Collections.emptyList() : urls;
     }
 }

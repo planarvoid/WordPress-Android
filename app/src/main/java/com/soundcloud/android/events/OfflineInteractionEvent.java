@@ -9,6 +9,7 @@ import static com.soundcloud.android.events.OfflineInteractionEvent.EventName.IM
 import static java.lang.Boolean.TRUE;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -89,7 +90,7 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
 
     public abstract Optional<String> adUrn();
 
-    public abstract Optional<UIEvent.MonetizationType> monetizationType();
+    public abstract Optional<AdData.MonetizationType> monetizationType();
 
     public abstract Optional<Urn> promoterUrn();
 
@@ -185,7 +186,6 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
                                                               .clickObject(Optional.absent())
                                                               .adUrn(Optional.absent())
                                                               .monetizationType(Optional.absent())
-                                                              .monetizationType(Optional.absent())
                                                               .promoterUrn(Optional.absent())
                                                               .context(Optional.absent())
                                                               .isEnabled(Optional.absent());
@@ -215,7 +215,7 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
 
         public abstract Builder adUrn(Optional<String> adUrn);
 
-        public abstract Builder monetizationType(Optional<UIEvent.MonetizationType> monetizationType);
+        public abstract Builder monetizationType(Optional<AdData.MonetizationType> monetizationType);
 
         public abstract Builder promoterUrn(Optional<Urn> promoterUrn);
 
@@ -226,7 +226,7 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
         public Builder promotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
             if (promotedSourceInfo != null) {
                 adUrn(Optional.of(promotedSourceInfo.getAdUrn()));
-                monetizationType(Optional.of(UIEvent.MonetizationType.PROMOTED));
+                monetizationType(Optional.of(AdData.MonetizationType.PROMOTED));
                 promoterUrn(promotedSourceInfo.getPromoterUrn());
             }
             return this;

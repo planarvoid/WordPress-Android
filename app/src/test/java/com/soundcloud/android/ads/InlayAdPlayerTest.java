@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class InlayAdPlayerTest extends AndroidUnitTest {
-    private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(1L);
+    private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(1L);
     private static final VideoAdPlaybackItem VIDEO_ITEM = VideoAdPlaybackItem.create(VIDEO_AD, 0L, 0L);
     private static final boolean NOT_USER_INITIATED = false;
     private static final boolean USER_INITIATED = true;
@@ -185,6 +186,23 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         inOrder.verify(adapter).play(VIDEO_ITEM);
         inOrder.verify(adapter).setVolume(1.0f);
         inOrder.verify(adapter).setVolume(0.0f);
+    }
+
+    @Test
+    public void emitsUIEventWhenVideoUnmuted() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.toggleVolume();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_UNMUTE");
+    }
+
+    @Test
+    public void emitsUIEventWhenVideoMuted() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.toggleVolume();
+        player.toggleVolume();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_MUTE");
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
-import com.soundcloud.android.ads.PlayableAdData.MonetizationType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
@@ -64,8 +63,8 @@ public class AdFixtures {
         return AudioAd.create(getCompanionlessAudioAd(), monetizableUrn);
     }
 
-    public static VideoAd getVideoAd(long createdAt) {
-        return VideoAd.create(getApiVideoAd(), createdAt, MonetizationType.MONETIZATION_VIDEO);
+    public static VideoAd getInlayVideoAd(long createdAt) {
+        return VideoAd.create(getApiVideoAd(), createdAt, AdData.MonetizationType.INLAY);
     }
 
     public static VideoAd getVideoAd(Urn monetizableUrn) {
@@ -230,6 +229,8 @@ public class AdFixtures {
                 Arrays.asList("audio_pause1", "audio_pause2"),
                 Arrays.asList("audio_resume1", "audio_resume2"),
                 Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 Collections.emptyList()
         );
     }
@@ -246,6 +247,8 @@ public class AdFixtures {
                 Arrays.asList("video_finish1", "video_finish2"),
                 Arrays.asList("video_pause1", "video_pause2"),
                 Arrays.asList("video_resume1", "video_resume2"),
+                Arrays.asList("video_mute1", "video_mute2"),
+                Arrays.asList("video_unmute1", "video_unmute2"),
                 Arrays.asList("video_fullscreen1", "video_fullscreen2"),
                 Arrays.asList("video_exit_full1", "video_exit_full2")
         );
@@ -292,7 +295,7 @@ public class AdFixtures {
     }
 
     private static List<AdData> getInlays(long createdAt) {
-        return Arrays.asList(getVideoAd(createdAt),
+        return Arrays.asList(getInlayVideoAd(createdAt),
                              AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "1")), createdAt),
                              AppInstallAd.create(getApiAppInstall(Urn.forAd("dfp", "2")), createdAt));
     }
@@ -310,6 +313,8 @@ public class AdFixtures {
         return new ApiAdTracking(
                 Arrays.asList("app_click1", "app_click2"),
                 Arrays.asList("app_impression1", "app_impression2"),
+                Collections.emptyList(),
+                Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),

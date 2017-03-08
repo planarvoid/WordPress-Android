@@ -1099,6 +1099,32 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForVideoMuteUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromVideoMute(AdFixtures.getInlayVideoAd(123L), trackSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .adUrn("dfp:ads:905")
+                                               .pageName("collection:likes")
+                                               .monetizationType("mobile_inlay")
+                                               .clickName("ad::mute"));
+    }
+
+    @Test
+    public void createsJsonForVideoUnmuteUIEvent() throws ApiMapperException {
+        final UIEvent event = UIEvent.fromVideoUnmute(AdFixtures.getInlayVideoAd(123L), trackSourceInfo);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .adUrn("dfp:ads:905")
+                                               .pageName("collection:likes")
+                                               .monetizationType("mobile_inlay")
+                                               .clickName("ad::unmute"));
+    }
+
+    @Test
     public void createsJsonForShrinkVideoAdUIEvent() throws ApiMapperException {
         final UIEvent event = UIEvent.fromVideoAdShrink(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
@@ -1128,7 +1154,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdClickthroughUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromPlayerAdClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final UIEvent event = UIEvent.fromPlayableClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForUIEvent(event);
 

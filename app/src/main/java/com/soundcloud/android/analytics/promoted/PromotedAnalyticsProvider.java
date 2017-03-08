@@ -11,7 +11,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.java.collections.Lists;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -79,29 +78,9 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleUIEvent(UIEvent event) {
-        List<String> urls = Lists.newArrayList();
-        switch (event.kind()) {
-            case AD_CLICKTHROUGH:
-                if (event.adClickthroughUrls().isPresent()) {
-                    urls = event.adClickthroughUrls().get();
-                }
-                break;
-            case SKIP_AD_CLICK:
-                if (event.adSkipUrls().isPresent()) {
-                    urls = event.adSkipUrls().get();
-                }
-                break;
-            case VIDEO_AD_FULLSCREEN:
-            case VIDEO_AD_SHRINK:
-                if (event.videoSizeChangeUrls().isPresent()) {
-                    urls = event.videoSizeChangeUrls().get();
-                }
-                break;
-            default:
-                return;
+        if (event.adTrackingUrls().isPresent()) {
+            trackAllUrls(event.getTimestamp(), event.adTrackingUrls().get());
         }
-
-        trackAllUrls(event.getTimestamp(), urls);
     }
 
     private void trackAllUrls(long timeStamp, List<String> urls) {

@@ -535,7 +535,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNavigateForVideoAdClickthroughs() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(32L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
         when(adapter.getItem(0)).thenReturn(forFacebookListenerInvites());
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -557,7 +557,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetTextureViewForVideoAdUsingVideoSurfaceProvider() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(32L);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
         presenter.onVideoTextureBind(textureView, videoAd);
 
