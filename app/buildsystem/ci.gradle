@@ -76,7 +76,7 @@ slogFollowUpBeta.mustRunAfter('uploadFollowUpBeta')
 task assemblePreReleaseWrapper(dependsOn: 'assembleProdPreRelease')
 
 task buildPreRelease(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper',
-                                        'staticAnalysis']) {
+                                 'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 assemblePreReleaseWrapper.mustRunAfter('versionizePreRelease')
@@ -123,6 +123,21 @@ task slog(type: Exec) {
 
 task headsup(type: Exec) {
   commandLine 'curl', '--data', "channel=#android&message=https://www.soundcloud.com/nathanipale/boat-horn\nhttp://stream1.gifsoup.com/view5/4601496/love-boat-isaac-o.gif&username=The Boat", 'http://unslacked/'
+}
+
+task uploadTrackingScenario() << {
+  def path = "$rootDir/app/src/androidTest/res/com/soundcloud/android/framework/helpers/mrlogga/"
+  def dir = new File(path).list().toList()
+  def server = "http://ci.mobile.s-cloud.net:4567/upload_scenario"
+
+  for (spec in dir) {
+    println "Uploading ${spec}..."
+
+    exec {
+      executable "curl"
+      args "-X", "POST", "-F", "file=@$path/$spec", 'http://ci.mobile.s-cloud.net:4567/upload_scenario'
+    }
+  }
 }
 
 // *********************************************************************************************************************
