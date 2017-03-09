@@ -127,9 +127,9 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     }
 
     @Override
-    public UserSoundsItem updatedWithTrackItem(Track trackItem) {
+    public UpdatableTrackItem updatedWithTrack(Track track) {
         if (isTrack()) {
-            return copyWithTrackItem(TrackItem.from(trackItem));
+            return toBuilder().trackItem(trackItem().get().updatedWithTrack(track)).build();
         }
         return this;
     }

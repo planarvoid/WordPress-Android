@@ -27,7 +27,6 @@ import java.util.Map;
 
 public class TrackRepository {
 
-
     private final TrackStorage trackStorage;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final SyncInitiator syncInitiator;

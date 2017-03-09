@@ -21,7 +21,7 @@ import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -44,7 +44,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
     @Mock StoreTracksCommand storeTracksCommand;
     @Mock StoreStationCommand storeStationCommand;
     @Mock SyncInitiator syncInitiator;
-    @Mock TrackRepository trackRepository;
+    @Mock TrackItemRepository trackRepository;
 
     private final Urn station = Urn.forTrackStation(123L);
     private TestEventBus eventBus;

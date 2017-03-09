@@ -10,9 +10,8 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -27,7 +26,7 @@ public class RecommendedTracksOperations {
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlayQueueManager playQueueManager;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackRepository;
     private final Scheduler scheduler;
 
     @Inject
@@ -35,7 +34,7 @@ public class RecommendedTracksOperations {
                                 RecommendationsStorage recommendationsStorage,
                                 StoreRecommendationsCommand storeRecommendationsCommand,
                                 PlayQueueManager playQueueManager,
-                                TrackRepository trackRepository,
+                                TrackItemRepository trackRepository,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.syncOperations = syncOperations;
         this.recommendationsStorage = recommendationsStorage;
@@ -49,8 +48,7 @@ public class RecommendedTracksOperations {
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                                      .filter(list -> !list.isEmpty())
-                                     .flatMap(trackRepository::trackListFromUrns)
-                                     .map(tracks -> Lists.transform(tracks, TrackItem::from));
+                                     .flatMap(trackRepository::trackListFromUrns);
     }
 
     public Observable<DiscoveryItem> recommendedTracks() {

@@ -4,12 +4,9 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.VisibleForTesting;
-
 import java.util.Collections;
 import java.util.List;
 
-@VisibleForTesting
 @AutoValue
 abstract class PlaylistWithExtras {
 

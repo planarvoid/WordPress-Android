@@ -32,9 +32,8 @@ import com.soundcloud.android.playback.ui.view.ViewPagerSwipeDetector;
 import com.soundcloud.android.rx.OperationsInstrumentation;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -73,7 +72,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
     private final TrackPagePresenter trackPagePresenter;
     private final AudioAdPresenter audioAdPresenter;
     private final VideoAdPresenter videoAdPresenter;
@@ -101,7 +100,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
 
-    private final LruCache<Urn, ReplaySubject<Track>> trackObservableCache =
+    private final LruCache<Urn, ReplaySubject<TrackItem>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentPlayQueueItemFilter = new Func1<PlaybackProgressEvent, Boolean>() {
@@ -125,7 +124,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     @Inject
     PlayerPagerPresenter(PlayQueueManager playQueueManager,
                          PlaySessionStateProvider playSessionStateProvider,
-                         TrackRepository trackRepository,
+                         TrackItemRepository trackItemRepository,
                          StationsOperations stationsOperations,
                          TrackPagePresenter trackPagePresenter,
                          IntroductoryOverlayOperations introductoryOverlayOperations,
@@ -137,7 +136,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                          PlayerPagerOnboardingPresenter onboardingPresenter,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
         this.introductoryOverlayOperations = introductoryOverlayOperations;
@@ -504,7 +503,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 adOverlayData.get().setMonetizableTitle(track.title());
                 adOverlayData.get().setMonetizableCreator(track.creatorName());
             }
-        }).map(TrackItem::from);
+        });
     }
 
     private Observable<PlayerItem> getAdObservable(final AdData adData) {
@@ -544,11 +543,11 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         }
     }
 
-    private Observable<Track> getTrackObservable(Urn urn) {
-        ReplaySubject<Track> trackSubject = trackObservableCache.get(urn);
+    private Observable<TrackItem> getTrackObservable(Urn urn) {
+        ReplaySubject<TrackItem> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackRepository
+            trackItemRepository
                     .track(urn)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackSubject);

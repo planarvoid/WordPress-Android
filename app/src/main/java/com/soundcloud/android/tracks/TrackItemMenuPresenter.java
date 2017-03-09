@@ -47,7 +47,7 @@ import java.util.Collections;
 public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
@@ -87,7 +87,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                           TrackRepository trackRepository,
+                           TrackItemRepository trackItemRepository,
                            EventBus eventBus,
                            Context context,
                            LikeOperations likeOperations,
@@ -102,7 +102,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            PlaybackToastHelper playbackToastHelper,
                            EventTracker eventTracker) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
@@ -200,7 +200,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
-        trackSubscription = trackRepository
+        trackSubscription = trackItemRepository
                 .track(track.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(menu));
@@ -321,7 +321,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackRepost(repost);
     }
 
-    private static class TrackSubscriber extends DefaultSubscriber<Track> {
+    private static class TrackSubscriber extends DefaultSubscriber<TrackItem> {
         private final PopupMenuWrapper menu;
 
         TrackSubscriber(PopupMenuWrapper menu) {
@@ -329,9 +329,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
 
         @Override
-        public void onNext(Track track) {
-            updateLikeActionTitle(track.userLike());
-            updateRepostActionTitle(track.userRepost());
+        public void onNext(TrackItem track) {
+            updateLikeActionTitle(track.isUserLike());
+            updateRepostActionTitle(track.isUserRepost());
         }
 
         private void updateLikeActionTitle(boolean isLiked) {

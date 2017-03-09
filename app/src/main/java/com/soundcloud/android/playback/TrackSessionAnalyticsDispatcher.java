@@ -1,16 +1,16 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.StopReasonProvider.StopReason.*;
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_SKIP;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.UuidProvider;
@@ -36,6 +36,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
     private final UuidProvider uuidProvider;
+    private final TrackItemCreator trackItemCreator;
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
@@ -47,13 +48,15 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                            PlayQueueManager playQueueManager,
                                            AppboyPlaySessionState appboyPlaySessionState,
                                            StopReasonProvider stopReasonProvider,
-                                           UuidProvider uuidProvider) {
+                                           UuidProvider uuidProvider,
+                                           TrackItemCreator trackItemCreator) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
         this.uuidProvider = uuidProvider;
+        this.trackItemCreator = trackItemCreator;
     }
 
     @Override
@@ -183,7 +186,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                     PlayStateEvent playStateEvent,
                                                     String clientId,
                                                     String playId) {
-        return PlaybackSessionEventArgs.createWithProgress(TrackItem.from(track),
+        return PlaybackSessionEventArgs.createWithProgress(trackItemCreator.trackItem(track),
                                                            currentTrackSourceInfo.get(),
                                                            progress,
                                                            playStateEvent.getTransition(),

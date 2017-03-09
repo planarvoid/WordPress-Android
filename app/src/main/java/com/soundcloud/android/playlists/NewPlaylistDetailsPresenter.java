@@ -46,6 +46,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -88,6 +89,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
 
+    private final TrackItemCreator trackItemCreator;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -147,7 +149,8 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided DataSourceProviderFactory dataSourceProviderFactory,
                                 @Provided RepostOperations repostOperations,
                                 @Provided FeedbackController feedbackController,
-                                @Provided AccountOperations accountOperations) {
+                                @Provided AccountOperations accountOperations,
+                                @Provided TrackItemCreator trackItemCreator) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
@@ -166,6 +169,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.repostOperations = repostOperations;
         this.feedbackController = feedbackController;
         this.accountOperations = accountOperations;
+        this.trackItemCreator = trackItemCreator;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         dataSourceProvider = dataSourceProviderFactory.create(playlistUrn, refresh);
@@ -539,7 +543,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
             List<TrackItem> trackItems = new ArrayList<>(tracks.size());
             for (Track track : tracks) {
                 final OfflineState offlineState = isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn());
-                final TrackItem trackItem = TrackItem.from(track).toBuilder().offlineState(offlineState).isPlaying(track.urn().equals(currentTrackPlaying)).build();
+                final TrackItem trackItem = trackItemCreator.trackItem(track).toBuilder().offlineState(offlineState).isPlaying(track.urn().equals(currentTrackPlaying)).build();
                 trackItems.add(trackItem);
             }
             return trackItems;

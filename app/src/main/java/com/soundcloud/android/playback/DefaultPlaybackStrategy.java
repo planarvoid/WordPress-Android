@@ -11,7 +11,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -21,9 +21,10 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     private final PlayQueueManager playQueueManager;
     private final PlaybackServiceController serviceController;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
+
     private final EventBus eventBus;
 
     private final Func1<PlayerLifeCycleEvent, Observable<Void>> togglePlayback = new Func1<PlayerLifeCycleEvent, Observable<Void>>() {
@@ -50,19 +51,20 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         }
     };
 
-    private final Func1<Track, Observable<Void>> playPlayableTrack = new Func1<Track, Observable<Void>>() {
+    private final Func1<TrackItem, Observable<Void>> playPlayableTrack = new Func1<TrackItem, Observable<Void>>() {
         @Override
-        public Observable<Void> call(Track track) {
-            final Urn trackUrn = track.urn();
+        public Observable<Void> call(TrackItem trackItem) {
+            final Urn trackUrn = trackItem.getUrn();
+            Track track = trackItem.track();
             if (track.blocked()) {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
-                if (offlinePlaybackOperations.shouldPlayOffline(track)) {
-                    serviceController.play(AudioPlaybackItem.forOffline(TrackItem.from(track), getPosition(trackUrn)));
+                if (offlinePlaybackOperations.shouldPlayOffline(trackItem)) {
+                    serviceController.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
                 } else if (track.snipped()) {
-                    serviceController.play(AudioPlaybackItem.forSnippet(TrackItem.from(track), getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
                 } else {
-                    serviceController.play(AudioPlaybackItem.create(TrackItem.from(track), getPosition(trackUrn)));
+                    serviceController.play(AudioPlaybackItem.create(track, getPosition(trackUrn)));
                 }
                 return Observable.empty();
             }
@@ -70,11 +72,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     };
 
     public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, PlaybackServiceController serviceController,
-                                   TrackRepository trackRepository, OfflinePlaybackOperations offlinePlaybackOperations,
+                                   TrackItemRepository trackItemRepository, OfflinePlaybackOperations offlinePlaybackOperations,
                                    PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.serviceController = serviceController;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.playSessionStateProvider = playSessionStateProvider;
         this.eventBus = eventBus;
@@ -104,7 +106,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     public Observable<Void> playCurrent() {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
-            return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
+            return trackItemRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
         } else if (currentPlayQueueItem.isAd()) {
             return playCurrentAd(currentPlayQueueItem);
         } else {

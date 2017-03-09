@@ -40,6 +40,7 @@ import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -814,7 +815,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     private void populateTrackPage() {
-        final TrackItem source = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).build());
+        final TrackItem source = ModelFixtures.trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().snipped(true).build());
         presenter.bindItemView(trackView, new PlayerTrackState(source, true, true, viewVisibilityProvider));
     }
 

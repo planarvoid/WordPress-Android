@@ -20,15 +20,11 @@ abstract class StationInfoTrack implements ListItem, UpdatableTrackItem {
         return new AutoValue_StationInfoTrack(trackItem);
     }
 
-    public static StationInfoTrack from(Track track) {
-        return new AutoValue_StationInfoTrack(TrackItem.from(track));
-    }
-
     public abstract TrackItem getTrack();
 
     @Override
-    public StationInfoTrack updatedWithTrackItem(Track track) {
-        return new AutoValue_StationInfoTrack(TrackItem.from(track));
+    public StationInfoTrack updatedWithTrack(Track track) {
+        return new AutoValue_StationInfoTrack(getTrack().toBuilder().track(track).build());
     }
 
     @Override

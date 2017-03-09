@@ -58,6 +58,7 @@ import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserItemBlueprint;
@@ -76,6 +77,10 @@ public class ModelFixtures {
     public static long runningUserId = 1L;
 
     private static final ModelFactory modelFactory = new ModelFactory();
+
+    public static TrackItemCreator trackItemCreator(){
+      return new TrackItemCreator();
+    }
 
     static {
         try {
@@ -247,6 +252,14 @@ public class ModelFixtures {
         return ApiPost.create(apiTrack.getUrn(), new Date());
     }
 
+    public static TrackItem trackItem(Track track) {
+        return trackItemCreator().trackItem(track);
+    }
+
+    public static TrackItem trackItem(Track track, StreamEntity streamEntity) {
+        return trackItemCreator().trackItem(track, streamEntity);
+    }
+
     public static TrackItem trackItem() {
         return ModelFixtures.create(TrackItem.class);
     }
@@ -255,12 +268,24 @@ public class ModelFixtures {
         return ModelFixtures.trackItem().toBuilder();
     }
 
+    public static TrackItem.Builder trackItemBuilder(Urn urn) {
+        return ModelFixtures.trackItemCreator().trackItem(trackBuilder().urn(urn).build()).toBuilder();
+    }
+
+    public static TrackItem.Builder trackItemBuilder(ApiTrack apiTrack) {
+        return ModelFixtures.trackItemCreator().trackItem(trackBuilder(apiTrack).build()).toBuilder();
+    }
+
     public static TrackItem trackItem(Urn urn) {
-        return TrackItem.from(trackBuilder().urn(urn).build());
+        return ModelFixtures.trackItemCreator().trackItem(trackBuilder().urn(urn).build());
     }
 
     public static Track track() {
         return Track.from(ModelFixtures.create(ApiTrack.class));
+    }
+
+    public static Track offlineTrack() {
+        return trackBuilder().offlineState(OfflineState.DOWNLOADED).build();
     }
 
     public static List<TrackItem> trackItems(int count) {
@@ -444,15 +469,14 @@ public class ModelFixtures {
                          .build();
     }
 
-    public static Track trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
-        final Track.Builder builder = ModelFixtures.trackBuilder();
-        builder.urn(trackUrn);
+    public static TrackItem trackItemWithOfflineState(Urn trackUrn, OfflineState state) {
+        final TrackItem.Builder builder = ModelFixtures.trackItemBuilder(trackUrn);
         builder.offlineState(state);
         return builder.build();
     }
 
-    public static Track trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
-        final Track.Builder builder = ModelFixtures.trackBuilder(apiTrack);
+    public static TrackItem trackItemWithOfflineState(ApiTrack apiTrack, OfflineState state) {
+        final TrackItem.Builder builder = ModelFixtures.trackItemBuilder(apiTrack);
         builder.offlineState(state);
         return builder.build();
     }
@@ -482,12 +506,12 @@ public class ModelFixtures {
         return trackBuilder().urn(currentTrackUrn).monetizable(monetizable).build();
     }
 
-    public static Track expectedTrackEntityForWidget() {
-        return trackBuilder().imageUrlTemplate(of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build();
+    public static TrackItem expectedTrackEntityForWidget() {
+        return trackItem(trackBuilder().imageUrlTemplate(of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build());
     }
 
-    public static Track expectedLikedTrackForLikesScreen() {
-        return trackBuilder().likesCount(2).createdAt(new Date()).build();
+    public static TrackItem expectedLikedTrackForLikesScreen() {
+        return trackItemBuilder().likesCount(2).build();
     }
 
     public static Track expectedTrackEntityForAnalytics(Urn trackUrn, Urn creatorUrn, String policy, long duration) {
@@ -505,7 +529,7 @@ public class ModelFixtures {
     public static TrackItem promotedTrackItem(Track track, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return TrackItem.from(track, streamEntity);
+        return ModelFixtures.trackItemCreator().trackItem(track, streamEntity);
     }
 
     public static PlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
@@ -527,9 +551,9 @@ public class ModelFixtures {
                                           .imageUrlTemplate(streamEntity.avatarUrl())
                                           .build();
         if (streamEntity.isPromoted()) {
-            return TrackStreamItem.create(TrackItem.from(track, streamEntity), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.trackItemCreator().trackItem(track, streamEntity), streamEntity.createdAt());
         } else {
-            return TrackStreamItem.create(TrackItem.from(track), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.trackItemCreator().trackItem(track), streamEntity.createdAt());
         }
     }
 

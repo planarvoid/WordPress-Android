@@ -31,9 +31,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -52,16 +51,14 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     private PlayerWidgetController controller;
     private final TestEventBus eventBus = new TestEventBus();
 
-    private static final Urn WIDGET_TRACK_URN = Urn.forTrack(123L);
-
-    private static TrackItem widgetTrackItem;
-    private static Track widgetTrack;
+    private static TrackItem widgetTrack = ModelFixtures.expectedTrackEntityForWidget();
+    private static final Urn WIDGET_TRACK_URN = widgetTrack.getUrn();
 
     @Mock private Context context;
     @Mock private PlayerWidgetPresenter playerWidgetPresenter;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
     @Mock private AdsOperations adsOperations;
     @Mock private LikeOperations likeOperations;
     @Mock private EngagementsTracking engagementsTracking;
@@ -76,11 +73,9 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                                                 trackRepository,
                                                 eventBus,
                                                 likeOperations,
-                                                engagementsTracking);
+                                                engagementsTracking, ModelFixtures.trackItemCreator());
         when(context.getResources()).thenReturn(resources());
-        widgetTrack = ModelFixtures.expectedTrackEntityForWidget();
-        widgetTrackItem = TrackItem.from(widgetTrack);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(widgetTrack.getUrn()));
     }
 
     @Test
@@ -111,7 +106,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                                                                 Urn.NOT_SET,
                                                                 0));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrackItem));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
 
     @Test
@@ -125,7 +120,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.NOT_SET, 0));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrackItem));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
 
     @Test
@@ -138,7 +133,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                                                                        Urn.NOT_SET,
                                                                        0));
 
-        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrackItem));
+        verify(playerWidgetPresenter).updateTrackInformation(any(Context.class), eq(widgetTrack));
     }
 
     @Test
@@ -215,7 +210,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.update();
 
-        verify(playerWidgetPresenter).updateTrackInformation(eq(context), eq(widgetTrackItem));
+        verify(playerWidgetPresenter).updateTrackInformation(eq(context), eq(widgetTrack));
     }
 
     @Test
@@ -259,7 +254,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
         controller.handleToggleLikeAction(true);
 
-        verify(likeOperations).toggleLike(Urn.forTrack(123), true);
+        verify(likeOperations).toggleLike(WIDGET_TRACK_URN, true);
     }
 
     @Test

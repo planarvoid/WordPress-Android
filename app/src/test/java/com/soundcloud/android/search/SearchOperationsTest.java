@@ -32,7 +32,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -72,7 +72,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
     @Mock private FeatureFlags featureFlags;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
 
     private ApiTrack track;
     private ApiPlaylist playlist;

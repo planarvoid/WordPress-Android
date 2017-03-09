@@ -16,7 +16,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
@@ -47,7 +47,7 @@ public class StationsOperations {
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
     private final EventBus eventBus;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
 
     @Inject
     public StationsOperations(SyncStateStorage syncStateStorage,
@@ -58,7 +58,7 @@ public class StationsOperations {
                               SyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                               EventBus eventBus,
-                              TrackRepository trackRepository) {
+                              TrackItemRepository trackItemRepository) {
         this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
@@ -67,7 +67,7 @@ public class StationsOperations {
         this.storeTracksCommand = storeTracksCommand;
         this.storeStationCommand = storeStationCommand;
         this.eventBus = eventBus;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
     }
 
     public Observable<StationRecord> station(Urn station) {
@@ -106,9 +106,9 @@ public class StationsOperations {
     private Observable<StationWithTracks> loadStationWithTracks(Urn station) {
         return stationsStorage.stationWithTrackUrns(station)
                               .filter(stationFromStorage -> stationFromStorage != null && stationFromStorage.trackUrns().size() > 0)
-                              .flatMap(entity -> trackRepository.trackListFromUrns(entity.trackUrns())
-                                                                .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
-                                                                .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
+                              .flatMap(entity -> trackItemRepository.trackListFromUrns(entity.trackUrns())
+                                                                    .map(tracks -> Lists.transform(tracks, StationInfoTrack::from))
+                                                                    .map(stationInfoTracks -> StationWithTracks.from(entity, stationInfoTracks)));
     }
 
     private Observable<StationRecord> syncSingleStation(Urn station, Func1<StationRecord, StationRecord> toStation) {

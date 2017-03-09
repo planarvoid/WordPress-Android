@@ -38,7 +38,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackItem = TrackItem.from(ModelFixtures.trackBuilder()
+        trackItem = ModelFixtures.trackItem(ModelFixtures.trackBuilder()
                                  .title("title")
                                  .creatorName("creator")
                                  .snippetDuration(227000L)

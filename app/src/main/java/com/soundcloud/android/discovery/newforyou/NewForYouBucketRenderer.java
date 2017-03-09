@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,11 +20,13 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
 
     private final ImageOperations imageOperations;
     private final Navigator navigator;
+    private final TrackItemCreator trackItemCreator;
 
     @Inject
-    NewForYouBucketRenderer(ImageOperations imageOperations, Navigator navigator) {
+    NewForYouBucketRenderer(ImageOperations imageOperations, Navigator navigator, TrackItemCreator trackItemCreator) {
         this.imageOperations = imageOperations;
         this.navigator = navigator;
+        this.trackItemCreator = trackItemCreator;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
 
     @Override
     public void bindItemView(int position, View bucketView, List<NewForYouDiscoveryItem> items) {
-        List<ImageResource> imageResources = transform(items.get(position).newForYou().tracks(), TrackItem::from);
+        List<ImageResource> imageResources = transform(items.get(position).newForYou().tracks(), trackItemCreator::trackItem);
 
         bindCoverArtAnimation((NewForYouArtworkView) bucketView.findViewById(R.id.artwork), imageResources);
         bindViewAllViews(bucketView.findViewById(R.id.view_all_container), bucketView.findViewById(R.id.new_for_you_bucket_header));

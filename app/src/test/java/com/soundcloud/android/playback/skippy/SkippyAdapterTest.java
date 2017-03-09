@@ -53,7 +53,7 @@ import com.soundcloud.android.skippy.SkippyPreloader;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -112,13 +112,13 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
     private Urn trackUrn = Urn.forTrack(123L);
-    private TrackItem track;
+    private Track track;
     private PlaybackItem playbackItem = TestPlaybackItem.audio(trackUrn);
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() {
-        track = TrackItem.from(ModelFixtures.baseTrackBuilder().urn(trackUrn).snippetDuration(345L).fullDuration(456L).snipped(false).build());
+        track = ModelFixtures.baseTrackBuilder().urn(trackUrn).snippetDuration(345L).fullDuration(456L).snipped(false).build();
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         when(skippyFactory.createPreloader()).thenReturn(skippyPreloader);

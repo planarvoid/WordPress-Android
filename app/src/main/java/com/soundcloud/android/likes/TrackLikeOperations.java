@@ -12,9 +12,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemCreator;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -44,7 +44,8 @@ public class TrackLikeOperations {
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
-    private final TrackRepository trackRepo;
+    private final TrackItemRepository trackRepo;
+    private final TrackItemCreator trackItemCreator;
 
     private final Action1<List<Like>> requestTracksSyncAction = new Action1<List<Like>>() {
         @Override
@@ -62,7 +63,7 @@ public class TrackLikeOperations {
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper,
-                               TrackRepository trackRepository) {
+                               TrackItemRepository trackRepository, TrackItemCreator trackItemCreator) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.eventBus = eventBus;
@@ -70,9 +71,10 @@ public class TrackLikeOperations {
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
         this.trackRepo = trackRepository;
+        this.trackItemCreator = trackItemCreator;
     }
 
-    Observable<Track> onTrackLiked() {
+    Observable<TrackItem> onTrackLiked() {
         return singleTrackLikeStatusChange(true).flatMap(trackRepo::track);
     }
 
@@ -107,8 +109,7 @@ public class TrackLikeOperations {
         Params params = Params.from(beforeTime, PAGE_SIZE);
         return loadLikedTracksCommand.toObservable(Optional.of(params))
                                      .doOnNext(requestTracksSyncAction)
-                                     .flatMap(source -> enrich(source,
-                                                               trackRepo.fromUrns(transform(source, UrnHolder::urn)).map(TrackItem::convertMap), COMBINER))
+                                     .flatMap(source -> enrich(source, trackRepo.fromUrns(transform(source, UrnHolder::urn)), COMBINER))
                                      .subscribeOn(scheduler);
     }
 

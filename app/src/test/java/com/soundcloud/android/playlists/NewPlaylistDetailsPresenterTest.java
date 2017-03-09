@@ -104,11 +104,11 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private final Track track1 = ModelFixtures.track();
-    private final TrackItem trackItem1 = TrackItem.from(track1);
+    private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
     private final Track track2 = ModelFixtures.track();
-    private final TrackItem trackItem2 = TrackItem.from(track2);
+    private final TrackItem trackItem2 = ModelFixtures.trackItem(track2);
     private final Track track3 = ModelFixtures.track();
-    private final TrackItem trackItem3 = TrackItem.from(track3);
+    private final TrackItem trackItem3 = ModelFixtures.trackItem(track3);
 
     private final List<TrackItem> trackItems = asList(trackItem1, trackItem2);
     private final List<TrackItem> updatedTrackItems = asList(trackItem1, trackItem2, trackItem3);
@@ -176,7 +176,8 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                dataSourceProviderFactory,
                                                                repostOperations,
                                                                feedbackController,
-                                                               accountOperations);
+                                                               accountOperations,
+                                                               ModelFixtures.trackItemCreator());
 
     }
 

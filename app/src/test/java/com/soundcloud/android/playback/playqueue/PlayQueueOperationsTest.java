@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -18,9 +17,8 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.functions.Predicate;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,16 +39,14 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     private PlayQueueOperations operations;
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
     @Mock private PlayQueueStorage storage;
     @Captor private ArgumentCaptor<Predicate<PlayQueueItem>> predicateCaptor;
 
     private TestSubscriber<List<TrackAndPlayQueueItem>> subscriber = new TestSubscriber<>();
 
-    private final Track track1 = Track.from(ModelFixtures.create(ApiTrack.class));
-    private final Track track2 = Track.from(ModelFixtures.create(ApiTrack.class));
-    private final TrackItem trackItem1 = TrackItem.from(track1);
-    private final TrackItem trackItem2 = TrackItem.from(track2);
+    private final TrackItem trackItem1 = ModelFixtures.trackItem();
+    private final TrackItem trackItem2 = ModelFixtures.trackItem();
     private final Urn track1Urn = trackItem1.getUrn();
     private final Urn track2Urn = trackItem2.getUrn();
     private final TrackQueueItem trackQueueItem1 = trackQueueItem(track1Urn);
@@ -69,9 +65,9 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getTrackItemsReturnsTrackItemsFromPlayQueue() {
         final List<PlayQueueItem> playQueue = asList(trackQueueItem1, trackQueueItem2);
-        final Map<Urn, Track> tracksFromStorage = new HashMap<>();
-        tracksFromStorage.put(track1Urn, track1);
-        tracksFromStorage.put(track2Urn, track2);
+        final Map<Urn, TrackItem> tracksFromStorage = new HashMap<>();
+        tracksFromStorage.put(track1Urn, trackItem1);
+        tracksFromStorage.put(track2Urn, trackItem2);
         final List<TrackAndPlayQueueItem> expected = asList(trackAndPlayQueueItem1, trackAndPlayQueueItem2);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueue);
@@ -85,8 +81,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemsDeferPlayQueueItemsLoadingToTheSubscription() {
-        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(just(singletonMap(track1Urn, track1)));
-        when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(just(singletonMap(track2Urn, track2)));
+        when(trackRepository.fromUrns(singletonList(track1Urn))).thenReturn(just(singletonMap(track1Urn, trackItem1)));
+        when(trackRepository.fromUrns(singletonList(track2Urn))).thenReturn(just(singletonMap(track2Urn, trackItem2)));
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(singletonList(trackQueueItem1));
         final Observable<List<TrackAndPlayQueueItem>> operation = operations.getTracks();
@@ -121,7 +117,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void getTrackItemsFiltersUnknownTracks() {
         final List<Urn> requestedTracks = asList(track1Urn, track2Urn);
         final List<PlayQueueItem> playQueueItems = asList(trackQueueItem1, trackQueueItem2);
-        final Map<Urn, Track> knownTrack = singletonMap(track1Urn, track1);
+        final Map<Urn, TrackItem> knownTrack = singletonMap(track1Urn, trackItem1);
         final List<TrackAndPlayQueueItem> expectedTrackItems = singletonList(trackAndPlayQueueItem1);
 
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(playQueueItems);

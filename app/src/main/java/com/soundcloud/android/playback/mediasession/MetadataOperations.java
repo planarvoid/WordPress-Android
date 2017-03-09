@@ -13,9 +13,8 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.NotificationTrack;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
@@ -32,13 +31,13 @@ import javax.inject.Named;
 
 class MetadataOperations {
     private final Resources resources;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackRepository;
     private final ImageOperations imageOperations;
     private final Scheduler scheduler;
 
     @Inject
     MetadataOperations(Resources resources,
-                       TrackRepository trackRepository,
+                       TrackItemRepository trackRepository,
                        ImageOperations imageOperations,
                        @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.resources = resources;
@@ -80,17 +79,17 @@ class MetadataOperations {
         return imageOperations.decodeResource(resources, R.drawable.notification_loading);
     }
 
-    private Func1<Track, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
-        return track -> {
-            final SimpleImageResource imageResource = SimpleImageResource.create(track);
+    private Func1<TrackItem, Observable<TrackAndBitmap>> toTrackWithBitmap(final Optional<MediaMetadataCompat> existingMetadata) {
+        return trackItem -> {
+            final SimpleImageResource imageResource = SimpleImageResource.create(trackItem);
             final Bitmap cachedBitmap = getCachedBitmap(imageResource);
 
             if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
-                return Observable.just(new TrackAndBitmap(track, Optional.of(cachedBitmap)));
+                return Observable.just(new TrackAndBitmap(trackItem, Optional.of(cachedBitmap)));
             } else {
                 return Observable.concat(
-                        Observable.just(new TrackAndBitmap(track, getCurrentBitmap(existingMetadata))),
-                        loadArtwork(track, imageResource)
+                        Observable.just(new TrackAndBitmap(trackItem, getCurrentBitmap(existingMetadata))),
+                        loadArtwork(trackItem, imageResource)
                 );
             }
         };
@@ -101,11 +100,11 @@ class MetadataOperations {
         return imageOperations.getCachedBitmap(imageResource, getImageSize(), targetSize, targetSize);
     }
 
-    private Observable<TrackAndBitmap> loadArtwork(final Track track, final SimpleImageResource imageResource) {
+    private Observable<TrackAndBitmap> loadArtwork(final TrackItem trackItem, final SimpleImageResource imageResource) {
         final int targetSize = getTargetImageSize();
 
         return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
-                              .map(bitmap -> new TrackAndBitmap(track, Optional.fromNullable(bitmap)));
+                              .map(bitmap -> new TrackAndBitmap(trackItem, Optional.fromNullable(bitmap)));
     }
 
     @Nullable
@@ -130,7 +129,7 @@ class MetadataOperations {
     private Func1<TrackAndBitmap, MediaMetadataCompat> toMediaMetadata(boolean isAd) {
         return trackAndBitmap -> {
             NotificationTrack notificationTrack =
-                    new NotificationTrack(resources, TrackItem.from(trackAndBitmap.track), isAd);
+                    new NotificationTrack(resources, trackAndBitmap.trackItem, isAd);
 
             Bitmap bitmap = notificationTrack.isAudioAd()
                             ? getAdArtwork()
@@ -150,11 +149,11 @@ class MetadataOperations {
     }
 
     private final class TrackAndBitmap {
-        private final Track track;
+        private final TrackItem trackItem;
         private final Optional<Bitmap> bitmap;
 
-        private TrackAndBitmap(Track track, Optional<Bitmap> bitmap) {
-            this.track = track;
+        private TrackAndBitmap(TrackItem trackItem, Optional<Bitmap> bitmap) {
+            this.trackItem = trackItem;
             this.bitmap = bitmap;
         }
     }

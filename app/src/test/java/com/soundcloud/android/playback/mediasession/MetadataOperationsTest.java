@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.mediasession;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ART;
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -18,9 +17,8 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,20 +35,20 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123);
     private static final Urn VIDEO_URN = Urn.forAd("dfp", "video");
-    private static final Track TRACK = ModelFixtures.trackBuilder().build();
+    private static final TrackItem TRACK = ModelFixtures.trackItem();
     private static final Optional<MediaMetadataCompat> EMPTY_METADATA = Optional.absent();
     private static final String ADVERTISING_TITLE = "Advertisement";
     private static final String OLD_TITLE = "old title";
 
     @Mock Resources resources;
-    @Mock TrackRepository trackRepository;
+    @Mock TrackItemRepository trackRepository;
     @Mock ImageOperations imageOperations;
     @Mock Bitmap adBitmap;
     @Mock Bitmap bitmap;
     @Mock Bitmap oldBitmap;
 
-    TestSubscriber<MediaMetadataCompat> subscriber = new TestSubscriber<>();
-    MetadataOperations operations;
+    private TestSubscriber<MediaMetadataCompat> subscriber = new TestSubscriber<>();
+    private MetadataOperations operations;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +56,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
                                             imageOperations, Schedulers.immediate());
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
-        when(imageOperations.artwork(eq(SimpleImageResource.create(TrackItem.from(TRACK))),
+        when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
                                      any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
                 .thenReturn(adBitmap);
@@ -174,7 +172,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
                                                  any(ApiImageSize.class), anyInt(), anyInt());
     }
 
-    private void setCachedBitmap(Track track, Bitmap bitmap) {
+    private void setCachedBitmap(TrackItem track, Bitmap bitmap) {
         when(imageOperations.getCachedBitmap(eq(SimpleImageResource.create(track)),
                                              any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
     }
@@ -185,10 +183,6 @@ public class MetadataOperationsTest extends AndroidUnitTest {
 
     private Bitmap getBitmap(int position) {
         return getMetadata(position).getBitmap(METADATA_KEY_ART);
-    }
-
-    private String getArtist(int position) {
-        return getMetadata(position).getString(METADATA_KEY_ARTIST);
     }
 
     private String getTitle(int position) {

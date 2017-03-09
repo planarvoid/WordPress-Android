@@ -17,7 +17,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.RepoUtils;
@@ -47,7 +47,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
     private final PlaybackInitiator playbackOperations;
     private final StreamHighlightsAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackRepository;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
@@ -60,7 +60,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
                               StreamHighlightsAdapter adapter,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
                               SwipeRefreshAttacher swipeRefreshAttacher,
-                              TrackRepository trackRepository,
+                              TrackItemRepository trackItemRepository,
                               OfflinePropertiesProvider offlinePropertiesProvider,
                               FeatureFlags featureFlags) {
         super(swipeRefreshAttacher);
@@ -68,7 +68,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
-        this.trackRepository = trackRepository;
+        this.trackRepository = trackItemRepository;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
     }
@@ -97,8 +97,7 @@ class StreamHighlightsPresenter extends RecyclerViewPresenter<List<TrackItem>, T
     private Observable<List<TrackItem>> getTracklistFromUrns(List<Urn> urns) {
         return RepoUtils.enrich(Lists.transform(urns, urn -> () -> urn),
                                 trackRepository.fromUrns(urns),
-                                (trackItem, urnHolder) -> trackItem)
-                        .map(tracks -> Lists.transform(tracks, TrackItem::from));
+                                (trackItem, urnHolder) -> trackItem);
     }
 
     @Override

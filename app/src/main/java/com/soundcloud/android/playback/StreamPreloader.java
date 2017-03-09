@@ -10,8 +10,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -32,7 +32,7 @@ public class StreamPreloader {
     static final long CACHE_CUSHION = 1024 * 1024; // one mb. not sure what this should be
 
     private final EventBus eventBus;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
     private final PlayQueueManager playQueueManager;
     private final CastConnectionHelper castConnectionHelper;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
@@ -51,9 +51,9 @@ public class StreamPreloader {
         }
     };
 
-    private final Func1<Track, Boolean> isNotOfflineTrack = new Func1<Track, Boolean>() {
+    private final Func1<TrackItem, Boolean> isNotOfflineTrack = new Func1<TrackItem, Boolean>() {
         @Override
-        public Boolean call(Track track) {
+        public Boolean call(TrackItem track) {
             return !offlinePlaybackOperations.shouldPlayOffline(track);
         }
     };
@@ -78,9 +78,9 @@ public class StreamPreloader {
 
     };
 
-    private final Func1<Track, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<Track, Observable<PreloadItem>>() {
+    private final Func1<TrackItem, Observable<PreloadItem>> waitForValidPreloadConditions = new Func1<TrackItem, Observable<PreloadItem>>() {
         @Override
-        public Observable<PreloadItem> call(final Track nextItem) {
+        public Observable<PreloadItem> call(final TrackItem nextItem) {
             return Observable.combineLatest(
                     eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
@@ -94,12 +94,12 @@ public class StreamPreloader {
     };
 
     @NonNull
-    private Func1<Object, PreloadItem> toPreloadItem(final Track propertyBindings) {
+    private Func1<Object, PreloadItem> toPreloadItem(final TrackItem trackItem) {
         return ignored -> {
-            final PlaybackType playbackType = propertyBindings.snipped() ?
+            final PlaybackType playbackType = trackItem.track().snipped() ?
                                               PlaybackType.AUDIO_SNIPPET :
                                               PlaybackType.AUDIO_DEFAULT;
-            return new AutoParcel_PreloadItem(propertyBindings.urn(), playbackType);
+            return new AutoParcel_PreloadItem(trackItem.getUrn(), playbackType);
         };
     }
 
@@ -111,13 +111,13 @@ public class StreamPreloader {
 
     @Inject
     public StreamPreloader(EventBus eventBus,
-                           TrackRepository trackRepository,
+                           TrackItemRepository trackItemRepository,
                            PlayQueueManager playQueueManager,
                            CastConnectionHelper castConnectionHelper,
                            OfflinePlaybackOperations offlinePlaybackOperations,
                            PlaybackServiceController serviceController, StreamCacheConfig.SkippyConfig skippyConfig) {
         this.eventBus = eventBus;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
         this.playQueueManager = playQueueManager;
         this.castConnectionHelper = castConnectionHelper;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
@@ -137,10 +137,10 @@ public class StreamPreloader {
         @Override
         public void onNext(CurrentPlayQueueItemEvent args) {
             final Urn urn = playQueueManager.getNextPlayQueueItem().getUrn();
-            preloadSubscription = trackRepository.track(urn)
-                                                 .filter(isNotOfflineTrack)
-                                                 .flatMap(waitForValidPreloadConditions)
-                                                 .subscribe(new PreloadSubscriber());
+            preloadSubscription = trackItemRepository.track(urn)
+                                                     .filter(isNotOfflineTrack)
+                                                     .flatMap(waitForValidPreloadConditions)
+                                                     .subscribe(new PreloadSubscriber());
         }
     }
 

@@ -24,7 +24,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
@@ -46,7 +46,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private Urn trackUrn = Urn.forTrack(123L);
-    private TrackItem track = TrackItem.from(ModelFixtures.baseTrackBuilder().urn(trackUrn).snipped(false).snippetDuration(345L).fullDuration(456L).build());
+    private Track track = ModelFixtures.baseTrackBuilder().urn(trackUrn).snipped(false).snippetDuration(345L).fullDuration(456L).build();
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
     private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);

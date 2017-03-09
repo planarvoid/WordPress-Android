@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -42,12 +43,13 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
         when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.from(TRACKS));
         trackItems = new ArrayList<>(TRACKS.size());
         for (Track track : TRACKS) {
-            trackItems.add(TrackItem.from(track));
+            trackItems.add(trackItem(track));
         }
         trackSubscriber = new TestSubscriber<>();
         clearSubscriber = new TestSubscriber<>();
+
         operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler,
-                                               syncOperations, clearCommand);
+                                               syncOperations, clearCommand, ModelFixtures.trackItemCreator());
     }
 
     @Test

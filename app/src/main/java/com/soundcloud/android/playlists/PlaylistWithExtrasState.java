@@ -5,11 +5,8 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.VisibleForTesting;
-
 import java.util.List;
 
-@VisibleForTesting
 @AutoValue
 abstract class PlaylistWithExtrasState {
 

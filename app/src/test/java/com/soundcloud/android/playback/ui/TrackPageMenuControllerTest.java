@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -22,8 +23,8 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -65,7 +66,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void setUp() {
         activityContext = activity();
         builder = PlayableFixtures.expectedTrackBuilderForPlayer();
-        sourceTrack = TrackItem.from(builder.build());
+        sourceTrack = trackItem(builder.build());
         track = new PlayerTrackState(sourceTrack, false, false, null);
         privateTrack = new PlayerTrackState(PlayableFixtures.expectedPrivateTrackForPlayer(), false, false, null);
 
@@ -95,7 +96,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     @Test
     public void clickingStartStationOnBlockedTrackStartsStationWithoutPrependingSeed() {
-        final TrackItem blockedTrackItem = TrackItem.from(builder.blocked(true).build());
+        final TrackItem blockedTrackItem = trackItem(builder.blocked(true).build());
         final PlayerTrackState updatedPlayerTrackState = new PlayerTrackState(blockedTrackItem, false, false, null);
         MenuItem stationItem = mockMenuItem(R.id.start_station);
 
@@ -243,7 +244,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.setTrack(track);
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
-        final TrackItem notCommentable = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build());
+        final TrackItem notCommentable = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().commentable(false).build());
         track = new PlayerTrackState(notCommentable, false, false, null);
         controller.setTrack(track);
 

@@ -25,8 +25,8 @@ abstract class PlayHistoryItemTrack extends PlayHistoryItem implements Updatable
     }
 
     @Override
-    public PlayHistoryItemTrack updatedWithTrackItem(Track track) {
-        return create(TrackItem.from(track));
+    public PlayHistoryItemTrack updatedWithTrack(Track track) {
+        return create(trackItem().updatedWithTrack(track));
     }
 
     @Override

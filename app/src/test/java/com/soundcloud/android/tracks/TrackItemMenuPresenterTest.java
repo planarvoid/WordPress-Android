@@ -49,7 +49,7 @@ import android.view.View;
 public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     private static final String SCREEN = "screen";
-    @Mock TrackRepository trackRepository;
+    @Mock TrackItemRepository trackRepository;
     @Mock LikeOperations likeOperations;
     @Mock SharePresenter sharePresenter;
     @Mock RepostOperations repostOperations;

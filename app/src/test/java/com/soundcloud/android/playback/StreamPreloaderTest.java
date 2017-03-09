@@ -19,8 +19,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private StreamPreloader preloader;
 
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackServiceController serviceInitiator;
@@ -40,7 +40,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
-    private Track track;
+    private TrackItem track;
     private final PreloadItem preloadItem = new AutoParcel_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
 
     @Before
@@ -49,7 +49,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
                                         castConnectionHelper, offlinePlaybackOperations,
                                         serviceInitiator, streamCacheConfig);
         preloader.subscribe();
-        track = ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build();
+        track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(nextTrackUrn).snipped(true).build());
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(track));
         when(castConnectionHelper.isCasting()).thenReturn(false);
     }

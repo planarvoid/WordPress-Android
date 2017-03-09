@@ -17,8 +17,8 @@ import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     @Mock private IsOfflineLikedTracksEnabledCommand isOfflineLikedEnabledCommand;
     @Mock private LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
     @Mock private LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
     @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private TrackDownloadsStorage trackDownloadsStorage;
@@ -151,12 +151,12 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         subscriber.assertValue(OfflineState.REQUESTED);
     }
 
-    private void setPlaylist(Urn track, Urn playlist, Track... tracks) {
-        final List<Track> tracksList = Arrays.asList(tracks);
+    private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
+        final List<TrackItem> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTrackCommand.call(track)).thenReturn(singletonList(playlist));
         when(trackRepository.forPlaylist(playlist)).thenReturn(Observable.just(tracksList));
-        when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.urn(), new Date())));
-        when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, Track::offlineState));
+        when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date())));
+        when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, TrackItem::offlineState));
     }
 
 }

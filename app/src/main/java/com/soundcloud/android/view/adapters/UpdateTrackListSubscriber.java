@@ -23,7 +23,7 @@ public final class UpdateTrackListSubscriber extends DefaultSubscriber<TrackChan
             if (event.changeMap().containsKey(urn)) {
                 final int position = adapter.getItems().indexOf(item);
                 if (adapter.getItems().size() > position) {
-                    adapter.getItems().set(position, item.updatedWithTrackItem(event.changeMap().get(item.getUrn())));
+                    adapter.getItems().set(position, item.updatedWithTrack(event.changeMap().get(item.getUrn())));
                     adapter.notifyItemChanged(position);
                 }
             }

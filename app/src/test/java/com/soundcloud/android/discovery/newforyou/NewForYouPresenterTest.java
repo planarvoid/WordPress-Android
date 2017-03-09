@@ -51,7 +51,7 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = new Urn("my:fake:urn");
     private static final Date DATE = new TestDateProvider().getCurrentDate();
     private static final List<Track> TRACKS = ModelFixtures.tracks(1);
-    private static final TrackItem TRACK_ITEM = TrackItem.from(TRACKS.get(0));
+    private static final TrackItem TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(0));
     private static final Optional<ImageResource> IMAGE_RESOURCE = Optional.of(TRACK_ITEM);
     private static final NewForYou NEW_FOR_YOU = NewForYou.create(DATE, QUERY_URN, TRACKS);
     public static final String DURATION = "duration";
@@ -104,7 +104,8 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
                                            resources,
                                            eventBus,
                                            playQueueManager,
-                                           playSessionStateProvider);
+                                           playSessionStateProvider,
+                                           ModelFixtures.trackItemCreator());
     }
 
     @Test

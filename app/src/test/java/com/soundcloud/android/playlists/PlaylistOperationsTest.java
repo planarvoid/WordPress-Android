@@ -90,8 +90,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     private final Playlist playlist = ModelFixtures.playlist();
     private final Track track1 = ModelFixtures.trackBuilder().build();
     private final Track track2 = ModelFixtures.trackBuilder().build();
-    private final TrackItem trackItem1 = TrackItem.from(track1);
-    private final TrackItem trackItem2 = TrackItem.from(track2);
+    private final TrackItem trackItem1 = ModelFixtures.trackItem(track1);
+    private final TrackItem trackItem2 = ModelFixtures.trackItem(track2);
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final List<Urn> newTrackList = asList(trackUrn);
@@ -132,7 +132,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             myPlaylistsOperations,
                                             accountOperations,
                                             otherPlaylistsByUserConfig,
-                                            viewModelCreator);
+                                            viewModelCreator,
+                                            ModelFixtures.trackItemCreator());
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
         when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);

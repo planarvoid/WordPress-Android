@@ -38,7 +38,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.sync.SyncModule;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
@@ -225,7 +225,7 @@ public class ApplicationModule {
     public PlaybackStrategy providePlaybackStrategy(PlaybackServiceController serviceController,
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
-                                                    TrackRepository trackRepository,
+                                                    TrackItemRepository trackItemRepository,
                                                     Lazy<CastPlayer> castPlayer,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
@@ -235,7 +235,7 @@ public class ApplicationModule {
         } else {
             return new DefaultPlaybackStrategy(playQueueManager,
                                                serviceController,
-                                               trackRepository,
+                                               trackItemRepository,
                                                offlinePlaybackOperations,
                                                playSessionStateProvider,
                                                eventBus);

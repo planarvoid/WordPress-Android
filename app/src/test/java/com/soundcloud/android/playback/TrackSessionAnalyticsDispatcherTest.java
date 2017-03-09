@@ -63,7 +63,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider, uuidProvider);
+                stopReasonProvider, uuidProvider, ModelFixtures.trackItemCreator());
     }
 
     @Test

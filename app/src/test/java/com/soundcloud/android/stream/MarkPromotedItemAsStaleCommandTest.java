@@ -35,7 +35,7 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
 
         final Track track = ModelFixtures.track();
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), track.createdAt(), Optional.absent(), Optional.absent(), Optional.absent()).promotedProperties(Optional.of(promotedProperties)).build();
-        TrackItem promotedItem = TrackItem.from(track, streamEntity);
+        TrackItem promotedItem = ModelFixtures.trackItem(track, streamEntity);
 
         command.call(promotedItem.adUrn());
 

@@ -11,6 +11,7 @@ import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import rx.Observable;
 import rx.Scheduler;
 
@@ -27,18 +28,21 @@ public class PlayHistoryOperations {
     private final Scheduler scheduler;
     private final SyncOperations syncOperations;
     private final ClearPlayHistoryCommand clearPlayHistoryCommand;
+    private final TrackItemCreator trackItemCreator;
 
     @Inject
     public PlayHistoryOperations(PlaybackInitiator playbackInitiator,
                                  PlayHistoryStorage playHistoryStorage,
                                  @Named(HIGH_PRIORITY) Scheduler scheduler,
                                  SyncOperations syncOperations,
-                                 ClearPlayHistoryCommand clearPlayHistoryCommand) {
+                                 ClearPlayHistoryCommand clearPlayHistoryCommand,
+                                 TrackItemCreator trackItemCreator) {
         this.playbackInitiator = playbackInitiator;
         this.playHistoryStorage = playHistoryStorage;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
         this.clearPlayHistoryCommand = clearPlayHistoryCommand;
+        this.trackItemCreator = trackItemCreator;
     }
 
     Observable<List<TrackItem>> playHistory() {
@@ -63,7 +67,7 @@ public class PlayHistoryOperations {
     }
 
     private Observable<List<TrackItem>> tracks(int limit) {
-        return playHistoryStorage.loadTracks(limit).map(TrackItem::from).toList();
+        return playHistoryStorage.loadTracks(limit).map(trackItemCreator::trackItem).toList();
     }
 
     public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {

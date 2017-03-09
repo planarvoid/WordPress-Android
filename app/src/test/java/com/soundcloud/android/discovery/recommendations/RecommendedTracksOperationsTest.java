@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
@@ -17,9 +16,8 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,16 +39,16 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = Urn.NOT_SET;
     private static final Scheduler SCHEDULER = Schedulers.immediate();
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
-    private static final List<Track> RECOMMENDED_TRACKS = Lists.transform(ModelFixtures.create(ApiTrack.class, 2), Track::from);
-    private static final Track RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
+    private static final List<TrackItem> RECOMMENDED_TRACKS = ModelFixtures.trackItems(2);
+    private static final TrackItem RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
     private static final PublishSubject<Result> SYNC_SUBJECT = PublishSubject.create();
-    private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.urn());
+    private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.getUrn());
 
     @Mock private SyncOperations syncOperations;
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
 
     private RecommendedTracksOperations operations;
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
@@ -70,10 +68,10 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
-                Collections.singletonList(RECOMMENDED_TRACK.urn())));
+                Collections.singletonList(RECOMMENDED_TRACK.getUrn())));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(SYNC_SUBJECT);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
-        when(trackRepository.trackListFromUrns(Collections.singletonList(RECOMMENDED_TRACK.urn()))).thenReturn(Observable.just(RECOMMENDED_TRACKS));
+        when(trackRepository.trackListFromUrns(Collections.singletonList(RECOMMENDED_TRACK.getUrn()))).thenReturn(Observable.just(RECOMMENDED_TRACKS));
     }
 
     @Test
@@ -81,14 +79,14 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         final TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
 
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
-                Collections.singletonList(RECOMMENDED_TRACK.urn())));
+                Collections.singletonList(RECOMMENDED_TRACK.getUrn())));
 
         operations.tracksForSeed(SEED_ID).subscribe(testSubscriber);
 
         List<TrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
         TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
-        assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.urn());
+        assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.getUrn());
         assertThat(recommendedTrackItem.title()).isEqualTo(RECOMMENDED_TRACK.title());
         assertThat(recommendedTrackItem.creatorName()).isEqualTo(RECOMMENDED_TRACK.creatorName());
         assertThat(recommendedTrackItem.getDuration()).isEqualTo(RECOMMENDED_TRACK.fullDuration());
@@ -186,7 +184,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         Urn seedTrackUrn = Urn.forTrack(2);
         RecommendationSeed recommendationSeed = RecommendationSeed.create(seedId, seedTrackUrn, "Seed", RecommendationReason.LIKED, 0, Urn.NOT_SET);
         List<Urn> recommendedTracksUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(456));
-        List<Track> recommendedTracks = Arrays.asList(ModelFixtures.trackBuilder().urn(Urn.forTrack(123)).build(), ModelFixtures.trackBuilder().urn(Urn.forTrack(456)).build());
+        List<TrackItem> recommendedTracks = Arrays.asList(ModelFixtures.trackItem(Urn.forTrack(123)), ModelFixtures.trackItem(Urn.forTrack(456)));
 
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(Observable.just(Result.SYNCED));
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(recommendationSeed));
@@ -212,7 +210,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         Urn secondSeedTrackUrn = Urn.forTrack(3);
         RecommendationSeed secondRecommendationSeed = RecommendationSeed.create(secondSeedId, secondSeedTrackUrn, "Second", RecommendationReason.LIKED, 1, Urn.NOT_SET);
         List<Urn> recommendedTracksUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(456));
-        List<Track> recommendedTracks = Arrays.asList(ModelFixtures.trackBuilder().urn(Urn.forTrack(123)).build(), ModelFixtures.trackBuilder().urn(Urn.forTrack(456)).build());
+        List<TrackItem> recommendedTracks = Arrays.asList(ModelFixtures.trackItem(Urn.forTrack(123)), ModelFixtures.trackItem(Urn.forTrack(456)));
 
         PublishSubject<Integer> firstStorageSubject = PublishSubject.create();
         PublishSubject<Integer> secondStorageSubject = PublishSubject.create();

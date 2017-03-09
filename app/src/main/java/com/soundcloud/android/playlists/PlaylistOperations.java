@@ -29,7 +29,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
@@ -73,6 +73,7 @@ public class PlaylistOperations {
     private final AccountOperations accountOperations;
     private final OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
+    private final TrackItemCreator trackItemCreator;
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -91,7 +92,8 @@ public class PlaylistOperations {
                        MyPlaylistsOperations myPlaylistsOperations,
                        AccountOperations accountOperations,
                        OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
-                       PlaylistDetailsViewModelCreator viewModelCreator) {
+                       PlaylistDetailsViewModelCreator viewModelCreator,
+                       TrackItemCreator trackItemCreator) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistRepository = playlistRepository;
@@ -109,6 +111,7 @@ public class PlaylistOperations {
         this.accountOperations = accountOperations;
         this.otherPlaylistsByUserConfig = otherPlaylistsByUserConfig;
         this.viewModelCreator = viewModelCreator;
+        this.trackItemCreator = trackItemCreator;
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
@@ -254,7 +257,7 @@ public class PlaylistOperations {
         return playlists -> {
             final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
             return viewModelCreator.create(playlist,
-                                           Lists.transform(tracks, TrackItem::from),
+                                           Lists.transform(tracks, trackItemCreator::trackItem),
                                            playlist.isLikedByCurrentUser().or(false),
                                            playlist.isRepostedByCurrentUser().or(false),
                                            false,

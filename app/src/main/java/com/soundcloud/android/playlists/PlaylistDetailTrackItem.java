@@ -46,8 +46,8 @@ abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements Pla
     }
 
     @Override
-    public PlaylistDetailTrackItem updatedWithTrackItem(Track track) {
-        return toBuilder(TrackItem.from(track)).build();
+    public PlaylistDetailTrackItem updatedWithTrack(Track track) {
+        return toBuilder(trackItem().updatedWithTrack(track)).build();
     }
 
     @Override

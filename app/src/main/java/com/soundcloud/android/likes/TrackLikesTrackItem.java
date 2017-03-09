@@ -20,10 +20,6 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableViewItem<TrackLikesTrackItem>, ListItem, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
 
-    public static TrackLikesTrackItem create(Track track) {
-        return create(TrackItem.from(track));
-    }
-
     public static TrackLikesTrackItem create(TrackItem trackItem) {
         return new AutoValue_TrackLikesTrackItem(Kind.TrackItem, trackItem);
     }
@@ -41,8 +37,8 @@ abstract class TrackLikesTrackItem extends TrackLikesItem implements PlayableVie
     }
 
     @Override
-    public TrackLikesTrackItem updatedWithTrackItem(Track track) {
-        return create(TrackItem.from(track));
+    public TrackLikesTrackItem updatedWithTrack(Track track) {
+        return create(getTrackItem().updatedWithTrack(track));
     }
 
     @Override

@@ -5,8 +5,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -29,10 +28,10 @@ public class SearchOperations {
     }
 
     private final SearchStrategyFactory searchStrategyFactory;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackRepository;
 
     @Inject
-    SearchOperations(SearchStrategyFactory searchStrategyFactory, TrackRepository trackRepository) {
+    SearchOperations(SearchStrategyFactory searchStrategyFactory, TrackItemRepository trackRepository) {
         this.searchStrategyFactory = searchStrategyFactory;
         this.trackRepository = trackRepository;
     }
@@ -49,7 +48,6 @@ public class SearchOperations {
                                                      Optional<Link> nextHref,
                                                      Urn queryUrn) {
         return trackRepository.trackListFromUrns(searchableItems)
-                              .map(tracks -> Lists.transform(tracks, TrackItem::from))
                               .map(Lists::<ListItem>newArrayList)
                               .map(trackItems -> SearchResult.fromSearchableItems(trackItems, nextHref, queryUrn));
     }

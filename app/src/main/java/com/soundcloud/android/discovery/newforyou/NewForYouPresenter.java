@@ -18,6 +18,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -53,6 +54,7 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final TrackItemCreator trackItemCreator;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -65,7 +67,8 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
                        Resources resources,
                        EventBus eventBus,
                        PlayQueueManager playQueueManager,
-                       PlaySessionStateProvider playSessionStateProvider) {
+                       PlaySessionStateProvider playSessionStateProvider,
+                       TrackItemCreator trackItemCreator) {
         super(swipeRefreshAttacher, Options.list().build());
 
         this.operations = operations;
@@ -76,6 +79,7 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.trackItemCreator = trackItemCreator;
     }
 
     @Override
@@ -122,14 +126,14 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
             items.add(NewForYouHeaderItem.create(newForYou,
                                                  formatDuration(newForYou.tracks()),
                                                  formatUpdatedAt(newForYou),
-                                                 newForYou.tracks().isEmpty() ? Optional.absent() : Optional.of(TrackItem.from(newForYou.tracks().get(0)))));
+                                                 newForYou.tracks().isEmpty() ? Optional.absent() : Optional.of(trackItemCreator.trackItem(newForYou.tracks().get(0)))));
 
             for (Track track : newForYou.tracks()) {
                 final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
                 final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
                 final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(track.urn());
 
-                final TrackItem.Builder trackItemBuilder = TrackItem.from(track).toBuilder();
+                final TrackItem.Builder trackItemBuilder = trackItemCreator.trackItem(track).toBuilder();
                 if (isPlayingFromNewForYou && isTrackPlaying) {
                     trackItemBuilder.isPlaying(true);
                 }

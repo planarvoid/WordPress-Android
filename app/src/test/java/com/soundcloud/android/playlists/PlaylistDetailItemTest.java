@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -23,8 +22,8 @@ public class PlaylistDetailItemTest extends AndroidUnitTest {
     @Test
     public void tracksWithTheSameUrnsAreTheSameItem() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                PlaylistDetailTrackItem.builder().trackItem(TrackItem.from(ModelFixtures.trackBuilder().urn(Urn.forTrack(1)).build())).build(),
-                PlaylistDetailTrackItem.builder().trackItem(TrackItem.from(ModelFixtures.trackBuilder().urn(Urn.forTrack(1)).build())).build()
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1))).build(),
+                PlaylistDetailTrackItem.builder().trackItem(ModelFixtures.trackItem(Urn.forTrack(1))).build()
         )).isTrue();
     }
 

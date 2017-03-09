@@ -15,23 +15,20 @@ import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @AutoValue
 public abstract class TrackItem extends PlayableItem implements UpdatableTrackItem {
 
     public static final String PLAYABLE_TYPE = "track";
 
-    public static TrackItem from(Track track) {
+    static TrackItem from(Track track) {
         return builder(track).build();
     }
 
-    public static TrackItem from(Track track, StreamEntity streamEntity) {
-        final Builder builder = builder(track)
-                .reposter(streamEntity.reposter())
-                .reposterUrn(streamEntity.reposterUrn())
-                .avatarUrlTemplate(streamEntity.avatarUrl());
+    static TrackItem from(Track track, StreamEntity streamEntity) {
+        Builder builder = builder(track).reposter(streamEntity.reposter())
+                                        .reposterUrn(streamEntity.reposterUrn())
+                                        .avatarUrlTemplate(streamEntity.avatarUrl());
         if (streamEntity.isPromoted()) {
             builder.promotedProperties(streamEntity.promotedProperties());
         }
@@ -56,16 +53,8 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
                         .promotedProperties(Optional.absent());
     }
 
-    public static TrackItem.Builder builder() {
+    private static TrackItem.Builder builder() {
         return new AutoValue_TrackItem.Builder();
-    }
-
-    public static Map<Urn, TrackItem> convertMap(Map<Urn, Track> map) {
-        final Map<Urn, TrackItem> result = new HashMap<>(map.size());
-        for (Track track : map.values()) {
-            result.put(track.urn(), from(track));
-        }
-        return result;
     }
 
     public static TrackItem from(ApiTrack apiTrack, boolean repost) {
@@ -212,8 +201,8 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
     }
 
     @Override
-    public TrackItem updatedWithTrackItem(Track track) {
-        return TrackItem.from(track);
+    public TrackItem updatedWithTrack(Track track) {
+        return toBuilder().track(track).build();
     }
 
     @Override

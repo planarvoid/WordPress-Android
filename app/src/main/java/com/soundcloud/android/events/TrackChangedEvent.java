@@ -13,8 +13,8 @@ import java.util.Map;
 public abstract class TrackChangedEvent {
     public abstract Map<Urn, Track> changeMap();
 
-    public static TrackChangedEvent forUpdate(Track trackItem) {
-        return new AutoValue_TrackChangedEvent(Collections.singletonMap(trackItem.urn(), trackItem));
+    public static TrackChangedEvent forUpdate(Track track) {
+        return new AutoValue_TrackChangedEvent(Collections.singletonMap(track.urn(), track));
     }
 
     public static TrackChangedEvent forUpdate(Collection<Track> tracks) {

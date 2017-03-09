@@ -40,8 +40,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private IntroductoryOverlayOperations introductoryOverlayOperations;
     @Mock private AudioAdPresenter audioAdPresenter;
@@ -107,7 +107,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
-    private Track track;
+    private TrackItem track;
     private PagerAdapter adapter;
 
     private List<PlayQueueItem> playQueue = Arrays.asList(
@@ -155,13 +155,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.setCurrentPlayQueue(playQueue, 0);
 
 
-        track = ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build();
+        track = ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK1_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build());
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
-                ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build()));
+                ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(MONETIZABLE_TRACK_URN).title("title").creatorName("artist").creatorUrn(Urn.forUser(123L)).build())));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
-                ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build()));
+                ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(TRACK2_RELATED_URN).title("related title").creatorName("related artist").creatorUrn(Urn.forUser(234L)).build())));
     }
 
     @Test

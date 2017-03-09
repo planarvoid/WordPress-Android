@@ -21,11 +21,13 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemCreator;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
+import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
 
@@ -42,25 +44,31 @@ public class PlayerWidgetController {
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
-    private final TrackRepository trackRepository;
+    private final TrackItemRepository trackItemRepository;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
     private final EngagementsTracking engagementsTracking;
+    private final TrackItemCreator trackItemCreator;
 
     @Inject
-    public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
+    public PlayerWidgetController(Context context,
+                                  PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider,
-                                  PlayQueueManager playQueueManager, TrackRepository trackRepository,
-                                  EventBus eventBus, LikeOperations likeOperations,
-                                  EngagementsTracking engagementsTracking) {
+                                  PlayQueueManager playQueueManager,
+                                  TrackItemRepository trackItemRepository,
+                                  EventBus eventBus,
+                                  LikeOperations likeOperations,
+                                  EngagementsTracking engagementsTracking,
+                                  TrackItemCreator trackItemCreator) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
         this.playQueueManager = playQueueManager;
-        this.trackRepository = trackRepository;
+        this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
         this.engagementsTracking = engagementsTracking;
+        this.trackItemCreator = trackItemCreator;
     }
 
     public void subscribe() {
@@ -74,7 +82,7 @@ public class PlayerWidgetController {
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation(track -> track);
+        updatePlayableInformation(UtilityFunctions.identity());
     }
 
     private void updatePlayState() {
@@ -88,9 +96,8 @@ public class PlayerWidgetController {
         } else if (item.isVideoAd()) {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
-            trackRepository.track(item.getUrn())
+            trackItemRepository.track(item.getUrn())
                            .filter(next -> next != null)
-                           .map(TrackItem::from)
                            .map(updateFunction)
                            .subscribe(new CurrentTrackSubscriber());
         } else {
@@ -152,7 +159,7 @@ public class PlayerWidgetController {
     private class CurrentItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            updatePlayableInformation(track -> track);
+            updatePlayableInformation(UtilityFunctions.identity());
         }
     }
 
@@ -160,9 +167,9 @@ public class PlayerWidgetController {
         @Override
         public void onNext(final TrackChangedEvent event) {
             if (!playQueueManager.isQueueEmpty()) {
-                for (Track trackItem : event.changeMap().values()) {
-                    if (playQueueManager.isCurrentTrack(trackItem.urn())) {
-                        updatePlayableInformation(track -> TrackItem.from(trackItem));
+                for (Track updatedTrack : event.changeMap().values()) {
+                    if (playQueueManager.isCurrentTrack(updatedTrack.urn())) {
+                        updatePlayableInformation(track -> track.updatedWithTrack(updatedTrack));
                     }
                 }
             }

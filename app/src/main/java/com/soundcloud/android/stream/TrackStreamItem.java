@@ -36,8 +36,8 @@ public abstract class TrackStreamItem extends StreamItem implements PlayableView
     }
 
     @Override
-    public TrackStreamItem updatedWithTrackItem(Track track) {
-        return create(TrackItem.from(track));
+    public TrackStreamItem updatedWithTrack(Track track) {
+        return create(trackItem().updatedWithTrack(track));
     }
 
     @Override

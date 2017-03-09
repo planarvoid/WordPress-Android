@@ -24,7 +24,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackServiceController serviceInitiator;
-    @Mock private TrackRepository trackRepository;
+    @Mock private TrackItemRepository trackItemRepository;
     @Mock private AdsOperations adsOperations;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
@@ -62,7 +62,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         defaultPlaybackStrategy = new DefaultPlaybackStrategy(playQueueManager,
                                                               serviceInitiator,
-                                                              trackRepository,
+                                                              trackItemRepository,
                                                               offlinePlaybackOperations,
                                                               playSessionStateProvider,
                                                               eventBus);
@@ -106,12 +106,12 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final Track track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        final TrackItem trackItem = onlineTrack();
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(trackItem));
 
         defaultPlaybackStrategy.resume();
 
-        verify(serviceInitiator).play(AudioPlaybackItem.create(TrackItem.from(track), 123L));
+        verify(serviceInitiator).play(AudioPlaybackItem.create(trackItem.track(), 123L));
     }
 
     @Test
@@ -135,52 +135,52 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final Track track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        final TrackItem trackItem = onlineTrack();
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(trackItem));
 
         defaultPlaybackStrategy.togglePlayback();
 
-        verify(serviceInitiator).play(AudioPlaybackItem.create(TrackItem.from(track), 123L));
+        verify(serviceInitiator).play(AudioPlaybackItem.create(trackItem.track(), 123L));
     }
 
     @Test
     public void playCurrentPlaysNormalTrackSuccessfully() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
-        final Track track = onlineTrack();
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        final TrackItem trackItem = onlineTrack();
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(trackItem));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(AudioPlaybackItem.create(TrackItem.from(track), 123L));
+        verify(serviceInitiator).play(AudioPlaybackItem.create(trackItem.track(), 123L));
         playCurrentSubscriber.assertCompleted();
     }
 
     @Test
     public void playCurrentPlaysOfflineTrackSuccessfully() {
-        final Track offlineTrack = offlineTrack();
+        final TrackItem offlineTrack = offlineTrack();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(AudioPlaybackItem.forOffline(TrackItem.from(offlineTrack), 123L));
+        verify(serviceInitiator).play(AudioPlaybackItem.forOffline(offlineTrack.track(), 123L));
         playCurrentSubscriber.assertCompleted();
     }
 
     @Test
     public void playCurrentPlaysSnippetTrackSuccessfully() {
-        final Track offlineTrack = onlineSnippedTrack();
+        final TrackItem offlineTrack = onlineSnippedTrack();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(false);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(AudioPlaybackItem.forSnippet(TrackItem.from(offlineTrack), 123L));
+        verify(serviceInitiator).play(AudioPlaybackItem.forSnippet(offlineTrack.track(), 123L));
         playCurrentSubscriber.assertCompleted();
     }
 
@@ -202,7 +202,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         final Track.Builder builder = onlineTrackBuilder();
         builder.blocked(true);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(builder.build()));
+        TrackItem trackItem = ModelFixtures.trackItem(builder.build());
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(trackItem));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -222,22 +223,22 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         playCurrentSubscriber.assertCompleted();
     }
 
-    private Track onlineTrack() {
-        return onlineTrackBuilder().build();
+    private TrackItem onlineTrack() {
+        return ModelFixtures.trackItem(onlineTrackBuilder().build());
     }
 
     private Track.Builder onlineTrackBuilder() {
         return ModelFixtures.trackBuilder().urn(trackUrn).snippetDuration(123L).fullDuration(456L).snipped(false).offlineState(OfflineState.NOT_OFFLINE);
     }
 
-    private Track onlineSnippedTrack() {
+    private TrackItem onlineSnippedTrack() {
         final Track.Builder builder = onlineTrackBuilder();
         builder.snipped(true);
-        return builder.build();
+        return ModelFixtures.trackItem(builder.build());
     }
 
-    private Track offlineTrack() {
-        return ModelFixtures.trackBuilder().urn(trackUrn).snippetDuration(123L).fullDuration(456L).snipped(false).offlineState(OfflineState.DOWNLOADED).build();
+    private TrackItem offlineTrack() {
+        return ModelFixtures.trackItem(ModelFixtures.trackBuilder().urn(trackUrn).snippetDuration(123L).fullDuration(456L).snipped(false).offlineState(OfflineState.DOWNLOADED).build());
     }
 
     @Test
