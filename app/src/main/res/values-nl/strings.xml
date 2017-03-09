@@ -19,7 +19,7 @@
   <string name="btn_like">Liken</string>
   <string name="btn_unlike">Unliken</string>
   <string name="btn_save">Opslaan</string>
-  <string name="email">E-mailadres</string>
+  <string name="email">E-mail</string>
   <string name="password">Wachtwoord</string>
   <string name="undo">Ongedaan maken</string>
   <string name="website">Website</string>
@@ -35,6 +35,7 @@
   <string name="display_name">Naam</string>
   <string name="updated_time">%s bijgewerkt.</string>
   <string name="posted_time">%s gepost</string>
+  <string name="plays_and_posted_time">%1$s · %2$s gepost</string>
   <string name="filter">Filteren</string>
   <string name="following_zero">Door jou gevolgd</string>
   <!--__ACCESSIBILITY-->
@@ -105,13 +106,16 @@
   <string name="authentication_blocked_title">We konden geen account voor je aanmaken</string>
   <string name="authentication_blocked_message">Onze robots denken dat deze aanmelding te veel op spam lijkt. Als dit een vergissing is, neem je contact op met de ondersteuning van SoundCloud.</string>
   <!--@Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used?-->
-  <string name="authentication_captcha_message">Er is een probleem opgetreden bij het inloggen. Log in via onze mobiele website voordat je opnieuw probeert in te loggen.</string>
+  <string name="authentication_captcha_message">Er is een probleem opgetreden bij het inloggen.</string>
   <string name="authentication_email_taken_message">Dit e-mailadres is al verbonden aan een account. Voer een ander e-mailadres in of probeer in te loggen.</string>
   <string name="authentication_email_invalid_message">Het e-mailadres dat je hebt ingevoerd lijkt niet geschikt voor het ontvangen van e-mails. Heb je het correct geschreven?</string>
   <string name="authentication_email_other_error_message">We konden geen account aanmaken met de details die je hebt ingevoerd.</string>
   <string name="authentication_error_unable_to_use_google_play_services">Inloggen bij Google+ kan niet worden gebruikt zonder Google Play Services. Probeer een andere inlogmethode.</string>
   <!--__DEEPLINKS-->
-  <string name="error_toast_user_not_logged_in">Log in om deze link te openen.</string>
+  <string name="error_toast_user_not_logged_in">Log in of registreer je om deze link te openen.</string>
+  <!--APP SHORTCUTS-->
+  <string name="shortcut_search">Zoeken</string>
+  <string name="shortcut_play_likes">Likes afspelen</string>
   <!--__EMPTY STATES-->
   <string name="info_empty_other_message">Deze persoon heeft nog geen profielbeschrijving toegevoegd.</string>
   <string name="info_empty_you_message">Je profiel is leeg.</string>
@@ -131,6 +135,11 @@
   <string name="new_empty_user_followers_text">Deze gebruiker wordt nog door niemand gevolgd.</string>
   <string name="new_empty_user_followings_text">Deze gebruiker volgt nog niemand.</string>
   <!--__ERRORS-->
+  <!--__reusable-->
+  <string name="empty_no_internet_connection">Geen internetverbinding</string>
+  <string name="empty_no_internet_connection_sub">Kan content niet downloaden. Is je verbinding misschien verbroken? Sleep om het opnieuw te proberen.</string>
+  <string name="empty_server_error">@string/ak_error_soundcloud_no_response</string>
+  <string name="empty_server_error_sub">@string/error_server_problems_message</string>
   <!--@Todo from l10n: move these error messages to other categories-->
   <string name="error_unauthorized_message">Er is een probleem met je account. Log opnieuw in bij SoundCloud om de app te gebruiken.</string>
   <string name="error_unauthorized_title">Fout in account</string>
@@ -175,7 +184,7 @@
   <string name="onboarding_custom_gender_hint">Voer geslacht in</string>
   <string name="onboarding_gender_option_female">Vrouw</string>
   <string name="onboarding_gender_option_male">Man</string>
-  <string name="onboarding_gender_option_custom">Aangepast</string>
+  <string name="onboarding_gender_option_custom">Anders</string>
   <string name="onboarding_gender_option_nopref">Zeg ik liever niet</string>
   <string name="ok_got_it">OK, begrepen</string>
   <string name="onboarding_email_use_notice">We kunnen je e-mailadres gebruiken voor updates en tips over de producten en services van SoundCloud. Hiervoor kun je je op elk gewenst moment gratis afmelden via je meldingsvoorkeuren.</string>
@@ -267,6 +276,10 @@
   <string name="delete_playlist">Afspeellijst verwijderen</string>
   <string name="search_playlists">afspeellijsten zoeken</string>
   <string name="more_playlists_by">Meer afspeellijsten van %s</string>
+  <string name="empty_playlist_main">Nog geen tracks hier</string>
+  <string name="empty_playlist_sub">Ga op zoek naar tracks en voeg ze toe aan deze afspeellijst</string>
+  <string name="edit_playlists_introductory_overlay_title">Bewerk je afspeellijsten onderweg</string>
+  <string name="edit_playlists_introductory_overlay_description">Nu kun je tracks opnieuw indelen of uit je afspeellijsten verwijderen</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Toevoegen aan afspeellijst...</string>
   <string name="added_to_playlist">Toegevoegd aan je afspeellijst</string>
@@ -370,12 +383,19 @@
   <string name="search_empty">Geen resultaten gevonden</string>
   <string name="search_empty_subtext">Controleer de spelling of probeer een andere zoekopdracht</string>
   <string name="search_for_query">Zoek naar %s</string>
+  <string name="top_results_top_item">Topresultaten</string>
+  <string name="top_results_tracks">Tracks</string>
+  <string name="top_results_go_tracks">SoundCloud Go-tracks</string>
+  <string name="top_results_albums">Albums</string>
+  <string name="top_results_playlists">Afspeellijsten</string>
+  <string name="top_results_people">Personen</string>
+  <string name="top_results_view_all">Zie alle %1$s %2$s</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Ontdek meer tracks</string>
   <string name="recommendation_view_all">Alle voorgestelde tracks weergeven</string>
   <string name="recommendations_footer">Dat zijn alle aanbevelingen die we nu kunnen doen.\n\nSpeel en verzamel meer tracks om meer aanbevelingen te krijgen.</string>
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
-  <string name="recommendation_reason_because_you_reason_tracktitle">Omdat je %1$s %2$s</string>
+  <string name="recommendation_reason_because_you_reason_tracktitle">Omdat je %2$s %1$s hebt</string>
   <string name="recommendation_reason_liked">geliket</string>
   <string name="recommendation_reason_played">afgespeeld</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
@@ -385,6 +405,12 @@
   <string name="discovery_empty">Nog geen ontdekkingsitems</string>
   <!--__DISCOVERY PLAYLISTS-->
   <string name="recommended_playlists_reason">Afspeellijsten voor %s</string>
+  <string name="scenario_playlist_chilling">Afspeellijsten om te chillen</string>
+  <string name="scenario_playlist_sleeping">Afspeellijsten om bij in slaap te vallen</string>
+  <string name="scenario_playlist_studying">Afspeellijsten om te studeren</string>
+  <string name="scenario_playlist_coffeehouse">Afspeellijsten voor sfeer</string>
+  <string name="scenario_playlist_workingout">Afspeellijsten om te sporten</string>
+  <string name="scenario_playlist_partying">Afspeellijsten om te feesten</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_music">Muziek</string>
   <string name="charts_audio">Audio</string>
@@ -592,8 +618,8 @@
   <string name="collections_play_history_clear_error_message">Fout bij het wissen van je luistergeschiedenis. Probeer het later nog eens.</string>
   <string name="collections_play_history_empty">Vind hier alle tracks waarnaar je geluisterd hebt.</string>
   <string name="collections_recently_played_header">Recent afgespeeld</string>
-  <string name="collections_view_all_tracks">Volledige luistergeschiedenis weergeven</string>
-  <string name="collections_view_all_recently_played">Alle recent afgespeelde tracks weergeven</string>
+  <string name="collections_view_all_tracks">Volledige luistergeschiedenis bekijken</string>
+  <string name="collections_view_all_recently_played">Alle recent afgespeelde tracks bekijken</string>
   <string name="dialog_playlist_delete_title">Afspeellijst verwijderen?</string>
   <string name="dialog_playlist_delete_message">Hiermee wordt je afspeellijst permanent verwijderd. Weet je zeker dat je wilt doorgaan?</string>
   <string name="collections_recently_played_track_station">trackzender</string>
@@ -632,6 +658,8 @@
   <string name="more_app_version">App-versie %s</string>
   <string name="more_subscription">Abonnement</string>
   <string name="more_subscription_check">Ben je al abonnee? Ga nu kijken</string>
+  <string name="more_subscription_check_not_subscribed">Je bent niet geabonneerd</string>
+  <string name="more_subscription_check_error">Je abonnement kon niet worden geverifieerd</string>
   <string name="more_upsell">Upgraden naar SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s een afspeellijst</string>
@@ -645,7 +673,7 @@
   <string name="stream_promoted_action">gepromoot</string>
   <string name="stream_track">track</string>
   <string name="stream_promoted_playable">Gepromote %s</string>
-  <string name="stream_sponsored_item">Gesponsord %s</string>
+  <string name="stream_sponsored_item">Gesponsorde %s</string>
   <string name="stream_highlights">Highlights streamen</string>
   <string name="stream_highlights_description_one">Met een track van %s</string>
   <string name="stream_highlights_description_two">Met tracks van %1$s en %2$s</string>
@@ -662,7 +690,7 @@
   <string name="conversion_title">Ontdek meer met SoundCloud Go+</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
-  <string name="conversion_description">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie tracks ooit</string>
+  <string name="conversion_description">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie streamingtracks ter wereld</string>
   <string name="conversion_buy_loading">Laden…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start je gratis proefabonnement van %d dagen</string>
   <string name="conversion_buy_no_trial">Upgrade nu</string>
@@ -682,6 +710,8 @@
   <string name="plan_conversion_error_dialog_title">Kan abonnement niet wijzigen</string>
   <string name="plan_conversion_error_message_generic">Er is iets misgegaan en we kunnen je abonnement op dit moment niet wijzigen. Neem contact op met ons community-ondersteuningsteam.</string>
   <string name="plan_conversion_error_message_apple">Je hebt momenteel een iTunes-abonnement van Apple. Als je je abonnement wilt wijzigen, moet je je iTunes-abonnement van Apple eerst opzeggen in de App Store.</string>
+  <string name="product_choice_error_already_subscribed">Je bent al geabonneerd</string>
+  <string name="product_choice_error_unavailable">Product niet beschikbaar</string>
   <!--PRODUCT_CHOICE-->
   <string name="product_choice_line_1_mid">Ontdek, stream en deel een voortdurend groeiende muziekmix van zowel gevestigde als aanstormende artiesten</string>
   <string name="product_choice_line_1_high">Toegang tot \'s werelds grootste muziekstreamingcatalogus, een voortdurend groeiende mix van zowel gevestigde als aanstormende artiesten</string>
@@ -689,7 +719,7 @@
   <string name="product_choice_line_2_high">Volledige toegang tot alle ruim 150 miljoen tracks</string>
   <string name="product_choice_line_3_common">Offline luisteren</string>
   <string name="product_choice_line_4_common">Geen reclame</string>
-  <string name="product_choice_line_5_common">Miljoenen premium Go+-tracks</string>
+  <string name="product_choice_line_5_common">Miljoenen premium SoundCloud Go+-tracks</string>
   <string name="product_choice_line_6_common">Geen previews</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Product niet beschikbaar</string>
@@ -782,8 +812,8 @@
   <string name="disable_offline_collection_from_context_title">Dit verwijderen van offline luisteren?</string>
   <string name="disable_offline_collection_from_context_body">Je staat op het punt dit van offline luisteren te verwijderen. Ook worden je nieuwe likes en afspeellijsten niet meer automatisch offline opgeslagen.</string>
   <string name="add_playlist_offline">Offline beschikbaar</string>
-  <string name="title_offline_settings">Instellingen voor offline luisteren</string>
-  <string name="more_offline_sync_settings">Instellingen voor offline luisteren</string>
+  <string name="title_offline_settings">Offline luisteren</string>
+  <string name="more_offline_sync_settings">Offline luisteren</string>
   <string name="unlimited">onbeperkt</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d track</item>
@@ -865,13 +895,15 @@
   <string name="playback_upsell_button">Abonneer je op SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
-  <string name="new_for_you_title">Nieuw voor jou</string>
-  <string name="new_for_you_intro">Een dagelijkse afspeellijst met verse, recent geposte tracks. Speciaal voor jou.</string>
+  <string name="new_for_you_title">De upload</string>
+  <string name="new_for_you_intro">Nieuw bij SoundCloud. Speciaal voor jou geselecteerd.</string>
   <string name="new_for_you_action">Afspeellijst weergeven</string>
+  <string name="new_for_you_duration">%1$d tracks, %2$s</string>
+  <string name="new_for_you_updated_at">%s bijgewerkt</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
-    <item quantity="one">%1$d SoundCloud Go+-resultaat gevonden</item>
-    <item quantity="other">%1$d SoundCloud Go+-resultaten gevonden</item>
+    <item quantity="one">%1$s SoundCloud Go+-resultaat gevonden</item>
+    <item quantity="other">%1$s SoundCloud Go+-resultaten gevonden</item>
   </plurals>
   <string name="search_premium_content_view_all">Zie alle SoundCloud Go+-resultaten</string>
   <string name="search_premium_content_upsell">Upgrade om volledige tracks te horen</string>
@@ -880,25 +912,25 @@
   <string name="push_notifications_all_summary">Schakel alle mobiele meldingen in\nof selecteer welke je wilt ontvangen.</string>
   <string name="push_notifications_follower">Nieuwe volger</string>
   <string name="push_notifications_repost">Repost van jouw post</string>
-  <string name="push_notifications_new_post">Nieuwe post door gevolgde gebruiker</string>
+  <string name="push_notifications_new_post">Nieuwe post van gevolgde gebruiker</string>
   <string name="push_notifications_like">Like op jouw post</string>
   <string name="push_notifications_comment">Reactie op jouw post</string>
   <string name="push_notifications_product_updates">Nieuwe SoundCloud-functies</string>
   <string name="push_notifications_survey">Enquêtes en feedback</string>
-  <string name="push_notifications_tips">Tips en aanbiedingen van SoundCloud</string>
+  <string name="push_notifications_tips">Tips en aanbiedingen</string>
   <string name="push_notifications_suggestions">Voorgestelde inhoud</string>
   <string name="email_notifications_all_title">E-mailmeldingen</string>
   <string name="email_notifications_all_summary">Schakel alle e-mailmeldingen in\nof selecteer welke je wilt ontvangen.</string>
   <string name="email_notifications_follower">Nieuwe volger</string>
   <string name="email_notifications_repost">Repost van jouw post</string>
-  <string name="email_notifications_new_post">Nieuwe post door gevolgde gebruiker</string>
+  <string name="email_notifications_new_post">Nieuwe post van gevolgde gebruiker</string>
   <string name="email_notifications_like">Like op jouw post</string>
   <string name="email_notifications_message">Nieuw bericht</string>
   <string name="email_notifications_comment">Reactie op jouw post</string>
   <string name="email_notifications_group">Nieuwe groepspost</string>
   <string name="email_notifications_product_updates">Nieuwe SoundCloud-functies</string>
   <string name="email_notifications_survey">Enquêtes en feedback</string>
-  <string name="email_notifications_tips">Tips en aanbiedingen van SoundCloud</string>
+  <string name="email_notifications_tips">Tips en aanbiedingen</string>
   <string name="email_notifications_suggestions">Voorgestelde inhoud</string>
   <string name="email_notifications_newsletter">SoundCloud-nieuwsbrief</string>
   <!--__STREAM-->
@@ -935,7 +967,7 @@
   <string name="play_queue_introductory_overlay_title">Nieuw! Volgende</string>
   <string name="play_queue_introductory_overlay_description">Bepaal de volgende track, shuffle of herhaal</string>
   <string name="play_queue_header_magic_box_subtitle">Nieuwe muziek op basis van wat er wordt afgespeeld</string>
-  <string name="play_queue_header_auto_play_toggle">Zender aumatisch afspelen</string>
+  <string name="play_queue_header_auto_play_toggle">Zender automatisch afspelen</string>
   <string name="play_queue_header_cast">Casten</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Voorgestelde artiesten</string>

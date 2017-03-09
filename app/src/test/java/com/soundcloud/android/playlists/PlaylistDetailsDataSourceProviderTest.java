@@ -41,6 +41,7 @@ import org.robolectric.shadows.ShadowLog;
 import rx.observers.AssertableSubscriber;
 import rx.subjects.PublishSubject;
 
+import java.util.Collections;
 import java.util.List;
 
 public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
@@ -194,6 +195,24 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
                 PlaylistWithExtrasState.initialState(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build()
+        );
+    }
+
+    @Test
+    public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylistsForLoggedInUserWithOnePlaylist() throws Exception {
+        when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+
+        dataSourceProvider.connect();
+        List<Playlist> myPlaylists = Collections.singletonList(playlist); // current playlist should be filtered out
+
+        tracklistSubject.onNext(trackItems);
+        myOtherPlaylists.onNext(myPlaylists);
+
+        test.assertValues(
+                PlaylistWithExtrasState.initialState(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build()
         );
     }
 

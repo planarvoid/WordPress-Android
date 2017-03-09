@@ -151,8 +151,7 @@ class DataSourceProvider {
             return Observable.just(Collections.emptyList());
         } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
             return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build())
-                                        .map(playlistsWithExclusion(playlist))
-                                        .filter(playlists -> !playlists.isEmpty());
+                                        .map(playlistsWithExclusion(playlist));
         } else {
             Observable<List<Playlist>> eagerEmission = just(Collections.<Playlist>emptyList());
             Observable<List<Playlist>> lazyEmission = playlistsForOtherUser(playlist.creatorUrn())
