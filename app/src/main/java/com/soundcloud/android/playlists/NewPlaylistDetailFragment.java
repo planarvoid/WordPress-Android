@@ -8,18 +8,19 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.view.AsyncViewModel;
-import com.soundcloud.android.model.CollectionLoadingState;
-import com.soundcloud.android.view.collection.CollectionRenderer;
-import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
+import com.soundcloud.android.view.collection.CollectionRenderer;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
@@ -182,6 +183,12 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribe(urn -> {
                              DeletePlaylistDialogFragment.show(getFragmentManager(), urn);
+                         }),
+
+                presenter.onShowDisableOfflineCollectionConfirmation()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(data -> {
+                             ConfirmRemoveOfflineDialogFragment.showForPlaylist(getFragmentManager(), data.first(), data.second().getPromotedSourceInfo());
                          }),
 
                 presenter.onGoBack()

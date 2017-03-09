@@ -28,9 +28,9 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
@@ -58,6 +58,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
@@ -140,7 +141,6 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     private NewPlaylistDetailsPresenter newPlaylistPresenter;
 
 
-
     @Before
     public void setUp() throws Exception {
         ShadowLog.stream = System.out;
@@ -189,7 +189,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.connect();
         emitLikedEntities();
         emitRepostedEntities();
-        emitOfflineEntities(Collections.<Urn,OfflineState>emptyMap());
+        emitOfflineEntities(Collections.<Urn, OfflineState>emptyMap());
         dataSource.onNext(PlaylistWithExtrasState.builder().playlistWithExtras(of(initialEmission)).build());
     }
 
@@ -287,7 +287,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel));
     }
 
-   @Test
+    @Test
     public void makeOfflineMakesPlaylistOfflineAfterSuccessfulLike() throws Exception {
         connect();
 
@@ -335,6 +335,18 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.onMakeOfflineUnavailable();
 
         assertThat(offlineSubject.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void onMakeUnavailableOfflineShowsConfirmationDialogWhenOfflineCollectionIsEnabled() throws Exception {
+        when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
+        connect();
+
+        AssertableSubscriber<Pair<Urn, PlaySessionSource>> goToUpsell = newPlaylistPresenter.onShowDisableOfflineCollectionConfirmation().test();
+
+        newPlaylistPresenter.onMakeOfflineUnavailable();
+
+        goToUpsell.assertValue(Pair.of(playlistUrn, createPlaySessionSource()));
     }
 
     @Test
@@ -439,7 +451,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void repostShowsResult(){
+    public void repostShowsResult() {
         connect();
 
         when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
@@ -452,7 +464,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void unpostShowsResult(){
+    public void unpostShowsResult() {
         connect();
 
         when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
@@ -465,7 +477,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void repostSendsTracking(){
+    public void repostSendsTracking() {
         connect();
 
         when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
@@ -476,7 +488,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void unpostSendsTracking(){
+    public void unpostSendsTracking() {
         connect();
 
         when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
@@ -696,9 +708,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
 
         testSubscriber.assertValue(SharePresenter.ShareOptions.create(initialPlaylist.permalinkUrl().get(),
-                                                                                              eventContext(initialPlaylist),
-                                                                                              promotedSourceInfo,
-                                                                                              createEntityMetadata(initialPlaylist)));
+                                                                      eventContext(initialPlaylist),
+                                                                      promotedSourceInfo,
+                                                                      createEntityMetadata(initialPlaylist)));
     }
 
     @Test
@@ -726,7 +738,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playShuffledPlaysShuffled(){
+    public void playShuffledPlaysShuffled() {
         connect();
 
         AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
@@ -742,7 +754,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playShuffledHandlesError(){
+    public void playShuffledHandlesError() {
         connect();
 
         AssertableSubscriber<ErrorReason> testSubscriber = newPlaylistPresenter.onPlaybackError().test();
@@ -770,7 +782,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         repostStatuses.onNext(RepostStatuses.create(repostedEntities));
     }
 
-    private void emitOfflineEntities(Map<Urn,OfflineState> offlineStateMap) {
+    private void emitOfflineEntities(Map<Urn, OfflineState> offlineStateMap) {
         offlineProperties.onNext(OfflineProperties.from(offlineStateMap, OfflineState.NOT_OFFLINE));
     }
 
@@ -794,7 +806,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                      .build();
     }
 
-    private EventContextMetadata eventContext(Playlist playlist){
+    private EventContextMetadata eventContext(Playlist playlist) {
         return EventContextMetadata.builder()
                                    .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())

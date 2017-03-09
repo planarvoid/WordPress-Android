@@ -124,6 +124,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PublishSubject<RepostOperations.RepostResult> showRepostResult = PublishSubject.create();
     private final PublishSubject<LikeOperations.LikeResult> showLikeResult = PublishSubject.create();
     private final PublishSubject<Urn> showPlaylistDeletionConfirmation = PublishSubject.create();
+    private final PublishSubject<Pair<Urn, PlaySessionSource>> showDisableOfflineCollectionConfirmation = PublishSubject.create();
     private final PublishSubject<SharePresenter.ShareOptions> sharePlaylist = PublishSubject.create();
     private final PublishSubject<Urn> goToUpsell = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
@@ -358,7 +359,13 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
                                        .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                                        .withLatestFrom(playSessionSource(), Pair::of)
-                                       .subscribe(makePlaylistUnavailableOffline());
+                                       .subscribe(data -> {
+                                           if (offlineContentOperations.isOfflineCollectionEnabled()) {
+                                               showDisableOfflineCollectionConfirmation.onNext(data);
+                                           } else {
+                                               makePlaylistUnAvailableOffline(data);
+                                           }
+                                       });
     }
 
     private Subscription actionMakeAvailableOffline(PublishSubject<Void> trigger) {
@@ -456,12 +463,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 .subscribe(dataSource);
     }
 
-    private Action1<Pair<Urn, PlaySessionSource>> makePlaylistUnavailableOffline() {
-        return urnSourcePair -> {
-            fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()));
-            eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urnSourcePair.first(), false, urnSourcePair.second()));
-
-        };
+    private void makePlaylistUnAvailableOffline(Pair<Urn, PlaySessionSource> urnSourcePair) {
+        fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urnSourcePair.first()));
+        eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urnSourcePair.first(), false, urnSourcePair.second()));
     }
 
     private EntityMetadata createEntityMetadata(Playlist playlist) {
@@ -506,7 +510,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
          * This is a mess. Clean this up when we get rid of the old fragment, and can properly build the model in one place
          */
         if (playlistWithExtrasState.playlistWithExtras().isPresent()) {
-            PlaylistWithExtras playlistWithExtras =  playlistWithExtrasState.playlistWithExtras().get();
+            PlaylistWithExtras playlistWithExtras = playlistWithExtrasState.playlistWithExtras().get();
             Playlist playlist = playlistWithExtras.playlist();
             Urn urn = playlist.urn();
             return AsyncViewModel.create(of(viewModelCreator.create(playlist,
@@ -584,6 +588,10 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     Observable<Urn> onRequestingPlaylistDeletion() {
         return showPlaylistDeletionConfirmation;
+    }
+
+    PublishSubject<Pair<Urn, PlaySessionSource>> onShowDisableOfflineCollectionConfirmation() {
+        return showDisableOfflineCollectionConfirmation;
     }
 
     Observable<SharePresenter.ShareOptions> onShare() {
