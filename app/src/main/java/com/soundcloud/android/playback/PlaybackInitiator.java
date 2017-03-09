@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -18,14 +20,17 @@ public class PlaybackInitiator {
     private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
     private final PolicyOperations policyOperations;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @Inject
     public PlaybackInitiator(PlayQueueManager playQueueManager,
                              PlaySessionController playSessionController,
-                             PolicyOperations policyOperations) {
+                             PolicyOperations policyOperations,
+                             PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
         this.playSessionController = playSessionController;
         this.policyOperations = policyOperations;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
@@ -66,12 +71,17 @@ public class PlaybackInitiator {
             playSessionController.playCurrent();
             return Observable.just(PlaybackResult.success());
         } else {
-            return allTracks.flatMap(policyOperations.blockedStatuses())
+            return allTracks.doOnSubscribe(this::startMeasuringExtendedTimeToPlay)
+                            .flatMap(policyOperations.blockedStatuses())
                             .zipWith(allTracks, (blockedUrns, urns) -> PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns))
                             .map(addExplicitContentFromCurrentPlayQueue(position, initialTrack))
                             .flatMap(playQueue -> playSessionController.playNewQueue(playQueue, initialTrack, position, playSessionSource))
                             .observeOn(AndroidSchedulers.mainThread());
         }
+    }
+
+    private void startMeasuringExtendedTimeToPlay() {
+        performanceMetricsEngine.startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
     }
 
     public Observable<PlaybackResult> playStation(Urn stationUrn,
@@ -85,7 +95,8 @@ public class PlaybackInitiator {
 
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, playSessionSource);
 
-        return playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource);
+        return playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
+                                    .doOnSubscribe(this::startMeasuringExtendedTimeToPlay);
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> allTracks, final PlaySessionSource playSessionSource) {

@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -45,6 +46,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final Navigator navigator;
     private final EventBus eventBus;
     private final MiniplayerExperiment miniplayerExperiment;
+    private PerformanceMetricsEngine performanceMetricsEngine;
     private Context activityContext;
 
     private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
@@ -73,7 +75,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                                  PlaybackToastHelper playbackToastHelper,
                                  Navigator navigator,
                                  EventBus eventBus,
-                                 MiniplayerExperiment miniplayerExperiment) {
+                                 MiniplayerExperiment miniplayerExperiment,
+                                 PerformanceMetricsEngine performanceMetricsEngine) {
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
         this.random = random;
@@ -81,6 +84,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.miniplayerExperiment = miniplayerExperiment;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -141,7 +145,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         private final String query;
 
         public PlayFromQuerySubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper, String query) {
-            super(eventBus, playbackToastHelper, miniplayerExperiment);
+            super(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
             this.query = query;
         }
 

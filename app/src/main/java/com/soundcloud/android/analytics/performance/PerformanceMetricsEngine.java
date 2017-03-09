@@ -82,6 +82,13 @@ public class PerformanceMetricsEngine {
         endMeasuring(performanceMetric.metricType());
     }
 
+    /**
+     * Clear measurings of the given {@link MetricType}
+     */
+    public void clearMeasuring(MetricType type) {
+        metricTypeList.remove(type);
+    }
+
     private void publish(MetricType metricType) {
         if (isValidMetric(metricType)) {
             sendEvent(metricType, calculateDuration(metricType));

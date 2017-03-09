@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
@@ -67,8 +68,9 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private EventBus eventBus;
     @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
-            new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment);
+            new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
 
     private ChartTracksPresenter chartTracksPresenter;
     private Bundle bundle;

@@ -4,6 +4,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.LinkType;
@@ -182,6 +183,7 @@ public class MixedItemClickListener {
         final List<Urn> trackUrns = filterTracks(playables);
         final int adjustedPosition = filterTracks(playables.subList(0, position)).size();
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
         playbackInitiator
                 .playTracks(trackUrns, adjustedPosition, playSessionSource)
@@ -203,14 +205,17 @@ public class MixedItemClickListener {
         private final PlaybackInitiator playbackInitiator;
         private final Provider<ExpandPlayerSubscriber> subscriberProvider;
         private final Navigator navigator;
+        private final PerformanceMetricsEngine performanceMetricsEngine;
 
         @Inject
         public Factory(PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       Navigator navigator) {
+                       Navigator navigator,
+                       PerformanceMetricsEngine performanceMetricsEngine) {
             this.playbackInitiator = playbackInitiator;
             this.subscriberProvider = subscriberProvider;
             this.navigator = navigator;
+            this.performanceMetricsEngine = performanceMetricsEngine;
         }
 
         public MixedItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.LinkType;
@@ -67,7 +68,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private Context context;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
-    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackToastHelper, mock(MiniplayerExperiment.class));
+    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackToastHelper, mock(MiniplayerExperiment.class), mock(PerformanceMetricsEngine.class));
 
     @Before
     public void setUp() {

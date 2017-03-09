@@ -108,10 +108,8 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
         if (IS_TRACK.apply(chartTrackListItem)) {
             final ChartTrackItem trackItem = ((ChartTrackListItem.Track) chartTrackListItem).chartTrackItem;
             final List<Urn> playQueue = getPlayQueue();
-
             final String screen = chartsTracker.getScreen(trackItem.chartType(), trackItem.chartCategory(), trackItem.genre());
             final int queryPosition = position - NUM_EXTRA_ITEMS;
-
             final Optional<Urn> queryUrn = trackItem.queryUrn();
             final PlaySessionSource playSessionSource = (queryUrn.isPresent()) ?
                                                         PlaySessionSource.forChart(screen, queryPosition,
@@ -119,6 +117,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                                                                                    trackItem.chartType(),
                                                                                    trackItem.genre()) :
                                                         PlaySessionSource.EMPTY;
+
             playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.getUrn()), playSessionSource)
                              .subscribe(expandPlayerSubscriberProvider.get());
         }

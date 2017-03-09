@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -37,6 +38,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock DelayedLoadingDialogPresenter dialogPresenter;
     @Mock MiniplayerExperiment miniplayerExperiment;
+    @Mock PerformanceMetricsEngine performanceMetricsEngine;
 
     private final Screen screen = Screen.SEARCH_MAIN;
     private StartStationPresenter presenter;
@@ -60,7 +62,8 @@ public class StartStationPresenterTest extends AndroidUnitTest {
                                               eventBus,
                                               playbackToastHelper,
                                               screenProvider,
-                                              miniplayerExperiment);
+                                              miniplayerExperiment,
+                                              performanceMetricsEngine);
     }
 
     @Test

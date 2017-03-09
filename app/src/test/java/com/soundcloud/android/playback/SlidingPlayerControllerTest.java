@@ -13,6 +13,8 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -52,6 +54,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Mock private ActionBar actionBar;
     @Mock private Window window;
     @Mock private MiniplayerStorage miniplayerStorage;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -59,7 +62,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, miniplayerStorage);
+        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, miniplayerStorage, performanceMetricsEngine);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
@@ -404,6 +407,13 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
         verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void shouldEndMeasuringOnPlayerExpanded() {
+        controller.onPanelExpanded();
+
+        verify(performanceMetricsEngine).endMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
     }
 
     private void attachController() {

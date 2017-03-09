@@ -75,6 +75,16 @@ public class PerformanceMetricsEngineTest extends AndroidUnitTest {
         assertThat(hasDurationKey(actualEvent)).isTrue();
     }
 
+    @Test
+    public void doesNotPublishClearedMeasurings() {
+        performanceMetricsEngine.startMeasuring(METRIC_TYPE);
+
+        performanceMetricsEngine.clearMeasuring(METRIC_TYPE);
+        performanceMetricsEngine.endMeasuring(METRIC_TYPE);
+
+        assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
+    }
+
     private long durationFromEvent(PerformanceEvent event) {
         return bundleFromEvent(event).getLong(MetricKey.TIME_MILLIS.toString());
     }

@@ -7,7 +7,8 @@ package com.soundcloud.android.analytics.performance;
  */
 public enum MetricType {
     APP_ON_CREATE("app_on_create"),
-    APP_UI_VISIBLE("app_ui_visible");
+    APP_UI_VISIBLE("app_ui_visible"),
+    EXTENDED_TIME_TO_PLAY("extended_time_to_play");
 
     private final String metricType;
 

@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -36,6 +37,7 @@ public class StartStationPresenter {
     private final PlaybackToastHelper playbackToastHelper;
     private final ScreenProvider screenProvider;
     private final MiniplayerExperiment miniplayerExperiment;
+    private PerformanceMetricsEngine performanceMetricsEngine;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -43,7 +45,8 @@ public class StartStationPresenter {
                                  StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
                                  EventBus eventBus, PlaybackToastHelper playbackToastHelper,
                                  ScreenProvider screenProvider,
-                                 MiniplayerExperiment miniplayerExperiment) {
+                                 MiniplayerExperiment miniplayerExperiment,
+                                 PerformanceMetricsEngine performanceMetricsEngine) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
         this.playbackInitiator = playbackInitiator;
@@ -51,6 +54,7 @@ public class StartStationPresenter {
         this.playbackToastHelper = playbackToastHelper;
         this.screenProvider = screenProvider;
         this.miniplayerExperiment = miniplayerExperiment;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
@@ -72,7 +76,7 @@ public class StartStationPresenter {
                 .flatMap(toPlaybackResult(discoverySource, position))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
                                                                 getLoadingDialogPresenter(context),
-                                                                miniplayerExperiment));
+                                                                miniplayerExperiment, performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -100,7 +104,7 @@ public class StartStationPresenter {
                 .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
                                                                 getLoadingDialogPresenter(context),
-                                                                miniplayerExperiment));
+                                                                miniplayerExperiment, performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -145,8 +149,9 @@ public class StartStationPresenter {
                                          EventBus eventBus,
                                          PlaybackToastHelper playbackToastHelper,
                                          DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
-                                         MiniplayerExperiment miniplayerExperiment) {
-            super(eventBus, playbackToastHelper, miniplayerExperiment);
+                                         MiniplayerExperiment miniplayerExperiment,
+                                         PerformanceMetricsEngine performanceMetricsEngine) {
+            super(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
         }
@@ -163,6 +168,7 @@ public class StartStationPresenter {
                 expandPlayer();
                 delayedLoadingDialogPresenter.onSuccess();
             } else {
+                onPlaybackError();
                 delayedLoadingDialogPresenter.onError(context);
             }
         }

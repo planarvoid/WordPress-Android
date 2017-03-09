@@ -12,6 +12,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -48,6 +50,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlaySessionController playSessionController;
     @Mock private PolicyOperations policyOperations;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Captor private ArgumentCaptor<PlayQueue> playQueueTracksCaptor;
     @Captor private ArgumentCaptor<Urn> urnArgumentCaptor;
@@ -61,7 +64,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         playbackInitiator = new PlaybackInitiator(
                 playQueueManager,
                 playSessionController,
-                policyOperations);
+                policyOperations,
+                performanceMetricsEngine);
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getCurrentPosition()).thenReturn(0);
@@ -491,6 +495,30 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         assertThat(createdPlayQueue.getUrn(2).getNumericId()).isEqualTo(3);
         assertThat(createdPlayQueue.getUrn(3).getNumericId()).isEqualTo(123);
         assertThat(createdPlayQueue.getUrn(4).getNumericId()).isEqualTo(1234);
+    }
+
+    @Test
+    public void publishesPerformanceMetricsOnPlayTracks() {
+        final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+
+        playbackInitiator.playTracks(newTrackList, 0, PlaySessionSource.EMPTY).subscribe();
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+    }
+
+    @Test
+    public void publishesPerformanceMetricsOnPlayStation() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
+        when(playSessionController.playNewQueue(any(PlayQueue.class),
+                                                any(Urn.class),
+                                                anyInt(),
+                                                any(PlaySessionSource.class)))
+                .thenReturn(Observable.just(PlaybackResult.success()));
+
+        playbackInitiator.playStation(stationUrn, station.getTracks(), PlaySessionSource.EMPTY, Urn.NOT_SET, 0).subscribe();
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
     }
 
     private void expectSuccessPlaybackResult() {

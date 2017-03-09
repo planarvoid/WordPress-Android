@@ -5,6 +5,8 @@ import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -47,6 +49,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private final EventBus eventBus;
     private final StatusBarColorController statusBarColorController;
     private final MiniplayerStorage miniplayerStorage;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
@@ -62,11 +65,13 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public SlidingPlayerController(PlayQueueManager playQueueManager,
                                    EventBus eventBus,
                                    StatusBarColorController statusBarColorController,
-                                   MiniplayerStorage miniplayerStorage) {
+                                   MiniplayerStorage miniplayerStorage,
+                                   PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.statusBarColorController = statusBarColorController;
         this.miniplayerStorage = miniplayerStorage;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Nullable
@@ -343,6 +348,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void notifyExpandedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+        performanceMetricsEngine.endMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
     }
 
     private void notifyCollapsedState() {

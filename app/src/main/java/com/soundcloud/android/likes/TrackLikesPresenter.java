@@ -238,6 +238,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
             TrackItem trackItem = ((TrackLikesTrackItem) item).getTrackItem();
             Urn initialTrack = trackItem.getUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.LIKES);
+
             playbackOperations
                     .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
