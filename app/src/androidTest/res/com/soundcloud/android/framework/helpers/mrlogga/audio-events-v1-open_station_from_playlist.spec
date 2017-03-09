@@ -78,7 +78,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'
@@ -108,7 +108,7 @@ expected_events:
     connection_type: wifi
     pause_reason: pause
     trigger: manual
-    query_urn: soundcloud:radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     policy: (ALLOW|SNIP|MONETIZE)
     app_version: '[0-9]+'

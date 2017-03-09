@@ -35,7 +35,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
@@ -64,7 +64,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
@@ -93,7 +93,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
@@ -123,7 +123,7 @@ expected_events:
     track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
-    query_urn: soundcloud:artist-radio:(\w|-)+
+    query_urn: '.+'
     local_storage_playback: false
     client_event_id: (\w|-)+
   version: '1'
