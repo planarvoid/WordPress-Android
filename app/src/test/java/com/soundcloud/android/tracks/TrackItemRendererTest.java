@@ -23,7 +23,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -223,7 +223,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         when(itemView.getContext()).thenReturn(context());
-        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
+        PlayableItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         renderer.bindItemView(0, itemView, singletonList((TrackItem) promotedListItem));
 
         ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);

@@ -2,9 +2,9 @@ package com.soundcloud.android.analytics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
 import android.os.Parcel;
@@ -13,7 +13,7 @@ public class PromotedSourceInfoTest extends AndroidUnitTest {
 
     @Test
     public void implementsParcelable() {
-        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedListItem = PlayableFixtures.expectedPromotedTrack();
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);
@@ -28,7 +28,7 @@ public class PromotedSourceInfoTest extends AndroidUnitTest {
 
     @Test
     public void parcelsOptionalPromoterUrn() {
-        PromotedListItem promotedListItem = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
+        TrackItem promotedListItem = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         Parcel parcel = Parcel.obtain();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedListItem);
         promotedSourceInfo.writeToParcel(parcel, 0);

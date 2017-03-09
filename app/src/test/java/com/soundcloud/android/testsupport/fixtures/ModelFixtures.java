@@ -35,7 +35,6 @@ import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemBlueprint;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.search.topresults.SearchItem;
@@ -281,12 +280,12 @@ public class ModelFixtures {
         return create(PlaylistItem.class);
     }
 
-    public static PlaylistItem.Default.Builder playlistItemBuilder() {
-        return PlaylistItem.builder(create(PlaylistItem.class));
+    public static PlaylistItem.Builder playlistItemBuilder() {
+        return create(PlaylistItem.class).toBuilder();
     }
 
     public static PlaylistItem playlistItem(Urn urn) {
-        final PlaylistItem.Default.Builder builder = PlaylistItem.builder(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)));
+        final PlaylistItem.Builder builder = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)).toBuilder();
         builder.getUrn(urn);
         return builder.build();
     }
@@ -506,13 +505,13 @@ public class ModelFixtures {
     public static TrackItem promotedTrackItem(Track track, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return TrackItem.from(track, streamEntity, promotedStreamProperties);
+        return TrackItem.from(track, streamEntity);
     }
 
-    public static PromotedPlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
+    public static PlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date(), absent(), absent(), playlist.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return PromotedPlaylistItem.from(playlist, streamEntity, promotedStreamProperties);
+        return PlaylistItem.from(playlist, streamEntity);
     }
 
     private static PromotedProperties getPromotedProperties(User promoter) {
@@ -528,7 +527,7 @@ public class ModelFixtures {
                                           .imageUrlTemplate(streamEntity.avatarUrl())
                                           .build();
         if (streamEntity.isPromoted()) {
-            return TrackStreamItem.create(TrackItem.from(track, streamEntity, streamEntity.promotedProperties().get()), streamEntity.createdAt());
+            return TrackStreamItem.create(TrackItem.from(track, streamEntity), streamEntity.createdAt());
         } else {
             return TrackStreamItem.create(TrackItem.from(track), streamEntity.createdAt());
         }

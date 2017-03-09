@@ -1,15 +1,16 @@
 package com.soundcloud.android.playlists;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.LikeableItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RepostableItem;
-import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -19,7 +20,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Date;
 
 @AutoValue
-abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements TypedListItem, PlayableViewItem<PlaylistDetailTrackItem>, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem {
+abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements PlayableViewItem<PlaylistDetailTrackItem>, OfflineItem, UpdatableTrackItem, LikeableItem, RepostableItem, ListItem, Timestamped {
 
     PlaylistDetailTrackItem() {
         super(PlaylistDetailItem.Kind.TrackItem);
@@ -72,11 +73,6 @@ abstract class PlaylistDetailTrackItem extends PlaylistDetailItem implements Typ
     @Override
     public Urn getUrn() {
         return trackItem().getUrn();
-    }
-
-    @Override
-    public TypedListItem.Kind getKind() {
-        return TypedListItem.Kind.PLAYABLE;
     }
 
     @Override

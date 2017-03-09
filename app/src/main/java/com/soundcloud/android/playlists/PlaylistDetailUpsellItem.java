@@ -1,16 +1,15 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
-
+import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-class PlaylistDetailUpsellItem extends PlaylistDetailItem implements TypedListItem {
+class PlaylistDetailUpsellItem extends PlaylistDetailItem implements ListItem, Timestamped {
 
     private final Date createdAt;
     private final TrackItem track;
@@ -29,11 +28,6 @@ class PlaylistDetailUpsellItem extends PlaylistDetailItem implements TypedListIt
     @Override
     public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
-    }
-
-    @Override
-    public TypedListItem.Kind getKind() {
-        return UPSELL;
     }
 
     @Override

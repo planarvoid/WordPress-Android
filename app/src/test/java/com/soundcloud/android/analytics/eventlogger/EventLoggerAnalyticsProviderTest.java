@@ -49,7 +49,6 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -223,7 +222,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikeEventsWithV1() {
-        PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(true,
@@ -242,7 +241,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackUnlikeEventsWithV1() {
-        PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+        TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(false,

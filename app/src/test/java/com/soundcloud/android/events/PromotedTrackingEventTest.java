@@ -2,14 +2,14 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
 public class PromotedTrackingEventTest extends AndroidUnitTest {
 
-    private PromotedListItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
+    private TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
 
     @Test
     public void createsEventForPromoterClick() {
@@ -47,7 +47,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
     @Test
     public void omitsPromoterUrnPropertyIfPromoterIsAbsent() {
-        PromotedListItem noPromoter = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
+        TrackItem noPromoter = PlayableFixtures.expectedPromotedTrackWithoutPromoter();
         PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(noPromoter, "stream");
 
         assertThat(click.promoterUrn().isPresent()).isFalse();
@@ -57,7 +57,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
     private void assertCommonProperties(PromotedTrackingEvent event) {
         assertThat(event.originScreen()).isEqualTo("stream");
         assertThat(event.monetizationType()).isEqualTo("promoted");
-        assertThat(event.adUrn()).isEqualTo(promotedTrack.getAdUrn());
+        assertThat(event.adUrn()).isEqualTo(promotedTrack.adUrn());
     }
 
 }

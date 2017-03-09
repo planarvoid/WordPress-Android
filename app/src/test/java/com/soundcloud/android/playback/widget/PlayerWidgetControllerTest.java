@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -297,7 +297,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForTrackInPromotedPlaylist() {
-        final PromotedPlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
+        final PlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
 
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
@@ -317,7 +317,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     @Test
     public void toggleLikeActionShouldEmitLikeUIEventForTrackNotInButPlayedWithPromotedPlaylist() {
-        final PromotedPlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
+        final PlaylistItem promotedPlaylistItem = expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedPlaylistItem);
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);

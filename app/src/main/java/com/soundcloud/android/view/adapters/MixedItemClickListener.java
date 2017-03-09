@@ -15,12 +15,9 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -122,18 +119,6 @@ public class MixedItemClickListener {
         }
     }
 
-    public void onTrackItemClick(List<TrackItem> trackItems, int position) {
-        handleTrackClick(trackItems, position);
-    }
-
-    public void onPlaylistItemClick(PlaylistItem item, Context context) {
-        handleNonTrackItemClick(context, item, Optional.absent());
-    }
-
-    public void onUserItemClick(UserItem item, Context context) {
-        handleNonTrackItemClick(context, item, Optional.absent());
-    }
-
     public void onItemClick(List<? extends ListItem> playables, Context context, int position) {
         ListItem playable = playables.get(position);
         if (playable.getUrn().isTrack()) {
@@ -190,7 +175,7 @@ public class MixedItemClickListener {
     }
 
     private PromotedSourceInfo promotedPlaylistInfo(ListItem item) {
-        return (item instanceof PromotedPlaylistItem) ? PromotedSourceInfo.fromItem((PromotedPlaylistItem) item) : null;
+        return (item instanceof PlayableItem && ((PlayableItem) item).isPromoted()) ? PromotedSourceInfo.fromItem((PlayableItem) item) : null;
     }
 
     private void handleTrackClick(List<? extends ListItem> playables, int position) {

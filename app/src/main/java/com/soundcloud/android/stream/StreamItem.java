@@ -8,7 +8,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
 import com.soundcloud.android.tracks.TrackItem;
@@ -65,7 +65,7 @@ public abstract class StreamItem {
         return Video.create(ad);
     }
 
-    Optional<ListItem> getListItem() {
+    Optional<PlayableItem> getPlayableItem() {
         if (kind() == Kind.TRACK) {
             return Optional.of(((TrackStreamItem) this).trackItem());
         } else if (kind() == Kind.PLAYLIST) {

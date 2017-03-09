@@ -46,7 +46,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     private View itemView;
 
     private PlaylistItem playlistItem;
-    private PlaylistItem.Default.Builder builder;
+    private PlaylistItem.Builder builder;
 
     @Before
     public void setUp() throws Exception {
@@ -189,7 +189,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
-        PlaylistItem item = PlaylistItem.builder(playlistItem).isAlbum(true).build();
+        PlaylistItem item = playlistItem.toBuilder().isAlbum(true).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -200,7 +200,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisplayAlbumTitleForAlbums() {
-        PlaylistItem item = PlaylistItem.builder(playlistItem).isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build();
+        PlaylistItem item = playlistItem.toBuilder().isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 

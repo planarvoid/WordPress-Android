@@ -27,9 +27,9 @@ import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRequestEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
+import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdsReceived;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
@@ -61,7 +61,7 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -666,7 +666,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForPlaylistToOfflineRemoveEventForPromotedItem() throws ApiMapperException {
-        final PromotedListItem item = PlayableFixtures.expectedPromotedPlaylist();
+        final PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
         final PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(item);
         final OfflineInteractionEvent event = OfflineInteractionEvent.fromRemoveOfflinePlaylist(PAGE_NAME,
                                                                                                 PLAYLIST_URN,
@@ -679,7 +679,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickName("playlist_to_offline::remove")
                                                .clickObject(String.valueOf(PLAYLIST_URN))
                                                .pageName(PAGE_NAME)
-                                               .adUrn(item.getAdUrn())
+                                               .adUrn(item.adUrn())
                                                .monetizationType("promoted")
                                                .promotedBy(item.promoterUrn().get().toString()));
     }

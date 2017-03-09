@@ -126,8 +126,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     }
 
     private Optional<PromotedSourceInfo> loadPromotedSourceInfo(PlaylistItem playlist) {
-        if (playlist instanceof PromotedPlaylistItem) {
-            return Optional.of(PromotedSourceInfo.fromItem((PromotedPlaylistItem) playlist));
+        if (playlist.isPromoted()) {
+            return Optional.of(PromotedSourceInfo.fromItem(playlist));
         }
         return Optional.absent();
     }

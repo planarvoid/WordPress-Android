@@ -6,7 +6,6 @@ import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
@@ -20,15 +19,11 @@ public abstract class PlaylistStreamItem extends StreamItem implements LikeableI
     public abstract Date createdAt();
 
     static PlaylistStreamItem create(PlaylistItem playlistItem, Date createdAt) {
-        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, false, createdAt);
+        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, playlistItem.isPromoted(), createdAt);
     }
 
     private PlaylistStreamItem create(PlaylistItem playlistItem) {
         return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, promoted(), createdAt());
-    }
-
-    static PlaylistStreamItem createForPromoted(PromotedPlaylistItem playlistItem, Date createdAt) {
-        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, true, createdAt);
     }
 
     @Override

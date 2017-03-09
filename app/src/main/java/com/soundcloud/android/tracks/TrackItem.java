@@ -13,11 +13,9 @@ import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @AutoValue
@@ -29,20 +27,15 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return builder(track).build();
     }
 
-    public static TrackItem from(Track track, StreamEntity streamEntity, PromotedProperties promotedProperties) {
-        return builder(track)
-                .getKind(Kind.PROMOTED)
-                .promotedProperties(promotedProperties)
+    public static TrackItem from(Track track, StreamEntity streamEntity) {
+        final Builder builder = builder(track)
                 .reposter(streamEntity.reposter())
                 .reposterUrn(streamEntity.reposterUrn())
-                .avatarUrlTemplate(streamEntity.avatarUrl()).build();
-    }
-
-    public static TrackItem fromTrackAndStreamEntity(Track track, StreamEntity streamEntity) {
-        return builder(track)
-                .reposter(streamEntity.reposter())
-                .reposterUrn(streamEntity.reposterUrn())
-                .avatarUrlTemplate(streamEntity.avatarUrl()).build();
+                .avatarUrlTemplate(streamEntity.avatarUrl());
+        if (streamEntity.isPromoted()) {
+            builder.promotedProperties(streamEntity.promotedProperties());
+        }
+        return builder.build();
     }
 
     public TrackItem withPlayingState(boolean isPlaying) {
@@ -50,8 +43,7 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
     }
 
     private static Builder builder(Track track) {
-        return builder().getKind(Kind.PLAYABLE)
-                        .offlineState(track.offlineState())
+        return builder().offlineState(track.offlineState())
                         .isUserLike(track.userLike())
                         .likesCount(track.likesCount())
                         .isUserRepost(track.userRepost())
@@ -82,11 +74,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     public static TrackItem from(ApiTrack apiTrack) {
         return fromApiTrackWithLikeAndRepost(apiTrack, false, false);
-    }
-
-    @Override
-    public boolean isPromoted() {
-        return promotedProperties().isPresent();
     }
 
     private static TrackItem fromApiTrackWithLikeAndRepost(ApiTrack apiTrack, boolean isLiked, boolean isRepost) {
@@ -197,9 +184,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return track().description();
     }
 
-    @Override
-    public abstract Optional<PromotedProperties> promotedProperties();
-
     public abstract TrackItem.Builder toBuilder();
 
     public String getPlayableType() {
@@ -225,59 +209,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         } else {
             return this;
         }
-    }
-
-    public String getDescription() {
-        return description().or(Strings.EMPTY);
-    }
-
-    public boolean hasDescription() {
-        return description().isPresent();
-    }
-
-    @Override
-    public String getAdUrn() {
-        return promotedProperties().get().adUrn();
-    }
-
-    @Override
-    public boolean hasPromoter() {
-        return isPromoted() && promotedProperties().get().promoterUrn().isPresent();
-    }
-
-    @Override
-    public Optional<String> promoterName() {
-        return promotedProperties().get().promoterName();
-    }
-
-    @Override
-    public Optional<Urn> promoterUrn() {
-        return isPromoted() ? promotedProperties().get().promoterUrn() : Optional.absent();
-    }
-
-    @Override
-    public List<String> clickUrls() {
-        return promotedProperties().get().trackClickedUrls();
-    }
-
-    @Override
-    public List<String> impressionUrls() {
-        return promotedProperties().get().trackImpressionUrls();
-    }
-
-    @Override
-    public List<String> promoterClickUrls() {
-        return promotedProperties().get().promoterClickedUrls();
-    }
-
-    @Override
-    public List<String> playUrls() {
-        return promotedProperties().get().trackPlayedUrls();
-    }
-
-    @Override
-    public Optional<String> getAvatarUrlTemplate() {
-        return avatarUrlTemplate();
     }
 
     @Override
@@ -322,8 +253,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     @AutoValue.Builder
     public abstract static class Builder {
-
-        public abstract Builder getKind(Kind getKind);
 
         public abstract Builder offlineState(OfflineState offlineState);
 

@@ -2,18 +2,21 @@ package com.soundcloud.android.presentation;
 
 import static java.lang.String.format;
 
+import com.soundcloud.android.api.model.Timestamped;
+import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.profile.ApiPostSource;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 
-public abstract class PlayableItem implements TypedListItem, OfflineItem, LikeableItem, RepostableItem, PromotedListItem {
+public abstract class PlayableItem implements OfflineItem, LikeableItem, RepostableItem, ListItem, Timestamped {
 
-    public static final Function<PlayableItem, Urn> TO_URN = item -> item.getUrn();
+    public static final Function<PlayableItem, Urn> TO_URN = Entity::getUrn;
 
     public static PlayableItem from(ApiPlayableSource apiPlayableSource) {
         if (apiPlayableSource.getTrack().isPresent()) {
@@ -79,8 +82,25 @@ public abstract class PlayableItem implements TypedListItem, OfflineItem, Likeab
 
     abstract public long getDuration();
 
+    public abstract Optional<PromotedProperties> promotedProperties();
+
     public boolean isPromoted() {
         return promotedProperties().isPresent();
     }
 
+    public boolean hasPromoter() {
+        return promotedProperties().isPresent() && promotedProperties().get().promoterUrn().isPresent();
+    }
+
+    public String promoterName() {
+        return promotedProperties().get().promoterName().get();
+    }
+
+    public Optional<Urn> promoterUrn() {
+        return promotedProperties().get().promoterUrn();
+    }
+
+    public String adUrn() {
+        return promotedProperties().get().adUrn();
+    }
 }

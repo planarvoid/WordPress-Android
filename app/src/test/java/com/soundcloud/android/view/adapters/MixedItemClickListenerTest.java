@@ -27,7 +27,6 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -151,8 +150,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void itemClickOnPromotedPlaylistSendsPlaylistDetailIntent() {
         Observable<List<Urn>> playables = Observable.from(Collections.<List<Urn>>emptyList());
-        PromotedPlaylistItem playlistItem = PlayableFixtures.expectedPromotedPlaylist();
-        PromotedSourceInfo info = PromotedSourceInfo.fromItem(playlistItem);
+        PlaylistItem playlistItem = PlayableFixtures.expectedPromotedPlaylist();
 
         listener.onItemClick(playables, view, 0, playlistItem);
 

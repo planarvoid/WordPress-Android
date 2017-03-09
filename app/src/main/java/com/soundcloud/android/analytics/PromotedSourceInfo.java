@@ -1,7 +1,8 @@
 package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
@@ -31,12 +32,13 @@ public final class PromotedSourceInfo implements Parcelable {
     private final List<String> trackingUrls;
     private boolean playbackStarted;
 
-    public static PromotedSourceInfo fromItem(PromotedListItem item) {
+    public static PromotedSourceInfo fromItem(PlayableItem item) {
+        final PromotedProperties promotedProperties = item.promotedProperties().get();
         return new PromotedSourceInfo(
-                item.getAdUrn(),
+                promotedProperties.adUrn(),
                 item.getUrn(),
-                item.promoterUrn(),
-                item.playUrls()
+                promotedProperties.promoterUrn(),
+                promotedProperties.trackPlayedUrls()
         );
     }
 

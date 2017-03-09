@@ -10,7 +10,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayableWithReposter;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
@@ -170,10 +170,11 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     }
 
     @NonNull
-    private Optional<PromotedListItem> getFirstPromotedListItem(List<StreamItem> streamItems) {
+    private Optional<PlayableItem> getFirstPromotedListItem(List<StreamItem> streamItems) {
         for (StreamItem streamItem : streamItems) {
-            if (streamItem.isPromoted()) {
-                return streamItem.getListItem().transform(input -> (PromotedListItem) input);
+            final Optional<PlayableItem> playableItem = streamItem.getPlayableItem();
+            if (playableItem.isPresent() && playableItem.get().isPromoted()) {
+                return playableItem;
             }
         }
         return Optional.absent();
@@ -222,12 +223,11 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     }
 
     private void promotedImpressionAction(List<StreamItem> streamItems) {
-        final Optional<PromotedListItem> promotedListItemOpt = getFirstPromotedListItem(streamItems);
+        final Optional<PlayableItem> promotedListItemOpt = getFirstPromotedListItem(streamItems);
         if (promotedListItemOpt.isPresent()) {
-            PromotedListItem promotedListItem = promotedListItemOpt.get();
-            markPromotedItemAsStaleCommand.call(promotedListItem);
-            eventBus.publish(EventQueue.TRACKING,
-                             PromotedTrackingEvent.forImpression(promotedListItem, Screen.STREAM.get()));
+            PlayableItem promotedListItem = promotedListItemOpt.get();
+            markPromotedItemAsStaleCommand.call(promotedListItem.adUrn());
+            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(promotedListItem, Screen.STREAM.get()));
         }
     }
 

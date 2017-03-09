@@ -10,8 +10,6 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
-import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
@@ -149,7 +147,6 @@ public abstract class PlayableFixtures {
                                          .isPrivate(false).build();
         return TrackItem.from(track)
                         .toBuilder()
-                        .getKind(TypedListItem.Kind.PROMOTED)
                         .promotedProperties(getPromotedProperties());
     }
 
@@ -189,7 +186,7 @@ public abstract class PlayableFixtures {
         return postedPlaylistForPostedPlaylistScreen(Urn.forPlaylist(123L)).build();
     }
 
-    private static PlaylistItem.Default.Builder postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
+    private static PlaylistItem.Builder postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
         return PlaylistItem.builder()
                            .getUrn(playlistUrn)
                            .title("squirlex galore")
@@ -216,23 +213,24 @@ public abstract class PlayableFixtures {
         return LastPostedTrack.create(Urn.forTrack(123L), new Date(), "http://permalink.url");
     }
 
-    private static PromotedPlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {
-        return PromotedPlaylistItem.builder(promotedProperties)
-                                   .getUrn(Urn.forPlaylist(123L))
-                                   .title("squirlex galore")
-                                   .creatorName("avieciie")
-                                   .trackCount(4)
-                                   .likesCount(2)
-                                   .getCreatedAt(new Date())
-                                   .isPrivate(false)
-                                   .permalinkUrl("http://permalink.url");
+    private static PlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {
+        return PlaylistItem.builder()
+                           .getUrn(Urn.forPlaylist(123L))
+                           .title("squirlex galore")
+                           .creatorName("avieciie")
+                           .trackCount(4)
+                           .likesCount(2)
+                           .getCreatedAt(new Date())
+                           .isPrivate(false)
+                           .permalinkUrl("http://permalink.url")
+                           .promotedProperties(promotedProperties);
     }
 
-    public static PromotedPlaylistItem expectedPromotedPlaylist() {
+    public static PlaylistItem expectedPromotedPlaylist() {
         return basePromotedPlaylist(getPromotedProperties(Urn.forUser(193L), "SoundCloud", "ad:urn:123")).build();
     }
 
-    public static PromotedPlaylistItem expectedPromotedPlaylistWithoutPromoter() {
+    public static PlaylistItem expectedPromotedPlaylistWithoutPromoter() {
         return basePromotedPlaylist(getPromotedProperties()).build();
     }
 
@@ -284,7 +282,7 @@ public abstract class PlayableFixtures {
                                                boolean isLiked,
                                                boolean isReposted,
                                                boolean markedForOffline) {
-        final PlaylistItem.Default.Builder playlistItem = PlaylistItem.builder(PlaylistItem.from(apiPlaylist));
+        final PlaylistItem.Builder playlistItem = PlaylistItem.from(apiPlaylist).toBuilder();
         playlistItem.isUserLike(isLiked);
         playlistItem.isRepost(isReposted);
         playlistItem.isMarkedForOffline(Optional.of(markedForOffline));

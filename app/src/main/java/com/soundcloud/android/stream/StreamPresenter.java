@@ -33,8 +33,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
@@ -245,12 +244,12 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     protected void onItemClicked(View view, int position) {
         final StreamItem item = adapter.getItem(position);
-        final Optional<ListItem> listItem = item.getListItem();
-        if (listItem.isPresent()) {
+        final Optional<PlayableItem> playableItem = item.getPlayableItem();
+        if (playableItem.isPresent()) {
             if (item.isPromoted()) {
-                publishPromotedItemClickEvent((PromotedListItem) listItem.get());
+                publishPromotedItemClickEvent(playableItem.get());
             }
-            itemClickListener.legacyOnPostClick(streamOperations.urnsForPlayback(), view, position, listItem.get());
+            itemClickListener.legacyOnPostClick(streamOperations.urnsForPlayback(), view, position, playableItem.get());
         }
     }
 
@@ -259,7 +258,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private void publishPromotedItemClickEvent(PromotedListItem item) {
+    private void publishPromotedItemClickEvent(PlayableItem item) {
         eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forItemClick(item, Screen.STREAM.get()));
     }
 

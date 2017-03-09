@@ -41,7 +41,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -212,10 +211,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void tracksPromotedPlaylistItemClick() {
-        final PromotedPlaylistItem clickedPlaylist = PlayableFixtures.expectedPromotedPlaylist();
+        final PlaylistItem clickedPlaylist = PlayableFixtures.expectedPromotedPlaylist();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedPlaylist.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.createForPromoted(clickedPlaylist, clickedPlaylist.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(clickedPlaylist, clickedPlaylist.getCreatedAt()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);

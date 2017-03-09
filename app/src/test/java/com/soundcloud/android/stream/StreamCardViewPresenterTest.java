@@ -22,7 +22,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -218,7 +217,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindsHeaderAvatarForPromotedItemWithPromoter() {
-        PromotedPlaylistItem promotedItem = promotedPlaylistItem();
+        PlaylistItem promotedItem = promotedPlaylistItem();
         presenter.bind(itemView, promotedItem, EventContextMetadata.builder(), CREATED_AT_STREAM);
 
         verify(imageOperations)
@@ -231,7 +230,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindHeaderAvatarForPromotedItemWithoutPromoter() {
-        PromotedPlaylistItem promotedItem = promotedPlaylistWithoutPromoter();
+        PlaylistItem promotedItem = promotedPlaylistWithoutPromoter();
         presenter.bind(itemView, promotedItem, EventContextMetadata.builder(), CREATED_AT_STREAM);
 
         verify(imageOperations, never())
@@ -265,11 +264,11 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(itemView, never()).showGoIndicator();
     }
 
-    private PromotedPlaylistItem promotedPlaylistItem() {
+    private PlaylistItem promotedPlaylistItem() {
         return PlayableFixtures.expectedPromotedPlaylist();
     }
 
-    private PromotedPlaylistItem promotedPlaylistWithoutPromoter() {
+    private PlaylistItem promotedPlaylistWithoutPromoter() {
         return PlayableFixtures.expectedPromotedPlaylistWithoutPromoter();
     }
 

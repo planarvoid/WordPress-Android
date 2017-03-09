@@ -34,10 +34,10 @@ public class MarkPromotedItemAsStaleCommandTest extends StorageIntegrationTest {
         final PromotedProperties promotedProperties = PromotedProperties.create(adUrn, emptyList(), emptyList(), emptyList(), emptyList(), Optional.absent(), Optional.absent());
 
         final Track track = ModelFixtures.track();
-        final StreamEntity streamEntity = StreamEntity.builder(track.urn(), track.createdAt(), Optional.absent(), Optional.absent(), Optional.absent()).build();
-        TrackItem promotedItem = TrackItem.from(track, streamEntity, promotedProperties);
+        final StreamEntity streamEntity = StreamEntity.builder(track.urn(), track.createdAt(), Optional.absent(), Optional.absent(), Optional.absent()).promotedProperties(Optional.of(promotedProperties)).build();
+        TrackItem promotedItem = TrackItem.from(track, streamEntity);
 
-        command.call(promotedItem);
+        command.call(promotedItem.adUrn());
 
         Query query = from(Table.PromotedTracks.name())
                 .whereEq(TableColumns.PromotedTracks.AD_URN, adUrn)

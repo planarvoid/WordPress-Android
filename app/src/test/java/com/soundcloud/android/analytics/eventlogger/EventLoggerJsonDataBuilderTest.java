@@ -25,10 +25,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -283,7 +284,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackClickJson() throws Exception {
-        PromotedListItem item = PlayableFixtures.expectedPromotedTrack();
+        TrackItem item = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(item, "stream");
 
         jsonDataBuilder.build(click);
@@ -292,7 +293,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", click.getTimestamp())
                                                .pageName("stream")
                                                .monetizationType("promoted")
-                                               .adUrn(item.getAdUrn())
+                                               .adUrn(item.adUrn())
                                                .promotedBy(promotedBy)
                                                .clickObject(item.getUrn().toString())
                                                .clickTarget(promotedBy)
@@ -301,7 +302,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedTrackImpressionJson() throws Exception {
-        PromotedListItem item = PlayableFixtures.expectedPromotedTrack();
+        TrackItem item = PlayableFixtures.expectedPromotedTrack();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);
@@ -309,7 +310,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
                                                .pageName("stream")
                                                .monetizationType("promoted")
-                                               .adUrn(item.getAdUrn())
+                                               .adUrn(item.adUrn())
                                                .promotedBy(item.promoterUrn().get().toString())
                                                .impressionName("promoted_track")
                                                .impressionObject(item.getUrn().toString()));
@@ -317,7 +318,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPromotedPlaylistImpressionJson() throws Exception {
-        PromotedListItem item = PlayableFixtures.expectedPromotedPlaylist();
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
         PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);
@@ -325,7 +326,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", impression.getTimestamp())
                                                .pageName("stream")
                                                .monetizationType("promoted")
-                                               .adUrn(item.getAdUrn())
+                                               .adUrn(item.adUrn())
                                                .promotedBy(item.promoterUrn().get().toString())
                                                .impressionName("promoted_playlist")
                                                .impressionObject(item.getUrn().toString()));

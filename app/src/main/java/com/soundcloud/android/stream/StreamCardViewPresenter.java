@@ -15,7 +15,6 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -134,16 +133,17 @@ class StreamCardViewPresenter {
     }
 
     private void showPromoted(StreamItemViewHolder itemView,
-                              PromotedListItem promoted,
+                              PlayableItem promoted,
                               String playableType,
                               Urn itemUrn,
                               EventContextMetadata eventContextMetadata) {
-        if (promoted.hasPromoter()) {
+        if (promoted.isPromoted() && promoted.promoterUrn().isPresent()) {
+            final PromotedProperties promotedProperties = promoted.promotedProperties().get();
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promoted.promoterUrn().get(), promoted.getAvatarUrlTemplate(), itemUrn,
+            loadAvatar(itemView, promotedProperties.promoterUrn().get(), promoted.avatarUrlTemplate(), itemUrn,
                        eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
-            itemView.setPromoterHeader(promoted.promoterName().get(), headerSpannableBuilder.get());
+            itemView.setPromoterHeader(promotedProperties.promoterName().get(), headerSpannableBuilder.get());
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();

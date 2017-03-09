@@ -11,7 +11,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -96,8 +95,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void showAdditionalInformation(View itemView, PlaylistItem playlist) {
         hideAllAdditionalInformation(itemView);
-        if (playlist instanceof PromotedPlaylistItem) {
-            showPromotedLabel(itemView, (PromotedPlaylistItem) playlist);
+        if (playlist.isPromoted()) {
+            showPromotedLabel(itemView, playlist);
         } else if (isPrivatePlaylist(playlist)) {
             showPrivateIndicator(itemView);
         } else if (playlist.isAlbum()) {
@@ -114,9 +113,9 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         unsetPromoterClickable(itemView);
     }
 
-    private void showPromotedLabel(View itemView, PromotedPlaylistItem promoted) {
+    private void showPromotedLabel(View itemView, PlaylistItem promoted) {
         if (promoted.hasPromoter()) {
-            String label = resources.getString(R.string.promoted_by_promotorname, promoted.promoterName().get());
+            String label = resources.getString(R.string.promoted_by_promotorname, promoted.promoterName());
             setPromoterClickable(showPromotedLabel(itemView, label), promoted);
         } else {
             showPromotedLabel(itemView, resources.getString(R.string.promoted));
@@ -130,7 +129,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         return promoted;
     }
 
-    private void setPromoterClickable(TextView promoter, PromotedPlaylistItem item) {
+    private void setPromoterClickable(TextView promoter, PlaylistItem item) {
         ViewUtils.setTouchClickable(promoter, new PromoterClickViewListener(item, eventBus, screenProvider, navigator));
     }
 

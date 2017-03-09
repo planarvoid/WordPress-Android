@@ -1,14 +1,13 @@
 package com.soundcloud.android.upsell;
 
-import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
-
+import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-public class UpsellListItem implements TypedListItem {
+public class UpsellListItem implements ListItem, Timestamped {
 
     public static final Urn STREAM_UPSELL_URN = new Urn("soundcloud:notifications:stream-upsell");
     public static final Urn PLAYLIST_UPSELL_URN = new Urn("soundcloud:notifications:playlist-upsell");
@@ -37,11 +36,6 @@ public class UpsellListItem implements TypedListItem {
     @Override
     public Optional<String> getImageUrlTemplate() {
         return Optional.absent();
-    }
-
-    @Override
-    public Kind getKind() {
-        return UPSELL;
     }
 
     @Override

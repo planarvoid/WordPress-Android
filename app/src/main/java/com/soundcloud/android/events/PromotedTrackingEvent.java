@@ -5,7 +5,8 @@ import static com.soundcloud.android.events.PromotedTrackingEvent.ImpressionName
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public abstract class PromotedTrackingEvent extends TrackingEvent {
 
     public static final String CLICK_NAME = "item_navigation";
+
     public enum ImpressionName {
 
         PROMOTED_PLAYLIST("promoted_playlist"),
@@ -85,34 +87,37 @@ public abstract class PromotedTrackingEvent extends TrackingEvent {
                                                             .clickName(Optional.absent());
     }
 
-    public static PromotedTrackingEvent forPromoterClick(PromotedListItem promotedItem, String screen) {
-        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.promoterClickUrls(), screen)
+    public static PromotedTrackingEvent forPromoterClick(PlayableItem promotedItem, String screen) {
+        final PromotedProperties promotedProperties = promotedItem.promotedProperties().get();
+        return basePromotedEvent(Kind.KIND_CLICK, promotedProperties, promotedProperties.promoterClickedUrls(), screen)
                 .clickObject(Optional.of(promotedItem.getUrn()))
-                .clickTarget(Optional.of(promotedItem.promoterUrn().get()))
+                .clickTarget(Optional.of(promotedProperties.promoterUrn().get()))
                 .clickName(Optional.of(CLICK_NAME))
                 .build();
     }
 
-    public static PromotedTrackingEvent forItemClick(PromotedListItem promotedItem, String screen) {
-        return basePromotedEvent(Kind.KIND_CLICK, promotedItem, promotedItem.clickUrls(), screen)
+    public static PromotedTrackingEvent forItemClick(PlayableItem promotedItem, String screen) {
+        final PromotedProperties promotedProperties = promotedItem.promotedProperties().get();
+        return basePromotedEvent(Kind.KIND_CLICK, promotedProperties, promotedProperties.trackClickedUrls(), screen)
                 .clickObject(Optional.of(promotedItem.getUrn()))
                 .clickTarget(Optional.of(promotedItem.getUrn()))
                 .clickName(Optional.of(CLICK_NAME))
                 .build();
     }
 
-    public static PromotedTrackingEvent forImpression(PromotedListItem promotedItem, String screen) {
+    public static PromotedTrackingEvent forImpression(PlayableItem promotedItem, String screen) {
         final Urn promotedItemUrn = promotedItem.getUrn();
         final ImpressionName impressionName = promotedItemUrn.isPlaylist() ? PROMOTED_PLAYLIST : PROMOTED_TRACK;
-        return basePromotedEvent(Kind.KIND_IMPRESSION, promotedItem, promotedItem.impressionUrls(), screen).impressionObject(Optional.of(promotedItemUrn))
-                                                                                                           .impressionName(Optional.of(impressionName))
-                                                                                                           .build();
+        final PromotedProperties promotedProperties = promotedItem.promotedProperties().get();
+        return basePromotedEvent(Kind.KIND_IMPRESSION, promotedProperties, promotedProperties.trackImpressionUrls(), screen).impressionObject(Optional.of(promotedItemUrn))
+                                                                                                                      .impressionName(Optional.of(impressionName))
+                                                                                                                      .build();
     }
 
     @NotNull
-    private static PromotedTrackingEvent.Builder basePromotedEvent(Kind kind, PromotedListItem promotedItem,
+    private static PromotedTrackingEvent.Builder basePromotedEvent(Kind kind, PromotedProperties promotedProperties,
                                                                    List<String> trackingUrls, String screen) {
-        return PromotedTrackingEvent.create(kind, promotedItem.getAdUrn(), promotedItem.promoterUrn(), trackingUrls, screen);
+        return PromotedTrackingEvent.create(kind, promotedProperties.adUrn(), promotedProperties.promoterUrn(), trackingUrls, screen);
     }
 
     @Override

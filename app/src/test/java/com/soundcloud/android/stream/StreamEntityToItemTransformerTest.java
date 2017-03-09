@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
-import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
@@ -86,12 +85,12 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
     @Test
     public void enrichesPromotedPlaylistStreamItem() throws Exception {
-        final PromotedPlaylistItem promotedPlaylistItem = ModelFixtures.promotedPlaylistItem(playlist, promoter);
+        final PlaylistItem promotedPlaylistItem = ModelFixtures.promotedPlaylistItem(playlist, promoter);
         final StreamEntity streamEntity = fromPromotedPlaylistItem(CREATED_AT, promotedPlaylistItem);
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Observable.just(Collections.singletonMap(playlist.urn(), playlist)));
 
-        final PlaylistStreamItem promotedPlaylistStreamItem = PlaylistStreamItem.createForPromoted(promotedPlaylistItem, streamEntity.createdAt());
+        final PlaylistStreamItem promotedPlaylistStreamItem = PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedPlaylistStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -105,7 +104,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
         return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.avatarUrlTemplate()).promotedProperties(trackItem.promotedProperties()).build();
     }
 
-    private StreamEntity fromPromotedPlaylistItem(Date createdAt, PromotedPlaylistItem playlistItem) {
+    private StreamEntity fromPromotedPlaylistItem(Date createdAt, PlaylistItem playlistItem) {
         return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).promotedProperties(playlistItem.promotedProperties()).build();
     }
 }

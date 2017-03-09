@@ -20,7 +20,6 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
-import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
@@ -210,7 +209,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
         TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
-        verify(markPromotedItemAsStaleCommand).call((PromotedListItem) track.trackItem());
+        verify(markPromotedItemAsStaleCommand).call(track.trackItem().adUrn());
     }
 
     @Test
@@ -221,7 +220,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
         TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
-        verify(markPromotedItemAsStaleCommand).call((PromotedListItem) track.trackItem());
+        verify(markPromotedItemAsStaleCommand).call(track.trackItem().adUrn());
     }
 
     @Test
