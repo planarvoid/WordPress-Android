@@ -67,7 +67,7 @@ public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> 
 
     private void setTrackCount(View view, PlaylistItem playlist) {
         final TextView trackCount = findById(view, R.id.track_count);
-        trackCount.setText(String.valueOf(playlist.getTrackCount()));
+        trackCount.setText(String.valueOf(playlist.trackCount()));
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlist, final int position) {

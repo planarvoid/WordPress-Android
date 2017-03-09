@@ -92,57 +92,24 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
     }
 
     private static PlaylistItem fromLikedAndRepost(ApiPlaylist apiPlaylist, boolean isLiked, boolean isRepost) {
-        Urn creatorUrn = apiPlaylist.getUser() != null ? apiPlaylist.getUser().getUrn() : Urn.NOT_SET;
-        boolean isPrivate = !apiPlaylist.isPublic();
-        return builder().getImageUrlTemplate(apiPlaylist.getImageUrlTemplate())
-                        .getCreatedAt(apiPlaylist.getCreatedAt())
-                        .getUrn(apiPlaylist.getUrn())
-                        .genre(Optional.fromNullable(apiPlaylist.getGenre()))
-                        .title(apiPlaylist.getTitle())
-                        .creatorUrn(creatorUrn)
-                        .creatorName(apiPlaylist.getUsername())
-                        .permalinkUrl(apiPlaylist.getPermalinkUrl())
-                        .offlineState(OfflineState.NOT_OFFLINE)
-                        .isUserLike(isLiked)
-                        .likesCount(apiPlaylist.getStats().getLikesCount())
-                        .isUserRepost(false)
-                        .repostsCount(apiPlaylist.getStats().getRepostsCount())
-                        .isPrivate(isPrivate)
-                        .isRepost(isRepost)
-                        .setType(Optional.fromNullable(apiPlaylist.getSetType()))
-                        .isAlbum(apiPlaylist.isAlbum())
-                        .trackCount(apiPlaylist.getTrackCount())
-                        .isMarkedForOffline(Optional.absent())
-                        .tags(Optional.fromNullable(apiPlaylist.getTags()))
-                        .duration(apiPlaylist.getDuration())
-                        .releaseDate(apiPlaylist.getReleaseDate())
-                        .promotedProperties(Optional.absent()).build();
+        final Playlist playlist = Playlist.from(apiPlaylist);
+        return builder(playlist).isUserLike(isLiked).isRepost(isRepost).build();
     }
 
-    private static Builder builder(Playlist playlist) {
-        return builder().getImageUrlTemplate(playlist.imageUrlTemplate())
-                        .getCreatedAt(playlist.createdAt())
-                        .getUrn(playlist.urn())
-                        .genre(playlist.genre())
-                        .title(playlist.title())
-                        .creatorUrn(playlist.creatorUrn())
-                        .creatorName(playlist.creatorName())
-                        .permalinkUrl(playlist.permalinkUrl().or(Strings.EMPTY))
-                        .offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
-                        .isUserLike(playlist.isLikedByCurrentUser().or(false))
-                        .likesCount(playlist.likesCount())
-                        .isUserRepost(playlist.isRepostedByCurrentUser().or(false))
-                        .repostsCount(playlist.repostCount())
-                        .isPrivate(playlist.isPrivate())
-                        .isRepost(false)
-                        .setType(playlist.setType())
-                        .isAlbum(playlist.isAlbum())
-                        .trackCount(playlist.trackCount())
-                        .isMarkedForOffline(playlist.isMarkedForOffline())
-                        .tags(playlist.tags())
-                        .duration(playlist.duration())
-                        .releaseDate(playlist.releaseDate().or(Strings.EMPTY))
-                        .promotedProperties(Optional.absent());
+    public static Builder builder(Playlist playlist) {
+        return new AutoValue_PlaylistItem.Builder().offlineState(playlist.offlineState().or(OfflineState.NOT_OFFLINE))
+                                                   .isUserLike(playlist.isLikedByCurrentUser().or(false))
+                                                   .likesCount(playlist.likesCount())
+                                                   .isUserRepost(playlist.isRepostedByCurrentUser().or(false))
+                                                   .repostsCount(playlist.repostCount())
+                                                   .isRepost(false)
+                                                   .trackCount(playlist.trackCount())
+                                                   .isMarkedForOffline(playlist.isMarkedForOffline())
+                                                   .promotedProperties(Optional.absent())
+                                                   .reposter(Optional.absent())
+                                                   .reposterUrn(Optional.absent())
+                                                   .avatarUrlTemplate(Optional.absent())
+                                                   .playlist(playlist);
     }
 
     @Override
@@ -150,19 +117,63 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         return from(playlist);
     }
 
-    public abstract Optional<String> setType();
-
-    public abstract boolean isAlbum();
+    public abstract Playlist playlist();
 
     public abstract int trackCount();
 
     public abstract Optional<Boolean> isMarkedForOffline();
 
-    public abstract Optional<List<String>> tags();
+    public Optional<String> getImageUrlTemplate() {
+        return playlist().imageUrlTemplate();
+    }
 
-    public abstract long duration();
+    public Date getCreatedAt() {
+        return playlist().createdAt();
+    }
 
-    public abstract String releaseDate();
+    public Urn getUrn() {
+        return playlist().urn();
+    }
+
+    public Optional<String> genre() {
+        return playlist().genre();
+    }
+
+    public String title() {
+        return playlist().title();
+    }
+
+    public Urn creatorUrn() {
+        return playlist().creatorUrn();
+    }
+
+    public String creatorName() {
+        return playlist().creatorName();
+    }
+
+    public String permalinkUrl() {
+        return playlist().permalinkUrl().or(Strings.EMPTY);
+    }
+
+    public boolean isPrivate() {
+        return playlist().isPrivate();
+    }
+
+    public Optional<String> setType() {
+        return playlist().setType();
+    }
+
+    public boolean isAlbum() {
+        return playlist().isAlbum();
+    }
+
+    public Optional<List<String>> tags() {
+        return playlist().tags();
+    }
+
+    public String releaseDate() {
+        return playlist().releaseDate().or(Strings.EMPTY);
+    }
 
     @Override
     public String getPlayableType() {
@@ -171,14 +182,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         } else {
             return TYPE_PLAYLIST;
         }
-    }
-
-    public Optional<String> getSetType() {
-        return setType();
-    }
-
-    public int getTrackCount() {
-        return trackCount();
     }
 
     public OfflineState getDownloadState() {
@@ -192,7 +195,7 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     @Override
     public long getDuration() {
-        return duration();
+        return playlist().duration();
     }
 
     public boolean isPublic() {
@@ -205,36 +208,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     public String getLabel(Resources resources) {
         return PlaylistUtils.formatPlaylistTitle(resources, getPlayableType(), isAlbum(), getReleaseDate());
-    }
-
-    @VisibleForTesting
-    public static Builder builder() {
-        return new AutoValue_PlaylistItem.Builder().getImageUrlTemplate(Optional.absent())
-                                                   .getCreatedAt(new Date())
-                                                   .getUrn(Urn.NOT_SET)
-                                                   .genre(Optional.absent())
-                                                   .title(Strings.EMPTY)
-                                                   .creatorUrn(Urn.NOT_SET)
-                                                   .creatorName(Strings.EMPTY)
-                                                   .permalinkUrl(Strings.EMPTY)
-                                                   .offlineState(OfflineState.NOT_OFFLINE)
-                                                   .isUserLike(false)
-                                                   .likesCount(0)
-                                                   .isUserRepost(false)
-                                                   .repostsCount(0)
-                                                   .reposter(Optional.absent())
-                                                   .reposterUrn(Optional.absent())
-                                                   .isPrivate(false)
-                                                   .isRepost(false)
-                                                   .avatarUrlTemplate(Optional.absent())
-                                                   .setType(Optional.absent())
-                                                   .isAlbum(false)
-                                                   .trackCount(0)
-                                                   .isMarkedForOffline(Optional.absent())
-                                                   .tags(Optional.absent())
-                                                   .duration(0)
-                                                   .releaseDate(Strings.EMPTY)
-                                                   .promotedProperties(Optional.absent());
     }
 
     public abstract PlaylistItem.Builder toBuilder();
@@ -286,22 +259,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
     @AutoValue.Builder
     public abstract static class Builder {
-        public abstract Builder getImageUrlTemplate(Optional<String> getImageUrlTemplate);
-
-        public abstract Builder getCreatedAt(Date getCreatedAt);
-
-        public abstract Builder getUrn(Urn getUrn);
-
-        public abstract Builder genre(Optional<String> genre);
-
-        public abstract Builder title(String title);
-
-        public abstract Builder creatorUrn(Urn creatorUrn);
-
-        public abstract Builder creatorName(String creatorName);
-
-        public abstract Builder permalinkUrl(String permalinkUrl);
-
         public abstract Builder offlineState(OfflineState offlineState);
 
         public abstract Builder isUserLike(boolean isUserLike);
@@ -316,25 +273,15 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
 
         public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
 
-        public abstract Builder isPrivate(boolean isPrivate);
-
         public abstract Builder isRepost(boolean isRepost);
 
         public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
-
-        public abstract Builder setType(Optional<String> setType);
-
-        public abstract Builder isAlbum(boolean isAlbum);
 
         public abstract Builder trackCount(int trackCount);
 
         public abstract Builder isMarkedForOffline(Optional<Boolean> isMarkedForOffline);
 
-        public abstract Builder tags(Optional<List<String>> tags);
-
-        public abstract Builder duration(long duration);
-
-        public abstract Builder releaseDate(String releaseDate);
+        public abstract Builder playlist(Playlist playlist);
 
         public Builder promotedProperties(PromotedProperties promotedProperties) {
             return promotedProperties(Optional.of(promotedProperties));

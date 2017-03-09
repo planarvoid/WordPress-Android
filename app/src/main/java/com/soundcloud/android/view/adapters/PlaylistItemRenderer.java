@@ -88,7 +88,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private void showTrackCount(View itemView, PlaylistItem playlist) {
-        final int trackCount = playlist.getTrackCount();
+        final int trackCount = playlist.trackCount();
         final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
         getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
     }

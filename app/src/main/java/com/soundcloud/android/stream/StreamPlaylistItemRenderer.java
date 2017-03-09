@@ -61,8 +61,8 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
     }
 
     private void showTrackCount(StreamPlaylistViewHolder itemView, PlaylistItem playlistItem) {
-        String trackString = resources.getQuantityString(R.plurals.number_of_tracks, playlistItem.getTrackCount());
-        itemView.setTrackCount(String.valueOf(playlistItem.getTrackCount()), trackString);
+        String trackString = resources.getQuantityString(R.plurals.number_of_tracks, playlistItem.trackCount());
+        itemView.setTrackCount(String.valueOf(playlistItem.trackCount()), trackString);
     }
 
     private void setupEngagementBar(StreamPlaylistViewHolder playlistView,

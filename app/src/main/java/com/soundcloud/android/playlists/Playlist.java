@@ -125,6 +125,10 @@ public abstract class Playlist {
 
         public abstract Builder permalinkUrl(Optional<String> value);
 
+        public Builder permalinkUrl(String value) {
+            return permalinkUrl(Optional.of(value));
+        }
+
         public Builder setType(String setType) {
             return setType(Optional.fromNullable(setType));
         }

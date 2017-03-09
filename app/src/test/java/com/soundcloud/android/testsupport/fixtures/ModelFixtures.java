@@ -310,9 +310,8 @@ public class ModelFixtures {
     }
 
     public static PlaylistItem playlistItem(Urn urn) {
-        final PlaylistItem.Builder builder = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)).toBuilder();
-        builder.getUrn(urn);
-        return builder.build();
+        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        return PlaylistItem.from(playlistBuilder(apiPlaylist).urn(urn).build());
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {

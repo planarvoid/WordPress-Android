@@ -48,7 +48,7 @@ public class UpdatePlaylistListSubscriberTest  extends AndroidUnitTest {
 
         final PlaylistItem updatedItem = items.get(0);
         assertThat(updatedItem.getUrn()).isEqualTo(playlists1.getUrn());
-        assertThat(updatedItem.getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
+        assertThat(updatedItem.trackCount()).isEqualTo(UPDATED_TRACK_COUNT);
         verify(adapter).notifyItemChanged(0);
     }
 

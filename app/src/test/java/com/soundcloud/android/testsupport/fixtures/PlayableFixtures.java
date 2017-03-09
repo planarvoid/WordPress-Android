@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
@@ -171,15 +172,15 @@ public abstract class PlayableFixtures {
     }
 
     public static PlaylistItem expectedLikedPlaylistForPlaylistsScreen() {
-        return PlaylistItem.builder()
-                           .getUrn(Urn.forPlaylist(123L))
-                           .title("squirlex galore")
-                           .creatorName("avieciie")
-                           .trackCount(4)
-                           .likesCount(2)
-                           .getCreatedAt(new Date())
-                           .isPrivate(false)
-                           .build();
+        final Playlist playlist = ModelFixtures.playlistBuilder()
+                                               .urn(Urn.forPlaylist(123L))
+                                               .title("squirlex galore")
+                                               .creatorName("avieciie")
+                                               .trackCount(4)
+                                               .likesCount(2)
+                                               .createdAt(new Date())
+                                               .isPrivate(false).build();
+        return PlaylistItem.builder(playlist).build();
     }
 
     public static PlaylistItem expectedPostedPlaylistsForPostedPlaylistsScreen() {
@@ -187,15 +188,16 @@ public abstract class PlayableFixtures {
     }
 
     private static PlaylistItem.Builder postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
-        return PlaylistItem.builder()
-                           .getUrn(playlistUrn)
-                           .title("squirlex galore")
-                           .creatorName("avieciie")
-                           .trackCount(4)
-                           .likesCount(2)
-                           .getCreatedAt(new Date())
-                           .isPrivate(false)
-                           .permalinkUrl("http://permalink.url");
+        final Playlist playlist = ModelFixtures.playlistBuilder()
+                                               .urn(playlistUrn)
+                                               .title("squirlex galore")
+                                               .creatorName("avieciie")
+                                               .trackCount(4)
+                                               .likesCount(2)
+                                               .createdAt(new Date())
+                                               .isPrivate(false)
+                                               .permalinkUrl("http://permalink.url").build();
+        return PlaylistItem.builder(playlist);
     }
 
     public static Following expectedFollowingForFollowingsScreen(long position) {
@@ -214,16 +216,16 @@ public abstract class PlayableFixtures {
     }
 
     private static PlaylistItem.Builder basePromotedPlaylist(PromotedProperties promotedProperties) {
-        return PlaylistItem.builder()
-                           .getUrn(Urn.forPlaylist(123L))
-                           .title("squirlex galore")
-                           .creatorName("avieciie")
-                           .trackCount(4)
-                           .likesCount(2)
-                           .getCreatedAt(new Date())
-                           .isPrivate(false)
-                           .permalinkUrl("http://permalink.url")
-                           .promotedProperties(promotedProperties);
+        final Playlist playlist = ModelFixtures.playlistBuilder()
+                                               .urn(Urn.forPlaylist(123L))
+                                               .title("squirlex galore")
+                                               .creatorName("avieciie")
+                                               .trackCount(4)
+                                               .likesCount(2)
+                                               .createdAt(new Date())
+                                               .isPrivate(false)
+                                               .permalinkUrl("http://permalink.url").build();
+        return PlaylistItem.builder(playlist).promotedProperties(promotedProperties);
     }
 
     public static PlaylistItem expectedPromotedPlaylist() {

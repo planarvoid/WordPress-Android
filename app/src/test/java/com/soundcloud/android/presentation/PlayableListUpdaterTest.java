@@ -167,7 +167,7 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
         final PlaylistItem updatedItem = ((PlaylistItem) items.get(0));
         assertThat((updatedItem).getUrn()).isEqualTo(playlist1.getUrn());
-        assertThat((updatedItem).getTrackCount()).isEqualTo(UPDATED_TRACK_COUNT);
+        assertThat((updatedItem).trackCount()).isEqualTo(UPDATED_TRACK_COUNT);
         verify(adapter).notifyItemChanged(0);
     }
 

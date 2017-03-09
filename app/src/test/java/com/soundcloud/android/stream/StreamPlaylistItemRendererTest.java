@@ -82,8 +82,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
         verify(viewHolder).setTrackCount(
-                String.valueOf(playlistItem.getTrackCount()),
-                tracksString(playlistItem.getTrackCount()));
+                String.valueOf(playlistItem.trackCount()),
+                tracksString(playlistItem.trackCount()));
     }
 
     @Test

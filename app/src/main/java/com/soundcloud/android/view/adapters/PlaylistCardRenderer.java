@@ -77,8 +77,8 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
 
         bindArtworkView(viewHolder, playlist);
-        String tracksQuantity = resources.getQuantityString(R.plurals.number_of_tracks, playlist.getTrackCount());
-        viewHolder.trackCount.setText(String.valueOf(playlist.getTrackCount()));
+        String tracksQuantity = resources.getQuantityString(R.plurals.number_of_tracks, playlist.trackCount());
+        viewHolder.trackCount.setText(String.valueOf(playlist.trackCount()));
         viewHolder.tracksView.setText(tracksQuantity);
 
         setupEngagementBar(viewHolder, playlist, module);

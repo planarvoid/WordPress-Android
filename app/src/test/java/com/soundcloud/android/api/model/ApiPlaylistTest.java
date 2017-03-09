@@ -40,13 +40,13 @@ public class ApiPlaylistTest extends AndroidUnitTest {
         assertThat(playlistItem.getDuration()).isEqualTo(apiPlaylist.getDuration());
         assertThat(playlistItem.permalinkUrl()).isEqualTo(apiPlaylist.getPermalinkUrl());
         assertThat(playlistItem.isPrivate()).isEqualTo(!apiPlaylist.isPublic());
-        assertThat(playlistItem.getTrackCount()).isEqualTo(apiPlaylist.getTrackCount());
+        assertThat(playlistItem.trackCount()).isEqualTo(apiPlaylist.getTrackCount());
         assertThat(playlistItem.likesCount()).isEqualTo(apiPlaylist.getStats().getLikesCount());
         assertThat(playlistItem.repostsCount()).isEqualTo(apiPlaylist.getStats().getRepostsCount());
         assertThat(playlistItem.creatorName()).isEqualTo(apiPlaylist.getUsername());
         assertThat(playlistItem.creatorUrn()).isEqualTo(apiPlaylist.getUser().getUrn());
         assertThat(playlistItem.isAlbum()).isEqualTo(apiPlaylist.isAlbum());
-        assertThat(playlistItem.getSetType()).isEqualTo(Optional.of(apiPlaylist.getSetType()));
+        assertThat(playlistItem.setType()).isEqualTo(Optional.of(apiPlaylist.getSetType()));
         assertThat(playlistItem.getReleaseDate()).isEqualTo(apiPlaylist.getReleaseDate());
         assertThat(playlistItem.getTags()).isEqualTo(apiPlaylist.getTags());
         assertThat(playlistItem.genre().get()).isEqualTo(apiPlaylist.getGenre());

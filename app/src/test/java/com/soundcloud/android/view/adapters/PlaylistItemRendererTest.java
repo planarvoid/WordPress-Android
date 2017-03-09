@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -47,16 +48,18 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     private PlaylistItem playlistItem;
     private PlaylistItem.Builder builder;
+    private Playlist.Builder playlistBuilder;
 
     @Before
     public void setUp() throws Exception {
-        builder = ModelFixtures.playlistItemBuilder()
-                               .getUrn(Urn.forPlaylist(123))
-                               .title("title")
-                               .creatorName("creator")
-                               .likesCount(5)
-                               .isUserLike(false)
-                               .trackCount(11);
+        playlistBuilder = ModelFixtures.playlistBuilder()
+                                       .isLikedByCurrentUser(false)
+                                       .urn(Urn.forPlaylist(123))
+                                       .title("title")
+                                       .creatorName("creator")
+                                       .likesCount(5)
+                                       .trackCount(11);
+        builder = PlaylistItem.builder(playlistBuilder.build());
         playlistItem = builder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
@@ -126,7 +129,8 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
-        renderer.bindItemView(0, itemView, singletonList(builder.isPrivate(true).build()));
+        final Playlist playlist = playlistBuilder.isPrivate(true).build();
+        renderer.bindItemView(0, itemView, singletonList(PlaylistItem.from(playlist)));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
@@ -134,7 +138,8 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
-        renderer.bindItemView(0, itemView, singletonList(builder.isPrivate(false).build()));
+        final Playlist playlist = playlistBuilder.isPrivate(false).build();
+        renderer.bindItemView(0, itemView, singletonList(PlaylistItem.from(playlist)));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
@@ -189,7 +194,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
-        PlaylistItem item = playlistItem.toBuilder().isAlbum(true).build();
+        PlaylistItem item = PlaylistItem.builder(playlistBuilder.isAlbum(true).build()).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -200,7 +205,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisplayAlbumTitleForAlbums() {
-        PlaylistItem item = playlistItem.toBuilder().isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build();
+        PlaylistItem item = PlaylistItem.builder(playlistBuilder.isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build()).build();
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
