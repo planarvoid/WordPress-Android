@@ -65,6 +65,10 @@ public class FeatureOperations {
         return featureStorage.isEnabled(FeatureName.OFFLINE_SYNC, false);
     }
 
+    public boolean isNewHomeEnabled() {
+        return featureStorage.isEnabled(FeatureName.NEW_HOME, false);
+    }
+
     public boolean upsellOfflineContent() {
         return !isOfflineContentEnabled()
                 && isFeatureAvailableViaUpgrade(FeatureName.OFFLINE_SYNC);
