@@ -7,8 +7,8 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -30,6 +30,7 @@ public class GcmRegistrationService extends IntentService {
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
+    @Inject ApplicationProperties applicationProperties;
 
     public static void startGcmService(Context context){
         context.startService(new Intent(context, GcmRegistrationService.class));
@@ -46,7 +47,8 @@ public class GcmRegistrationService extends IntentService {
                            InstanceIdWrapper instanceId,
                            Provider<AppboyWrapper> appboyWrapperProvider,
                            FeatureFlags featureFlags,
-                           AccountOperations accountOperations) {
+                           AccountOperations accountOperations,
+                           ApplicationProperties applicationProperties) {
         super(TAG);
         this.gcmStorage = gcmStorage;
         this.apiClient = apiClient;
@@ -54,6 +56,7 @@ public class GcmRegistrationService extends IntentService {
         this.appboyWrapperProvider = appboyWrapperProvider;
         this.featureFlags = featureFlags;
         this.accountOperations = accountOperations;
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class GcmRegistrationService extends IntentService {
             Log.d(TAG, "Push Registration Token: " + token);
             appboyWrapperProvider.get().handleRegistration(token);
 
-            if (featureFlags.isDisabled(Flag.ARCHER_PUSH) || registerTokenWithApi(token).isSuccess()) {
+            if (!applicationProperties.registerForGcm() || registerTokenWithApi(token).isSuccess()) {
                 gcmStorage.markAsRegistered(token);
             }
         }

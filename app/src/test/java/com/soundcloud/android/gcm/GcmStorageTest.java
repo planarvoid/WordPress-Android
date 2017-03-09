@@ -3,8 +3,7 @@ package com.soundcloud.android.gcm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,24 +15,25 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     private GcmStorage gcmStorage;
 
-    @Mock private FeatureFlags featureFlags;
+    @Mock private ApplicationProperties applicationProperties;
     private SharedPreferences prefs;
 
     @Before
     public void setUp() throws Exception {
         prefs = sharedPreferences();
-        gcmStorage = new GcmStorage(prefs, featureFlags);
+        gcmStorage = new GcmStorage(prefs, applicationProperties);
     }
 
     @Test
     public void shouldRegisterIsTrueByDefault() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         assertThat(gcmStorage.shouldRegister()).isTrue();
     }
 
     @Test
     public void shouldNotRegisterAfterMarkedAsRegistered() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         gcmStorage.markAsRegistered("token");
 
         assertThat(gcmStorage.shouldRegister()).isFalse();
@@ -41,7 +41,7 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void hasTokenAfterMarkedAsRegistered() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         gcmStorage.markAsRegistered("token");
 
         assertThat(gcmStorage.getToken()).isNotEmpty();
@@ -49,7 +49,7 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void shouldRegisterArcherWithExistingToken() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         prefs.edit().putString(GcmStorage.TOKEN_KEY, "gcm-token");
 
         assertThat(gcmStorage.shouldRegister()).isTrue();
@@ -57,7 +57,7 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void shouldRegisterAfterClearingRegistration() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         gcmStorage.markAsRegistered("token");
         gcmStorage.clearTokenForRefresh();
 
@@ -66,7 +66,7 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void shouldNotHaveTokenAfterClearingRegisteration() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         gcmStorage.markAsRegistered("token");
         gcmStorage.clearTokenForRefresh();
 

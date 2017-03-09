@@ -34,6 +34,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "false"
+      resValue "bool", "register_for_gcm", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
@@ -53,6 +54,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "true"
+      resValue "bool", "register_for_gcm", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
@@ -72,6 +74,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "true"
+      resValue "bool", "register_for_gcm", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-beta.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
@@ -91,6 +94,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "false"
+      resValue "bool", "register_for_gcm", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
@@ -110,6 +114,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "true"
       resValue "bool", "enforce_concurrent_streaming_limitation", "true"
+      resValue "bool", "register_for_gcm", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
@@ -129,6 +134,7 @@ android {
 
       resValue "bool", "google_plus_enabled", "false"
       resValue "bool", "enforce_concurrent_streaming_limitation", "true"
+      resValue "bool", "register_for_gcm", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"

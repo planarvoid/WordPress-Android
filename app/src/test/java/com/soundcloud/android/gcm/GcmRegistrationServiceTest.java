@@ -15,8 +15,8 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,18 +41,20 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private FeatureFlags featureFlags;
     @Mock private AccountOperations accountOperations;
+    @Mock private ApplicationProperties applicationProperties;
 
     private Intent intent = new Intent();
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(false);
         service = new GcmRegistrationService(gcmStorage,
                                              apiClient,
                                              instanceId,
                                              providerOf(appboyWrapper),
                                              featureFlags,
-                                             accountOperations);
+                                             accountOperations,
+                                             applicationProperties);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
@@ -89,7 +91,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void marksRegisteredOnSuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(false);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         when(instanceId.getToken()).thenReturn(TOKEN);
         when(apiClient.fetchResponse(argThat(isApiRequestTo("POST", "/push/register")
                 .withContent(Collections.singletonMap("token", TOKEN))))).thenReturn(OK_RESPONSE);
@@ -103,7 +105,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     public void registersWithApiWithExistingToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
         when(gcmStorage.getToken()).thenReturn(TOKEN);
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         when(apiClient.fetchResponse(argThat(isApiRequestTo("POST", "/push/register")
                 .withContent(Collections.singletonMap("token", TOKEN))))).thenReturn(OK_RESPONSE);
 
@@ -130,7 +132,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void doesNotMarksRegisteredOnUnsuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(false);
+        when(applicationProperties.registerForGcm()).thenReturn(true);
         when(instanceId.getToken()).thenReturn(TOKEN);
         when(apiClient.fetchResponse(argThat(isApiRequestTo("POST", "/push/register")
                 .withContent(Collections.singletonMap("token", TOKEN))))).thenReturn(FAILED_RESPONSE);

@@ -30,6 +30,7 @@ public class ApplicationProperties {
     private boolean verboseLogging;
     private boolean googlePlusEnabled;
     private boolean enforceConcurrentStreamingLimitation;
+    private boolean registerForGcm;
     private boolean logQueries;
     private boolean failFastOnMappingExceptions;
 
@@ -72,6 +73,7 @@ public class ApplicationProperties {
         verboseLogging = resources.getBoolean(R.bool.verbose_logging);
         googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
         enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);
+        registerForGcm = resources.getBoolean(R.bool.register_for_gcm);
         logQueries = resources.getBoolean(R.bool.log_queries);
         failFastOnMappingExceptions = resources.getBoolean(R.bool.fail_fast_on_mapping_exceptions);
     }
@@ -94,6 +96,10 @@ public class ApplicationProperties {
 
     public boolean enforceConcurrentStreamingLimitation() {
         return enforceConcurrentStreamingLimitation;
+    }
+
+    public boolean registerForGcm() {
+        return registerForGcm;
     }
 
     public boolean isReleaseBuild() {
