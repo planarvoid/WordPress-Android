@@ -90,14 +90,15 @@ public class CastModule {
                                         CastProtocol castProtocol,
                                         PlaySessionStateProvider playSessionStateProvider,
                                         CastQueueController castQueueController,
-                                        CastPlayStateReporter castPlayStateReporter) {
+                                        CastPlayStateReporter castPlayStateReporter,
+                                        CastQueueSlicer castQueueSlicer) {
         if (featureFlags.isDisabled(Flag.CAST_V3)) {
             return new LegacyCastPlayer(legacyCastOperations.get(), videoCastManager.get(), progressReporter.get(),
                                         playQueueManager, eventBus, playStatePublisher, dateProvider);
         } else {
             return new DefaultCastPlayer(playQueueManager, eventBus,
                                          castProtocol, playSessionStateProvider,
-                                         castQueueController, castPlayStateReporter);
+                                         castQueueController, castPlayStateReporter, castQueueSlicer);
         }
     }
 

@@ -29,6 +29,7 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collections;
+import java.util.List;
 
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
@@ -41,6 +42,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastQueueController castQueueController;
     private final CastPlayStateReporter playStateReporter;
+    private final CastQueueSlicer queueSlicer;
 
     private boolean autoplayIfRemoteIsEmpty;
 
@@ -50,13 +52,15 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
                       CastProtocol castProtocol,
                       PlaySessionStateProvider playSessionStateProvider,
                       CastQueueController castQueueController,
-                      CastPlayStateReporter playStateReporter) {
+                      CastPlayStateReporter playStateReporter,
+                      CastQueueSlicer castQueueSlicer) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.castProtocol = castProtocol;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castQueueController = castQueueController;
         this.playStateReporter = playStateReporter;
+        this.queueSlicer = castQueueSlicer;
     }
 
     @Override
@@ -151,7 +155,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     private void loadLocalOnRemote(boolean autoplay) {
         final Urn currentTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
         long currentTrackPosition = playSessionStateProvider.getLastProgressForItem(currentTrackUrn).getPosition();
-        CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
+        List<Urn> slicedUrnList = queueSlicer.slice(playQueueManager.getCurrentQueueTrackUrns(), playQueueManager.getCurrentQueueTrackUrns().indexOf(currentTrackUrn)).getTrackItemUrns();
+        CastPlayQueue castPlayQueue = castQueueController.buildCastPlayQueue(currentTrackUrn, slicedUrnList);
         castProtocol.sendLoad(currentTrackUrn.toString(), autoplay, currentTrackPosition, castPlayQueue);
     }
 
@@ -173,7 +178,8 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
                                                   final PlaySessionSource playSessionSource) {
         return Observable.fromCallable(() -> {
             playStateReporter.reportPlayingReset(initialTrackUrn);
-            playQueueManager.setNewPlayQueue(playQueue, playSessionSource, correctInitialPosition(playQueue, 0, initialTrackUrn));
+            PlayQueue slicedPlayQueue = queueSlicer.slice(playQueue.getTrackItemUrns(), playQueue.getTrackItemUrns().indexOf(initialTrackUrn));
+            playQueueManager.setNewPlayQueue(slicedPlayQueue, playSessionSource, correctInitialPosition(slicedPlayQueue, 0, initialTrackUrn));
             return PlaybackResult.success();
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
