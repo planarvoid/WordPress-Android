@@ -17,6 +17,11 @@ public class PerformanceMetricsEngineTest extends AndroidUnitTest {
 
     private static final MetricType METRIC_TYPE = MetricType.APP_ON_CREATE;
 
+    private static final PerformanceMetric EARLIER_START_METRIC = PerformanceMetric.builder()
+                                                                           .timestamp(TimeUnit.MILLISECONDS.toNanos(500L))
+                                                                           .metricType(METRIC_TYPE)
+                                                                           .build();
+
     private static final PerformanceMetric START_METRIC = PerformanceMetric.builder()
                                                                            .timestamp(TimeUnit.MILLISECONDS.toNanos(1000L))
                                                                            .metricType(METRIC_TYPE)
@@ -83,6 +88,18 @@ public class PerformanceMetricsEngineTest extends AndroidUnitTest {
         performanceMetricsEngine.endMeasuring(METRIC_TYPE);
 
         assertThat(eventBus.eventsOn(EventQueue.PERFORMANCE).isEmpty()).isTrue();
+    }
+
+    @Test
+    public void shouldClearPreviousPerformanceMetricsOnStart() {
+        performanceMetricsEngine.startMeasuring(EARLIER_START_METRIC);
+        performanceMetricsEngine.startMeasuring(START_METRIC);
+        performanceMetricsEngine.endMeasuring(END_METRIC);
+
+        PerformanceEvent actualEvent = eventBus.lastEventOn(EventQueue.PERFORMANCE);
+
+        assertThat(actualEvent.metricType()).isEqualTo(METRIC_TYPE);
+        assertThat(durationFromEvent(actualEvent)).isEqualTo(1500L);
     }
 
     private long durationFromEvent(PerformanceEvent event) {

@@ -1,5 +1,10 @@
 package com.soundcloud.android.playback.playqueue;
 
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -42,6 +47,7 @@ class PlayQueuePresenter {
     private final PlayQueueDataProvider playQueueDataProvider;
     private final EventBus eventBus;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final Subject<Boolean, Boolean> rebuildSubject = PublishSubject.create();
 
@@ -57,7 +63,8 @@ class PlayQueuePresenter {
                        PlayQueueDataProvider dataProvider,
                        PlaylistExploder playlistExploder,
                        EventBus eventBus,
-                       PlayQueueUIItemMapper playQueueUIItemMapper) {
+                       PlayQueueUIItemMapper playQueueUIItemMapper,
+                       PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
         this.playbackStateProvider = playbackStateProvider;
         this.playSessionController = playSessionController;
@@ -65,24 +72,25 @@ class PlayQueuePresenter {
         this.playlistExploder = playlistExploder;
         this.eventBus = eventBus;
         this.playQueueUIItemMapper = playQueueUIItemMapper;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     void attachView(PlayQueueView playQueueView) {
         this.playQueueView = Optional.of(playQueueView);
-        if (this.playQueueView.isPresent()) {
-            setRepeatMode(playQueueManager.getRepeatMode());
-            this.playQueueView.get().setShuffledState(playQueueManager.isShuffled());
+        performanceMetricsEngine.startMeasuring(MetricType.PLAY_QUEUE_LOAD);
+        playQueueView.setShuffledState(playQueueManager.isShuffled());
+        setRepeatMode(playQueueManager.getRepeatMode());
 
-            if (items.isEmpty()) {
-                this.playQueueView.get().showLoadingIndicator();
-            }
-            playQueueDataProvider.getPlayQueueUIItems()
-                                 .observeOn(AndroidSchedulers.mainThread())
-                                 .doOnNext(newItems -> items = newItems)
-                                 .subscribe(new PlayQueueSubscriber());
-            setUpPlaybackStream();
-            setUpRebuildStream();
+        if (items.isEmpty()) {
+            playQueueView.showLoadingIndicator();
         }
+
+        playQueueDataProvider.getPlayQueueUIItems()
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .doOnNext(newItems -> items = newItems)
+                             .subscribe(new PlayQueueSubscriber());
+        setUpPlaybackStream();
+        setUpRebuildStream();
     }
 
     void detachContract() {
@@ -140,10 +148,13 @@ class PlayQueuePresenter {
 
     public void trackClicked(int listPosition) {
         if (items.get(listPosition).isTrack()) {
+            TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) items.get(listPosition);
+            PerformanceMetric performanceMetric = PerformanceMetric.create(MetricType.TIME_TO_PLAY);
+
             updateNowPlaying(listPosition, playbackStateProvider.isSupposedToBePlaying());
             playQueueView.get().setItems(items);
-            TrackPlayQueueUIItem trackItem = (TrackPlayQueueUIItem) items.get(listPosition);
             playQueueManager.setCurrentPlayQueueItem(trackItem.getPlayQueueItem());
+
             if (trackItem.isGoTrack()) {
                 playQueueView.get().setGoPlayerStrip();
             } else {
@@ -153,6 +164,7 @@ class PlayQueuePresenter {
             if (playSessionController.isPlayingCurrentPlayQueueItem()) {
                 playSessionController.togglePlayback();
             } else {
+                performanceMetricsEngine.startMeasuring(performanceMetric);
                 playSessionController.play();
             }
         }
@@ -239,7 +251,7 @@ class PlayQueuePresenter {
                 final PlayQueueItem playQueueItem = ((TrackPlayQueueUIItem) adapterItem).getPlayQueueItem();
                 final int playQueuePosition = playQueueManager.indexOfPlayQueueItem(playQueueItem);
                 if (isSingleTrackSection(adapterPosition)) {
-                    int headerPosition = adapterPosition-1;
+                    int headerPosition = adapterPosition - 1;
                     removeSection(headerPosition);
                 } else {
                     removeSingleItem(adapterPosition, playQueueItem, playQueuePosition);
@@ -261,7 +273,7 @@ class PlayQueuePresenter {
     }
 
     private boolean isSingleTrackSection(int adapterPosition) {
-        return isHeader(adapterPosition-1) && isHeader(adapterPosition+1);
+        return isHeader(adapterPosition - 1) && isHeader(adapterPosition + 1);
     }
 
     private void removeSection(int headerPosition) {
@@ -350,24 +362,24 @@ class PlayQueuePresenter {
 
     private Observable<Map<Urn, String>> createTitlesFromItems(List<PlayQueueUIItem> items) {
         return Observable.just(items)
-                .map(playQueueUIItems -> {
-                    final Map<Urn, String> titles = new HashMap<>();
+                         .map(playQueueUIItems -> {
+                             final Map<Urn, String> titles = new HashMap<>();
 
-                    for (PlayQueueUIItem item : items) {
-                        if (item.isTrack()) {
-                            final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
-                            final Optional<String> contextTitle = trackUIItem.getContextTitle();
-                            if (contextTitle.isPresent()) {
-                                final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
-                                final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
-                                if (urn.isPresent()) {
-                                    titles.put(urn.get(), contextTitle.get());
-                                }
-                            }
-                        }
-                    }
-                    return titles;
-                });
+                             for (PlayQueueUIItem item : items) {
+                                 if (item.isTrack()) {
+                                     final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
+                                     final Optional<String> contextTitle = trackUIItem.getContextTitle();
+                                     if (contextTitle.isPresent()) {
+                                         final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
+                                         final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
+                                         if (urn.isPresent()) {
+                                             titles.put(urn.get(), contextTitle.get());
+                                         }
+                                     }
+                                 }
+                             }
+                             return titles;
+                         });
     }
 
     private int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
@@ -390,10 +402,18 @@ class PlayQueuePresenter {
                     playQueueView.get().scrollTo(getScrollPosition());
                     playQueueView.get().removeLoadingIndicator();
                     resetUI = false;
+                    measurePlayQueueLoadTime(items.size());
                 }
             }
         }
+    }
 
+    private void measurePlayQueueLoadTime(int items) {
+        MetricParams params = new MetricParams().putLong(MetricKey.PLAY_QUEUE_SIZE, items);
+        performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                               .metricType(MetricType.PLAY_QUEUE_LOAD)
+                                                               .metricParams(params)
+                                                               .build());
     }
 
     private void updateNowPlaying(int position, boolean isPlaying) {
@@ -424,7 +444,7 @@ class PlayQueuePresenter {
 
     private void setNowPlaying() {
         final int adapterPosition = getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
-            updateNowPlaying(adapterPosition, playbackStateProvider.isSupposedToBePlaying());
+        updateNowPlaying(adapterPosition, playbackStateProvider.isSupposedToBePlaying());
     }
 
     private boolean shouldAddHeader(TrackPlayQueueUIItem trackItem) {

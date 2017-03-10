@@ -53,7 +53,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     }
 
     private void clearMeasuring() {
-        performanceMetricsEngine.clearMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        performanceMetricsEngine.clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
 }

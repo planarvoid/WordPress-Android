@@ -39,6 +39,7 @@ import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlaybackMeter;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
@@ -134,6 +135,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject FollowingStateProvider followingStateProvider;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject ApplicationStartupMeterFactory applicationStartupMeterFactory;
+    @Inject PlaybackMeter playbackMeter;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -212,6 +214,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();
         applicationStartupMeterFactory.create(this).subscribe();
+        playbackMeter.subscribe();
 
         configureCast();
 

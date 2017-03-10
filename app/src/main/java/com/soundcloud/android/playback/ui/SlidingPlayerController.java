@@ -348,7 +348,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     private void notifyExpandedState() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        performanceMetricsEngine.endMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        performanceMetricsEngine.endMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
     private void notifyCollapsedState() {

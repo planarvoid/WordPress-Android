@@ -7,7 +7,9 @@ package com.soundcloud.android.analytics.performance;
  */
 public enum MetricKey {
     USER_LOGGED_IN("logged_in_user"),
-    TIME_MILLIS("time_in_millis");
+    TIME_MILLIS("time_in_millis"),
+    PLAY_QUEUE_SIZE("play_queue_size"),
+    SCREEN("screen");
 
     private final String metricKey;
 

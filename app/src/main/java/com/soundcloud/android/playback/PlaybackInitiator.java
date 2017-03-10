@@ -1,7 +1,10 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -71,7 +74,7 @@ public class PlaybackInitiator {
             playSessionController.playCurrent();
             return Observable.just(PlaybackResult.success());
         } else {
-            return allTracks.doOnSubscribe(this::startMeasuringExtendedTimeToPlay)
+            return allTracks.doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource))
                             .flatMap(policyOperations.blockedStatuses())
                             .zipWith(allTracks, (blockedUrns, urns) -> PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns))
                             .map(addExplicitContentFromCurrentPlayQueue(position, initialTrack))
@@ -80,8 +83,18 @@ public class PlaybackInitiator {
         }
     }
 
-    private void startMeasuringExtendedTimeToPlay() {
-        performanceMetricsEngine.startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+    private void startMeasuringPlaybackStarted(PlaySessionSource playSessionSource) {
+        String screen = playSessionSource.getOriginScreen();
+        startMeasuringWithScreen(MetricType.TIME_TO_EXPAND_PLAYER, screen);
+        startMeasuringWithScreen(MetricType.TIME_TO_PLAY, screen);
+    }
+
+    private void startMeasuringWithScreen(MetricType metricType, String screen) {
+        PerformanceMetric timeToExpand = PerformanceMetric.builder()
+                                                          .metricType(metricType)
+                                                          .metricParams(new MetricParams().putString(MetricKey.SCREEN, screen))
+                                                          .build();
+        performanceMetricsEngine.startMeasuring(timeToExpand);
     }
 
     public Observable<PlaybackResult> playStation(Urn stationUrn,
@@ -96,7 +109,7 @@ public class PlaybackInitiator {
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, playSessionSource);
 
         return playSessionController.playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource)
-                                    .doOnSubscribe(this::startMeasuringExtendedTimeToPlay);
+                                    .doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource));
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> allTracks, final PlaySessionSource playSessionSource) {

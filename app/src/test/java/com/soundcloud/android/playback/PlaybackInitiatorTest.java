@@ -7,12 +7,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.main.Screen;
@@ -54,6 +57,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Captor private ArgumentCaptor<PlayQueue> playQueueTracksCaptor;
     @Captor private ArgumentCaptor<Urn> urnArgumentCaptor;
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
     private TestObserver<PlaybackResult> observer;
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -106,7 +110,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStatuses()).thenReturn(urns-> Observable.just(Collections.singletonMap(TRACK1, true)));
+        when(policyOperations.blockedStatuses()).thenReturn(urns -> Observable.just(Collections.singletonMap(TRACK1, true)));
 
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN))
                          .subscribe(observer);
@@ -355,9 +359,9 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .subscribe(observer);
 
         verify(playSessionController).playNewQueue(any(PlayQueue.class),
-                                                            any(Urn.class),
-                                                            anyInt(),
-                                                            any(PlaySessionSource.class));
+                                                   any(Urn.class),
+                                                   anyInt(),
+                                                   any(PlaySessionSource.class));
     }
 
     @Test
@@ -500,10 +504,21 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Test
     public void publishesPerformanceMetricsOnPlayTracks() {
         final List<Urn> newTrackList = Arrays.asList(Urn.forTrack(1), Urn.forTrack(2), Urn.forTrack(3));
+        String screenName = "screen-name";
+        PlaySessionSource source = new PlaySessionSource(screenName);
 
-        playbackInitiator.playTracks(newTrackList, 0, PlaySessionSource.EMPTY).subscribe();
+        playbackInitiator.playTracks(newTrackList, 0, source).subscribe();
 
-        verify(performanceMetricsEngine).startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine, times(2)).startMeasuring(performanceMetricCaptor.capture());
+        List<PerformanceMetric> capturedValues = performanceMetricCaptor.getAllValues();
+
+        PerformanceMetric timeToExpand = capturedValues.get(0);
+        assertThat(timeToExpand.metricType()).isEqualTo(MetricType.TIME_TO_EXPAND_PLAYER);
+        assertThat(timeToExpand.metricParams().toBundle().getString(MetricKey.SCREEN.toString())).isEqualTo(screenName);
+
+        PerformanceMetric timeToPlay = capturedValues.get(1);
+        assertThat(timeToPlay.metricType()).isEqualTo(MetricType.TIME_TO_PLAY);
+        assertThat(timeToPlay.metricParams().toBundle().getString(MetricKey.SCREEN.toString())).isEqualTo(screenName);
     }
 
     @Test
@@ -518,7 +533,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         playbackInitiator.playStation(stationUrn, station.getTracks(), PlaySessionSource.EMPTY, Urn.NOT_SET, 0).subscribe();
 
-        verify(performanceMetricsEngine).startMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine, times(2)).startMeasuring(any(PerformanceMetric.class));
     }
 
     private void expectSuccessPlaybackResult() {

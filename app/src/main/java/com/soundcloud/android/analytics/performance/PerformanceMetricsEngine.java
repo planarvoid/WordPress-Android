@@ -44,9 +44,11 @@ public class PerformanceMetricsEngine {
 
     /**
      * Starts measuring a {@link PerformanceMetric} that is already timestamped.
+     * Any previous existing {@link PerformanceMetric} of the same {@link MetricType}
+     * will be removed.
      */
-
     public void startMeasuring(PerformanceMetric performanceMetric) {
+        clearMeasuring(performanceMetric.metricType());
         addPerformanceMetric(performanceMetric);
     }
 

@@ -12,6 +12,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -46,6 +51,8 @@ import java.util.List;
 
 public class PlayQueuePresenterTest extends AndroidUnitTest {
 
+    private final static int UI_ITEMS_SIZE = 4;
+
     private final Subject<List<PlayQueueUIItem>, List<PlayQueueUIItem>> uiSubject = BehaviorSubject.create();
     @Mock private PlayQueueView playQueueViewContract;
     @Mock private PlayQueueManager playQueueManager;
@@ -55,8 +62,10 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueUIItem item;
     @Mock private PlaylistExploder playlistExploder;
     @Mock private Resources resources;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Captor private ArgumentCaptor<ArrayList<PlayQueueUIItem>> itemsCaptor;
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
@@ -72,7 +81,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 playQueueDataProvider,
                 playlistExploder,
                 eventBus,
-                playQueueUIItemMapper);
+                playQueueUIItemMapper,
+                performanceMetricsEngine);
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
@@ -449,6 +459,23 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         verify(playQueueManager).setAutoPlay(false);
         verify(playQueueManager).setAutoPlay(true);
+    }
+
+    @Test
+    public void shouldStartMeasuringOnAttach() {
+        // View is attached on setup method
+        verify(performanceMetricsEngine).startMeasuring(MetricType.PLAY_QUEUE_LOAD);
+    }
+
+    @Test
+    public void shouldEndMeasuringOnItemsLoaded() {
+        // Setup method already performed the initialization
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
+
+        PerformanceMetric performanceMetric = performanceMetricCaptor.getValue();
+        MetricParams params = performanceMetric.metricParams();
+
+        assertThat(params.toBundle().getLong(MetricKey.PLAY_QUEUE_SIZE.toString())).isEqualTo(UI_ITEMS_SIZE);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState) {

@@ -413,7 +413,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     public void shouldEndMeasuringOnPlayerExpanded() {
         controller.onPanelExpanded();
 
-        verify(performanceMetricsEngine).endMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine).endMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
     private void attachController() {

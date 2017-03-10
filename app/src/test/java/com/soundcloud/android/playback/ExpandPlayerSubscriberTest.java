@@ -66,7 +66,7 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(errorResult);
 
-        verify(performanceMetricsEngine).clearMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(PlaybackResult.success());
 
-        verify(performanceMetricsEngine).clearMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 
     @Test
@@ -84,6 +84,6 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         subscriber.onNext(PlaybackResult.success());
 
-        verify(performanceMetricsEngine, never()).clearMeasuring(MetricType.EXTENDED_TIME_TO_PLAY);
+        verify(performanceMetricsEngine, never()).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
     }
 }

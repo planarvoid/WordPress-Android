@@ -23,11 +23,16 @@ public class MetricParams {
         return this;
     }
 
+    public MetricParams putString(MetricKey key, String value) {
+        bundle.putString(key.toString(), value);
+        return this;
+    }
+
     void putAll(MetricParams metricParams) {
         bundle.putAll(metricParams.bundle);
     }
 
-    Bundle toBundle() {
+    public Bundle toBundle() {
         return bundle;
     }
 }
