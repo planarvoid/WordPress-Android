@@ -164,7 +164,7 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="StationInfo.TrackHeader">
+    <style name="StationInfo.TrackHeader" parent="@style/TextAppearance.SoundCloudLightFont">
         <item name="android:maxLines">1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/collections_recently_played_header</item>
