@@ -50,7 +50,8 @@ public class PlaylistDetailOtherPlaylistsItemRenderer implements CellRenderer<Pl
         final PlaylistDetailOtherPlaylistsItem otherPlaylistsItem = list.get(position);
 
         final TextView reasonView = ButterKnife.findById(bucketView, reason);
-        reasonView.setText(bucketView.getResources().getString(R.string.more_playlists_by, otherPlaylistsItem.getCreatorName()));
+        int displayString = otherPlaylistsItem.isAlbum() ? R.string.more_albums_by : R.string.more_playlists_by;
+        reasonView.setText(bucketView.getResources().getString(displayString, otherPlaylistsItem.getCreatorName()));
 
         final OtherPlaylistsByUserAdapter adapter = (OtherPlaylistsByUserAdapter) bucketView.getTag();
         adapter.setOtherPlaylistsByUser(otherPlaylistsItem);

@@ -11,6 +11,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig;
@@ -26,7 +27,6 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -131,10 +131,10 @@ class DataSourceProvider {
     private Observable<Urn> refreshIntent() {
         return latestUrn.compose(Transformers.takeWhen(refresh))
                         .flatMap(urn -> syncInitiator.syncPlaylist(urn)
-                                                      .map(syncJobResult -> urn)
-                                                      .doOnSubscribe(() -> refreshStateSubject.onNext(new PartialState.RefreshStarted()))
-                                                      .doOnError(throwable -> refreshStateSubject.onNext(new PartialState.RefreshError(throwable)))
-                                                      .onErrorResumeNext(Observable.empty()));
+                                                     .map(syncJobResult -> urn)
+                                                     .doOnSubscribe(() -> refreshStateSubject.onNext(new PartialState.RefreshStarted()))
+                                                     .doOnError(throwable -> refreshStateSubject.onNext(new PartialState.RefreshError(throwable)))
+                                                     .onErrorResumeNext(Observable.empty()));
     }
 
     private Observable<PartialState> emissions(Playlist playlist) {
@@ -154,21 +154,28 @@ class DataSourceProvider {
                                         .map(playlistsWithExclusion(playlist));
         } else {
             Observable<List<Playlist>> eagerEmission = just(Collections.<Playlist>emptyList());
-            Observable<List<Playlist>> lazyEmission = playlistsForOtherUser(playlist.creatorUrn())
+            Observable<List<Playlist>> lazyEmission = playlistsForOtherUser(playlist)
                     .map(playlistsWithExclusion(playlist));
 
             return concat(eagerEmission, lazyEmission);
         }
     }
 
-    private Observable<List<Playlist>> playlistsForOtherUser(Urn creatorUrn) {
-        return profileApiMobile.userPlaylists(creatorUrn)
-                               .map(apiPlaylistPosts -> transform(apiPlaylistPosts.getCollection(), ApiPlaylistPost::getApiPlaylist))
-                               .map(input -> Lists.transform(input, Playlist::from));
+    private Observable<List<Playlist>> playlistsForOtherUser(Playlist playlist) {
+        Urn creatorUrn = playlist.creatorUrn();
+        return fromApi(playlist.isAlbum() ? profileApiMobile.userAlbums(creatorUrn) : profileApiMobile.userPlaylists(creatorUrn));
+    }
+
+    private Observable<List<Playlist>> fromApi(Observable<ModelCollection<ApiPlaylistPost>> apiPlaylistPosts) {
+        return apiPlaylistPosts
+                .map(posts -> transform(posts.getCollection(), ApiPlaylistPost::getApiPlaylist))
+                .map(input -> transform(input, Playlist::from));
     }
 
     private Func1<List<Playlist>, List<Playlist>> playlistsWithExclusion(Playlist playlist) {
-        return playlistItems -> newArrayList(filter(playlistItems, input -> !input.urn().equals(playlist.urn())));
+        return playlistItems -> newArrayList(filter(playlistItems,
+                                                    input -> !input.urn().equals(playlist.urn())
+                                                            && input.isAlbum() == playlist.isAlbum()));
     }
 
     private Observable<List<Track>> tracks(Urn urn) {

@@ -207,7 +207,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         connect(initialPlaylistWithAllExtras);
 
         PlaylistDetailOtherPlaylistsItem playlistDetailOtherPlaylistsItem = new PlaylistDetailOtherPlaylistsItem(initialPlaylist.creatorName(),
-                                                                                                                 singletonList(PlaylistItem.from(otherPlaylistByUser)));
+                                                                                                                 singletonList(PlaylistItem.from(otherPlaylistByUser)), initialPlaylist.isAlbum());
 
         newPlaylistPresenter.viewModel()
                             .test()

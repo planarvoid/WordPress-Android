@@ -212,12 +212,12 @@ public class PlaylistOperations {
 
     private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn playlistUrn) {
         return Observable.combineLatest(playlistRepository.withUrn(playlistUrn),
-                              trackRepository
-                                      .forPlaylist(playlistUrn)
-                                      .startWith(Collections.<Track>emptyList())
-                                      .debounce(300, TimeUnit.MILLISECONDS)
-                                      .onErrorResumeNext(throwable -> just(Collections.emptyList())),
-                              Pair::of).switchIfEmpty(error(new PlaylistMissingException()));
+                                        trackRepository
+                                                .forPlaylist(playlistUrn)
+                                                .startWith(Collections.<Track>emptyList())
+                                                .debounce(300, TimeUnit.MILLISECONDS)
+                                                .onErrorResumeNext(throwable -> just(Collections.emptyList())),
+                                        Pair::of).switchIfEmpty(error(new PlaylistMissingException()));
     }
 
     private Func1<Pair<Playlist, List<Track>>, Observable<PlaylistDetailsViewModel>> addOtherPlaylists() {
@@ -230,15 +230,15 @@ public class PlaylistOperations {
                         .map(toViewModel(playlist, tracks));
 
             } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
-                return myOtherPlaylists()
-                        .map(playlistsWithExclusion(playlist))
+                return myPlaylists()
+                        .map(otherPlaylistsFiltered(playlist))
                         .map(toViewModel(playlist, tracks));
             } else {
 
                 Observable<PlaylistDetailsViewModel> withoutOtherPlaylists = just(Collections.<Playlist>emptyList())
                         .map(toViewModel(playlist, tracks));
                 Observable<PlaylistDetailsViewModel> withOtherPlaylists = playlistsForOtherUser(playlist.creatorUrn())
-                        .map(playlistsWithExclusion(playlist))
+                        .map(otherPlaylistsFiltered(playlist))
                         .map(toViewModel(playlist, tracks));
 
                 return concat(withoutOtherPlaylists, withOtherPlaylists);
@@ -246,11 +246,11 @@ public class PlaylistOperations {
         };
     }
 
-    private Func1<List<Playlist>, List<Playlist>> playlistsWithExclusion(Playlist playlist) {
+    private Func1<List<Playlist>, List<Playlist>> otherPlaylistsFiltered(Playlist playlist) {
         return playlistItems -> newArrayList(filter(playlistItems,
-                                                    input -> !input.urn().equals(playlist.urn())));
+                                                    input -> !input.urn().equals(playlist.urn())
+        ));
     }
-
 
 
     private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<Track> tracks) {
@@ -263,7 +263,7 @@ public class PlaylistOperations {
                                            false,
                                            playlist.offlineState().or(OfflineState.NOT_OFFLINE),
                                            playlistsItems.isEmpty() ? Optional.absent() :
-                                           Optional.of(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems)));
+                                           Optional.of(new PlaylistDetailOtherPlaylistsItem(playlist.creatorName(), playlistsItems, false)));
         };
     }
 
@@ -273,7 +273,7 @@ public class PlaylistOperations {
                                .map(input -> Lists.transform(input, Playlist::from));
     }
 
-    private Observable<List<Playlist>> myOtherPlaylists() {
+    private Observable<List<Playlist>> myPlaylists() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build());
     }
 

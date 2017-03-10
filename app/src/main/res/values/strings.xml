@@ -304,6 +304,7 @@
     <string name="delete_playlist">Delete playlist</string>
     <string name="search_playlists">search playlists</string>
     <string name="more_playlists_by">More playlists by %s</string>
+    <string name="more_albums_by">More albums by %s</string>
     <string name="empty_playlist_main">No tracks here yet</string>
     <string name="empty_playlist_sub">Find some and add them to this playlist</string>
     <string name="edit_playlists_introductory_overlay_title">Edit your playlists on the fly</string>

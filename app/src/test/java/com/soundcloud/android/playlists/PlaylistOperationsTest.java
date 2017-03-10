@@ -469,6 +469,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     private PlaylistDetailOtherPlaylistsItem createOtherPlaylistItem() {
         return new PlaylistDetailOtherPlaylistsItem(
-                playlist.creatorName(), singletonList(PlaylistItem.from(playlistPost.getApiPlaylist())));
+                playlist.creatorName(), singletonList(PlaylistItem.from(playlistPost.getApiPlaylist())), false);
     }
 }

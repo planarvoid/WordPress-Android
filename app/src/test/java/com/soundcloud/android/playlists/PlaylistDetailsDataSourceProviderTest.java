@@ -59,20 +59,29 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     private Playlist playlist = ModelFixtures.playlist();
+    private Playlist album = ModelFixtures.album();
     private PublishSubject<Object> refreshSubject = PublishSubject.create();
 
     private Playlist updatedPlaylist = playlist.toBuilder().title("new-title").build();
     private Playlist pushedPlaylist = ModelFixtures.playlist(); // new urn
     private final ApiPlaylist otherApiPlaylist = ModelFixtures.create(ApiPlaylist.class);
+    private final ApiPlaylist otherApiAlbum = ModelFixtures.apiAlbum();
     private final Playlist otherPlaylist = Playlist.from(otherApiPlaylist);
+    private final Playlist otherAlbum = Playlist.from(otherApiAlbum);
     private final ApiPlaylistPost playlistPost = new ApiPlaylistPost(otherApiPlaylist);
+    private final ApiPlaylistPost albumPost = new ApiPlaylistPost(otherApiAlbum);
     private final ModelCollection<ApiPlaylistPost> userPlaylistCollection = new ModelCollection<>(newArrayList(playlistPost), "next-href");
+    private final ModelCollection<ApiPlaylistPost> userPlaylistCollectionWithExtraAlbum = new ModelCollection<>(newArrayList(albumPost, playlistPost), "next-href");
+    private final ModelCollection<ApiPlaylistPost> userAlbumsCollection = new ModelCollection<>(newArrayList(albumPost), "next-href");
 
     private Track track1 = ModelFixtures.track();
     private Track track2 = ModelFixtures.track();
     private List<Track> trackItems = singletonList(track1);
     private List<Track> updatedTrackItems = asList(track1, track2);
     //
+    private PlaylistWithExtras initialAlbumWithoutTracks = PlaylistWithExtras.create(album, absent(), emptyList());
+    private PlaylistWithExtras initialAlbumWithTracks = PlaylistWithExtras.create(album, of(trackItems), emptyList());
+    private PlaylistWithExtras initialAlbumWithTrackAndOtherExtras = PlaylistWithExtras.create(album, of(trackItems), singletonList(otherAlbum));
     private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, absent(), emptyList());
     private PlaylistWithExtras initialPlaylistWithTracks = PlaylistWithExtras.create(playlist, of(trackItems), emptyList());
     private PlaylistWithExtras initialPlaylistWithUpdatedTracks = PlaylistWithExtras.create(playlist, of(updatedTrackItems), emptyList());
@@ -177,6 +186,58 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
                 // since it is a remote fetch
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build()
+        );
+    }
+
+    @Test
+    public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylistsFiltered() throws Exception {
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect();
+
+        tracklistSubject.onNext(trackItems);
+        otherUserOtherPlaylists.onNext(userPlaylistCollectionWithExtraAlbum);
+
+        test.assertValues(
+                PlaylistWithExtrasState.initialState(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
+                // there are separate emissions here because other playlists emits an empty list first if its another user
+                // since it is a remote fetch
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build()
+        );
+    }
+
+    @Test
+    public void emitsInitialPlaylistMetadataThenTracksAndOtherAlbums() throws Exception {
+        when(playlistRepository.withUrn(album.urn())).thenReturn(just(album));
+        when(profileApiMobile.userAlbums(album.creatorUrn())).thenReturn(otherUserOtherPlaylists);
+        when(trackRepository.forPlaylist(album.urn(), STALE_TIME_MILLIS)).thenReturn(tracklistSubject);
+
+
+        dataSourceProvider = new DataSourceProvider(album.urn(),
+                                                    refreshSubject,
+                                                    playlistRepository,
+                                                    trackRepository,
+                                                    eventBus,
+                                                    otherPlaylistsByUserConfig,
+                                                    accountOperations,
+                                                    myPlaylistOperations,
+                                                    profileApiMobile,
+                                                    syncInitiator);
+
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect();
+
+        tracklistSubject.onNext(trackItems);
+        otherUserOtherPlaylists.onNext(userAlbumsCollection);
+
+        test.assertValues(
+                PlaylistWithExtrasState.initialState(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialAlbumWithoutTracks)).build(),
+                // there are separate emissions here because other playlists emits an empty list first if its another user
+                // since it is a remote fetch
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialAlbumWithTracks)).build(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialAlbumWithTrackAndOtherExtras)).build()
         );
     }
 

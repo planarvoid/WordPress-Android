@@ -30,15 +30,15 @@ public class PlaylistDetailItemTest extends AndroidUnitTest {
     @Test
     public void otherItemsWithTheSameKindAreTheSame() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                new PlaylistDetailOtherPlaylistsItem("creatorName", Collections.emptyList()),
-                new PlaylistDetailOtherPlaylistsItem("updatedCreatorName", Collections.emptyList())
+                new PlaylistDetailOtherPlaylistsItem("creatorName", Collections.emptyList(), false),
+                new PlaylistDetailOtherPlaylistsItem("updatedCreatorName", Collections.emptyList(), false)
         )).isTrue();
     }
 
     @Test
     public void otherItemsWithTheDifferentKindsAreNotTheSame() throws Exception {
         assertThat(PlaylistDetailTrackItem.isTheSameItem(
-                new PlaylistDetailOtherPlaylistsItem("creatorName", Collections.emptyList()),
+                new PlaylistDetailOtherPlaylistsItem("creatorName", Collections.emptyList(), false),
                 new PlaylistDetailUpsellItem(ModelFixtures.trackItem())
         )).isFalse();
     }

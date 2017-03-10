@@ -532,7 +532,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
             List<PlaylistItem> otherPlaylistItems = transform(playlistWithExtras.otherPlaylistsByCreator(), PlaylistItem::from);
             String creatorName = playlistWithExtras.playlist().creatorName();
-            return of(new PlaylistDetailOtherPlaylistsItem(creatorName, otherPlaylistItems));
+            return of(new PlaylistDetailOtherPlaylistsItem(creatorName, otherPlaylistItems, playlistWithExtras.playlist().isAlbum()));
 
         } else {
             return absent();

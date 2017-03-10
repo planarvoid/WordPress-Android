@@ -8,11 +8,13 @@ class PlaylistDetailOtherPlaylistsItem extends PlaylistDetailItem {
 
     private final String creatorName;
     private final List<PlaylistItem> otherPlaylists;
+    private final boolean isAlbum;
 
-    PlaylistDetailOtherPlaylistsItem(String creatorName, List<PlaylistItem> otherPlaylists) {
+    PlaylistDetailOtherPlaylistsItem(String creatorName, List<PlaylistItem> otherPlaylists, boolean isAlbum) {
         super(PlaylistDetailItem.Kind.OtherPlaylists);
         this.creatorName = creatorName;
         this.otherPlaylists = otherPlaylists;
+        this.isAlbum = isAlbum;
     }
 
     List<PlaylistItem> otherPlaylists(){
@@ -21,6 +23,10 @@ class PlaylistDetailOtherPlaylistsItem extends PlaylistDetailItem {
 
     String getCreatorName(){
         return creatorName;
+    }
+
+    boolean isAlbum() {
+        return isAlbum;
     }
 
     @Override

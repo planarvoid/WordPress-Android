@@ -136,8 +136,20 @@ public class ModelFixtures {
         return create(ApiPlaylist.class);
     }
 
+    public static ApiPlaylist apiAlbum() {
+        final ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
+
+        apiPlaylist.setIsAlbum(true);
+
+        return apiPlaylist;
+    }
+
     public static Playlist playlist() {
         return playlistBuilder().build();
+    }
+
+    public static Playlist album() {
+        return playlistBuilder().isAlbum(true).build();
     }
 
     public static Playlist.Builder playlistBuilder() {
