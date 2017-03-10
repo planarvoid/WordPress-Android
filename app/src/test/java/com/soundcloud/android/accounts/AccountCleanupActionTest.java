@@ -2,7 +2,6 @@ package com.soundcloud.android.accounts;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +22,6 @@ import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylist
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -114,7 +112,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         when(sharedPreferences.edit()).thenReturn(editor);
         when(context.getApplicationContext()).thenReturn(soundCloudApplication);
         when(soundCloudApplication.getAccountOperations()).thenReturn(accountOperations);
-        when(featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)).thenReturn(false);
     }
 
     @Test
@@ -281,13 +278,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotClearAllTables() {
-        action.call();
-
-        verify(databaseManager, never()).clearTables();
-    }
-
-    @Test
     public void shouldRemoveShortcuts() {
         action.call();
 
@@ -295,9 +285,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     }
 
     @Test
-    public void sholdClearAllTablesWhenFeatureFlagIsSet() {
-        when(featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)).thenReturn(true);
-
+    public void shouldClearAllTables() {
         action.call();
 
         verify(databaseManager).clearTables();

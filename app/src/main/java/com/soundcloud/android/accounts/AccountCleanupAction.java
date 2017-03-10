@@ -18,7 +18,6 @@ import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylist
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -149,12 +148,9 @@ class AccountCleanupAction implements Action0 {
         featureFlagsStorage.clear();
         shortcutController.removeShortcuts();
 
-        if (featureFlags.isEnabled(Flag.CLEAR_TABLES_ON_SIGNOUT)) {
-            // Once we are confident that this approach works well (clearing the entire database), and
-            // are about to get rid of the feature flag, we should clean up the code such that the table
-            // deletions are not repeated (specially the clearCollections above will not be required).
-            databaseManager.clearTables();
-        }
+        // Note that the following call simply clears all the SQLite tables.
+        // If necessary, shared preferences should be cleared manually.
+        databaseManager.clearTables();
     }
 
     private void clearCollections() {

@@ -19,7 +19,6 @@ enum Feature {
   STREAM_HIGHLIGHTS,
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
-  CLEAR_TABLES_ON_SIGNOUT,
   AUTOCOMPLETE,
   SEARCH_TOP_RESULTS,
   ADJUST_DEFERRED_DEEPLINKS,
@@ -51,7 +50,6 @@ android {
     buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
@@ -78,7 +76,6 @@ android {
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
@@ -99,7 +96,6 @@ android {
 
     beta {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
@@ -116,7 +112,6 @@ android {
     }
 
     debug {
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
@@ -135,7 +130,6 @@ android {
     }
 
     release {
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
@@ -149,7 +143,6 @@ android {
     }
 
     preRelease {
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ADJUST_DEFERRED_DEEPLINKS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
@@ -163,7 +156,6 @@ android {
     }
 
     releaseNonPlayStore {
-      buildConfigField FLAG, Feature.CLEAR_TABLES_ON_SIGNOUT.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
