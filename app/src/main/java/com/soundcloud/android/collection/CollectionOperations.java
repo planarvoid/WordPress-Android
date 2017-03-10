@@ -18,6 +18,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -54,6 +55,7 @@ public class CollectionOperations {
     private final PlayHistoryOperations playHistoryOperations;
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
+    private final EntityItemCreator entityItemCreator;
 
 
     private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS =
@@ -131,7 +133,8 @@ public class CollectionOperations {
                          OfflineStateOperations offlineStateOperations,
                          PlayHistoryOperations playHistoryOperations,
                          RecentlyPlayedOperations recentlyPlayedOperations,
-                         MyPlaylistsOperations myPlaylistsOperations) {
+                         MyPlaylistsOperations myPlaylistsOperations,
+                         EntityItemCreator entityItemCreator) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.loadLikedTrackPreviews = loadLikedTrackPreviews;
@@ -142,6 +145,7 @@ public class CollectionOperations {
         this.playHistoryOperations = playHistoryOperations;
         this.recentlyPlayedOperations = recentlyPlayedOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
+        this.entityItemCreator = entityItemCreator;
     }
 
     Observable<Object> onCollectionChanged() {
@@ -223,7 +227,7 @@ public class CollectionOperations {
 
     @NonNull
     private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
-        return playlists -> Lists.transform(playlists, PlaylistItem::from);
+        return playlists -> Lists.transform(playlists, entityItemCreator::playlistItem);
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {

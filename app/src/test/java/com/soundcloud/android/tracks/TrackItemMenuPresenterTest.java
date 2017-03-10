@@ -73,7 +73,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private Track track = ModelFixtures.track();
-    private TrackItem trackItem = TrackItem.from(track);
+    private TrackItem trackItem = ModelFixtures.trackItem(track);
 
     private TrackItemMenuPresenter presenter;
 
@@ -201,7 +201,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        final TrackItem blockedTrackItem = TrackItem.from(Track.builder(track).blocked(true).build());
+        final TrackItem blockedTrackItem = ModelFixtures.trackItem(Track.builder(track).blocked(true).build());
 
         presenter.show(activity, view, blockedTrackItem, 0);
 

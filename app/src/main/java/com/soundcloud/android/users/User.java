@@ -51,6 +51,8 @@ public abstract class User {
 
     public abstract boolean isFollowing();
 
+    public abstract User.Builder toBuilder();
+
     public static User fromCursorReader(CursorReader cursorReader) {
         return new AutoValue_User.Builder()
                 .urn(forUser(cursorReader.getLong(UsersView.ID.name())))

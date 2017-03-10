@@ -57,7 +57,7 @@ public class SearchPremiumItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildUserAsFirstItem() {
-        final UserItem userItem = ModelFixtures.create(UserItem.class).copyWithUrn(USER_URN);
+        final UserItem userItem = ModelFixtures.userItem(USER_URN);
         searchPremiumItem = buildWithTrackItem(userItem);
 
         assertThat(searchPremiumItem.getFirstItem()).isInstanceOf(UserItem.class);

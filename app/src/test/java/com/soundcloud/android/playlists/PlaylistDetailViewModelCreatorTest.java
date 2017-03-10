@@ -131,14 +131,14 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
     @Test
     public void cannotShuffleWithOneTrack() throws Exception {
 
-        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 1), false, false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.trackItems(1), false, false, false, Optional.absent());
 
         assertThat(item.metadata().canShuffle()).isFalse();
     }
 
     @Test
     public void canShuffleWithMoreThanOneTrack() throws Exception {
-        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.create(TrackItem.class, 2), false, false, false, Optional.absent());
+        final PlaylistDetailsViewModel item = creator.create(ModelFixtures.playlist(), ModelFixtures.trackItems(2), false, false, false, Optional.absent());
 
         assertThat(item.metadata().canShuffle()).isTrue();
     }

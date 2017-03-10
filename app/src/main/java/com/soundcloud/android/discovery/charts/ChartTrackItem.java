@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery.charts;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.Urn;
@@ -16,15 +15,11 @@ public class ChartTrackItem {
     private final Urn genre;
     private final Optional<Urn> queryUrn;
 
-    public ChartTrackItem(ChartType chartType, ApiTrack apiTrack, ChartCategory chartCategory, Urn genre, Optional<Urn> queryUrn) {
-        this(chartType, TrackItem.from(apiTrack), chartCategory, genre, queryUrn);
-    }
-
-    private ChartTrackItem(ChartType chartType,
-                          TrackItem trackItem,
-                          ChartCategory chartCategory,
-                          Urn genre,
-                          Optional<Urn> queryUrn) {
+    public ChartTrackItem(ChartType chartType,
+                   TrackItem trackItem,
+                   ChartCategory chartCategory,
+                   Urn genre,
+                   Optional<Urn> queryUrn) {
         this.chartType = chartType;
         this.trackItem = trackItem;
         this.chartCategory = chartCategory;

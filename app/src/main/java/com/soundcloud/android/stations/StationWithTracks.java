@@ -1,11 +1,8 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.java.collections.Lists.transform;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
@@ -25,11 +22,6 @@ class StationWithTracks {
 
     private static final Function<StationInfoTrack, String> TO_CREATOR_NAME = input -> input.getTrack().creatorName();
 
-    @VisibleForTesting
-    static final Function<ApiTrack, StationInfoTrack> TO_STATION_TRACKS =
-            input -> StationInfoTrack.from(input);
-
-
     private Urn urn;
     private String type;
     private String title;
@@ -38,18 +30,6 @@ class StationWithTracks {
     private Optional<String> imageUrlTemplate;
     private final int lastPlayedTrackPosition;
     private boolean liked;
-
-    public static StationWithTracks from(ApiStation station) {
-        return new StationWithTracks(
-                station.getUrn(),
-                station.getTitle(),
-                station.getType(),
-                station.getImageUrlTemplate(),
-                station.getPermalink(),
-                transform(station.getTrackRecords(), TO_STATION_TRACKS),
-                Stations.NEVER_PLAYED,
-                false);
-    }
 
     public static StationWithTracks from(StationWithTrackUrns entity, List<StationInfoTrack> tracks) {
         return new StationWithTracks(

@@ -41,12 +41,12 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -89,7 +89,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
 
-    private final TrackItemCreator trackItemCreator;
+    private final EntityItemCreator entityItemCreator;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -151,7 +151,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided RepostOperations repostOperations,
                                 @Provided FeedbackController feedbackController,
                                 @Provided AccountOperations accountOperations,
-                                @Provided TrackItemCreator trackItemCreator) {
+                                @Provided EntityItemCreator entityItemCreator) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
@@ -170,7 +170,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.repostOperations = repostOperations;
         this.feedbackController = feedbackController;
         this.accountOperations = accountOperations;
-        this.trackItemCreator = trackItemCreator;
+        this.entityItemCreator = entityItemCreator;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         dataSourceProvider = dataSourceProviderFactory.create(playlistUrn, refresh);
@@ -530,7 +530,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private Optional<PlaylistDetailOtherPlaylistsItem> createOtherPlaylistsItem(PlaylistWithExtras playlistWithExtras, boolean isInEditMode) {
         if (!isInEditMode && !playlistWithExtras.otherPlaylistsByCreator().isEmpty()) {
 
-            List<PlaylistItem> otherPlaylistItems = transform(playlistWithExtras.otherPlaylistsByCreator(), PlaylistItem::from);
+            List<PlaylistItem> otherPlaylistItems = transform(playlistWithExtras.otherPlaylistsByCreator(), entityItemCreator::playlistItem);
             String creatorName = playlistWithExtras.playlist().creatorName();
             return of(new PlaylistDetailOtherPlaylistsItem(creatorName, otherPlaylistItems, playlistWithExtras.playlist().isAlbum()));
 
@@ -547,7 +547,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
             List<TrackItem> trackItems = new ArrayList<>(tracks.size());
             for (Track track : tracks) {
                 final OfflineState offlineState = isInEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(track.urn());
-                final TrackItem trackItem = trackItemCreator.trackItem(track).toBuilder().offlineState(offlineState).isPlaying(track.urn().equals(currentTrackPlaying)).build();
+                final TrackItem trackItem = entityItemCreator.trackItem(track).toBuilder().offlineState(offlineState).isPlaying(track.urn().equals(currentTrackPlaying)).build();
                 trackItems.add(trackItem);
             }
             return trackItems;

@@ -14,7 +14,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -60,6 +60,7 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
                 storeProfileCommand,
                 storeUsersCommand,
                 spotlightItemStatusLoader,
+                ModelFixtures.entityItemCreator(),
                 eventBus);
     }
 
@@ -83,19 +84,15 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
 
     @Test
     public void userTracksPagerStoresNextPage() {
-        final PagedRemoteCollection<ApiPlayableSource> page1 = new PagedRemoteCollection<>(Collections.<ApiPlayableSource>emptyList(),
-                                                                                           NEXT_HREF);
         when(profileApi.userTracks(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.userTracksPagingFunction().call(page1.transform(PlayableItem::from)).subscribe(observer);
+        operations.userTracksPagingFunction().call(new PagedRemoteCollection<>(Collections.emptyList(), NEXT_HREF)).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(TO_RECORD_HOLDERS(page));
     }
 
     private void assertAllItemsEmitted() {
-        assertAllItemsEmitted(
-                TrackItem.from(apiTrack, false)
-        );
+        assertAllItemsEmitted(ModelFixtures.trackItem(apiTrack));
     }
 
     private void assertAllItemsEmitted(PlayableItem... playableItems) {

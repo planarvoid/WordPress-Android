@@ -81,14 +81,14 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnTrackStartsPlaybackWithJustTracks() {
-        final TrackItem track1 = ModelFixtures.create(TrackItem.class);
-        final TrackItem track2 = ModelFixtures.create(TrackItem.class);
+        final TrackItem track1 = ModelFixtures.trackItem();
+        final TrackItem track2 = ModelFixtures.trackItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.create(PlaylistItem.class),
+                ModelFixtures.playlistItem(),
                 track1,
-                ModelFixtures.create(PlaylistItem.class),
+                ModelFixtures.playlistItem(),
                 track2,
-                ModelFixtures.create(UserItem.class)
+                ModelFixtures.userItem()
         );
 
         final List<Urn> trackList = Arrays.asList(track1.getUrn(), track2.getUrn());
@@ -129,13 +129,13 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.create(PlaylistItem.class),
-                ModelFixtures.create(TrackItem.class),
+                ModelFixtures.playlistItem(),
+                ModelFixtures.trackItem(),
                 playlistItem,
-                ModelFixtures.create(TrackItem.class),
-                ModelFixtures.create(UserItem.class)
+                ModelFixtures.trackItem(),
+                ModelFixtures.userItem()
         );
 
         listener.onItemClick(items, view.getContext(), 2);
@@ -165,13 +165,13 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        final UserItem userItem = ModelFixtures.userItem();
         List<ListItem> items = Arrays.asList(
-                ModelFixtures.create(PlaylistItem.class),
-                ModelFixtures.create(TrackItem.class),
+                ModelFixtures.playlistItem(),
+                ModelFixtures.trackItem(),
                 userItem,
-                ModelFixtures.create(PlaylistItem.class),
-                ModelFixtures.create(TrackItem.class)
+                ModelFixtures.playlistItem(),
+                ModelFixtures.trackItem()
         );
 
         listener.onItemClick(items, view.getContext(), 2);
@@ -184,7 +184,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
-        final TrackItem track1 = ModelFixtures.create(TrackItem.class);
+        final TrackItem track1 = ModelFixtures.trackItem();
         final Observable<List<Urn>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playTracks(tracklist,
@@ -201,7 +201,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getUrn());
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
@@ -216,7 +216,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnPlayableCreatesUIEventWithCorrectMetadata() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getUrn());
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
@@ -240,7 +240,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void itemClickOnLocalUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        final UserItem userItem = ModelFixtures.userItem();
         List<Urn> items = Arrays.asList(Urn.forTrack(123L),
                                         Urn.forPlaylist(123L),
                                         userItem.getUrn());
@@ -255,7 +255,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalTrackStartsPlaybackThroughPlaybackOperations() {
-        final TrackItem track1 = ModelFixtures.create(TrackItem.class);
+        final TrackItem track1 = ModelFixtures.trackItem();
         final Observable<List<PlayableWithReposter>> tracklist = Observable.empty();
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackInitiator.playPosts(tracklist,
@@ -272,7 +272,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalPlaylistSendsPlaylistDetailIntent() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
                                                 createPlayable(playlistItem.getUrn()));
 
@@ -288,7 +288,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void onPostClickOpensPlaylistOnNonTrackItem() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         List<PlayableItem> items = Arrays.asList(createPlayableItem(Urn.forTrack(123L)),
                                                  createPlayableItem(playlistItem.getUrn()));
 
@@ -308,7 +308,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void postItemClickOnLocalUserGoesToUserProfile() {
-        final UserItem userItem = ModelFixtures.create(UserItem.class);
+        final UserItem userItem = ModelFixtures.userItem();
         List<PlayableWithReposter> items = Arrays.asList(createPlayable(Urn.forTrack(123L)),
                                                 createPlayable(Urn.forPlaylist(123L)),
                                                 createPlayable(userItem.getUrn()));

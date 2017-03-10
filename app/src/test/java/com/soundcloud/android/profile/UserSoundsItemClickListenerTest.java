@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -43,7 +41,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldDelegateTrackClicksToMixedItemClickListener() throws Exception {
-        TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        TrackItem trackItem = ModelFixtures.trackItem();
         subject.onItemClick(null,
                             view,
                             0,
@@ -57,7 +55,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldDelegatePlaylistClicksToMixedItemClickListener() throws Exception {
-        PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        PlaylistItem playlistItem = ModelFixtures.playlistItem();
         subject.onItemClick(null,
                             view,
                             0,
@@ -141,7 +139,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenPlaylist() throws Exception {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
         final UserSoundsItem item = UserSoundsItem.fromPlaylistItem(playlistItem, UserSoundsTypes.PLAYLISTS);
         final Module module = Module.create(Module.USER_PLAYLISTS, 1);

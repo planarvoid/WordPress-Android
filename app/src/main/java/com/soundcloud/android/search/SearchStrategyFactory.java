@@ -1,5 +1,7 @@
 package com.soundcloud.android.search;
 
+import static java.lang.String.format;
+
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
@@ -16,9 +18,9 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.search.SearchOperations.ContentType;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -73,6 +75,7 @@ class SearchStrategyFactory {
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadFollowingCommand loadFollowingCommand;
+    private final EntityItemCreator entityItemCreator;
 
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -158,7 +161,8 @@ class SearchStrategyFactory {
                           StoreUsersCommand storeUsersCommand,
                           CacheUniversalSearchCommand cacheUniversalSearchCommand,
                           LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                          LoadFollowingCommand loadFollowingCommand) {
+                          LoadFollowingCommand loadFollowingCommand,
+                          EntityItemCreator entityItemCreator) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storePlaylistsCommand = storePlaylistsCommand;
@@ -167,6 +171,7 @@ class SearchStrategyFactory {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadFollowingCommand = loadFollowingCommand;
+        this.entityItemCreator = entityItemCreator;
     }
 
     SearchStrategy getSearchStrategy(SearchType searchType) {
@@ -236,7 +241,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeTracksCommand.toAction1())
                               .doOnNext(cachePremiumTracks)
-                              .map(searchResult -> searchResult.transform(TrackItem::from))
+                              .map(searchResult -> searchResult.transform(entityItemCreator::trackItem))
                               .map(TO_SEARCH_RESULT);
         }
     }
@@ -257,7 +262,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storePlaylistsCommand.toAction1())
                               .doOnNext(cachePremiumPlaylists)
-                              .map(searchResult -> searchResult.transform(PlaylistItem::from))
+                              .map(searchResult -> searchResult.transform(entityItemCreator::playlistItem))
                               .map(TO_SEARCH_RESULT)
                               .map(mergePlaylistLikeStatus);
         }
@@ -279,7 +284,7 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(storeUsersCommand.toAction1())
                               .doOnNext(cachePremiumUsers)
-                              .map(searchResult -> searchResult.transform(UserItem::from))
+                              .map(searchResult -> searchResult.transform(entityItemCreator::userItem))
                               .map(TO_SEARCH_RESULT)
                               .map(mergeFollowings);
         }
@@ -301,10 +306,22 @@ class SearchStrategyFactory {
                               .subscribeOn(scheduler)
                               .doOnNext(cacheUniversalSearchCommand)
                               .doOnNext(cachePremiumContent)
-                              .map(item -> item.transform(ApiUniversalSearchItem::toListItem))
+                              .map(item -> item.transform(this::toListItem))
                               .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
                               .map(mergePlaylistLikeStatus)
                               .map(mergeFollowings);
+        }
+
+        private ListItem toListItem(ApiUniversalSearchItem searchItem) {
+                if (searchItem.track().isPresent()) {
+                    return entityItemCreator.trackItem(searchItem.track().get());
+                } else if (searchItem.playlist().isPresent()) {
+                    return entityItemCreator.playlistItem(searchItem.playlist().get());
+                } else if (searchItem.user().isPresent()) {
+                    return entityItemCreator.userItem(searchItem.user().get());
+                } else {
+                    throw new RuntimeException(format("Empty ApiUniversalSearchItem: %s", this));
+                }
         }
     }
 }

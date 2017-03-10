@@ -133,7 +133,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             accountOperations,
                                             otherPlaylistsByUserConfig,
                                             viewModelCreator,
-                                            ModelFixtures.trackItemCreator());
+                                            ModelFixtures.entityItemCreator());
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
         when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
@@ -469,6 +469,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     private PlaylistDetailOtherPlaylistsItem createOtherPlaylistItem() {
         return new PlaylistDetailOtherPlaylistsItem(
-                playlist.creatorName(), singletonList(PlaylistItem.from(playlistPost.getApiPlaylist())), false);
+                playlist.creatorName(), singletonList(ModelFixtures.playlistItem(playlistPost.getApiPlaylist())), false);
     }
 }

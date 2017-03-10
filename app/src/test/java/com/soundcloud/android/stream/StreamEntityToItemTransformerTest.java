@@ -39,7 +39,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        transformer = new StreamEntityToItemTransformer(trackRepository, playlistRepository, ModelFixtures.trackItemCreator());
+        transformer = new StreamEntityToItemTransformer(trackRepository, playlistRepository, ModelFixtures.entityItemCreator());
         when(trackRepository.fromUrns(anyList())).thenReturn(Observable.just(Collections.emptyMap()));
         when(playlistRepository.withUrns(anyCollection())).thenReturn(Observable.just(Collections.emptyMap()));
     }
@@ -72,7 +72,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
     @Test
     public void enrichesPlaylistStreamItem() throws Exception {
-        final PlaylistItem playlistItem = PlaylistItem.from(playlist);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist);
         final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).build();
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Observable.just(Collections.singletonMap(playlist.urn(), playlist)));

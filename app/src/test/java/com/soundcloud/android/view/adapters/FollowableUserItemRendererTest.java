@@ -57,7 +57,7 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetFollowedToggleButton() {
-        UserItem followedUserItem = UserItem.from(user).copyWithFollowing(true);
+        UserItem followedUserItem = ModelFixtures.userItem(user).copyWithFollowing(true);
         renderer.bindItemView(0, itemView, Collections.singletonList(followedUserItem));
 
         ToggleButton followButton = getFollowToggleButton();
@@ -67,7 +67,7 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetFollowedToggleButton() {
-        UserItem unfollowedUserItem = UserItem.from(user).copyWithFollowing(false);
+        UserItem unfollowedUserItem = ModelFixtures.userItem(user).copyWithFollowing(false);
         renderer.bindItemView(0, itemView, Collections.singletonList(unfollowedUserItem));
 
         ToggleButton followButton = getFollowToggleButton();

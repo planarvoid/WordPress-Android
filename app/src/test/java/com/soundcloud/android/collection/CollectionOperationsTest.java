@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
@@ -62,8 +61,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     );
 
     private List<TrackItem> playHistory = Arrays.asList(
-            TrackItem.from(ModelFixtures.create(ApiTrack.class)),
-            TrackItem.from(ModelFixtures.create(ApiTrack.class))
+            ModelFixtures.trackItem(),
+            ModelFixtures.trackItem()
     );
 
     private List<RecentlyPlayedPlayableItem> recentlyPlayed = Arrays.asList(
@@ -100,8 +99,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 offlineStateOperations,
                 playHistoryOperations,
                 recentlyPlayedOperations,
-                myPlaylistsOperations
-        );
+                myPlaylistsOperations,
+                ModelFixtures.entityItemCreator());
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));

@@ -29,7 +29,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackItemCreator;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
@@ -73,7 +73,7 @@ public class PlaylistOperations {
     private final AccountOperations accountOperations;
     private final OtherPlaylistsByUserConfig otherPlaylistsByUserConfig;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
-    private final TrackItemCreator trackItemCreator;
+    private final EntityItemCreator entityItemCreator;
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
@@ -93,7 +93,7 @@ public class PlaylistOperations {
                        AccountOperations accountOperations,
                        OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
                        PlaylistDetailsViewModelCreator viewModelCreator,
-                       TrackItemCreator trackItemCreator) {
+                       EntityItemCreator entityItemCreator) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistRepository = playlistRepository;
@@ -111,7 +111,7 @@ public class PlaylistOperations {
         this.accountOperations = accountOperations;
         this.otherPlaylistsByUserConfig = otherPlaylistsByUserConfig;
         this.viewModelCreator = viewModelCreator;
-        this.trackItemCreator = trackItemCreator;
+        this.entityItemCreator = entityItemCreator;
     }
 
     Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
@@ -255,9 +255,9 @@ public class PlaylistOperations {
 
     private Func1<List<Playlist>, PlaylistDetailsViewModel> toViewModel(Playlist playlist, List<Track> tracks) {
         return playlists -> {
-            final List<PlaylistItem> playlistsItems = Lists.transform(playlists, PlaylistItem::from);
+            final List<PlaylistItem> playlistsItems = Lists.transform(playlists, entityItemCreator::playlistItem);
             return viewModelCreator.create(playlist,
-                                           Lists.transform(tracks, trackItemCreator::trackItem),
+                                           Lists.transform(tracks, entityItemCreator::trackItem),
                                            playlist.isLikedByCurrentUser().or(false),
                                            playlist.isRepostedByCurrentUser().or(false),
                                            false,

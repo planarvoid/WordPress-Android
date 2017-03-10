@@ -4,11 +4,10 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 
@@ -20,7 +19,7 @@ public class UserProfileFixtures {
     }
 
     static class Builder {
-        private UserItem user = UserItem.from(create(ApiUser.class));
+        private UserItem user = ModelFixtures.userItem();
         private ModelCollection<PlayableItem> spotlight = emptyModelCollection();
         private ModelCollection<TrackItem> tracks = emptyModelCollection();
         private ModelCollection<PlaylistItem> albums = emptyModelCollection();
@@ -64,12 +63,12 @@ public class UserProfileFixtures {
         }
 
         Builder populateAllCollections() {
-            spotlight = new ModelCollection<>(singletonList(TrackItem.from(create(ApiTrack.class))));
-            tracks = new ModelCollection<>(singletonList(TrackItem.from(create(ApiTrack.class))));
-            albums = new ModelCollection<>(singletonList(PlaylistItem.from(create(ApiPlaylist.class))));
-            playlists = new ModelCollection<>(singletonList(PlaylistItem.from(create(ApiPlaylist.class))));
-            reposts = new ModelCollection<>(singletonList(TrackItem.from(create(ApiTrack.class))));
-            likes = new ModelCollection<>(singletonList(TrackItem.from(create(ApiTrack.class))));
+            spotlight = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
+            tracks = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
+            albums = new ModelCollection<>(singletonList(ModelFixtures.playlistItem(create(ApiPlaylist.class))));
+            playlists = new ModelCollection<>(singletonList(ModelFixtures.playlistItem(create(ApiPlaylist.class))));
+            reposts = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
+            likes = new ModelCollection<>(singletonList(ModelFixtures.trackItem()));
 
             return this;
         }

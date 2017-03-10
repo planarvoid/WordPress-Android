@@ -1,54 +1,71 @@
 package com.soundcloud.android.users;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.FollowableItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.android.presentation.UpdatableUserItem;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.annotation.NonNull;
-
 @AutoValue
-public abstract class UserItem implements ListItem, FollowableItem {
-
-    public static UserItem create(Urn urn, String name, Optional<String> imageUrlTemplate, Optional<String> country, int followersCount, boolean isFollowedByMe) {
-        return new AutoValue_UserItem(urn, imageUrlTemplate, name, country, followersCount, isFollowedByMe);
-    }
-
-    public static UserItem from(ApiUser apiUser) {
-        return from(apiUser, false);
-    }
-
-    @NonNull
-    public static AutoValue_UserItem from(ApiUser apiUser, boolean isFollowedByMe) {
-        return new AutoValue_UserItem(apiUser.getUrn(), apiUser.getAvatarUrlTemplate(), apiUser.getUsername(), Optional.fromNullable(apiUser.getCountry()), apiUser.getFollowersCount(), isFollowedByMe);
-    }
+public abstract class UserItem implements ListItem, FollowableItem, UpdatableUserItem {
 
     public static UserItem from(User user) {
-        return new AutoValue_UserItem(user.urn(), user.avatarUrl(), user.username(), user.country(), user.followersCount(), user.isFollowing());
+        return builder().user(user).isFollowedByMe(user.isFollowing()).build();
+    }
+
+    public abstract User user();
+
+    public abstract boolean isFollowedByMe();
+
+    public Urn getUrn(){
+        return user().urn();
+    }
+
+    public Optional<String> getImageUrlTemplate(){
+        return user().avatarUrl();
+    }
+
+    public String name(){
+        return user().username();
+    }
+
+    public Optional<String> country(){
+        return user().country();
+    }
+
+    public int followersCount(){
+        return user().followersCount();
+    }
+
+    public abstract UserItem.Builder toBuilder();
+
+    public static Builder builder() {
+        return new AutoValue_UserItem.Builder();
     }
 
     public UserItem copyWithFollowing(boolean isFollowedByMe) {
-        return new AutoValue_UserItem(getUrn(), getImageUrlTemplate(), name(), country(), followersCount(), isFollowedByMe);
-    }
-
-    @VisibleForTesting
-    public UserItem copyWithUrn(Urn urn) {
-        return new AutoValue_UserItem(urn, getImageUrlTemplate(), name(), country(), followersCount(), isFollowedByMe());
+        return toBuilder().isFollowedByMe(isFollowedByMe).build();
     }
 
     @Override
     public UserItem updatedWithFollowing(boolean isFollowedByMe, int followingsCount) {
-        return new AutoValue_UserItem(getUrn(), getImageUrlTemplate(), name(), country(), followingsCount, isFollowedByMe);
+        return toBuilder().user(user().toBuilder().followingsCount(followingsCount).build()).isFollowedByMe(isFollowedByMe).build();
     }
 
-    public abstract String name();
+    @Override
+    public UpdatableUserItem updateWithUser(User user) {
+        return toBuilder().user(user).build();
+    }
 
-    public abstract Optional<String> country();
 
-    public abstract int followersCount();
+    @AutoValue.Builder
+    public abstract static class Builder {
 
-    public abstract boolean isFollowedByMe();
+        public abstract Builder user(User user);
+
+        public abstract Builder isFollowedByMe(boolean isFollowedByMe);
+
+        public abstract UserItem build();
+    }
 }

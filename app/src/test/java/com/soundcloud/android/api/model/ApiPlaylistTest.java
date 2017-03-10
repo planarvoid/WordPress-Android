@@ -32,7 +32,7 @@ public class ApiPlaylistTest extends AndroidUnitTest {
     public void shouldConvertToPlaylistItem() {
         ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
-        PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist);
+        PlaylistItem playlistItem = ModelFixtures.playlistItem(apiPlaylist);
 
         assertThat(playlistItem.getUrn()).isEqualTo(apiPlaylist.getUrn());
         assertThat(playlistItem.title()).isEqualTo(apiPlaylist.getTitle());

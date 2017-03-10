@@ -45,7 +45,7 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
                                                .likesCount(5)
                                                .trackCount(11)
                                                .build();
-        playlistItem = PlaylistItem.builder(playlist).isUserLike(false).build();
+        playlistItem = ModelFixtures.playlistItemBuilder(playlist).isUserLike(false).build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);

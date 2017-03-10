@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
@@ -64,6 +65,7 @@ public class TopResultsPresenter {
     private final SearchPlayQueueFilter playQueueFilter;
     private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
+    private final EntityItemCreator entityItemCreator;
 
     private final BehaviorSubject<Pair<String, Optional<Urn>>> firstPageIntent = BehaviorSubject.create();
     private final BehaviorSubject<Pair<String, Optional<Urn>>> refreshIntent = BehaviorSubject.create();
@@ -74,10 +76,12 @@ public class TopResultsPresenter {
                         LikesStateProvider likedStatuses,
                         FollowingStateProvider followingStatuses,
                         PlaybackInitiator playbackInitiator,
-                        EventBus eventBus) {
+                        EventBus eventBus,
+                        EntityItemCreator entityItemCreator) {
         this.playQueueFilter = playQueueFilter;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
+        this.entityItemCreator = entityItemCreator;
 
         CollectionLoader<List<ApiTopResultsBucket>, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
                 firstPageIntent,
@@ -200,7 +204,7 @@ public class TopResultsPresenter {
         return apiBucket -> {
             final List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
             final int bucketPosition = collectionLoaderState.data().get().indexOf(apiBucket);
-            final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(likedStatuses, followingStatuses, apiUniversalSearchItems, bucketPosition);
+            final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(entityItemCreator, likedStatuses, followingStatuses, apiUniversalSearchItems, bucketPosition);
             return TopResultsBucketViewModel.create(result, apiBucket.urn(), apiBucket.totalResults(), apiBucket.queryUrn().or(Urn.NOT_SET));
         };
     }

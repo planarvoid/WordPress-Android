@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
@@ -32,8 +31,10 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new RecommendedPlaylistsOperations(syncOperations, playlistsStorage,
-                                                        playlistRepository);
+        operations = new RecommendedPlaylistsOperations(syncOperations,
+                                                        playlistsStorage,
+                                                        playlistRepository,
+                                                        ModelFixtures.entityItemCreator());
     }
 
     @Test
@@ -63,7 +64,7 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
                   .assertCompleted()
                   .assertNoErrors()
                   .assertReceivedOnNext(Collections.<DiscoveryItem>singletonList(
-                          RecommendedPlaylistsBucketItem.create(recommendedPlaylistEntity, singletonList(PlaylistItem.from(playlist)))
+                          RecommendedPlaylistsBucketItem.create(recommendedPlaylistEntity, singletonList(ModelFixtures.playlistItem(playlist)))
                   ));
     }
 }

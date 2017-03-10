@@ -11,8 +11,8 @@ import static com.soundcloud.propeller.query.Query.Order.ASC;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.Following;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.UserAssociations;
-import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
@@ -109,17 +109,17 @@ public class UserAssociationStorage {
 
     public Observable<List<Following>> followedUsers(int limit, long fromPosition) {
         final Query query = buildFollowingsQuery(limit, fromPosition);
-        return propellerRx.query(query).map(new FollowingsMapper()).toList();
+        return propellerRx.query(query).map(new UserAssociationMapper()).toList();
     }
 
-    public Observable<UserItem> followedUser(Urn urn) {
+    public Observable<User> followedUser(Urn urn) {
         final Query query = buildFollowingsBaseQuery().whereEq(TARGET_ID, urn.getNumericId());
-        return propellerRx.query(query).map(new FollowingsMapper()).map(Following::userItem);
+        return propellerRx.query(query).map(new UserAssociationMapper()).map(Following::user);
     }
 
     private Optional<UserAssociation> loadFollowedUser(Urn urn) {
         final Query query = buildFollowingsBaseQuery().whereEq(TARGET_ID, urn.getNumericId());
-        return Optional.fromNullable(propeller.query(query).firstOrDefault(new FollowingsMapper(), null)).transform(Following::userAssociation);
+        return Optional.fromNullable(propeller.query(query).firstOrDefault(new UserAssociationMapper(), null)).transform(Following::userAssociation);
     }
 
     public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
@@ -155,7 +155,7 @@ public class UserAssociationStorage {
     public List<Following> loadStaleFollowings() {
         return propeller.query(buildFollowingsBaseQuery()
                                        .where(staleFollowingsFilter()))
-                        .toList(new FollowingsMapper());
+                        .toList(new UserAssociationMapper());
     }
 
     private Where staleFollowingsFilter() {
@@ -174,21 +174,15 @@ public class UserAssociationStorage {
 
     @NonNull
     private Query buildFollowingsBaseQuery() {
-        return Query.from(Users.TABLE)
-                    .select(
-                            Users._ID,
-                            Users.USERNAME,
-                            Users.COUNTRY,
-                            Users.FOLLOWERS_COUNT,
-                            Users.AVATAR_URL,
-                            TARGET_ID.as(BaseColumns._ID),
+        return Query.from(Tables.UsersView.TABLE)
+                    .select("UsersView.*",
                             POSITION,
                             ADDED_AT,
                             REMOVED_AT,
                             ASSOCIATION_TYPE)
                     .innerJoin(UserAssociations.TABLE,
                                filter()
-                                       .whereEq(TARGET_ID, Users._ID)
+                                       .whereEq(TARGET_ID, Tables.UsersView.ID)
                                        .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING));
     }
 
@@ -199,27 +193,11 @@ public class UserAssociationStorage {
         }
     }
 
-    private class FollowingsMapper extends UserAssociationMapper {
-        @Override
-        public Following map(CursorReader reader) {
-            final Following following = super.map(reader);
-            UserItem followed = following.userItem().copyWithFollowing(true);
-            return Following.from(followed, following.userAssociation());
-        }
-    }
-
     private class UserAssociationMapper extends RxResultMapper<Following> {
-
         @Override
         public Following map(CursorReader reader) {
-            UserItem userItem = UserItem.create(
-                    Urn.forUser(reader.getLong(Users._ID)),
-                    reader.getString(Users.USERNAME),
-                    Optional.fromNullable(reader.getString(Users.AVATAR_URL)),
-                    Optional.fromNullable(reader.isNull(Users.COUNTRY) ? null : reader.getString(Users.COUNTRY)),
-                    reader.getInt(Users.FOLLOWERS_COUNT),
-                    false);
-            return Following.from(userItem, UserAssociation.create(reader));
+            User user = User.fromCursorReader(reader);
+            return Following.from(user, UserAssociation.create(reader));
         }
     }
 

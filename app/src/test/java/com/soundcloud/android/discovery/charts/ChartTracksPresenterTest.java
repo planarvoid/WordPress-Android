@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery.charts;
 import static com.soundcloud.android.api.model.ChartCategory.MUSIC;
 import static com.soundcloud.android.api.model.ChartType.TOP;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -82,7 +83,8 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                         chartTracksAdapter,
                                                         playbackInitiator,
                                                         providerOf(expandPlayerSubscriber),
-                                                        chartsTracker);
+                                                        chartsTracker,
+                                                        ModelFixtures.entityItemCreator());
         when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART));
         bundle = getChartArguments();
         when(fragment.getArguments()).thenReturn(bundle);
@@ -166,9 +168,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     }
 
     private static ChartTrackListItem.Track createChartTrackListItem(int position, Optional<Urn> queryUrn) {
-        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        apiTrack.setUrn(Urn.forTrack(position));
-        return ChartTrackListItem.forTrack(new ChartTrackItem(TOP, apiTrack, MUSIC, GENRE_URN, queryUrn));
+        return ChartTrackListItem.forTrack(new ChartTrackItem(TOP, trackItem(Urn.forTrack(position)), MUSIC, GENRE_URN, queryUrn));
     }
 
 

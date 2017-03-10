@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
@@ -39,11 +40,12 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     private final MyProfileOperations profileOperations;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final FollowingOperations followingOperations;
+    private final EntityItemCreator entityItemCreator;
 
     private final Func1<List<Following>, List<UserItem>> pageTransformer = new Func1<List<Following>, List<UserItem>>() {
         @Override
         public List<UserItem> call(List<Following> collection) {
-            return Lists.transform(collection, Following::userItem);
+            return Lists.transform(collection, following -> entityItemCreator.userItem(following.user()));
         }
     };
 
@@ -59,12 +61,13 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                           UserRecyclerItemAdapter adapter,
                           MyProfileOperations profileOperations,
                           FollowingOperations followingOperations,
-                          Navigator navigator) {
+                          EntityItemCreator entityItemCreator, Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.profileOperations = profileOperations;
         this.followingOperations = followingOperations;
+        this.entityItemCreator = entityItemCreator;
         this.navigator = navigator;
     }
 

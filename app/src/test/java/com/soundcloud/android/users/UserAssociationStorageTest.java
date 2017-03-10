@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.storage.Tables.UserAssociations;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
 import org.assertj.core.api.Assertions;
@@ -34,8 +35,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     private TestSubscriber<List<Following>> subscriber = new TestSubscriber<>();
     private TestSubscriber<List<Urn>> urnSubscriber = new TestSubscriber<>();
 
-    private UserItem followingAndFollower;
-    private UserItem following;
+    private User followingAndFollower;
+    private User following;
     private Urn followingUrn;
     private Urn followingAndFollowerUrn;
 
@@ -55,8 +56,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         testFixtures().insertFollowing(apiFollowingAndFollower.getUrn(), 2);
         testFixtures().insertFollowing(apiFollowing.getUrn(), 3);
 
-        followingAndFollower = apiUserToResultSet(apiFollowingAndFollower);
-        following = apiUserToResultSet(apiFollowing);
+        followingAndFollower = ModelFixtures.user(apiFollowingAndFollower).toBuilder().isFollowing(true).build();
+        following = ModelFixtures.user(apiFollowing).toBuilder().isFollowing(true).build();
     }
 
     @Test
@@ -71,33 +72,33 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadIdsOfFollowingUsers() {
         Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
-                following.getUrn().getNumericId(),
-                followingAndFollower.getUrn().getNumericId()
+                following.urn().getNumericId(),
+                followingAndFollower.urn().getNumericId()
         );
     }
 
     @Test
     public void shouldLoadIdsOfFollowingUsersUnlessPendingAddition() {
-        markFollowingAsAdded(followingAndFollower.getUrn());
+        markFollowingAsAdded(followingAndFollower.urn());
         Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
-                following.getUrn().getNumericId()
+                following.urn().getNumericId()
         );
     }
 
     @Test
     public void shouldLoadIdsOfFollowingUsersUnlessPendingRemoval() {
-        markFollowingAsRemoved(followingAndFollower.getUrn());
+        markFollowingAsRemoved(followingAndFollower.urn());
         Assertions.assertThat(storage.loadFollowedUserIds()).containsOnly(
-                following.getUrn().getNumericId()
+                following.urn().getNumericId()
         );
     }
 
     @Test
     public void loadFollowingLoadsSingleFollowing() {
-        final TestSubscriber<UserItem> subscriber = new TestSubscriber<>();
-        storage.followedUser(following.getUrn()).subscribe(subscriber);
+        final TestSubscriber<User> subscriber = new TestSubscriber<>();
+        storage.followedUser(following.urn()).subscribe(subscriber);
 
-        subscriber.assertValues(following.copyWithFollowing(true));
+        subscriber.assertValues(following);
     }
 
     @Test
@@ -105,10 +106,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.followedUsers(3, 0).subscribe(subscriber);
 
         subscriber.assertValues(
-                asList(Following.from(followingAndFollower.copyWithFollowing(true),
-                                      UserAssociation.create(followingAndFollower.getUrn(), 2, 2, Optional.absent(), Optional.absent())),
-                       Following.from(following.copyWithFollowing(true),
-                                      UserAssociation.create(following.getUrn(), 3, 2, Optional.absent(), Optional.absent())
+                asList(Following.from(followingAndFollower,
+                                      UserAssociation.create(followingAndFollower.urn(), 2, 2, Optional.absent(), Optional.absent())),
+                       Following.from(following,
+                                      UserAssociation.create(following.urn(), 3, 2, Optional.absent(), Optional.absent())
                 )
         ));
     }
@@ -118,8 +119,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.followedUsers(1, 0).subscribe(subscriber);
 
         subscriber.assertValues(singletonList(
-                Following.from(followingAndFollower.copyWithFollowing(true),
-                               UserAssociation.create(followingAndFollower.getUrn(), 2L, 2, Optional.absent(), Optional.absent()))));
+                Following.from(followingAndFollower,
+                               UserAssociation.create(followingAndFollower.urn(), 2L, 2, Optional.absent(), Optional.absent()))));
     }
 
     @Test
@@ -127,8 +128,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.followedUsers(2, 2).subscribe(subscriber);
 
         subscriber.assertValues(singletonList(
-                Following.from(following.copyWithFollowing(true),
-                               UserAssociation.create(following.getUrn(), 3L, 2, Optional.absent(), Optional.absent()))));
+                Following.from(following,
+                               UserAssociation.create(following.urn(), 3L, 2, Optional.absent(), Optional.absent()))));
     }
 
 
@@ -138,8 +139,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         urnSubscriber.assertValues(
                 asList(
-                        followingAndFollower.getUrn(),
-                        following.getUrn()
+                        followingAndFollower.urn(),
+                        following.urn()
                 )
         );
     }
@@ -147,13 +148,13 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     @Test
     public void loadFollowingsUrnsAdheresToLimit() {
         storage.followedUserUrns(1, 0).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(singletonList(followingAndFollower.getUrn()));
+        urnSubscriber.assertValues(singletonList(followingAndFollower.urn()));
     }
 
     @Test
     public void loadFollowingsUrnsAdheresToPosition() {
         storage.followedUserUrns(2, 2).subscribe(urnSubscriber);
-        urnSubscriber.assertValues(singletonList(following.getUrn()));
+        urnSubscriber.assertValues(singletonList(following.urn()));
     }
 
     @Test
@@ -163,8 +164,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final List<Following> followings = storage.loadStaleFollowings();
 
         Assertions.assertThat(followings).containsExactly(
-                Following.from(following.copyWithFollowing(true),
-                               UserAssociation.create(following.getUrn(), 0L, 2, Optional.of(new Date(123)), Optional.absent())));
+                Following.from(following,
+                               UserAssociation.create(following.urn(), 0L, 2, Optional.of(new Date(123)), Optional.absent())));
     }
 
     @Test
@@ -174,8 +175,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final List<Following> followings = storage.loadStaleFollowings();
 
         Assertions.assertThat(followings).containsExactly(
-                Following.from(following.copyWithFollowing(true),
-                               UserAssociation.create(following.getUrn(), 0L, 2, Optional.absent(), Optional.of(new Date(123)))));
+                Following.from(following.toBuilder().isFollowing(false).build(),
+                               UserAssociation.create(following.urn(), 0L, 2, Optional.absent(), Optional.of(new Date(123)))));
     }
 
     @Test
@@ -261,13 +262,4 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
                            filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
     }
 
-    private UserItem apiUserToResultSet(ApiUser apiUser1) {
-        return UserItem.create(
-                apiUser1.getUrn(),
-                apiUser1.getUsername(),
-                apiUser1.getImageUrlTemplate(),
-                Optional.fromNullable(apiUser1.getCountry()),
-                apiUser1.getFollowersCount(),
-                false);
-    }
 }

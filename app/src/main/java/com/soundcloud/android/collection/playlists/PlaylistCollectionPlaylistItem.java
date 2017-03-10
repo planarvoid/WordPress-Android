@@ -52,7 +52,7 @@ public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionI
 
     @Override
     public UpdatablePlaylistItem updatedWithPlaylist(Playlist playlist) {
-        return create(PlaylistItem.from(playlist));
+        return create(getPlaylistItem().toBuilder().playlist(playlist).build());
     }
 
     @Override

@@ -34,9 +34,11 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistItemBlueprint;
 import com.soundcloud.android.policies.ApiPolicyInfo;
+import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
+import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.topresults.SearchItem;
 import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
 import com.soundcloud.android.search.topresults.TopResultsViewModel;
@@ -57,11 +59,8 @@ import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemBlueprint;
-import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.users.UserItemBlueprint;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -78,8 +77,8 @@ public class ModelFixtures {
 
     private static final ModelFactory modelFactory = new ModelFactory();
 
-    public static TrackItemCreator trackItemCreator(){
-      return new TrackItemCreator();
+    public static EntityItemCreator entityItemCreator() {
+        return new EntityItemCreator();
     }
 
     static {
@@ -100,9 +99,6 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistRepostBlueprint.class);
             modelFactory.registerBlueprint(ConfigurationBlueprint.class);
-            modelFactory.registerBlueprint(TrackItemBlueprint.class);
-            modelFactory.registerBlueprint(PlaylistItemBlueprint.class);
-            modelFactory.registerBlueprint(UserItemBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
@@ -145,7 +141,11 @@ public class ModelFixtures {
     }
 
     public static Playlist playlist() {
-        return playlistBuilder().build();
+        return playlistBuilder().trackCount(0).build();
+    }
+
+    public static Playlist playlist(Urn urn) {
+        return playlistBuilder().urn(urn).build();
     }
 
     public static Playlist album() {
@@ -200,9 +200,37 @@ public class ModelFixtures {
         return user(false);
     }
 
+    public static User user(Urn urn) {
+        return userBuilder(false).urn(urn).build();
+    }
+
     public static User user(boolean isFollowing) {
         return userBuilder(isFollowing)
                 .build();
+    }
+
+    public static UserItem userItem() {
+        return userItem(apiUser());
+    }
+
+    public static UserItem userItem(ApiUser user) {
+        return userItem(user(user));
+    }
+
+    public static User user(ApiUser user) {
+        return User.fromApiUser(user);
+    }
+
+    public static UserItem userItem(User user) {
+        return UserItem.from(user);
+    }
+
+    public static UserItem userItem(Urn urn) {
+        return UserItem.from(user(urn));
+    }
+
+    public static User.Builder userBuilder() {
+        return userBuilder(false);
     }
 
     public static User.Builder userBuilder(boolean isFollowing) {
@@ -264,16 +292,20 @@ public class ModelFixtures {
         return ApiPost.create(apiTrack.getUrn(), new Date());
     }
 
+    public static TrackItem trackItem(ApiTrack track) {
+        return trackItem(Track.from(track));
+    }
+
     public static TrackItem trackItem(Track track) {
-        return trackItemCreator().trackItem(track);
+        return entityItemCreator().trackItem(track);
     }
 
     public static TrackItem trackItem(Track track, StreamEntity streamEntity) {
-        return trackItemCreator().trackItem(track, streamEntity);
+        return entityItemCreator().trackItem(track, streamEntity);
     }
 
     public static TrackItem trackItem() {
-        return ModelFixtures.create(TrackItem.class);
+        return TrackItem.builder(track()).build();
     }
 
     public static TrackItem.Builder trackItemBuilder() {
@@ -281,28 +313,23 @@ public class ModelFixtures {
     }
 
     public static TrackItem.Builder trackItemBuilder(Urn urn) {
-        return ModelFixtures.trackItemCreator().trackItem(trackBuilder().urn(urn).build()).toBuilder();
+        return ModelFixtures.entityItemCreator().trackItem(trackBuilder().urn(urn).build()).toBuilder();
     }
 
     public static TrackItem.Builder trackItemBuilder(ApiTrack apiTrack) {
-        return ModelFixtures.trackItemCreator().trackItem(trackBuilder(apiTrack).build()).toBuilder();
+        return ModelFixtures.entityItemCreator().trackItem(trackBuilder(apiTrack).build()).toBuilder();
     }
 
     public static TrackItem trackItem(Urn urn) {
-        return ModelFixtures.trackItemCreator().trackItem(trackBuilder().urn(urn).build());
+        return ModelFixtures.entityItemCreator().trackItem(trackBuilder().urn(urn).build());
     }
 
     public static Track track() {
         return Track.from(ModelFixtures.create(ApiTrack.class));
     }
 
-    public static Track offlineTrack() {
-        return trackBuilder().offlineState(OfflineState.DOWNLOADED).build();
-    }
-
     public static List<TrackItem> trackItems(int count) {
-        final List<ApiTrack> apiTracks = create(ApiTrack.class, count);
-        return Lists.transform(apiTracks, TrackItem::from);
+        return Lists.transform(create(ApiTrack.class, count), ModelFixtures::trackItem);
     }
 
     public static List<Track> tracks(int count) {
@@ -313,17 +340,40 @@ public class ModelFixtures {
         return result;
     }
 
+    public static List<PlaylistItem> playlistItem(int count) {
+        final List<PlaylistItem> list = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            list.add(playlistItem());
+        }
+        return list;
+    }
+
     public static PlaylistItem playlistItem() {
-        return create(PlaylistItem.class);
+        return playlistItem(playlist());
     }
 
     public static PlaylistItem.Builder playlistItemBuilder() {
-        return create(PlaylistItem.class).toBuilder();
+        return playlistItemBuilder(playlist());
+    }
+
+    public static PlaylistItem playlistItem(ApiPlaylist apilaylist) {
+        return playlistItem(Playlist.from(apilaylist));
+    }
+
+    public static PlaylistItem.Builder playlistItemBuilder(ApiPlaylist apilaylist) {
+        return playlistItemBuilder(Playlist.from(apilaylist));
+    }
+
+    public static PlaylistItem playlistItem(Playlist playlist) {
+        return playlistItemBuilder(playlist).build();
+    }
+
+    public static PlaylistItem.Builder playlistItemBuilder(Playlist playlist) {
+        return PlaylistItem.builder(playlist);
     }
 
     public static PlaylistItem playlistItem(Urn urn) {
-        final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        return PlaylistItem.from(playlistBuilder(apiPlaylist).urn(urn).build());
+        return playlistItem(playlist(urn));
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn) {
@@ -540,13 +590,18 @@ public class ModelFixtures {
     public static TrackItem promotedTrackItem(Track track, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return ModelFixtures.trackItemCreator().trackItem(track, streamEntity);
+        return ModelFixtures.entityItemCreator().trackItem(track, streamEntity);
     }
 
     public static PlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
         final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date(), absent(), absent(), playlist.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return PlaylistItem.from(playlist, streamEntity);
+        return playlistItemBuilder(playlist).reposter(streamEntity.reposter())
+                                            .reposterUrn(streamEntity.reposterUrn())
+                                            .avatarUrlTemplate(streamEntity.avatarUrl())
+                                            .promotedProperties(streamEntity.promotedProperties())
+                                            .build();
+
     }
 
     private static PromotedProperties getPromotedProperties(User promoter) {
@@ -562,9 +617,9 @@ public class ModelFixtures {
                                           .imageUrlTemplate(streamEntity.avatarUrl())
                                           .build();
         if (streamEntity.isPromoted()) {
-            return TrackStreamItem.create(ModelFixtures.trackItemCreator().trackItem(track, streamEntity), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt());
         } else {
-            return TrackStreamItem.create(ModelFixtures.trackItemCreator().trackItem(track), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt());
         }
     }
 
@@ -580,6 +635,19 @@ public class ModelFixtures {
 
         CollectionRendererState<TopResultsBucketViewModel> collectionViewState = CollectionRendererState.create(CollectionLoadingState.builder().build(), Lists.newArrayList(bucket1, bucket2));
         return TopResultsViewModel.create(collectionViewState);
+    }
+
+    public static ListItem listItemFromSearchItem(ApiUniversalSearchItem searchItem) {
+        EntityItemCreator entityItemCreator = new EntityItemCreator();
+        if (searchItem.track().isPresent()) {
+            return entityItemCreator.trackItem(searchItem.track().get());
+        } else if (searchItem.playlist().isPresent()) {
+            return entityItemCreator.playlistItem(searchItem.playlist().get());
+        } else if (searchItem.user().isPresent()) {
+            return entityItemCreator.userItem(searchItem.user().get());
+        } else {
+            throw new RuntimeException("Unknown search item type " + searchItem);
+        }
     }
 
     private static SearchItem.User searchUser(int bucketPosition) {

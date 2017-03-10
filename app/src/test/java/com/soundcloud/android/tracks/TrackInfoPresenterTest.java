@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
@@ -35,9 +36,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShowsAllStatsWhenAllStatsAreGreaterZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(10).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
@@ -48,9 +49,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideAllStatsWhenStatsAreZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(0).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(0).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
@@ -61,9 +62,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHidePlaysIfPlaysCountIsZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(0).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(10).playCount(0).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
@@ -74,9 +75,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideLikesIfLikesCountIsZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(10).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(10).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
@@ -87,9 +88,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsHideRepostsIfRepostsCountIsZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(10).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(10).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.VISIBLE);
@@ -100,9 +101,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsPlaysWhenLikesAndRepostsAreZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(10).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(0).playCount(10).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
@@ -113,9 +114,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsLikesWhenPlaysAndRepostsAreZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(0).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(10).repostsCount(0).playCount(0).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
@@ -126,9 +127,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(0).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().likesCount(0).repostsCount(10).playCount(0).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.plays).getVisibility()).isEqualTo(View.GONE);
         assertThat(view.findViewById(R.id.divider1).getVisibility()).isEqualTo(View.GONE);
@@ -139,18 +140,18 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindViewsShouldHideCommentsWhenCommentsAreZero() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().commentsCount(0).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().commentsCount(0).build());
 
-        presenter.bind(view, trackProperties, commentClickListener);
+        presenter.bind(view, trackItem, commentClickListener);
 
         assertThat(view.findViewById(R.id.comments).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
     public void bindViewsShouldShowNoDescriptionWhenDescriptionIsEmpty() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("")).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("")).build());
 
-        presenter.bindDescription(view, trackProperties);
+        presenter.bindDescription(view, trackItem);
 
         assertThat(view.findViewById(R.id.description).getVisibility()).isEqualTo(View.GONE);
         assertThat(view.findViewById(R.id.no_description).getVisibility()).isEqualTo(View.VISIBLE);
@@ -158,9 +159,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Test // fixes #2863
     public void bindViewsShouldHideNoDescriptionWhenDescriptionIsNotEmpty() throws Exception {
-        TrackItem trackProperties = TrackItem.from(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("some desc")).build());
+        TrackItem trackItem = trackItem(PlayableFixtures.expectedTrackBuilderForPlayer().description(Optional.of("some desc")).build());
 
-        presenter.bindDescription(view, trackProperties);
+        presenter.bindDescription(view, trackItem);
 
         assertThat(view.findViewById(R.id.description).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(view.findViewById(R.id.no_description).getVisibility()).isEqualTo(View.GONE);

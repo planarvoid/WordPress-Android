@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
@@ -40,23 +41,22 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     static final int NUM_EXTRA_ITEMS = 1;
     private static final Predicate<ChartTrackListItem> IS_TRACK = input -> input.getKind() == ChartTrackListItem.Kind.TrackItem;
 
-    private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ApiChart<ApiTrack> apiChart) {
+    private Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ApiChart<ApiTrack> apiChart) {
         return input -> ChartTrackListItem.forTrack(new ChartTrackItem(apiChart.type(),
-                                                               input,
-                                                               apiChart.category(),
-                                                               apiChart.genre(),
-                                                               apiChart.getQueryUrn()));
+                                                                       entityItemCreator.trackItem(input),
+                                                                       apiChart.category(),
+                                                                       apiChart.genre(),
+                                                                       apiChart.getQueryUrn()));
     }
 
-    private static final Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
+    private final Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
             apiChart -> {
 
                 final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(apiChart.tracks()
                                                                                              .getCollection()
                                                                                              .size() + 2);
                 chartTrackListItems.add(ChartTrackListItem.forHeader(apiChart.type()));
-                Iterables.addAll(chartTrackListItems,
-                                 transform(apiChart.tracks(), toChartTrackListItem(apiChart)));
+                Iterables.addAll(chartTrackListItems, transform(apiChart.tracks(), toChartTrackListItem(apiChart)));
                 chartTrackListItems.add(ChartTrackListItem.forFooter(apiChart.lastUpdated()));
                 return chartTrackListItems;
             };
@@ -79,6 +79,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final ChartsTracker chartsTracker;
+    private final EntityItemCreator entityItemCreator;
     private final PublishSubject<Throwable> errorSubject = PublishSubject.create();
 
     @Inject
@@ -87,13 +88,15 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                          ChartTracksAdapter chartTracksAdapter,
                          PlaybackInitiator playbackInitiator,
                          Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                         ChartsTracker chartsTracker) {
+                         ChartsTracker chartsTracker,
+                         EntityItemCreator entityItemCreator) {
         super(swipeRefreshAttacher);
         this.chartsOperations = chartsOperations;
         this.chartTracksAdapter = chartTracksAdapter;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.chartsTracker = chartsTracker;
+        this.entityItemCreator = entityItemCreator;
     }
 
     @Override

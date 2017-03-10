@@ -49,7 +49,7 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
         clearSubscriber = new TestSubscriber<>();
 
         operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler,
-                                               syncOperations, clearCommand, ModelFixtures.trackItemCreator());
+                                               syncOperations, clearCommand, ModelFixtures.entityItemCreator());
     }
 
     @Test

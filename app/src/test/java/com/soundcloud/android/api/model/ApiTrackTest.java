@@ -30,8 +30,7 @@ public class ApiTrackTest extends AndroidUnitTest {
     @Test
     public void shouldConvertToTrackItem() {
         ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-
-        TrackItem trackItem = TrackItem.from(apiTrack);
+        TrackItem trackItem = ModelFixtures.trackItem(apiTrack);
 
         assertThat(trackItem.getUrn()).isEqualTo(apiTrack.getUrn());
         assertThat(trackItem.title()).isEqualTo(apiTrack.getTitle());

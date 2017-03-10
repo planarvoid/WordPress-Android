@@ -27,9 +27,9 @@ import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -283,12 +283,12 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     }
 
     private Following getNewFollowingAddition(Urn urn, String username) {
-        return Following.from(UserItem.create(urn, username, Optional.absent(), Optional.absent(), 0, false),
+        return Following.from(ModelFixtures.userBuilder(false).urn(urn).username(username).build(),
                               UserAssociation.create(urn, -1, -1, Optional.of(new Date()), Optional.absent()));
     }
 
     private Following getNewFollowingRemoval(Urn urn, String username) {
-        return Following.from(UserItem.create(urn, username, Optional.absent(), Optional.absent(), 0, false),
+        return Following.from(ModelFixtures.userBuilder(false).urn(urn).username(username).build(),
                               UserAssociation.create(urn, -1, -1, Optional.absent(), Optional.of(new Date())));
     }
 }

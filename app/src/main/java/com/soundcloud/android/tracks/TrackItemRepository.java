@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
@@ -12,21 +13,21 @@ import java.util.Map;
 public class TrackItemRepository {
 
     private final TrackRepository trackRepository;
-    private final TrackItemCreator trackItemCreator;
+    private final EntityItemCreator entityItemCreator;
 
     @Inject
     public TrackItemRepository(TrackRepository trackRepository,
-                               TrackItemCreator trackItemCreator) {
+                               EntityItemCreator entityItemCreator) {
         this.trackRepository = trackRepository;
-        this.trackItemCreator = trackItemCreator;
+        this.entityItemCreator = entityItemCreator;
     }
 
     public Observable<TrackItem> track(final Urn trackUrn) {
-        return trackRepository.track(trackUrn).map(trackItemCreator::trackItem);
+        return trackRepository.track(trackUrn).map(entityItemCreator::trackItem);
     }
 
     public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
-        return trackRepository.fromUrns(requestedTracks).map(trackItemCreator::convertMap);
+        return trackRepository.fromUrns(requestedTracks).map(entityItemCreator::convertTrackMap);
     }
 
     public Observable<List<TrackItem>> trackListFromUrns(List<Urn> requestedTracks) {
@@ -47,11 +48,11 @@ public class TrackItemRepository {
     }
 
     Observable<TrackItem> fullTrackWithUpdate(final Urn trackUrn) {
-        return trackRepository.fullTrackWithUpdate(trackUrn).map(trackItemCreator::trackItem);
+        return trackRepository.fullTrackWithUpdate(trackUrn).map(entityItemCreator::trackItem);
     }
 
     private Observable.Transformer<? super List<Track>, List<TrackItem>> tracksToItems() {
-        return tracks -> tracks.flatMap(t -> Observable.from(t).map(trackItemCreator::trackItem).toList());
+        return tracks -> tracks.flatMap(t -> Observable.from(t).map(entityItemCreator::trackItem).toList());
     }
 
 }

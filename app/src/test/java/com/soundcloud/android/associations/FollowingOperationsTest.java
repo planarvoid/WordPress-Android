@@ -12,9 +12,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -53,6 +54,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
                                              updateFollowingCommand,
                                              scheduler,
                                              userAssociationStorage,
+                                             ModelFixtures.entityItemCreator(),
                                              syncOperations);
 
         when(updateFollowingCommand.toObservable(any(UpdateFollowingParams.class))).thenReturn(Observable.just(FOLLOWER_COUNT));
@@ -61,10 +63,11 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     @Test
     public void toggleFollowingStoresThenSyncThenEmitsChangeSet() {
         final FollowingOperations ops = new FollowingOperations(mockEventBus,
-                                             updateFollowingCommand,
-                                             scheduler,
-                                             userAssociationStorage,
-                                             syncOperations);
+                                                                updateFollowingCommand,
+                                                                scheduler,
+                                                                userAssociationStorage,
+                                                                ModelFixtures.entityItemCreator(),
+                                                                syncOperations);
 
         when(syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
 
@@ -84,16 +87,16 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onUserFollowedEmptsFollowedUser() {
+    public void onUserFollowedEmitsFollowedUser() {
         operations.populatedOnUserFollowed().subscribe(subscriber);
 
         final FollowingStatusEvent event = FollowingStatusEvent.createFollowed(targetUrn, FOLLOWER_COUNT);
-        final UserItem following = UserItem.create(Urn.NOT_SET, "", Optional.absent(), Optional.absent(), 0, false);
+        final User following = ModelFixtures.user();
         when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Observable.just(following));
 
         eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);
 
-        subscriber.assertValues(following);
+        subscriber.assertValues(ModelFixtures.userItem(following));
     }
 
     @Test

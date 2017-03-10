@@ -73,7 +73,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
                                                 trackRepository,
                                                 eventBus,
                                                 likeOperations,
-                                                engagementsTracking, ModelFixtures.trackItemCreator());
+                                                engagementsTracking);
         when(context.getResources()).thenReturn(resources());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(widgetTrack.getUrn()));
     }

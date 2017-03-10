@@ -1,17 +1,12 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.java.optional.Optional.fromNullable;
-import static java.lang.String.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,18 +38,5 @@ public class ApiUniversalSearchItem {
 
     public Optional<ApiTrack> track() {
         return track;
-    }
-
-
-    public ListItem toListItem() {
-        if (this.track().isPresent()) {
-            return TrackItem.from(this.track().get());
-        } else if (this.playlist().isPresent()) {
-            return PlaylistItem.from(this.playlist().get());
-        } else if (this.user().isPresent()) {
-            return UserItem.from(this.user().get());
-        } else {
-            throw new RuntimeException(format("Empty ApiUniversalSearchItem: %s", this));
-        }
     }
 }

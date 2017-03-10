@@ -21,7 +21,6 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
@@ -48,7 +47,6 @@ public class PlayerWidgetController {
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
     private final EngagementsTracking engagementsTracking;
-    private final TrackItemCreator trackItemCreator;
 
     @Inject
     public PlayerWidgetController(Context context,
@@ -58,8 +56,7 @@ public class PlayerWidgetController {
                                   TrackItemRepository trackItemRepository,
                                   EventBus eventBus,
                                   LikeOperations likeOperations,
-                                  EngagementsTracking engagementsTracking,
-                                  TrackItemCreator trackItemCreator) {
+                                  EngagementsTracking engagementsTracking) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
@@ -68,7 +65,6 @@ public class PlayerWidgetController {
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
         this.engagementsTracking = engagementsTracking;
-        this.trackItemCreator = trackItemCreator;
     }
 
     public void subscribe() {

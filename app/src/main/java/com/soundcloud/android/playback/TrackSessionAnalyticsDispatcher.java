@@ -9,8 +9,8 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.tracks.TrackItemCreator;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.UuidProvider;
@@ -36,7 +36,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
     private final UuidProvider uuidProvider;
-    private final TrackItemCreator trackItemCreator;
+    private final EntityItemCreator entityItemCreator;
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
@@ -49,14 +49,14 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                            AppboyPlaySessionState appboyPlaySessionState,
                                            StopReasonProvider stopReasonProvider,
                                            UuidProvider uuidProvider,
-                                           TrackItemCreator trackItemCreator) {
+                                           EntityItemCreator entityItemCreator) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
         this.uuidProvider = uuidProvider;
-        this.trackItemCreator = trackItemCreator;
+        this.entityItemCreator = entityItemCreator;
     }
 
     @Override
@@ -186,7 +186,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                     PlayStateEvent playStateEvent,
                                                     String clientId,
                                                     String playId) {
-        return PlaybackSessionEventArgs.createWithProgress(trackItemCreator.trackItem(track),
+        return PlaybackSessionEventArgs.createWithProgress(entityItemCreator.trackItem(track),
                                                            currentTrackSourceInfo.get(),
                                                            progress,
                                                            playStateEvent.getTransition(),

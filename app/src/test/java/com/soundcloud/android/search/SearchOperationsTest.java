@@ -94,8 +94,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
                                                                     storeUsersCommand,
                                                                     cacheUniversalSearchCommand,
                                                                     loadPlaylistLikedStatuses,
-                                                                    loadFollowingCommand
-        ), trackRepository);
+                                                                    loadFollowingCommand,
+                                                                    ModelFixtures.entityItemCreator()), trackRepository);
     }
 
     @Test
@@ -369,9 +369,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toListItem),
+        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ModelFixtures::listItemFromSearchItem),
                                                                                    Optional.absent(),
                                                                                    Optional.absent());
+
         final Map<Urn, Boolean> likedPlaylists = Collections.singletonMap(playlist.getUrn(), true);
         when(loadPlaylistLikedStatuses.call(eq(Lists.transform(expectedSearchResult.getItems(), Entity::getUrn)))).thenReturn(likedPlaylists);
 
@@ -392,7 +393,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 forTrack(track),
                 forUser(user2),
                 forPlaylist(playlist));
-        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ApiUniversalSearchItem::toListItem),
+        final SearchResult expectedSearchResult = SearchResult.fromSearchableItems(Lists.transform(apiUniversalSearchItems, ModelFixtures::listItemFromSearchItem),
                                                                                    Optional.absent(),
                                                                                    Optional.absent());
         final Map<Urn, Boolean> userFollowings = Collections.singletonMap(user.getUrn(), true);
@@ -410,7 +411,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         assertThat(followedUser.isFollowedByMe()).isTrue();
 
         final UserItem nonFollowedUserItem = (UserItem) searchResult.getItems().get(2);
-        assertThat(nonFollowedUserItem).isEqualTo(UserItem.from(user2));
+        assertThat(nonFollowedUserItem).isEqualTo(ModelFixtures.userItem(user2));
     }
 
     @Test
@@ -428,7 +429,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final Map<Urn, Boolean> likedPlaylists = new HashMap<>(2);
         likedPlaylists.put(playlist2.getUrn(), true);
         likedPlaylists.put(playlist.getUrn(), false);
-        when(loadPlaylistLikedStatuses.call(Lists.transform(apiUniversalSearchItems, item -> item.toListItem().getUrn()))).thenReturn(
+        when(loadPlaylistLikedStatuses.call(Lists.transform(apiUniversalSearchItems, item -> ModelFixtures.listItemFromSearchItem(item).getUrn()))).thenReturn(
                 likedPlaylists);
 
         operations.searchResult("query", Optional.absent(), SearchType.ALL).subscribe(subscriber);
@@ -609,7 +610,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 new SearchModelCollection<>(searchItems);
         mockPremiumSearchApiResponse(searchItems, apiPremiumUniversalSearchItems);
 
-        List<ListItem> searchableItems = Lists.transform(searchItems, ApiUniversalSearchItem::toListItem);
+        List<ListItem> searchableItems = Lists.transform(searchItems, ModelFixtures::listItemFromSearchItem);
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(searchableItems,
                                                                                   Optional.absent(),
                                                                                   Optional.absent());
@@ -716,7 +717,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         final TrackItem premiumTrack = ModelFixtures.trackItem(PREMIUM_TRACK_URN);
         final SearchResult premiumSearchResult = SearchResult.fromSearchableItems(singletonList(premiumTrack),
                                                                                   Optional.absent(), Urn.NOT_SET);
-        final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(TrackItem.from(track)),
+        final SearchResult searchResult = SearchResult.fromSearchableItems(Lists.newArrayList(ModelFixtures.trackItem(track)),
                                                                            Optional.absent(),
                                                                            Optional.absent(),
                                                                            Optional.of(premiumSearchResult),

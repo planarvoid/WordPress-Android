@@ -60,6 +60,6 @@ public class RecommendationsFixtures {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         apiTrack.setSubHighTier(subHighTier);
         apiTrack.setSnipped(false);
-        return TrackItem.from(apiTrack);
+        return ModelFixtures.trackItem(apiTrack);
     }
 }

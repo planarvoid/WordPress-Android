@@ -40,7 +40,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private CardEngagementsPresenter engagementsPresenter;
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
 
-    private final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private final PlaylistItem playlistItem = ModelFixtures.playlistItem();
     private Date createdAt = new Date();
     private final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem,
                                                                                     createdAt);

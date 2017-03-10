@@ -77,8 +77,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
                 eventBus,
                 scheduler,
                 networkConnectionHelper,
-                trackRepository,
-                ModelFixtures.trackItemCreator());
+                trackRepository
+        );
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
         when(syncInitiatorBridge.syncTrackLikes()).thenReturn(syncSubject);
 

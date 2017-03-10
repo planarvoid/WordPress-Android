@@ -73,7 +73,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
-        trackItem = TrackItem.from(track);
+        trackItem = ModelFixtures.trackItem(track);
     }
 
     @Test

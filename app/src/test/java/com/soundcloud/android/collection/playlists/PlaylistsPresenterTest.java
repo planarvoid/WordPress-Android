@@ -41,7 +41,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
             ModelFixtures.playlist()
     );
 
-    private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, PlaylistItem::from);
+    private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, ModelFixtures::playlistItem);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -78,7 +78,8 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
                 resources(),
                 eventBus,
                 offlinePropertiesProvider,
-                featureFlags);
+                featureFlags,
+                ModelFixtures.entityItemCreator());
 
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.just(PLAYLISTS));
     }

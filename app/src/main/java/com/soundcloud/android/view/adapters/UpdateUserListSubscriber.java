@@ -23,7 +23,7 @@ public final class UpdateUserListSubscriber extends DefaultSubscriber<UserChange
             if (event.changeMap().containsKey(urn)) {
                 final int position = adapter.getItems().indexOf(item);
                 if (adapter.getItems().size() > position) {
-                    adapter.getItems().set(position, UserItem.from(event.changeMap().get(urn)));
+                    ((UserItem) adapter.getItem(position)).updateWithUser(event.changeMap().get(urn));
                     adapter.notifyItemChanged(position);
                 }
             }

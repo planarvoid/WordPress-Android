@@ -5,17 +5,13 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.suggestedcreators.SuggestedCreator;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorItem;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public abstract class StreamItem {
@@ -141,18 +137,10 @@ public abstract class StreamItem {
     }
 
     @AutoValue
-    public abstract static class StreamHighlights extends StreamItem {
+    abstract static class StreamHighlights extends StreamItem {
         public abstract List<TrackStreamItem> suggestedTrackItems();
 
-        public static StreamHighlights create(List<ApiStreamItem> suggestedTracks) {
-            final List<TrackStreamItem> suggestedTrackItems = new ArrayList<>(suggestedTracks.size());
-            for (ApiStreamItem apiStreamItem : suggestedTracks) {
-                Optional<ApiTrack> track = apiStreamItem.getTrack();
-                if (track.isPresent()) {
-                    suggestedTrackItems.add(TrackStreamItem.create(TrackItem.from(track.get()), new Date(apiStreamItem.getCreatedAtTime())));
-                }
-
-            }
+        static StreamHighlights create(List<TrackStreamItem> suggestedTrackItems) {
             return new AutoValue_StreamItem_StreamHighlights(Kind.STREAM_HIGHLIGHTS, suggestedTrackItems);
         }
     }

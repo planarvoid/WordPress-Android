@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -59,10 +60,10 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
     public void setUp() {
         ApiTrack apiTrack = create(ApiTrack.class);
         ApiPlayableSource apiTrackPlayableSource = ApiPlayableSource.create(apiTrack, null);
-        trackItem = TrackItem.from(apiTrack, true);
+        trackItem = ModelFixtures.trackItem(apiTrack);
         apiPlaylist = create(ApiPlaylist.class);
         ApiPlayableSource apiPlaylistPlayableSource = ApiPlayableSource.create(null, apiPlaylist);
-        playlistItem = PlaylistItem.from(apiPlaylist, true);
+        playlistItem = ModelFixtures.playlistItem(apiPlaylist);
         page = new ModelCollection<>(
                 asList(apiTrackPlayableSource, apiPlaylistPlayableSource),
                 NEXT_HREF);
@@ -77,6 +78,7 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
                 storeProfileCommand,
                 storeUsersCommand,
                 spotlightItemStatusLoader,
+                ModelFixtures.entityItemCreator(),
                 eventBus);
     }
 
@@ -124,11 +126,9 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
 
     @Test
     public void userRepostsPagerStoresNextPage() {
-        final PagedRemoteCollection<ApiPlayableSource> page1 = new PagedRemoteCollection<>(Collections.<ApiPlayableSource>emptyList(),
-                                                                      NEXT_HREF);
         when(profileApi.userReposts(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.repostsPagingFunction().call(page1.transform(PlayableItem::from)).subscribe(subscriber);
+        operations.repostsPagingFunction().call(new PagedRemoteCollection<>(Collections.emptyList(), NEXT_HREF)).subscribe(subscriber);
 
         verify(writeMixedRecordsCommand).call(TO_RECORD_HOLDERS(page));
     }

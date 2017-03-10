@@ -7,10 +7,9 @@ import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
-
-import android.provider.BaseColumns;
 
 import java.util.Date;
 
@@ -36,16 +35,16 @@ public abstract class UserAssociation {
 
     static UserAssociation create(CursorReader reader) {
         Optional<Date> addedAt = Optional.absent();
-        if (reader.isNotNull(ADDED_AT)) {
-            addedAt = Optional.of(reader.getDateFromTimestamp(ADDED_AT));
+        if (reader.isNotNull(ADDED_AT.fullName())) {
+            addedAt = Optional.of(reader.getDateFromTimestamp(ADDED_AT.fullName()));
         }
         Optional<Date> removedAt = Optional.absent();
-        if (reader.isNotNull(REMOVED_AT)) {
-            removedAt = Optional.of(reader.getDateFromTimestamp(REMOVED_AT));
+        if (reader.isNotNull(REMOVED_AT.fullName())) {
+            removedAt = Optional.of(reader.getDateFromTimestamp(REMOVED_AT.fullName()));
         }
-        return new AutoValue_UserAssociation(Urn.forUser(reader.getLong(BaseColumns._ID)),
-                                             reader.getLong(POSITION),
-                                             reader.getInt(ASSOCIATION_TYPE),
+        return new AutoValue_UserAssociation(Urn.forUser(reader.getLong(Tables.UsersView.ID.name())),
+                                             reader.getLong(POSITION.fullName()),
+                                             reader.getInt(ASSOCIATION_TYPE.fullName()),
                                              addedAt,
                                              removedAt);
     }

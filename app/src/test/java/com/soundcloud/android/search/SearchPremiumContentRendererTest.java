@@ -198,7 +198,7 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
             } else if (urn.isPlaylist()) {
                 searchableItems.add(ModelFixtures.playlistItem(urn));
             } else if (urn.isUser()) {
-                searchableItems.add(ModelFixtures.create(UserItem.class).copyWithUrn(urn));
+                searchableItems.add(ModelFixtures.userItem(urn));
             }
         }
         return Collections.singletonList(new SearchPremiumItem(searchableItems, Optional.absent(), urns.length));

@@ -2,16 +2,15 @@ package com.soundcloud.android.discovery.charts;
 
 import static com.soundcloud.android.api.model.ChartCategory.MUSIC;
 import static com.soundcloud.android.api.model.ChartType.TOP;
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -54,8 +53,7 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
     }
 
     private static ChartTrackListItem.Track createChartTrackListItem() {
-        ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack, MUSIC, GENRE_URN, QUERY_URN);
+        ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, trackItem(), MUSIC, GENRE_URN, QUERY_URN);
         return ChartTrackListItem.forTrack(chartTrackItem);
     }
 }

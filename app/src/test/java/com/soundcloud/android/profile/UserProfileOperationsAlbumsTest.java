@@ -15,6 +15,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -51,7 +52,7 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
     private final ModelCollection<ApiPlaylistPost> page = new ModelCollection<>(singletonList(apiPlaylistPost), NEXT_HREF);
 
     public UserProfileOperationsAlbumsTest() {
-        playlistItem = PlaylistItem.from(apiPlaylist);
+        playlistItem = ModelFixtures.playlistItem(apiPlaylist);
     }
 
     @Before
@@ -65,7 +66,7 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
                 storeProfileCommand,
                 storeUsersCommand,
                 spotlightItemStatusLoader,
-                eventBus);
+                ModelFixtures.entityItemCreator(), eventBus);
     }
 
     @Test

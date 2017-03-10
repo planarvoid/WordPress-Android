@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -37,8 +36,8 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
         subject = new PlayableItemStatusLoader(loadPlaylistLikedStatuses, loadPlaylistRepostStatuses,
                                                loadTrackLikedStatuses, loadTrackRepostStatuses);
 
-        playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
-        trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        playlistItem = ModelFixtures.playlistItem();
+        trackItem = ModelFixtures.trackItem();
         statusMap = new HashMap<>();
     }
 

@@ -43,7 +43,7 @@ public abstract class PlaylistStreamItem extends StreamItem implements LikeableI
 
     @Override
     public PlaylistStreamItem updatedWithPlaylist(Playlist playlist) {
-        return create(PlaylistItem.from(playlist));
+        return create(playlistItem().toBuilder().playlist(playlist).build());
     }
 
     @Override

@@ -51,7 +51,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
     private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.emptyList());
 
-    private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
+    private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.playlistItem(2);
     private static final List<StationRecord> STATIONS = singletonList(mock(StationRecord.class));
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
     private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(

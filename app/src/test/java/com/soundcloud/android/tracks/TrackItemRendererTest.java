@@ -87,7 +87,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                            .permalinkUrl(Strings.EMPTY)
                                            .isPrivate(false)
                                            .playCount(870);
-        trackItem = TrackItem.from(trackBuilder.build());
+        trackItem = ModelFixtures.trackItem(trackBuilder.build());
 
         when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
         when(trackItemView.getImage()).thenReturn(imageView);
@@ -107,7 +107,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindDurationToViewAndHideOtherLabelsIfTrackIsNeitherSnippedNorPrivate() {
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.snipped(false).isPrivate(false).build());
+        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.snipped(false).isPrivate(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -146,7 +146,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrivateLabelAndHideOtherLabelsIfTrackIsPrivate() {
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.isPrivate(true).build());
+        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.isPrivate(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).hideInfoViewsRight();
@@ -177,7 +177,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackGeoBlockedLabel() {
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).build());
+        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(trackItemView).showGeoBlocked();
@@ -186,7 +186,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void blockedStateShouldTakePrecedenceOverOtherAdditionalStates() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).offlineState(OfflineState.UNAVAILABLE).build());
         updatedTrackItem = updatedTrackItem.withPlayingState(true);
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
@@ -236,7 +236,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisableClicksForBlockedTracks() {
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(true).build());
+        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(true).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(false);
@@ -244,7 +244,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldEnableClicksForNonBlockedTracks() {
-        final TrackItem updatedTrackItem = TrackItem.from(trackBuilder.blocked(false).build());
+        final TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.blocked(false).build());
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
         verify(itemView).setClickable(true);
@@ -254,7 +254,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack, CATEGORY,
+        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, ModelFixtures.trackItem(), CATEGORY,
                                                                  GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
@@ -264,14 +264,14 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack, CATEGORY,
+        TrackItem trackItem = ModelFixtures.trackItem();
+        final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, trackItem, CATEGORY,
                                                                  GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);
-        verify(trackItemView, never()).showPostedTime(apiTrack.getCreatedAt());
+        verify(trackItemView, never()).showPostedTime(trackItem.getCreatedAt());
         verify(trackItemView).showPlaycount(anyString());
     }
 

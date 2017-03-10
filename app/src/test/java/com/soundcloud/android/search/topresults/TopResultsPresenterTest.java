@@ -91,7 +91,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         when(likesStateProvider.likedStatuses()).thenReturn(likesStatuses);
         when(followingStateProvider.followingStatuses()).thenReturn(followingStatuses);
 
-        presenter = new TopResultsPresenter(operations, playQueueFilter, likesStateProvider, followingStateProvider, playbackInitiator, eventBus);
+        presenter = new TopResultsPresenter(operations, playQueueFilter, likesStateProvider, followingStateProvider, playbackInitiator, eventBus, ModelFixtures.entityItemCreator());
 
         when(topResultsView.searchIntent()).thenReturn(searchIntent);
         when(topResultsView.refreshIntent()).thenReturn(refreshIntent);
@@ -179,9 +179,9 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final ApiUniversalSearchItem track1 = searchTrackItem(ModelFixtures.apiTrack());
         final ApiUniversalSearchItem track2 = searchTrackItem(ModelFixtures.apiTrack());
         final ApiUniversalSearchItem track3 = searchTrackItem(ModelFixtures.apiTrack());
-        final SearchItem.Track searchTrack1 = SearchItem.Track.create(TrackItem.fromLiked(track1.track().get(), false), BUCKET_POSITION);
-        final SearchItem.Track searchTrack2 = SearchItem.Track.create(TrackItem.fromLiked(track2.track().get(), false), BUCKET_POSITION);
-        final SearchItem.Track searchTrack3 = SearchItem.Track.create(TrackItem.fromLiked(track3.track().get(), false), BUCKET_POSITION);
+        final SearchItem.Track searchTrack1 = SearchItem.Track.create(ModelFixtures.trackItem(track1.track().get()), BUCKET_POSITION);
+        final SearchItem.Track searchTrack2 = SearchItem.Track.create(ModelFixtures.trackItem(track2.track().get()), BUCKET_POSITION);
+        final SearchItem.Track searchTrack3 = SearchItem.Track.create(ModelFixtures.trackItem(track3.track().get()), BUCKET_POSITION);
 
         final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(track1, track2, track3);
         doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctPosition(anyInt());
@@ -208,7 +208,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void goesToPlaylistOnPlaylistItemClick() throws Exception {
         final ApiUniversalSearchItem playlist = searchPlaylistItem(ModelFixtures.apiPlaylist());
-        final PlaylistItem playlistItem = PlaylistItem.fromLiked(playlist.playlist().get(), false);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist.playlist().get());
         final SearchItem.Playlist searchPlaylist = SearchItem.Playlist.create(playlistItem, BUCKET_POSITION);
 
         final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(playlist);
@@ -228,7 +228,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void goesToProfileOnUserItemClick() throws Exception {
         final ApiUniversalSearchItem user = searchUserItem(ModelFixtures.apiUser());
-        final UserItem userItem = UserItem.from(user.user().get());
+        final UserItem userItem = ModelFixtures.userItem(user.user().get());
         final SearchItem.User searchUser = SearchItem.User.create(userItem, BUCKET_POSITION);
 
         final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(user);
@@ -286,7 +286,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     }
 
     private TrackItem getTrackItem(ApiTrack apiTrack, boolean isLiked) {
-        return TrackItem.fromLiked(apiTrack, isLiked);
+        return ModelFixtures.trackItemBuilder(apiTrack).isUserLike(isLiked).build();
     }
 
     private PlaylistItem getPlaylistItem(ApiPlaylist apiPlaylist) {
@@ -294,11 +294,11 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     }
 
     private PlaylistItem getPlaylistItem(ApiPlaylist apiPlaylist, boolean isLiked) {
-        return PlaylistItem.fromLiked(apiPlaylist, isLiked);
+        return ModelFixtures.playlistItemBuilder(apiPlaylist).isUserLike(isLiked).build();
     }
 
     private UserItem getUserItem(ApiUser apiUser) {
-        return UserItem.from(apiUser);
+        return ModelFixtures.userItem(apiUser);
     }
 
 }

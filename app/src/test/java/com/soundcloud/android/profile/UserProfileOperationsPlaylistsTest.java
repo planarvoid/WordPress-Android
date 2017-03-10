@@ -16,6 +16,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -47,8 +48,8 @@ public class UserProfileOperationsPlaylistsTest extends AndroidUnitTest {
     final TestSubscriber<PagedRemoteCollection<PlaylistItem>> subscriber = new TestSubscriber<>();
     final ApiPlaylist apiPlaylist = create(ApiPlaylist.class);
     final ApiPlaylistPost apiPlaylistPost = new ApiPlaylistPost(apiPlaylist);
-    final PlaylistItem playlistItem = PlaylistItem.from(apiPlaylist, false);
-    final PlaylistItem playlistItemWithoutRepost = PlaylistItem.from(apiPlaylist);
+    final PlaylistItem playlistItem = ModelFixtures.playlistItem(apiPlaylist);
+    final PlaylistItem playlistItemWithoutRepost = ModelFixtures.playlistItem(apiPlaylist);
 
     final ModelCollection<ApiPlaylistPost> page = new ModelCollection<>(singletonList(apiPlaylistPost), NEXT_HREF);
 
@@ -63,6 +64,7 @@ public class UserProfileOperationsPlaylistsTest extends AndroidUnitTest {
                 storeProfileCommand,
                 storeUsersCommand,
                 spotlightItemStatusLoader,
+                ModelFixtures.entityItemCreator(),
                 eventBus);
     }
 

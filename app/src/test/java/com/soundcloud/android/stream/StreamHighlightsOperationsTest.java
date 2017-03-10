@@ -13,6 +13,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ApiStreamItemFixtures;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import rx.schedulers.Schedulers;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StreamHighlightsOperationsTest extends AndroidUnitTest {
@@ -33,7 +35,10 @@ public class StreamHighlightsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        streamHighlightsOperations = new StreamHighlightsOperations(apiClientRx, featureFlags, Schedulers.immediate());
+        streamHighlightsOperations = new StreamHighlightsOperations(apiClientRx,
+                                                                    featureFlags,
+                                                                    Schedulers.immediate(),
+                                                                    ModelFixtures.entityItemCreator());
         when(featureFlags.isEnabled(Flag.STREAM_HIGHLIGHTS)).thenReturn(true);
     }
 
@@ -46,8 +51,17 @@ public class StreamHighlightsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(value));
 
         streamHighlightsOperations.highlights().test().assertValues(
-                StreamItem.StreamHighlights.create(apiTracks)
+                createHighlights(apiTracks)
         ).assertCompleted();
+    }
+
+    public StreamItem.StreamHighlights createHighlights(List<ApiStreamItem> suggestedTracks) {
+        final List<TrackStreamItem> suggestedTrackItems = new ArrayList<>(suggestedTracks.size());
+        for (ApiStreamItem apiStreamItem : suggestedTracks) {
+            suggestedTrackItems.add(TrackStreamItem.create(ModelFixtures.trackItem(apiStreamItem.getTrack().get()),
+                                                           new Date(apiStreamItem.getCreatedAtTime())));
+        }
+        return StreamItem.StreamHighlights.create(suggestedTrackItems);
     }
 
     @Test

@@ -70,6 +70,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
                 storeProfileCommand,
                 storeUsersCommand,
                 spotlightItemStatusLoader,
+                ModelFixtures.entityItemCreator(),
                 eventBus);
     }
 
@@ -158,7 +159,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     }
 
     private void assertAllItemsEmitted() {
-        assertAllItemsEmitted(UserItem.from(apiUser1), UserItem.from(apiUser2));
+        assertAllItemsEmitted(ModelFixtures.userItem(apiUser1), ModelFixtures.userItem(apiUser2));
     }
 
     private void assertAllItemsEmitted(UserItem... userItems) {

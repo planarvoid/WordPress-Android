@@ -77,7 +77,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     private PlaylistItemMenuPresenter presenter;
     private final Playlist playlist = ModelFixtures.playlist();
-    private PlaylistItem playlistItem = PlaylistItem.from(playlist);
+    private PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist);
 
     @Before
     public void setUp() throws Exception {
@@ -106,7 +106,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   navigator,
                                                   playQueueHelper,
                                                   eventTracker,
-                                                  playlistMenuRenderFactory, accountOperations);
+                                                  playlistMenuRenderFactory,
+                                                  accountOperations,
+                                                  ModelFixtures.entityItemCreator());
 
         button = new View(activity());
 

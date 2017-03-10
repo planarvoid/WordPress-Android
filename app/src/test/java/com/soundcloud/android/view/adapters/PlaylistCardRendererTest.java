@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -58,7 +57,7 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindItemView() {
-        PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        PlaylistItem playlistItem = ModelFixtures.playlistItem().toBuilder().trackCount(2).build();
 
         View itemView = renderer.createItemView(new FrameLayout(context()));
         renderer.bindItemView(0, itemView, singletonList(playlistItem));

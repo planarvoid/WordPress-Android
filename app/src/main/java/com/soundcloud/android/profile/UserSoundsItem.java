@@ -185,7 +185,7 @@ abstract class UserSoundsItem implements ListItem, UpdatableTrackItem, Updatable
     @Override
     public UpdatablePlaylistItem updatedWithPlaylist(Playlist playlist) {
         if (isPlaylist()) {
-            return copyWithPlaylistItem(PlaylistItem.from(playlist));
+            return copyWithPlaylistItem(playlistItem().get().toBuilder().playlist(playlist).build());
         }
         return this;
     }

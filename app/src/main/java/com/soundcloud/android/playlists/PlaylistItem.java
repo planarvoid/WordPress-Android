@@ -65,10 +65,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         }
     }
 
-    public static PlaylistItem from(ApiPlaylist apiPlaylist, boolean repost) {
-        return fromLikedAndRepost(apiPlaylist, false, repost);
-    }
-
     public static PlaylistItem from(Playlist playlist) {
         return builder(playlist).build();
     }
@@ -84,16 +80,7 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
     }
 
     public static PlaylistItem from(ApiPlaylist apiPlaylist) {
-        return fromLikedAndRepost(apiPlaylist, false, false);
-    }
-
-    public static PlaylistItem fromLiked(ApiPlaylist apiPlaylist, boolean isLiked) {
-        return fromLikedAndRepost(apiPlaylist, isLiked, false);
-    }
-
-    private static PlaylistItem fromLikedAndRepost(ApiPlaylist apiPlaylist, boolean isLiked, boolean isRepost) {
-        final Playlist playlist = Playlist.from(apiPlaylist);
-        return builder(playlist).isUserLike(isLiked).isRepost(isRepost).build();
+        return builder(Playlist.from(apiPlaylist)).build();
     }
 
     public static Builder builder(Playlist playlist) {
@@ -102,7 +89,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
                                                    .likesCount(playlist.likesCount())
                                                    .isUserRepost(playlist.isRepostedByCurrentUser().or(false))
                                                    .repostsCount(playlist.repostCount())
-                                                   .isRepost(false)
                                                    .trackCount(playlist.trackCount())
                                                    .isMarkedForOffline(playlist.isMarkedForOffline())
                                                    .promotedProperties(Optional.absent())
@@ -272,8 +258,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         public abstract Builder reposter(Optional<String> reposter);
 
         public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
-
-        public abstract Builder isRepost(boolean isRepost);
 
         public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
 

@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import rx.Observable;
@@ -22,14 +23,17 @@ public class RecommendedPlaylistsOperations {
     private final SyncOperations syncOperations;
     private final RecommendedPlaylistsStorage storage;
     private final PlaylistRepository playlistRepository;
+    private final EntityItemCreator entityItemCreator;
 
     @Inject
     RecommendedPlaylistsOperations(SyncOperations syncOperations,
                                    RecommendedPlaylistsStorage storage,
-                                   PlaylistRepository playlistRepository) {
+                                   PlaylistRepository playlistRepository,
+                                   EntityItemCreator entityItemCreator) {
         this.syncOperations = syncOperations;
         this.storage = storage;
         this.playlistRepository = playlistRepository;
+        this.entityItemCreator = entityItemCreator;
     }
 
     public Observable<DiscoveryItem> recommendedPlaylists() {
@@ -66,7 +70,7 @@ public class RecommendedPlaylistsOperations {
         return entity -> {
             final List<PlaylistItem> matches = new ArrayList<>(entity.playlistUrns().size());
             for (Urn urn : entity.playlistUrns()) {
-                matches.add(PlaylistItem.from(playlistEntities.get(urn)));
+                matches.add(entityItemCreator.playlistItem(playlistEntities.get(urn)));
             }
             return RecommendedPlaylistsBucketItem.create(entity, matches);
         };

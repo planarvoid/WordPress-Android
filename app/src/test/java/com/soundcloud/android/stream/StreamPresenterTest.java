@@ -185,7 +185,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void forwardsTrackClicksToClickListener() {
-        final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
+        final TrackItem clickedTrack = ModelFixtures.trackItem();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt()));
@@ -225,7 +225,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void forwardsPlaylistClicksToClickListener() {
-        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(playlistItem.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(playlistItem, playlistItem.getCreatedAt()));

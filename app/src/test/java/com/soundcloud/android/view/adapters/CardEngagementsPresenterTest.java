@@ -45,7 +45,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
-    private final PlayableItem playableItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private final PlayableItem playableItem = ModelFixtures.playlistItem();
     private final PublishSubject<LikeOperations.LikeResult> testSubject = PublishSubject.create();
     private final PublishSubject<RepostOperations.RepostResult> repostTestSubject = PublishSubject.create();
     private final EventContextMetadata contextMetadata = EventContextMetadata.builder().build();

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -107,8 +106,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void entityChangedEventUpdatesItemWithTheSameUrnAndNotifiesAdapter() throws Exception {
-        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        TrackItem track1 = ModelFixtures.trackItem();
+        TrackItem track2 = ModelFixtures.trackItem();
         List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
         final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 
@@ -123,8 +122,8 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
 
     @Test
     public void entityChangedEventDoesNotUpdateItemAfterOnDestroy() throws Exception {
-        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        TrackItem track1 = ModelFixtures.trackItem();
+        TrackItem track2 = ModelFixtures.trackItem();
         List<PlayableItem> trackItems = Lists.newArrayList(track1, track2);
         final TrackChangedEvent trackChangedEvent = getTrackChangedEvent(track1.getUrn(), trackItems);
 

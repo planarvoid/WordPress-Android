@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.playlistItem;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
@@ -177,7 +178,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                repostOperations,
                                                                feedbackController,
                                                                accountOperations,
-                                                               ModelFixtures.trackItemCreator());
+                                                               ModelFixtures.entityItemCreator());
 
     }
 
@@ -206,12 +207,13 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void emitsPlaylistWithOtherPlaylistsByUserFromStorage() {
         connect(initialPlaylistWithAllExtras);
 
-        PlaylistDetailOtherPlaylistsItem playlistDetailOtherPlaylistsItem = new PlaylistDetailOtherPlaylistsItem(initialPlaylist.creatorName(),
-                                                                                                                 singletonList(PlaylistItem.from(otherPlaylistByUser)), initialPlaylist.isAlbum());
+        PlaylistDetailOtherPlaylistsItem otherPlaylistsItem = new PlaylistDetailOtherPlaylistsItem(initialPlaylist.creatorName(),
+                                                                                                   singletonList(playlistItem(otherPlaylistByUser)),
+                                                                                                   initialPlaylist.isAlbum());
 
         newPlaylistPresenter.viewModel()
                             .test()
-                            .assertValue(getIdleViewModel(PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems, playlistDetailOtherPlaylistsItem)));
+                            .assertValue(getIdleViewModel(PlaylistDetailFixtures.create(resources(), initialPlaylist, trackItems, otherPlaylistsItem)));
     }
 
     @Test

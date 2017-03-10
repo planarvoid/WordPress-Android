@@ -23,6 +23,7 @@ import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -54,6 +55,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final EventTracker eventTracker;
     private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
     private final AccountOperations accountOperations;
+    private final EntityItemCreator entityItemCreator;
 
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
@@ -78,7 +80,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      PlayQueueHelper playQueueHelper,
                                      EventTracker eventTracker,
                                      PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
-                                     AccountOperations accountOperations) {
+                                     AccountOperations accountOperations,
+                                     EntityItemCreator entityItemCreator) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.playlistOperations = playlistOperations;
@@ -93,6 +96,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.eventTracker = eventTracker;
         this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
         this.accountOperations = accountOperations;
+        this.entityItemCreator = entityItemCreator;
     }
 
     public void show(View button, PlaylistItem playlist) {
@@ -278,7 +282,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
         @Override
         public void onNext(Playlist playlist) {
-            renderer.render(PlaylistItem.from(playlist));
+            renderer.render(entityItemCreator.playlistItem(playlist));
         }
     }
 

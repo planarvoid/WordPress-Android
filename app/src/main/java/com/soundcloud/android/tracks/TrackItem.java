@@ -21,11 +21,15 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     public static final String PLAYABLE_TYPE = "track";
 
-    static TrackItem from(Track track) {
+    public static TrackItem from(ApiTrack apiTrack) {
+        return  from(Track.from(apiTrack));
+    }
+
+    public static TrackItem from(Track track) {
         return builder(track).build();
     }
 
-    static TrackItem from(Track track, StreamEntity streamEntity) {
+    public static TrackItem from(Track track, StreamEntity streamEntity) {
         Builder builder = builder(track).reposter(streamEntity.reposter())
                                         .reposterUrn(streamEntity.reposterUrn())
                                         .avatarUrlTemplate(streamEntity.avatarUrl());
@@ -39,7 +43,7 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return toBuilder().isPlaying(isPlaying).build();
     }
 
-    private static Builder builder(Track track) {
+    public static Builder builder(Track track) {
         return builder().offlineState(track.offlineState())
                         .isUserLike(track.userLike())
                         .likesCount(track.likesCount())
@@ -55,22 +59,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     private static TrackItem.Builder builder() {
         return new AutoValue_TrackItem.Builder();
-    }
-
-    public static TrackItem from(ApiTrack apiTrack, boolean repost) {
-        return TrackItem.fromApiTrackWithLikeAndRepost(apiTrack, false, repost);
-    }
-
-    public static TrackItem from(ApiTrack apiTrack) {
-        return fromApiTrackWithLikeAndRepost(apiTrack, false, false);
-    }
-
-    private static TrackItem fromApiTrackWithLikeAndRepost(ApiTrack apiTrack, boolean isLiked, boolean isRepost) {
-        return TrackItem.from(Track.from(apiTrack, isRepost, isLiked));
-    }
-
-    public static TrackItem fromLiked(ApiTrack apiTrack, boolean liked) {
-        return fromApiTrackWithLikeAndRepost(apiTrack, liked, false);
     }
 
     public abstract Track track();
@@ -115,10 +103,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
     public boolean isPrivate() {
         return track().isPrivate();
-    }
-
-    public boolean isRepost() {
-        return track().userRepost();
     }
 
     public boolean isBlocked() {
@@ -225,6 +209,8 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         }
         return builder.build();
     }
+
+
 
     public TrackItem updatedWithLikeAndRepostStatus(boolean isLiked, boolean isReposted) {
         return toBuilder().isUserLike(isLiked).isUserRepost(isReposted).build();

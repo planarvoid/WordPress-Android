@@ -59,17 +59,4 @@ public class UserProfile {
     public ModelCollection<PlayableItem> getLikes() {
         return likes;
     }
-
-    public static UserProfile fromUserProfileRecord(ApiUserProfile userProfileRecord) {
-        UserItem user = UserItem.from(userProfileRecord.getUser());
-        ModelCollection<PlayableItem> spotlight = userProfileRecord.getSpotlight().transform(PlayableItem::from);
-        ModelCollection<TrackItem> tracks = userProfileRecord.getTracks().transform(post -> TrackItem.from(post.getApiTrack()));
-        ModelCollection<PlaylistItem> albums = userProfileRecord.getAlbums().transform(post -> PlaylistItem.from(post.getApiPlaylist()));
-        ModelCollection<PlaylistItem> playlists = userProfileRecord.getPlaylists().transform(post -> PlaylistItem.from(post.getApiPlaylist()));
-        ModelCollection<PlayableItem> reposts = userProfileRecord.getReposts().transform(PlayableItem::from);
-        ModelCollection<PlayableItem> likes = userProfileRecord.getLikes().transform(PlayableItem::from);
-
-        return new UserProfile(user, spotlight, tracks, albums, playlists, reposts, likes);
-    }
-
 }

@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
@@ -57,8 +55,8 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldMapEntityHolder() throws Exception {
-        final TrackItem trackPost = TrackItem.from(ModelFixtures.create(ApiTrack.class), false);
-        final PlaylistItem playlistPost = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class), false);
+        final TrackItem trackPost = ModelFixtures.trackItem();
+        final PlaylistItem playlistPost = ModelFixtures.playlistItem();
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
@@ -82,12 +80,12 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
     @Test
     public void shouldMapEntityHolderWithNextLink() throws Exception {
-        final TrackItem trackPost = TrackItem.from(ModelFixtures.create(ApiTrack.class), false);
+        final TrackItem trackItem = ModelFixtures.trackItem();
         final Map<String, Link> links = new HashMap<>();
         links.put(ModelCollection.NEXT_LINK_REL, new Link("some://link"));
 
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(
-                singletonList(trackPost), links);
+                singletonList(trackItem), links);
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
 

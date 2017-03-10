@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicates;
@@ -44,21 +45,10 @@ public class PlaylistDiscoveryOperations {
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
+    private final EntityItemCreator entityItemCreator;
     private final Scheduler scheduler;
 
-    private static final Func2<List<String>, List<String>, DiscoveryItem> TAGS_TO_DISCOVERY_ITEM_LIST =
-            (popular, recent) -> PlaylistTagsItem.create(popular, recent);
-
     private static final Func1<DiscoveryItem, Boolean> IS_NOT_EMPTY = playlistDiscoveryItem -> !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
-
-    private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = collection -> {
-        final SearchResult result = SearchResult.fromSearchableItems(collection.transform(PlaylistItem::from).getCollection(),
-                                                                     collection.getNextLink(),
-                                                                     collection.getQueryUrn());
-        return backfillSearchResult(result);
-    };
-
-    private final Func1<ModelCollection<String>, List<String>> collectionToList = collection -> collection.getCollection();
 
     private final Action1<ModelCollection<String>> cachePopularTags = new Action1<ModelCollection<String>>() {
         @Override
@@ -73,18 +63,20 @@ public class PlaylistDiscoveryOperations {
                                 StorePlaylistsCommand storePlaylistsCommand,
                                 LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                                 LoadPlaylistRepostStatuses loadPlaylistRepostStatuses,
+                                EntityItemCreator entityItemCreator,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadPlaylistRepostStatuses = loadPlaylistRepostStatuses;
+        this.entityItemCreator = entityItemCreator;
         this.scheduler = scheduler;
     }
 
     public Observable<DiscoveryItem> playlistTags() {
         return popularPlaylistTags()
-                .zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST)
+                .zipWith(recentPlaylistTags(), (Func2<List<String>, List<String>, DiscoveryItem>) PlaylistTagsItem::create)
                 .filter(IS_NOT_EMPTY);
     }
 
@@ -121,7 +113,7 @@ public class PlaylistDiscoveryOperations {
         return apiClientRx.mappedResponse(request, resourceType)
                           .subscribeOn(scheduler)
                           .doOnNext(cachePopularTags)
-                          .map(collectionToList);
+                          .map(ModelCollection::getCollection);
     }
 
     Observable<SearchResult> playlistsForTag(final String tag) {
@@ -158,7 +150,12 @@ public class PlaylistDiscoveryOperations {
                           .subscribeOn(scheduler)
                           .doOnNext(storePlaylistsCommand.toAction1())
                           .map(withSearchTag(query))
-                          .map(toBackFilledSearchResult);
+                          .map(collection -> {
+                              final SearchResult result = SearchResult.fromSearchableItems(collection.transform(entityItemCreator::playlistItem).getCollection(),
+                                                                                           collection.getNextLink(),
+                                                                                           collection.getQueryUrn());
+                              return backfillSearchResult(result);
+                          });
     }
 
     private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {

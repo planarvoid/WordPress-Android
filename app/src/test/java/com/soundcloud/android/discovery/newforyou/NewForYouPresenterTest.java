@@ -105,7 +105,7 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
                                            eventBus,
                                            playQueueManager,
                                            playSessionStateProvider,
-                                           ModelFixtures.trackItemCreator());
+                                           ModelFixtures.entityItemCreator());
     }
 
     @Test

@@ -29,7 +29,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -323,6 +322,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     }
 
     private List<LocalPlaylistChange> createLocalPlaylists(int count) {
-        return Lists.transform(ModelFixtures.create(PlaylistItem.class, count), playlist -> LocalPlaylistChange.create(playlist.getUrn(), playlist.title(), playlist.isPrivate()));
+        return Lists.transform(ModelFixtures.playlistItem(count), playlist ->
+                LocalPlaylistChange.create(playlist.getUrn(), playlist.title(), playlist.isPrivate()));
     }
 }

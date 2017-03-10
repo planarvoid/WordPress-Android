@@ -74,6 +74,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
                                                      storePlaylistsCommand,
                                                      loadPlaylistLikedStatuses,
                                                      loadPlaylistRepostStatuses,
+                                                     ModelFixtures.entityItemCreator(),
                                                      Schedulers.immediate());
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class)))
                 .thenReturn(Observable.empty());
@@ -372,7 +373,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     }
 
     private SearchResult toSearchResult(ApiPlaylistCollection collection) {
-        final List<PlaylistItem> collection1 = Lists.transform(collection.getCollection(), PlaylistItem::from);
+        final List<PlaylistItem> collection1 = Lists.transform(collection.getCollection(), ModelFixtures::playlistItem);
         return SearchResult.fromSearchableItems(collection1, collection.getNextLink(), collection.getQueryUrn());
     }
 }

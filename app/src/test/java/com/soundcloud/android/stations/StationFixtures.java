@@ -7,8 +7,6 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,8 +15,6 @@ import java.util.Random;
 
 public class StationFixtures {
     private static final Random random = new Random();
-
-    private static Function<TrackRecord, StationInfoTrack> toStationInfoTrack = input -> StationInfoTrack.from((ApiTrack) input);
 
     public static ApiStation getApiStation() {
         return getApiStation(Urn.forTrackStation(random.nextLong()));
@@ -59,8 +55,7 @@ public class StationFixtures {
 
     static StationWithTracks getStationWithTracks(Urn station) {
         final ApiStation apiStation = getApiStation(station);
-        final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), toStationInfoTrack);
-
+        final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), input -> StationInfoTrack.from(ModelFixtures.trackItem(input)));
         return getStationWithTracks(apiStation, tracks, Stations.NEVER_PLAYED);
     }
 

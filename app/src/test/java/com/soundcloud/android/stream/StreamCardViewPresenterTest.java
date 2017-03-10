@@ -276,7 +276,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setCreatedAt(ITEM_CREATED_AT);
 
-        return PlaylistItem.from(playlist);
+        return ModelFixtures.playlistItem(playlist);
     }
 
     private PlaylistItem repostedPlaylist() {
@@ -287,7 +287,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         track.setCreatedAt(ITEM_CREATED_AT);
 
-        return TrackItem.from(track);
+        return ModelFixtures.trackItem(track);
     }
 
     private TrackItem repostedTrack() {

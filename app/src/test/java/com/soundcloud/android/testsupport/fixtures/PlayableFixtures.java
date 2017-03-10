@@ -18,7 +18,6 @@ import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserAssociation;
-import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -34,18 +33,18 @@ public abstract class PlayableFixtures {
 
     public static TrackItem.Builder baseTrackBuilder() {
         final Track track = ModelFixtures.baseTrackBuilder().build();
-        return ModelFixtures.trackItemCreator().trackItem(track).toBuilder();
+        return ModelFixtures.entityItemCreator().trackItem(track).toBuilder();
     }
 
     public static TrackItem expectedTrackForWidget() {
-        return ModelFixtures.trackItemCreator().trackItem(ModelFixtures.baseTrackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build());
+        return ModelFixtures.entityItemCreator().trackItem(ModelFixtures.baseTrackBuilder().imageUrlTemplate(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")).build());
     }
 
     public static TrackItem upsellableTrackForPlayer() {
         final Track.Builder builder = expectedTrackBuilderForPlayer();
         builder.snipped(true);
         builder.subHighTier(true);
-        return ModelFixtures.trackItemCreator().trackItem(builder.build());
+        return ModelFixtures.entityItemCreator().trackItem(builder.build());
     }
 
     public static TrackItem downloadedTrack() {
@@ -62,7 +61,7 @@ public abstract class PlayableFixtures {
 
     public static TrackItem.Builder expectedTrackItemBuilderForPlayer() {
         final Track.Builder trackBuilder = expectedTrackBuilderForPlayer().policy(Strings.EMPTY);
-        return ModelFixtures.trackItemCreator().trackItem(trackBuilder.build()).toBuilder();
+        return ModelFixtures.entityItemCreator().trackItem(trackBuilder.build()).toBuilder();
     }
 
     public static Track.Builder expectedTrackBuilderForPlayer() {
@@ -88,7 +87,7 @@ public abstract class PlayableFixtures {
 
     public static TrackItem expectedPrivateTrackForPlayer() {
         final Track.Builder builder = ModelFixtures.baseTrackBuilder();
-        return ModelFixtures.trackItemCreator().trackItem(builder.urn(Urn.forTrack(123L))
+        return ModelFixtures.entityItemCreator().trackItem(builder.urn(Urn.forTrack(123L))
                                                                  .isPrivate(true)
                                                                  .title("dubstep anthem")
                                                                  .creatorName("squirlex")
@@ -109,7 +108,7 @@ public abstract class PlayableFixtures {
                                                    .likesCount(2)
                                                    .createdAt(new Date())
                                                    .isPrivate(false);
-        return ModelFixtures.trackItemCreator().trackItem(builder.build());
+        return ModelFixtures.entityItemCreator().trackItem(builder.build());
     }
 
     public static TrackItem expectedPromotedTrack() {
@@ -146,7 +145,7 @@ public abstract class PlayableFixtures {
                                          .likesCount(2)
                                          .createdAt(new Date())
                                          .isPrivate(false).build();
-        return ModelFixtures.trackItemCreator().trackItem(track)
+        return ModelFixtures.entityItemCreator().trackItem(track)
                             .toBuilder()
                             .promotedProperties(getPromotedProperties());
     }
@@ -180,7 +179,7 @@ public abstract class PlayableFixtures {
                                                .likesCount(2)
                                                .createdAt(new Date())
                                                .isPrivate(false).build();
-        return PlaylistItem.builder(playlist).build();
+        return ModelFixtures.playlistItemBuilder(playlist).build();
     }
 
     public static PlaylistItem expectedPostedPlaylistsForPostedPlaylistsScreen() {
@@ -197,13 +196,12 @@ public abstract class PlayableFixtures {
                                                .createdAt(new Date())
                                                .isPrivate(false)
                                                .permalinkUrl("http://permalink.url").build();
-        return PlaylistItem.builder(playlist);
+        return ModelFixtures.playlistItemBuilder(playlist);
     }
 
     public static Following expectedFollowingForFollowingsScreen(long position) {
         final Urn urn = Urn.forUser(123L);
-        return Following.from(
-                UserItem.create(urn, "avieciie", Optional.absent(), Optional.of("country"), 2, true),
+        return Following.from(ModelFixtures.user(),
                 UserAssociation.create(urn, position, -1, Optional.absent(), Optional.absent()));
     }
 
@@ -225,7 +223,7 @@ public abstract class PlayableFixtures {
                                                .createdAt(new Date())
                                                .isPrivate(false)
                                                .permalinkUrl("http://permalink.url").build();
-        return PlaylistItem.builder(playlist).promotedProperties(promotedProperties);
+        return ModelFixtures.playlistItemBuilder(playlist).promotedProperties(promotedProperties);
     }
 
     public static PlaylistItem expectedPromotedPlaylist() {
@@ -249,7 +247,7 @@ public abstract class PlayableFixtures {
                                          .fullDuration(duration)
                                          .snipped(false)
                                          .build();
-        return ModelFixtures.trackItemCreator().trackItem(track);
+        return ModelFixtures.entityItemCreator().trackItem(track);
     }
 
     public static TrackItem expectedTrackForAnalytics(Urn trackUrn, Urn creatorUrn) {
@@ -273,7 +271,7 @@ public abstract class PlayableFixtures {
         builder.isPrivate(isPrivate);
         builder.userLike(isLiked);
         builder.userRepost(isReposted);
-        return ModelFixtures.trackItemCreator().trackItem(builder.build()).toBuilder();
+        return ModelFixtures.entityItemCreator().trackItem(builder.build()).toBuilder();
     }
 
     public static PlaylistItem fromApiPlaylist() {
@@ -284,9 +282,9 @@ public abstract class PlayableFixtures {
                                                boolean isLiked,
                                                boolean isReposted,
                                                boolean markedForOffline) {
-        final PlaylistItem.Builder playlistItem = PlaylistItem.from(apiPlaylist).toBuilder();
+        final PlaylistItem.Builder playlistItem = ModelFixtures.playlistItem(apiPlaylist).toBuilder();
         playlistItem.isUserLike(isLiked);
-        playlistItem.isRepost(isReposted);
+        playlistItem.isUserRepost(isReposted);
         playlistItem.isMarkedForOffline(Optional.of(markedForOffline));
         return playlistItem.build();
     }
@@ -340,7 +338,7 @@ public abstract class PlayableFixtures {
 
     public static TrackItem highTierTrack() {
         final Track.Builder builder = highTierTrackBuilder();
-        return ModelFixtures.trackItemCreator().trackItem(builder.build());
+        return ModelFixtures.entityItemCreator().trackItem(builder.build());
     }
 
     public static Track.Builder highTierTrackBuilder() {
@@ -348,7 +346,7 @@ public abstract class PlayableFixtures {
     }
 
     public static TrackItem upsellableTrack() {
-        return ModelFixtures.trackItemCreator().trackItem(upsellableTrackBuilder().build());
+        return ModelFixtures.entityItemCreator().trackItem(upsellableTrackBuilder().build());
     }
 
     public static Track.Builder upsellableTrackBuilder() {

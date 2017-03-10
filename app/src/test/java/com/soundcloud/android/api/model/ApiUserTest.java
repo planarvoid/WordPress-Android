@@ -37,7 +37,7 @@ public class ApiUserTest extends AndroidUnitTest {
     public void shouldConvertToUserItem() {
         ApiUser apiUser = ModelFixtures.create(ApiUser.class);
 
-        UserItem userItem = UserItem.from(apiUser);
+        UserItem userItem = ModelFixtures.userItem(apiUser);
         assertThat(userItem.getUrn()).isEqualTo(apiUser.getUrn());
         assertThat(userItem.name()).isEqualTo(apiUser.getUsername());
         assertThat(userItem.country().get()).isEqualTo(apiUser.getCountry());

@@ -59,7 +59,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
                                        .creatorName("creator")
                                        .likesCount(5)
                                        .trackCount(11);
-        builder = PlaylistItem.builder(playlistBuilder.build());
+        builder = ModelFixtures.playlistItemBuilder(playlistBuilder.build());
         playlistItem = builder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
@@ -130,7 +130,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
         final Playlist playlist = playlistBuilder.isPrivate(true).build();
-        renderer.bindItemView(0, itemView, singletonList(PlaylistItem.from(playlist)));
+        renderer.bindItemView(0, itemView, singletonList(ModelFixtures.playlistItem(playlist)));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
@@ -139,7 +139,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
         final Playlist playlist = playlistBuilder.isPrivate(false).build();
-        renderer.bindItemView(0, itemView, singletonList(PlaylistItem.from(playlist)));
+        renderer.bindItemView(0, itemView, singletonList(ModelFixtures.playlistItem(playlist)));
 
         assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.VISIBLE);
@@ -194,7 +194,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
-        PlaylistItem item = PlaylistItem.builder(playlistBuilder.isAlbum(true).build()).build();
+        PlaylistItem item = ModelFixtures.playlistItem(playlistBuilder.isAlbum(true).build());
 
         renderer.bindItemView(0, itemView, singletonList(item));
 
@@ -205,7 +205,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldDisplayAlbumTitleForAlbums() {
-        PlaylistItem item = PlaylistItem.builder(playlistBuilder.isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build()).build();
+        PlaylistItem item = ModelFixtures.playlistItem(playlistBuilder.isAlbum(true).setType(Optional.of("ep")).releaseDate("2010-10-10").build());
 
         renderer.bindItemView(0, itemView, singletonList(item));
 

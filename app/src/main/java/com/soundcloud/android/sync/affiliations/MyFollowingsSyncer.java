@@ -115,7 +115,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     private void pushFollowing(Following following) throws IOException, ApiRequestException {
         final UserAssociation userAssociation = following.userAssociation();
         final Urn userUrn = userAssociation.userUrn();
-        final String userName = following.userItem().name();
+        final String userName = following.user().username();
 
         if (userAssociation.addedAt().isPresent()) {
             pushUserAssociationAddition(userUrn,

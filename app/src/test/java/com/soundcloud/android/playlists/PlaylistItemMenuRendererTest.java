@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -35,7 +34,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private View button;
     @Mock private MenuItem menuItem;
 
-    private PlaylistItem playlist = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+    private PlaylistItem playlist = ModelFixtures.playlistItem();
     private PlaylistItemMenuRenderer renderer;
 
     @Before

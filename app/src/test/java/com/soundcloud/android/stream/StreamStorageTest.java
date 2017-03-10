@@ -250,7 +250,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
-        final TrackItem trackItem = TrackItem.from(trackTwo).updateWithReposter(reposter.getUsername(), reposter.getUrn());
+        final TrackItem trackItem = ModelFixtures.trackItem(trackTwo).updateWithReposter(reposter.getUsername(), reposter.getUrn());
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);

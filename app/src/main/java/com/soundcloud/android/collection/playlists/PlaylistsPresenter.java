@@ -22,6 +22,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.OfflineItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -70,6 +71,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
     private final CollectionOptionsStorage collectionOptionsStorage;
+    private final EntityItemCreator entityItemCreator;
 
     private PlaylistsOptions currentOptions;
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
@@ -83,7 +85,8 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               Resources resources,
                               EventBus eventBus,
                               OfflinePropertiesProvider offlinePropertiesProvider,
-                              FeatureFlags featureFlags) {
+                              FeatureFlags featureFlags,
+                              EntityItemCreator entityItemCreator) {
         super(swipeRefreshAttacher);
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.myPlaylistsOperations = myPlaylistsOperations;
@@ -94,6 +97,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         this.eventBus = eventBus;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.entityItemCreator = entityItemCreator;
 
         adapter.setHasStableIds(true);
         adapter.setListener(this);
@@ -167,7 +171,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
-        return playlists -> Lists.transform(playlists, PlaylistItem::from);
+        return playlists -> Lists.transform(playlists, entityItemCreator::playlistItem);
     }
 
     @Override

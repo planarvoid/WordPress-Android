@@ -66,8 +66,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private static final Urn UPDATED_PLAYLIST_URN = Urn.forPlaylist(456);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
-    private final TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+    private final TrackItem track1 = ModelFixtures.trackItem();
+    private final TrackItem track2 = ModelFixtures.trackItem();
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_details_fragment, new Bundle());
     private final PublishSubject<OfflineProperties> offlinePropertiesSubject = PublishSubject.create();

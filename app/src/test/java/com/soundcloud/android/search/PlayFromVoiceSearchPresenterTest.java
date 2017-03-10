@@ -9,7 +9,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
@@ -114,7 +113,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
-        final TrackItem apiTrack = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        final TrackItem apiTrack = ModelFixtures.trackItem();
         searchResult = SearchResult.fromSearchableItems(Collections.singletonList(apiTrack), Optional.<Link>absent(),
                                                         Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY,
@@ -159,9 +158,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsPlaylistActivityWithRandomPlaylistWithAutoplayIfGenreSearchReturnsAnyResults() throws Exception {
-        final PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
+        final PlaylistItem playlistItem = ModelFixtures.playlistItem();
 
-        List<PlaylistItem> playlistResults = Arrays.asList(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)), playlistItem);
+        List<PlaylistItem> playlistResults = Arrays.asList(ModelFixtures.playlistItem(), playlistItem);
         Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromSearchableItems(
                 playlistResults,
                 Optional.<Link>absent(),

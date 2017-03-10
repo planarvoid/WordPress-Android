@@ -31,8 +31,8 @@ public class LoadLocalPlaylistsCommandTest extends StorageIntegrationTest {
         testFixtures().insertTrack();
 
         final List<LocalPlaylistChange> call = command.call();
-        assertPlaylistContainsLocalFields(call.get(0), PlaylistItem.from(privatePlaylist));
-        assertPlaylistContainsLocalFields(call.get(1), PlaylistItem.from(playlist));
+        assertPlaylistContainsLocalFields(call.get(0), ModelFixtures.playlistItem(privatePlaylist));
+        assertPlaylistContainsLocalFields(call.get(1), ModelFixtures.playlistItem(playlist));
     }
 
     private void assertPlaylistContainsLocalFields(LocalPlaylistChange local, PlaylistItem expected) {

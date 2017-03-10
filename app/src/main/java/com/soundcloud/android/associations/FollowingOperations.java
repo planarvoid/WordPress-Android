@@ -6,6 +6,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -26,12 +27,15 @@ public class FollowingOperations {
     private final EventBus eventBus;
     private final UpdateFollowingCommand storeFollowingCommand;
     private final UserAssociationStorage userAssociationStorage;
+    private final EntityItemCreator entityItemCreator;
     private final SyncOperations syncOperations;
 
     private final Func1<Urn, Observable<UserItem>> loadFollowedUser = new Func1<Urn, Observable<UserItem>>() {
         @Override
         public Observable<UserItem> call(Urn urn) {
-            return userAssociationStorage.followedUser(urn).subscribeOn(scheduler);
+            return userAssociationStorage.followedUser(urn)
+                                         .map(entityItemCreator::userItem)
+                                         .subscribeOn(scheduler);
         }
     };
 
@@ -40,11 +44,13 @@ public class FollowingOperations {
                                UpdateFollowingCommand storeFollowingCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                UserAssociationStorage userAssociationStorage,
+                               EntityItemCreator entityItemCreator,
                                SyncOperations syncOperations) {
         this.eventBus = eventBus;
         this.storeFollowingCommand = storeFollowingCommand;
         this.scheduler = scheduler;
         this.userAssociationStorage = userAssociationStorage;
+        this.entityItemCreator = entityItemCreator;
         this.syncOperations = syncOperations;
     }
 
