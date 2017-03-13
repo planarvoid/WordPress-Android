@@ -160,4 +160,7 @@
     <!-- we resolve deep links by indirecting through ResolveActivity -->
     <issue id="GoogleAppIndexingWarning" severity="ignore"/>
 
+    <!-- reduce severity level because LightCycle dependencies we don't user aren't overriden -->
+    <issue id="GradleCompatible" severity="warning" />
+
 </lint>
