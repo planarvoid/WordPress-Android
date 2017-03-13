@@ -27,7 +27,7 @@ import android.content.SharedPreferences;
 
 import java.util.Collections;
 
-@SuppressLint("CommitPrefEdits")
+@SuppressLint("CommitPrefEdits,ApplySharedPref")
 public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";

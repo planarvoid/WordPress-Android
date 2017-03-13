@@ -482,7 +482,7 @@ public class IOUtils {
      * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
      */
     public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
-        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+        return ((WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, tag);
     }
 

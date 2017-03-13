@@ -161,6 +161,9 @@
     <issue id="GoogleAppIndexingWarning" severity="ignore"/>
 
     <!-- reduce severity level because LightCycle dependencies we don't user aren't overriden -->
-    <issue id="GradleCompatible" severity="warning" />
+    <issue id="GradleCompatible" severity="informational" />
+
+    <!-- we only use this annotation for documentation -->
+    <issue id="VisibleForTests" severity="ignore" />
 
 </lint>
