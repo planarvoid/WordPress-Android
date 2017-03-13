@@ -2,8 +2,8 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * An unfortunately necessary class (for now). The problem: We want the Overflow Menus to overlap the anchors. To do
@@ -17,7 +17,7 @@ import android.widget.ImageView;
  * The bug and this workaround are documented on the Android Support Library Bug Tracker:
  * https://code.google.com/p/android/issues/detail?id=135439
  */
-public class OverflowAnchorImageView extends ImageView {
+public class OverflowAnchorImageView extends AppCompatImageView {
     public OverflowAnchorImageView(Context context) {
         super(context);
     }

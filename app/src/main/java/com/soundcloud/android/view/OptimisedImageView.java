@@ -11,10 +11,11 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-public class OptimisedImageView extends ImageView {
+public class OptimisedImageView extends AppCompatImageView {
 
     private static final float[] GRADIENT_POSITIONS = {0, .6f, 1f};
 

@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
 
-public class CustomFontCheckBox extends CheckBox {
+public class CustomFontCheckBox extends AppCompatCheckBox {
 
     public CustomFontCheckBox(Context context) {
         super(context);

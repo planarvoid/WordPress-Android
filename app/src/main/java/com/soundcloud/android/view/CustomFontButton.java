@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
-import android.widget.Button;
 
-public class CustomFontButton extends Button {
+public class CustomFontButton extends AppCompatButton {
 
     public CustomFontButton(Context context) {
         super(context);

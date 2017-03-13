@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
-public class CustomFontEditText extends EditText {
+public class CustomFontEditText extends AppCompatEditText {
 
     public CustomFontEditText(Context context) {
         super(context);

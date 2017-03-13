@@ -13,10 +13,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
-import android.widget.Button;
 
-public class RoundedColorButton extends Button {
+public class RoundedColorButton extends AppCompatButton {
 
     private static final int ROUNDING_DP = 4;
 

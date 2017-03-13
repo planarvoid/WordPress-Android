@@ -7,11 +7,11 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageButton;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-public class TrimHandleView extends ImageButton {
+public class TrimHandleView extends AppCompatImageButton {
 
     private final HandleType type;
 

@@ -6,14 +6,14 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.EditText;
 
-public class ClearText extends EditText {
+public class ClearText extends AppCompatEditText {
 
     private Drawable originalRightDrawable;
     private OnClickListener defaultDrawableListener;

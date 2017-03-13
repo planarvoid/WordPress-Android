@@ -5,11 +5,11 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.widget.Checkable;
-import android.widget.ImageButton;
 
-public class IconToggleButton extends ImageButton implements Checkable {
+public class IconToggleButton extends AppCompatImageButton implements Checkable {
     private boolean checked;
 
     private static final int[] CHECKED_STATE_SET = {

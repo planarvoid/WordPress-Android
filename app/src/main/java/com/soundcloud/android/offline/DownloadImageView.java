@@ -6,11 +6,11 @@ import com.soundcloud.android.util.AnimUtils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 
-public class DownloadImageView extends ImageView {
+public class DownloadImageView extends AppCompatImageView {
 
     private final Drawable queued;
     private final Drawable downloading;

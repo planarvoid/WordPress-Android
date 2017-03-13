@@ -3,10 +3,10 @@ package com.soundcloud.android.view;
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.AttributeSet;
-import android.widget.AutoCompleteTextView;
 
-public class CustomFontAutoCompleteTextView extends AutoCompleteTextView {
+public class CustomFontAutoCompleteTextView extends AppCompatAutoCompleteTextView {
 
     public CustomFontAutoCompleteTextView(Context context) {
         super(context);
