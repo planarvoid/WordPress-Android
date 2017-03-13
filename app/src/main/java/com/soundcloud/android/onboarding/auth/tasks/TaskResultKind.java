@@ -7,6 +7,7 @@ public enum TaskResultKind {
     FAILURE,
     EMAIL_TAKEN,
     SPAM,
+    AGE_RESTRICTED,
     DENIED,
     EMAIL_INVALID,
     FLAKY_SIGNUP_ERROR,

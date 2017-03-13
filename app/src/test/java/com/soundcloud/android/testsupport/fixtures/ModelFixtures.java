@@ -23,6 +23,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.comments.ApiComment;
+import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
@@ -126,6 +127,10 @@ public class ModelFixtures {
 
     public static ApiUser apiUser() {
         return create(ApiUser.class);
+    }
+
+    public static Configuration configuration() {
+        return create(Configuration.class);
     }
 
     public static ApiPlaylist apiPlaylist() {

@@ -8,10 +8,6 @@ import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailShowingCaptchaTest extends SignUpTest {
 
-    public ByEmailShowingCaptchaTest() {
-        super();
-    }
-
     public void testSignupTriggersCaptcha() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();

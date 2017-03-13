@@ -8,7 +8,8 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -17,6 +18,7 @@ import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
+import com.soundcloud.java.reflect.TypeToken;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -32,6 +34,8 @@ public class SignUpOperations {
     public static final String KEY_GENDER = "gender";
 
     private final ApiClient apiClient;
+    private final JsonTransformer jsonTransformer;
+    private final AuthResultMapper authResultMapper;
     private final OAuth oAuth;
     private final SoundCloudApplication applicationContext;
     private final ConfigurationOperations configurationOperations;
@@ -39,10 +43,14 @@ public class SignUpOperations {
     @Inject
     public SignUpOperations(Context context,
                             ApiClient apiClient,
+                            JsonTransformer jsonTransformer,
+                            AuthResultMapper authResultMapper,
                             OAuth oAuth,
                             ConfigurationOperations configurationOperations) {
         applicationContext = (SoundCloudApplication) context.getApplicationContext();
         this.apiClient = apiClient;
+        this.jsonTransformer = jsonTransformer;
+        this.authResultMapper = authResultMapper;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
     }
@@ -68,20 +76,25 @@ public class SignUpOperations {
             return AuthTaskResult.failure(getString(R.string.signup_scope_revoked));
         } catch (ApiMapperException e) {
             return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
-        } catch (ApiRequestException e) {
-            return getError(e);
         } catch (IOException e) {
             return AuthTaskResult.failure(e);
+        } catch (SignupError signupError) {
+            return signupError.result;
         }
     }
 
-    private AuthResponse performRequest(Bundle bundle) throws ApiRequestException, IOException, ApiMapperException {
+    private AuthResponse performRequest(Bundle bundle) throws IOException, ApiMapperException, SignupError {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.SIGN_UP.path())
                                              .forPrivateApi()
                                              .withContent(getSignUpBody(bundle))
                                              .build();
 
-        return apiClient.fetchMappedResponse(request, AuthResponse.class);
+        ApiResponse apiResponse = apiClient.fetchResponse(request);
+        if (apiResponse.isSuccess()) {
+            return jsonTransformer.fromJson(apiResponse.getResponseBody(), TypeToken.of(AuthResponse.class));
+        } else {
+            throw new SignupError(authResultMapper.handleErrorResponse(apiResponse));
+        }
     }
 
     private SignUpBody getSignUpBody(Bundle bundle) {
@@ -95,31 +108,12 @@ public class SignUpOperations {
                                  birthday.getMonth());
     }
 
-    private AuthTaskResult getError(ApiRequestException exception) {
-        switch (exception.reason()) {
-            case BAD_REQUEST:
-                return AuthTaskResult.failure(exception);
-            case NOT_ALLOWED:
-                return AuthTaskResult.denied(exception);
-            case SERVER_ERROR:
-                return AuthTaskResult.failure(getString(R.string.error_server_problems_message), exception);
-            case RATE_LIMITED:
-                return getRateLimitError(exception);
-            case PRECONDITION_REQUIRED:
-                return AuthTaskResult.spam(exception);
-            default:
-                return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message), exception);
-        }
-    }
 
-    private AuthTaskResult getRateLimitError(ApiRequestException exception) {
-        switch (exception.errorKey()) {
-            case "invalid_email":
-                return AuthTaskResult.emailInvalid(exception);
-            case "domain_blacklisted":
-                return AuthTaskResult.denied(exception);
-            default:
-                return AuthTaskResult.failure(exception);
+    private class SignupError extends Throwable {
+        public final AuthTaskResult result;
+
+        SignupError(AuthTaskResult result) {
+            this.result = result;
         }
     }
 }

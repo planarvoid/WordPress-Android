@@ -49,17 +49,20 @@ public class SignInOperations {
     private final AccountOperations accountOperations;
     private final Context context;
     private final ApiClient apiClient;
+    private final AuthResultMapper authResultMapper;
     private final OAuth oAuth;
 
     @Inject
     public SignInOperations(Context context,
                             ApiClient apiClient,
+                            AuthResultMapper authResultMapper,
                             OAuth oAuth,
                             ConfigurationOperations configurationOperations,
                             EventBus eventBus,
                             AccountOperations accountOperations) {
         this.context = context;
         this.apiClient = apiClient;
+        this.authResultMapper = authResultMapper;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
         this.eventBus = eventBus;
@@ -88,7 +91,7 @@ public class SignInOperations {
             return AuthTaskResult.success(loginResponse, signupVia);
         } catch (ApiRequestException e) {
             log(INFO, ONBOARDING_TAG, "error logging in: " + e.getMessage());
-            return AuthTaskResult.failure(e);
+            return AuthResultMapper.handleApiRequestException(e);
         } catch (Exception e) {
             log(INFO, ONBOARDING_TAG, "error retrieving SC API token: " + e.getMessage());
             return AuthTaskResult.failure(new TokenRetrievalException(e));

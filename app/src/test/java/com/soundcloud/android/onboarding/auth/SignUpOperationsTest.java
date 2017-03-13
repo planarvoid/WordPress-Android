@@ -5,8 +5,9 @@ import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_GENDER
 import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_PASSWORD;
 import static com.soundcloud.android.onboarding.auth.SignUpOperations.KEY_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -14,9 +15,10 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -24,6 +26,7 @@ import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -35,18 +38,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-public class SignUpOperationsTest extends AndroidUnitTest {
+import java.io.IOException;
 
-    private final Token token = Token.EMPTY;
-    private final ApiUser user = ModelFixtures.create(ApiUser.class);
-    private final Configuration configuration = ModelFixtures.create(Configuration.class);
+public class SignUpOperationsTest extends AndroidUnitTest {
 
     @Mock Context context;
     @Mock SoundCloudApplication soundCloudApplication;
     @Mock ApiClient apiClient;
     @Mock OAuth oAuth;
+    @Mock JsonTransformer jsonTransformer;
     @Mock ConfigurationOperations configurationOperations;
+    @Mock AuthResultMapper authResultMapper;
 
+    private final Token token = Token.EMPTY;
+    private final ApiUser user = ModelFixtures.apiUser();
+    private final Configuration configuration = ModelFixtures.configuration();
     private Bundle bundle;
     private SignUpOperations operations;
 
@@ -58,7 +64,7 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         when(oAuth.getClientSecret()).thenReturn("clientSecret");
         bundle = new Bundle();
 
-        operations = new SignUpOperations(context, apiClient, oAuth, configurationOperations);
+        operations = new SignUpOperations(context, apiClient, jsonTransformer, authResultMapper, oAuth, configurationOperations);
     }
 
     @Test
@@ -84,109 +90,48 @@ public class SignUpOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldProcessLegacyErrorArrayOfNewResponseBodyDuringSignup() throws Exception {
-        setupSignupWithError(ApiRequestException.badRequest(null, null, "email_taken"));
+    public void shouldFailWithTokenRetrievalException() throws Exception {
+        setupSignupWithError(TokenRetrievalException.class);
 
         AuthTaskResult result = operations.signUp(bundle);
 
-        assertThat(result.wasEmailTaken()).isTrue();
+        assertThat(result.wasSuccess()).isFalse();
         verifyZeroInteractions(configurationOperations);
     }
 
     @Test
-    public void shouldReturnDeniedAuthTaskResultOnSignupDomainBlacklistedError() throws Exception {
-        setupSignupWithError(ApiRequestException.rateLimited(null, null, "domain_blacklisted"));
+    public void shouldFailWithApiMapperException() throws Exception {
+        setupSignupWithError(ApiMapperException.class);
 
         AuthTaskResult result = operations.signUp(bundle);
 
-        assertThat(result.wasDenied()).isTrue();
+        assertThat(result.wasSuccess()).isFalse();
         verifyZeroInteractions(configurationOperations);
     }
 
     @Test
-    public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
-        setupSignupWithError(ApiRequestException.badRequest(null, null, "spamming"));
+    public void shouldFailWithIoException() throws Exception {
+        setupSignupWithError(IOException.class);
 
         AuthTaskResult result = operations.signUp(bundle);
 
-        assertThat(result.wasSpam()).isTrue();
+        assertThat(result.wasSuccess()).isFalse();
         verifyZeroInteractions(configurationOperations);
     }
 
     @Test
-    public void shouldReturnEmailInvalidAuthTaskResultOnSignupEmailInvalidError() throws Exception {
-        setupSignupWithError(ApiRequestException.rateLimited(null, null, "invalid_email"));
+    public void shouldFailWithSignupError() throws Exception {
+        setupSignupWithUser(null);
+        ApiResponse unsuccessfulResponse = setupUnsuccessfulApiResponse();
+        when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(unsuccessfulResponse);
+        when(authResultMapper.handleErrorResponse(unsuccessfulResponse)).thenReturn(AuthTaskResult.failure("Error"));
+
 
         AuthTaskResult result = operations.signUp(bundle);
 
-        assertThat(result.wasEmailInvalid()).isTrue();
+        assertThat(result.wasSuccess()).isFalse();
         verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null,
-                                                                 null,
-                                                                 "Sorry we couldn't sign you up with the details you provided.",
-                                                                 105));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasFailure()).isTrue();
-        verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null,
-                                                                 null,
-                                                                 "Sorry we couldn't sign you up with the details you provided.",
-                                                                 180));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasFailure()).isTrue();
-        verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnFailureAuthTaskResultOnSignupWithUnreconizedError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, null, "unknown", -1));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasFailure()).isTrue();
-        verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnDeniedAuthTaskResultOnSignupForbidden() throws Exception {
-        setupSignupWithError(ApiRequestException.notAllowed(null, null));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasDenied()).isTrue();
-        verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnFailureAuthTaskResultOnSignupServerError() throws Exception {
-        setupSignupWithError(ApiRequestException.serverError(null, null));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasFailure()).isTrue();
-        verifyZeroInteractions(configurationOperations);
-    }
-
-    @Test
-    public void shouldReturnFailureAuthTaskResultOnSignupUnexpectedResponseStatus() throws Exception {
-        setupSignupWithError(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 403, "body")));
-
-        AuthTaskResult result = operations.signUp(bundle);
-
-        assertThat(result.wasFailure()).isTrue();
-        verifyZeroInteractions(configurationOperations);
+        verify(authResultMapper, times(1)).handleErrorResponse(unsuccessfulResponse);
     }
 
     private void setupSignupWithUser(@Nullable String gender) throws Exception {
@@ -195,16 +140,25 @@ public class SignUpOperationsTest extends AndroidUnitTest {
         bundle.putString(KEY_GENDER, gender);
         bundle.putSerializable(KEY_BIRTHDAY, BirthdayInfo.buildFrom(25));
 
-        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(AuthResponse.class))).thenReturn(new AuthResponse(token, Me.create(user, configuration)));
+        when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(setupApiRequest(), 200, ""));
+        when(jsonTransformer.fromJson(anyString(), any())).thenReturn(new AuthResponse(token, Me.create(user, configuration)));
     }
 
-    private void setupSignupWithError(ApiRequestException exception) throws Exception {
+    private ApiResponse setupUnsuccessfulApiResponse() {
+        return new ApiResponse(setupApiRequest(), 422, "");
+    }
+
+    private ApiRequest setupApiRequest() {
+        return ApiRequest.get("test").forPrivateApi().build();
+    }
+
+    private void setupSignupWithError(Class<? extends Throwable> throwable) throws Exception {
         bundle.putString(KEY_USERNAME, "username");
         bundle.putString(KEY_PASSWORD, "username");
         bundle.putString(KEY_GENDER, GenderOption.NO_PREF.name());
         bundle.putSerializable(KEY_BIRTHDAY, BirthdayInfo.buildFrom(25));
 
-        when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(AuthResponse.class))).thenThrow(exception);
+        when(apiClient.fetchResponse(any(ApiRequest.class))).thenThrow(throwable);
     }
 
 }

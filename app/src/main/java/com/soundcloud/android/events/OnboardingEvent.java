@@ -29,6 +29,7 @@ public final class OnboardingEvent {
     private static final String DENIED_SIGNUP = "denied_signup";
     private static final String EXISTING_EMAIL = "existing_email";
     private static final String INVALID_EMAIL = "invalid_email";
+    private static final String AGE_RESTRICTED = "age_restricted";
     private static final String FACEBOOK_EMAIL_DENIED = "facebook_email_denied";
     private static final String GENERAL_ERROR = "general_error";
     private static final String DEVICE_CONFLICT = "device_conflict";
@@ -129,6 +130,10 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent signupInvalidEmail() {
         return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, INVALID_EMAIL);
+    }
+
+    public static OnboardingEvent signupAgeRestricted() {
+        return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, AGE_RESTRICTED);
     }
 
     public static OnboardingEvent signupFacebookEmailDenied() {

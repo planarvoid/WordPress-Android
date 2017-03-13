@@ -56,7 +56,7 @@ public class ApiResponse {
         }
     }
 
-    protected ApiResponse(ApiRequestException failure) {
+    public ApiResponse(ApiRequestException failure) {
         this.statusCode = Consts.NOT_SET;
         this.responseBody = Strings.EMPTY;
         this.failure = failure;

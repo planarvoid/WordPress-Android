@@ -1,16 +1,23 @@
 package com.soundcloud.android.tests.auth.signup;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.auth.signup.SignupEmailTakenScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailShowingEmailTakenDialogTest extends SignUpTest {
 
-    public ByEmailShowingEmailTakenDialogTest() {
-        super();
+    @Override
+    protected void addInitialStubMappings() {
+        stubFor(post(urlPathEqualTo(ApiEndpoints.SIGN_UP.path()))
+                        .willReturn(aResponse().withStatus(400).withBody("{\"error_key\": \"email_taken\"}")));
     }
 
     public void testEmailTakenSignup() throws Exception {
@@ -28,8 +35,6 @@ public class ByEmailShowingEmailTakenDialogTest extends SignUpTest {
         assertThat(dialog.isVisible(), is(true));
     }
 
-    // Use an email which was already registered
-    // this is, a 422 response with the response body { "error": 101 }
     protected String generateEmail() {
         return TestUser.testUser.getEmail();
     }

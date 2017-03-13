@@ -10,6 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.onboarding.auth.tasks.AgeRestrictionAuthResult;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
@@ -60,6 +61,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
         void onDeviceConflict(Bundle loginBundle);
 
         void onDeviceBlock();
+
+        void onAgeRestriction(String minimumAge);
     }
 
     protected AuthTaskFragment() {
@@ -177,6 +180,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onDeviceBlock();
             } else if (result.wasValidationError()) {
                 listener.onUsernameInvalid(result.getErrorMessage());
+            } else if (result.wasAgeRestricted()) {
+                listener.onAgeRestriction(((AgeRestrictionAuthResult) result).getMinimumAge());
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, result), shouldAllowFeedback(result));
             }

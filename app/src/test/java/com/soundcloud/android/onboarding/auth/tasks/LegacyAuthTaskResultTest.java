@@ -91,7 +91,6 @@ public class LegacyAuthTaskResultTest {
         final LegacyAuthTaskResult result = LegacyAuthTaskResult.failure(failure);
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();
-        assertThat(result.getServerErrorMessage()).isEqualTo(failure.errorKey());
     }
 
     @Test

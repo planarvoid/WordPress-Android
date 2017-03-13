@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.onboarding.auth.AuthResultMapper;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +22,6 @@ public final class LegacyAuthTaskResult {
     private final Exception exception;
 
     private final Bundle loginBundle;
-
-    // Can be dropped once we move away from public API for signups
-    @Deprecated private final String serverErrorMessage;
 
     public static LegacyAuthTaskResult success(ApiUser user, SignupVia signupVia) {
         return new LegacyAuthTaskResult(user, signupVia);
@@ -53,7 +51,7 @@ public final class LegacyAuthTaskResult {
     }
 
     public static LegacyAuthTaskResult failure(String errorMessge, ApiRequestException exception) {
-        return new LegacyAuthTaskResult(TaskResultKind.FAILURE, errorMessge, exception);
+        return new LegacyAuthTaskResult(TaskResultKind.FAILURE, exception);
     }
 
     public static LegacyAuthTaskResult emailTaken(ApiRequestException exception) {
@@ -85,11 +83,11 @@ public final class LegacyAuthTaskResult {
     }
 
     public static LegacyAuthTaskResult validationError(String errorMessage, ApiRequestException exception) {
-        return new LegacyAuthTaskResult(TaskResultKind.VALIDATION_ERROR, errorMessage, exception);
+        return new LegacyAuthTaskResult(TaskResultKind.VALIDATION_ERROR, exception);
     }
 
     public static LegacyAuthTaskResult deviceConflict(Bundle loginBundle) {
-        return new LegacyAuthTaskResult(TaskResultKind.DEVICE_CONFLICT, null, null, null, loginBundle, null);
+        return new LegacyAuthTaskResult(TaskResultKind.DEVICE_CONFLICT, null, null, null, loginBundle);
     }
 
     public static LegacyAuthTaskResult deviceBlock() {
@@ -97,34 +95,32 @@ public final class LegacyAuthTaskResult {
     }
 
     private LegacyAuthTaskResult(ApiUser user, SignupVia signupVia) {
-        this(TaskResultKind.SUCCESS, user, signupVia, null, null, null);
+        this(TaskResultKind.SUCCESS, user, signupVia, null, null);
     }
 
     private LegacyAuthTaskResult(Exception exception) {
-        this(TaskResultKind.FAILURE, null, null, exception, null, null);
+        this(TaskResultKind.FAILURE, null, null, exception, null);
     }
 
-    private LegacyAuthTaskResult(TaskResultKind kind, String serverErrorMessage, ApiRequestException exception) {
-        this(kind, null, null, exception, null, serverErrorMessage);
+    private LegacyAuthTaskResult(TaskResultKind kind, ApiRequestException exception) {
+        this(kind, null, null, exception, null);
     }
 
     private LegacyAuthTaskResult(TaskResultKind kind, Exception exception) {
-        this(kind, null, null, exception, null, null);
+        this(kind, null, null, exception, null);
     }
 
     private LegacyAuthTaskResult(TaskResultKind kind) {
-        this(kind, null, null, null, null, null);
+        this(kind, null, null, null, null);
     }
 
     private LegacyAuthTaskResult(@NotNull TaskResultKind kind, ApiUser user, SignupVia signupVia,
-                                 Exception exception, Bundle loginBundle,
-                                 String serverErrorMessage) {
+                                 Exception exception, Bundle loginBundle) {
         this.kind = kind;
         this.user = user;
         this.signupVia = signupVia;
         this.exception = exception;
         this.loginBundle = loginBundle;
-        this.serverErrorMessage = serverErrorMessage;
     }
 
     public boolean wasSuccess() {
@@ -179,18 +175,13 @@ public final class LegacyAuthTaskResult {
         return loginBundle;
     }
 
-    @Deprecated
-    public String getServerErrorMessage() {
-        return serverErrorMessage;
-    }
-
     public AuthTaskResult toAuthTaskResult() {
         if (wasSuccess()) {
             return AuthTaskResult.success(new AuthResponse(null, Me.create(user, null)), signupVia);
         }
 
         if (exception instanceof ApiRequestException) {
-            return AuthTaskResult.failure((ApiRequestException) exception);
+            return AuthResultMapper.handleApiRequestException((ApiRequestException) exception);
         }
         return AuthTaskResult.failure(exception);
     }
@@ -198,13 +189,12 @@ public final class LegacyAuthTaskResult {
     @Override
     public String toString() {
         return String.format(
-                "Auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
+                "Auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n",
                 kind,
                 user != null,
                 signupVia,
                 exception,
-                loginBundle != null,
-                serverErrorMessage
+                loginBundle != null
         );
     }
 }

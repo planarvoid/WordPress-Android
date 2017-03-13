@@ -7,12 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
-public final class AuthTaskResult {
-
-    private static final String INCORRECT_CREDENTIALS = "incorrect_credentials";
-    private static final String EMAIL_TAKEN = "email_taken";
-    private static final String SPAMMING = "spamming";
-
+public class AuthTaskResult {
     private final TaskResultKind kind;
     private final AuthResponse authResponse;
     private final SignupVia signupVia;
@@ -62,36 +57,6 @@ public final class AuthTaskResult {
         return new AuthTaskResult(exception);
     }
 
-    public static AuthTaskResult failure(ApiRequestException exception) {
-        switch (exception.reason()) {
-            case BAD_REQUEST:
-                return badRequest(exception);
-            case AUTH_ERROR:
-                return unauthorized(exception);
-            case VALIDATION_ERROR:
-                return validationError(exception.errorKey(), exception);
-            case NETWORK_ERROR:
-                return networkError((Exception) exception.getCause());
-            case SERVER_ERROR:
-                return serverError(exception);
-            default:
-                return new AuthTaskResult(exception);
-        }
-    }
-
-    private static AuthTaskResult badRequest(ApiRequestException exception) {
-        switch (exception.errorKey()) {
-            case INCORRECT_CREDENTIALS:
-                return new AuthTaskResult(TaskResultKind.UNAUTHORIZED, exception);
-            case EMAIL_TAKEN:
-                return new AuthTaskResult(TaskResultKind.EMAIL_TAKEN, exception);
-            case SPAMMING:
-                return new AuthTaskResult(TaskResultKind.SPAM, exception);
-            default:
-                return new AuthTaskResult(exception);
-        }
-    }
-
     public static AuthTaskResult failure(String errorMessage) {
         return failure(new AuthTaskException(errorMessage));
     }
@@ -136,6 +101,10 @@ public final class AuthTaskResult {
         return new AuthTaskResult(TaskResultKind.DEVICE_CONFLICT, null, null, null, loginBundle, null);
     }
 
+    public static AuthTaskResult incorrectCredentials(ApiRequestException exception) {
+        return new AuthTaskResult(TaskResultKind.UNAUTHORIZED, exception);
+    }
+
     public static AuthTaskResult deviceBlock() {
         return new AuthTaskResult(TaskResultKind.DEVICE_BLOCK);
     }
@@ -146,6 +115,10 @@ public final class AuthTaskResult {
 
     public boolean wasSuccess() {
         return kind == TaskResultKind.SUCCESS;
+    }
+
+    public boolean wasAgeRestricted() {
+        return false;
     }
 
     public boolean wasFailure() {

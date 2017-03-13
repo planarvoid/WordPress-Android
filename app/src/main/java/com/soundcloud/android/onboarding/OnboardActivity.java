@@ -923,6 +923,16 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
+    public void onAgeRestriction(String minimumAge) {
+        String message = getString(R.string.authentication_age_restriction, minimumAge);
+
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupAgeRestricted());
+    }
+
+    @Override
     public void onUsernameInvalid(String message) {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(message)

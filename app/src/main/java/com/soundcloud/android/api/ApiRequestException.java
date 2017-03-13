@@ -144,10 +144,6 @@ public final class ApiRequestException extends Exception {
         return errorKey;
     }
 
-    public int errorCode() {
-        return errorCode;
-    }
-
     public boolean isNetworkError() {
         return errorReason == NETWORK_ERROR;
     }

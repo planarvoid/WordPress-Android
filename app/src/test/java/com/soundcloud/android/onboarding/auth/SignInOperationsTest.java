@@ -13,6 +13,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -51,7 +52,9 @@ public class SignInOperationsTest extends AndroidUnitTest {
     @Mock EventBus eventBus;
     @Mock AccountOperations accountOperations;
     @Mock Token token;
+    @Mock JsonTransformer jsonTransformer;
     @Captor ArgumentCaptor<ApiRequest> apiRequestCaptor;
+    private AuthResultMapper authResultMapper = new AuthResultMapper(jsonTransformer);
     private Bundle bundle;
     private SignInOperations operations;
 
@@ -62,7 +65,7 @@ public class SignInOperationsTest extends AndroidUnitTest {
         when(oAuth.getClientSecret()).thenReturn("clientSecret");
 
         bundle = new Bundle();
-        operations = new SignInOperations(context, apiClient, oAuth, configurationOperations, eventBus, accountOperations);
+        operations = new SignInOperations(context, apiClient, authResultMapper, oAuth, configurationOperations, eventBus, accountOperations);
     }
 
     @Test

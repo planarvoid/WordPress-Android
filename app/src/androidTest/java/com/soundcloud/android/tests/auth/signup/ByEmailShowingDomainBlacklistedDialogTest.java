@@ -1,21 +1,26 @@
 package com.soundcloud.android.tests.auth.signup;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.screens.auth.signup.SignupDomainBlacklistedScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
 
-    public ByEmailShowingDomainBlacklistedDialogTest() {
-        super();
+
+    @Override
+    protected void addInitialStubMappings() {
+        stubFor(post(urlPathEqualTo(ApiEndpoints.SIGN_UP.path()))
+                        .willReturn(aResponse().withStatus(429).withBody("{\"error_key\": \"domain_blacklisted\"}")));
     }
 
-    // Ignoring this test until failing because signups with the domain @0815.ru are not blocked on the server side now,
-    // due to a Sven issue - https://soundcloud.atlassian.net/browse/TSS-520
-    // When this issue is resolved we can re-activate this test and delete blacklistedEmail@0815.ru using Sonar
-    public void ignore_testDomainBlacklistedSignup() throws Exception {
+    public void testDomainBlacklistedSignup() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
@@ -30,8 +35,6 @@ public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
         assertThat(dialog.isVisible(), is(true));
     }
 
-    // All the emails with the domain "@0815.ru" will have responses which will trigger a denied signup dialog,
-    // this is, a 422 response with the response body { "error": 102 }
     protected String generateEmail() {
         return "blacklistedEmail3@0815.ru";
     }
