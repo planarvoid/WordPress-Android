@@ -80,7 +80,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
         final PlayQueue playQueue = fromPlayableList(playables,
                                                      playSessionSource,
-                                                     Collections.<Urn, Boolean>emptyMap());
+                                                     Collections.emptyMap());
 
         final PlaybackContext expected = create(playSessionSource);
 
@@ -94,7 +94,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
         final PlayQueue playQueue = fromTrackUrnList(singletonList(Urn.forTrack(123L)),
                                                      playSessionSource,
-                                                     Collections.<Urn, Boolean>emptyMap());
+                                                     Collections.emptyMap());
 
         final PlaybackContext context = create(playSessionSource);
 

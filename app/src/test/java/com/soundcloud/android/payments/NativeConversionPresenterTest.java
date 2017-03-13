@@ -95,7 +95,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(),
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.never(),
                                                                                                null));
         presenter.onCreate(activity, null);
 
@@ -107,7 +107,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void restoringPurchaseStateWithErrorDisplaysError() {
         setupSuccessfulConnection();
         Throwable error = new Throwable();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.error(
                 error), null));
 
         presenter.onCreate(activity, null);
@@ -168,7 +168,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.NONE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(status);
-        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
+        when(paymentOperations.queryProduct()).thenReturn(Observable.never());
 
         presenter.onCreate(activity, null);
 
@@ -212,7 +212,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void cancelsTransactionForPlayBillingFailure() {
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -223,7 +223,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void cancelsTransactionPlayBillingError() {
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
 
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.error());
@@ -234,9 +234,9 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void purchaseCancellationWithNoProductSetsUpProduct() {
         setupExpectedProductDetails();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(),
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.never(),
                                                                                                null));
-        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.empty());
         presenter.onCreate(activity, null);
 
         presenter.handleBillingResult(TestBillingResults.cancelled());
@@ -257,7 +257,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void queriesPurchaseStatusWhenBillingServiceIsReady() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
-        when(paymentOperations.queryStatus()).thenReturn(Observable.<PurchaseStatus>empty());
+        when(paymentOperations.queryStatus()).thenReturn(Observable.empty());
 
         presenter.onCreate(activity, null);
 
@@ -268,7 +268,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void queriesProductDetailsWhenPurchaseStatusIsNone() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
-        when(paymentOperations.queryProduct()).thenReturn(Observable.<ProductStatus>never());
+        when(paymentOperations.queryProduct()).thenReturn(Observable.never());
 
         presenter.onCreate(activity, null);
 
@@ -300,7 +300,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void reEnablesBuyButtonIfPurchaseStartFails() {
         ProductDetails details = setupExpectedProductDetails();
         Exception exception = new Exception();
-        when(paymentOperations.purchase(details.getId())).thenReturn(Observable.<String>error(exception));
+        when(paymentOperations.purchase(details.getId())).thenReturn(Observable.error(exception));
         presenter.onCreate(activity, null);
 
         verify(conversionView).setupContentView(eq(activity), listenerCaptor.capture());

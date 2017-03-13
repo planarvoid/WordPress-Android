@@ -96,7 +96,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void localAndSyncedUserInfoReturnsUserInfoFromStorage() {
-        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.<SyncJobResult>never());
+        when(syncInitiator.syncUser(userUrn)).thenReturn(Observable.never());
         when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(user));
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);

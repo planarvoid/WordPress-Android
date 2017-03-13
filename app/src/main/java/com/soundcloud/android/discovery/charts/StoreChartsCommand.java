@@ -74,7 +74,7 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
     }
 
     private List<Object> buildChartTrackContentValues(ImageResource chartTrack, long chartId, int bucketType) {
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 chartId,
                 chartTrack.getUrn().getNumericId(),
                 chartTrack.getImageUrlTemplate().orNull(),

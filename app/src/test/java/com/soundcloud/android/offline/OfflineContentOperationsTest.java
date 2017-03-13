@@ -17,7 +17,6 @@ import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
@@ -78,7 +77,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(serviceScheduler.scheduleCleanupAction()).thenReturn(scheduleCleanupAction);
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
-                Observable.<Collection<ApiPolicyInfo>>just(Collections.<ApiPolicyInfo>emptyList()));
+                Observable.just(Collections.emptyList()));
         when(txnResult.success()).thenReturn(true);
 
         final Urn offlinePlaylist = Urn.forPlaylist(112233L);
@@ -107,7 +106,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(new ArrayList<Urn>()));
         operations.updateOfflineContentStalePolicies().subscribe();
 
         verifyZeroInteractions(policyOperations);
@@ -116,7 +115,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void updateStalePoliciesRequestsPolicyUpdatesFromPolicyOperations() {
         final List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(tracks));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(tracks));
 
         operations.updateOfflineContentStalePolicies().subscribe();
 
@@ -128,7 +127,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final ExpectedOfflineContent downloadRequests = getExpectedOfflineContent();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
@@ -145,7 +144,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final ExpectedOfflineContent downloadRequests = getExpectedOfflineContent();
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
-        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
@@ -283,7 +282,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final TestSubscriber<OfflineContentUpdates> subscriber = new TestSubscriber<>();
 
         when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(
-                Observable.<Collection<ApiPolicyInfo>>error(new RuntimeException("Test exception")));
+                Observable.error(new RuntimeException("Test exception")));
         operations.loadOfflineContentUpdates().subscribe(subscriber);
 
         subscriber.assertCompleted();

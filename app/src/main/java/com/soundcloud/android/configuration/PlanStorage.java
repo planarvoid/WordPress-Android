@@ -80,7 +80,7 @@ public class PlanStorage {
     }
 
     public List<Plan> getUpsells() {
-        return Plan.fromIds(sharedPreferences.getStringSet(KEY_UPSELLS, Collections.<String>emptySet()));
+        return Plan.fromIds(sharedPreferences.getStringSet(KEY_UPSELLS, Collections.emptySet()));
     }
 
     int getHighTierTrialDays() {

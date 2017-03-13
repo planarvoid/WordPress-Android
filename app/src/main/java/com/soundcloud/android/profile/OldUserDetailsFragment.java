@@ -35,7 +35,7 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        oldUserDetailsView.setUrn(getArguments().<Urn>getParcelable(ProfileArguments.USER_URN_KEY));
+        oldUserDetailsView.setUrn(getArguments().getParcelable(ProfileArguments.USER_URN_KEY));
     }
 
     @Override

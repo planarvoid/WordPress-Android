@@ -28,7 +28,6 @@ import android.view.View;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 public class ActivitiesPresenterTest extends AndroidUnitTest {
 
@@ -54,8 +53,8 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 trackRepository,
                 navigator,
                 newItemsIndicator);
-        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.<List<ActivityItem>>empty());
-        when(operations.pagingFunction()).thenReturn(TestPager.<List<ActivityItem>>singlePageFunction());
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
+        when(operations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
     }
 
     @Test
@@ -134,7 +133,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void onNewItemsIndicatorClickedUpdatesActivitiesAgain() {
         when(operations.initialActivities())
-                .thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+                .thenReturn(Observable.just(Collections.emptyList()));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -145,7 +144,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.<ActivityItem>emptyList()));
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.emptyList()));
         when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(Optional.of(new Date(123L)));
         when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
 

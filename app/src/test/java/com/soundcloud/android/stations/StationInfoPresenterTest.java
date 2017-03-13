@@ -64,7 +64,7 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        when(stationOperations.stationWithTracks(TRACK_STATION, Optional.<Urn>absent())).thenReturn(Observable.just(
+        when(stationOperations.stationWithTracks(TRACK_STATION, Optional.absent())).thenReturn(Observable.just(
                 stationWithTracks));
 
         when(rendererFactory.create(any(StationInfoPresenter.class))).thenReturn(bucketRenderer);

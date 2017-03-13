@@ -33,7 +33,7 @@ public class OfflineLikesDialogTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenAddingOfflineLikes() {
-        when(operations.enableOfflineLikedTracks()).thenReturn(Observable.<Void>empty());
+        when(operations.enableOfflineLikedTracks()).thenReturn(Observable.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(PAGE_NAME);
         dialog.onClick(mock(DialogInterface.class), 0);
 

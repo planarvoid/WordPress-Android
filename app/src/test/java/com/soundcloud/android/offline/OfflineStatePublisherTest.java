@@ -48,10 +48,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
     @Test
     public void publishEmptyCollections() {
-        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(),
+        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.emptyList(),
                                                                      singletonList(PLAYLIST),
                                                                      true,
-                                                                     Collections.<Urn>emptyList()));
+                                                                     Collections.emptyList()));
 
         assertEvent(event(0), REQUESTED, true, PLAYLIST);
     }

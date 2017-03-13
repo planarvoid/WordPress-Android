@@ -127,7 +127,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotRepeatSearchWithTheSameQuery() {
-        when(operations.suggestionsFor(API_QUERY)).thenReturn(Observable.<List<SuggestionItem>>empty());
+        when(operations.suggestionsFor(API_QUERY)).thenReturn(Observable.empty());
 
         presenter.showSuggestionsFor(API_QUERY);
         presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);

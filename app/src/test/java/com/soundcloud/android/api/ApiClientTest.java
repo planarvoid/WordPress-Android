@@ -134,7 +134,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldOmitDeviceLocaleHeaderIfLocaleUnavailable() throws Exception {
-        when(localeFormatter.getLocale()).thenReturn(Optional.<String>absent());
+        when(localeFormatter.getLocale()).thenReturn(Optional.absent());
 
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
@@ -234,7 +234,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldOmitAdIdHeadersIfUnvailable() throws IOException {
-        when(adIdHelper.getAdId()).thenReturn(Optional.<String>absent());
+        when(adIdHelper.getAdId()).thenReturn(Optional.absent());
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
 

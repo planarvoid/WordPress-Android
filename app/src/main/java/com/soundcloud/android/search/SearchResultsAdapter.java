@@ -30,7 +30,7 @@ class SearchResultsAdapter
         TYPE_PLAYLIST,
         TYPE_PREMIUM_CONTENT,
         TYPE_UPSELL,
-        TYPE_HEADER;
+        TYPE_HEADER
     }
 
     private final SearchPremiumContentRenderer searchPremiumContentRenderer;

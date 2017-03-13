@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.os.Message;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class OfflineContentServiceTest extends AndroidUnitTest {
@@ -67,7 +66,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(downloadOperations.isConnectionValid()).thenReturn(true);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(offlineContentOperations.loadOfflineContentUpdates())
-                .thenReturn(Observable.<OfflineContentUpdates>never());
+                .thenReturn(Observable.never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
         service = new OfflineContentService(downloadOperations,
                                             offlineContentOperations,
@@ -141,7 +140,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         final List<Urn> tracksToBeRemoved = Arrays.asList(TRACK_1, TRACK_2);
         deletePendingRemoval = Observable.just(tracksToBeRemoved);
 
-        when(downloadOperations.removeOfflineTracks(tracksToBeRemoved)).thenReturn(Observable.<Collection<Urn>>empty());
+        when(downloadOperations.removeOfflineTracks(tracksToBeRemoved)).thenReturn(Observable.empty());
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         startService();
 

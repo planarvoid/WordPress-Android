@@ -137,7 +137,7 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
         expectedStates.put(Urn.forTrack(3), OfflineState.NOT_OFFLINE);
         expectedStates.put(Urn.forTrack(4), OfflineState.DOWNLOADED);
 
-        subscriber.assertReceivedOnNext(Collections.<Map<Urn, OfflineState>>singletonList(expectedStates));
+        subscriber.assertReceivedOnNext(Collections.singletonList(expectedStates));
     }
 
     @Test

@@ -6,7 +6,6 @@ import static junit.framework.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;

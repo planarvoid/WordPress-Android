@@ -238,8 +238,8 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     }
 
     private void setupFailedPush(int status, Optional<String> body) throws Exception {
-        mockApiFollowingsResponse(Collections.<ApiFollowing>emptyList());
-        when(userAssociationStorage.loadFollowedUserIds()).thenReturn(Collections.<Long>emptySet());
+        mockApiFollowingsResponse(Collections.emptyList());
+        when(userAssociationStorage.loadFollowedUserIds()).thenReturn(Collections.emptySet());
         when(userAssociationStorage.hasStaleFollowings()).thenReturn(true);
         when(userAssociationStorage.loadStaleFollowings()).thenReturn(
                 singletonList(

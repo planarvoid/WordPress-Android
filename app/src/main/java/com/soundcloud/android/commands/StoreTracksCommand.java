@@ -90,7 +90,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
     }
 
     public static List<Object> buildTrackRow(TrackRecord trackRecord) {
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 trackRecord.getUrn().getNumericId(),
                 Tables.Sounds.TYPE_TRACK,
                 trackRecord.getTitle(),
@@ -114,7 +114,7 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
     }
 
     public static List<Object> buildPolicyRow(TrackRecord trackRecord) {
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 trackRecord.getUrn().getNumericId(),
                 trackRecord.isMonetizable(),
                 trackRecord.isBlocked(),

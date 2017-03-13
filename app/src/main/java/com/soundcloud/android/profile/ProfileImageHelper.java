@@ -98,14 +98,14 @@ public class ProfileImageHelper {
 
     private Optional<Drawable> generateFallbackDrawable(Optional<Palette> palette, Urn creatorUrn) {
         if (palette.isPresent()) {
-            return Optional.<Drawable>of(
+            return Optional.of(
                     placeholderGenerator.generateDrawableFromPalette(
                             creatorUrn.toString(),
                             palette.get()
                     )
             );
         } else {
-            return Optional.<Drawable>absent();
+            return Optional.absent();
         }
     }
 

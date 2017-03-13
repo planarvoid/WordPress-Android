@@ -64,7 +64,7 @@ public class NotificationPreferencesActivity extends LoggedInActivity {
 
     private void refresh() {
         subscription = operations.refresh()
-                                 .onErrorResumeNext(Observable.<NotificationPreferences>empty())
+                                 .onErrorResumeNext(Observable.empty())
                                  .observeOn(AndroidSchedulers.mainThread())
                                  .subscribe(new PreferencesFetchSubscriber(this));
     }

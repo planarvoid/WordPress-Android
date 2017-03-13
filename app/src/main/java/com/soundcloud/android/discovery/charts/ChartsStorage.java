@@ -13,7 +13,6 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
@@ -29,7 +28,6 @@ import android.util.Pair;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 class ChartsStorage {

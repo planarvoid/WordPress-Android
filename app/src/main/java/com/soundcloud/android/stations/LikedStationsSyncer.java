@@ -36,7 +36,7 @@ class LikedStationsSyncer implements Callable<Boolean> {
         final List<Urn> toSync = DiffUtils.minus(remoteLikedStations, knownStations);
 
         final List<ApiStationMetadata> stationsFromApi = toSync.isEmpty() ?
-                                                         Collections.<ApiStationMetadata>emptyList() :
+                                                         Collections.emptyList() :
                                                          api.fetchStations(toSync);
 
         final List<Urn> likedStationsUrns = removeUrnsOfStationsWithoutMetadata(remoteLikedStations,

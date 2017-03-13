@@ -31,7 +31,6 @@ import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -328,7 +327,7 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void verifyNoTracksStored() throws PropellerWriteException {
-        verify(storeTracksCommand).call(Collections.<TrackRecord>emptyList());
+        verify(storeTracksCommand).call(Collections.emptyList());
     }
 
     private void withLocalPlaylist(Urn urn, Optional<LocalPlaylistChange> playlistFromStorage) {

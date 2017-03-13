@@ -59,7 +59,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
+        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
     }
 
     @Test

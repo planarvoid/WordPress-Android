@@ -338,7 +338,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
-                                               anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
+                                               anyListOf(Urn.class))).thenReturn(Observable.empty());
 
         castPlayer.playCurrent();
 
@@ -368,7 +368,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
                                                                                  anyListOf(Urn.class))).thenReturn(
-                Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+                Observable.error(new Throwable("loading error")));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
@@ -453,7 +453,7 @@ public class LegacyCastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
-                                               anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable(
+                                               anyListOf(Urn.class))).thenReturn(Observable.error(new Throwable(
                 "loading error")));
 
         castPlayer.playCurrent();

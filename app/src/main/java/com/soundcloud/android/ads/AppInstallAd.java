@@ -84,7 +84,7 @@ public abstract class AppInstallAd extends AdData implements ExpirableAd {
         }
 
         static State init() {
-            return create(Optional.<Date>absent(), false);
+            return create(Optional.absent(), false);
         }
     }
 }

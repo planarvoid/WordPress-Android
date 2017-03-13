@@ -8,7 +8,6 @@ import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

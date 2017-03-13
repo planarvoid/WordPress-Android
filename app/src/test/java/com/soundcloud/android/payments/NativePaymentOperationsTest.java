@@ -13,7 +13,6 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -49,7 +48,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
                 .thenReturn(checkoutResultObservable());
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                                                           .withContent(UpdateCheckout.fromFailure("user cancelled")))))
-                .thenReturn(Observable.<ApiResponse>empty());
+                .thenReturn(Observable.empty());
     }
 
     @Test
@@ -76,7 +75,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void queryProductFetchesProductIdFromApi() {
-        when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
+        when(billingService.getDetails(anyString())).thenReturn(Observable.empty());
 
         paymentOperations.queryProduct().subscribe();
 
@@ -97,7 +96,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void requestsProductDetailsForId() {
-        when(billingService.getDetails(anyString())).thenReturn(Observable.<ProductDetails>empty());
+        when(billingService.getDetails(anyString())).thenReturn(Observable.empty());
 
         paymentOperations.queryProduct().subscribe();
 

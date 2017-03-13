@@ -56,7 +56,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     private static final RecommendedTracksBucketItem THIRD_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
             createSeed(SEED_3, THIRD_QUERY_POSITION), singletonList(RECOMMENDATION_3));
     private static final PlaylistTagsItem PLAYLIST_TAGS = PlaylistTagsItem.create(
-            Collections.<String>emptyList(), Collections.<String>emptyList());
+            Collections.emptyList(), Collections.emptyList());
     private static final DiscoveryItem FOOTER = DiscoveryItem.forRecommendedTracksFooter();
 
     private static final List<DiscoveryItem> DISCOVERY_ITEMS =

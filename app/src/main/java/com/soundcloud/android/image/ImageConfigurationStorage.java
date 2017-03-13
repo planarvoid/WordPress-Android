@@ -27,6 +27,6 @@ public class ImageConfigurationStorage {
     }
 
     public Collection<String> loadAvailableSizeSpecs() {
-        return unmodifiableSet(preferences.getStringSet(KEY_SIZE_SPECS, Collections.<String>emptySet()));
+        return unmodifiableSet(preferences.getStringSet(KEY_SIZE_SPECS, Collections.emptySet()));
     }
 }

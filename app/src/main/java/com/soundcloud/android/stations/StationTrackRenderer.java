@@ -20,7 +20,6 @@ import com.soundcloud.java.collections.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -98,7 +97,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
     private void loadTrackArtwork(View view, TrackItem track) {
         imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
-                                             ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
+                                             ButterKnife.findById(view, R.id.recommendation_artwork)
         );
     }
 

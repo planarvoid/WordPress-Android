@@ -93,7 +93,7 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
     @Test
     public void updatesMetadata() {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        assertThat(command.call(getInput(apiPlaylist.getUrn(), Collections.<Urn>emptyList()))).isEqualTo(0);
+        assertThat(command.call(getInput(apiPlaylist.getUrn(), Collections.emptyList()))).isEqualTo(0);
 
         apiPlaylist.setTitle(NEW_TITLE);
         apiPlaylist.setSharing(Sharing.PRIVATE);

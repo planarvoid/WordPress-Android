@@ -125,9 +125,9 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
     private ExpectedOfflineContent createExpectedContent(DownloadRequest... downloadRequest) {
         return new ExpectedOfflineContent(Arrays.asList(downloadRequest),
-                                          Collections.<Urn>emptyList(),
+                                          Collections.emptyList(),
                                           false,
-                                          Collections.<Urn>emptyList());
+                                          Collections.emptyList());
     }
 
     private void actualPendingRemovals(Urn track, long remoteAt) {

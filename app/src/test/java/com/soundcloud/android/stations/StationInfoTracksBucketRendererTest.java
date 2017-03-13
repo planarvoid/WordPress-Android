@@ -35,7 +35,7 @@ public class StationInfoTracksBucketRendererTest extends AndroidUnitTest {
         final int lastPlayedPosition = 0;
         final StationInfoTracksBucket bucket = StationInfoTracksBucket
                 .from(getStationWithTracks(Urn.forArtistStation(123),
-                                           Collections.<StationInfoTrack>emptyList(),
+                                           Collections.emptyList(),
                                            lastPlayedPosition),
                       Urn.NOT_SET);
 

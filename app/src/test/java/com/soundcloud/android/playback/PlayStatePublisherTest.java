@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.UuidProvider;
@@ -21,8 +20,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import android.support.annotation.NonNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayStatePublisherTest {

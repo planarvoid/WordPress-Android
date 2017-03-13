@@ -190,7 +190,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         PlaySessionSource source = new PlaySessionSource("stream");
         source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123",
                                                             TRACK_URN,
-                                                            Optional.<Urn>absent(),
+                                                            Optional.absent(),
                                                             Arrays.asList("url")));
 
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);

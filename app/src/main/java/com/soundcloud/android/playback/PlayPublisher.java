@@ -19,7 +19,6 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func0;
 import rx.functions.Func1;
 
 import android.content.res.Resources;

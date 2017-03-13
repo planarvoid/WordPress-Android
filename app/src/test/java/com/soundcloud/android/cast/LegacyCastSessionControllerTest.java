@@ -70,7 +70,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
                                                                 eventBus,
                                                                 playSessionStateProvider,
                                                                 expandPlayerSubscriberProvider);
-        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(Collections.<Urn>emptyList(),
+        when(castOperations.loadRemotePlayQueue()).thenReturn(RemotePlayQueue.create(Collections.emptyList(),
                                                                                   Urn.NOT_SET));
     }
 
@@ -94,7 +94,7 @@ public class LegacyCastSessionControllerTest extends AndroidUnitTest {
         castSessionController.startListening();
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(URN));
         when(playSessionStateProvider.getLastProgressForItem(URN)).thenReturn(PlaybackProgress.empty());
-        when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.<PlaybackResult>empty());
+        when(castPlayer.reloadCurrentQueue()).thenReturn(Observable.empty());
 
         callOnConnectedToReceiverApp();
 

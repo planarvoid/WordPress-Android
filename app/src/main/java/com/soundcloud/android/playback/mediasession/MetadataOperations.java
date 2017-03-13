@@ -64,7 +64,7 @@ class MetadataOperations {
     }
 
     void preload(final Urn trackUrn) {
-        fireAndForget(metadata(trackUrn, false, Optional.<MediaMetadataCompat>absent()));
+        fireAndForget(metadata(trackUrn, false, Optional.absent()));
     }
 
     private Observable<MediaMetadataCompat> adMediaMetadata() {
@@ -119,7 +119,7 @@ class MetadataOperations {
     }
 
     private int getTargetImageSize() {
-        return resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
+        return resources.getDimensionPixelSize(R.dimen.notification_image_large_size);
     }
 
     private ApiImageSize getImageSize() {

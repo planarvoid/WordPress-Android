@@ -108,7 +108,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
                                                                                 "query");
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123",
                                                                        Urn.forTrack(123L),
-                                                                       Optional.<Urn>absent(),
+                                                                       Optional.absent(),
                                                                        Arrays.asList("url"));
         PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
         original.setSearchQuerySourceInfo(searchQuerySourceInfo);

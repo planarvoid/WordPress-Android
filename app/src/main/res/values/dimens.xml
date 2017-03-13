@@ -4,17 +4,12 @@
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>
 
-    <dimen name="notification_image_large_width">128dip</dimen>
-    <dimen name="notification_image_large_height">128dip</dimen>
+    <dimen name="notification_image_large_size">128dp</dimen>
 
     <dimen name="list_icon_size">47dip</dimen>
 
     <dimen name="list_item_padding_left">16dip</dimen>
     <dimen name="list_item_padding_right">16dip</dimen>
-
-    <dimen name="list_txt_main_size">14sp</dimen>
-    <dimen name="list_txt_sub_size">12sp</dimen>
-    <dimen name="list_txt_sub_2_size">10sp</dimen>
 
     <dimen name="record_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
@@ -55,7 +50,6 @@
     <dimen name="playlist_header_padding">16dp</dimen>
     <dimen name="playlist_overflow_button_margin_left">8dp</dimen>
     <dimen name="playlist_action_bar_padding">8dp</dimen>
-    <dimen name="playlist_edit_info_left_margin">16dp</dimen>
 
     <dimen name="collections_playlist_track_size">44dp</dimen>
 
@@ -178,7 +172,6 @@
     <dimen name="grid_view_spacing_inside_horizontal">16dp</dimen>
     <dimen name="grid_view_spacing_inside_vertical">16dp</dimen>
     <dimen name="grid_view_loading_height">180dp</dimen>
-    <dimen name="grid_item_padding">10dp</dimen>
 
     <!-- Explore -->
     <dimen name="explore_padding_left_right">0dp</dimen>

@@ -41,7 +41,7 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public Collection<? extends SyncJob> getPendingJobs() {
-        return isSatisfied() ? Collections.<SyncJob>emptyList() : Collections.singletonList(entitySyncJob);
+        return isSatisfied() ? Collections.emptyList() : Collections.singletonList(entitySyncJob);
     }
 
     @Override

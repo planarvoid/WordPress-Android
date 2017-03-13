@@ -10,7 +10,7 @@ import java.util.Collections;
 // we don't have urn for liked tracks collections.
 @AutoValue
 abstract class TrackCollections {
-    public static TrackCollections EMPTY = create(Collections.<Urn>emptyList(), false);
+    public static TrackCollections EMPTY = create(Collections.emptyList(), false);
 
     public static TrackCollections create(Collection<Urn> playlists, boolean likesCollection) {
         return new AutoValue_TrackCollections(playlists, likesCollection);

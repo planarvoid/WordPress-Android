@@ -234,8 +234,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<LikeWithTrack>emptyList()));
-        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.<LikeWithTrack>emptyList()));
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
 
         verify(headerPresenter).updateTrackCount(likedTrackUrns.size());
     }

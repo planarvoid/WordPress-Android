@@ -90,7 +90,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
-        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.<Urn>newArrayList());
+        when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Lists.newArrayList());
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
     }
 
@@ -118,7 +118,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void playQueueTrackChangedHandlerCallsPlayCurrentAndPausesIfNextTrackBlocked() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>error(new BlockedTrackException(trackUrn)));
+        when(playbackStrategy.playCurrent()).thenReturn(Observable.error(new BlockedTrackException(trackUrn)));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
@@ -639,7 +639,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
         final PlayQueue playQueue = TestPlayQueue.fromUrns(Collections.singletonList(track), playSessionSource);
-        setupSetNewQueue(track, playSessionSource, playQueue, Observable.<PlaybackResult>never());
+        setupSetNewQueue(track, playSessionSource, playQueue, Observable.never());
 
         controller.playCurrent();
 
@@ -654,7 +654,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playCurrentUnsubscribesFromPreviousTrackLoad() {
         when(playbackStrategy.playCurrent())
                 .thenReturn(playCurrentSubject)
-                .thenReturn(Observable.<Void>never());
+                .thenReturn(Observable.never());
 
         controller.playCurrent();
 

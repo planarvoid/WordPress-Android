@@ -21,7 +21,6 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.propeller.ChangeResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +70,7 @@ public class SuggestedCreatorsOperationsTest {
         when(featureFlags.isEnabled(Flag.SUGGESTED_CREATORS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL)).thenReturn(false);
         when(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS)).thenReturn(Observable.just(SYNCED));
-        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.<List<SuggestedCreator>>empty());
+        when(suggestedCreatorsStorage.suggestedCreators()).thenReturn(Observable.empty());
         subscriber = new TestSubscriber<>();
     }
 
@@ -224,7 +223,7 @@ public class SuggestedCreatorsOperationsTest {
         final Urn urn = Urn.forUser(1);
         final boolean isFollowing = true;
         when(suggestedCreatorsStorage.toggleFollowSuggestedCreator(urn,
-                                                                   isFollowing)).thenReturn(Observable.<ChangeResult>empty());
+                                                                   isFollowing)).thenReturn(Observable.empty());
         when(followingOperations.toggleFollowing(urn, isFollowing)).thenReturn(Observable.empty());
 
         operations.toggleFollow(urn, isFollowing).subscribe();
@@ -246,8 +245,8 @@ public class SuggestedCreatorsOperationsTest {
         return UserAssociation.create(urn,
                                       0,
                                       0,
-                                      Optional.<Date>absent(),
-                                      Optional.<Date>absent());
+                                      Optional.absent(),
+                                      Optional.absent());
     }
 
     @NonNull
@@ -256,6 +255,6 @@ public class SuggestedCreatorsOperationsTest {
                                       0,
                                       0,
                                       Optional.of(addedAt),
-                                      Optional.<Date>absent());
+                                      Optional.absent());
     }
 }

@@ -54,7 +54,7 @@ public class KillSwitchTest extends ActivityTest<MainActivity> {
         Resources resources = getInstrumentation().getContext().getResources();
         String body = readBodyOfFile(resources, "android-configuration-killswitch.json");
         stubFor(get(urlPathMatching("/configuration/android"))
-                                      .willReturn(aResponse().withStatus(200).withBody(body)));;
+                                      .willReturn(aResponse().withStatus(200).withBody(body)));
     }
 
     public void testKillSwitchIsShown() {

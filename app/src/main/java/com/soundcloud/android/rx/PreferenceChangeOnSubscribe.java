@@ -2,7 +2,6 @@ package com.soundcloud.android.rx;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.content.SharedPreferences;

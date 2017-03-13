@@ -262,7 +262,7 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         playQueueManager.setNewPlayQueue(
                 PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns,
                                            playSessionSource,
-                                           Collections.<Urn, Boolean>emptyMap()),
+                                           Collections.emptyMap()),
                 playSessionSource,
                 correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
         );

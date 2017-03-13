@@ -26,6 +26,6 @@ public abstract class RecommendedPlaylistsEntity {
     }
 
     public static RecommendedPlaylistsEntity create(long localId, String key, String displayName, Optional<String> artworkUrl, Optional<Urn> queryUrn) {
-        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, queryUrn, Collections.<Urn>emptyList());
+        return new AutoValue_RecommendedPlaylistsEntity(localId, key, displayName, artworkUrl, queryUrn, Collections.emptyList());
     }
 }

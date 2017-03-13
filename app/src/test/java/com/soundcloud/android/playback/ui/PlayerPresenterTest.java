@@ -19,7 +19,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
-import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -357,7 +356,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAd()).thenReturn(isAd);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(isAd
                                                                ? AUDIO_AD_PLAY_QUEUE_ITEM.getAdData()
-                                                               : Optional.<AdData>absent());
+                                                               : Optional.absent());
     }
 
     @Test

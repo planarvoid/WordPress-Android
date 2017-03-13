@@ -70,7 +70,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      */
     public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingListItemAdapter<T> adapter,
                                                                            final LegacyPager<CollT> pager) {
-        setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
+        setAdapter(adapter, pager, UtilityFunctions.identity());
     }
 
     public void setScrollListener(@Nullable OnScrollListener scrollListener) {

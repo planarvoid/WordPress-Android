@@ -58,8 +58,8 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
 
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<Void>empty());
-        when(policyOperations.getMostRecentPolicyUpdateTimestamp()).thenReturn(Observable.<Long>empty());
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.empty());
+        when(policyOperations.getMostRecentPolicyUpdateTimestamp()).thenReturn(Observable.empty());
 
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
         online30DaysAgo = now - TimeUnit.DAYS.toMillis(30L);

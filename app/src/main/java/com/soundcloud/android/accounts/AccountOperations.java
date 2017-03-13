@@ -295,10 +295,6 @@ public class AccountOperations {
         tokenOperations.setToken(token);
     }
 
-    public void invalidateSoundCloudToken(Token token) {
-        tokenOperations.invalidateToken(token, getSoundCloudAccount());
-    }
-
     public void storeSoundCloudTokenData(Token token) {
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }

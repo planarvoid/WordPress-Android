@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;

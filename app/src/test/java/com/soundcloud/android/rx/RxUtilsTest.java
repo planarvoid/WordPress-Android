@@ -14,7 +14,7 @@ public class RxUtilsTest {
     @Test
     public void returningShouldIgnoreSequenceResultAndEmitGivenConstant() throws Exception {
         TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
-        Observable.just("string").map(o -> (Boolean) true).subscribe(subscriber);
+        Observable.just("string").map(o -> true).subscribe(subscriber);
 
         subscriber.assertValue(true);
     }
@@ -32,7 +32,7 @@ public class RxUtilsTest {
         final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
         Observable
                 .just(asList(Observable.just(1), Observable.just(2)))
-                .compose(RxUtils.<Integer>concatEagerIgnorePartialErrors())
+                .compose(RxUtils.concatEagerIgnorePartialErrors())
                 .subscribe(subscriber);
         subscriber.assertReceivedOnNext(asList(1, 2));
         subscriber.assertCompleted();
@@ -44,7 +44,7 @@ public class RxUtilsTest {
         final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
         Observable
                 .just(asList(Observable.just(1), Observable.<Integer>error(new RuntimeException()), Observable.just(2)))
-                .compose(RxUtils.<Integer>concatEagerIgnorePartialErrors())
+                .compose(RxUtils.concatEagerIgnorePartialErrors())
                 .subscribe(subscriber);
         subscriber.assertReceivedOnNext(asList(1, 2));
         subscriber.assertCompleted();
@@ -57,7 +57,7 @@ public class RxUtilsTest {
         Observable
                 .just(asList(Observable.<Integer>error(new RuntimeException()),
                              Observable.<Integer>error(new RuntimeException())))
-                .compose(RxUtils.<Integer>concatEagerIgnorePartialErrors())
+                .compose(RxUtils.concatEagerIgnorePartialErrors())
                 .subscribe(subscriber);
         subscriber.assertNoValues();
         subscriber.assertNotCompleted();

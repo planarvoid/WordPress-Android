@@ -46,7 +46,7 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
     }
 
     public static List<Object> buildPlaylistRow(PlaylistRecord playlist) {
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 playlist.getUrn().getNumericId(),
                 Tables.Sounds.TYPE_PLAYLIST,
                 playlist.getTitle(),

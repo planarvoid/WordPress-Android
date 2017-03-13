@@ -75,7 +75,7 @@ public class AnalyticsProviderFactory {
     private List<AnalyticsProvider> getBaseProviders() {
         List<AnalyticsProvider> providers = new ArrayList<>(EXPECTED_PROVIDER_COUNT);
         final Set<String> disabledProviders = analyticsSettings.getStringSet(DISABLED_PROVIDERS,
-                                                                             Collections.<String>emptySet());
+                                                                             Collections.emptySet());
         for (AnalyticsProvider provider : baseProviders) {
             if (!disabledProviders.contains(provider.getClass().getName())) {
                 providers.add(provider);

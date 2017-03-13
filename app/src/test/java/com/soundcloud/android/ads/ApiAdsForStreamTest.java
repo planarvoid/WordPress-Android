@@ -25,7 +25,7 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
 
     @Test
     public void getAppInstallsReturnsEmptyListOnEmptyAdsForStream() throws Exception {
-        final ApiAdsForStream adsForStream = new ApiAdsForStream(Collections.<ApiAdWrapper>emptyList());
+        final ApiAdsForStream adsForStream = new ApiAdsForStream(Collections.emptyList());
         assertThat(adsForStream.getAds(dateProvider)).isEmpty();
     }
 

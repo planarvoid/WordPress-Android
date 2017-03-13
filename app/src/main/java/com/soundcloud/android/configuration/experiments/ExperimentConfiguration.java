@@ -22,7 +22,7 @@ public abstract class ExperimentConfiguration {
                 .pattern(true)
                 .layerName(layerName)
                 .name(experimentPattern)
-                .variations(Collections.<String>emptyList())
+                .variations(Collections.emptyList())
                 .build();
     }
 

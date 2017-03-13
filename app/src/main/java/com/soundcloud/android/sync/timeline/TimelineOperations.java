@@ -154,7 +154,7 @@ public abstract class TimelineOperations<StorageModel, ViewModel> {
         return hasSyncedBefore()
                 .filter(IS_TRUE)
                 .flatMap(o -> updatedTimelineItems())
-                .onErrorResumeNext(Observable.<List<ViewModel>>empty())
+                .onErrorResumeNext(Observable.empty())
                 .subscribeOn(scheduler);
     }
 

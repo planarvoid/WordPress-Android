@@ -43,7 +43,7 @@ public class LikedStationsSyncerTest {
         when(stationsApi.updateLikedStations(any(LikedStationsPostBody.class))).thenReturn(RETURNED_URNS);
         when(stationsApi.fetchStations(asList(Urn.forArtistStation(3),
                                               Urn.forArtistStation(4)))).thenReturn(API_STATION_METADATAS);
-        when(storage.getStations()).thenReturn(Collections.<Urn>emptyList());
+        when(storage.getStations()).thenReturn(Collections.emptyList());
         when(storage.getLocalLikedStations()).thenReturn(LIKED_URNS);
         when(storage.getLocalUnlikedStations()).thenReturn(UNLIKED_URNS);
     }
@@ -61,15 +61,15 @@ public class LikedStationsSyncerTest {
 
     @Test
     public void shouldUpdateApiWhenNoLocalChanges() throws Exception {
-        when(storage.getLocalLikedStations()).thenReturn(Collections.<Urn>emptyList());
-        when(storage.getLocalUnlikedStations()).thenReturn(Collections.<Urn>emptyList());
+        when(storage.getLocalLikedStations()).thenReturn(Collections.emptyList());
+        when(storage.getLocalUnlikedStations()).thenReturn(Collections.emptyList());
 
         assertTrue(likedStationsSyncer.call());
 
         verify(storage).getLocalLikedStations();
         verify(storage).getLocalUnlikedStations();
-        verify(stationsApi).updateLikedStations(eq(LikedStationsPostBody.create(Collections.<Urn>emptyList(),
-                                                                                Collections.<Urn>emptyList())));
+        verify(stationsApi).updateLikedStations(eq(LikedStationsPostBody.create(Collections.emptyList(),
+                                                                                Collections.emptyList())));
         verify(storage).setLikedStationsAndAddNewMetaData(eq(RETURNED_URNS.getCollection()),
                                                           eq(API_STATION_METADATAS));
     }
@@ -98,7 +98,7 @@ public class LikedStationsSyncerTest {
 
         final ApiStationMetadata newMetadata = getStationMetadata(station);
 
-        when(storage.getStations()).thenReturn(Collections.<Urn>emptyList());
+        when(storage.getStations()).thenReturn(Collections.emptyList());
         when(stationsApi.updateLikedStations(any(LikedStationsPostBody.class))).thenReturn(new ModelCollection<>(asList(
                 station,
                 stationWithoutMetadata)));

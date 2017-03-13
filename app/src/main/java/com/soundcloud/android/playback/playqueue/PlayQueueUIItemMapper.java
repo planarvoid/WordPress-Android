@@ -112,7 +112,7 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
 
         private Optional<String> getTitle(PlayableQueueItem item) {
             final Optional<Urn> urn = item.getPlaybackContext().urn();
-            return urn.isPresent() ? Optional.fromNullable(urnStringMap.get(urn.get())) : Optional.<String>absent();
+            return urn.isPresent() ? Optional.fromNullable(urnStringMap.get(urn.get())) : Optional.absent();
         }
 
         private boolean isVisible(PlayableQueueItem item) {

@@ -87,7 +87,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testSubscriber);
 
-        testSubscriber.assertValues(Collections.<AddTrackToPlaylistItem>emptyList());
+        testSubscriber.assertValues(Collections.emptyList());
     }
 
     @Test

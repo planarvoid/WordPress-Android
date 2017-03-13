@@ -147,7 +147,7 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     public void retriesToAppendRecommendedTracksAfterError() {
         setWithinToleranceAtEnd();
         when(playQueueOperations.relatedTracksPlayQueue(LAST_URN, true, playQueueManager.getCurrentPlaySessionSource()))
-                .thenReturn(Observable.<PlayQueue>error(new IOException()))
+                .thenReturn(Observable.error(new IOException()))
                 .thenReturn(Observable.just(recommendedPlayQueue));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));

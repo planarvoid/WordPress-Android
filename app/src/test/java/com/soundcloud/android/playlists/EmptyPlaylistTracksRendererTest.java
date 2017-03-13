@@ -4,7 +4,6 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,14 +36,14 @@ public class EmptyPlaylistTracksRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsEmptyViewWithWaitingStateByDefault() {
-        renderer.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
+        renderer.bindItemView(0, emptyView, Collections.emptyList());
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void bindsEmptyViewWithCustomState() {
         renderer.setEmptyViewStatus(EmptyView.Status.ERROR);
-        renderer.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
+        renderer.bindItemView(0, emptyView, Collections.emptyList());
         verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 }

@@ -1,11 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.tracks.TrackItem;
-
-import java.util.Date;
 
 @AutoValue
 public abstract class LikeWithTrack {

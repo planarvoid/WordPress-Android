@@ -90,10 +90,10 @@ class OfflineStatePublisher {
         for (OfflineState state : OfflineState.values()) {
             final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state)
                                                              ? Optional.of(tracks)
-                                                             : Optional.<Collection<Urn>>absent();
+                                                             : Optional.absent();
             final Optional<TrackCollections> collectionsForState = collectionsStates.containsKey(state)
                                                                    ? Optional.of(collectionsStates.get(state))
-                                                                   : Optional.<TrackCollections>absent();
+                                                                   : Optional.absent();
 
             if (tracksForState.isPresent() || collectionsForState.isPresent()) {
                 eventBus.publish(

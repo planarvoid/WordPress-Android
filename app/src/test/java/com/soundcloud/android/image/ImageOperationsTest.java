@@ -153,7 +153,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
         // 2nd load
         imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
-        inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
+        inOrder.verify(imageLoader).displayImage(isNull(), any(ImageViewAware.class),
                                                  any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
     }
@@ -188,7 +188,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
         // 2nd load
         imageOperations.displayWithPlaceholder(URN, ApiImageSize.T120, imageView);
-        inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
+        inOrder.verify(imageLoader).displayImage(isNull(), any(ImageViewAware.class),
                                                  any(DisplayImageOptions.class), any(ImageOperations.FallbackImageListener.class));
     }
 
@@ -479,7 +479,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(memoryCache.get(anyString())).thenReturn(cachedBitmap);
-        when(imageProcessor.blurBitmap(cachedBitmap, Optional.<Float>absent())).thenReturn(blurredBitmap);
+        when(imageProcessor.blurBitmap(cachedBitmap, Optional.absent())).thenReturn(blurredBitmap);
 
         imageOperations.blurredPlayerArtwork(resources(), imageResource,
                                              scheduler, scheduler).subscribe(subscriber);
@@ -494,7 +494,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
-        when(imageProcessor.blurBitmap(cachedBitmaop, Optional.<Float>absent())).thenReturn(blurredBitmap);
+        when(imageProcessor.blurBitmap(cachedBitmaop, Optional.absent())).thenReturn(blurredBitmap);
 
         imageOperations.blurredPlayerArtwork(resources(), imageResource,
                                              scheduler, scheduler).subscribe(subscriber);

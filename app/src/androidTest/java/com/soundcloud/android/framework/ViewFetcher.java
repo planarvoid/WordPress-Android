@@ -218,7 +218,7 @@ public class ViewFetcher {
                     throw new ViewNotFoundException(e);
                 }
             }
-            return Collections.<ViewElement>singletonList(new EmptyViewElement(selector));
+            return Collections.singletonList(new EmptyViewElement(selector));
         }
 
         private ViewElement waitForOne(String selector, Callable<List<ViewElement>> callable) {

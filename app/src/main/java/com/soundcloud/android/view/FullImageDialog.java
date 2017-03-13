@@ -62,7 +62,7 @@ public class FullImageDialog extends DialogFragment {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         setupWindow(dialog);
         setupLayout(dialog);
-        displayImage((Urn) getArguments().getParcelable(KEY_URN));
+        displayImage(getArguments().getParcelable(KEY_URN));
         return dialog;
     }
 

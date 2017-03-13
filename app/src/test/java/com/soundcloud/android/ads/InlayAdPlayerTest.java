@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;

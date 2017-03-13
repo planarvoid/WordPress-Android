@@ -9,7 +9,7 @@ import java.util.List;
 
 class ApiSearchSuggestions extends SearchSuggestions<ApiSearchSuggestion> {
 
-    private static final ApiSearchSuggestions EMPTY = new ApiSearchSuggestions(Collections.<ApiSearchSuggestion>emptyList(),
+    private static final ApiSearchSuggestions EMPTY = new ApiSearchSuggestions(Collections.emptyList(),
                                                                                Urn.NOT_SET);
 
     public static ApiSearchSuggestions empty() {

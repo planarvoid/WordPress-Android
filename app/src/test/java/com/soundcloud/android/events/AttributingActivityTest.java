@@ -2,7 +2,6 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +12,7 @@ public class AttributingActivityTest {
 
     @Test
     public void isActiveWhenModuleIsStream() {
-        final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.<Urn>absent());
+        final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.absent());
         final Module module = Module.create(Module.STREAM, 1);
 
         assertThat(attributingActivity.isActive(Optional.of(module))).isTrue();
@@ -21,7 +20,7 @@ public class AttributingActivityTest {
 
     @Test
     public void isNotActiveWhenModuleIsNotStream() {
-        final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.<Urn>absent());
+        final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.absent());
         final Module module = Module.create("word", 1);
 
         assertThat(attributingActivity.isActive(Optional.of(module))).isFalse();

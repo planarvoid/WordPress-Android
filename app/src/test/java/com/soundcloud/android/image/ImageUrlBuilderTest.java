@@ -43,7 +43,7 @@ public class ImageUrlBuilderTest {
 
     @Test
     public void shouldUseResolveEndpointIfArtworkNotAvailable() {
-        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.<String>absent());
+        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.absent());
         when(imageResource.getUrn()).thenReturn(trackUrn);
         when(apiUrlBuilder.from(ApiEndpoints.IMAGES, trackUrn, "t500x500")).thenReturn(apiUrlBuilder);
 
@@ -54,7 +54,7 @@ public class ImageUrlBuilderTest {
 
     @Test
     public void shouldNotUseResolveEndpointForUsersSinceTheyDontHaveFallbacks() {
-        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.<String>absent());
+        when(imageResource.getImageUrlTemplate()).thenReturn(Optional.absent());
         when(imageResource.getUrn()).thenReturn(userUrn);
 
         String imageUrl = builder.buildUrl(imageResource, ApiImageSize.T500);

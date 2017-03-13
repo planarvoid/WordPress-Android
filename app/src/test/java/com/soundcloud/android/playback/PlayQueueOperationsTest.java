@@ -19,7 +19,6 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -71,7 +70,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
+        when(playQueueStorage.store(any(PlayQueue.class))).thenReturn(Observable.empty());
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
                 "origin:page");
         when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN),
@@ -112,7 +111,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
         final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
 
-        when(playQueueStorage.load()).thenReturn(Observable.<PlayQueueItem>empty());
+        when(playQueueStorage.load()).thenReturn(Observable.empty());
         playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).isEmpty();
@@ -176,7 +175,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
-        when(playQueueStorage.clear()).thenReturn(Observable.<ChangeResult>empty());
+        when(playQueueStorage.clear()).thenReturn(Observable.empty());
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);
@@ -187,7 +186,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.<RecommendedTracksCollection>empty());
+                .thenReturn(Observable.empty());
         playQueueOperations.relatedTracks(Urn.forTrack(123), true).subscribe(observer);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
@@ -223,7 +222,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(),
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.emptyList(),
                                                                             "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();

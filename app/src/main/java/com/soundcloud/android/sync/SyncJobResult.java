@@ -54,7 +54,7 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
     }
 
     public static SyncJobResult success(String action, boolean wasChanged) {
-        return new SyncJobResult(action, wasChanged, null, Collections.<Urn>emptyList());
+        return new SyncJobResult(action, wasChanged, null, Collections.emptyList());
     }
 
     public static SyncJobResult success(String action, boolean wasChanged, Urn entity) {
@@ -66,7 +66,7 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
     }
 
     public static SyncJobResult failure(String action, Exception exception) {
-        return new SyncJobResult(action, false, exception, Collections.<Urn>emptyList());
+        return new SyncJobResult(action, false, exception, Collections.emptyList());
     }
 
     public String getAction() {

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,10 +24,10 @@ public class SearchModelCollectionTest {
     public void premiumContentShouldNotBePresent() {
         final SearchModelCollection<ApiTrack> searchResultTracks =
                 new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
-                                            Collections.<String, Link>emptyMap());
+                                            Collections.emptyMap());
         final SearchModelCollection<ApiPlaylist> searchResultPlaylists =
                 new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2),
-                                            Collections.<String, Link>emptyMap(), "queryUrn", null,
+                                            Collections.emptyMap(), "queryUrn", null,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
         final SearchModelCollection<ApiUser> searchResultUsers =
                 new SearchModelCollection<>(ModelFixtures.create(ApiUser.class, 1));
@@ -42,10 +41,10 @@ public class SearchModelCollectionTest {
     public void premiumContentShouldBePresent() {
         final SearchModelCollection<ApiTrack> searchResultPremiumTracks =
                 new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
-                                            Collections.<String, Link>emptyMap());
+                                            Collections.emptyMap());
         final SearchModelCollection<ApiTrack> searchResultTracks =
                 new SearchModelCollection<>(ModelFixtures.create(ApiTrack.class, 2),
-                                            Collections.<String, Link>emptyMap(), "queryUrn", searchResultPremiumTracks,
+                                            Collections.emptyMap(), "queryUrn", searchResultPremiumTracks,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
 
         assertThat(searchResultTracks.premiumContent().get()).isEqualTo(searchResultPremiumTracks);
@@ -55,7 +54,7 @@ public class SearchModelCollectionTest {
     public void shouldCalculateResultsCountFromTracksPlaylistsAndUsers() {
         final SearchModelCollection<ApiPlaylist> searchResultPlaylists =
                 new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2),
-                                            Collections.<String, Link>emptyMap(), "queryUrn", null,
+                                            Collections.emptyMap(), "queryUrn", null,
                                             TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
 
         assertThat(searchResultPlaylists.resultsCount()).isEqualTo(30);

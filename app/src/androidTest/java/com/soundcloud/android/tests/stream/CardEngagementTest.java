@@ -45,7 +45,7 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
         Resources resources = getInstrumentation().getContext().getResources();
         String body = readBodyOfFile(resources, "engagements-user-stream.json");
         stubFor(get(urlPathMatching("/stream"))
-                        .willReturn(aResponse().withStatus(200).withBody(body)));;
+                        .willReturn(aResponse().withStatus(200).withBody(body)));
     }
 
     @Override

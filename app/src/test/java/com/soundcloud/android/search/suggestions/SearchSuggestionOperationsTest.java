@@ -13,7 +13,6 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.RecordHolder;
@@ -42,7 +41,6 @@ import android.support.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
@@ -170,7 +168,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private Autocompletion setupAutocompletionRemoteSuggestions() {
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(Lists.newArrayList(autocompletion),
-                                                                                      Maps.<String, Link>newHashMap(),
+                                                                                      Maps.newHashMap(),
                                                                                       QUERY_URN.toString());
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
@@ -193,7 +191,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private ApiSearchSuggestion getSuggestion(String query, ApiTrack track, ApiUser user) {
         return ApiSearchSuggestion.create(
                 query,
-                Collections.<Map<String, Integer>>emptyList(),
+                Collections.emptyList(),
                 track,
                 user);
     }

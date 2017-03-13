@@ -12,7 +12,6 @@ import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackRecord;
-import com.soundcloud.android.users.UserRecord;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +38,7 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertUserInserted((UserRecord) profile.getUser());
+        databaseAssertions().assertUserInserted(profile.getUser());
     }
 
     @Test

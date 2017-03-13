@@ -157,7 +157,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     private ChartBucket initChartsWithTracks(Chart chart) {
         final ChartBucket chartBucket = ChartBucket.create(
                 Collections.singletonList(chart),
-                Collections.<Chart>emptyList()
+                Collections.emptyList()
         );
         initChartsWithTracks(chartBucket);
         return chartBucket;
@@ -180,7 +180,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     private Chart createChart(long localId, ChartType trending, ChartCategory none, ChartBucketType chartBucketType) {
-        final TrackArtwork trackArtwork = TrackArtwork.create(Urn.forTrack(localId), Optional.<String>absent());
+        final TrackArtwork trackArtwork = TrackArtwork.create(Urn.forTrack(localId), Optional.absent());
 
         return Chart.create(localId,
                             trending,

@@ -2,8 +2,6 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.view.ParallaxImageView;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;

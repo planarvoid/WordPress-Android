@@ -32,10 +32,10 @@ public class StationMenuPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(stationsOperations.stationWithTracks(any(Urn.class), eq(Optional.<Urn>absent())))
+        when(stationsOperations.stationWithTracks(any(Urn.class), eq(Optional.absent())))
                 .thenReturn(Observable.just(STATION));
         when(stationsOperations.toggleStationLike(any(Urn.class), anyBoolean()))
-                .thenReturn(Observable.<ChangeResult>empty());
+                .thenReturn(Observable.empty());
 
         presenter = new StationMenuPresenter(context(), stationMenuRenderFactory, stationsOperations);
 

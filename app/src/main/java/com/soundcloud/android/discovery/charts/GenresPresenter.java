@@ -7,7 +7,6 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import rx.functions.Func1;
 
 import android.os.Bundle;

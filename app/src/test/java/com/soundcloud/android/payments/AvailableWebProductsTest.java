@@ -35,7 +35,7 @@ public class AvailableWebProductsTest {
 
     @Test
     public void mapsEmptyProducts() throws Exception {
-        final AvailableWebProducts products = new AvailableWebProducts(Lists.<WebProduct>emptyList());
+        final AvailableWebProducts products = new AvailableWebProducts(Lists.emptyList());
 
         assertThat(products.midTier().isPresent()).isFalse();
         assertThat(products.highTier().isPresent()).isFalse();

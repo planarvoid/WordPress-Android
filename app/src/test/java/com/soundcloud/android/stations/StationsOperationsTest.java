@@ -84,7 +84,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getStationShouldFallbackToNetwork() {
-        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
+        when(stationsStorage.station(station)).thenReturn(Observable.empty());
 
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
@@ -145,7 +145,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPersistApiStation() {
-        when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
+        when(stationsStorage.station(station)).thenReturn(Observable.empty());
 
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);

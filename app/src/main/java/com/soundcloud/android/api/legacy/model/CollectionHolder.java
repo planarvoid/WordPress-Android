@@ -29,7 +29,7 @@ public class CollectionHolder<T> implements Iterable<T> {
     public String next_href;
 
     public CollectionHolder() {
-        this(Collections.<T>emptyList());
+        this(Collections.emptyList());
     }
 
     public CollectionHolder(List<T> collection) {

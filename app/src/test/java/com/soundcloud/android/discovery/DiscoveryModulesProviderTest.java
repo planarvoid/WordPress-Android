@@ -307,10 +307,10 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadAllItemsWithError() {
-        when(chartsOperations.featuredCharts()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
-        when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
-        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
-        when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(chartsOperations.featuredCharts()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
 
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);

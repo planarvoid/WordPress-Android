@@ -1,6 +1,5 @@
 package com.soundcloud.android.api.model;
 
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;

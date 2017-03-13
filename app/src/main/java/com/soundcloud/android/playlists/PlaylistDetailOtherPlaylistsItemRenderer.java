@@ -30,7 +30,7 @@ public class PlaylistDetailOtherPlaylistsItemRenderer implements CellRenderer<Pl
     public View createItemView(ViewGroup viewGroup) {
         final View view = LayoutInflater.from(viewGroup.getContext())
                                         .inflate(R.layout.other_playlists_by_user_bucket, viewGroup, false);
-        initCarousel(view, ButterKnife.<RecyclerView>findById(view, R.id.other_playlists));
+        initCarousel(view, ButterKnife.findById(view, R.id.other_playlists));
         return view;
     }
 

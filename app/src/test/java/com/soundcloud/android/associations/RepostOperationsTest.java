@@ -96,7 +96,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotPushRepostToApiIfStorageCallFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
+        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
 
         PublishSubject<ApiResponse> subject = PublishSubject.create();
         when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
@@ -110,7 +110,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotPublishRepostedEventIfInsertFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
+        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -123,7 +123,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldRollbackStoredRepostAfterFailedApiCall() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
+                .thenReturn(Observable.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -134,7 +134,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldPublishUnpostedEventAfterRepostFailedApiCall() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
+                .thenReturn(Observable.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -179,7 +179,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishRepostedEventIfRepostRemovalFailed() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.<Integer>error(mock(PropellerWriteException.class)));
+        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
@@ -192,7 +192,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldRollbackRepostRemovalAfterFailedRemoteRemoval() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
+                .thenReturn(Observable.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
@@ -203,7 +203,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldPublishRepostedEventAfterFailedRemoteRemoval() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.<ApiResponse>error(new IOException()));
+                .thenReturn(Observable.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 

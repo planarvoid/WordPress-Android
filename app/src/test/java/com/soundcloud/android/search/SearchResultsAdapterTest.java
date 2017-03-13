@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -139,7 +138,7 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     private SearchPremiumItem dummySearchPremiumItem() {
         final TrackItem trackItem = ModelFixtures.trackItem(Urn.forTrack(123L));
         return new SearchPremiumItem(Collections.singletonList(trackItem),
-                                     Optional.<Link>absent(),
+                                     Optional.absent(),
                                      SEARCH_RESULTS_COUNT);
     }
 

@@ -73,7 +73,7 @@ public class PlayQueueStorage {
 
     private List<Object> entityItemContentValues(PlayableQueueItem playableQueueItem) {
         final PlaybackContext playbackContext = playableQueueItem.getPlaybackContext();
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 playableQueueItem.getUrn().getNumericId(),
                 playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST,
                 playableQueueItem.getReposter().isUser() ? playableQueueItem.getReposter().getNumericId() :
@@ -164,13 +164,13 @@ public class PlayQueueStorage {
     private Optional<String> getPlaybackContextQuery(CursorReader reader) {
         return reader.isNotNull(Tables.PlayQueue.CONTEXT_QUERY) ?
                Optional.of(reader.getString(Tables.PlayQueue.CONTEXT_QUERY)) :
-               Optional.<String>absent();
+               Optional.absent();
     }
 
     private Optional<Urn> getPlaybackContextUrn(CursorReader reader) {
         return reader.isNotNull(Tables.PlayQueue.CONTEXT_URN) ?
                Optional.of(new Urn(reader.getString(Tables.PlayQueue.CONTEXT_URN))) :
-               Optional.<Urn>absent();
+               Optional.absent();
     }
 
     public Observable<Map<Urn, String>> contextTitles() {

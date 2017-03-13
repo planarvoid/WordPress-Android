@@ -74,7 +74,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<ApiEntityHolder> apiPlaylists = Arrays.<ApiEntityHolder>asList(apiPlaylist, apiTrack, apiUser);
+        final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));
@@ -116,7 +116,7 @@ public class WriteMixedRecordsCommandTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
-        final List<ApiEntityHolder> apiPlaylists = Arrays.<ApiEntityHolder>asList(apiPlaylist, apiTrack, apiUser);
+        final List<ApiEntityHolder> apiPlaylists = Arrays.asList(apiPlaylist, apiTrack, apiUser);
 
         when(storePlaylistsCommand.call(Arrays.asList(apiPlaylist))).thenReturn(new InsertResult(1));
         when(storeTracksCommand.call(Arrays.asList(apiTrack))).thenReturn(new InsertResult(1));

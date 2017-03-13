@@ -50,7 +50,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
     private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1, Optional.of(QUERY_URN));
     private static final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2, Optional.of(QUERY_URN));
-    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3, Optional.<Urn>absent());
+    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3, Optional.absent());
     private static final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
     private static final ApiChart<ApiTrack> API_CHART = ChartsFixtures.createApiChart(GENRE, CHART_TYPE);
     private static final ApiChart<ApiTrack> API_CHART_NO_QUERY_URN = ChartsFixtures.createApiChart(GENRE, CHART_TYPE, null);

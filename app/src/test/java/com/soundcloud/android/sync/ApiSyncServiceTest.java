@@ -45,7 +45,7 @@ public class ApiSyncServiceTest extends AndroidUnitTest {
 
     @Test
     public void doNotStoreSyncableSyncedWhenAbsent() {
-        final TestSyncJob syncJob = new TestSyncJob(Optional.<Syncable>absent(), true);
+        final TestSyncJob syncJob = new TestSyncJob(Optional.absent(), true);
         apiSyncService.onSyncJobCompleted(syncJob);
 
         verify(syncStateStorage, never()).synced(Syncable.CHARTS);

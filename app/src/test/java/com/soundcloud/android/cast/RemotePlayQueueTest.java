@@ -3,13 +3,10 @@ package com.soundcloud.android.cast;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.testsupport.TestUrns;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class RemotePlayQueueTest {

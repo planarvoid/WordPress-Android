@@ -12,7 +12,6 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.FetchAndStoreStationsCommand;
-import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchUsersCommand;
@@ -45,8 +44,8 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.<PlayHistoryRecord>emptyList());
-        when(stationsOperations.station(any(Urn.class))).thenReturn(Observable.<StationRecord>empty());
+        when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.emptyList());
+        when(stationsOperations.station(any(Urn.class))).thenReturn(Observable.empty());
 
         syncer = new RecentlyPlayedSyncer(recentlyPlayedStorage, fetchRecentlyPlayedCommand, pushRecentlyPlayedCommand,
                                           fetchPlaylistsCommand, storePlaylistsCommand, fetchUsersCommand,
@@ -72,7 +71,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     public void shouldPreloadNewPlaylists() throws Exception {
         Urn playlistUrn = Urn.forPlaylist(123L);
         List<ApiPlaylist> playlists = singletonList(ModelFixtures.create(ApiPlaylist.class));
-        when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.<PlayHistoryRecord>emptyList());
+        when(recentlyPlayedStorage.loadSyncedRecentlyPlayed()).thenReturn(Collections.emptyList());
         when(fetchRecentlyPlayedCommand.call()).thenReturn(singletonList(contextFor(playlistUrn)));
         when(fetchPlaylistsCommand.call()).thenReturn(playlists);
 

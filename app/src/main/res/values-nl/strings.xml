@@ -109,7 +109,6 @@
   <string name="authentication_captcha_message">Er is een probleem opgetreden bij het inloggen.</string>
   <string name="authentication_email_taken_message">Dit e-mailadres is al verbonden aan een account. Voer een ander e-mailadres in of probeer in te loggen.</string>
   <string name="authentication_email_invalid_message">Het e-mailadres dat je hebt ingevoerd lijkt niet geschikt voor het ontvangen van e-mails. Heb je het correct geschreven?</string>
-  <string name="authentication_email_other_error_message">We konden geen account aanmaken met de details die je hebt ingevoerd.</string>
   <string name="authentication_error_unable_to_use_google_play_services">Inloggen bij Google+ kan niet worden gebruikt zonder Google Play Services. Probeer een andere inlogmethode.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Log in of registreer je om deze link te openen.</string>
@@ -124,8 +123,6 @@
   <string name="list_empty_notification_secondary">Volg je favoriete artiesten, bands en podcasts om hun laatste tracks te horen.</string>
   <string name="list_empty_stream_action">VIND MENSEN OM TE VOLGEN</string>
   <string name="list_empty_stream_message">Volg je favoriete artiesten, bands en podcasts om hun laatste tracks te horen.</string>
-  <string name="custom_empty_playlist_title">Lege %1$s</string>
-  <string name="custom_empty_playlist_description">Deze %1$s heeft nog geen tracks.</string>
   <string name="list_empty_you_likes_message">Like je favoriete tracks om ze opnieuw te beluisteren.</string>
   <string name="list_empty_you_following_message">Volg je favoriete artiesten, bands en curatoren om hun laatste tracks te horen.</string>
   <string name="list_empty_you_followers_message">Je hebt nog geen volgers.</string>
@@ -146,7 +143,6 @@
   <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van de URL.</string>
   <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van jouw afbeelding.</string>
   <string name="error_server_problems_message">Er is een probleem opgetreden bij het verwerken van je aanvraag. Probeer het zo nog eens.</string>
-  <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het zo nog eens.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Oeps! We konden je niet aanmelden.\nProbeer de app te updaten of meld je aan op SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Geef SoundCloud toestemming je externe opslag te lezen om je afbeelding op te roepen.</string>
@@ -267,7 +263,6 @@
     <item quantity="other">%d reacties op deze track</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">We konden je afspeellijst niet laden</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Shuffle afspeellijst</string>
   <string name="add_to_playlist">Toevoegen aan afspeellijst</string>
@@ -977,7 +972,4 @@
   <string name="suggested_creators_relation_liked">Je hebt onlangs een track van deze artiest geliket</string>
   <string name="suggested_creators_relation_reposted">Je hebt onlangs een track van deze artiest gerepost</string>
   <string name="suggested_creators_relation_curated">Je hebt deze artiest onlangs toegevoegd in een afspeellijst</string>
-  <string name="suggested_creators_relation_followed"></string>
-  <string name="suggested_creators_relation_uploaded"></string>
-  <string name="suggested_creators_relation_unknown"></string>
 </resources>

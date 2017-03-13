@@ -109,7 +109,6 @@
   <string name="authentication_captcha_message">Estamos tendo problemas para fazer seu login.</string>
   <string name="authentication_email_taken_message">Esse endereço de email já está associado com uma conta. Insira um endereço de email diferente ou tente fazer login.</string>
   <string name="authentication_email_invalid_message">O domínio que você inseriu parece que não pode receber emails. Você digitou corretamente?</string>
-  <string name="authentication_email_other_error_message">Lamentamos, não conseguimos criar uma conta para você com os detalhes que você forneceu.</string>
   <string name="authentication_error_unable_to_use_google_play_services">O login no Google+ não pode ser usado sem o Google Play Services. Tente outro método de fazer login.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Faça login ou inscreva-se para abrir este link.</string>
@@ -124,8 +123,6 @@
   <string name="list_empty_notification_secondary">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_stream_action">ENCONTRE PESSOAS PARA SEGUIR</string>
   <string name="list_empty_stream_message">Siga seus artistas, bandas e podcasts favoritos para ouvir as faixas mais recentes.</string>
-  <string name="custom_empty_playlist_title">%1$s vazio</string>
-  <string name="custom_empty_playlist_description">Este %1$s ainda não tem faixas.</string>
   <string name="list_empty_you_likes_message">Curta seus sons favoritos para ouvi-los novamente.</string>
   <string name="list_empty_you_following_message">Siga seus artistas, bandas e curadores favoritos para ouvir as faixas mais recentes.</string>
   <string name="list_empty_you_followers_message">Você ainda não tem seguidores.</string>
@@ -146,7 +143,6 @@
   <string name="error_loading_url">Houve um problema ao carregar esse URL.</string>
   <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
   <string name="error_server_problems_message">Houve um problema ao processar sua solicitação. Tente novamente mais tarde.</string>
-  <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente mais tarde.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Ups! Não conseguimos acessar sua conta.\nTente atualizar o aplicativo ou fazer login na SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Conceda acesso à SoundCloud para ler seu armazenamento externo para acessar sua imagem.</string>
@@ -267,7 +263,6 @@
     <item quantity="other">%d comentários nesta faixa</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">Não foi possível carregar esta playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist aleatória</string>
   <string name="add_to_playlist">Adicionar à playlist</string>
@@ -979,7 +974,4 @@ vão aparecer aqui.</string>
   <string name="suggested_creators_relation_liked">Você curtiu recentemente a faixa</string>
   <string name="suggested_creators_relation_reposted">Você republicou recentemente a faixa</string>
   <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa deles a uma playlist</string>
-  <string name="suggested_creators_relation_followed"></string>
-  <string name="suggested_creators_relation_uploaded"></string>
-  <string name="suggested_creators_relation_unknown"></string>
 </resources>

@@ -7,8 +7,8 @@
         android:baselineAligned="false">
 
     <FrameLayout android:layout_gravity="left"
-                 android:layout_width="@dimen/notification_image_large_width"
-                 android:layout_height="@dimen/notification_image_large_height"
+                 android:layout_width="@dimen/notification_image_large_size"
+                 android:layout_height="@dimen/notification_image_large_size"
                  android:id="@+id/icon_holder">
         <ImageView
                 android:id="@+id/status_icon"

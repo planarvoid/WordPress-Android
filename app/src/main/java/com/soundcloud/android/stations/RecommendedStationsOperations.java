@@ -33,7 +33,7 @@ public class RecommendedStationsOperations {
             .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
             .filter(IS_NOT_EMPTY_LIST)
             .map(toDiscoveryItem())
-            .switchIfEmpty(SyncOperations.<DiscoveryItem>emptyResult(result));
+            .switchIfEmpty(SyncOperations.emptyResult(result));
 
     private Func1<List<StationRecord>, DiscoveryItem> toDiscoveryItem() {
         return stationRecords -> RecommendedStationsBucketItem.create(transformToStationViewModels(

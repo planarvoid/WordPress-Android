@@ -2,7 +2,6 @@ package com.soundcloud.android.testsupport;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;

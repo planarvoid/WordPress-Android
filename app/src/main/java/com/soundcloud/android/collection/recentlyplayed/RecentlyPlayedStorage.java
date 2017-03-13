@@ -13,7 +13,6 @@ import com.soundcloud.android.storage.Tables.Users;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;

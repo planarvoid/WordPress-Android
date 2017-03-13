@@ -109,7 +109,6 @@
   <string name="authentication_captcha_message">Bei der Anmeldung sind Probleme aufgetreten.</string>
   <string name="authentication_email_taken_message">Diese E-Mail-Adresse wird bereits für ein Konto verwendet. Melde dich mit diesem an oder gib eine andere E-Mail-Adresse ein.</string>
   <string name="authentication_email_invalid_message">Wir können keine E-Mails an die von dir eingegebene Domain senden. Bitte überprüfe ihre Schreibweise.</string>
-  <string name="authentication_email_other_error_message">Leider ist eine Kontoerstellung mit den von dir angegebenen Daten nicht möglich.</string>
   <string name="authentication_error_unable_to_use_google_play_services">Die Anmeldung über Google+ ist nur mit Google Play-Diensten möglich. Bitte wähle eine andere Anmeldungsoption.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Melde dich an oder registriere dich, um diesen Link zu öffnen.</string>
@@ -124,8 +123,6 @@
   <string name="list_empty_notification_secondary">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
   <string name="list_empty_stream_action">LEUTE ZUM FOLGEN FINDEN</string>
   <string name="list_empty_stream_message">Folge deinen bevorzugten Künstlern, Bands und Podcasts und hör dir ihre neuesten Tracks an.</string>
-  <string name="custom_empty_playlist_title">%1$s ist leer</string>
-  <string name="custom_empty_playlist_description">%1$s enthält noch keine Tracks.</string>
   <string name="list_empty_you_likes_message">Markiere deine bevorzugten Tracks mit „Gefällt mir“, damit du sie erneut anhören kannst.</string>
   <string name="list_empty_you_following_message">Folge deinen bevorzugten Künstlern, Bands und Kuratoren, um ihre neuesten Tracks zu hören.</string>
   <string name="list_empty_you_followers_message">Du hast noch keine Follower.</string>
@@ -146,7 +143,6 @@
   <string name="error_loading_url">Beim Laden dieser URL ist ein Problem aufgetreten.</string>
   <string name="crop_image_error">Beim Zuschneiden deines Bildes ist ein Fehler aufgetreten.</string>
   <string name="error_server_problems_message">Beim Bearbeiten deiner Anfrage ist ein Problem aufgetreten. Versuch es später noch einmal.</string>
-  <string name="connection_list_error">Es ist ein Problem mit der Verbindung aufgetreten. Versuch es später noch einmal.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Ups! Eine Registrierung war leider nicht möglich.\nAktualisiere die App oder registriere dich auf SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Berechtige SoundCloud zum Zugriff auf deinen externen Speicher, um auf das Bild zugreifen zu können.</string>
@@ -267,7 +263,6 @@
     <item quantity="other">%d Kommentare zu diesem Track</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">Playlist konnte nicht geladen werden</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Playlist-Shuffle</string>
   <string name="add_to_playlist">Zur Playlist hinzufügen</string>
@@ -977,7 +972,4 @@
   <string name="suggested_creators_relation_liked">Du hast kürzlich einen Track dieses Künstlers mit „Gefällt mir“ markiert. </string>
   <string name="suggested_creators_relation_reposted">Du hast kürzlich einen Track dieses Künstlers repostet.</string>
   <string name="suggested_creators_relation_curated">Du hast kürzlich einen Track dieses Künstlers zu deiner Playlist hinzugefügt.</string>
-  <string name="suggested_creators_relation_followed"></string>
-  <string name="suggested_creators_relation_uploaded"></string>
-  <string name="suggested_creators_relation_unknown"></string>
 </resources>

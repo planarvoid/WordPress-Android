@@ -68,7 +68,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              Navigator navigator,
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory) {
-        this(Optional.<String>absent(),
+        this(Optional.absent(),
              imageOperations,
              numberFormatter,
              trackItemMenuPresenter,

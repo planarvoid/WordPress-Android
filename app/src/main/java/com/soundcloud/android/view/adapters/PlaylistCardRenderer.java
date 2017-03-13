@@ -70,7 +70,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistCardView(playlists.get(position), itemView, Optional.<Module>absent());
+        bindPlaylistCardView(playlists.get(position), itemView, Optional.absent());
     }
 
     public void bindPlaylistCardView(PlaylistItem playlist, View itemView, Optional<Module> module) {

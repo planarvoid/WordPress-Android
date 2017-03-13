@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.utils.Log;
 import rx.Subscriber;
-import rx.functions.Action0;
 import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;

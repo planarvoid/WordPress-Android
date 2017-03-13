@@ -245,7 +245,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private void openSearchScreen(final Intent intent) {
         if (intent.hasExtra(Navigator.EXTRA_SEARCH_INTENT)) {
-            navigator.openSearch(activity, intent.<Intent>getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT));
+            navigator.openSearch(activity, intent.getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT));
         } else {
             navigator.openSearch(activity);
         }

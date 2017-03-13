@@ -57,7 +57,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         storage.clearExpiredPlayQueue(stationUrn).subscribe();
 
         databaseAssertions().assertStationPlayQueuePositionNotSet(stationUrn);
-        databaseAssertions().assertStationPlayQueueContains(stationUrn, Lists.<StationTrack>emptyList());
+        databaseAssertions().assertStationPlayQueueContains(stationUrn, Lists.emptyList());
     }
 
     @Test

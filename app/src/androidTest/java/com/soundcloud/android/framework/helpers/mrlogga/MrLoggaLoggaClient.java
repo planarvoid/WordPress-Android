@@ -64,7 +64,7 @@ class MrLoggaLoggaClient {
     }
 
     MrLoggaResponse stopLogging() {
-        return sendPostLoggingRequest(ACTION_FINISH_LOGGING, Optional.<Long>absent());
+        return sendPostLoggingRequest(ACTION_FINISH_LOGGING, Optional.absent());
     }
 
     ValidationResponse validate(String scenarioId) throws ApiMapperException, IOException {

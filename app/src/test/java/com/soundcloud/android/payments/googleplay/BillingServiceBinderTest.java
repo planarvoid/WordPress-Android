@@ -53,7 +53,7 @@ public class BillingServiceBinderTest extends AndroidUnitTest {
     @Test
     public void canBindIsFalseIfServiceIntentIsNotResolvable() {
         when(packageManager.queryIntentServices(any(Intent.class),
-                                                anyInt())).thenReturn(Collections.<ResolveInfo>emptyList());
+                                                anyInt())).thenReturn(Collections.emptyList());
 
         assertThat(binder.canConnect()).isFalse();
     }

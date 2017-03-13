@@ -56,7 +56,7 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldHideFriendPictures() {
         StreamItem invitesItem = StreamItem.forFacebookListenerInvites();
-        when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.<String>emptyList()));
+        when(facebookApi.friendPictureUrls()).thenReturn(Observable.just(Collections.emptyList()));
         renderer.bindItemView(0, itemView, Collections.singletonList(invitesItem));
 
         assertThat(getFriendsLayoutVisibility()).isEqualTo(View.GONE);

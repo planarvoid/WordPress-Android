@@ -437,7 +437,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          playlistSessionSource,
                                          1);
         playQueueManager.replace(playQueueManager.getNextPlayQueueItem(),
-                                 Arrays.<PlayQueueItem>asList(nonPersistedItem));
+                                 Arrays.asList(nonPersistedItem));
         playQueueManager.setPosition(2, true);
 
         playQueueManager.saveCurrentPosition();
@@ -459,7 +459,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                                          playlistSessionSource,
                                          0);
         playQueueManager.replace(playQueueManager.getNextPlayQueueItem(),
-                                 Arrays.<PlayQueueItem>asList(nonPersistedItem));
+                                 Arrays.asList(nonPersistedItem));
         playQueueManager.setPosition(1, true);
 
         playQueueManager.saveCurrentPosition();
@@ -479,7 +479,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackQueueItem replacementItem1 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
         final TrackQueueItem replacementItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
         playQueueManager.replace(playQueueManager.getCurrentPlayQueueItem(),
-                                 Arrays.<PlayQueueItem>asList(replacementItem1, replacementItem2));
+                                 Arrays.asList(replacementItem1, replacementItem2));
 
         assertThat(playQueueManager.getCurrentPlayQueueItem()).isSameAs(replacementItem1);
         assertThat(playQueueManager.getNextPlayQueueItem()).isSameAs(replacementItem2);
@@ -494,7 +494,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final TrackQueueItem replacementItem1 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
         final TrackQueueItem replacementItem2 = TestPlayQueueItem.createTrack(Urn.forTrack(4L));
         playQueueManager.replace(playQueueManager.getCurrentPlayQueueItem(),
-                                 Arrays.<PlayQueueItem>asList(replacementItem1, replacementItem2));
+                                 Arrays.asList(replacementItem1, replacementItem2));
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
     }
@@ -739,7 +739,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSetCurrentPositionIfPQIsNotLoaded() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.empty());
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
         playQueueManager.loadPlayQueueAsync();
@@ -1366,7 +1366,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void whenInRepeatAllReturnsFalseWhenQueueIsEmpty() {
-        final PlayQueue playQueue = createPlayQueue(Collections.<Urn>emptyList());
+        final PlayQueue playQueue = createPlayQueue(Collections.emptyList());
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
         playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
 

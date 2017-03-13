@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
 import com.soundcloud.android.view.EmptyView;
@@ -67,8 +66,8 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         when(recyclerView.getAdapter()).thenReturn(adapter);
         when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
         when(adapter.getItems()).thenReturn(discoveryItems);
-        when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.<DiscoveryItem>empty());
-        when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.<List<TrackItem>>empty());
+        when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.empty());
+        when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.empty());
         when(recommendationBucketRendererFactory.create(eq(false),
                                                         any(ViewAllRecommendedTracksPresenter.class))).thenReturn(
                 recommendationBucketRenderer);

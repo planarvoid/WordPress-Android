@@ -40,7 +40,7 @@ public class TimelineSyncStorageTest extends AndroidUnitTest {
     public void setNextPageUrlRemovesStoredLinkIfEmpty() {
         storage.storeNextPageUrl(Optional.of(new Link("next")));
 
-        storage.storeNextPageUrl(Optional.<Link>absent());
+        storage.storeNextPageUrl(Optional.absent());
 
         assertThat(storage.hasNextPageUrl()).isFalse();
     }

@@ -10,11 +10,11 @@ import java.util.List;
 public abstract class OfflineContentUpdates {
     public static Builder builder() {
         return new AutoValue_OfflineContentUpdates.Builder()
-                .unavailableTracks(Collections.<Urn>emptyList())
-                .tracksToDownload(Collections.<DownloadRequest>emptyList())
-                .newTracksToDownload(Collections.<Urn>emptyList())
-                .tracksToRestore(Collections.<Urn>emptyList())
-                .tracksToRemove(Collections.<Urn>emptyList())
+                .unavailableTracks(Collections.emptyList())
+                .tracksToDownload(Collections.emptyList())
+                .newTracksToDownload(Collections.emptyList())
+                .tracksToRestore(Collections.emptyList())
+                .tracksToRemove(Collections.emptyList())
                 .userExpectedOfflineContent(ExpectedOfflineContent.EMPTY);
     }
 

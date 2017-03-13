@@ -302,7 +302,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void disablesLikesSyncingWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>just(null));
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(null));
         createAndBindView();
 
         presenter.onMakeAvailableOffline(false);
@@ -346,7 +346,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void opensUpgradeFlowOnUpsellClick() {
         presenter.onViewCreated(fragment, layoutView, null);
-        presenter.bindItemView(0, layoutView, Collections.<TrackLikesItem>emptyList());
+        presenter.bindItemView(0, layoutView, Collections.emptyList());
 
         presenter.onUpsell();
 
@@ -380,7 +380,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.<Void>empty());
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.empty());
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
         createAndBindView();
 
@@ -397,7 +397,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     private void createAndBindView() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, layoutView, null);
-        presenter.bindItemView(0, layoutView, Collections.<TrackLikesItem>emptyList());
+        presenter.bindItemView(0, layoutView, Collections.emptyList());
     }
 
     private void enableOfflineLikes() {

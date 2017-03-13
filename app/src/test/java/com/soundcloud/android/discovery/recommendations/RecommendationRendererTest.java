@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void shouldBindCreatorNameToView() {
         renderer.bindItemView(trackPosition, itemView, recommendations);
 
-        Assertions.assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_artist))
+        Assertions.assertThat(ButterKnife.findById(itemView, R.id.recommendation_artist))
                   .containsText(recommendedTrack.creatorName());
     }
 
@@ -72,7 +71,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void shouldBindTitleToView() {
         renderer.bindItemView(trackPosition, itemView, recommendations);
 
-        Assertions.assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_title))
+        Assertions.assertThat(ButterKnife.findById(itemView, R.id.recommendation_title))
                   .containsText(recommendedTrack.title());
     }
 

@@ -47,8 +47,6 @@ import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.List;
-
 public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     public static final String SCREEN = "some tag";
@@ -83,7 +81,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.empty());
         when(playlistOperations.trackUrnsForPlayback(any(Urn.class)))
-                .thenReturn(Observable.<List<Urn>>just(Lists.newArrayList(Urn.NOT_SET)));
+                .thenReturn(Observable.just(Lists.newArrayList(Urn.NOT_SET)));
 
 
         when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.empty());

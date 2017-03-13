@@ -22,7 +22,7 @@ class AvailableWebProducts implements Parcelable {
     }
 
     static AvailableWebProducts empty() {
-        return new AvailableWebProducts(Collections.<WebProduct>emptyList());
+        return new AvailableWebProducts(Collections.emptyList());
     }
 
     AvailableWebProducts(List<WebProduct> products) {

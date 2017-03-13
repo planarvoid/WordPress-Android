@@ -204,7 +204,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationWithPlanReturnsEmptyWhenNoPlanChangeToHighTierAfterRetries() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class),
-                                        eq(Configuration.class))).thenReturn(Observable.<Configuration>empty());
+                                        eq(Configuration.class))).thenReturn(Observable.empty());
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(10, TimeUnit.SECONDS);

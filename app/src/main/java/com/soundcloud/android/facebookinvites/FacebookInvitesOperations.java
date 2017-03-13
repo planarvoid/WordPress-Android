@@ -59,7 +59,7 @@ public class FacebookInvitesOperations {
                 .filter(IS_TRUE)
                 .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
                                                  .flatMap(toCreatorInvitesItem)
-                                                 .onErrorResumeNext(Observable.<StreamItem>empty()));
+                                                 .onErrorResumeNext(Observable.empty()));
     }
 
     public Observable<StreamItem> listenerInvites() {

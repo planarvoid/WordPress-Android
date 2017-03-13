@@ -151,7 +151,7 @@ public abstract class Playlist {
 
         public Builder tags(List<String> value) {
             return tags(Optional.of(value));
-        };
+        }
 
         public abstract Builder tags(Optional<List<String>> value);
 

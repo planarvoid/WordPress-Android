@@ -156,7 +156,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
         final List<Urn> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
-        final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(
+        final Optional<Link> nextHref = Optional.fromNullable(bundle.getParcelable(
                 EXTRA_PREMIUM_CONTENT_NEXT_HREF));
         final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);
         return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList,

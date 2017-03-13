@@ -20,7 +20,6 @@ import android.support.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class TrackOfflineStateProviderTest extends AndroidUnitTest {
@@ -40,7 +39,7 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
         trackOfflineStateProvider = new TrackOfflineStateProvider(trackDownloadsStorage,
                                                                   eventBus,
                                                                   Schedulers.immediate());
-        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.<Map<Urn, OfflineState>>just(getInitialMap()));
+        when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.just(getInitialMap()));
     }
 
     @Test

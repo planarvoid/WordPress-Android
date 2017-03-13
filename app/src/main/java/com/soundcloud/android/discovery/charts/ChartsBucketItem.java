@@ -44,7 +44,7 @@ public abstract class ChartsBucketItem extends DiscoveryItem {
         final List<Chart> featuredGenres = chartBucket.getFeaturedGenres();
         return featuredGenres.size() > index
                ? Optional.of(featuredGenres.get(index)).transform(TO_PRESENTATION_MODEL)
-               : Optional.<ChartListItem>absent();
+               : Optional.absent();
     }
 
     private static Predicate<Chart> isType(final ChartType chartType) {

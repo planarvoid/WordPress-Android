@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Looper;
 
 import com.krux.androidsdk.aggregator.KruxEventAggregator;
-import com.krux.androidsdk.aggregator.KruxSegments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
@@ -29,7 +28,7 @@ class KruxSegmentProvider {
             KruxEventAggregator.initialize(context.getApplicationContext(),
                                            context.getString(R.string.krux_configuration_id),
                                            segments -> latestSegments = Strings.isBlank(segments)
-                                                   ? Optional.<String>absent()
+                                                   ? Optional.absent()
                                                    : Optional.of(segments),
                                            DEBUG_MODE);
         } catch (Exception e) {

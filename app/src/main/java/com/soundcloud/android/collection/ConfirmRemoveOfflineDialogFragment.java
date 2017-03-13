@@ -15,7 +15,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -73,7 +72,7 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
 
     private void disableAutomaticCollectionSync() {
         offlineContentOperations.disableOfflineCollection();
-        Optional<Urn> playlist = isForPlaylist() ? Optional.of(playlistUrn()) : Optional.<Urn>absent();
+        Optional<Urn> playlist = isForPlaylist() ? Optional.of(playlistUrn()) : Optional.absent();
         eventBus.publish(EventQueue.TRACKING,
                          OfflineInteractionEvent.fromDisableCollectionSync(screenProvider.getLastScreenTag(),
                                                                            playlist));

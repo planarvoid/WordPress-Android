@@ -61,7 +61,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoLocalEvents() throws Exception {
-        when(storage.getPendingEvents()).thenReturn(Collections.<TrackingRecord>emptyList());
+        when(storage.getPendingEvents()).thenReturn(Collections.emptyList());
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verifyZeroInteractions(apiFactory);
     }
@@ -89,7 +89,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
     public void shouldNotTryToDeleteEventsIfNoEventsPushed() {
         final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEvents()).thenReturn(events);
-        when(api.pushToRemote(events)).thenReturn(Collections.<TrackingRecord>emptyList());
+        when(api.pushToRemote(events)).thenReturn(Collections.emptyList());
 
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verify(storage, never()).deleteEvents(any(List.class));

@@ -9,7 +9,6 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;

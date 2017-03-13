@@ -18,7 +18,7 @@ public abstract class ApiStationsCollections {
 
     private static List<ApiStationMetadata> getCollection(ModelCollection<ApiStationMetadata> stationsCollection) {
         return stationsCollection == null ?
-               Collections.<ApiStationMetadata>emptyList() :
+               Collections.emptyList() :
                stationsCollection.getCollection();
     }
 

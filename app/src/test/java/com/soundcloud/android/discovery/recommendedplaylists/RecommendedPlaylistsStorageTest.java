@@ -1,7 +1,6 @@
 package com.soundcloud.android.discovery.recommendedplaylists;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
@@ -11,7 +10,6 @@ import org.junit.Test;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import java.util.Collections;
 import java.util.List;
 
 public class RecommendedPlaylistsStorageTest extends StorageIntegrationTest {

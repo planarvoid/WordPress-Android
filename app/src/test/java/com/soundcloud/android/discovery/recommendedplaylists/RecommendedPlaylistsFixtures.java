@@ -12,12 +12,12 @@ import java.util.List;
 public class RecommendedPlaylistsFixtures {
 
     static RecommendedPlaylistsEntity createEntity(List<Urn> urns) {
-        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent(),
+        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.absent(),
                                                  Optional.of(Urn.forDayZero(1234)), urns);
     }
 
     static RecommendedPlaylistsEntity createEmptyEntity() {
-        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.<String>absent(), Optional.of(Urn.forDayZero(1234)));
+        return RecommendedPlaylistsEntity.create(123L, "chill", "Chill", Optional.absent(), Optional.of(Urn.forDayZero(1234)));
     }
 
     static ApiRecommendedPlaylistBucket createApiBucket() {

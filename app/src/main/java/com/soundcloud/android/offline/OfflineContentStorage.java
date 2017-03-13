@@ -10,7 +10,6 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;

@@ -58,8 +58,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     private static final PlaybackContext BUCKET_ONLY_PLAYBACK_CONTEXT = PlaybackContext.builder()
                                                                                        .bucket(LISTENING_HISTORY)
-                                                                                       .query(Optional.<String>absent())
-                                                                                       .urn(Optional.<Urn>absent())
+                                                                                       .query(Optional.absent())
+                                                                                       .urn(Optional.absent())
                                                                                        .build();
 
     private PlayQueueStorage storage;
@@ -95,8 +95,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .played(false)
                 .build();
 
-        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1,
-                                                                                        playableQueueItem2));
+        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.asList(playableQueueItem1,
+                                                                         playableQueueItem2));
 
         storage.store(playQueue).subscribe(observer);
 
@@ -140,8 +140,8 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .withPlaybackContext(PLAYBACK_CONTEXT)
                 .persist(false)
                 .build();
-        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1,
-                                                                                        playableQueueItem2));
+        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.asList(playableQueueItem1,
+                                                                         playableQueueItem2));
 
         storage.store(playQueue).subscribe(new TestObserver<TxnResult>());
 
@@ -380,7 +380,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     private PlaybackContext createPlaybackContext(Urn contextUrn, PlaybackContext.Bucket bucket) {
         return PlaybackContext.builder()
                               .urn(Optional.of(contextUrn))
-                              .query(Optional.<String>absent())
+                              .query(Optional.absent())
                               .bucket(bucket)
                               .build();
     }

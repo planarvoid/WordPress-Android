@@ -11,7 +11,6 @@ import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 

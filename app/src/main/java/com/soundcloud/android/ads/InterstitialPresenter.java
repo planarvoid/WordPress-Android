@@ -10,7 +10,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;

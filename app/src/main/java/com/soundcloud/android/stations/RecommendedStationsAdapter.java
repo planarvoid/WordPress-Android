@@ -14,7 +14,6 @@ import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -94,7 +93,7 @@ class RecommendedStationsAdapter extends PagerAdapter {
 
         imageOperations.displayInAdapterView(station,
                                              ApiImageSize.T500,
-                                             ButterKnife.<ImageView>findById(view, R.id.artwork));
+                                             ButterKnife.findById(view, R.id.artwork));
         view.setTag(station);
         view.setOnClickListener(onRecommendedStationClickListener);
     }

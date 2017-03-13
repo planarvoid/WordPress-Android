@@ -22,7 +22,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -85,7 +84,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         setCircularShape(actionButton, R.dimen.rec_upload_button_dimension);
         setCircularShape(uploadProgress, R.dimen.rec_upload_progress_dimension);
-        updateRecording((Recording) uploadMonitorFragment.getArguments().getParcelable(RECORDING_KEY));
+        updateRecording(uploadMonitorFragment.getArguments().getParcelable(RECORDING_KEY));
     }
 
     @Override

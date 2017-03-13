@@ -12,7 +12,6 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -40,7 +39,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     @Test
     public void insertsSeedTracksWithKeysAndDependencies() {
         final ModelCollection<ApiRecommendation> apiRecommendations =
-                new ModelCollection(createApiRecommendationsWithLikedReason(2), Collections.<String, Link>emptyMap());
+                new ModelCollection(createApiRecommendationsWithLikedReason(2), Collections.emptyMap());
 
         command.call(apiRecommendations);
 
@@ -52,7 +51,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     @Test
     public void clearsRecommendationsBeforeInserting() {
         final ModelCollection<ApiRecommendation> apiRecommendations =
-                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.<String, Link>emptyMap());
+                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.emptyMap());
 
         command.call(apiRecommendations);
 
@@ -67,7 +66,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     @Test
     public void insertsSeedAndRecommendedTracks() {
         final ModelCollection<ApiRecommendation> apiRecommendations =
-                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.<String, Link>emptyMap());
+                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.emptyMap());
 
         command.call(apiRecommendations);
 
@@ -87,7 +86,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
         recommendationList.addAll(createApiRecommendationsWithUnknownReason(2));
 
         final ModelCollection<ApiRecommendation> apiRecommendations =
-                new ModelCollection(recommendationList, Collections.<String, Link>emptyMap());
+                new ModelCollection(recommendationList, Collections.emptyMap());
 
         command.call(apiRecommendations);
 
@@ -100,7 +99,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
     @Test
     public void clearRecommendationsData() {
         final ModelCollection<ApiRecommendation> apiRecommendations =
-                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.<String, Link>emptyMap());
+                new ModelCollection(createApiRecommendationsWithLikedReason(1), Collections.emptyMap());
 
         command.call(apiRecommendations);
         assertThat(select(from(TABLE))).counts(1);

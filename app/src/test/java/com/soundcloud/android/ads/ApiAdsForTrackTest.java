@@ -25,7 +25,7 @@ public class ApiAdsForTrackTest extends AndroidUnitTest {
 
     @Test
     public void getInterstitialReturnsAbsentOnEmptyAdsForTrack() throws Exception {
-        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.<ApiAdWrapper>asList());
+        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.asList());
         assertThat(adsForTrack.interstitialAd()).isEqualTo(Optional.<ApiInterstitial>absent());
     }
 
@@ -43,7 +43,7 @@ public class ApiAdsForTrackTest extends AndroidUnitTest {
 
     @Test
     public void getAudioReturnsAbsentOnEmptyAdsForTrack() throws Exception {
-        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.<ApiAdWrapper>asList());
+        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.asList());
         assertThat(adsForTrack.audioAd()).isEqualTo(Optional.<ApiAudioAd>absent());
     }
 
@@ -61,7 +61,7 @@ public class ApiAdsForTrackTest extends AndroidUnitTest {
 
     @Test
     public void getVideoReturnsAbsentOnEmptyAdsForTrack() throws Exception {
-        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.<ApiAdWrapper>asList());
+        final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.asList());
         assertThat(adsForTrack.videoAd()).isEqualTo(Optional.<ApiVideoAd>absent());
     }
 

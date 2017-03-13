@@ -3,10 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.ParallaxImageView;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
 
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

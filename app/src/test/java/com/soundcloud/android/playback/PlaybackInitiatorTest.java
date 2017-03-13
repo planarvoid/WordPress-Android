@@ -454,8 +454,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void includeExplicitContentFromPreviousQueue() {
-        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
-        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234l));
+        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
+        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234L));
         final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
         when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
 
@@ -479,8 +479,8 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void addExplicitContentToEndWhenStartPositionisHigherThanNumberOfTracks() {
-        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123l));
-        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234l));
+        final PlayQueueItem explicitTrack1 = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
+        final PlayQueueItem explicitTrack2 = TestPlayQueueItem.createTrack(Urn.forTrack(1234L));
         final List<PlayQueueItem> currentPlayQueue = Arrays.asList(explicitTrack1, explicitTrack2);
         when(playQueueManager.getUpcomingExplicitQueueItems()).thenReturn(currentPlayQueue);
 

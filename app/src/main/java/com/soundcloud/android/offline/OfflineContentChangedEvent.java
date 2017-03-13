@@ -53,7 +53,7 @@ public final class OfflineContentChangedEvent {
 
     public static OfflineContentChangedEvent removed(boolean isLikedTrackCollection) {
         return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE,
-                                              Collections.<Urn>emptyList(),
+                                              Collections.emptyList(),
                                               isLikedTrackCollection);
     }
 

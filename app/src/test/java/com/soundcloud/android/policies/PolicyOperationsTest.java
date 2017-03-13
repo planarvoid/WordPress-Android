@@ -165,7 +165,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Test
     public void refreshedTrackPoliciesForwardsErrorsFromPolicyFetch() throws Exception {
         final RuntimeException exception = new RuntimeException();
-        when(policyStorage.tracksForPolicyUpdate()).thenReturn(Observable.<List<Urn>>error(exception));
+        when(policyStorage.tracksForPolicyUpdate()).thenReturn(Observable.error(exception));
 
         operations.refreshedTrackPolicies().subscribe(observer);
 

@@ -87,7 +87,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
 
     @Test
     public void requestedUnnecessaryUpdateIsNoOp() {
-        when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.<Configuration>empty());
+        when(configurationOperations.fetchIfNecessary()).thenReturn(Observable.empty());
 
         manager.requestConfigurationUpdate();
 

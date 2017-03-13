@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Assignment {
 
-    private static final Assignment EMPTY = new Assignment(Collections.<Layer>emptyList());
+    private static final Assignment EMPTY = new Assignment(Collections.emptyList());
     private final List<Layer> layers;
 
     @JsonCreator

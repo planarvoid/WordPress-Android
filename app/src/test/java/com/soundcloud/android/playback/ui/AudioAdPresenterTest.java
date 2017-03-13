@@ -46,7 +46,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
-        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.empty());
 
         presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, artworkLoader);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
@@ -153,7 +153,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void companionlessTextIsVisibleIfNoCompanion() {
-        when(artworkLoader.loadAdBackgroundImage(TRACK_URN)).thenReturn(Observable.<Bitmap>empty());
+        when(artworkLoader.loadAdBackgroundImage(TRACK_URN)).thenReturn(Observable.empty());
 
         bindCompanionlessAd();
 

@@ -31,7 +31,7 @@ public class ModelCollection<T> implements Iterable<T> {
     protected Urn queryUrn;
 
     public ModelCollection() {
-        this(Collections.<T>emptyList());
+        this(Collections.emptyList());
     }
 
     public ModelCollection(List<T> collection) {
@@ -42,7 +42,7 @@ public class ModelCollection<T> implements Iterable<T> {
     public ModelCollection(List<T> collection,
                            Map<String, Link> links) {
         this.collection = collection;
-        this.links = links == null ? Collections.<String, Link>emptyMap() : links;
+        this.links = links == null ? Collections.emptyMap() : links;
     }
 
     public ModelCollection(List<T> collection, @Nullable String nextHref) {

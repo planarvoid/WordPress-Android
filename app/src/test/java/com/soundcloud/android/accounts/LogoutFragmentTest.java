@@ -33,7 +33,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        when(accountOperations.logout()).thenReturn(Observable.<Void>empty());
+        when(accountOperations.logout()).thenReturn(Observable.empty());
         LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
         fragmentController = TestFragmentController.of(fragment);
     }
@@ -69,7 +69,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
 
     @Test
     public void shouldFinishCurrentActivityWhenAccountRemoveFails() {
-        when(accountOperations.logout()).thenReturn(Observable.<Void>error(new Exception()));
+        when(accountOperations.logout()).thenReturn(Observable.error(new Exception()));
         FragmentActivity activity = fragmentController.getActivity();
         fragmentController.create();
 

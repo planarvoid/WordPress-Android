@@ -62,8 +62,8 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(serviceInitiator.stop()).thenReturn(stopServiceAction);
         when(serviceInitiator.startSubscriber()).thenReturn(startServiceSubscriber);
         when(settingsStorage.getWifiOnlyOfflineSyncStateChange()).thenReturn(wifiOnlyToggleSetting);
-        when(offlineContentOperations.enableOfflineCollection()).thenReturn(Observable.<Void>just(null));
-        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.<Void>just(null));
+        when(offlineContentOperations.enableOfflineCollection()).thenReturn(Observable.just(null));
+        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(Observable.just(null));
         controller = new OfflineContentController(eventBus,
                                                   settingsStorage,
                                                   serviceInitiator,
@@ -132,7 +132,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.unsubscribe();
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(Collections.<Urn>emptyList(), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(Collections.emptyList(), true));
         onCollectionChanged.onNext(SIGNAL);
 
         startServiceSubscriber.assertNoValues();
@@ -311,7 +311,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void dontAddAgainOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
         // Note : If not, this would trigger an inifinite loop.
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
-        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(Observable.<Void>empty());
+        when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(Observable.empty());
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         controller.subscribe();

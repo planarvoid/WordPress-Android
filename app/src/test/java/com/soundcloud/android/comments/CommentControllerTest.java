@@ -69,7 +69,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Test
     public void showsFailureFeedbackAfterPost() {
         when(commentOperations.addComment(track.getUrn(), COMMENT, POSITION))
-                .thenReturn(Observable.<PublicApiComment>error(new IOException()));
+                .thenReturn(Observable.error(new IOException()));
 
         controller.addComment(AddCommentArguments.create(track.title(), track.getUrn(), track.creatorName(), track.creatorUrn(), POSITION, COMMENT, ORIGIN));
 

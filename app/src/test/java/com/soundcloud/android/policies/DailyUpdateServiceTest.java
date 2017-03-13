@@ -53,7 +53,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
 
     @Test
     public void doesNotSendEventsWhenPolicyUpdateFailed() {
-        when(policyOperations.updateTrackPolicies()).thenReturn(Collections.<Urn>emptyList());
+        when(policyOperations.updateTrackPolicies()).thenReturn(Collections.emptyList());
 
         dailyUpdateService.onHandleIntent(startIntent());
 

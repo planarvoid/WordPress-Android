@@ -457,7 +457,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                 final Optional<LikesStatusEvent.LikeStatus> likeStatus = event.likeStatusForUrn(viewModel.metadata().getUrn());
                 if (likeStatus.isPresent()) {
                     updateMetadata(viewModel.metadata().updatedWithLikeStatus(likeStatus.get()));
-                    ;
                     bindItemView();
                 }
             }

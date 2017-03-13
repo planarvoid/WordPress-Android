@@ -56,7 +56,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.<StationRecord>empty());
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.empty());
         when(stationsStorage.getStationsCollection(RECENT)).thenReturn(just(RECENT_1, RECENT_2));
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject);
         when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(true);
@@ -95,7 +95,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
         when(stationsStorage.getStationsCollection(RECENT))
-                .thenReturn(Observable.<StationRecord>empty());
+                .thenReturn(Observable.empty());
 
         operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);

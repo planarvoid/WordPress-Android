@@ -52,7 +52,7 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         when(imageOperations.blurredPlayerArtwork(resources(),
                                                   imageResource,
                                                   immediateScheduler,
-                                                  immediateScheduler)).thenReturn(Observable.<Bitmap>empty());
+                                                  immediateScheduler)).thenReturn(Observable.empty());
 
         playerArtworkLoader.loadArtwork(imageResource,
                                         wrappedImageView,

@@ -40,7 +40,7 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
     UpdatePoliciesCommand(ApiClient apiClient,
                           StorePoliciesCommand storePolicies,
                           TryWithBackOff.Factory tryWithBackOffFactory) {
-        this(apiClient, storePolicies, tryWithBackOffFactory.<ModelCollection<ApiPolicyInfo>>withDefaults());
+        this(apiClient, storePolicies, tryWithBackOffFactory.withDefaults());
     }
 
     @VisibleForTesting

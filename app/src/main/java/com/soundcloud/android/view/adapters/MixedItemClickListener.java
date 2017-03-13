@@ -61,7 +61,7 @@ public class MixedItemClickListener {
                     .playTracks(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view.getContext(), clickedItem, Optional.<Module>absent());
+            handleNonTrackItemClick(view.getContext(), clickedItem, Optional.absent());
         }
     }
 
@@ -71,7 +71,7 @@ public class MixedItemClickListener {
                     position,
                     clickedItem,
                     new PlaySessionSource(screen),
-                    Optional.<Module>absent());
+                    Optional.absent());
     }
 
     public void onPostClick(Observable<List<PlayableItem>> playables,
@@ -125,7 +125,7 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
-            handleNonTrackItemClick(context, playable, Optional.<Module>absent());
+            handleNonTrackItemClick(context, playable, Optional.absent());
         }
     }
 
@@ -133,7 +133,7 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(Collections.singletonList(playable), 0);
         } else {
-            handleNonTrackItemClick(context, playable, Optional.<Module>absent());
+            handleNonTrackItemClick(context, playable, Optional.absent());
         }
     }
 

@@ -73,7 +73,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(adapterFactory.create(recommendationBucketRenderer)).thenReturn(adapter);
         when(adapter.getItems()).thenReturn(discoveryItems);
-        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
+        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.empty());
         when(recommendationBucketRendererFactory
                      .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
         updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));

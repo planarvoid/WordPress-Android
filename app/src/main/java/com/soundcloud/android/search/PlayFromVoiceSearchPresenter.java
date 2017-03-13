@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -123,7 +122,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
     private void playTrackFromQuery(final String query) {
         searchOperations
-                .searchResult(query, Optional.<Urn>absent(), SearchType.TRACKS)
+                .searchResult(query, Optional.absent(), SearchType.TRACKS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(toPlayWithRecommendations)
                 .subscribe(new PlayFromQuerySubscriber(eventBus, playbackToastHelper, query));
@@ -131,7 +130,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
     private void playPlaylist(final String query) {
         searchOperations
-                .searchResult(query, Optional.<Urn>absent(), SearchType.PLAYLISTS)
+                .searchResult(query, Optional.absent(), SearchType.PLAYLISTS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(toRandomSearchResultItem)
                 .subscribe(new PlayFromPlaylistSubscriber(query));

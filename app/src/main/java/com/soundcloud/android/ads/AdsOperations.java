@@ -110,7 +110,7 @@ public class AdsOperations {
         return throwable -> {
             Log.i(ADS_TAG, "Failed to retrieve ads via " + endpoint, throwable);
             if (throwable instanceof ApiRequestException && ((ApiRequestException) throwable).reason() == NOT_FOUND) {
-                final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+                final ApiAdsForTrack emptyAdsResponse = new ApiAdsForTrack(Collections.emptyList());
                 logRequestSuccess(emptyAdsResponse, requestData, endpoint, playerVisible, inForeground);
             } else {
                 eventBus.publish(EventQueue.TRACKING, AdRequestEvent.adRequestFailure(requestData.getRequestId(),

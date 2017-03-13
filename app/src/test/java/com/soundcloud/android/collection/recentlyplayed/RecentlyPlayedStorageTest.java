@@ -40,7 +40,7 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
         storage.loadContexts(1).subscribe(subscriber);
 
-        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.<OfflineState>absent(), 0L)));
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 0L)));
 
     }
 

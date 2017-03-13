@@ -9,10 +9,10 @@ import java.util.Collections;
 
 class ExpectedOfflineContent {
     public static final ExpectedOfflineContent EMPTY = new ExpectedOfflineContent(
-            Collections.<DownloadRequest>emptyList(),
-            Collections.<Urn>emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
             false,
-            Collections.<Urn>emptyList());
+            Collections.emptyList());
 
     public final Collection<Urn> emptyPlaylists;
     public final Collection<DownloadRequest> requests;

@@ -27,7 +27,7 @@ public class OfflineTrackAssetDownloaderTest extends AndroidUnitTest {
     @Mock WaveformStorage waveformStorage;
 
     private final Urn track = Urn.forTrack(123L);
-    private final ImageResource imageResource = SimpleImageResource.create(track, Optional.<String>absent());
+    private final ImageResource imageResource = SimpleImageResource.create(track, Optional.absent());
     private final String waveformUrl = "http://wav";
 
     private OfflineTrackAssetDownloader loader;

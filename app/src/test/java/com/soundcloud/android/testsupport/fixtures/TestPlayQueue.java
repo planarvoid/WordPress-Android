@@ -21,7 +21,7 @@ public class TestPlayQueue {
     public static PlayQueue fromTracks(PlaySessionSource playSessionSource, PlayableWithReposter... tracks) {
         return PlayQueue.fromPlayableList(Arrays.asList(tracks),
                                           playSessionSource,
-                                          Collections.<Urn, Boolean>emptyMap());
+                                          Collections.emptyMap());
     }
 
     public static PlayQueue fromUrns(PlaySessionSource playSessionSource,
@@ -35,10 +35,10 @@ public class TestPlayQueue {
     }
 
     public static PlayQueue fromUrns(List trackUrns, PlaySessionSource playSessionSource) {
-        return PlayQueue.fromTrackUrnList(trackUrns, playSessionSource, Collections.<Urn, Boolean>emptyMap());
+        return PlayQueue.fromTrackUrnList(trackUrns, playSessionSource, Collections.emptyMap());
     }
 
     public static PlayQueue fromTracks(List<PlayableWithReposter> tracks, PlaySessionSource playSessionSource) {
-        return PlayQueue.fromPlayableList(tracks, playSessionSource, Collections.<Urn, Boolean>emptyMap());
+        return PlayQueue.fromPlayableList(tracks, playSessionSource, Collections.emptyMap());
     }
 }

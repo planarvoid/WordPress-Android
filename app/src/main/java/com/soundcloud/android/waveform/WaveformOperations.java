@@ -15,7 +15,6 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.concurrent.Callable;
 
 public class WaveformOperations {
 

@@ -133,7 +133,7 @@ public class SyncOperationsTest {
     @Test
     public void syncFailsOnException() {
         final Exception exception = new Exception("SYNC FAILED");
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.<SyncJobResult>error(exception));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(exception));
 
         syncOperations.sync(SYNCABLE).subscribe(subscriber);
 
@@ -142,7 +142,7 @@ public class SyncOperationsTest {
 
     @Test
     public void failSafeSyncDoesReturnResultOnException() {
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.<SyncJobResult>error(new Exception("SYNC FAILED")));
+        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(new Exception("SYNC FAILED")));
 
         syncOperations.failSafeSync(SYNCABLE).subscribe(subscriber);
 

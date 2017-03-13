@@ -97,7 +97,7 @@ public class ConfigurationHelper {
     }
 
     private static void enableFeature(Context context, final String name) {
-        final Feature feature = new Feature(name, true, Collections.<String>emptyList());
+        final Feature feature = new Feature(name, true, Collections.emptyList());
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
         Log.d(TAG, "updating feature manually: " + feature.name);

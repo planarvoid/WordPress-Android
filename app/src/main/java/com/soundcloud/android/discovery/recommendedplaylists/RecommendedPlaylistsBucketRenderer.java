@@ -40,7 +40,7 @@ public class RecommendedPlaylistsBucketRenderer implements CellRenderer<Recommen
     public View createItemView(ViewGroup viewGroup) {
         final View view = LayoutInflater.from(viewGroup.getContext())
                                         .inflate(R.layout.recommendation_bucket, viewGroup, false);
-        initCarousel(view, ButterKnife.<RecyclerView>findById(view, R.id.recommendations_carousel));
+        initCarousel(view, ButterKnife.findById(view, R.id.recommendations_carousel));
         return view;
     }
 

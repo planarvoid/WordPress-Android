@@ -42,7 +42,7 @@ public class FabricAnalyticsProviderTest {
                                                fabricReporter);
         when(databaseReporting.countTracks()).thenReturn(3);
         when(fabricProvider.getExecutor()).thenReturn(command -> command.run());
-        when(databaseReporting.pullDatabaseMigrationEvent()).thenReturn(Optional.<DatabaseMigrationEvent>absent());
+        when(databaseReporting.pullDatabaseMigrationEvent()).thenReturn(Optional.absent());
     }
 
     @Test

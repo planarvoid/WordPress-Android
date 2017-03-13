@@ -35,8 +35,8 @@ public class LikedStationsSyncProviderTest {
 
     @Test
     public void shouldNotBeOutOfSyncWithNoLocalChanges() {
-        when(stationsStorage.getLocalLikedStations()).thenReturn(Lists.<Urn>emptyList());
-        when(stationsStorage.getLocalUnlikedStations()).thenReturn(Lists.<Urn>emptyList());
+        when(stationsStorage.getLocalLikedStations()).thenReturn(Lists.emptyList());
+        when(stationsStorage.getLocalUnlikedStations()).thenReturn(Lists.emptyList());
 
         assertThat(syncProvider.isOutOfSync()).isFalse();
     }
@@ -44,14 +44,14 @@ public class LikedStationsSyncProviderTest {
     @Test
     public void shouldBeOutOfSyncWithLocalLikedChanges() {
         when(stationsStorage.getLocalLikedStations()).thenReturn(Lists.newArrayList(Urn.forTrackStation(1L)));
-        when(stationsStorage.getLocalUnlikedStations()).thenReturn(Lists.<Urn>emptyList());
+        when(stationsStorage.getLocalUnlikedStations()).thenReturn(Lists.emptyList());
 
         assertThat(syncProvider.isOutOfSync()).isTrue();
     }
 
     @Test
     public void shouldBeOutOfSyncWithLocalUnlikedChanges() {
-        when(stationsStorage.getLocalLikedStations()).thenReturn(Lists.<Urn>emptyList());
+        when(stationsStorage.getLocalLikedStations()).thenReturn(Lists.emptyList());
         when(stationsStorage.getLocalUnlikedStations()).thenReturn(Lists.newArrayList(Urn.forTrackStation(1L)));
 
         assertThat(syncProvider.isOutOfSync()).isTrue();

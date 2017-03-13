@@ -91,7 +91,7 @@ public class WriteRecentStationsCollectionsCommandIntegrationTest extends Storag
     @Test
     public void shouldDeleteLocalContentAbsentInRemoteContent() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.<Urn>emptyList()
+                Collections.emptyList()
         );
 
         final ApiStationMetadata localStation = testFixtures().insertStation().getMetadata();
@@ -106,7 +106,7 @@ public class WriteRecentStationsCollectionsCommandIntegrationTest extends Storag
     @Test
     public void shouldIgnoreLocalContentCreatedAfterTheSyncingStarted() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.<Urn>emptyList()
+                Collections.emptyList()
         );
 
 

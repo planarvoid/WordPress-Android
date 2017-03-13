@@ -8,11 +8,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
@@ -85,7 +82,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     public void trackSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(QUERY,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.TRACKS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
@@ -98,10 +95,10 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         searchResult = SearchResult.fromSearchableItems(new ArrayList(),
-                                                        Optional.<Link>absent(),
-                                                        Optional.<Urn>absent());
+                                                        Optional.absent(),
+                                                        Optional.absent());
         when(searchOperations.searchResult(QUERY,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
@@ -114,10 +111,10 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
         final TrackItem apiTrack = ModelFixtures.trackItem();
-        searchResult = SearchResult.fromSearchableItems(Collections.singletonList(apiTrack), Optional.<Link>absent(),
-                                                        Optional.<Urn>absent());
+        searchResult = SearchResult.fromSearchableItems(Collections.singletonList(apiTrack), Optional.absent(),
+                                                        Optional.absent());
         when(searchOperations.searchResult(QUERY,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
@@ -132,7 +129,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     public void genreSearchErrorFallsBackToSearchActivity() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.PLAYLISTS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
@@ -146,7 +143,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     public void genreSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         Observable<SearchResult> searchObservable = Observable.error(new Throwable("search problem"));
         when(searchOperations.searchResult(GENRE,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.PLAYLISTS)).thenReturn(searchObservable);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));
 
@@ -163,11 +160,11 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         List<PlaylistItem> playlistResults = Arrays.asList(ModelFixtures.playlistItem(), playlistItem);
         Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromSearchableItems(
                 playlistResults,
-                Optional.<Link>absent(),
-                Optional.<Urn>absent()));
+                Optional.absent(),
+                Optional.absent()));
 
         when(searchOperations.searchResult(GENRE,
-                                           Optional.<Urn>absent(),
+                                           Optional.absent(),
                                            SearchType.PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);
         when(activity.getIntent()).thenReturn(getPlayFromSearchWithGenreIntent(GENRE));

@@ -127,7 +127,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotSetUpdatedOnFailedRefresh() {
         when(apiClientRx.mappedResponse(getRequest(), eq(NotificationPreferences.class)))
-                .thenReturn(Observable.<NotificationPreferences>error(new Exception()));
+                .thenReturn(Observable.error(new Exception()));
 
         operations.refresh().subscribe(new TestSubscriber<>());
 

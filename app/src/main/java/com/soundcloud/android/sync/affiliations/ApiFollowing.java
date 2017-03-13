@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.functions.Function;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 

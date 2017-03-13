@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 

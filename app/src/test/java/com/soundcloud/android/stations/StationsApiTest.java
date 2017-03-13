@@ -46,7 +46,7 @@ public class StationsApiTest extends AndroidUnitTest {
     @Test
     public void shouldReturnAnApiStation() {
         final TestSubscriber<ApiStation> subscriber = new TestSubscriber<>();
-        when(stationsExperiment.getVariantName()).thenReturn(Optional.<String>absent());
+        when(stationsExperiment.getVariantName()).thenReturn(Optional.absent());
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
                                                                                ApiEndpoints.STATION.path(stationUrn.toString()))),
                                         eq(ApiStation.class)))

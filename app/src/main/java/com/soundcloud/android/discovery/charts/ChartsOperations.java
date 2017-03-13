@@ -49,7 +49,7 @@ public class ChartsOperations {
             return chartsStorage.featuredCharts()
                                 .filter(HAS_EXPECTED_CONTENT)
                                 .subscribeOn(scheduler)
-                                .switchIfEmpty(SyncOperations.<ChartBucket>emptyResult(result))
+                                .switchIfEmpty(SyncOperations.emptyResult(result))
                                 .map(ChartsBucketItem::from);
         }
     };

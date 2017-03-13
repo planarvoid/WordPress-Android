@@ -128,7 +128,6 @@ task headsup(type: Exec) {
 task uploadTrackingScenario() << {
   def path = "$rootDir/app/src/androidTest/res/com/soundcloud/android/framework/helpers/mrlogga/"
   def dir = new File(path).list().toList()
-  def server = "http://ci.mobile.s-cloud.net:4567/upload_scenario"
 
   for (spec in dir) {
     println "Uploading ${spec}..."

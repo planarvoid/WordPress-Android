@@ -434,7 +434,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void replaceVideoAdReplacesVideoAdWithNothingIfNoOtherAdTypesExist() {
-        final ApiAdsForTrack emptyAds = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
+        final ApiAdsForTrack emptyAds = new ApiAdsForTrack(Collections.emptyList());
         final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(emptyAds, videoItem);

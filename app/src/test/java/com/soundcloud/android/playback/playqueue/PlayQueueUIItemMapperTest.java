@@ -39,21 +39,21 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
     private static final PlaybackContext PLAYLIST_CONTEXT = PlaybackContext.builder()
                                                                            .bucket(PlaybackContext.Bucket.PLAYLIST)
                                                                            .urn(Optional.of(PLAYLIST_URN))
-                                                                           .query(Optional.<String>absent())
+                                                                           .query(Optional.absent())
                                                                            .build();
 
     private static final Urn PROFILE_URN = Urn.forUser(999L);
     private static final PlaybackContext PROFILE_CONTEXT = PlaybackContext.builder()
                                                                           .bucket(PlaybackContext.Bucket.PROFILE)
                                                                           .urn(Optional.of(PROFILE_URN))
-                                                                          .query(Optional.<String>absent())
+                                                                          .query(Optional.absent())
                                                                           .build();
 
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final PlaybackContext STATION_CONTEXT = PlaybackContext.builder()
                                                                            .bucket(PlaybackContext.Bucket.TRACK_STATION)
                                                                            .urn(Optional.of(STATION_URN))
-                                                                           .query(Optional.<String>absent())
+                                                                           .query(Optional.absent())
                                                                            .build();
 
     @Mock PlayQueueManager playQueueManager;

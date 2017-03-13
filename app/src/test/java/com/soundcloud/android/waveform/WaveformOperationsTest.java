@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.propeller.ChangeResult;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +45,8 @@ public class WaveformOperationsTest extends AndroidUnitTest {
                 context(), waveformFetchCommand, waveFormStorage, waveformParser,
                 clearTableCommand, Schedulers.immediate());
 
-        when(waveFormStorage.load(trackUrn)).thenReturn(Observable.<WaveformData>empty());
-        when(waveFormStorage.store(trackUrn, waveformData)).thenReturn(Observable.<ChangeResult>empty());
+        when(waveFormStorage.load(trackUrn)).thenReturn(Observable.empty());
+        when(waveFormStorage.store(trackUrn, waveformData)).thenReturn(Observable.empty());
     }
 
     @Test
@@ -61,7 +60,7 @@ public class WaveformOperationsTest extends AndroidUnitTest {
     @Test
     public void emitsDefaultWaveformFromWaveformFetcherOnError() throws IOException, JSONException {
         when(waveformFetchCommand.toObservable(waveformUrl))
-                .thenReturn(Observable.<WaveformData>error(new IOException("WaveformError")));
+                .thenReturn(Observable.error(new IOException("WaveformError")));
         when(waveformParser.parse(any(InputStream.class))).thenReturn(waveformData);
 
         waveformOperations.waveformDataFor(trackUrn, waveformUrl).subscribe(observer);
@@ -71,7 +70,7 @@ public class WaveformOperationsTest extends AndroidUnitTest {
     @Test
     public void emitsDefaultWaveformOnNullWaveformUrl() throws IOException, JSONException {
         when(waveformFetchCommand.toObservable(null))
-                .thenReturn(Observable.<WaveformData>error(new IllegalArgumentException("null waveform")));
+                .thenReturn(Observable.error(new IllegalArgumentException("null waveform")));
         when(waveformParser.parse(any(InputStream.class))).thenReturn(waveformData);
 
         waveformOperations.waveformDataFor(trackUrn, null).subscribe(observer);

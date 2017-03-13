@@ -109,7 +109,6 @@
   <string name="authentication_captcha_message">We’re having some trouble signing you in.</string>
   <string name="authentication_email_taken_message">That email address is already associated with an account. Enter a different email address or try signing in.</string>
   <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-  <string name="authentication_email_other_error_message">Sorry we couldn’t create an account for you with the details you provided.</string>
   <string name="authentication_error_unable_to_use_google_play_services">Google+ sign in cannot be used without Google Play Services. Please try another sign in method.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Please sign in or sign up to open this link.</string>
@@ -124,8 +123,6 @@
   <string name="list_empty_notification_secondary">Follow your favourite artists, bands and podcasts to hear their latest tracks.</string>
   <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
   <string name="list_empty_stream_message">Follow your favourite artists, bands and podcasts to hear their latest tracks.</string>
-  <string name="custom_empty_playlist_title">Empty %1$s</string>
-  <string name="custom_empty_playlist_description">This %1$s has no tracks yet.</string>
   <string name="list_empty_you_likes_message">Like your favourite sounds to hear them again.</string>
   <string name="list_empty_you_following_message">Follow your favourite artists, bands and curators to hear their latest tracks.</string>
   <string name="list_empty_you_followers_message">You don’t have any followers yet.</string>
@@ -146,7 +143,6 @@
   <string name="error_loading_url">There was a problem loading that URL.</string>
   <string name="crop_image_error">There was an error cropping your image.</string>
   <string name="error_server_problems_message">There was a problem processing your request. Please try again soon.</string>
-  <string name="connection_list_error">There seems to be a connection problem. Please try again soon.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Oops! We couldn’t sign you up\nTry updating the app or sign up at SoundCloud.com.</string>
   <string name="crop_external_permission_rationale">Please grant SoundCloud access to read your external storage to access your image.</string>
@@ -269,7 +265,6 @@
     <item quantity="other">%d comments on this track</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="playlist_load_error">Could not load this playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Shuffle playlist</string>
   <string name="add_to_playlist">Add to playlist</string>
@@ -979,7 +974,4 @@
   <string name="suggested_creators_relation_liked">You recently liked their track</string>
   <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
   <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
-  <string name="suggested_creators_relation_followed"></string>
-  <string name="suggested_creators_relation_uploaded"></string>
-  <string name="suggested_creators_relation_unknown"></string>
 </resources>

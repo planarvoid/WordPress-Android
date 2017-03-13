@@ -4,7 +4,6 @@ import static com.soundcloud.android.profile.UserSoundsItem.getPositionInModule;
 import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -43,7 +42,7 @@ class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
             trackItemRenderer.bindTrackView(trackItem.get(),
                                             itemView,
                                             position,
-                                            Optional.<TrackSourceInfo>absent(),
+                                            Optional.absent(),
                                             Optional.of(fromModule(userSoundsItem.collectionType(),
                                                                    getPositionInModule(items, userSoundsItem))));
         }

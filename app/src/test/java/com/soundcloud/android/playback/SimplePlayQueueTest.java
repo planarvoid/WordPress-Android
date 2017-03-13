@@ -113,22 +113,22 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     }
 
     public void removeItem() {
-        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1,
-                                                                                   TRACK_QUEUE_ITEM_2));
+        playQueue = PlayQueue.fromPlayQueueItems(Lists.newArrayList(TRACK_QUEUE_ITEM_1,
+                                                                    TRACK_QUEUE_ITEM_2));
 
         playQueue.removeItem(TRACK_QUEUE_ITEM_1);
 
-        final List<PlayQueueItem> expected = Collections.<PlayQueueItem>singletonList(TRACK_QUEUE_ITEM_2);
+        final List<PlayQueueItem> expected = Collections.singletonList(TRACK_QUEUE_ITEM_2);
         assertThat(playQueue).isEqualTo(PlayQueue.fromPlayQueueItems(expected));
     }
 
     @Test
     public void removeItemIgnoreMissingItem() {
-        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1));
+        playQueue = PlayQueue.fromPlayQueueItems(Lists.newArrayList(TRACK_QUEUE_ITEM_1));
 
         playQueue.removeItem(TRACK_QUEUE_ITEM_2);
 
-        final List<PlayQueueItem> expected = Collections.<PlayQueueItem>singletonList(TRACK_QUEUE_ITEM_1);
+        final List<PlayQueueItem> expected = Collections.singletonList(TRACK_QUEUE_ITEM_1);
         assertThat(playQueue).isEqualTo(PlayQueue.fromPlayQueueItems(expected));
     }
 

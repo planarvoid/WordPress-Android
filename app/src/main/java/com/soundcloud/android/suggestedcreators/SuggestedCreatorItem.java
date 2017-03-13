@@ -24,7 +24,7 @@ public abstract class SuggestedCreatorItem implements UserImageSource {
                 suggestedCreator.getCreator(),
                 suggestedCreator.getRelation());
         autoValue_suggestedCreatorItem.following = suggestedCreator.getCreator().isFollowing();
-        autoValue_suggestedCreatorItem.setPalette(Optional.<Palette>absent());
+        autoValue_suggestedCreatorItem.setPalette(Optional.absent());
         return autoValue_suggestedCreatorItem;
     }
 

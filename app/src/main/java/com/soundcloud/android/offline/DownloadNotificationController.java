@@ -7,7 +7,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
 import org.jetbrains.annotations.Nullable;
 

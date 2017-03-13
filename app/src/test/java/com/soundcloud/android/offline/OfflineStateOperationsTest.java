@@ -66,7 +66,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     @Test
     public void returnsEmptyWhenTheTrackIsNotRelatedToAPlaylist() {
         when(isOfflineLikedEnabledCommand.call(null)).thenReturn(false);
-        when(loadOfflinePlaylistsContainingTrackCommand.call(TRACK1)).thenReturn(Collections.<Urn>emptyList());
+        when(loadOfflinePlaylistsContainingTrackCommand.call(TRACK1)).thenReturn(Collections.emptyList());
 
 
         final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,

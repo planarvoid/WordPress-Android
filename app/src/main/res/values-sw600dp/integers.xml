@@ -10,7 +10,6 @@
     <!-- Stations -->
     <integer name="stations_recommendation_card_count">4</integer>
     <integer name="stations_grid_span_count">3</integer>
-    <integer name="stations_home_bucket_max_row_count">1</integer>
 
     <!-- Collection -->
     <integer name="collection_grid_span_count">3</integer>

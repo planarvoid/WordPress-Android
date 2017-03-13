@@ -29,7 +29,6 @@ import rx.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class MyProfileOperationsTest extends AndroidUnitTest {
@@ -67,7 +66,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
                                                   Consts.NOT_SET)).thenReturn(Observable.just(Collections.emptyList()),
                                                                               Observable.just(firstPage));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.just(null));
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                             true)));
 
@@ -79,10 +78,10 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadEmptyFollowingsResultsWithEmptyResults() {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE,
-                                                     Consts.NOT_SET)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
+                                                     Consts.NOT_SET)).thenReturn(Observable.just(Collections.emptyList()));
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
                                                   Consts.NOT_SET)).thenReturn(Observable.just(Collections.emptyList()));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.just(null));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -114,7 +113,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, position)).thenReturn(Observable.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
 
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>empty());
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.empty());
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                       true)));
 
@@ -138,7 +137,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
                 followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 pageOfFollowings1));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.just(null));
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                            true)));
         final List<Following> pageOfFollowings = pageOfFollowings1;
@@ -182,20 +181,20 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncsWhenStoredFollowingsListEmpty() {
     TestSubscriber<List<UserAssociation>> subscriber = new TestSubscriber<>();
 
-        when(userAssociationStorage.followedUserAssociations()).thenReturn(Observable.just(Collections.<UserAssociation>emptyList()));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
+        when(userAssociationStorage.followedUserAssociations()).thenReturn(Observable.just(Collections.emptyList()));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.just(null));
 
         operations.followingsUserAssociations().subscribe(subscriber);
 
         subscriber.assertCompleted();
-        subscriber.assertValue(Collections.<UserAssociation>emptyList());
+        subscriber.assertValue(Collections.emptyList());
 
         verify(syncInitiatorBridge).refreshFollowings();
         verify(userAssociationStorage, times(2)).followedUserAssociations();
     }
 
     private UserAssociation createUserAssociation(Urn urn) {
-        return UserAssociation.create(urn, 0, 1, Optional.<Date>absent(), Optional.<Date>absent());
+        return UserAssociation.create(urn, 0, 1, Optional.absent(), Optional.absent());
     }
 
     private List<Following> createPageOfFollowings(int size) {

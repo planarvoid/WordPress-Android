@@ -53,7 +53,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
 
     private void loadStation(Urn urn) {
         stationSubscription.unsubscribe();
-        stationSubscription = stationsOperations.stationWithTracks(urn, Optional.<Urn>absent())
+        stationSubscription = stationsOperations.stationWithTracks(urn, Optional.absent())
                                                 .first()
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(new StationSubscriber());

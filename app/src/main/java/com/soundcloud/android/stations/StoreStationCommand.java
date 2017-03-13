@@ -68,7 +68,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
     }
 
     private List<Object> buildRow(StationRecord station, StationTrack stationTrack, int trackPosition) {
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 station.getUrn().toString(),
                 stationTrack.getTrackUrn().getNumericId(),
                 stationTrack.getQueryUrn().toString(),

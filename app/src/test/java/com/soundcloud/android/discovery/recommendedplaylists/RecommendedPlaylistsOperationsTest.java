@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistRepository;
@@ -63,7 +62,7 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
                   .test()
                   .assertCompleted()
                   .assertNoErrors()
-                  .assertReceivedOnNext(Collections.<DiscoveryItem>singletonList(
+                  .assertReceivedOnNext(Collections.singletonList(
                           RecommendedPlaylistsBucketItem.create(recommendedPlaylistEntity, singletonList(ModelFixtures.playlistItem(playlist)))
                   ));
     }

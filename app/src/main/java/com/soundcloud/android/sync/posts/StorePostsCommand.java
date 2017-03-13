@@ -44,7 +44,7 @@ public class StorePostsCommand extends DefaultWriteStorageCommand<Collection<Pos
 
     private List<Object> buildRowForPost(PostRecord post) {
         final Urn targetUrn = post.getTargetUrn();
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 targetUrn.getNumericId(),
                 targetUrn.isTrack()
                 ? Tables.Sounds.TYPE_TRACK

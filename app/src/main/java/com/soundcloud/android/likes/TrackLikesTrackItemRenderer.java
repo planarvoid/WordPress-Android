@@ -1,7 +1,5 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.events.Module;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
 import com.soundcloud.java.optional.Optional;
@@ -31,7 +29,7 @@ class TrackLikesTrackItemRenderer implements CellRenderer<TrackLikesTrackItem> {
         trackItemRenderer.bindTrackView(items.get(position).getTrackItem(),
                                         itemView,
                                         position,
-                                        Optional.<TrackSourceInfo>absent(),
-                                        Optional.<Module>absent());
+                                        Optional.absent(),
+                                        Optional.absent());
     }
 }

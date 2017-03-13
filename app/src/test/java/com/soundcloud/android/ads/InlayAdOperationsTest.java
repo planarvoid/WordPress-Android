@@ -119,7 +119,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
 
-        verify(inlayAdPlayer, never()).muteAndPause();;
+        verify(inlayAdPlayer, never()).muteAndPause();
     }
 
     @Test

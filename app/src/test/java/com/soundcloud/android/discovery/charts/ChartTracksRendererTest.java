@@ -29,7 +29,7 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
     private static final Optional<Urn> QUERY_URN = Optional.of(new Urn("soundcloud:charts:2345kj235kj2435"));
     private static final ChartTrackListItem.Track ITEM_1 = createChartTrackListItem();
     private static final ChartTrackListItem.Track ITEM_2 = createChartTrackListItem();
-    private static final List<ChartTrackListItem> ITEMS = Lists.<ChartTrackListItem>newArrayList(ITEM_1, ITEM_2);
+    private static final List<ChartTrackListItem> ITEMS = Lists.newArrayList(ITEM_1, ITEM_2);
     private static final String SCREEN = "screen";
     private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo(SCREEN, true);
 

@@ -36,7 +36,7 @@ class StoreLikesCommand extends DefaultWriteStorageCommand<Collection<LikeRecord
 
     private List<Object> buildContentValuesForLike(LikeRecord like) {
         final Urn targetUrn = like.getTargetUrn();
-        return Arrays.<Object>asList(
+        return Arrays.asList(
                 targetUrn.getNumericId(),
                 targetUrn.isTrack()
                 ? Tables.Sounds.TYPE_TRACK

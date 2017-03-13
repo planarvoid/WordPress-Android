@@ -26,7 +26,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
     @Test
     public void isEmptyReturnsTrue() {
-        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+        downloadQueue.set(Collections.emptyList());
 
         assertThat(downloadQueue.isEmpty()).isTrue();
     }

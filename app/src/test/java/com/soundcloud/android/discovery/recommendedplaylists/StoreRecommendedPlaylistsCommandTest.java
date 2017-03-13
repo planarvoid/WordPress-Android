@@ -35,7 +35,7 @@ public class StoreRecommendedPlaylistsCommandTest extends StorageIntegrationTest
         ApiRecommendedPlaylistBucket chill = ApiRecommendedPlaylistBucket.create("chill",
                                                                                        "Chill-Out",
                                                                                        null,
-                                                                                       new ModelCollection<>(Collections.<ApiPlaylist>emptyList()));
+                                                                                       new ModelCollection<>(Collections.emptyList()));
 
         command.call(new ModelCollection<>(singletonList(chill)));
 

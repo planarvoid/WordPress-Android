@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.optional.Optional;
 import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
@@ -57,7 +56,7 @@ public final class RxUtils {
         private final Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>> sanitizeNotifications = notifications -> {
             if (containsCompleted(notifications)) {
                 final List<Notification<ItemT>> sanitizedNotifications = removeTerminalNotifications(notifications);
-                sanitizedNotifications.add(Notification.<ItemT>createOnCompleted());
+                sanitizedNotifications.add(Notification.createOnCompleted());
                 return Observable.from(sanitizedNotifications);
             } else {
                 return Observable.from(notifications);

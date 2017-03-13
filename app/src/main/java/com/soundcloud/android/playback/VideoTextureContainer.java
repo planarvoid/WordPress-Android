@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import com.soundcloud.java.optional.Optional;
