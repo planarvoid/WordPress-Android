@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @AutoFactory(allowSubclasses = true)
@@ -113,34 +112,44 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
     }
 
     private Spannable getReasonText(RecommendedTracksBucketItem recommendationBucket, Context context) {
-        final String reason = getReasonType(recommendationBucket.recommendationReason(), context);
-        final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle,
-                                                    reason,
-                                                    recommendationBucket.seedTrackTitle());
-        final int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
+        final String trackTitle = recommendationBucket.seedTrackTitle();
+        final String reasonText = getRecommendationReason(context, recommendationBucket, trackTitle);
 
         final Spannable spannable = new SpannableString(reasonText);
+
+        final int trackTitleStart = reasonText.indexOf(trackTitle);
+        final int trackTitleEnd = trackTitleStart + trackTitle.length();
+
         spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)),
                           0,
-                          endOfReasonIndex,
+                          trackTitleStart,
                           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.seed_track_text)),
-                          endOfReasonIndex,
+                          trackTitleStart,
+                          trackTitleEnd,
+                          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)),
+                          trackTitleEnd,
                           reasonText.length(),
                           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         return spannable;
     }
 
-    private String getReasonType(RecommendationReason recommendationReason, Context context) {
-        switch (recommendationReason) {
+    @NonNull
+    private String getRecommendationReason(Context context, RecommendedTracksBucketItem recommendationBucket, String trackTitle) {
+        final String reasonText;
+        switch (recommendationBucket.recommendationReason()) {
             case LIKED:
-                return context.getString(R.string.recommendation_reason_liked).toLowerCase(Locale.getDefault());
+                reasonText = context.getString(R.string.recommendation_reason_because_you_liked_tracktitle, trackTitle);
+                break;
             case PLAYED:
-                return context.getString(R.string.recommendation_reason_played).toLowerCase(Locale.getDefault());
+                reasonText = context.getString(R.string.recommendation_reason_because_you_played_tracktitle, trackTitle);
+                break;
             default:
-                throw new IllegalArgumentException("Unknown recommendation reason " + recommendationReason);
+                throw new IllegalArgumentException("Unknown recommendation reason " + recommendationBucket.recommendationReason());
         }
+        return reasonText;
     }
 
     @NonNull

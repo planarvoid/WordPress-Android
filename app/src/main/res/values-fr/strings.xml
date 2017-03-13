@@ -394,10 +394,6 @@
   <string name="activity_title_view_all_recommendations">Découvrez plus de titres</string>
   <string name="recommendation_view_all">Voir tous les titres suggérés</string>
   <string name="recommendations_footer">Ce sont toutes les suggestions dont nous disposons pour l\'instant.\n\nÉcoutez et collectez davantage de titres pour obtenir plus de suggestions.</string>
-  <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
-  <string name="recommendation_reason_because_you_reason_tracktitle">Parce que vous %1$s %2$s</string>
-  <string name="recommendation_reason_liked">avez aimé</string>
-  <string name="recommendation_reason_played">écoutez</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
   <string name="recommendation_seeds_header">Découvrez plus de titres</string>
   <string name="discovery_search_hint">Rechercher sur SoundCloud</string>

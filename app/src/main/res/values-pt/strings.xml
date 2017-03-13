@@ -389,10 +389,6 @@
   <string name="activity_title_view_all_recommendations">Descubra mais faixas</string>
   <string name="recommendation_view_all">Ver todas as faixas sugeridas</string>
   <string name="recommendations_footer">Estas são todas as sugestões que temos agora.\n\nReproduza e colete mais faixas para obter novas sugestões.</string>
-  <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
-  <string name="recommendation_reason_because_you_reason_tracktitle">Porque você %1$s %2$s</string>
-  <string name="recommendation_reason_liked">curtida</string>
-  <string name="recommendation_reason_played">reproduzida</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
   <string name="recommendation_seeds_header">Descubra mais faixas</string>
   <string name="discovery_search_hint">Pesquisar no SoundCloud</string>
