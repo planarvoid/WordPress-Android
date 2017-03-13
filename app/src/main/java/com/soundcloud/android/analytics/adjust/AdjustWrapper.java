@@ -9,8 +9,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.AttributionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -21,15 +19,12 @@ public class AdjustWrapper {
 
     private final EventBus eventBus;
     private final ApplicationProperties applicationProperties;
-    private final FeatureFlags flags;
 
     @Inject
     AdjustWrapper(EventBus eventBus,
-                  ApplicationProperties applicationProperties,
-                  FeatureFlags flags) {
+                  ApplicationProperties applicationProperties) {
         this.eventBus = eventBus;
         this.applicationProperties = applicationProperties;
-        this.flags = flags;
     }
 
     void onCreate(Context context) {
@@ -62,10 +57,7 @@ public class AdjustWrapper {
         setEventBuffering(config);
         setLogLevel(config);
         setAttributionListener(config);
-
-        if (flags.isEnabled(Flag.ADJUST_DEFERRED_DEEPLINKS)) {
-            config.setOnDeeplinkResponseListener(deeplink -> true);
-        }
+        config.setOnDeeplinkResponseListener(deeplink -> true);
 
         return config;
     }
