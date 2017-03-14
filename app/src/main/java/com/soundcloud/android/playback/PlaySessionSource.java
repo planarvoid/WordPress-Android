@@ -212,7 +212,7 @@ public class PlaySessionSource implements Parcelable {
         return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
-    public boolean isFromNewForYou() {
+    private boolean isFromNewForYou() {
         return originScreen.equals(Screen.NEW_FOR_YOU.get());
     }
 

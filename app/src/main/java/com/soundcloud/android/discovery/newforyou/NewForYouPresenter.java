@@ -34,6 +34,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -119,7 +120,8 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private Func1<NewForYou, ? extends Iterable<NewForYouItem>> toNewForYouItems() {
+    @VisibleForTesting
+    Func1<NewForYou, ? extends Iterable<NewForYouItem>> toNewForYouItems() {
         return newForYou -> {
             final List<NewForYouItem> items = new ArrayList<>(newForYou.tracks().size() + NUM_EXTRA_ITEMS);
 
@@ -129,12 +131,10 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
                                                  newForYou.tracks().isEmpty() ? Optional.absent() : Optional.of(entityItemCreator.trackItem(newForYou.tracks().get(0)))));
 
             for (Track track : newForYou.tracks()) {
-                final PlaySessionSource currentSource = playQueueManager.getCurrentPlaySessionSource();
-                final boolean isPlayingFromNewForYou = currentSource != null && currentSource.isFromNewForYou();
                 final boolean isTrackPlaying = playSessionStateProvider.isCurrentlyPlaying(track.urn());
 
                 final TrackItem.Builder trackItemBuilder = entityItemCreator.trackItem(track).toBuilder();
-                if (isPlayingFromNewForYou && isTrackPlaying) {
+                if (isTrackPlaying) {
                     trackItemBuilder.isPlaying(true);
                 }
 
