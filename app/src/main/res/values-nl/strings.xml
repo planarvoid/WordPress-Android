@@ -881,8 +881,7 @@
   <!--__PLAYER-->
   <string name="playback_empty">Niet beschikbaar</string>
   <string name="playback_error_blocked">Niet beschikbaar in\njouw land</string>
-  <string name="playback_upsell_1">Geen previews meer, alleen maar volledige tracks</string>
-  <string name="playback_upsell_2">Krijg volledige tracks, offline en reclamevrij</string>
+  <string name="playback_upsell">Geen previews meer, alleen maar volledige tracks</string>
   <string name="playback_upsell_button">Abonneer je op SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->

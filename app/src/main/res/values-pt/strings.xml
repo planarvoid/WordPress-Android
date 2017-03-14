@@ -883,8 +883,7 @@ vão aparecer aqui.</string>
   <!--__PLAYER-->
   <string name="playback_empty">Não disponível</string>
   <string name="playback_error_blocked">Não disponível em\nseu país</string>
-  <string name="playback_upsell_1">Chega de visualizações, apenas faixas completas</string>
-  <string name="playback_upsell_2">Receba faixas completas, offline e sem anúncios</string>
+  <string name="playback_upsell">Chega de visualizações, apenas faixas completas</string>
   <string name="playback_upsell_button">Obter SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Experimente o SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->

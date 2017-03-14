@@ -881,8 +881,7 @@
   <!--__PLAYER-->
   <string name="playback_empty">No disponible</string>
   <string name="playback_error_blocked">No disponible\nen tu país</string>
-  <string name="playback_upsell_1">Se acabaron las vistas previas, solo pistas enteras</string>
-  <string name="playback_upsell_2">Escucha pistas enteras, sin conexión y sin anuncios.</string>
+  <string name="playback_upsell">Se acabaron las vistas previas, solo pistas enteras</string>
   <string name="playback_upsell_button">Hazte con SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">Prueba SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->

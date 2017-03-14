@@ -12,7 +12,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
@@ -83,7 +82,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
-    private final PlayerUpsellCopyExperiment upsellCopyExperiment;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -103,8 +101,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        EmptyViewControllerFactory emptyControllerFactory,
                        CastConnectionHelper castConnectionHelper,
                        Resources resources,
-                       PlayerUpsellImpressionController upsellImpressionController,
-                       PlayerUpsellCopyExperiment upsellCopyExperiment) {
+                       PlayerUpsellImpressionController upsellImpressionController) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -121,7 +118,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
-        this.upsellCopyExperiment = upsellCopyExperiment;
     }
 
     @Override
@@ -254,7 +250,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void configureUpsell(TrackPageHolder holder, FeatureOperations featureOperations) {
         if (featureOperations.upsellHighTier()) {
-            holder.upsellView.showUpsell(upsellCopyExperiment.getUpsellCtaId(), getUpsellButtonText(), castConnectionHelper.isCasting());
+            holder.upsellView.showUpsell(getUpsellButtonText(), castConnectionHelper.isCasting());
             holder.timestamp.setPreview(true);
         } else {
             holder.upsellView.setVisibility(View.GONE);

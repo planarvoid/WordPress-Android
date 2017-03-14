@@ -8,7 +8,7 @@
         android:layout_alignTop="@+id/upsell_button"
         android:layout_marginRight="14dp"
         android:layout_toLeftOf="@+id/upsell_button"
-        android:text="@string/playback_upsell_1" />
+        android:text="@string/playback_upsell" />
 
     <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/upsell_button"

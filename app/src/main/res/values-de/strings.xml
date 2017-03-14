@@ -881,8 +881,7 @@
   <!--__PLAYER-->
   <string name="playback_empty">Nicht verfügbar</string>
   <string name="playback_error_blocked">In deinem Land nicht verfügbar</string>
-  <string name="playback_upsell_1">Schluss mit Vorschau, Tracks jetzt in voller Länge</string>
-  <string name="playback_upsell_2">Hol dir alle Tracks in voller Länge – offline und ohne Werbung</string>
+  <string name="playback_upsell">Schluss mit Vorschau, Tracks jetzt in voller Länge</string>
   <string name="playback_upsell_button">Hol dir SoundCloud Go+</string>
   <string name="playback_upsell_button_trial">SoundCloud Go+ testen</string>
   <!--__NEW_FOR_YOU-->

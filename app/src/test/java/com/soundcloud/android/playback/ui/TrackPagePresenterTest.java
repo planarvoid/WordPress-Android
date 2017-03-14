@@ -19,7 +19,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent.RepostStatus;
 import com.soundcloud.android.image.ImageOperations;
@@ -92,7 +91,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
-    @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
     @Mock private CastPlayerStripControllerFactory castPlayerStripControllerFactory;
     @Mock private CastPlayerStripController castPlayerStripController;
 
@@ -124,8 +122,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            emptyControllerFactory,
                                            castConnectionHelper,
                                            resources(),
-                                           upsellImpressionController,
-                                           upsellCopyExperiment);
+                                           upsellImpressionController);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -135,7 +132,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(castPlayerStripControllerFactory.create(any(PlayerStripView.class), any(PlayerUpsellView.class))).thenReturn(castPlayerStripController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         when(emptyControllerFactory.create(any(View.class))).thenReturn(emptyViewController);
-        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_1);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
     }
@@ -773,17 +769,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
 
         assertThat(getHolder(trackView).shareButton).isVisible();
-    }
-
-    @Test
-    public void bindingHighTierTrackSetsExperimentalCopyOnUpsellCta() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
-        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_2);
-
-        bindUpsellableHighTierTrack();
-
-        assertThat(getHolder(trackView).upsellView.getUpsellText().getText())
-                .isEqualTo(resources().getText(R.string.playback_upsell_2));
     }
 
     @Test
