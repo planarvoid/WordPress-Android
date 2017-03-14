@@ -19,16 +19,6 @@ public class UpgradeScreen extends Screen {
         return ACTIVITY;
     }
 
-    public UpgradeScreen clickBuyForSuccess() {
-        clickBuy();
-        return this;
-    }
-
-    public PaymentErrorScreen clickBuyForFailure() {
-        clickBuy();
-        return new PaymentErrorScreen(testDriver);
-    }
-
     public WebCheckoutScreen clickBuyForWebCheckout() {
         clickBuy();
         return new WebCheckoutScreen(testDriver);
