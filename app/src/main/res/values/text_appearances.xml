@@ -7,7 +7,7 @@
 
     <style name="TextAppearance.GridItemBottom" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textColor">@color/charcoal</item>
         <item name="android:textSize">@dimen/grid_item_bottom_text_size</item>
     </style>
 

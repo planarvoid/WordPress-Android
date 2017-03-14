@@ -3,7 +3,7 @@
 <resources>
 
     <style name="Toolbar.Title" parent="TextAppearance.Widget.ScAppCompat.Toolbar.Title">
-        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textColor">@color/charcoal</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
@@ -40,7 +40,7 @@
     <!-- shared widget styles -->
 
     <style name="RadioButton.Dark" parent="android:Widget.CompoundButton.RadioButton">
-        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:textSize">20sp</item>
     </style>
 
@@ -52,7 +52,7 @@
 
     <style name="AuthButton" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
-        <item name="android:textColor">@drawable/txt_btn_light_states</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:shadowColor">#4DFFFFFF</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>
@@ -75,7 +75,7 @@
         <item name="android:paddingLeft">20dp</item>
         <item name="android:paddingRight">20dp</item>
         <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:gravity">bottom</item>
         <item name="android:background">@drawable/divider_list_orange</item>
     </style>
@@ -241,7 +241,7 @@
     </style>
 
     <style name="OnboardingListItemNotification.Title" parent="OnboardingListItemNotificationCenteredText">
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginBottom">16dp</item>
     </style>
@@ -263,7 +263,7 @@
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginRight">8dp</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:drawableLeft">@drawable/ic_check_mark</item>
         <item name="android:drawablePadding">4dp</item>
         <item name="android:textAllCaps">true</item>
@@ -302,7 +302,7 @@
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>
         <item name="android:paddingTop">4dp</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:background">@drawable/indicator_pill</item>
         <item name="android:textSize">14sp</item>
     </style>

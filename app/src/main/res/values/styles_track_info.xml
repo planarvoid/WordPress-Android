@@ -6,7 +6,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:antialias">true</item>
         <item name="android:textColor">@color/list_primary</item>
-        <item name="android:textColorLink">@color/ak_link_text</item>
+        <item name="android:textColorLink">@color/cornflower</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
         <item name="android:visibility">invisible</item>
     </style>
@@ -28,7 +28,7 @@
     </style>
 
     <style name="TrackInfo.Text.Main.Comments">
-        <item name="android:textColor">@color/ak_link_text</item>
+        <item name="android:textColor">@color/cornflower</item>
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:drawableLeft">@drawable/stats_comment</item>

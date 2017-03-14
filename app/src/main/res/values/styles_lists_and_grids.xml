@@ -41,7 +41,7 @@
     </style>
 
     <style name="ListItemText.Private">
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:textSize">12sp</item>
         <item name="android:gravity">center</item>
         <item name="android:drawableLeft">@drawable/lock_orange</item>

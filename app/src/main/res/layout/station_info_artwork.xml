@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         sc:foregroundDrawable="@drawable/artwork_border"
         sc:square="true"
-        tools:background="@color/ak_light_gray" />
+        tools:background="@color/silver" />
 
     <ImageButton
         android:id="@+id/btn_play"

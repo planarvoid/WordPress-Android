@@ -9,4 +9,4 @@
     android:layout_marginTop="0dp"
     android:drawableLeft="@drawable/ic_nowplaying_12_anim"
     android:text="@string/title_now_playing"
-    android:textColor="@color/ak_sc_orange" />
+    android:textColor="@color/soundcloud_orange" />

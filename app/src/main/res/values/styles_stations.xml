@@ -18,20 +18,8 @@
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginBottom">22dp</item>
         <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="Stations.BucketAction">
-        <item name="android:background">@color/stations_bucket_action_background</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:layout_marginRight">26dp</item>
-        <item name="android:textColor">@color/stations_bucket_action_text</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Stations.Item">
@@ -64,7 +52,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawableLeft">@drawable/ic_now_playing</item>
         <item name="android:drawablePadding">2dp</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
     </style>
 
     <style name="Stations.ListItemOverflowButton" parent="ListItemOverflowButton">
@@ -138,7 +126,7 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textColor">@color/charcoal</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:drawableRight">@drawable/inset_chevron</item>

@@ -84,7 +84,7 @@
 
     <style name="Search.PremiumContent.Text.Upsell">
         <item name="custom_font">@string/interstate_regular</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
     </style>
 
     <!-- Carousel feature -->
@@ -144,7 +144,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
     </style>
 
     <style name="Carousel.OverflowButton">
@@ -157,8 +157,8 @@
         <item name="android:paddingLeft">36dp</item>
         <item name="android:paddingRight">36dp</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#999</item>
-        <item name="android:background">#f2f2f2</item>
+        <item name="android:textColor">@color/ash</item>
+        <item name="android:background">@color/mist</item>
         <item name="android:gravity">center</item>
     </style>
 
@@ -211,7 +211,7 @@
 
     <style name="NewForYouModule.Title" parent="NewForYouModule">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:paddingBottom">6dp</item>
     </style>
 
@@ -221,13 +221,13 @@
 
     <style name="NewForYouModule.IntroText" parent="NewForYouModule">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textColor">@color/charcoal</item>
         <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
 
     <style name="NewForYouModule.Action" parent="NewForYouModule">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:textColor">@color/ash</item>
         <item name="android:paddingRight">16dp</item>
         <item name="android:drawableRight">@drawable/inset_chevron</item>
         <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>

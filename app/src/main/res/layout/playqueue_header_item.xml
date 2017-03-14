@@ -17,7 +17,7 @@
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/ak_medium_gray"
+        android:textColor="@color/platinum"
         android:textSize="15sp" />
 
 </LinearLayout>

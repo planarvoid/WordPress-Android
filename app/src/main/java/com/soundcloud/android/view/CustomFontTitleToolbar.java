@@ -96,7 +96,7 @@ public class CustomFontTitleToolbar extends Toolbar {
     }
 
     int getDarkColor() {
-        return getResources().getColor(R.color.dark_gray_text);
+        return getResources().getColor(R.color.raven);
     }
 
     @Override

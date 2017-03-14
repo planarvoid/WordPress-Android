@@ -9,4 +9,4 @@
     android:layout_marginTop="0dp"
     android:drawableLeft="@drawable/geo_list_item"
     android:text="@string/upsell_not_avaliable"
-    android:textColor="@color/ak_medium_dark_gray" />
+    android:textColor="@color/ash" />

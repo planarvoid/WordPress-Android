@@ -88,7 +88,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     public void setDefaultPlayerStrip() {
-        playerStrip.setBackgroundResource(R.color.ak_sc_orange);
+        playerStrip.setBackgroundResource(R.color.soundcloud_orange);
     }
 
     public void setShuffledState(boolean shuffled) {

@@ -17,7 +17,7 @@
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorAccent">@color/ak_sc_orange</item>
+        <item name="colorAccent">@color/soundcloud_orange</item>
 
         <item name="cropImageStyle">@style/Widget.CropImageView</item>
 
@@ -33,7 +33,7 @@
     </style>
 
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
-        <item name="android:textColorPrimary">@color/ak_dark_gray</item>
+        <item name="android:textColorPrimary">@color/charcoal</item>
     </style>
 
     <style name="Theme.SoundCloud.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
@@ -55,7 +55,7 @@
     </style>
 
     <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/ak_sc_orange</item>
+        <item name="colorAccent">@color/soundcloud_orange</item>
     </style>
 
     <style name="CastDialogStyle" parent="Theme.AppCompat.Light.Dialog">
@@ -63,7 +63,7 @@
     </style>
 
     <style name="TabsThemeBase" parent="Widget.Design.TabLayout">
-        <item name="tabSelectedTextColor">@color/ak_sc_orange</item>
+        <item name="tabSelectedTextColor">@color/soundcloud_orange</item>
         <item name="android:background">@color/white</item>
         <item name="custom_font">@string/interstate_light</item>
     </style>
@@ -128,11 +128,11 @@
     </style>
 
     <style name="Theme.PlayQueueSwitch" parent="Theme.AppCompat.Light">
-        <item name="colorPrimaryDark">@color/gray_text</item>
-        <item name="colorPrimary">@color/gray_text</item>
-        <item name="colorAccent">@color/ak_sc_orange</item>
-        <item name="colorControlActivated">@color/ak_sc_orange</item>
-        <item name="colorSwitchThumbNormal">@color/ak_light_gray</item>
+        <item name="colorPrimaryDark">@color/ash</item>
+        <item name="colorPrimary">@color/ash</item>
+        <item name="colorAccent">@color/soundcloud_orange</item>
+        <item name="colorControlActivated">@color/soundcloud_orange</item>
+        <item name="colorSwitchThumbNormal">@color/silver</item>
         <item name="android:colorForeground">@color/white</item>
     </style>
 

@@ -33,15 +33,15 @@ public abstract class WelcomeResourceBundle {
                 return new AutoValue_WelcomeResourceBundle(R.drawable.morning_sprite,
                                                            R.drawable.morning_sun,
                                                            R.color.welcome_morning,
-                                                           R.color.ak_almost_black,
-                                                           R.color.ak_dark_gray,
+                                                           R.color.raven,
+                                                           R.color.charcoal,
                                                            newSignup ? R.string.welcome_user_new_signup : R.string.welcome_user_title_morning);
             case AFTERNOON:
                 return new AutoValue_WelcomeResourceBundle(R.drawable.afternoon_sprite,
                                                            R.drawable.afternoon_sun,
                                                            R.color.welcome_afternoon,
-                                                           R.color.ak_almost_black,
-                                                           R.color.ak_dark_gray,
+                                                           R.color.raven,
+                                                           R.color.charcoal,
                                                            newSignup ? R.string.welcome_user_new_signup : R.string.welcome_user_title_afternoon);
             case EVENING:
                 return new AutoValue_WelcomeResourceBundle(R.drawable.evening_sprite,

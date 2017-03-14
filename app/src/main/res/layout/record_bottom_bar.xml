@@ -13,7 +13,7 @@
         style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/gray_text"
+        android:textColor="@color/ash"
         android:text="@string/btn_delete" />
 
     <com.soundcloud.android.view.CustomFontButton
@@ -21,7 +21,7 @@
         style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/ak_sc_orange"
+        android:textColor="@color/soundcloud_orange"
         android:text="@string/next" />
 
     <com.soundcloud.android.view.CustomFontButton
@@ -29,7 +29,7 @@
         style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/gray_text"
+        android:textColor="@color/ash"
         android:text="@string/btn_revert_to_original" />
 
     <com.soundcloud.android.view.CustomFontButton
@@ -37,7 +37,7 @@
         style="@style/BorderlessButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/ak_sc_orange"
+        android:textColor="@color/soundcloud_orange"
         android:text="@string/btn_apply" />
 
 </LinearLayout>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <color name="primary_dark">#eeeeee</color>
-    <color name="translucent_status_bar">#7d000000</color>
+    <color name="translucent_status_bar">@color/black_50</color>
 </resources>

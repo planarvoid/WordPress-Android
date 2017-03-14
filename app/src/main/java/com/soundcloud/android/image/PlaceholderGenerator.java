@@ -15,18 +15,18 @@ import javax.inject.Inject;
 public class PlaceholderGenerator {
 
     private static final int[][] COLOR_COMBINATIONS = new int[][]{
-            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_slate},
-            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_salmon},
-            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_greige},
-            {R.color.ak_placeholder_slate, R.color.ak_placeholder_aubergine},
-            {R.color.ak_placeholder_slate, R.color.ak_placeholder_salmon},
-            {R.color.ak_placeholder_slate, R.color.ak_placeholder_greige},
-            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_aubergine},
-            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_slate},
-            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_greige},
-            {R.color.ak_placeholder_greige, R.color.ak_placeholder_aubergine},
-            {R.color.ak_placeholder_greige, R.color.ak_placeholder_slate},
-            {R.color.ak_placeholder_greige, R.color.ak_placeholder_salmon}
+            {R.color.aubergine, R.color.slate},
+            {R.color.aubergine, R.color.salmon},
+            {R.color.aubergine, R.color.greige},
+            {R.color.slate, R.color.aubergine},
+            {R.color.slate, R.color.salmon},
+            {R.color.slate, R.color.greige},
+            {R.color.salmon, R.color.aubergine},
+            {R.color.salmon, R.color.slate},
+            {R.color.salmon, R.color.greige},
+            {R.color.greige, R.color.aubergine},
+            {R.color.greige, R.color.slate},
+            {R.color.greige, R.color.salmon}
     };
 
     protected final Resources resources;

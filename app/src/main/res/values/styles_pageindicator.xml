@@ -3,8 +3,8 @@
 <resources>
 
     <style name="StationsPageIndicator">
-        <item name="fillColor">@color/ak_medium_dark_gray</item>
-        <item name="pageColor">@color/ak_medium_gray</item>
+        <item name="fillColor">@color/ash</item>
+        <item name="pageColor">@color/platinum</item>
         <item name="strokeWidth">0dp</item>
         <item name="radius">4dp</item>
         <item name="spacing">10dp</item>
@@ -21,8 +21,8 @@
     </style>
 
     <style name="ProductChoicePageIndicator">
-        <item name="fillColor">@color/ak_sc_orange</item>
-        <item name="pageColor">@color/ak_medium_gray</item>
+        <item name="fillColor">@color/soundcloud_orange</item>
+        <item name="pageColor">@color/platinum</item>
         <item name="strokeWidth">0dp</item>
         <item name="radius">4dp</item>
         <item name="spacing">10dp</item>

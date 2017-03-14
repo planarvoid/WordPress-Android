@@ -18,7 +18,7 @@
             <path
                 android:name="artwork"
                 android:fillAlpha="0.8"
-                android:fillColor="#CCCCCC"
+                android:fillColor="@color/platinum"
                 android:fillType="evenOdd"
                 android:pathData="M 0 0 H 64 V 64 H 0 V 0 Z"
                 android:strokeAlpha="0.8"
@@ -26,7 +26,7 @@
             <path
                 android:name="Rectangle-3"
                 android:fillAlpha="0.8"
-                android:fillColor="#CCCCCC"
+                android:fillColor="@color/platinum"
                 android:fillType="evenOdd"
                 android:pathData="M 80 28 H 176 V 30 H 80 V 28 Z"
                 android:strokeAlpha="0.8"
@@ -34,7 +34,7 @@
             <path
                 android:name="Rectangle-4"
                 android:fillAlpha="0.8"
-                android:fillColor="#CCCCCC"
+                android:fillColor="@color/platinum"
                 android:fillType="evenOdd"
                 android:pathData="M 80 44 H 100 V 46 H 80 V 44 Z"
                 android:strokeAlpha="0.8"
@@ -42,7 +42,7 @@
             <path
                 android:name="Rectangle-5"
                 android:fillAlpha="0.8"
-                android:fillColor="#CCCCCC"
+                android:fillColor="@color/platinum"
                 android:fillType="evenOdd"
                 android:pathData="M 80 12 H 140 V 14 H 80 V 12 Z"
                 android:strokeAlpha="0.8"

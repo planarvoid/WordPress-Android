@@ -47,14 +47,14 @@
         <item name="android:textSize">44sp</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
-        <item name="android:textColor">#ff333333</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="RecordTextChrono" parent="TextAppearance.SoundCloudLightNumberFont">
         <item name="android:textSize">@dimen/rec_chronometer_text_size</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
-        <item name="android:textColor">#ff333333</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 

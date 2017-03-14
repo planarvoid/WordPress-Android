@@ -29,7 +29,7 @@ public class CircularProgressBar extends View {
 
         mDrawable = new CircularProgressDrawable(
                 getResources().getDimension(R.dimen.default_indeterminite_spinner_stroke_width),
-                getResources().getColor(R.color.ak_sc_orange));
+                getResources().getColor(R.color.soundcloud_orange));
         mDrawable.setCallback(this);
         if (getVisibility() == VISIBLE) {
             mDrawable.start();

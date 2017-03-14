@@ -247,7 +247,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         } else if (trackState.getSource().isPresent() && isFullHighTierTrack(trackState.getSource().get())) {
             holder.topStrip.setBackgroundResource(R.drawable.go_gradient);
         } else {
-            holder.topStrip.setBackgroundResource(R.color.ak_sc_orange);
+            holder.topStrip.setBackgroundResource(R.color.soundcloud_orange);
             holder.upsellView.setVisibility(View.GONE);
         }
     }

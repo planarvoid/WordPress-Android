@@ -81,7 +81,7 @@
     <style name="MaterialDialog" parent="TextAppearance.SoundCloudLightFont" />
 
     <style name="MaterialDialog.Title">
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:lineSpacingMultiplier">1.1</item>
         <item name="android:textSize">16sp</item>
     </style>

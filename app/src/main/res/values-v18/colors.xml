@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="artwork_overlay">#99000000</color>
-    <color name="play_queue_background">#00000000</color>
+    <color name="artwork_overlay">@color/black_60</color>
+    <color name="play_queue_background">@color/black</color>
 </resources>

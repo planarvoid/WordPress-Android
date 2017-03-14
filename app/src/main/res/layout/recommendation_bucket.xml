@@ -34,7 +34,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/discovery_cell_text_padding"
         android:paddingRight="@dimen/discovery_cell_text_padding"
-        android:textColor="@color/ak_medium_dark_gray"
+        android:textColor="@color/ash"
         tools:text="Because you liked bla bla bla" />
 
     <android.support.v7.widget.RecyclerView

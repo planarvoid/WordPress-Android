@@ -25,7 +25,7 @@
                   android:lines="1"
                   android:inputType="textEmailAddress"
                   android:textColor="@android:color/white"
-                  android:textColorHint="@color/gray_text"
+                  android:textColorHint="@color/ash"
                   android:textCursorDrawable="@null"
                   style="@style/txt_auth_input" />
 

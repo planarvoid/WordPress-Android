@@ -30,7 +30,7 @@
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
             android:text="@string/playback_error_blocked"
-            android:textColor="@color/gray_text"
+            android:textColor="@color/ash"
             android:textSize="18sp"
             android:textStyle="bold"/>
 
@@ -54,7 +54,7 @@
             android:layout_marginTop="12dp"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
-            android:textColor="@color/gray_text" />
+            android:textColor="@color/ash" />
 
         <Button
             android:id="@+id/playback_error_station_button"

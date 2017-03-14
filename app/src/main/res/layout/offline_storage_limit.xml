@@ -171,7 +171,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/summary"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/ak_sc_orange"
+        android:textColor="@color/soundcloud_orange"
         android:textStyle="bold" />
 
     <SeekBar

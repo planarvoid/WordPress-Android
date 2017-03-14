@@ -83,8 +83,8 @@
     <style name="Profile.Info">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
-        <item name="android:textColorLink">@color/ak_link_text</item>
+        <item name="android:textColor">@color/raven</item>
+        <item name="android:textColorLink">@color/cornflower</item>
     </style>
 
     <style name="Profile.Info.Link">
@@ -138,7 +138,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="Profile.Toolbar" />
@@ -192,7 +192,7 @@
 
     <style name="Profile.InfoTab.ViewFollowsNumber" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:textColor">@color/ash</item>
         <item name="android:drawableRight">@drawable/inset_chevron</item>
         <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
     </style>
@@ -206,9 +206,9 @@
     <style name="Profile.InfoTab.BioText" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingBottom">16dp</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:autoLink">web</item>
-        <item name="android:textColorLink">@color/ak_link_text</item>
+        <item name="android:textColorLink">@color/cornflower</item>
     </style>
 
     <style name="Profile.InfoTab.Link">
@@ -218,7 +218,7 @@
         <item name="android:paddingRight">16dp</item>
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:textSize">14sp</item>
         <item name="android:drawablePadding">8dp</item>
         <item name="android:gravity">center_vertical</item>

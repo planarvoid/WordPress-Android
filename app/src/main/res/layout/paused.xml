@@ -9,4 +9,4 @@
     android:layout_marginTop="0dp"
     android:drawableLeft="@drawable/ic_now_paused"
     android:text="@string/title_paused"
-    android:textColor="@color/ak_medium_dark_gray"  />
+    android:textColor="@color/ash"  />

@@ -67,7 +67,7 @@ class OldUserDetailsPresenter extends DefaultSupportFragmentLightCycle<Scrollabl
 
     private void configureRefreshLayout(View view) {
         refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
-        refreshLayout.setColorSchemeResources(R.color.ak_sc_orange);
+        refreshLayout.setColorSchemeResources(R.color.soundcloud_orange);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setSwipeableChildren(R.id.user_details_holder, android.R.id.empty);
     }

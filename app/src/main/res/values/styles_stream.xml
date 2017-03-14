@@ -19,7 +19,7 @@
     <style name="Stream.Text.VideoTitle" parent="ListItemText">
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:paddingRight">10dp</item>
@@ -28,7 +28,7 @@
     <style name="Stream.Text.AppInstallName" parent="ListItemText">
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="Stream.Button.WhyAds" parent="ListItemText">
@@ -64,7 +64,7 @@
 
     <style name="Stream.NowPlaying" parent="Cards.StatsItem">
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:textSize">12sp</item>
         <item name="android:drawablePadding">2dp</item>
     </style>

@@ -3,5 +3,5 @@
     <gradient
         android:type="linear"
         android:startColor="@color/go_gradient_start"
-        android:endColor="@color/ak_sc_orange" />
+        android:endColor="@color/soundcloud_orange" />
 </shape>

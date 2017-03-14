@@ -5,7 +5,7 @@
     <style name="PlayerStrip">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">3dp</item>
-        <item name="android:background">@color/ak_sc_orange</item>
+        <item name="android:background">@color/soundcloud_orange</item>
     </style>
 
     <style name="FooterToggle" parent="CustomToggle">

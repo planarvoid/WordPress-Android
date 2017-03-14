@@ -137,9 +137,9 @@ class TrackPlayQueueUIItem extends PlayQueueUIItem {
 
     private static int getColor(boolean blocked, Context context) {
         if (blocked) {
-            return ContextCompat.getColor(context, R.color.ak_medium_dark_gray);
+            return ContextCompat.getColor(context, R.color.ash);
         } else {
-            return ContextCompat.getColor(context, R.color.ak_light_gray);
+            return ContextCompat.getColor(context, R.color.silver);
         }
     }
 

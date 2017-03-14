@@ -61,7 +61,7 @@ public class IntroductoryOverlayPresenter {
         Context context = targetView.getContext();
         TapTarget target = TapTarget.forView(targetView, title, description)
                                     .outerCircleColor(R.color.white)
-                                    .targetCircleColor(R.color.ak_sc_orange)
+                                    .targetCircleColor(R.color.soundcloud_orange)
                                     .textColor(R.color.black)
                                     .transparentTarget(false)
                                     .titleTextDimen(R.dimen.shrinkwrap_medium_primary_text_size)

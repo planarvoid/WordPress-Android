@@ -23,11 +23,11 @@
     <style name="ProductText" parent="ConversionText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="ProductText.Disabled">
-        <item name="android:textColor">@color/ak_medium_dark_gray</item>
+        <item name="android:textColor">@color/ash</item>
     </style>
 
     <style name="ConversionText.Title">
@@ -41,12 +41,12 @@
 
     <style name="ProductText.Title">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="ProductText.Price">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/ak_almost_black</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="ConversionCloud">
@@ -71,7 +71,7 @@
     <style name="ProductPageDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/ak_light_gray</item>
+        <item name="android:background">@color/silver</item>
         <item name="android:layout_marginTop">16dp</item>
         <item name="android:layout_marginBottom">8dp</item>
     </style>
@@ -128,13 +128,13 @@
 
     <style name="CheckoutRetryHeading">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:textColor">@color/soundcloud_orange</item>
         <item name="android:layout_marginBottom">12dp</item>
     </style>
 
     <style name="CheckoutRetryMessage">
         <item name="android:layout_marginBottom">24dp</item>
-        <item name="android:textColor">@color/dark_gray_text</item>
+        <item name="android:textColor">@color/raven</item>
     </style>
 
     <style name="CheckoutRetryButton">
