@@ -4,8 +4,8 @@
     android:viewportHeight="12.0"
     android:viewportWidth="12.0">
     <path
-        android:fillColor="@color/soundcloud_orange"
+        android:fillColor="#FF5500"
         android:pathData="M10,6L11.5,6L11.5,11L10,11L10,6ZM7,2L8.5,2L8.5,11L7,11L7,2ZM4,1L5.5,1L5.5,11L4,11L4,1ZM1,4L2.5,4L2.5,11L1,11L1,4Z"
-        android:strokeColor="@color/black"
+        android:strokeColor="#00000000"
         android:strokeWidth="1" />
 </vector>
