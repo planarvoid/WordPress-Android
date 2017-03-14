@@ -4,10 +4,10 @@ import static com.soundcloud.android.storage.Tables.UserAssociations.ADDED_AT;
 import static com.soundcloud.android.storage.Tables.UserAssociations.ASSOCIATION_TYPE;
 import static com.soundcloud.android.storage.Tables.UserAssociations.POSITION;
 import static com.soundcloud.android.storage.Tables.UserAssociations.REMOVED_AT;
+import static com.soundcloud.android.storage.Tables.UserAssociations.TARGET_ID;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 
@@ -35,16 +35,16 @@ public abstract class UserAssociation {
 
     static UserAssociation create(CursorReader reader) {
         Optional<Date> addedAt = Optional.absent();
-        if (reader.isNotNull(ADDED_AT.fullName())) {
-            addedAt = Optional.of(reader.getDateFromTimestamp(ADDED_AT.fullName()));
+        if (reader.isNotNull(ADDED_AT)) {
+            addedAt = Optional.of(reader.getDateFromTimestamp(ADDED_AT));
         }
         Optional<Date> removedAt = Optional.absent();
-        if (reader.isNotNull(REMOVED_AT.fullName())) {
-            removedAt = Optional.of(reader.getDateFromTimestamp(REMOVED_AT.fullName()));
+        if (reader.isNotNull(REMOVED_AT)) {
+            removedAt = Optional.of(reader.getDateFromTimestamp(REMOVED_AT));
         }
-        return new AutoValue_UserAssociation(Urn.forUser(reader.getLong(Tables.UsersView.ID.name())),
-                                             reader.getLong(POSITION.fullName()),
-                                             reader.getInt(ASSOCIATION_TYPE.fullName()),
+        return new AutoValue_UserAssociation(Urn.forUser(reader.getLong(TARGET_ID)),
+                                             reader.getLong(POSITION),
+                                             reader.getInt(ASSOCIATION_TYPE),
                                              addedAt,
                                              removedAt);
     }

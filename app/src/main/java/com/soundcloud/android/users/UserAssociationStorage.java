@@ -26,7 +26,6 @@ import com.soundcloud.propeller.schema.BulkInsertValues;
 import rx.Observable;
 
 import android.content.ContentValues;
-import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
@@ -124,7 +123,7 @@ public class UserAssociationStorage {
 
     public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
         Query query = Query.from(UserAssociations.TABLE)
-                           .select(TARGET_ID.as(BaseColumns._ID))
+                           .select(TARGET_ID)
                            .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                            .whereGt(POSITION, fromPosition)
                            .order(POSITION, ASC)
@@ -135,7 +134,7 @@ public class UserAssociationStorage {
 
     public Observable<List<UserAssociation>> followedUserAssociations() {
         Query query = Query.from(UserAssociations.TABLE)
-                           .select(TARGET_ID.as(BaseColumns._ID),
+                           .select(TARGET_ID,
                                    ASSOCIATION_TYPE,
                                    POSITION,
                                    ADDED_AT,
@@ -176,6 +175,7 @@ public class UserAssociationStorage {
     private Query buildFollowingsBaseQuery() {
         return Query.from(Tables.UsersView.TABLE)
                     .select("UsersView.*",
+                            TARGET_ID,
                             POSITION,
                             ADDED_AT,
                             REMOVED_AT,
@@ -189,7 +189,7 @@ public class UserAssociationStorage {
     private class UserUrnMapper extends RxResultMapper<Urn> {
         @Override
         public Urn map(CursorReader reader) {
-            return Urn.forUser(reader.getLong(BaseColumns._ID));
+            return Urn.forUser(reader.getLong(TARGET_ID));
         }
     }
 
