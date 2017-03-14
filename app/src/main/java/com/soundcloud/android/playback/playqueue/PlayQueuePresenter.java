@@ -50,7 +50,6 @@ class PlayQueuePresenter {
     private final EventBus eventBus;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
     private final PerformanceMetricsEngine performanceMetricsEngine;
-    private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final CompositeSubscription subscriptions = new CompositeSubscription();
     private final Subject<Boolean, Boolean> rebuildSubject = PublishSubject.create();
 
@@ -92,13 +91,6 @@ class PlayQueuePresenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(newItems -> items = newItems)
                 .subscribe(new PlayQueueSubscriber()));
-        setUpPlaybackStream();
-        setUpRebuildStream();
-
-        playQueueDataProvider.getPlayQueueUIItems()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(newItems -> items = newItems)
-                .subscribe(new PlayQueueSubscriber());
         setUpPlaybackStream();
         setUpRebuildStream();
     }
