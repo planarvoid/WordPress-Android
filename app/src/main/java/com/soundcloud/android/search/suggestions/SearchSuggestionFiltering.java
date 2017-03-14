@@ -6,9 +6,9 @@ import static com.soundcloud.android.search.suggestions.SuggestionItem.Kind.User
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static java.util.Collections.emptyList;
 
-import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -16,17 +16,15 @@ import java.util.List;
 public class SearchSuggestionFiltering {
     private static final int NUM_SUGGESTIONS_WITH_AUTOCOMPLETE = 3;
     private static final int NUM_SUGGESTIONS_WITHOUT_AUTOCOMPLETE = 5;
-    private final AutocompleteConfig autocompleteConfig;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    SearchSuggestionFiltering(AutocompleteConfig autocompleteConfig) {
-        this.autocompleteConfig = autocompleteConfig;
+    SearchSuggestionFiltering(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
     }
 
     List<SuggestionItem> filtered(List<SuggestionItem> suggestionItems) {
-        if (autocompleteConfig.isQueriesOnlyVariant()) {
-            return emptyList();
-        } else if (autocompleteConfig.isFeatureFlagEnabled() || autocompleteConfig.isShortcutsAndQueriesVariant()) {
+        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
             return prioritizedFilterToThreeItems(suggestionItems);
         } else {
             return topFive(suggestionItems);

@@ -1,12 +1,12 @@
 package com.soundcloud.android.search.suggestions;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,49 +23,29 @@ public class SearchSuggestionFilteringTest {
     private static final SuggestionItem U = SearchSuggestionItem.forUser(Urn.forUser(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
     private static final SuggestionItem T = SearchSuggestionItem.forTrack(Urn.forTrack(123L), Optional.absent(), QUERY, Optional.absent(), QUERY);
 
-    @Mock private AutocompleteConfig autocompleteConfig;
+    @Mock private FeatureFlags featureFlags;
     private SearchSuggestionFiltering searchSuggestionFiltering;
 
     @Before
     public void setUp() {
-        this.searchSuggestionFiltering = new SearchSuggestionFiltering(autocompleteConfig);
+        this.searchSuggestionFiltering = new SearchSuggestionFiltering(featureFlags);
     }
 
     @Test
     public void returnsTopFiveItemsWhenFeatureDisabled() {
-        when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(false);
-        when(autocompleteConfig.isShortcutsAndQueriesVariant()).thenReturn(false);
-        when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
         assertThat(searchSuggestionFiltering.filtered(list(P, P, P, U, U, U, T, T, T))).isEqualTo(list(P, P, P, U, U));
     }
 
     @Test
     public void returnsAllItemsWhenFeatureDisabledAndLessThanFiveItems() {
-        when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(false);
-        when(autocompleteConfig.isShortcutsAndQueriesVariant()).thenReturn(false);
-        when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
         assertThat(searchSuggestionFiltering.filtered(list(P, U, T))).isEqualTo(list(P, U, T));
     }
 
     @Test
-    public void filtersAllItemsWhenVariantIsQueriesOnly() {
-        when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(true);
-        assertThat(searchSuggestionFiltering.filtered(list(P, P, P, U, U, U, T, T, T))).isEqualTo(emptyList());
-    }
-
-    @Test
-    public void filtersToThreeItemsPreferingUserOverTrackOverPlaylistWhenVariantIsShortcutsAndQueries() {
-        when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(false);
-        when(autocompleteConfig.isShortcutsAndQueriesVariant()).thenReturn(true);
-        when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(false);
-
-        assertFiltersCorrectly();
-    }
-
-    @Test
     public void filtersToThreeItemsPreferingUserOverTrackOverPlaylistWhenFeatureFlagIsEnabled() {
-        when(autocompleteConfig.isQueriesOnlyVariant()).thenReturn(false);
-        when(autocompleteConfig.isFeatureFlagEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
 
         assertFiltersCorrectly();
     }

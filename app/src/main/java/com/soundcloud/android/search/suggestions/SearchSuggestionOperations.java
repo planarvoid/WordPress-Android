@@ -9,9 +9,10 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
@@ -30,7 +31,7 @@ class SearchSuggestionOperations {
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final Scheduler scheduler;
     private final SearchSuggestionStorage suggestionStorage;
-    private final AutocompleteConfig autocompleteConfig;
+    private final FeatureFlags featureFlags;
     private final SearchSuggestionFiltering searchSuggestionFiltering;
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
@@ -40,13 +41,12 @@ class SearchSuggestionOperations {
                                WriteMixedRecordsCommand writeMixedRecordsCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
-                               AutocompleteConfig autocompleteConfig,
-                               SearchSuggestionFiltering searchSuggestionFiltering) {
+                               FeatureFlags featureFlags, SearchSuggestionFiltering searchSuggestionFiltering) {
         this.apiClientRx = apiClientRx;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
-        this.autocompleteConfig = autocompleteConfig;
+        this.featureFlags = featureFlags;
         this.searchSuggestionFiltering = searchSuggestionFiltering;
     }
 
@@ -56,7 +56,7 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> localSuggestions(String query) {
-        if (autocompleteConfig.isEnabled()) {
+        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
             return localCollectionSuggestions(query);
         } else {
             return legacySearchItem(query).concatWith(localCollectionSuggestions(query));
@@ -65,7 +65,7 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> remoteSuggestions(String query) {
-        if (autocompleteConfig.isEnabled()) {
+        if (featureFlags.isEnabled(Flag.AUTOCOMPLETE)) {
             return getAutocompletions(query);
         } else {
             return getLegacySuggestions(query);

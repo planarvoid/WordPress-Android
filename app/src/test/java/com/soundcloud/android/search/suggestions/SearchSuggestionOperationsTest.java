@@ -14,10 +14,11 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.configuration.experiments.AutocompleteConfig;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
@@ -51,7 +52,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
-    @Mock private AutocompleteConfig autocompleteConfig;
+    @Mock private FeatureFlags featureFlags;
     @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
@@ -63,7 +64,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        when(autocompleteConfig.isEnabled()).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
         when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
@@ -73,8 +74,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
                                                     Schedulers.immediate(), suggestionStorage,
-                                                    autocompleteConfig,
-                                                    searchSuggestionFiltering);
+                                                    featureFlags, searchSuggestionFiltering);
         suggestionsResultSubscriber = new TestSubscriber<>();
 
         track = ModelFixtures.create(ApiTrack.class);
@@ -127,7 +127,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
         when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
                 localSuggestions));
-        when(autocompleteConfig.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
 
         final Autocompletion autocompletion = setupAutocompletionRemoteSuggestions();
 

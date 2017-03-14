@@ -40,7 +40,7 @@ expected_events:
     click_object: soundcloud:users:(\w|-)+
     page_name: search:suggestions
     user: soundcloud:users:18173653
-    query_position: 1
+    query_position: '[0-9]+'
   version: '1'
   optional: false
 - !ruby/object:MrLoggerLogger::Event
