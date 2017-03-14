@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.playlists.PlaylistOptionsPresenter;
@@ -93,6 +95,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PerformanceMetricsEngine performanceMetricEngine;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -113,7 +116,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             featureOperations,
                                             navigator,
                                             offlinePropertiesProvider,
-                                            featureFlags);
+                                            featureFlags,
+                                            performanceMetricEngine);
     }
 
     @Test
@@ -300,4 +304,16 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
         verify(navigator).openUpgrade(context());
     }
+
+    @Test
+    public void shouldMeasureCollectionLoadPerformanceMetrics() {
+        when(collectionOperations.collections()).thenReturn(Observable.empty());
+
+        presenter.onCreate(fragment, null);
+
+        verify(performanceMetricEngine).startMeasuring(MetricType.COLLECTION_LOAD);
+        verify(performanceMetricEngine).endMeasuring(MetricType.COLLECTION_LOAD);
+    }
+
+
 }

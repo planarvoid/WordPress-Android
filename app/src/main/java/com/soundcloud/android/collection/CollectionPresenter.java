@@ -2,6 +2,8 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.CollectionItem.OnboardingCollectionItem;
 import com.soundcloud.android.collection.CollectionItem.UpsellCollectionItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
@@ -97,6 +99,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final Navigator navigator;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
@@ -115,7 +118,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         FeatureOperations featureOperations,
                         Navigator navigator,
                         OfflinePropertiesProvider offlinePropertiesProvider,
-                        FeatureFlags featureFlags) {
+                        FeatureFlags featureFlags,
+                        PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -129,6 +133,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         this.navigator = navigator;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.performanceMetricsEngine = performanceMetricsEngine;
 
         adapter.setTrackClickListener(this);
         adapter.setOnboardingListener(this);
@@ -176,6 +181,8 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollection> collections = collectionOperations.collections()
+                                                                         .doOnSubscribe(() -> performanceMetricsEngine.startMeasuring(MetricType.COLLECTION_LOAD))
+                                                                         .doOnCompleted(() -> performanceMetricsEngine.endMeasuring(MetricType.COLLECTION_LOAD))
                                                                          .observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
                                 .withAdapter(adapter)

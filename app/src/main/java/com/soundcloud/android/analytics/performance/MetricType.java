@@ -10,7 +10,8 @@ public enum MetricType {
     APP_UI_VISIBLE("app_ui_visible"),
     TIME_TO_EXPAND_PLAYER("time_to_expand_player"),
     TIME_TO_PLAY("time_to_play"),
-    PLAY_QUEUE_LOAD("play_queue_load");
+    PLAY_QUEUE_LOAD("play_queue_load"),
+    COLLECTION_LOAD("collection_load");
 
     private final String metricType;
 
