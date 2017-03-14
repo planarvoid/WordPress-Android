@@ -345,8 +345,6 @@
   <string name="cloud_recorder_event_title">Enregistrement en cours</string>
   <string name="cloud_recorder_playback_event_title">Lecture en cours</string>
   <string name="record_track_title">Nom du titre</string>
-  <string name="recording_pending_upload">Upload en attente</string>
-  <string name="recording_uploading">Upload en cours…</string>
   <string name="recording_upload_failed">Échec de l\'upload</string>
   <string name="recording_upload_finished">Upload terminé</string>
   <string name="record_privacy_header">Ce titre sera :</string>

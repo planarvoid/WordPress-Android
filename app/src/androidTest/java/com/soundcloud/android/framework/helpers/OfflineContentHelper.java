@@ -20,14 +20,14 @@ public class OfflineContentHelper {
     }
 
     public int offlineFilesCount(Context context) {
-        return IOUtils.nullSafeListFiles(IOUtils.getExternalStorageDir(context, OFFLINE_DIR), null).length;
+        return IOUtils.nullSafeListFiles(IOUtils.createExternalStorageDir(context, OFFLINE_DIR), null).length;
     }
 
     public void clearOfflineContent(Context context) {
         // remove metadata - not sure how to do it differently
         testsFixtures.clearOfflineContent(context);
         // remove actual files
-        File externalStorageDir = IOUtils.getExternalStorageDir(context, OFFLINE_DIR);
+        File externalStorageDir = IOUtils.createExternalStorageDir(context, OFFLINE_DIR);
         if (externalStorageDir != null) {
             IOUtils.cleanDir(externalStorageDir);
         }
@@ -37,7 +37,7 @@ public class OfflineContentHelper {
         testsFixtures.insertOfflineTrack(context, track);
 
 
-        final File file = new File(IOUtils.getExternalStorageDir(context, OFFLINE_DIR), track.toEncodedString());
+        final File file = new File(IOUtils.createExternalStorageDir(context, OFFLINE_DIR), track.toEncodedString());
         file.createNewFile();
 
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");

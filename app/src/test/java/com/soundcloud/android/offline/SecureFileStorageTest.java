@@ -41,9 +41,10 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Before
     public void setUp() throws Exception {
+        when(settingsStorage.getOfflineContentLocation()).thenReturn(OfflineContentLocation.DEVICE_STORAGE);
+        when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
 
         storage = new SecureFileStorage(operations, settingsStorage, context());
-        when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }
 
     @Test
@@ -181,7 +182,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
         storage.deleteAllTracks();
 
         assertThat(file.exists()).isFalse();
-        assertThat(storage.offlineDir.exists()).isFalse();
+        assertThat(storage.offlineDir.exists()).isTrue();
     }
 
     @Test

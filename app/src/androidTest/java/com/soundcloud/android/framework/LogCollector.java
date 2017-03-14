@@ -77,6 +77,6 @@ public class LogCollector {
     }
 
     private File getLogsDir(Context context) {
-        return IOUtils.getExternalStorageDir(context, "RobotiumLogs");
+        return IOUtils.createExternalStorageDir(context, "RobotiumLogs");
     }
 }

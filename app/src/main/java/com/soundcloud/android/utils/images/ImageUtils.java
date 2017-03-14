@@ -275,7 +275,7 @@ public final class ImageUtils {
     @Nullable
     public static File createTempAvatarFile(Context context) {
         try {
-            final File dir = IOUtils.getExternalStorageDir(context, Environment.DIRECTORY_PICTURES);
+            final File dir = IOUtils.createExternalStorageDir(context, Environment.DIRECTORY_PICTURES);
             return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", dir);
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);

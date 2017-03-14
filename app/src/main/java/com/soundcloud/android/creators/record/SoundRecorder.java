@@ -33,35 +33,37 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
-    public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
-    public static final int MAX_PLAYBACK_READ_SIZE = 1024;
-    public static final String RECORD_DIR_NAME = "recordings";
-    public static final String UPLOAD_DIR_NAME = "uploads";
-    public static final String NOTIFICATION_STATE = "com.soundcloud.android.notificationState";
-    public static final String RECORD_STARTED = "com.soundcloud.android.recordstarted";
-    public static final String RECORD_SAMPLE = "com.soundcloud.android.recordsample";
-    public static final String RECORD_ERROR = "com.soundcloud.android.recorderror";
-    public static final String RECORD_PROGRESS = "com.soundcloud.android.recordprogress";
-    public static final String RECORD_FINISHED = "com.soundcloud.android.recordfinished";
-    public static final String PLAYBACK_STARTED = "com.soundcloud.android.playbackstarted";
-    public static final String PLAYBACK_STOPPED = "com.soundcloud.android.playbackstopped";
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_PROGRESS = "com.soundcloud.android.playbackprogress";
     public static final String PLAYBACK_ERROR = "com.soundcloud.android.playbackerror";
-    public static final String[] ALL_ACTIONS = {
+
+    static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
+    static final String NOTIFICATION_STATE = "com.soundcloud.android.notificationState";
+    static final String RECORD_STARTED = "com.soundcloud.android.recordstarted";
+    static final String RECORD_SAMPLE = "com.soundcloud.android.recordsample";
+    static final String RECORD_ERROR = "com.soundcloud.android.recorderror";
+    static final String RECORD_PROGRESS = "com.soundcloud.android.recordprogress";
+    static final String RECORD_FINISHED = "com.soundcloud.android.recordfinished";
+    static final String PLAYBACK_STARTED = "com.soundcloud.android.playbackstarted";
+    static final String PLAYBACK_STOPPED = "com.soundcloud.android.playbackstopped";
+    static final String EXTRA_SHOULD_NOTIFY = "shouldUseNotifications";
+    static final String EXTRA_POSITION = "position";
+    static final String EXTRA_AMPLITUDE = "amplitude";
+    static final String EXTRA_ELAPSEDTIME = "elapsedTime";
+    static final String EXTRA_DURATION = "duration";
+    static final String EXTRA_TIME_REMAINING = "time_remaining";
+    static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
+    static final String TAG = SoundRecorder.class.getSimpleName();
+
+    private static final int MAX_PLAYBACK_READ_SIZE = 1024;
+    private static final String RECORD_DIR_NAME = "recordings";
+    private static final String UPLOAD_DIR_NAME = "uploads";
+    private static final String[] ALL_ACTIONS = {
             NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
             PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
-    public static final String EXTRA_SHOULD_NOTIFY = "shouldUseNotifications";
-    public static final String EXTRA_POSITION = "position";
-    public static final String EXTRA_STATE = "state";
-    public static final String EXTRA_AMPLITUDE = "amplitude";
-    public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
-    public static final String EXTRA_DURATION = "duration";
-    public static final String EXTRA_RECORDING = Recording.EXTRA;
-    public static final String EXTRA_TIME_REMAINING = "time_remaining";
-    public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
-    /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
+    private static final String EXTRA_STATE = "state";
+    private static final String EXTRA_RECORDING = Recording.EXTRA;
     private static SoundRecorder instance;
     private static float[] EMPTY_TRIM_WINDOW = new float[]{0f, 1f};
 
@@ -79,7 +81,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     private final LocalBroadcastManager broadcastManager;
     @NotNull private volatile State state;
     @NotNull private RecordStream recordStream;
-    @Nullable /*package*/ ReaderThread readerThread;
+    @Nullable private ReaderThread readerThread;
     @Nullable private Recording recording;
     @Nullable private PlaybackStream playbackStream;
     private PlayerThread playbackThread;
@@ -176,7 +178,6 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    public
     @NotNull
     RecordStream getRecordStream() {
         return recordStream;
@@ -190,7 +191,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         return state.isRecording();
     }
 
-    public State startReading() {
+    State startReading() {
         if (state == State.IDLE) {
             startReadingInternal(State.READING);
         }
@@ -200,8 +201,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     // Sets output file path, call directly after construction/reset.
     @NotNull
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    public Recording startRecording() throws IOException {
-        if (!IOUtils.isSDCardAvailable()) {
+    Recording startRecording() throws IOException {
+        if (!IOUtils.isExternalStorageAvailable()) {
             throw new IOException(context.getString(R.string.record_insert_sd_card));
         } else if (!remainingTimeCalculator.isDiskSpaceAvailable()) {
             throw new IOException(context.getString(R.string.record_storage_is_full));
@@ -268,19 +269,19 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    public void stopReading() {
+    void stopReading() {
         if (state == State.READING) {
             state = State.STOPPING;
         }
     }
 
-    public void stopRecording() {
+    void stopRecording() {
         if (state == State.RECORDING || state == State.READING) {
             state = State.STOPPING;
         }
     }
 
-    public void stopPlayback() {
+    private void stopPlayback() {
         if (state == State.PLAYING || state == State.SEEKING) {
             state = State.STOPPING;
         }
@@ -299,20 +300,20 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         audioTrack.release();
     }
 
-    public long getRecordingElapsedTime() {
+    long getRecordingElapsedTime() {
         return recordStream.getDuration();
     }
 
-    public long getPlaybackDuration() {
+    long getPlaybackDuration() {
         return playbackStream == null ? -1 : playbackStream.getDuration();
     }
 
-    public long getCurrentPlaybackPosition() {
+    long getCurrentPlaybackPosition() {
         return seekToPos != -1 ? seekToPos :
                playbackStream != null ? playbackStream.getPosition() : -1;
     }
 
-    public void revertFile() {
+    void revertFile() {
         if (playbackStream != null) {
             playbackStream.reset();
         }
@@ -339,7 +340,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    public void seekTo(float pct) {
+    void seekTo(float pct) {
         if (playbackStream != null) {
             final long position = (long) (getPlaybackDuration() * pct);
             final long absPosition = position + playbackStream.getStartPos();
@@ -353,19 +354,19 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    public void onNewStartPosition(float newPos, long moveTime) {
+    void onNewStartPosition(float newPos, long moveTime) {
         if (playbackStream != null) {
             previewTrim(playbackStream.setStartPositionByPercent(newPos, moveTime));
         }
     }
 
-    public void onNewEndPosition(float newPos, long moveTime) {
+    void onNewEndPosition(float newPos, long moveTime) {
         if (playbackStream != null) {
             previewTrim(playbackStream.setEndPositionByPercent(newPos, moveTime));
         }
     }
 
-    public float[] getTrimWindow() {
+    float[] getTrimWindow() {
         if (playbackStream == null) {
             return EMPTY_TRIM_WINDOW;
         } else {
@@ -374,9 +375,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     }
 
-    public
     @Nullable
-    Recording saveState(Context context) {
+    private Recording saveState(Context context) {
 
         if (recording != null) {
 
@@ -396,23 +396,23 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     }
 
     public static File recordingDir(Context context) {
-        return IOUtils.getExternalStorageDir(context, RECORD_DIR_NAME);
+        return IOUtils.createExternalStorageDir(context, RECORD_DIR_NAME);
     }
 
-    public static File uploadingDir(Context context) {
-        return IOUtils.getExternalStorageDir(context, UPLOAD_DIR_NAME);
+    static File uploadingDir(Context context) {
+        return IOUtils.createExternalStorageDir(context, UPLOAD_DIR_NAME);
     }
 
     // Used by the service to determine whether to show notifications or not
     // this is stored here because of the Recorder's lifecycle.
-    public void shouldUseNotifications(boolean b) {
+    void shouldUseNotifications(boolean b) {
         if (shouldUseNotifications != b) {
             shouldUseNotifications = b;
             broadcast(NOTIFICATION_STATE);
         }
     }
 
-    public boolean toggleFade() {
+    boolean toggleFade() {
         if (playbackStream != null) {
             final boolean enabled = !playbackStream.isFading();
             playbackStream.setFading(enabled);
@@ -421,11 +421,11 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         return false;
     }
 
-    public boolean isFading() {
+    boolean isFading() {
         return playbackStream != null && playbackStream.isFading();
     }
 
-    public static IntentFilter getIntentFilter() {
+    static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();
         for (String action : ALL_ACTIONS) {
             filter.addAction(action);
@@ -433,7 +433,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         return filter;
     }
 
-    public boolean shouldEncodeWhileRecording() {
+    private boolean shouldEncodeWhileRecording() {
         return hasFPUSupport() &&
                 !SettingKey.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(context)
                                                                            .getString(SettingKey.DEV_RECORDING_TYPE,
@@ -613,7 +613,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
             }
         }
 
-        public void addPreview(TrimPreview trimPreview) {
+        void addPreview(TrimPreview trimPreview) {
             previewQueue.add(trimPreview);
 
             long currentDuration = 0;
@@ -695,7 +695,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    /*package*/ class ReaderThread extends Thread {
+    private class ReaderThread extends Thread {
         ReaderThread() {
             super("ReaderThread");
             setPriority(Thread.MAX_PRIORITY);

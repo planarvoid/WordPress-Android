@@ -340,8 +340,6 @@
   <string name="cloud_recorder_event_title">Opname bezig</string>
   <string name="cloud_recorder_playback_event_title">Afspelen bezig</string>
   <string name="record_track_title">Track-titel</string>
-  <string name="recording_pending_upload">Upload in behandeling</string>
-  <string name="recording_uploading">Uploaden...</string>
   <string name="recording_upload_failed">Upload mislukt</string>
   <string name="recording_upload_finished">Upload voltooid</string>
   <string name="record_privacy_header">Track wordt:</string>

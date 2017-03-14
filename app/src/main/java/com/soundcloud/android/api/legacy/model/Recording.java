@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -38,11 +37,15 @@ import java.util.regex.Pattern;
 
 public class Recording implements Comparable<Recording>, Parcelable {
 
-    public static final String IMAGE_DIR = "recordings/images";
+    private static final String IMAGE_DIR = "recordings/images";
+    private static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
+    private static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
+    private static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
+    private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
+    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
+    private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
+
     public static final String EXTRA = "recording";
-    public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
-    public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
-    public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
     public static final String PROCESSED_APPEND = "_processed";
     public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
         public Recording createFromParcel(Parcel in) {
@@ -53,9 +56,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
             return new Recording[size];
         }
     };
-    private static final Pattern AMPLITUDE_PATTERN = Pattern.compile("^.*\\.(amp)$");
-    private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm|wav)$");
-    private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
     // basic properties
     public long user_id;
     public String title;
@@ -71,7 +71,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
     @Nullable public File resized_artwork_path;
     // status
     public boolean external_upload;
-    public int upload_status;
+    private int upload_status;
     private PlaybackStream playbackStream;
 
     public Recording() {
@@ -132,12 +132,12 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
     }
 
-    public File getImageFile(File imageDir) {
+    private File getImageFile(File imageDir) {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
     public File getImageFile(Context context) {
-        return getImageFile(IOUtils.getExternalStorageDir(context, IMAGE_DIR));
+        return getImageFile(IOUtils.createExternalStorageDir(context, IMAGE_DIR));
     }
 
     /**
@@ -155,7 +155,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
     @Nullable
     PlaybackStream getPlaybackStream() {
         if (playbackStream == null && !external_upload) {
-            playbackStream = initializePlaybackStream(null);
+            playbackStream = initializePlaybackStream();
         }
         return playbackStream;
     }
@@ -168,7 +168,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
     /**
      * @return last modified time of recording, or 0 if file does not exist.
      */
-    public long lastModified() {
+    private long lastModified() {
         return audio_path.exists() ? audio_path.lastModified() : getEncodedFile().lastModified();
     }
 
@@ -200,11 +200,11 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return AMPLITUDE_PATTERN.matcher(filename).matches();
     }
 
-    public static boolean isRawFilename(String filename) {
+    private static boolean isRawFilename(String filename) {
         return RAW_PATTERN.matcher(filename).matches();
     }
 
-    public static boolean isEncodedFilename(String filename) {
+    private static boolean isEncodedFilename(String filename) {
         return ENCODED_PATTERN.matcher(filename).matches();
     }
 
@@ -222,7 +222,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return note;
     }
 
-    public String defaultSharingNote(Resources res) {
+    private String defaultSharingNote(Resources res) {
         return res.getString(R.string.record_default_title_sounds_from_day_time_of_day, recordingDateString(res));
     }
 
@@ -232,18 +232,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
 
     public boolean isUploadRecording(Context context) {
         return (external_upload && audio_path.getParentFile().equals(SoundRecorder.recordingDir(context)));
-    }
-
-    public String getStatusMessage(Resources resources) {
-        switch (upload_status) {
-            case Status.UPLOADING:
-                return resources.getString(R.string.recording_uploading);
-            case Status.ERROR:
-                return resources.getString(R.string.recording_upload_failed);
-            case Status.NOT_YET_UPLOADED:
-            default:
-                return resources.getString(R.string.recording_pending_upload);
-        }
     }
 
     /**
@@ -308,7 +296,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return artwork_path != null && artwork_path.exists();
     }
 
-    public boolean hasResizedArtwork() {
+    private boolean hasResizedArtwork() {
         return resized_artwork_path != null && resized_artwork_path.exists();
     }
 
@@ -325,22 +313,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
     public int compareTo(@NotNull Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
     }
-
-    public static long getUserIdFromFile(File file) {
-        final String path = file.getName();
-        if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf('_') + 1 >= path.length()) {
-            return -1;
-        } else {
-            try {
-                return Long.valueOf(
-                        path.substring(path.indexOf('_') + 1,
-                                       path.contains(".") ? path.indexOf('.') : path.length()));
-            } catch (NumberFormatException ignored) {
-                return -1;
-            }
-        }
-    }
-
 
     @Nullable
     public static Recording fromIntent(@Nullable Intent intent) {
@@ -413,7 +385,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return trimWaveFiles(directory, ignore, MAX_WAVE_CACHE);
     }
 
-    public static long trimWaveFiles(File directory, Recording ignore, long maxCacheSize) {
+    private static long trimWaveFiles(File directory, Recording ignore, long maxCacheSize) {
         final RecordingWavFilter filter = new RecordingWavFilter(ignore);
         final long dirSize = IOUtils.getDirSize(directory);
 
@@ -461,14 +433,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
         this.is_private = isPrivate;
     }
 
-    public long getUserId() {
-        return user_id;
-    }
-
-    public void setUserId(long userId) {
-        this.user_id = userId;
-    }
-
     public long getId() {
         return getAbsolutePath().hashCode();
     }
@@ -493,7 +457,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return res.getString(id, time.format("%A"));
     }
 
-    private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
+    private PlaybackStream initializePlaybackStream() {
         try {
             return new PlaybackStream(AudioReader.guessMultiple(audio_path, getEncodedFile()));
         } catch (IOException e) {
@@ -503,9 +467,9 @@ public class Recording implements Comparable<Recording>, Parcelable {
     }
 
     public static abstract class Status {
-        public static final int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
-        public static final int UPLOADING = 1; // currently uploading
-        public static final int UPLOADED = 2; // successfully uploaded
+        static final int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
+        static final int UPLOADING = 1; // currently uploading
+        static final int UPLOADED = 2; // successfully uploaded
         public static final int ERROR = 4; // network / api error
     }
 
@@ -516,10 +480,10 @@ public class Recording implements Comparable<Recording>, Parcelable {
         }
     }
 
-    public static class RecordingWavFilter implements FilenameFilter {
+    private static class RecordingWavFilter implements FilenameFilter {
         private final Recording toIgnore;
 
-        public RecordingWavFilter(@Nullable Recording ignore) {
+        RecordingWavFilter(@Nullable Recording ignore) {
             toIgnore = ignore;
         }
 

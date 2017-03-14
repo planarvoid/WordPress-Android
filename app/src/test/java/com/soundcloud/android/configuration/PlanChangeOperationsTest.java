@@ -42,7 +42,7 @@ public class PlanChangeOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(offlineContentOperations.resetOfflineFeature()).thenReturn(Observable.just(null));
+        when(offlineContentOperations.disableOfflineFeature()).thenReturn(Observable.just(null));
         operations = new PlanChangeOperations(configurationOperations, pendingPlanOperations, policyOperations, playSessionController, offlineContentOperations, eventBus);
     }
 
@@ -191,7 +191,7 @@ public class PlanChangeOperationsTest {
     public void downgradeToFreeResetsOfflineFeature() {
         final PublishSubject<Void> clearObservable = PublishSubject.create();
         when(configurationOperations.awaitConfigurationFromPendingDowngrade()).thenReturn(Observable.just(TestConfiguration.free()));
-        when(offlineContentOperations.resetOfflineFeature()).thenReturn(clearObservable);
+        when(offlineContentOperations.disableOfflineFeature()).thenReturn(clearObservable);
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
@@ -205,7 +205,7 @@ public class PlanChangeOperationsTest {
 
         operations.awaitAccountDowngrade().subscribe(subscriber);
 
-        verify(offlineContentOperations, never()).resetOfflineFeature();
+        verify(offlineContentOperations, never()).disableOfflineFeature();
     }
 
 }

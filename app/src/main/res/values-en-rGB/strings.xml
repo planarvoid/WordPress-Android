@@ -342,8 +342,6 @@
   <string name="cloud_recorder_event_title">Recording in progress</string>
   <string name="cloud_recorder_playback_event_title">Playback in progress</string>
   <string name="record_track_title">Track title</string>
-  <string name="recording_pending_upload">Pending Upload</string>
-  <string name="recording_uploading">Uploading...</string>
   <string name="recording_upload_failed">Upload failed</string>
   <string name="recording_upload_finished">Upload finished</string>
   <string name="record_privacy_header">Track will be:</string>

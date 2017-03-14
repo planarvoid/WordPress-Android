@@ -18,7 +18,7 @@ class DiskCacheMigration implements Migration {
 
     @Override
     public void applyMigration() {
-        final File old_cache = IOUtils.getExternalStorageDir(context, ".lrucache");
+        final File old_cache = IOUtils.createExternalStorageDir(context, ".lrucache");
         if (old_cache != null && old_cache.exists()) {
             IOUtils.deleteDir(old_cache);
         }

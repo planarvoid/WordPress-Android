@@ -803,6 +803,10 @@ public class DatabaseAssertions {
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
         for (Urn urn : tracksToDownload) {
             assertThat(select(from(TABLE)
+                                      .whereNull(TrackDownloads.REMOVED_AT)
+                                      .whereNull(TrackDownloads.DOWNLOADED_AT)
+                                      .whereNull(TrackDownloads.UNAVAILABLE_AT)
+                                      .whereNotNull(TrackDownloads.REQUESTED_AT)
                                       .whereEq(TrackDownloads._ID, urn.getNumericId()))).counts(1);
         }
     }

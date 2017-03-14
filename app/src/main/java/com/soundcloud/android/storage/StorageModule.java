@@ -36,8 +36,6 @@ public class StorageModule {
     public static final String POLICY_SETTINGS = "Policies";
     public static final String CONFIGURATION_SETTINGS = "ConfigurationSettings";
     public static final String ANALYTICS_SETTINGS = "Analytics";
-    public static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
-    public static final String CHARTS_SYNC = "ChartsSync";
     public static final String GCM = "gcm";
     public static final String FACEBOOK_INVITES = "FacebookInvites";
     public static final String INTRODUCTORY_OVERLAYS = "IntroductoryOverlays";
@@ -51,11 +49,12 @@ public class StorageModule {
     public static final String IMAGE_CONFIG = "ImageConfiguration";
     public static final String PLAY_SESSION_STATE = "PlaySessionState";
     public static final String FEATURES_FLAGS = "FeatureFlags";
-    public static final String UNAUTHORIZED_ERRORS = "UnauthorizedErrors";
-
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
     public static final String PREFS_FEATURE_FLAGS = "feature_flags";
 
+    private static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
+    private static final String CHARTS_SYNC = "ChartsSync";
+    private static final String UNAUTHORIZED_ERRORS = "UnauthorizedErrors";
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
     private static final String PREFS_PAYMENTS = "payments";
@@ -85,86 +84,86 @@ public class StorageModule {
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_SKIPPY)
     @Nullable
-    public File provideStreamCacheDirectorySkippy(Context context) {
-        return IOUtils.getExternalStorageDir(context, "skippy");
+    File provideStreamCacheDirectorySkippy(Context context) {
+        return IOUtils.createExternalStorageDir(context, "skippy");
     }
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_FLIPPER)
     @Nullable
-    public File provideStreamCacheDirectoryFlipper(Context context) {
-        return IOUtils.getExternalStorageDir(context, "flipper");
+    File provideStreamCacheDirectoryFlipper(Context context) {
+        return IOUtils.createExternalStorageDir(context, "flipper");
     }
 
     @Provides
-    public ContentResolver provideContentResolver(SoundCloudApplication application) {
+    ContentResolver provideContentResolver(SoundCloudApplication application) {
         return application.getContentResolver();
     }
 
     @Provides
     @Named(PLAYLIST_TAGS)
-    public SharedPreferences providePlaylistTagPrefs(Context context) {
+    SharedPreferences providePlaylistTagPrefs(Context context) {
         return context.getSharedPreferences(PREFS_PLAYLIST_TAGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(GCM)
-    public SharedPreferences provideGcmPrefs(Context context) {
+    SharedPreferences provideGcmPrefs(Context context) {
         return context.getSharedPreferences(PREFS_GCM, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(COLLECTIONS)
-    public SharedPreferences provideCollectionsPrefs(Context context) {
+    SharedPreferences provideCollectionsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_COLLECTIONS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(DEVICE_MANAGEMENT)
-    public SharedPreferences provideDeviceManagementPrefs(Context context) {
+    SharedPreferences provideDeviceManagementPrefs(Context context) {
         return context.getSharedPreferences(PREFS_DEVICE_MANAGEMENT, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PAYMENTS)
-    public SharedPreferences providePaymentsPrefs(Context context) {
+    SharedPreferences providePaymentsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_PAYMENTS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(DEVICE_KEYS)
-    public SharedPreferences provideKeysPrefs(Context context) {
+    SharedPreferences provideKeysPrefs(Context context) {
         return context.getSharedPreferences(PREFS_DEVICE_KEYS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(OFFLINE_SETTINGS)
-    public SharedPreferences provideOfflinePrefs(Context context) {
+    SharedPreferences provideOfflinePrefs(Context context) {
         return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(POLICY_SETTINGS)
-    public SharedPreferences providePolicyPrefs(Context context) {
+    SharedPreferences providePolicyPrefs(Context context) {
         return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(CONFIGURATION_SETTINGS)
-    public SharedPreferences provideConfigurationPrefs(Context context) {
+    SharedPreferences provideConfigurationPrefs(Context context) {
         return context.getSharedPreferences(PREFS_CONFIGURATION_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ANALYTICS_SETTINGS)
-    public SharedPreferences provideAnalyticsPrefs(Context context) {
+    SharedPreferences provideAnalyticsPrefs(Context context) {
         return context.getSharedPreferences(PREFS_ANALYTICS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Singleton
     @Named(FEATURES)
-    public SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
+    SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE),
                                          obfuscator);
     }
@@ -172,120 +171,120 @@ public class StorageModule {
     @Provides
     @Singleton
     @Named(FEATURES_FLAGS)
-    public SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
+    SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE),
                                          obfuscator);
     }
 
     @Provides
     @Named(STREAM_SYNC)
-    public SharedPreferences provideStreamSyncPrefs(Context context) {
+    SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(UPSELL)
-    public SharedPreferences provideStreamPrefs(Context context) {
+    SharedPreferences provideStreamPrefs(Context context) {
         return context.getSharedPreferences(PREFS_UPSELL, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ACTIVITIES_SYNC)
-    public SharedPreferences provideActivitiesSyncPrefs(Context context) {
+    SharedPreferences provideActivitiesSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_ACTIVITIES_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(RECOMMENDED_TRACKS_SYNC)
-    public SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
+    SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_RECOMMENDED_TRACKS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(CHARTS_SYNC)
-    public SharedPreferences provideChartsSyncPrefs(Context context) {
+    SharedPreferences provideChartsSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_CHARTS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(FACEBOOK_INVITES)
-    public SharedPreferences provideFacebookInvitesPrefs(Context context) {
+    SharedPreferences provideFacebookInvitesPrefs(Context context) {
         return context.getSharedPreferences(PREFS_FACEBOOK_INVITES, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(STATIONS)
-    public SharedPreferences provideStationsPreferences(Context context) {
+    SharedPreferences provideStationsPreferences(Context context) {
         return context.getSharedPreferences(PREFS_STATIONS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PLAYER)
-    public SharedPreferences providePlayerPreferences(Context context) {
+    SharedPreferences providePlayerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_PLAYER, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(SYNCER)
-    public SharedPreferences provideSyncerPreferences(Context context) {
+    SharedPreferences provideSyncerPreferences(Context context) {
         return context.getSharedPreferences(PREFS_SYNCER, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(ENTITY_SYNC_STATE)
-    public SharedPreferences provideEntitySyncStatePreferences(Context context) {
+    SharedPreferences provideEntitySyncStatePreferences(Context context) {
         return context.getSharedPreferences(PREFS_ENTITY_SYNC_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(NOTIFICATION_PREFERENCES)
-    public SharedPreferences provideNotificationPreferences(Context context) {
+    SharedPreferences provideNotificationPreferences(Context context) {
         return context.getSharedPreferences(PREFS_NOTIFICATION_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(IMAGE_CONFIG)
-    public SharedPreferences provideImageConfiguration(Context context) {
+    SharedPreferences provideImageConfiguration(Context context) {
         return context.getSharedPreferences(PREFS_IMAGE_CONFIG, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(PLAY_SESSION_STATE)
-    public SharedPreferences providePlaySessionState(Context context) {
+    SharedPreferences providePlaySessionState(Context context) {
         return context.getSharedPreferences(PREFS_PLAY_SESSION_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Named(INTRODUCTORY_OVERLAYS)
-    public SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
+    SharedPreferences provideIntroductoryOverlayPrefs(Context context) {
         return context.getSharedPreferences(PREFS_INTRODUCTORY_OVERLAYS, Context.MODE_PRIVATE);
     }
 
     @Provides
     @Singleton
     @Named(FEATURES_FLAGS)
-    public PersistentStorage provideFeatureFlagsStorage(@Named(FEATURES_FLAGS) SharedPreferences preferences) {
+    PersistentStorage provideFeatureFlagsStorage(@Named(FEATURES_FLAGS) SharedPreferences preferences) {
         return new PersistentStorage(preferences);
     }
 
     @Provides
     @Named(UNAUTHORIZED_ERRORS)
-    public SharedPreferences provideUnauthorizedErrorsPreferences(Context context) {
+    SharedPreferences provideUnauthorizedErrorsPreferences(Context context) {
         return getUnauthorizedErrorsSharedPreferences(context);
     }
 
     @Provides
-    public SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
+    SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
         return provideDatabaseManager(context, applicationProperties).getWritableDatabase();
     }
 
     @Provides
-    public DatabaseManager provideDatabaseManager(Context context, ApplicationProperties applicationProperties) {
+    DatabaseManager provideDatabaseManager(Context context, ApplicationProperties applicationProperties) {
         return DatabaseManager.getInstance(context, applicationProperties);
     }
 
     @Provides
-    public PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties) {
+    PropellerDatabase providePropeller(SQLiteDatabase database, ApplicationProperties applicationProperties) {
         final PropellerDatabase propeller;
         if (applicationProperties.shouldLogQueries()) {
             propeller = new PropellerDatabase(database, new DebugQueryHook());
@@ -298,12 +297,12 @@ public class StorageModule {
 
     @Provides
     @Nullable
-    public DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties) {
+    DebugQueryHook provideQueryHook(ApplicationProperties applicationProperties) {
         return applicationProperties.shouldLogQueries() ? new DebugQueryHook() : null;
     }
 
     @Provides
-    public PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
+    PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
         return new PropellerRx(propeller);
     }
 

@@ -32,13 +32,12 @@ import java.util.List;
 public class OfflineContentOperations {
 
     private final StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
-
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     private final LoadExpectedContentCommand loadExpectedContentCommand;
     private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
-
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-
+    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
+    private final ResetOfflineContentCommand resetOfflineContentCommand;
     private final OfflineServiceInitiator serviceInitiator;
     private final OfflineContentScheduler serviceScheduler;
     private final SyncInitiatorBridge syncInitiatorBridge;
@@ -48,7 +47,6 @@ public class OfflineContentOperations {
     private final CollectionOperations collectionOperations;
     private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
-    private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
@@ -67,6 +65,7 @@ public class OfflineContentOperations {
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
                              ClearTrackDownloadsCommand clearTrackDownloadsCommand,
+                             ResetOfflineContentCommand resetOfflineContentCommand,
                              EventBus eventBus,
                              OfflineContentStorage offlineContentStorage,
                              PolicyOperations policyOperations,
@@ -84,6 +83,7 @@ public class OfflineContentOperations {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.resetOfflineContentCommand = resetOfflineContentCommand;
         this.eventBus = eventBus;
         this.offlineContentStorage = offlineContentStorage;
         this.policyOperations = policyOperations;
@@ -200,26 +200,42 @@ public class OfflineContentOperations {
         return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
     }
 
-    public Observable<Void> resetOfflineFeature() {
+    public Observable<Void> disableOfflineFeature() {
         return clearOfflineContent()
                 .doOnNext(ignored -> disableOfflineCollection());
     }
 
     public Observable<Void> clearOfflineContent() {
         return notifyOfflineContentRemoved()
-                .flatMap((Func1<Object,Observable<List<Urn>>>) o -> clearTrackDownloadsCommand.toObservable(null))
+                .flatMap(ignored -> clearTrackDownloadsCommand.toObservable(null))
+                .doOnNext(serviceInitiator.startFromUserAction())
+                .map(RxUtils.TO_VOID)
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<Void> resetOfflineContent(OfflineContentLocation location) {
+        return notifyOfflineContentRequested()
+                .flatMap(ignored -> resetOfflineContentCommand.toObservable(location))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
     }
 
     private Observable<?> notifyOfflineContentRemoved() {
+        return notifyOfflineContent(OfflineState.NOT_OFFLINE);
+    }
+
+    private Observable<?> notifyOfflineContentRequested() {
+        return notifyOfflineContent(OfflineState.REQUESTED);
+    }
+
+    private Observable<?> notifyOfflineContent(OfflineState state) {
         return Observable.zip(
                 loadOfflinePlaylistsCommand.toObservable(null),
                 isOfflineLikedTracksEnabled(),
-                (playlists, isOfflineLikedTracks) -> new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE,
-                                                      playlists,
-                                                      isOfflineLikedTracks))
+                (playlists, isOfflineLikedTracks) -> new OfflineContentChangedEvent(state,
+                                                                                    playlists,
+                                                                                    isOfflineLikedTracks))
                          .doOnNext(event -> eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, event));
     }
 

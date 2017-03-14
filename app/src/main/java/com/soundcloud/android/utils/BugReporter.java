@@ -80,7 +80,7 @@ public class BugReporter {
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.putExtra(Intent.EXTRA_TEXT, body);
 
-        File outputFile = IOUtils.getExternalStorageDir(context, LOGCAT_FILE_NAME);
+        File outputFile = IOUtils.createExternalStorageDir(context, LOGCAT_FILE_NAME);
         if (outputFile == null) {
             Log.e("Failed to get external storage directory for logcat file. Sending bug report without logs.");
             context.startActivity(Intent.createChooser(intent, chooserText));

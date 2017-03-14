@@ -58,7 +58,8 @@ import java.util.Map;
 
 public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements CreateWaveDisplay.Listener {
 
-    public static final String RECORD_STATE_KEY = "createCurrentCreateState";
+    private static final String RECORD_STATE_KEY = "createCurrentCreateState";
+
     private Typeface scNumberFont;
     private Typeface scFont;
 
@@ -92,7 +93,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private RecordFragment recordFragment;
 
     @Inject
-    public RecordPresenter(RecordingOperations recordingOperations, ViewHelper viewHelper, SoundRecorder recorder) {
+    RecordPresenter(RecordingOperations recordingOperations, ViewHelper viewHelper, SoundRecorder recorder) {
         this.recordingOperations = recordingOperations;
         this.viewHelper = viewHelper;
         this.recorder = recorder;
@@ -138,7 +139,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         }
     }
 
-    void checkForUnsavedRecordings() {
+    private void checkForUnsavedRecordings() {
         // we may have a leftover recording, so defer state configuration until we check
         final Context context = recordFragment.getContext();
         cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(context, SoundRecorder.recordingDir(context))
@@ -273,7 +274,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         configurePlaybackInfo();
     }
 
-    public void updateAmplitude(float maxAmplitude, boolean isRecording) {
+    private void updateAmplitude(float maxAmplitude, boolean isRecording) {
         waveDisplay.updateAmplitude(maxAmplitude, isRecording);
     }
 
@@ -283,7 +284,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         updateUi(CreateState.IDLE_RECORD);
     }
 
-    protected void startRecording() {
+    private void startRecording() {
         try {
             recorder.startRecording();
             waveDisplay.gotoRecordMode();
@@ -292,7 +293,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         }
     }
 
-    public void updateRecordProgress(long duration) {
+    private void updateRecordProgress(long duration) {
         chrono.setDurationOnly(duration);
     }
 
@@ -428,10 +429,10 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
             }
         }
 
-        actionButton.setEnabled(IOUtils.isSDCardAvailable());
+        actionButton.setEnabled(IOUtils.isExternalStorageAvailable());
     }
 
-    void configureStateBasedOnRecorder() {
+    private void configureStateBasedOnRecorder() {
         CreateState newState = currentState;
         if (recorder.isRecording()) {
             newState = RECORD;

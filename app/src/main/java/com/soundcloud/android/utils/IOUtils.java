@@ -2,9 +2,6 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +19,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
-import android.os.StatFs;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,8 +42,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class IOUtils {
@@ -59,22 +53,39 @@ public class IOUtils {
     }
 
     @Nullable
+    public static File createExternalStorageDir(Context context, String dir) {
+        return createDir(getExternalStorageDir(context), dir);
+    }
+
+    @Nullable
+    public static File createSDCardDir(Context context, String dir) {
+        return createDir(getSDCardDir(context), dir);
+    }
+
+    @Nullable
     public static File getExternalStorageDir(Context context) {
         final File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null);
         return externalFilesDirs == null || externalFilesDirs.length == 0 ? null : externalFilesDirs[0];
     }
 
     @Nullable
-    public static File getExternalStorageDir(Context context, String dir) {
-        final File externalStorageDir = getExternalStorageDir(context);
-        if (externalStorageDir != null) {
-            final File file = new File(externalStorageDir, dir);
-            file.mkdirs();
-            return file;
+    private static File getSDCardDir(Context context) {
+        final File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null);
+        if (externalFilesDirs == null || externalFilesDirs.length == 0 || externalFilesDirs.length == 1) {
+            return null;
+        }
+        return externalFilesDirs[1];
+    }
+
+    @Nullable
+    private static File createDir(File path, String folder) {
+        if (path != null) {
+            final File dir = new File(path, folder);
+            dir.mkdirs();
+            return dir;
         } else {
             return null;
         }
-
     }
 
     @NotNull
@@ -111,17 +122,6 @@ public class IOUtils {
             }
         }
         return result;
-    }
-
-    public static long getSpaceLeft(File dir) {
-        try {
-            StatFs fs = new StatFs(dir.getAbsolutePath());
-            return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
-        } catch (IllegalArgumentException e) {
-            // gets thrown when call to statfs fails
-            Log.e(TAG, "getSpaceLeft(" + dir + ")", e);
-            return 0;
-        }
     }
 
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
@@ -190,7 +190,7 @@ public class IOUtils {
         return readInputStreamAsBytes(in, BUFFER_SIZE);
     }
 
-    public static byte[] readInputStreamAsBytes(InputStream in, final int contentLength) throws IOException {
+    private static byte[] readInputStreamAsBytes(InputStream in, final int contentLength) throws IOException {
         byte[] b = new byte[contentLength];
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         if (!(in instanceof BufferedInputStream)) {
@@ -217,7 +217,7 @@ public class IOUtils {
         }
     }
 
-    public static void consumeStream(@Nullable HttpURLConnection connection) {
+    static void consumeStream(@Nullable HttpURLConnection connection) {
         try {
             if (connection != null) {
                 final int contentLength = connection.getContentLength();
@@ -308,7 +308,7 @@ public class IOUtils {
         }
     }
 
-    public static boolean nomedia(File dir) {
+    private static boolean nomedia(File dir) {
         if (!dir.isDirectory()) {
             return false;
         }
@@ -327,7 +327,7 @@ public class IOUtils {
     }
 
     public static void createCacheDirs(Context context, @Nullable File streamCacheDirectory) {
-        if (isSDCardAvailable()) {
+        if (isExternalStorageAvailable()) {
             if (streamCacheDirectory != null) {
                 mkdirs(streamCacheDirectory);
             }
@@ -345,7 +345,7 @@ public class IOUtils {
         }
     }
 
-    public static boolean isSDCardAvailable() {
+    public static boolean isExternalStorageAvailable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
     }
 
@@ -354,15 +354,15 @@ public class IOUtils {
      * @param maxSpace  the max space to use
      * @return max usable space
      */
-    public static long getMaxUsableSpace(long spaceLeft, long maxSpace) {
+    static long getMaxUsableSpace(long spaceLeft, long maxSpace) {
         return Math.min(maxSpace, spaceLeft);
     }
 
-    public static String inMbFormatted(File... directories) {
+    static String inMbFormatted(File... directories) {
         return inMbFormatted(getDirSize(directories));
     }
 
-    public static String inMbFormatted(double bytes) {
+    static String inMbFormatted(double bytes) {
         return new DecimalFormat("#.#").format(bytes / 1048576d);
     }
 
@@ -484,31 +484,6 @@ public class IOUtils {
     public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
         return ((WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, tag);
-    }
-
-    public static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {
-        List<String> errorList = new ArrayList<>();
-        try {
-            final JsonNode node = reader.readTree(is);
-            final JsonNode errors = node.path("errors").path("error");
-            final JsonNode error = node.path("error");
-            if (error.isTextual()) {
-                errorList.add(error.asText());
-            } else if (errors.isTextual()) {
-                errorList.add(errors.asText());
-            } else if (node.path("errors").isArray()) {
-                for (JsonNode n : node.path("errors")) {
-                    errorList.add(n.path("error_message").asText());
-                }
-            } else {
-                for (JsonNode s : errors) {
-                    errorList.add(s.asText());
-                }
-            }
-        } catch (JsonParseException e) {
-            Log.e(TAG, "Error parsing json response: ", e);
-        }
-        return errorList;
     }
 
     public static boolean checkReadExternalStoragePermission(final Activity activity) {

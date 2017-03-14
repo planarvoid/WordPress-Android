@@ -14,12 +14,14 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Singleton
 public class SecureFileStorage {
 
     private static final String TAG = "SecureFileStorage";
@@ -28,29 +30,36 @@ public class SecureFileStorage {
     private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
     private static final int MINIMUM_SPACE = 5 * 1024 * 1024; // 5MB
 
-    @Nullable
-    protected final File offlineDir;
+    @Nullable File offlineDir;
 
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage settingsStorage;
+    private final Context context;
     private volatile boolean isRunningEncryption;
 
     @Inject
     public SecureFileStorage(CryptoOperations operations, OfflineSettingsStorage settingsStorage, Context context) {
         this.cryptoOperations = operations;
         this.settingsStorage = settingsStorage;
-        this.offlineDir = IOUtils.getExternalStorageDir(context, DIRECTORY_NAME);
+        this.context = context;
+        updateOfflineDir();
     }
 
-    public void tryCancelRunningEncryption() {
+    void updateOfflineDir() {
+        offlineDir = OfflineContentLocation.DEVICE_STORAGE == settingsStorage.getOfflineContentLocation()
+                     ? IOUtils.createExternalStorageDir(context, DIRECTORY_NAME)
+                     : IOUtils.createSDCardDir(context, DIRECTORY_NAME);
+    }
+
+    void tryCancelRunningEncryption() {
         if (isRunningEncryption) {
             cryptoOperations.cancelEncryption();
         }
     }
 
-    public void storeTrack(Urn urn,
-                           InputStream input,
-                           Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
+    void storeTrack(Urn urn,
+                    InputStream input,
+                    Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         if (!createDirectoryIfNeeded()) {
             throw new IOException("Failed to create directory for " + offlineDir);
         }
@@ -72,7 +81,7 @@ public class SecureFileStorage {
         }
     }
 
-    public boolean isEnoughMinimumSpace() {
+    boolean isEnoughMinimumSpace() {
         return isEnoughSpace(MINIMUM_SPACE);
     }
 
@@ -80,7 +89,7 @@ public class SecureFileStorage {
         return !file.exists() || file.delete();
     }
 
-    public boolean deleteTrack(Urn urn) {
+    boolean deleteTrack(Urn urn) {
         try {
             return offlineDir != null && deleteFile(new File(offlineDir, generateFileName(urn)));
         } catch (EncryptionException exception) {
@@ -89,9 +98,9 @@ public class SecureFileStorage {
         }
     }
 
-    public void deleteAllTracks() {
+    void deleteAllTracks() {
         if (offlineDir != null) {
-            IOUtils.deleteDir(offlineDir);
+            IOUtils.cleanDir(offlineDir);
         }
     }
 
@@ -106,7 +115,7 @@ public class SecureFileStorage {
         return Uri.EMPTY;
     }
 
-    public boolean isEnoughSpace(long sizeInBytes) {
+    boolean isEnoughSpace(long sizeInBytes) {
         long dirSizeWithFile = getStorageUsed() + sizeInBytes;
         final long storageAvailable = getStorageAvailable();
         return storageAvailable > 0 && storageAvailable >= sizeInBytes && isWithinStorageLimit(dirSizeWithFile);
@@ -133,7 +142,7 @@ public class SecureFileStorage {
     }
 
     @VisibleForTesting
-    protected final boolean createDirectoryIfNeeded() {
+    final boolean createDirectoryIfNeeded() {
         return offlineDir != null && (offlineDir.exists() || IOUtils.mkdirs(offlineDir));
     }
 

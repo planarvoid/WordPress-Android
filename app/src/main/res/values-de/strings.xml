@@ -340,8 +340,6 @@
   <string name="cloud_recorder_event_title">Aufnahme läuft</string>
   <string name="cloud_recorder_playback_event_title">Wiedergabe läuft</string>
   <string name="record_track_title">Track-Titel</string>
-  <string name="recording_pending_upload">Noch nicht hochgeladen</string>
-  <string name="recording_uploading">Wird hochgeladen ...</string>
   <string name="recording_upload_failed">Upload fehlgeschlagen</string>
   <string name="recording_upload_finished">Upload beendet</string>
   <string name="record_privacy_header">Datenschutzeinstellung:</string>

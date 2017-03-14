@@ -22,11 +22,11 @@ import java.io.File;
  * </a>
  */
 
-public class RemainingTimeCalculator {
+class RemainingTimeCalculator {
     // need to keep some space for amplitude data etc which gets written after audio files
-    public static final int KEEP_BLOCKS = 100;
+    private static final int KEEP_BLOCKS = 100;
 
-    private final File sdCardDirectory;
+    private final File externalStorageDirectory;
 
     // State for tracking file size of recording.
     private File encodedFile;
@@ -55,8 +55,8 @@ public class RemainingTimeCalculator {
     /**
      * @param bytesPerSecond the estimated bps rate of the audio stream to be recorded
      */
-    public RemainingTimeCalculator(Context context, int bytesPerSecond) {
-        sdCardDirectory = IOUtils.getExternalStorageDir(context);
+    RemainingTimeCalculator(Context context, int bytesPerSecond) {
+        externalStorageDirectory = IOUtils.getExternalStorageDir(context);
         this.bytesPerSecond = bytesPerSecond;
     }
 
@@ -66,7 +66,7 @@ public class RemainingTimeCalculator {
      *
      * @param file the file to watch
      */
-    public void setEncodedFile(File file) {
+    void setEncodedFile(File file) {
         encodedFile = file;
     }
 
@@ -82,13 +82,13 @@ public class RemainingTimeCalculator {
     /**
      * @return how long (in seconds) we can continue recording, 0 if no more time left.
      */
-    public long timeRemaining() {
+    long timeRemaining() {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return 0;
         }
 
         // Calculate how long we can record based on free disk space
-        StatFs fs = new StatFs(sdCardDirectory.getAbsolutePath());
+        StatFs fs = new StatFs(externalStorageDirectory.getAbsolutePath());
         final long blocks = Math.max(0, fs.getAvailableBlocks() - KEEP_BLOCKS);
         final long blockSize = fs.getBlockSize();
         final long now = System.currentTimeMillis();
@@ -139,9 +139,9 @@ public class RemainingTimeCalculator {
     /**
      * @return if some diskspace is available
      */
-    public boolean isDiskSpaceAvailable() {
-        if (sdCardDirectory != null && IOUtils.isSDCardAvailable()) {
-            StatFs fs = new StatFs(sdCardDirectory.getAbsolutePath());
+    boolean isDiskSpaceAvailable() {
+        if (externalStorageDirectory != null && IOUtils.isExternalStorageAvailable()) {
+            StatFs fs = new StatFs(externalStorageDirectory.getAbsolutePath());
             // keep some free block
             return fs.getAvailableBlocks() > KEEP_BLOCKS;
         } else {

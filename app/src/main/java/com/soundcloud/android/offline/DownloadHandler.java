@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 class DownloadHandler extends Handler {
 
-    public static final int ACTION_DOWNLOAD = 0;
+    static final int ACTION_DOWNLOAD = 0;
 
     private final WeakReference<Listener> listenerRef;
     private final DownloadOperations downloadOperations;
@@ -39,11 +39,11 @@ class DownloadHandler extends Handler {
         void onProgress(DownloadState state);
     }
 
-    DownloadHandler(Looper looper, Listener listener,
-                    DownloadOperations downloadOperations,
-                    SecureFileStorage secureFileStorage,
-                    TrackDownloadsStorage trackDownloadsStorage,
-                    OfflinePerformanceTracker performanceTracker) {
+    private DownloadHandler(Looper looper, Listener listener,
+                            DownloadOperations downloadOperations,
+                            SecureFileStorage secureFileStorage,
+                            TrackDownloadsStorage trackDownloadsStorage,
+                            OfflinePerformanceTracker performanceTracker) {
         super(looper);
         this.performanceTracker = performanceTracker;
         this.listenerRef = new WeakReference<>(listener);

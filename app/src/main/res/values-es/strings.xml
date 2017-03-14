@@ -340,8 +340,6 @@
   <string name="cloud_recorder_event_title">Grabación en curso</string>
   <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
   <string name="record_track_title">Título de la pista</string>
-  <string name="recording_pending_upload">Subida pendiente</string>
-  <string name="recording_uploading">Subiendo...</string>
   <string name="recording_upload_failed">La subida ha fallado</string>
   <string name="recording_upload_finished">Subida finalizada</string>
   <string name="record_privacy_header">La pista será:</string>

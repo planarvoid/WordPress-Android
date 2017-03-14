@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import android.content.Context;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -16,11 +19,60 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
-public class IOUtilsTest {
+public class IOUtilsTest extends AndroidUnitTest {
 
     private static final long MB = 1024 * 1024;
 
     @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Test
+    public void createExternalStorageDir() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.createExternalStorageDir(context, "external")).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{});
+        assertThat(IOUtils.createExternalStorageDir(context, "external")).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1});
+        assertThat(IOUtils.createExternalStorageDir(context, "external")).isNotNull();
+    }
+
+    @Test
+    public void createSDCardDir() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        File file2 = tempFolder.newFile("file2");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.createSDCardDir(context, "sdcard")).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{});
+        assertThat(IOUtils.createSDCardDir(context, "sdcard")).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1});
+        assertThat(IOUtils.createSDCardDir(context, "sdcard")).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1, file2});
+        assertThat(IOUtils.createSDCardDir(context, "sdcard")).isNotNull();
+    }
+
+    @Test
+    public void getExternalStorageDir() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.getExternalStorageDir(context)).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{});
+        assertThat(IOUtils.getExternalStorageDir(context)).isNull();
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1});
+        assertThat(IOUtils.getExternalStorageDir(context)).isEqualTo(file1);
+    }
 
     @Test
     public void maxUsableSpaceIsCappedBySpaceLeft() {

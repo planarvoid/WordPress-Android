@@ -20,7 +20,7 @@ class DeleteOfflineTrackCommand extends Command<Collection<Urn>, Collection<Urn>
     private final PropellerDatabase database;
 
     @Inject
-    public DeleteOfflineTrackCommand(SecureFileStorage fileStorage, PropellerDatabase database) {
+    DeleteOfflineTrackCommand(SecureFileStorage fileStorage, PropellerDatabase database) {
         this.fileStorage = fileStorage;
         this.database = database;
     }

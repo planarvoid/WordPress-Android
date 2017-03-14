@@ -212,7 +212,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
                          OfflineInteractionEvent.fromDisableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
 
         subscription.add(offlineContentOperations
-                                 .resetOfflineFeature()
+                                 .disableOfflineFeature()
                                  .observeOn(AndroidSchedulers.mainThread())
                                  .subscribe(new ClearOfflineContentSubscriber()));
     }

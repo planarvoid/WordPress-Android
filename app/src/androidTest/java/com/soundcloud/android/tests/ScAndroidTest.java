@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.framework.runner.Runner;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
@@ -19,12 +18,13 @@ import java.util.Locale;
  * Base test case for resource handling.
  */
 public abstract class ScAndroidTest extends AndroidTestCase {
+    private static final String TEST_DIR = "sc-tests";
 
-    protected AssetManager testAssets() {
+    private AssetManager testAssets() {
         return testAssets(getContext());
     }
 
-    public static AssetManager testAssets(Context context) {
+    private static AssetManager testAssets(Context context) {
         try {
             return context
                     .getPackageManager()
@@ -46,9 +46,9 @@ public abstract class ScAndroidTest extends AndroidTestCase {
         return out;
     }
 
-    protected File externalPath(Context context, String name) {
+    private File externalPath(Context context, String name) {
         checkStorage();
-        File file = new File(IOUtils.getExternalStorageDir(context, Runner.TEST_DIR), name);
+        File file = new File(IOUtils.createExternalStorageDir(context, TEST_DIR), name);
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             fail("could not create " + file.getParentFile());
         }
@@ -58,7 +58,7 @@ public abstract class ScAndroidTest extends AndroidTestCase {
         return file;
     }
 
-    protected void checkStorage() {
+    private void checkStorage() {
         assertEquals("need writable external storage",
                      Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
     }
@@ -67,12 +67,4 @@ public abstract class ScAndroidTest extends AndroidTestCase {
         Log.d(getClass().getSimpleName(), String.format(Locale.ENGLISH, s, args));
     }
 
-    protected String newFilename(String name, String suffix) {
-        int dot = name.lastIndexOf('.');
-        if (dot != -1 && dot + 1 < name.length()) {
-            return name.substring(0, dot) + suffix + name.substring(dot, name.length());
-        } else {
-            return name + suffix;
-        }
-    }
 }

@@ -15,8 +15,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public final class SignupLog {
-    protected static final int THROTTLE_WINDOW = 60 * 60 * 1000;
-    protected static final int THROTTLE_AFTER_ATTEMPT = 5;
+    private static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+    private static final int THROTTLE_AFTER_ATTEMPT = 5;
     private static final String SIGNUP_LOG_NAME = ".dr";
 
     public static boolean shouldThrottleSignup(Context context) {
@@ -42,7 +42,7 @@ public final class SignupLog {
         return t;
     }
 
-    static boolean writeNewSignup(Context context, long timestamp) {
+    private static boolean writeNewSignup(Context context, long timestamp) {
         long[] toWrite, current = readLog(context);
         if (current == null) {
             toWrite = new long[1];
@@ -54,7 +54,7 @@ public final class SignupLog {
         return writeLog(context, toWrite);
     }
 
-    static boolean writeLog(Context context, long[] toWrite) {
+    private static boolean writeLog(Context context, long[] toWrite) {
         ObjectOutputStream out = null;
         try {
             final File signupLog = getSignupLog(context);
@@ -75,7 +75,7 @@ public final class SignupLog {
     }
 
     @Nullable
-    static long[] readLog(Context context) {
+    private static long[] readLog(Context context) {
         final File signupLog = getSignupLog(context);
         if (signupLog != null && signupLog.exists()) {
             ObjectInputStream in = null;
@@ -96,6 +96,6 @@ public final class SignupLog {
 
     @Nullable
     private static File getSignupLog(Context context) {
-        return IOUtils.getExternalStorageDir(context, SIGNUP_LOG_NAME);
+        return IOUtils.createExternalStorageDir(context, SIGNUP_LOG_NAME);
     }
 }

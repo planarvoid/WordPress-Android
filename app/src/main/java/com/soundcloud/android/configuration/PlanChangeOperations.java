@@ -50,7 +50,7 @@ public class PlanChangeOperations {
     public Observable<Object> awaitAccountDowngrade() {
         return configurationOperations.awaitConfigurationFromPendingDowngrade()
                                       .flatMap(configuration -> configuration.getUserPlan().currentPlan == Plan.FREE_TIER
-                                             ? offlineContentOperations.resetOfflineFeature()
+                                             ? offlineContentOperations.disableOfflineFeature()
                                              : Observable.just(configuration))
                                       .compose(new PlanChangedSteps());
     }

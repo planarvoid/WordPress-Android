@@ -340,8 +340,6 @@
   <string name="cloud_recorder_event_title">Gravação em andamento</string>
   <string name="cloud_recorder_playback_event_title">Reprodução em andamento</string>
   <string name="record_track_title">Título da faixa</string>
-  <string name="recording_pending_upload">Upload pendente</string>
-  <string name="recording_uploading">Fazendo upload...</string>
   <string name="recording_upload_failed">Falha no upload</string>
   <string name="recording_upload_finished">Upload finalizado</string>
   <string name="record_privacy_header">A faixa será:</string>
