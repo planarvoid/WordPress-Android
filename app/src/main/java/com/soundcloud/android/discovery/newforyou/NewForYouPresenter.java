@@ -92,6 +92,7 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
     @Override
     public void onDestroy(Fragment fragment) {
         subscription.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     @Override

@@ -28,6 +28,6 @@ class ChartTracksHeaderRenderer implements CellRenderer<ChartTrackListItem> {
     public void bindItemView(int position, View itemView, List<ChartTrackListItem> items) {
         ChartTrackListItem.Header item = (ChartTrackListItem.Header) items.get(position);
         TextView textView = ButterKnife.findById(itemView, R.id.header);
-        textView.setText(item.type == ChartType.TOP ? R.string.charts_top_fifty_list_header : R.string.charts_new_and_hot_list_header);
+        textView.setText(item.type() == ChartType.TOP ? R.string.charts_top_fifty_list_header : R.string.charts_new_and_hot_list_header);
     }
 }

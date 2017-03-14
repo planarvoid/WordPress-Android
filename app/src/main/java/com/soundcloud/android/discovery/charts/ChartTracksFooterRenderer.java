@@ -31,7 +31,7 @@ class ChartTracksFooterRenderer implements CellRenderer<ChartTrackListItem> {
     @Override
     public void bindItemView(int position, View itemView, List<ChartTrackListItem> items) {
         ChartTrackListItem.Footer item = (ChartTrackListItem.Footer) items.get(position);
-        final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, item.lastUpdatedAt.getTime(), true);
+        final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, item.lastUpdatedAt().getTime(), true);
         TextView textView = ButterKnife.findById(itemView, R.id.charts_footer);
         textView.setText(resources.getString(R.string.updated_time, formattedTime));
     }

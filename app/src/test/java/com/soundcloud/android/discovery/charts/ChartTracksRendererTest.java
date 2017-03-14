@@ -11,6 +11,8 @@ import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -49,11 +51,11 @@ public class ChartTracksRendererTest extends AndroidUnitTest {
 
         ChartTracksRenderer chartTracksRenderer = new ChartTracksRenderer(trackItemRenderer, screenProvider);
         chartTracksRenderer.bindItemView(POSITION, itemView, ITEMS);
-        verify(trackItemRenderer).bindChartTrackView(ITEM_2.chartTrackItem, itemView, POSITION, Optional.of(TRACK_SOURCE_INFO));
+        verify(trackItemRenderer).bindChartTrackView(ITEM_2.chartTrackItem(), itemView, POSITION, Optional.of(TRACK_SOURCE_INFO));
     }
 
     private static ChartTrackListItem.Track createChartTrackListItem() {
         ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, trackItem(), MUSIC, GENRE_URN, QUERY_URN);
-        return ChartTrackListItem.forTrack(chartTrackItem);
+        return ChartTrackListItem.Track.create(chartTrackItem);
     }
 }

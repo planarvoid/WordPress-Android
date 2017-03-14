@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.discovery.charts.ChartTrackItem;
@@ -252,20 +251,20 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final TrackItem trackItem = ModelFixtures.trackItem();
         final int position = 0;
-        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, ModelFixtures.trackItem(), CATEGORY,
+        final ChartTrackItem chartTrackItem = new ChartTrackItem(TRENDING, trackItem, CATEGORY,
                                                                  GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());
 
         verify(trackItemView).showPosition(position);
-        verify(trackItemView).showPostedTime(apiTrack.getCreatedAt());
+        verify(trackItemView).showPostedTime(trackItem.getCreatedAt());
     }
 
     @Test
     public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
+        final TrackItem trackItem = ModelFixtures.trackItem();
         final int position = 0;
-        TrackItem trackItem = ModelFixtures.trackItem();
         final ChartTrackItem chartTrackItem = new ChartTrackItem(TOP, trackItem, CATEGORY,
                                                                  GENRE_URN, QUERY_URN);
         renderer.bindChartTrackView(chartTrackItem, itemView, position, Optional.absent());

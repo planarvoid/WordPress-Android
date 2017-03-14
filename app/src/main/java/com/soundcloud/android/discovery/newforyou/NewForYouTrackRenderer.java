@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery.newforyou;
 
+import android.view.View;
+import android.view.ViewGroup;
+
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouTrackItem;
@@ -11,9 +14,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.List;
 

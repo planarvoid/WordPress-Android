@@ -1,61 +1,48 @@
 package com.soundcloud.android.discovery.charts;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ChartType;
 
 import java.util.Date;
 
 abstract class ChartTrackListItem {
 
-    static ChartTrackListItem.Header forHeader(ChartType chartType) {
-        return new Header(chartType);
-    }
-
-    static ChartTrackListItem.Footer forFooter(Date lastUpdatedAt) {
-        return new Footer(lastUpdatedAt);
-    }
-
-    static ChartTrackListItem.Track forTrack(ChartTrackItem track) {
-        return new Track(track);
-    }
-
     enum Kind {
-        ChartHeader, ChartFooter, TrackItem
+        CHART_HEADER,
+        CHART_FOOTER,
+        CHART_TRACK
     }
 
-    private final Kind kind;
+    abstract Kind kind();
 
-    private ChartTrackListItem(Kind kind) {
-        this.kind = kind;
+    boolean isTrack() {
+        return kind() == ChartTrackListItem.Kind.CHART_TRACK;
     }
 
-    Kind getKind() {
-        return kind;
-    }
+    @AutoValue
+    abstract static class Track extends ChartTrackListItem {
+        abstract ChartTrackItem chartTrackItem();
 
-    static class Track extends ChartTrackListItem {
-        final ChartTrackItem chartTrackItem;
-
-        private Track(ChartTrackItem chartTrackItem) {
-            super(Kind.TrackItem);
-            this.chartTrackItem = chartTrackItem;
+        static ChartTrackListItem.Track create(ChartTrackItem chartTrackItem) {
+            return new AutoValue_ChartTrackListItem_Track(Kind.CHART_TRACK, chartTrackItem);
         }
     }
 
-    static class Header extends ChartTrackListItem {
-        final ChartType type;
+    @AutoValue
+    abstract static class Header extends ChartTrackListItem {
+        abstract ChartType type();
 
-        private Header(ChartType type) {
-            super(Kind.ChartHeader);
-            this.type = type;
+        static ChartTrackListItem.Header create(ChartType type) {
+            return new AutoValue_ChartTrackListItem_Header(Kind.CHART_HEADER, type);
         }
     }
 
-    static class Footer extends ChartTrackListItem {
-        final Date lastUpdatedAt;
+    @AutoValue
+    abstract static class Footer extends ChartTrackListItem {
+        abstract Date lastUpdatedAt();
 
-        private Footer(Date lastUpdatedAt) {
-            super(Kind.ChartFooter);
-            this.lastUpdatedAt = lastUpdatedAt;
+        static ChartTrackListItem.Footer create(Date lastUpdatedAt) {
+            return new AutoValue_ChartTrackListItem_Footer(Kind.CHART_FOOTER, lastUpdatedAt);
         }
     }
 }
