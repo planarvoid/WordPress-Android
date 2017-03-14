@@ -23,6 +23,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
@@ -30,6 +31,7 @@ import rx.subjects.Subject;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +51,7 @@ class PlayQueuePresenter {
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
+    private final CompositeSubscription subscriptions = new CompositeSubscription();
     private final Subject<Boolean, Boolean> rebuildSubject = PublishSubject.create();
 
     private Optional<PlayQueueView> playQueueView = Optional.absent();
@@ -81,47 +84,54 @@ class PlayQueuePresenter {
         playQueueView.setShuffledState(playQueueManager.isShuffled());
         setRepeatMode(playQueueManager.getRepeatMode());
 
+
         if (items.isEmpty()) {
-            playQueueView.showLoadingIndicator();
+            this.playQueueView.get().showLoadingIndicator();
         }
+        subscriptions.add(playQueueDataProvider.getPlayQueueUIItems()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(newItems -> items = newItems)
+                .subscribe(new PlayQueueSubscriber()));
+        setUpPlaybackStream();
+        setUpRebuildStream();
 
         playQueueDataProvider.getPlayQueueUIItems()
-                             .observeOn(AndroidSchedulers.mainThread())
-                             .doOnNext(newItems -> items = newItems)
-                             .subscribe(new PlayQueueSubscriber());
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(newItems -> items = newItems)
+                .subscribe(new PlayQueueSubscriber());
         setUpPlaybackStream();
         setUpRebuildStream();
     }
 
     void detachContract() {
         playQueueView = Optional.absent();
-        eventSubscriptions.clear();
+        subscriptions.clear();
         resetUI = true;
     }
 
     private void setUpPlaybackStream() {
-        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                                       .skip(1)
-                                       .observeOn(AndroidSchedulers.mainThread())
-                                       .map(event -> items)
-                                       .subscribe(new PlayQueueSubscriber()));
+        subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                .skip(1)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(event -> items)
+                .subscribe(new PlayQueueSubscriber()));
     }
 
     private void setUpRebuildStream() {
-        eventSubscriptions.add(rebuildSubject.map(ignored -> items)
-                                             .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
-                                             .doOnNext(newItems -> items = newItems)
-                                             .doOnNext(items -> setNowPlaying())
-                                             .subscribe(new PlayQueueSubscriber()));
+        subscriptions.add(rebuildSubject.map(ignored -> items)
+                .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
+                .doOnNext(newItems -> items = newItems)
+                .doOnNext(items -> setNowPlaying())
+                .subscribe(new PlayQueueSubscriber()));
     }
 
     Observable<List<TrackAndPlayQueueItem>> createTracksFromItems(List<PlayQueueUIItem> playQueueUIItems) {
         return Observable.just(playQueueUIItems)
-                         .map(items -> Iterables.filter(items, input -> input.isTrack()))
-                         .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
-                             TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
-                             return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
-                         })));
+                .map(items -> Iterables.filter(items, input -> input.isTrack()))
+                .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
+                    TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
+                    return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
+                })));
     }
 
     public void undoClicked() {
@@ -331,7 +341,7 @@ class PlayQueuePresenter {
         if (playQueueView.isPresent()) {
             rebuildSubject.onNext(true);
             playQueueManager.moveItem(getQueuePosition(fromAdapterPosition),
-                                      getQueuePosition(toAdapterPosition));
+                    getQueuePosition(toAdapterPosition));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
         }
     }
@@ -362,24 +372,24 @@ class PlayQueuePresenter {
 
     private Observable<Map<Urn, String>> createTitlesFromItems(List<PlayQueueUIItem> items) {
         return Observable.just(items)
-                         .map(playQueueUIItems -> {
-                             final Map<Urn, String> titles = new HashMap<>();
+                .map(playQueueUIItems -> {
+                    final Map<Urn, String> titles = new HashMap<>();
 
-                             for (PlayQueueUIItem item : items) {
-                                 if (item.isTrack()) {
-                                     final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
-                                     final Optional<String> contextTitle = trackUIItem.getContextTitle();
-                                     if (contextTitle.isPresent()) {
-                                         final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
-                                         final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
-                                         if (urn.isPresent()) {
-                                             titles.put(urn.get(), contextTitle.get());
-                                         }
-                                     }
-                                 }
-                             }
-                             return titles;
-                         });
+                    for (PlayQueueUIItem item : items) {
+                        if (item.isTrack()) {
+                            final TrackPlayQueueUIItem trackUIItem = (TrackPlayQueueUIItem) item;
+                            final Optional<String> contextTitle = trackUIItem.getContextTitle();
+                            if (contextTitle.isPresent()) {
+                                final PlayableQueueItem playQueueItem = (PlayableQueueItem) trackUIItem.getPlayQueueItem();
+                                final Optional<Urn> urn = playQueueItem.getPlaybackContext().urn();
+                                if (urn.isPresent()) {
+                                    titles.put(urn.get(), contextTitle.get());
+                                }
+                            }
+                        }
+                    }
+                    return titles;
+                });
     }
 
     private int getAdapterPosition(final PlayQueueItem currentPlayQueueItem) {
@@ -411,9 +421,9 @@ class PlayQueuePresenter {
     private void measurePlayQueueLoadTime(int items) {
         MetricParams params = new MetricParams().putLong(MetricKey.PLAY_QUEUE_SIZE, items);
         performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
-                                                               .metricType(MetricType.PLAY_QUEUE_LOAD)
-                                                               .metricParams(params)
-                                                               .build());
+                .metricType(MetricType.PLAY_QUEUE_LOAD)
+                .metricParams(params)
+                .build());
     }
 
     private void updateNowPlaying(int position, boolean isPlaying) {
