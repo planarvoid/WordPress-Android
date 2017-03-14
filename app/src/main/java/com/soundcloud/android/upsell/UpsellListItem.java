@@ -9,15 +9,10 @@ import java.util.Date;
 
 public class UpsellListItem implements ListItem, Timestamped {
 
-    public static final Urn STREAM_UPSELL_URN = new Urn("soundcloud:notifications:stream-upsell");
     public static final Urn PLAYLIST_UPSELL_URN = new Urn("soundcloud:notifications:playlist-upsell");
 
     private final Date createdAt;
     private final Urn urn;
-
-    public static UpsellListItem forStream() {
-        return new UpsellListItem(STREAM_UPSELL_URN);
-    }
 
     public static UpsellListItem forPlaylist() {
         return new UpsellListItem(PLAYLIST_UPSELL_URN);

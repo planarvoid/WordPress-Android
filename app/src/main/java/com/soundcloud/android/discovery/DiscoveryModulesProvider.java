@@ -14,6 +14,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
+import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.android.utils.EmptyThrowable;
 import rx.Observable;
 
@@ -34,6 +35,7 @@ class DiscoveryModulesProvider {
     private final WelcomeUserOperations welcomeUserOperations;
     private final NewForYouOperations newForYouOperations;
     private final NewForYouConfig newForYouConfig;
+    private final InlineUpsellOperations inlineUpsellOperations;
 
     @Inject
     DiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
@@ -45,7 +47,8 @@ class DiscoveryModulesProvider {
                              PlaylistDiscoveryOperations playlistDiscoveryOperations,
                              WelcomeUserOperations welcomeUserOperations,
                              NewForYouOperations newForYouOperations,
-                             NewForYouConfig newForYouConfig) {
+                             NewForYouConfig newForYouConfig,
+                             InlineUpsellOperations inlineUpsellOperations) {
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -56,6 +59,7 @@ class DiscoveryModulesProvider {
         this.welcomeUserOperations = welcomeUserOperations;
         this.newForYouOperations = newForYouOperations;
         this.newForYouConfig = newForYouConfig;
+        this.inlineUpsellOperations = inlineUpsellOperations;
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
@@ -84,6 +88,7 @@ class DiscoveryModulesProvider {
                     recommendedTracks(isRefresh),
                     newForYouSecond(isRefresh),
                     recommendedPlaylists(isRefresh),
+                    upsell(),
                     recommendedStations(isRefresh),
                     charts(isRefresh)
             );
@@ -95,6 +100,7 @@ class DiscoveryModulesProvider {
                 newForYouSecond(isRefresh),
                 recommendedStations(isRefresh),
                 recommendedPlaylists(isRefresh),
+                upsell(),
                 charts(isRefresh)
         );
     }
@@ -106,10 +112,18 @@ class DiscoveryModulesProvider {
                 recommendedTracks(isRefresh),
                 newForYouSecond(isRefresh),
                 recommendedPlaylists(isRefresh),
+                upsell(),
                 recommendedStations(isRefresh),
                 charts(isRefresh),
                 playlistTags()
         );
+    }
+
+    private Observable<DiscoveryItem> upsell() {
+        if (inlineUpsellOperations.shouldDisplayInDiscovery()) {
+            return Observable.just(DiscoveryItem.Default.create(DiscoveryItem.Kind.UpsellItem));
+        }
+        return Observable.empty();
     }
 
     private Observable<DiscoveryItem> userWelcome(boolean isRefresh) {

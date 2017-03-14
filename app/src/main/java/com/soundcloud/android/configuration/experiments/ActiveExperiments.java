@@ -22,6 +22,7 @@ public class ActiveExperiments {
                                                                                   DynamicLinkSharingConfig.CONFIGURATION,
                                                                                   OtherPlaylistsByUserConfig.CONFIGURATION,
                                                                                   SearchPlayRelatedTracksConfig.CONFIGURATION,
+                                                                                  DiscoveryGoUpsellConfig.CONFIGURATION,
                                                                                   NewForYouConfig.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};

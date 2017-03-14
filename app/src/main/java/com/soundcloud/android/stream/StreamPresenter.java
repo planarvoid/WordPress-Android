@@ -322,7 +322,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(fragment.getActivity());
+        navigator.openUpgrade(context);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick());
     }
 

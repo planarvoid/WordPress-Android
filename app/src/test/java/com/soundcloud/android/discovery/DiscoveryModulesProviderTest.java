@@ -26,6 +26,7 @@ import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import org.junit.Before;
@@ -57,6 +58,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     @Mock private WelcomeUserOperations welcomeUserOperations;
     @Mock private NewForYouOperations newForYouOperations;
     @Mock private NewForYouConfig newForYouConfig;
+    @Mock private InlineUpsellOperations inlineUpsellOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -69,7 +71,8 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                                                                 playlistDiscoveryOperations,
                                                                 welcomeUserOperations,
                                                                 newForYouOperations,
-                                                                newForYouConfig);
+                                                                newForYouConfig,
+                                                                inlineUpsellOperations);
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
         when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(false);
@@ -94,6 +97,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.just(playlistTagsItem));
         when(welcomeUserOperations.welcome()).thenReturn(Observable.just(welcomeUserItem));
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        when(inlineUpsellOperations.shouldDisplayInDiscovery()).thenReturn(true);
     }
 
     @Test
@@ -101,11 +105,13 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
+
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
 
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -124,6 +130,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.WelcomeUserItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -140,6 +147,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -159,6 +167,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.ChartItem
         );
     }
@@ -176,6 +185,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem
         );
@@ -193,6 +203,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.NewForYouItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -211,6 +222,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.NewForYouItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -229,6 +241,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
                 DiscoveryItem.Kind.RecommendedPlaylistsItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem
         );
@@ -247,6 +260,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.UpsellItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
@@ -311,6 +325,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(inlineUpsellOperations.shouldDisplayInDiscovery()).thenReturn(false);
 
         discoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);

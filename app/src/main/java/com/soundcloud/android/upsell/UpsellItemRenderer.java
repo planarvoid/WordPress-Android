@@ -9,11 +9,11 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
-public class UpsellItemRenderer<T> implements CellRenderer<T> {
+public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private final FeatureOperations featureOperations;
 
@@ -25,7 +25,6 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private Listener listener;
 
-    @Inject
     UpsellItemRenderer(FeatureOperations featureOperations) {
         this.featureOperations = featureOperations;
     }
@@ -44,6 +43,9 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
     }
 
     public void bindItemView(final int position, View view) {
+        ButterKnife.<TextView>findById(view, R.id.title).setText(getTitle(view.getContext()));
+        ButterKnife.<TextView>findById(view, R.id.description).setText(getDescription(view.getContext()));
+
         view.setEnabled(false);
         if (listener != null) {
             ButterKnife.findById(view, R.id.close_button).setOnClickListener(v -> listener.onUpsellItemDismissed(position));
@@ -59,14 +61,18 @@ public class UpsellItemRenderer<T> implements CellRenderer<T> {
 
     private void setButtonText(View view, Button action) {
         if (featureOperations.isHighTierTrialEligible()) {
-            action.setText(view.getResources().getString(R.string.conversion_buy_trial,
-                    featureOperations.getHighTierTrialDays()));
+            action.setText(getTrialActionButtonText(view.getContext(), featureOperations.getHighTierTrialDays()));
         } else {
-            action.setText(R.string.upsell_upgrade_button);
+            getUpsellActionButtonText(view.getContext());
         }
     }
 
     public void setListener(Listener listener) {
         this.listener = listener;
     }
+
+    protected abstract String getTitle(Context context);
+    protected abstract String getDescription(Context context);
+    protected abstract String getTrialActionButtonText(Context context, int trialDays);
+    protected abstract String getUpsellActionButtonText(Context context);
 }

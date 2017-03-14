@@ -9,6 +9,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedSta
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.UpsellItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
 
 import com.google.auto.factory.AutoFactory;
@@ -25,6 +26,7 @@ import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
+import com.soundcloud.android.upsell.DiscoveryUpsellItemRenderer;
 import com.soundcloud.java.collections.Iterables;
 
 import android.support.v7.widget.RecyclerView;
@@ -38,9 +40,14 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     private final SearchItemRenderer searchItemRenderer;
     private final WelcomeUserItemRenderer welcomeUserItemRenderer;
     private final RecommendedStationsBucketRenderer stationsBucketRenderer;
+    private final DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer;
 
     public void detach() {
         stationsBucketRenderer.detach();
+    }
+
+    public void setUpsellItemListener(DiscoveryUpsellItemRenderer.Listener listener) {
+        this.discoveryUpsellItemRenderer.setListener(listener);
     }
 
     public interface DiscoveryItemListenerBucket extends
@@ -60,7 +67,8 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
                      @Provided WelcomeUserItemRenderer welcomeUserItemRenderer,
                      @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer,
-                     @Provided NewForYouBucketRenderer newForYouBucketRenderer) {
+                     @Provided NewForYouBucketRenderer newForYouBucketRenderer,
+                     @Provided DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
               new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
@@ -70,12 +78,14 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
               new CellRendererBinding<>(WelcomeUserItem.ordinal(), welcomeUserItemRenderer),
               new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer),
-              new CellRendererBinding<>(NewForYouItem.ordinal(), newForYouBucketRenderer)
+              new CellRendererBinding<>(NewForYouItem.ordinal(), newForYouBucketRenderer),
+              new CellRendererBinding<>(UpsellItem.ordinal(), discoveryUpsellItemRenderer)
         );
         this.playlistTagRenderer = playlistTagRenderer;
         this.stationsBucketRenderer = stationsBucketRenderer;
         this.searchItemRenderer = searchItemRenderer;
         this.welcomeUserItemRenderer = welcomeUserItemRenderer;
+        this.discoveryUpsellItemRenderer = discoveryUpsellItemRenderer;
         recommendedPlaylistsBucketRenderer.setQueryPositionProvider(this);
     }
 
@@ -127,4 +137,5 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     private int findItemIndex(final DiscoveryItem.Kind kind) {
         return Iterables.indexOf(getItems(), input -> input.getKind() == kind);
     }
+
 }

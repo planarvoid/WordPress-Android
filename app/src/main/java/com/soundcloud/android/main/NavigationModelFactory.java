@@ -12,6 +12,7 @@ import javax.inject.Inject;
 public class NavigationModelFactory {
 
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
+
     private final FeatureOperations featureOperations;
 
     @Inject

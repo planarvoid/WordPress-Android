@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -14,6 +15,7 @@ import com.soundcloud.android.discovery.recommendations.RecommendationBucketRend
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -27,7 +29,6 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
-import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
@@ -64,9 +65,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    @Mock private DiscoveryOperations discoveryOperations;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
-    private EventBus eventBus = new TestEventBus();
+    private TestEventBus eventBus = new TestEventBus();
     private DiscoveryPresenter presenter;
 
     @Before
@@ -89,7 +91,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 eventBus,
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
-                updatePlayableAdapterSubscriberFactory);
+                updatePlayableAdapterSubscriberFactory,
+                discoveryOperations);
 
         presenter.onCreate(fragment, bundle);
     }
@@ -162,5 +165,29 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(imagePauseOnScrollListener).resume();
+    }
+
+    @Test
+    public void dismissesUpsellItem() {
+        presenter.onUpsellItemDismissed(0);
+
+        verify(discoveryOperations).disableUpsell();
+        verify(adapter).removeItem(0);
+        verify(adapter).notifyItemRemoved(0);
+    }
+
+    @Test
+    public void handlesUpsellItemClicked() {
+        presenter.onUpsellItemClicked(context(), 0);
+
+        verify(navigator).openUpgrade(context());
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
+    }
+
+    @Test
+    public void handlesUpsellItemCreated() {
+        presenter.onUpsellItemCreated();
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
     }
 }

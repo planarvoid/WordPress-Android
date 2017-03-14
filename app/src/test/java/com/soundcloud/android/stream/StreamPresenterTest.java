@@ -342,7 +342,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(fragmentRule.getActivity());
+        verify(navigator).openUpgrade(context());
     }
 
     @Test

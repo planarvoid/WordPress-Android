@@ -1,8 +1,9 @@
 package com.soundcloud.android.upsell;
 
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.discovery.DiscoveryItem;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,10 +12,10 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class StreamUpsellItemRenderer extends UpsellItemRenderer<StreamItem> {
+public class DiscoveryUpsellItemRenderer extends UpsellItemRenderer<DiscoveryItem> {
 
     @Inject
-    StreamUpsellItemRenderer(FeatureOperations featureOperations) {
+    DiscoveryUpsellItemRenderer(FeatureOperations featureOperations) {
         super(featureOperations);
     }
 
@@ -26,21 +27,21 @@ public class StreamUpsellItemRenderer extends UpsellItemRenderer<StreamItem> {
 
     @Override
     protected String getTitle(Context context) {
-        return context.getString(R.string.upsell_stream_upgrade_title);
+        return context.getString(R.string.upsell_discovery_upgrade_title);
     }
 
     @Override
     protected String getDescription(Context context) {
-        return context.getString(R.string.upsell_stream_upgrade_description);
+        return context.getString(R.string.upsell_discovery_upgrade_description);
     }
 
     @Override
     protected String getTrialActionButtonText(Context context, int trialDays) {
-        return context.getString(R.string.conversion_buy_trial, trialDays);
+        return context.getString(R.string.upsell_discovery_button_trial, trialDays);
     }
 
     @Override
     protected String getUpsellActionButtonText(Context context) {
-        return context.getString(R.string.upsell_upgrade_button);
+        return context.getString(R.string.upsell_discovery_button_get_it);
     }
 }

@@ -5,6 +5,7 @@ import com.soundcloud.android.discovery.recommendations.RecommendationBucketRend
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -15,6 +16,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriberFactory;
+import com.soundcloud.android.upsell.DiscoveryUpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
@@ -33,10 +35,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
-        implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
+        implements DiscoveryAdapter.DiscoveryItemListenerBucket,
+        TrackRecommendationListener, DiscoveryUpsellItemRenderer.Listener {
 
     private final DiscoveryModulesProvider discoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    private final DiscoveryOperations discoveryOperations;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -56,10 +60,12 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        EventBus eventBus,
                        StartStationHandler startStationPresenter,
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
-                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
+                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
+                       DiscoveryOperations discoveryOperations) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryModulesProvider = discoveryModulesProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
+        this.discoveryOperations = discoveryOperations;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
@@ -72,6 +78,23 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+    }
+
+    @Override
+    public void onUpsellItemDismissed(int position) {
+        discoveryOperations.disableUpsell();
+        removeItem(position);
+    }
+
+    @Override
+    public void onUpsellItemClicked(Context context, int position) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryClick());
+    }
+
+    @Override
+    public void onUpsellItemCreated() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryImpression());
     }
 
     private void subscribeToUpdates() {
@@ -128,6 +151,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setDiscoveryListener(this);
+        adapter.setUpsellItemListener(this);
         final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
                 .discoveryItems()
                 .doOnCompleted(this::subscribeToUpdates);

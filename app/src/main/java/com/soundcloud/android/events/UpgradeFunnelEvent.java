@@ -112,7 +112,8 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
         CONVERSION_PROMO(4007),
         RESUBSCRIBE_BUTTON(4002),
         CHOOSER_BUY_MID_TIER(3009),
-        CHOOSER_BUY_HIGH_TIER(3011);
+        CHOOSER_BUY_HIGH_TIER(3011),
+        DISCOVERY(1056);
 
         private final int code;
 
@@ -134,7 +135,8 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
         STREAM_UPSELL("a7r5gy"),
         SETTINGS("396cnm"),
         PLAYLIST_TRACKS_UPSELL("8a8hir"),
-        PLAN_DOWNGRADED("ik01gn");
+        PLAN_DOWNGRADED("ik01gn"),
+        DISCOVERY_UPSELL("3k9mgl");
 
         private final String adjustToken;
 
@@ -335,6 +337,19 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
     public static UpgradeFunnelEvent forStreamClick() {
         return UpgradeFunnelEvent.fromUpsellClick(TCode.STREAM)
                                  .pageName(Optional.of(Screen.STREAM.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forDiscoveryImpression() {
+        return UpgradeFunnelEvent.fromUpsellImpression(TCode.DISCOVERY)
+                                 .adjustToken(Optional.of(AdjustToken.DISCOVERY_UPSELL))
+                                 .pageName(Optional.of(Screen.SEARCH_MAIN.get()))
+                                 .build();
+    }
+
+    public static UpgradeFunnelEvent forDiscoveryClick() {
+        return UpgradeFunnelEvent.fromUpsellClick(TCode.DISCOVERY)
+                                 .pageName(Optional.of(Screen.SEARCH_MAIN.get()))
                                  .build();
     }
 

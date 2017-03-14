@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
+import com.soundcloud.android.properties.FeatureFlags;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

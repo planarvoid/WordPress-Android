@@ -5,6 +5,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsIt
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.UpsellItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -26,6 +27,7 @@ import com.soundcloud.android.discovery.welcomeuser.WelcomeUserItemRenderer;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.upsell.DiscoveryUpsellItemRenderer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,7 +51,10 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private PlaylistTagsItem playlistTagItem;
     @Mock private ChartsBucketItem chartsBucketItem;
     @Mock private WelcomeUserItem welcomeUserItem;
+    @Mock private DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer;
 
+
+    private DiscoveryItem upsellItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.UpsellItem);
     private DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
     private DiscoveryAdapter adapter;
 
@@ -72,12 +77,14 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                                        recommendationsFooterRenderer,
                                        welcomeUserItemRenderer,
                                        emptyDiscoveryItemRenderer,
-                                       newForYouBucketRenderer);
+                                       newForYouBucketRenderer,
+                                       discoveryUpsellItemRenderer);
     }
 
     @Test
     public void rendersCorrectViewTypes() {
         adapter.onNext(asList(searchItem,
+                              upsellItem,
                               welcomeUserItem,
                               playlistTagItem,
                               tracksBucketItem,
@@ -85,21 +92,25 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                               chartsBucketItem));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(WelcomeUserItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(PlaylistTagsItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(RecommendedTracksItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(4)).isEqualTo(RecommendedStationsItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(5)).isEqualTo(ChartItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(UpsellItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(WelcomeUserItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(PlaylistTagsItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(4)).isEqualTo(RecommendedTracksItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(5)).isEqualTo(RecommendedStationsItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(6)).isEqualTo(ChartItem.ordinal());
     }
 
     @Test
     public void setsClickListeners() {
         final DiscoveryItemListenerBucket itemListener = mock(DiscoveryItemListenerBucket.class);
+        final DiscoveryUpsellItemRenderer.Listener upsellListener = mock(DiscoveryUpsellItemRenderer.Listener.class);
         adapter.setDiscoveryListener(itemListener);
+        adapter.setUpsellItemListener(upsellListener);
 
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);
         verify(searchItemRenderer).setSearchListener(itemListener);
         verify(recommendedStationsBucketRenderer).setListener(itemListener);
+        verify(discoveryUpsellItemRenderer).setListener(upsellListener);
     }
 
     @Test

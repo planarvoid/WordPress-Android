@@ -28,7 +28,8 @@ public abstract class DiscoveryItem {
         ChartItem,
         RecentlyPlayedItem,
         WelcomeUserItem,
-        Empty
+        Empty,
+        UpsellItem
     }
 
     public abstract Kind getKind();
