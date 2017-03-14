@@ -92,6 +92,8 @@ task runLollipopTests(dependsOn: extractHtmlTemplates) {
   doLast {
     def excludeAnnotations = [
             "com.soundcloud.android.framework.annotation.Ignore",
+            // TODO remove this ASAP
+            "com.soundcloud.android.framework.annotation.AdsTest",
             "com.soundcloud.android.framework.annotation.CollectionsTest",
             "com.soundcloud.android.framework.annotation.BlockedTrackTest",
             "com.soundcloud.android.framework.annotation.GoogleAccountTest",
