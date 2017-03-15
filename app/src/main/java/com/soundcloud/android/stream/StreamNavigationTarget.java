@@ -9,7 +9,7 @@ import android.support.v4.app.Fragment;
 public class StreamNavigationTarget extends BaseNavigationTarget {
 
     public StreamNavigationTarget(boolean isHome) {
-        super(R.string.tab_home, isHome ? R.drawable.tab_home : R.drawable.tab_stream);
+        super(getTitle(isHome), getIcon(isHome));
     }
 
     @Override
@@ -22,4 +22,11 @@ public class StreamNavigationTarget extends BaseNavigationTarget {
         return Screen.STREAM;
     }
 
+    private static int getIcon(boolean isHome) {
+        return isHome ? R.drawable.tab_home : R.drawable.tab_stream;
+    }
+
+    private static int getTitle(boolean isHome) {
+        return isHome ? R.string.tab_home : R.string.tab_stream;
+    }
 }
