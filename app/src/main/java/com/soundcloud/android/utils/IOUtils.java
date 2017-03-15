@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
@@ -86,6 +87,11 @@ public class IOUtils {
         } else {
             return null;
         }
+    }
+
+    public static boolean isSDCardMounted(Context context) {
+        File sdCardDir = getSDCardDir(context);
+        return sdCardDir != null && Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(sdCardDir));
     }
 
     @NotNull

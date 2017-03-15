@@ -49,7 +49,7 @@ public class ApplicationProperties {
     }
 
 
-    public enum BuildType {
+    private enum BuildType {
         DEBUG(DEV_LOGS_EMAIL, DEV_PLAYBACK_LOGS_EMAIL),
         ALPHA(ALPHA_LOGS_EMAIL, ALPHA_PLAYBACK_LOGS_EMAIL),
         BETA(BETA_LOGS_EMAIL, BETA_PLAYBACK_LOGS_EMAIL),
@@ -110,7 +110,7 @@ public class ApplicationProperties {
         return BuildType.DEBUG.equals(buildType);
     }
 
-    public boolean isAlphaBuild() {
+    boolean isAlphaBuild() {
         return BuildType.ALPHA.equals(buildType);
     }
 
@@ -131,10 +131,6 @@ public class ApplicationProperties {
         return buildType.name();
     }
 
-    public boolean shouldEnableNetworkProxy() {
-        return isDebugBuild() && IS_RUNNING_ON_DEVICE;
-    }
-
     public boolean isDevelopmentMode() {
         return isDebugBuild();
     }
@@ -153,6 +149,10 @@ public class ApplicationProperties {
 
     public boolean canUseMoatForAdViewability() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
+    }
+
+    public boolean canChangeOfflineContentLocation() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
     @Override

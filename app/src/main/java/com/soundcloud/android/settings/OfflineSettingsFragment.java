@@ -3,6 +3,7 @@ package com.soundcloud.android.settings;
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.settings.SettingKey.OFFLINE_CHANGE_STORAGE_LOCATION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFLINE_CONTENT;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
@@ -17,14 +18,17 @@ import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -51,6 +55,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
     @Inject ConfigurationManager configurationManager;
+    @Inject ApplicationProperties applicationProperties;
 
     private CompositeSubscription subscription;
 
@@ -83,6 +88,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
         wifi.setChecked(offlineSettings.isWifiOnlyEnabled());
         wifi.setOnPreferenceChangeListener(this);
 
+        setupChangeStorageLocation();
         setupClearContent();
 
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
@@ -95,6 +101,28 @@ public class OfflineSettingsFragment extends PreferenceFragment
                                      .observeOn(AndroidSchedulers.mainThread())
                                      .subscribe(new CurrentDownloadSubscriber()));
         }
+    }
+
+    private void setupChangeStorageLocation() {
+        Preference preference = findPreference(OFFLINE_CHANGE_STORAGE_LOCATION);
+        if (isChangeStorageLocationSupported()) {
+            preference.setSummary(getChangeStorageLocationSummary());
+            preference.setOnPreferenceClickListener(this);
+        } else {
+            getPreferenceScreen().removePreference(preference);
+        }
+    }
+
+    private boolean isChangeStorageLocationSupported() {
+        return featureFlags.isEnabled(Flag.OFFLINE_CONTENT_LOCATION)
+                && applicationProperties.canChangeOfflineContentLocation()
+                && IOUtils.isSDCardMounted(getActivity());
+    }
+
+    private int getChangeStorageLocationSummary() {
+        return OfflineContentLocation.DEVICE_STORAGE == offlineSettings.getOfflineContentLocation()
+                              ? R.string.pref_offline_change_storage_location_description_device_storage
+                              : R.string.pref_offline_change_storage_location_description_sd_card;
     }
 
     private void setupClearContent() {

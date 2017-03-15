@@ -75,6 +75,14 @@ public class IOUtilsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void isSDCardMounted() throws IOException {
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.isSDCardMounted(context)).isFalse();
+    }
+
+    @Test
     public void maxUsableSpaceIsCappedBySpaceLeft() {
         long spaceLeft = 20 * MB;
         long maxSpace = 60 * MB;

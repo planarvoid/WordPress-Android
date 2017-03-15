@@ -21,6 +21,7 @@ public class SettingKey {
     // Offline
     static final String OFFLINE_COLLECTION = "offline.offlineCollections";
     static final String WIFI_ONLY = "offline.wifiOnlySync";
+    static final String OFFLINE_CHANGE_STORAGE_LOCATION = "offline.changeStorageLocation";
     static final String OFFLINE_STORAGE_LIMIT = "offline.storageLimit";
     static final String OFFLINE_REMOVE_ALL_OFFLINE_CONTENT = "offline.removeAllOfflineContent";
 

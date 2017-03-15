@@ -13,6 +13,10 @@
         android:summary="@string/pref_offline_wifi_only_description"
         android:title="@string/pref_offline_wifi_only_sync" />
 
+    <Preference
+        android:key="@string/key_offline_change_storage_location"
+        android:title="@string/pref_offline_change_storage_location" />
+
     <com.soundcloud.android.settings.OfflineStoragePreference
         android:key="@string/key_offline_storage_limit" />
 

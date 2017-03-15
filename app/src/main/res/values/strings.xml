@@ -861,6 +861,9 @@
     <string name="pref_offline_offline_collection_description_on">Turn this off to stop saving automatically and remove anything previously saved offline.</string>
     <string name="pref_offline_wifi_only_sync">Only save via Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
+    <string name="pref_offline_change_storage_location">Change storage location</string>
+    <string name="pref_offline_change_storage_location_description_device_storage">Offline content currently saves to your internal device storage.</string>
+    <string name="pref_offline_change_storage_location_description_sd_card">Offline content currently saves to your SD card storage.</string>
     <string name="pref_offline_storage_limit">Storage limit</string>
     <string name="pref_offline_storage_limit_description">This will define how much of your available storage can be used for offline listening.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
