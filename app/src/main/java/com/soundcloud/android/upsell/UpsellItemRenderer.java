@@ -63,7 +63,7 @@ public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
         if (featureOperations.isHighTierTrialEligible()) {
             action.setText(getTrialActionButtonText(view.getContext(), featureOperations.getHighTierTrialDays()));
         } else {
-            getUpsellActionButtonText(view.getContext());
+            action.setText(R.string.upsell_upgrade_button);
         }
     }
 
@@ -74,5 +74,4 @@ public abstract class UpsellItemRenderer<T> implements CellRenderer<T> {
     protected abstract String getTitle(Context context);
     protected abstract String getDescription(Context context);
     protected abstract String getTrialActionButtonText(Context context, int trialDays);
-    protected abstract String getUpsellActionButtonText(Context context);
 }
