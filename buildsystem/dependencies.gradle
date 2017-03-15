@@ -51,7 +51,7 @@ ext {
           // Analytics / tracking
           comscore                    : "com.comscore:comscore:3.1508.28",
           adjustAndroid               : "com.adjust.sdk:adjust-android:4.10.4",
-          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.5",
+          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.6.7",
           appBoy                      : "com.appboy:android-sdk-ui:1.15.3",
           krux                        : "com.krux:androidsdk:2.0.0",
           moat                        : "com.moat.analytics.mobile:app-kit:2.0.0",
