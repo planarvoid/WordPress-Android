@@ -21,7 +21,10 @@ public class PlaybackMeter {
     public void subscribe() {
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .filter(PlayStateEvent::isPlayerPlaying)
-                .subscribe(event -> engine.endMeasuring(MetricType.TIME_TO_PLAY));
+                .subscribe(event -> {
+                    engine.endMeasuring(MetricType.TIME_TO_PLAY);
+                    engine.endMeasuring(MetricType.TIME_TO_SKIP);
+                });
     }
 
 }

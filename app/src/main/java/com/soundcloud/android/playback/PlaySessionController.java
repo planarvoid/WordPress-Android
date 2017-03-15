@@ -9,6 +9,11 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -34,10 +39,11 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class PlaySessionController {
 
-    private static final String TAG = "PlaySessionController";
-
-    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     public static final long SEEK_POSITION_RESET = 0L;
+
+    private static final String TAG = "PlaySessionController";
+    private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
+    private static final String SKIP_ORIGIN = "controller";
 
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
@@ -46,6 +52,7 @@ public class PlaySessionController {
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
@@ -62,7 +69,8 @@ public class PlaySessionController {
                                  CastConnectionHelper castConnectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
-                                 PlaybackServiceController playbackServiceController) {
+                                 PlaybackServiceController playbackServiceController,
+                                 PerformanceMetricsEngine performanceMetricsEngine) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
@@ -72,6 +80,7 @@ public class PlaySessionController {
         this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public void subscribe() {
@@ -140,6 +149,9 @@ public class PlaySessionController {
                     && !adsOperations.isCurrentItemAd()) {
                 seek(SEEK_POSITION_RESET);
             } else {
+                if (playQueueManager.hasPreviousItem()) {
+                    startMeasuringTimeToSkip();
+                }
                 publishSkipEventIfAd();
                 playQueueManager.moveToPreviousPlayableItem();
             }
@@ -150,8 +162,21 @@ public class PlaySessionController {
         if (shouldDisableSkipping()) {
             playbackToastHelper.showUnskippableAdToast();
         } else {
+            if (playQueueManager.hasNextItem()) {
+                startMeasuringTimeToSkip();
+            }
             publishSkipEventIfAd();
             playQueueManager.moveToNextPlayableItem();
+        }
+    }
+
+    private void startMeasuringTimeToSkip() {
+        if (playSessionStateProvider.isPlaying()) {
+            MetricParams params = new MetricParams().putString(MetricKey.SKIP_ORIGIN, SKIP_ORIGIN);
+            performanceMetricsEngine.startMeasuring(PerformanceMetric.builder()
+                                                                     .metricType(MetricType.TIME_TO_SKIP)
+                                                                     .metricParams(params)
+                                                                     .build());
         }
     }
 

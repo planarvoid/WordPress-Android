@@ -10,6 +10,7 @@ public enum MetricKey {
     TIME_MILLIS("time_in_millis"),
     PLAY_QUEUE_SIZE("play_queue_size"),
     SCREEN("screen"),
+    SKIP_ORIGIN("skip_origin"),
     DOWNLOADED_DURATION("downloaded_duration_ms");
 
     private final String metricKey;

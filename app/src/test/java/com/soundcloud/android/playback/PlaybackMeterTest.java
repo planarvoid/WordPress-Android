@@ -28,11 +28,12 @@ public class PlaybackMeterTest {
     }
 
     @Test
-    public void publishesEndMeasuringOnPlayTransition() {
+    public void publishesEndMeasuringsOnPlayTransition() {
         when(playStateEvent.isPlayerPlaying()).thenReturn(true);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
 
         verify(performanceMetricsEngine).endMeasuring(MetricType.TIME_TO_PLAY);
+        verify(performanceMetricsEngine).endMeasuring(MetricType.TIME_TO_SKIP);
     }
 }

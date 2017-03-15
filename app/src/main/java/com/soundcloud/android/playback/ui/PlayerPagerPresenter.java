@@ -9,6 +9,11 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -66,6 +71,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private static final int TYPE_AUDIO_AD_VIEW = 1;
     private static final int TYPE_VIDEO_AD_VIEW = 2;
     private static final int TRACK_CACHE_SIZE = 10;
+    private static final String SKIP_ORIGIN = "swipe";
 
     @LightCycle final PlayerPagerOnboardingPresenter onboardingPresenter;
 
@@ -80,6 +86,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
     private final AdsOperations adOperations;
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final TrackPageRecycler trackPageRecycler;
     private final VideoSurfaceProvider videoSurfaceProvider;
 
@@ -134,7 +141,8 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                          AdsOperations adOperations,
                          VideoSurfaceProvider videoSurfaceProvider,
                          PlayerPagerOnboardingPresenter onboardingPresenter,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
         this.trackItemRepository = trackItemRepository;
         this.trackPagePresenter = trackPagePresenter;
@@ -148,6 +156,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         this.onboardingPresenter = onboardingPresenter;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.trackPagerAdapter = new TrackPagerAdapter();
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -355,8 +364,19 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         };
     }
 
+    private void startMeasuringTimeToSkip() {
+        if (playSessionStateProvider.isPlaying()) {
+            MetricParams params = new MetricParams().putString(MetricKey.SKIP_ORIGIN, SKIP_ORIGIN);
+            performanceMetricsEngine.startMeasuring(PerformanceMetric.builder()
+                                                                     .metricType(MetricType.TIME_TO_SKIP)
+                                                                     .metricParams(params)
+                                                                     .build());
+        }
+    }
+
     @Override
     public void onSwipe() {
+        startMeasuringTimeToSkip();
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromSwipeSkip());
     }
 

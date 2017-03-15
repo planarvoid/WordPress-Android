@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
@@ -18,6 +19,10 @@ import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -37,6 +42,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
@@ -62,6 +69,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaybackServiceController playbackServiceController;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private PlaySessionController controller;
     private PublishSubject<Void> playCurrentSubject;
@@ -76,7 +86,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                castConnectionHelper,
                                                InjectionSupport.providerOf(playbackStrategy),
                                                playbackToastHelper,
-                                               playbackServiceController);
+                                               playbackServiceController,
+                                               performanceMetricsEngine);
         controller.subscribe();
 
         trackUrn = Urn.forTrack(123);
@@ -731,6 +742,52 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         verify(playbackStrategy, never()).resume();
         assertThat(playCurrentSubject.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void shouldStartMeasuringTimeToSkipWhenSkippingToNextIsEnabled() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(false);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playQueueManager.hasNextItem()).thenReturn(true);
+
+        controller.nextTrack();
+
+        verify(performanceMetricsEngine).startMeasuring(performanceMetricArgumentCaptor.capture());
+        PerformanceMetric performanceMetric = performanceMetricArgumentCaptor.getValue();
+        assertThat(performanceMetric.metricType()).isEqualTo(MetricType.TIME_TO_SKIP);
+        assertThat(performanceMetric.metricParams().toBundle().getString(MetricKey.SKIP_ORIGIN.toString())).isEqualTo("controller");
+    }
+
+    @Test
+    public void shouldStartMeasuringTimeToSkipWhenSkippingToPreviousIsEnabled() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(false);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playQueueManager.hasPreviousItem()).thenReturn(true);
+
+        controller.previousTrack();
+
+        verify(performanceMetricsEngine).startMeasuring(performanceMetricArgumentCaptor.capture());
+        PerformanceMetric performanceMetric = performanceMetricArgumentCaptor.getValue();
+        assertThat(performanceMetric.metricType()).isEqualTo(MetricType.TIME_TO_SKIP);
+        assertThat(performanceMetric.metricParams().toBundle().getString(MetricKey.SKIP_ORIGIN.toString())).isEqualTo("controller");
+    }
+
+    @Test
+    public void shouldNotStartMeasuringTimeToSkipWhenSkippingToNextIsDisabled() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        controller.nextTrack();
+
+        verify(performanceMetricsEngine, never()).startMeasuring(any(PerformanceMetric.class));
+    }
+
+    @Test
+    public void shouldNotStartMeasuringTimeToSkipWhenSkippingToPreviousIsDisabled() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        controller.previousTrack();
+
+        verify(performanceMetricsEngine, never()).startMeasuring(any(PerformanceMetric.class));
     }
 
     private void setupSetNewQueue(Urn track,

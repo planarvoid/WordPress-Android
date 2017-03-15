@@ -17,6 +17,10 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -87,6 +91,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Captor private ArgumentCaptor<SkipListener> skipListenerArgumentCaptor;
     @Captor private ArgumentCaptor<ViewPager.SimpleOnPageChangeListener> pageChangeListenerArgumentCaptor;
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
+
     @Mock private ViewGroup container;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
 
@@ -104,6 +110,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private View fragmentView;
     @Mock private PlayerFragment playerFragment;
     @Mock private PlayerActivity playerActivity;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
@@ -142,7 +149,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              adOperations,
                                              videoSurfaceProvider,
                                              onboardingPresenter,
-                                             eventBus);
+                                             eventBus,
+                                             performanceMetricsEngine);
         when(playerFragment.getPlayerPager()).thenReturn(playerTrackPager);
         when(container.getResources()).thenReturn(resources());
         presenter.onViewCreated(playerFragment, container, null);
@@ -209,6 +217,27 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onSwipe();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.fromSwipeSkip().getKind());
+    }
+
+    @Test
+    public void onSwipeDuringPlaybackStartsMeasuring() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+
+        presenter.onSwipe();
+
+        verify(performanceMetricsEngine).startMeasuring(performanceMetricArgumentCaptor.capture());
+        PerformanceMetric performanceMetric = performanceMetricArgumentCaptor.getValue();
+        assertThat(performanceMetric.metricType()).isEqualTo(MetricType.TIME_TO_SKIP);
+        assertThat(performanceMetric.metricParams().toBundle().getString(MetricKey.SKIP_ORIGIN.toString())).isEqualTo("swipe");
+    }
+
+    @Test
+    public void onSwipeWhenNotPlayingDoesNotStartMeasuring() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+
+        presenter.onSwipe();
+
+        verify(performanceMetricsEngine, never()).startMeasuring(any(PerformanceMetric.class));
     }
 
     @Test
