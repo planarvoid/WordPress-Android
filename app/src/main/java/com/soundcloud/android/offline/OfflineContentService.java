@@ -8,6 +8,11 @@ import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -45,12 +50,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject DownloadQueue queue;
     @Inject DownloadHandler.Builder builder;
     @Inject @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler;
+    @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private boolean isStopping;
     private boolean showResult;
+    private long totalDownloadedDuration;
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
         @Override
@@ -91,7 +98,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                           DownloadHandler.Builder builder,
                           OfflineStatePublisher publisher,
                           DownloadQueue queue,
-                          Scheduler scheduler) {
+                          Scheduler scheduler,
+                          PerformanceMetricsEngine performanceMetricsEngine) {
         this.downloadOperations = downloadOps;
         this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
@@ -100,6 +108,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         this.builder = builder;
         this.queue = queue;
         this.scheduler = scheduler;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -146,6 +155,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notificationController.onDownloadSuccess(state);
         publisher.publishDownloaded(state.request.getUrn());
         offlineContentOperations.setHasOfflineContent(true);
+        totalDownloadedDuration += state.request.getDuration();
 
         downloadNextOrFinish(state);
     }
@@ -239,11 +249,22 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
+        measureOfflineSync();
         subscription.unsubscribe();
         downloadHandler.quit();
 
         stopForeground(false);
         stopSelf();
+    }
+
+    private void measureOfflineSync() {
+        if (totalDownloadedDuration > 0) {
+            MetricParams params = new MetricParams().putLong(MetricKey.DOWNLOADED_DURATION, totalDownloadedDuration);
+            performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                                   .metricType(MetricType.OFFLINE_SYNC)
+                                                                   .metricParams(params)
+                                                                   .build());
+        }
     }
 
     private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentUpdates> {
@@ -271,6 +292,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             } else {
                 setNewRequests(requests, noContentRequested);
                 downloadNextOrFinish(null);
+                totalDownloadedDuration = 0;
+                performanceMetricsEngine.startMeasuring(MetricType.OFFLINE_SYNC);
             }
         }
     }

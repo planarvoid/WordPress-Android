@@ -11,6 +11,7 @@ public enum MetricType {
     TIME_TO_EXPAND_PLAYER("time_to_expand_player"),
     TIME_TO_PLAY("time_to_play"),
     PLAY_QUEUE_LOAD("play_queue_load"),
+    OFFLINE_SYNC("offline_sync"),
     PERFORM_SEARCH("perform_search"),
     COLLECTION_LOAD("collection_load");
 

@@ -9,7 +9,8 @@ public enum MetricKey {
     USER_LOGGED_IN("logged_in_user"),
     TIME_MILLIS("time_in_millis"),
     PLAY_QUEUE_SIZE("play_queue_size"),
-    SCREEN("screen");
+    SCREEN("screen"),
+    DOWNLOADED_DURATION("downloaded_duration_ms");
 
     private final String metricKey;
 

@@ -12,11 +12,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
@@ -40,12 +46,16 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Mock private DownloadHandler downloadHandler;
     @Mock private Notification notification;
     @Mock private OfflineStatePublisher publisher;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     private final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(TRACK_1);
     private final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(TRACK_2);
     private final DownloadState downloadState1 = DownloadState.success(downloadRequest1);
+    private final DownloadState downloadState2 = DownloadState.success(downloadRequest2);
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 = DownloadState.invalidNetworkError(downloadRequest1);
     private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
@@ -75,7 +85,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
                                             handlerFactory,
                                             publisher,
                                             downloadQueue,
-                                            Schedulers.immediate());
+                                            Schedulers.immediate(),
+                                            performanceMetricsEngine);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
     }
@@ -470,6 +481,69 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         service.onDestroy();
 
         assertThat(loadUpdates.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void shouldStartMeasuringWhenItIsNotDownloading() {
+        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                                            .build());
+        startService();
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.OFFLINE_SYNC);
+    }
+
+    @Test
+    public void shouldNotStartMeasuringWhenIsDownloading() {
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
+        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                                            .build());
+        startService();
+
+        verify(performanceMetricsEngine, never()).startMeasuring(MetricType.OFFLINE_SYNC);
+    }
+
+    @Test
+    public void shouldEndMeasuringWhenAllDownloadsComplete() {
+        long totalDuration = downloadState1.request.getDuration() + downloadState2.request.getDuration();
+        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                                            .build());
+        startService();
+
+        service.onSuccess(downloadState1);
+        service.onSuccess(downloadState2);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
+
+        PerformanceMetric performanceMetric = performanceMetricCaptor.getValue();
+        assertThat(performanceMetric.metricParams().toBundle().getLong(MetricKey.DOWNLOADED_DURATION.toString())).isEqualTo(totalDuration);
+    }
+
+    @Test
+    public void shouldEndMeasuringWhenSomeDownloadsComplete() {
+        setUpOfflineContentUpdates(builder().tracksToDownload(Arrays.asList(downloadRequest2, downloadRequest1))
+                                            .build());
+        startService();
+
+        service.onSuccess(downloadState2);
+        service.onError(unavailableTrackResult1);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
+
+        PerformanceMetric performanceMetric = performanceMetricCaptor.getValue();
+        assertThat(performanceMetric.metricParams().toBundle().getLong(MetricKey.DOWNLOADED_DURATION.toString()))
+                .isEqualTo(downloadState2.request.getDuration());
+    }
+
+    @Test
+    public void shouldNotMeasureWhenNoTracksAreDownloaded() {
+        setUpOfflineContentUpdates(builder().tracksToDownload(singletonList(downloadRequest1))
+                                            .build());
+        startService();
+
+        service.onError(unavailableTrackResult1);
+
+        verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
     }
 
     private int startService() {
