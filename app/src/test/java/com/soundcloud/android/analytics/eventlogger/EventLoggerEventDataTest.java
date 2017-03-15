@@ -9,9 +9,9 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.assertj.core.util.Maps;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -93,7 +93,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
         data.attributingActivity("some_activity_type", "resource");
 
-        Map<String, String> expected = Maps.newHashMap();
+        Map<String, String> expected = new HashMap<>();
         expected.put(EventLoggerParam.ACTIVITY_TYPE, "some_activity_type");
         expected.put(EventLoggerParam.RESOURCE, "resource");
         assertThat(data.payload.get(EventLoggerParam.ATTRIBUTING_ACTIVITY)).isEqualTo(expected);
@@ -123,7 +123,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
         data.module("module_name");
 
-        Map<String, String> expected = Maps.newHashMap();
+        Map<String, String> expected = new HashMap<>();
         expected.put(EventLoggerParam.MODULE_NAME, "module_name");
         assertThat(data.payload.get(EventLoggerParam.MODULE)).isEqualTo(expected);
     }

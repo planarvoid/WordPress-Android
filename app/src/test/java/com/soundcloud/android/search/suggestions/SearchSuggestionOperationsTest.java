@@ -24,8 +24,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
-import org.assertj.core.util.Lists;
-import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +39,7 @@ import rx.schedulers.Schedulers;
 import android.support.annotation.NonNull;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class SearchSuggestionOperationsTest extends AndroidUnitTest {
@@ -167,8 +166,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @NonNull
     private Autocompletion setupAutocompletionRemoteSuggestions() {
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
-        final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(Lists.newArrayList(autocompletion),
-                                                                                      Maps.newHashMap(),
+        final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(newArrayList(autocompletion),
+                                                                                      new HashMap<>(),
                                                                                       QUERY_URN.toString());
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
