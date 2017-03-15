@@ -39,8 +39,4 @@ public class StreamUpsellItemRenderer extends UpsellItemRenderer<StreamItem> {
         return context.getString(R.string.conversion_buy_trial, trialDays);
     }
 
-    @Override
-    protected String getUpsellActionButtonText(Context context) {
-        return context.getString(R.string.upsell_upgrade_button);
-    }
 }

@@ -959,7 +959,6 @@
     <string name="upsell_discovery_upgrade_title">Get SoundCloud Go+</string>
     <string name="upsell_discovery_upgrade_description">Access the world’s largest music and audio streaming catalog, listen offline, and unlock all previews.</string>
     <string name="upsell_discovery_button_trial">Try it free for %1$d days</string>
-    <string name="upsell_discovery_button_get_it">Get SoundCloud Go+</string>
     <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go+</string>
     <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
     <string name="upsell_track_preview">Preview</string>

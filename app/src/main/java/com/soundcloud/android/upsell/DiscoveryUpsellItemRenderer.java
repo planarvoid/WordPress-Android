@@ -40,8 +40,4 @@ public class DiscoveryUpsellItemRenderer extends UpsellItemRenderer<DiscoveryIte
         return context.getString(R.string.upsell_discovery_button_trial, trialDays);
     }
 
-    @Override
-    protected String getUpsellActionButtonText(Context context) {
-        return context.getString(R.string.upsell_discovery_button_get_it);
-    }
 }
