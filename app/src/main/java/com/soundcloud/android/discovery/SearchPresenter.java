@@ -3,6 +3,8 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -74,6 +76,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final EventTracker eventTracker;
     private final ScreenProvider screenProvider;
     private final FeatureFlags featureFlags;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
@@ -86,7 +89,8 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                     KeyboardHelper keyboardHelper,
                     EventTracker eventTracker,
                     ScreenProvider screenProvider,
-                    FeatureFlags featureFlags) {
+                    FeatureFlags featureFlags,
+                    PerformanceMetricsEngine performanceMetricsEngine) {
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
         this.resources = resources;
@@ -95,6 +99,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.eventTracker = eventTracker;
         this.screenProvider = screenProvider;
         this.featureFlags = featureFlags;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -148,6 +153,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                        Optional<String> outputString,
                        Optional<Urn> queryUrn,
                        Optional<Integer> position) {
+        performanceMetricsEngine.startMeasuring(MetricType.PERFORM_SEARCH);
         deactivateSearchView();
         showResultsFor(apiQuery, userQuery, outputString, queryUrn, position);
     }

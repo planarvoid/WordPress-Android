@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,10 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
@@ -72,8 +77,11 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private SearchPlayRelatedTracksConfig playRelatedTracksConfig;
     @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Captor private ArgumentCaptor<List<ListItem>> listArgumentCaptor;
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
+
     private TestEventBus eventBus = new TestEventBus();
     private Bundle bundle;
 
@@ -100,7 +108,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                screenProvider,
                                                searchPlayQueueFilter,
                                                featureFlags,
-                                               featureOperations);
+                                               featureOperations,
+                                               performanceMetricsEngine);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1), API_QUERY);
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -268,6 +277,27 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         assertThat(item).isNotInstanceOf(SearchResultHeaderRenderer.SearchResultHeader.class);
     }
 
+    @Test
+    public void shouldEndMeasuringSearchPerformanceOnAllSearchType() {
+        setupFragmentArguments(false, SearchType.ALL);
+
+        presenter.onCreate(fragmentRule.getFragment(), bundle);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
+        PerformanceMetric metric = performanceMetricArgumentCaptor.getValue();
+        assertThat(metric.metricType()).isEqualTo(MetricType.PERFORM_SEARCH);
+        assertThat(metric.metricParams().toBundle().getString(MetricKey.SCREEN.toString())).isEqualTo(Screen.SEARCH_MAIN.toString());
+    }
+
+    @Test
+    public void shouldNotEndMeasuringSearchPerformanceOnOtherSearchType() {
+        setupFragmentArguments(false, SearchType.TRACKS);
+
+        presenter.onCreate(fragmentRule.getFragment(), bundle);
+
+        verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
+    }
+
     private List<ListItem> setupAdapter() {
         final TrackItem trackItem = ModelFixtures.trackItem(TRACK_URN);
         final List<ListItem> listItems = Collections.singletonList(trackItem);
@@ -289,7 +319,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                screenProvider,
                                                new SearchPlayQueueFilter(playRelatedTracksConfig),
                                                featureFlags,
-                                               featureOperations);
+                                               featureOperations,
+                                               performanceMetricsEngine);
 
 
         final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(ModelFixtures.trackItem(PREMIUM_TRACK_URN_ONE)),
@@ -308,7 +339,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent, SearchType searchType) {
         final Bundle arguments = new Bundle();
-        arguments.putParcelable(SearchResultsFragment.EXTRA_ARGS, SearchFragmentArgs.create(searchType, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), publishSearchSubmissionEvent, false));
+        arguments.putParcelable(SearchResultsFragment.EXTRA_ARGS,
+                                SearchFragmentArgs.create(searchType, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), publishSearchSubmissionEvent, false));
         fragmentRule.setFragmentArguments(arguments);
     }
 }

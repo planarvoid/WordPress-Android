@@ -8,7 +8,7 @@ import java.util.List;
 @AutoValue
 public abstract class CollectionRendererState<ItemT> {
 
-    abstract CollectionLoadingState collectionLoadingState();
+    public abstract CollectionLoadingState collectionLoadingState();
 
     public abstract List<ItemT> items();
 

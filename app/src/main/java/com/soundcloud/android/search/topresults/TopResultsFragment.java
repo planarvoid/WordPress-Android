@@ -3,12 +3,18 @@ package com.soundcloud.android.search.topresults;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
+import com.soundcloud.android.view.collection.CollectionRenderer;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -39,6 +45,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject Navigator navigator;
     @Inject PlaybackToastHelper playbackToastHelper;
+    @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
     private CompositeSubscription subscription;
@@ -133,7 +140,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                     .viewModel()
                                     .map(TopResultsViewModel::buckets)
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(collectionRenderer::render),
+                                    .subscribe(this::renderNewState),
 
                             presenter.onGoToProfile()
                                      .subscribe(args -> navigator.legacyOpenProfile(getContext(), args.user(), Screen.SEARCH_TOP_RESULTS, args.searchQuerySourceInfo())),
@@ -151,6 +158,18 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                                                                                clickAndQuery.query().get(),
                                                                                                clickAndQuery.kind(),
                                                                                                clickAndQuery.isPremium())));
+    }
+
+    private void renderNewState(CollectionRendererState<TopResultsBucketViewModel> newState) {
+        collectionRenderer.render(newState);
+        if (!newState.collectionLoadingState().isLoadingNextPage()) {
+            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_TOP_RESULTS.toString());
+            PerformanceMetric metric = PerformanceMetric.builder()
+                                                        .metricType(MetricType.PERFORM_SEARCH)
+                                                        .metricParams(params)
+                                                        .build();
+            performanceMetricsEngine.endMeasuring(metric);
+        }
     }
 
     @Override

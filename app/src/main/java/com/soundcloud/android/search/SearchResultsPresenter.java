@@ -3,9 +3,15 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
@@ -99,6 +105,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final SearchPlayQueueFilter playQueueFilter;
     private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
@@ -143,7 +150,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            ScreenProvider screenProvider,
                            SearchPlayQueueFilter playQueueFilter,
                            FeatureFlags featureFlags,
-                           FeatureOperations featureOperations) {
+                           FeatureOperations featureOperations,
+                           PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
@@ -155,6 +163,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.playQueueFilter = playQueueFilter;
         this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -221,11 +230,23 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                               .searchResult(apiQuery, autocompleteUrn(), searchType, contentType)
                               .map(addHeaderItem)
                               .map(addUpsellItem)
-                              .doOnNext(trackSearch),
+                              .doOnNext(trackSearch)
+                              .doOnCompleted(this::endMeasuringSearchTime),
                       toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();
+    }
+
+    private void endMeasuringSearchTime() {
+        if (searchType == SearchType.ALL) {
+            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_MAIN.toString());
+            PerformanceMetric metric = PerformanceMetric.builder()
+                                                        .metricType(MetricType.PERFORM_SEARCH)
+                                                        .metricParams(params)
+                                                        .build();
+            performanceMetricsEngine.endMeasuring(metric);
+        }
     }
 
     private Optional<Urn> autocompleteUrn() {
