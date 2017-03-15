@@ -8,12 +8,14 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 @AutoValue
 public abstract class ApiVideoAd {
     @JsonCreator
     public static ApiVideoAd create(@JsonProperty("urn") Urn adUrn,
                                     @JsonProperty("expiry_in_minutes") int expiryInMins,
+                                    @JsonProperty("duration") long duration,
                                     @JsonProperty("title") Optional<String> title,
                                     @JsonProperty("cta_button_text") Optional<String> ctaButtonText,
                                     @JsonProperty("clickthrough_url") String clickthroughUrl,
@@ -23,6 +25,8 @@ public abstract class ApiVideoAd {
                                     @JsonProperty("skippable") boolean skippable) {
         return new AutoValue_ApiVideoAd(adUrn,
                                         expiryInMins,
+                                        duration,
+                                        UUID.randomUUID().toString(),
                                         title,
                                         ctaButtonText,
                                         clickthroughUrl,
@@ -35,6 +39,10 @@ public abstract class ApiVideoAd {
     public abstract Urn getAdUrn();
 
     public abstract int getExpiryInMins();
+
+    public abstract long getDuration();
+
+    public abstract String getUuid();
 
     public abstract Optional<String> getTitle();
 

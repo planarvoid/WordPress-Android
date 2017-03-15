@@ -367,7 +367,6 @@ public class AdsController {
                                                          Log.i(ADS_TAG,
                                                                "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
                                                          eventBus.publish(EventQueue.TRACKING, createErrorEvent(state));
-                                                         adViewabilityController.stopVideoTracking();
                                                          playQueueManager.autoMoveToNextPlayableItem();
                                                      }
                                                  });

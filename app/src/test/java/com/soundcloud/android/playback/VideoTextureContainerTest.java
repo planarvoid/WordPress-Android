@@ -4,7 +4,6 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import android.view.TextureView;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 
@@ -27,12 +26,12 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     private VideoTextureContainer textureContainer;
 
-    private static final Urn URN = Urn.forAd("dfp", "video-ad");
+    private static final String UUID = "uid-uuid-uid";
     private static final Origin ORIGIN = Origin.PLAYER;
 
     @Before
     public void setUp() {
-        textureContainer = new VideoTextureContainer(URN, ORIGIN, textureView, Optional.of(surfaceProviderListener));
+        textureContainer = new VideoTextureContainer(UUID, ORIGIN, textureView, Optional.of(surfaceProviderListener));
     }
 
     @Test
@@ -71,7 +70,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Test
     public void getUrnReturnsUrnOfContainer() {
-        assertThat(textureContainer.getUrn()).isEqualTo(URN);
+        assertThat(textureContainer.getUuid()).isEqualTo(UUID);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
     public void onSurfaceTextureAvailableAttemptsToSetSurfaceOnListener() {
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        verify(surfaceProviderListener).attemptToSetSurface(URN);
+        verify(surfaceProviderListener).attemptToSetSurface(UUID);
     }
 
     @Test

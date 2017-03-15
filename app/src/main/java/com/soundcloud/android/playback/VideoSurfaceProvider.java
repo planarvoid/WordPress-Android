@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -27,7 +26,7 @@ public class VideoSurfaceProvider {
 
     final private static int MAX_VIDEO_CONTAINERS = 5;
 
-    final private Map<Urn, VideoTextureContainer> videoTextureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
+    final private Map<String, VideoTextureContainer> videoTextureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
 
     final private VideoTextureContainer.Factory containerFactory;
     final private ApplicationProperties applicationProperties;
@@ -48,23 +47,23 @@ public class VideoSurfaceProvider {
         }
     }
 
-    public void setTextureView(Urn urn, Origin origin, TextureView videoTexture) {
-        if (videoTextureContainers.containsKey(urn) && applicationProperties.canReattachSurfaceTexture()) {
-            videoTextureContainers.get(urn).reattachSurfaceTexture(videoTexture);
+    public void setTextureView(String uuid, Origin origin, TextureView videoTexture) {
+        if (videoTextureContainers.containsKey(uuid) && applicationProperties.canReattachSurfaceTexture()) {
+            videoTextureContainers.get(uuid).reattachSurfaceTexture(videoTexture);
         } else {
             // If this texture view was used before (e.g view is recycled),
             // release & remove any old containers referencing it
             removeContainers(container -> container.containsTextureView(videoTexture));
-            videoTextureContainers.put(urn, containerFactory.build(urn, origin, videoTexture, listener));
+            videoTextureContainers.put(uuid, containerFactory.build(uuid, origin, videoTexture, listener));
         }
 
         if (listener.isPresent()) {
-            listener.get().onTextureViewUpdate(urn, videoTexture);
+            listener.get().onTextureViewUpdate(uuid, videoTexture);
         }
     }
 
     private void removeContainers(Predicate<VideoTextureContainer> predicate) {
-        Iterator<Map.Entry<Urn, VideoTextureContainer>> entryIterator = videoTextureContainers.entrySet().iterator();
+        Iterator<Map.Entry<String, VideoTextureContainer>> entryIterator = videoTextureContainers.entrySet().iterator();
         while (entryIterator.hasNext()) {
             final VideoTextureContainer container = entryIterator.next().getValue();
             if (predicate.apply(container)) {
@@ -88,17 +87,17 @@ public class VideoSurfaceProvider {
     }
 
     @Nullable
-    public Surface getSurface(Urn urn) {
-        return videoTextureContainers.containsKey(urn) ? videoTextureContainers.get(urn).getSurface() : null;
+    public Surface getSurface(String uuid) {
+        return videoTextureContainers.containsKey(uuid) ? videoTextureContainers.get(uuid).getSurface() : null;
     }
 
-    public Optional<TextureView> getTextureView(Urn urn) {
-        final TextureView textureView = videoTextureContainers.containsKey(urn) ? videoTextureContainers.get(urn).getTextureView() : null;
+    public Optional<TextureView> getTextureView(String uuid) {
+        final TextureView textureView = videoTextureContainers.containsKey(uuid) ? videoTextureContainers.get(uuid).getTextureView() : null;
         return Optional.fromNullable(textureView);
     }
 
     public interface Listener {
-        void attemptToSetSurface(Urn urn);
-        void onTextureViewUpdate(Urn urn, TextureView textureView);
+        void attemptToSetSurface(String uuid);
+        void onTextureViewUpdate(String uuid, TextureView textureView);
     }
 }

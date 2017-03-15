@@ -54,7 +54,7 @@ ext {
           crashlytics                  : "com.crashlytics.sdk.android:crashlytics:2.6.7",
           appBoy                       : "com.appboy:android-sdk-ui:1.15.3",
           krux                         : "com.krux:androidsdk:2.0.0",
-          moat                         : "com.moat.analytics.mobile:app-kit:2.0.0",
+          moat                         : "com.moat.analytics.mobile:app-kit:2.1.0",
 
           // Utility libraries
           jacksonAnnotations           : "com.fasterxml.jackson.core:jackson-annotations:2.8.6",

@@ -668,8 +668,6 @@ public class AdsControllerTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
-
-        verify(adViewabilityController).stopVideoTracking();
     }
 
     @Test

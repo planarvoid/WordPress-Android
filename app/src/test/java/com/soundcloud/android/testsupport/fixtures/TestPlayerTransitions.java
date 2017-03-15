@@ -1,5 +1,7 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import static com.soundcloud.android.R.id.position;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
@@ -30,6 +32,10 @@ public class TestPlayerTransitions {
 
     public static PlaybackStateTransition idle(long position, long duration, PlayStateReason reason) {
         return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, reason, URN, position, duration));
+    }
+
+    public static PlaybackStateTransition idle(Urn urn, long position, long duration, PlayStateReason reason) {
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, reason, urn, position, duration));
     }
 
     public static PlaybackStateTransition buffering() {
@@ -70,7 +76,11 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition complete(Urn urn) {
-        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn, 0, 0));
+        return complete(urn, 0, 0);
+    }
+
+    public static PlaybackStateTransition complete(Urn urn, long position, long duration) {
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn, position, duration));
     }
 
     public static PlaybackStateTransition error(PlayStateReason REASON) {

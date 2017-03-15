@@ -540,12 +540,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void shouldBindAdViewAndSetVideoSurfaceForVideoAds() {
         when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
         presenter.onResume(playerFragment);
-        setupVideoAd();
+        VideoAd ad = setupVideoAd();
         View pageView = getVideoAdPageView();
         ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
 
         assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
@@ -556,12 +556,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.empty());
         when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
         presenter.onResume(playerFragment);
-        setupVideoAd();
+        VideoAd ad = setupVideoAd();
         View pageView = getVideoAdPageView();
         ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
 
         assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo(Strings.EMPTY);
@@ -678,12 +678,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onResumeSetsVideoSurfacesForVideoItems() {
         when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
-        setupVideoAd();
+        VideoAd ad = setupVideoAd();
         getVideoAdPageView();
 
         presenter.onResume(playerFragment);
 
-        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
     }
 
     @Test
@@ -874,9 +874,11 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentItem(playQueue.get(position))).thenReturn(isCurrentTrack);
     }
 
-    private void setupVideoAd() {
-        final VideoAdQueueItem video = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN));
-        presenter.setCurrentPlayQueue(Collections.singletonList(video), 0);
+    private VideoAd setupVideoAd() {
+        final VideoAd video = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(video);
+        presenter.setCurrentPlayQueue(Collections.singletonList(videoItem), 0);
+        return video;
     }
 
     private void onDestroy(boolean isConfigurationChange) {

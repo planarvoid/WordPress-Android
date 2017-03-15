@@ -13,7 +13,6 @@ import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -29,7 +28,6 @@ import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
@@ -66,10 +64,10 @@ public class MediaPlayerAdapter implements
     private static final String TAG = "MediaPlayerAdapter";
     private static final int POS_NOT_SET = Consts.NOT_SET;
 
-    public static final int MAX_CONNECT_RETRIES = 2;
-    public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
+    static final int MAX_CONNECT_RETRIES = 2;
+    static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
 
-    private static final Predicate<AudioAdSource> IS_MP3 = input -> input.isMp3();
+    private static final Predicate<AudioAdSource> IS_MP3 = AudioAdSource::isMp3;
 
     private final Context context;
     private final MediaPlayerManager mediaPlayerManager;
@@ -169,13 +167,10 @@ public class MediaPlayerAdapter implements
 
         try {
             setStreamUrl(playbackItem);
-            attemptToSetSurface(playbackItem.getUrn());
+            attemptToSetSurface();
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
-            if (isPlayingVideo()) { // Temporarily logging to understand #5310 and what errors we're seeing with video playback
-                ErrorUtils.handleSilentException(new IllegalStateException("MediaPlayer video playback error: " + e.getMessage()));
-            }
             handleMediaPlayerError(mediaPlayer, resumePos);
         }
     }
@@ -208,9 +203,10 @@ public class MediaPlayerAdapter implements
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
             if (playerListener != null) {
                 if (isPlayingVideo()) {
-                    final float volume = ((VideoAdPlaybackItem) currentItem).getInitialVolume();
+                    final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
+                    final float volume = videoItem.getInitialVolume();
                     mediaPlayer.setVolume(volume, volume);
-                    adViewabilityController.startVideoTracking(mediaPlayer, currentItem.getUrn());
+                    adViewabilityController.setupVideoTracking(videoItem.getUrn(), videoItem.getDuration(), videoItem.getUuid(), videoItem.getMonetizationType());
                 }
 
                 play();
@@ -265,9 +261,6 @@ public class MediaPlayerAdapter implements
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        if (isPlayingVideo()) { // Temporarily logging to understand #5310 and what errors we're seeing with video playback
-            ErrorUtils.handleSilentException(new IllegalStateException("MediaPlayer video playback error what:" + what + " extra:" + extra));
-        }
         return handleMediaPlayerError(mp, getAdjustedProgress());
     }
 
@@ -280,7 +273,7 @@ public class MediaPlayerAdapter implements
                 play(currentItem, resumePosition);
             } else {
                 Log.d(TAG, "stream disconnected, giving up");
-                adViewabilityController.stopVideoTracking();
+                stopVideoTracking();
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
                 resetConnectionRetries();
@@ -327,7 +320,7 @@ public class MediaPlayerAdapter implements
         }
     }
 
-    public long getSeekPosition() {
+    long getSeekPosition() {
         return seekPos;
     }
 
@@ -377,7 +370,6 @@ public class MediaPlayerAdapter implements
     }
 
     void onPlaybackEnded() {
-        adViewabilityController.onVideoCompletion();
         setInternalState(PlaybackState.COMPLETED);
         clearSurface();
         resetConnectionRetries();
@@ -389,15 +381,15 @@ public class MediaPlayerAdapter implements
         }
     }
 
-    public boolean hasValidSeekPosition() {
+    boolean hasValidSeekPosition() {
         return seekPos != POS_NOT_SET;
     }
 
-    public boolean isTryingToResumePlayback() {
+    boolean isTryingToResumePlayback() {
         return resumePos != POS_NOT_SET;
     }
 
-    public long getResumeTime() {
+    long getResumeTime() {
         return resumePos;
     }
 
@@ -658,7 +650,7 @@ public class MediaPlayerAdapter implements
                 mediaPlayer.stop();
             }
 
-            adViewabilityController.stopVideoTracking();
+            stopVideoTracking();
             clearSurface();
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
@@ -667,14 +659,27 @@ public class MediaPlayerAdapter implements
         }
     }
 
+    private void stopVideoTracking() {
+        if (isPlayingVideo()) {
+            adViewabilityController.stopVideoTracking(((VideoAdPlaybackItem) currentItem).getUuid());
+        }
+    }
+
     @Override
     public void stopForTrackTransition() {
         stop();
     }
 
-    public void attemptToSetSurface(Urn urn) {
+    private void attemptToSetSurface() {
         if (isPlayingVideo()) {
-            final Surface surface = videoSurfaceProvider.getSurface(urn);
+            attemptToSetSurface(((VideoAdPlaybackItem) currentItem).getUuid());
+        }
+    }
+
+    @Override
+    public void attemptToSetSurface(String uuid) {
+        if (isPlayingVideo()) {
+            final Surface surface = videoSurfaceProvider.getSurface(uuid);
             if (mediaPlayer != null && surface != null) {
                 mediaPlayer.setSurface(surface);
             }
@@ -682,8 +687,8 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public void onTextureViewUpdate(Urn urn, TextureView textureView) {
-        adViewabilityController.updateVideoView(urn, textureView);
+    public void onTextureViewUpdate(String uuid, TextureView textureView) {
+        adViewabilityController.updateView(uuid, textureView);
     }
 
     private void clearSurface() {

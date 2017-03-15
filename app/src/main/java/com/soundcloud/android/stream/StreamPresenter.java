@@ -368,6 +368,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onVideoTextureBind(TextureView textureView, VideoAd videoAd) {
-        videoSurfaceProvider.setTextureView(videoAd.getAdUrn(), Origin.STREAM, textureView);
+        videoSurfaceProvider.setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
     }
 }

@@ -3,7 +3,9 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.ads.PlayableAdData.ReportingEvent;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason;
 
+import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
@@ -23,14 +25,18 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
 
     private final EventBus eventBus;
     private final StopReasonProvider stopReasonProvider;
+    private final AdViewabilityController adViewabilityController;
 
     private Optional<AdInfo> adInfo = Optional.absent();
     private boolean lastEventWasPlay;
 
     @Inject
-    public AdSessionAnalyticsDispatcher(EventBus eventBus, StopReasonProvider stopReasonProvider) {
+    public AdSessionAnalyticsDispatcher(EventBus eventBus,
+                                        StopReasonProvider stopReasonProvider,
+                                        AdViewabilityController adViewabilityController) {
         this.eventBus = eventBus;
         this.stopReasonProvider = stopReasonProvider;
+        this.adViewabilityController = adViewabilityController;
     }
 
     public void setAdMetadata(PlayableAdData ad, @Nullable TrackSourceInfo sourceInfo) {
@@ -45,16 +51,20 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
             final PlayableAdData ad = adInfo.get().ad;
             final TrackSourceInfo sourceInfo = adInfo.get().sourceInfo;
             final AdSessionEventArgs eventArgs = buildArgs(sourceInfo, playStateEvent.getTransition());
-            sendPlayTrackingEvent(ad, eventArgs);
+
+            sendPlayTrackingEvent(ad, playStateEvent.getProgress().getPosition(), eventArgs);
         }
     }
 
     @Override
     public void onStopTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (adInfo.isPresent() && lastEventWasPlay) {
+            final PlayableAdData ad = adInfo.get().ad;
+            final TrackSourceInfo sourceInfo = adInfo.get().sourceInfo;
             final PlaybackStateTransition transition = playStateEvent.getTransition();
-            final AdInfo adInfo = this.adInfo.get();
-            sendStopTrackingEvent(adInfo.ad, buildArgs(adInfo.sourceInfo, transition), stopReasonProvider.fromTransition(transition));
+            final StopReason stopReason = stopReasonProvider.fromTransition(transition);
+            final long position = playStateEvent.getProgress().getPosition();
+            sendStopTrackingEvent(ad, position, buildArgs(sourceInfo, transition), stopReason);
         }
     }
 
@@ -62,7 +72,8 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
     public void onSkipTransition(PlayStateEvent playStateEvent) {
         if (adInfo.isPresent() && lastEventWasPlay) {
             final AdInfo adInfo = this.adInfo.get();
-            sendStopTrackingEvent(adInfo.ad, buildArgs(adInfo.sourceInfo, playStateEvent.getTransition()), StopReason.STOP_REASON_SKIP);
+            final long position = playStateEvent.getProgress().getPosition();
+            sendStopTrackingEvent(adInfo.ad, position, buildArgs(adInfo.sourceInfo, playStateEvent.getTransition()), StopReason.STOP_REASON_SKIP);
         }
     }
 
@@ -83,11 +94,11 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
             final PlaybackProgress progress = progressEvent.getPlaybackProgress();
 
             if (shouldReportQuartileEvent(ReportingEvent.FIRST_QUARTILE, ad, progress)) {
-                reportQuartileEvent(ReportingEvent.FIRST_QUARTILE, ad, sourceInfo);
+                reportQuartileEvent(ReportingEvent.FIRST_QUARTILE, ad, progress, sourceInfo);
             } else if (shouldReportQuartileEvent(ReportingEvent.SECOND_QUARTILE, ad, progress)) {
-                reportQuartileEvent(ReportingEvent.SECOND_QUARTILE, ad, sourceInfo);
+                reportQuartileEvent(ReportingEvent.SECOND_QUARTILE, ad, progress, sourceInfo);
             } else if (shouldReportQuartileEvent(ReportingEvent.THIRD_QUARTILE, ad, progress)) {
-                reportQuartileEvent(ReportingEvent.THIRD_QUARTILE, ad, sourceInfo);
+                reportQuartileEvent(ReportingEvent.THIRD_QUARTILE, ad, progress, sourceInfo);
             }
         }
     }
@@ -106,8 +117,9 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
         }
     }
 
-    private void reportQuartileEvent(ReportingEvent event, PlayableAdData ad, TrackSourceInfo sourceInfo) {
+    private void reportQuartileEvent(ReportingEvent event, PlayableAdData ad, PlaybackProgress progress, TrackSourceInfo sourceInfo) {
         ad.setEventReported(event);
+        progressViewabilityTracking(ad, event, progress.getPosition());
         switch (event) {
             case FIRST_QUARTILE:
                 eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forFirstQuartile(ad, sourceInfo));
@@ -121,14 +133,16 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
         }
     }
 
-    private void sendPlayTrackingEvent(PlayableAdData ad, AdSessionEventArgs args) {
+    private void sendPlayTrackingEvent(PlayableAdData ad, long position, AdSessionEventArgs args) {
         lastEventWasPlay = true;
 
         final AdPlaybackSessionEvent playbackSessionEvent;
         if (shouldTrackStart(ad)) {
             ad.setEventReported(ReportingEvent.START);
+            progressViewabilityTracking(ad, ReportingEvent.START, position);
             playbackSessionEvent = AdPlaybackSessionEvent.forStart(ad, args);
         } else {
+            resumeViewabilityTracking(ad, position);
             playbackSessionEvent = AdPlaybackSessionEvent.forResume(ad, args);
         }
 
@@ -136,17 +150,37 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
         eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forPlay(ad, args));
     }
 
-    private void sendStopTrackingEvent(PlayableAdData ad, AdSessionEventArgs args, StopReason stopReason) {
+    private void sendStopTrackingEvent(PlayableAdData ad, long position, AdSessionEventArgs args, StopReason stopReason) {
         lastEventWasPlay = false;
 
         if (shouldTrackFinish(stopReason, ad)) {
             ad.setEventReported(ReportingEvent.FINISH);
+            progressViewabilityTracking(ad, ReportingEvent.FINISH, position);
             eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forFinish(ad, args));
         } else if (shouldTrackPause(stopReason)){
+            pauseViewabilityTracking(ad, position);
             eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPause(ad, args));
         }
 
         eventBus.publish(EventQueue.TRACKING, AdRichMediaSessionEvent.forStop(ad, args, stopReason));
+    }
+
+    private void pauseViewabilityTracking(PlayableAdData ad, long position) {
+        if (isVideo(ad)) {
+            adViewabilityController.onPaused((VideoAd) ad, position);
+        }
+    }
+
+    private void resumeViewabilityTracking(PlayableAdData ad, long position) {
+        if (isVideo(ad)) {
+            adViewabilityController.onResume((VideoAd) ad, position);
+        }
+    }
+
+    private void progressViewabilityTracking(PlayableAdData ad, ReportingEvent event, long position) {
+        if (isVideo(ad)) {
+            adViewabilityController.onProgressQuartileEvent((VideoAd) ad, event, position);
+        }
     }
 
     private static boolean shouldTrackStart(PlayableAdData adData) {
@@ -159,6 +193,10 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
 
     private static boolean shouldTrackPause(StopReasonProvider.StopReason stopReason) {
         return stopReason == StopReasonProvider.StopReason.STOP_REASON_PAUSE;
+    }
+
+    private static boolean isVideo(PlayableAdData adData) {
+        return adData instanceof VideoAd;
     }
 
     private AdSessionEventArgs buildArgs(TrackSourceInfo sourceInfo, PlaybackStateTransition transition) {

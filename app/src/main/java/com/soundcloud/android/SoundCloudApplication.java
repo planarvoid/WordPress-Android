@@ -276,6 +276,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             final MoatOptions options = new MoatOptions();
             options.disableAdIdCollection = true;
             MoatAnalytics.getInstance().start(options, this);
+            MoatAnalytics.getInstance().prepareNativeDisplayTracking(getString(R.string.moat_display_partner_id));
         }
     }
 

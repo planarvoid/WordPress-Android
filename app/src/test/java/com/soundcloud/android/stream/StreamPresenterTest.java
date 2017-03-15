@@ -562,6 +562,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onVideoTextureBind(textureView, videoAd);
 
-        verify(videoSurfaceProvider).setTextureView(videoAd.getAdUrn(), Origin.STREAM, textureView);
+        verify(videoSurfaceProvider).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
     }
 }

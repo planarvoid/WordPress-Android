@@ -461,7 +461,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.play(videoItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
-        verify(adViewabilityController).startVideoTracking(mediaPlayer, videoItem.getUrn());
+        verify(adViewabilityController).setupVideoTracking(videoItem.getUrn(), videoItem.getDuration(), videoItem.getUuid(), videoItem.getMonetizationType());
     }
 
     @Test
@@ -478,10 +478,10 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void setsSurfaceOnVideoPlay() throws IOException {
-        when(videoSurfaceProvider.getSurface(videoItem.getUrn())).thenReturn(surface);
+        when(videoSurfaceProvider.getSurface(videoItem.getUuid())).thenReturn(surface);
         mediaPlayerAdapter.play(videoItem);
 
-        verify(videoSurfaceProvider).getSurface(videoItem.getUrn());
+        verify(videoSurfaceProvider).getSurface(videoItem.getUuid());
         verify(mediaPlayer).setSurface(surface);
     }
 
@@ -532,16 +532,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onPlaybackEndedForVideoCallsOnVideoCompletion() throws IOException {
-        mediaPlayerAdapter.play(videoItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-
-        mediaPlayerAdapter.onPlaybackEnded();
-
-        verify(adViewabilityController).onVideoCompletion();
-    }
-
-    @Test
     public void onErrorShouldReportErrorForVideoAdsWithoutPlaybackRetries() throws IOException {
         mediaPlayerAdapter.play(videoItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -570,7 +560,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(1);
 
-        verify(adViewabilityController).stopVideoTracking();
+        verify(adViewabilityController).stopVideoTracking(videoItem.getUuid());
     }
 
     @Test
@@ -720,7 +710,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
         mediaPlayerAdapter.stop(mediaPlayer);
 
-        verify(adViewabilityController).stopVideoTracking();
+        verify(adViewabilityController).stopVideoTracking(videoItem.getUuid());
     }
 
     @Test
@@ -937,9 +927,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onTextureViewUpdateShouldForwardVideoViewUpdatesToAdViewability() {
-        mediaPlayerAdapter.onTextureViewUpdate(videoItem.getUrn(), textureView);
+        mediaPlayerAdapter.onTextureViewUpdate(videoItem.getUuid(), textureView);
 
-        verify(adViewabilityController).updateVideoView(videoItem.getUrn(), textureView);
+        verify(adViewabilityController).updateView(videoItem.getUuid(), textureView);
     }
 
     private void playUrlAndSetPrepared(PlaybackItem item) {

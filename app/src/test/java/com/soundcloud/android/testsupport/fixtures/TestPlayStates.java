@@ -49,12 +49,20 @@ public class TestPlayStates {
         return wrap(TestPlayerTransitions.idle(position, duration));
     }
 
+    public static PlayStateEvent idle(Urn urn, long position, long duration) {
+        return wrap(TestPlayerTransitions.idle(urn, position, duration, PlayStateReason.NONE));
+    }
+
     public static PlayStateEvent complete() {
         return complete(URN);
     }
 
     public static PlayStateEvent complete(Urn urn) {
         return wrap(TestPlayerTransitions.complete(urn));
+    }
+
+    public static PlayStateEvent complete(Urn urn, long position, long duration) {
+        return wrap(TestPlayerTransitions.complete(urn, position, duration));
     }
 
     public static PlayStateEvent playQueueComplete() {

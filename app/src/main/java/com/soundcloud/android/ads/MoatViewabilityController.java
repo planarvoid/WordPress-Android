@@ -1,9 +1,7 @@
 package com.soundcloud.android.ads;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.view.TextureView;
 import android.view.View;
@@ -12,7 +10,8 @@ import com.moat.analytics.mobile.scl.MoatAdEvent;
 import com.moat.analytics.mobile.scl.MoatAdEventType;
 import com.moat.analytics.mobile.scl.MoatFactory;
 import com.moat.analytics.mobile.scl.NativeDisplayTracker;
-import com.moat.analytics.mobile.scl.NativeVideoTracker;
+import com.moat.analytics.mobile.scl.ReactiveVideoTracker;
+import com.moat.analytics.mobile.scl.ReactiveVideoTrackerPlugin;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
@@ -26,126 +25,133 @@ import javax.inject.Inject;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class MoatViewabilityController {
 
-    private final Context context;
-    private final AdsOperations adsOperations;
     private final DeviceHelper deviceHelper;
     private final VideoSurfaceProvider videoSurfaceProvider;
+    private final ReactiveVideoTrackerPlugin videoPlugin;
 
     private Optional<MoatFactory> moatFactory = Optional.absent();
     private Optional<NativeDisplayTracker> displayTracker = Optional.absent();
-    private Optional<NativeVideoTracker> videoTracker = Optional.absent();
-
-    private Urn currentAdUrn = Urn.NOT_SET;
+    private HashMap<String, ReactiveVideoTracker> videoTrackers = new HashMap<>(2); // Stream and player can have video ads
 
     @Inject
-    public MoatViewabilityController(Context context,
-                                     AdsOperations adsOperations,
-                                     DeviceHelper deviceHelper,
-                                     VideoSurfaceProvider videoSurfaceProvider) {
-        this.context = context;
-        this.adsOperations = adsOperations;
+    MoatViewabilityController(Context context,
+                              DeviceHelper deviceHelper,
+                              VideoSurfaceProvider videoSurfaceProvider) {
         this.deviceHelper = deviceHelper;
         this.videoSurfaceProvider = videoSurfaceProvider;
+        videoPlugin = new ReactiveVideoTrackerPlugin(context.getString(R.string.moat_video_partner_id));
     }
 
-    void startVideoTracking(Activity currentActivity, MediaPlayer mediaPlayer, Urn urn) {
-        final Optional<TextureView> videoView = videoSurfaceProvider.getTextureView(urn);
-        final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
-        if (videoView.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
-            createMoatFactoryIfNeeded();
+    void createTrackerForAd(Urn adUrn, long duration, String uuid, String monetizationType) {
+        final Optional<TextureView> videoView = videoSurfaceProvider.getTextureView(uuid);
+        videoView.ifPresent(view -> {
+            ReactiveVideoTracker tracker = getMoatFactory().get().createCustomTracker(videoPlugin);
+            tracker.trackVideoAd(getMoatSlicers(adUrn, monetizationType), Long.valueOf(duration).intValue(), view);
+            videoTrackers.put(uuid, tracker);
+        });
+    }
 
-            final NativeVideoTracker tracker = moatFactory.get().createNativeVideoTracker(context.getString(R.string.moat_video_partner_id));
-            tracker.setActivity(currentActivity);
-            tracker.trackVideoAd(getMoatSlicers(adData.get()), mediaPlayer, videoView.get());
+    void onVideoStart(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_START, currentPosition);
+    }
 
-            currentAdUrn = urn;
-            videoTracker = Optional.of(tracker);
+    void onVideoFirstQuartile(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_FIRST_QUARTILE, currentPosition);
+    }
+
+    void onVideoSecondQuartile(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_MID_POINT, currentPosition);
+    }
+
+    void onVideoThirdQuartile(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_THIRD_QUARTILE, currentPosition);
+    }
+
+    void onVideoCompletion(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_COMPLETE, currentPosition);
+    }
+
+    void onVideoPause(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_PAUSED, currentPosition);
+    }
+
+    void onVideoResume(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_PLAYING, currentPosition);
+    }
+
+    void dispatchVideoViewUpdate(String uuid, TextureView textureView) {
+        trackerForAd(uuid).ifPresent(tracker -> tracker.changeTargetView(textureView));
+    }
+
+    private void dispatchVideoEvent(String uuid, MoatAdEventType eventType, long position) {
+        trackerForAd(uuid).ifPresent(tracker -> tracker.dispatchEvent(new MoatAdEvent(eventType, Long.valueOf(position).intValue())));
+    }
+
+    void stopVideoTracking(String uuid) {
+        trackerForAd(uuid).ifPresent(tracker -> {
+            tracker.stopTracking();
+            videoTrackers.remove(uuid);
+        });
+    }
+
+    private Optional<ReactiveVideoTracker> trackerForAd(String videoUuid) {
+        if (videoTrackers.containsKey(videoUuid)) {
+            return Optional.of(videoTrackers.get(videoUuid));
         }
+        return Optional.absent();
     }
 
-    void updateActivityIfTrackingVideo(Activity activity) {
-        if (videoTracker.isPresent()) {
-            videoTracker.get().setActivity(activity);
-        }
-    }
-
-    void updateViewIfTrackingVideo(Urn urn, TextureView textureView) {
-        if (videoTracker.isPresent() && urn.equals(currentAdUrn)) {
-            videoTracker.get().changeTargetView(textureView);
-        }
-    }
-
-    void onVideoCompletion() {
-        if (videoTracker.isPresent()) {
-            final MoatAdEvent completionEvent = new MoatAdEvent(MoatAdEventType.AD_EVT_COMPLETE);
-            videoTracker.get().dispatchEvent(completionEvent);
-        }
-    }
-
-    void stopVideoTracking() {
-        if (videoTracker.isPresent()) {
-            videoTracker.get().stopTracking();
-
-            currentAdUrn = Urn.NOT_SET;
-            videoTracker = Optional.absent();
-        }
-    }
-
-    void startOverlayTracking(Activity currentActivity, View imageView, OverlayAdData overlayAdData) {
-        if (overlayAdData instanceof InterstitialAd) {
-            createMoatFactoryIfNeeded();
-
-            final NativeDisplayTracker tracker = moatFactory.get().createNativeDisplayTracker(imageView,
-                                                                                              context.getString(R.string.moat_display_partner_id),
-                                                                                              getMoatSlicers(overlayAdData));
-            tracker.setActivity(currentActivity);
+    void startOverlayTracking(View imageView, OverlayAdData adData) {
+        if (adData instanceof InterstitialAd) {
+            final HashMap<String, String> moatSlicers = getMoatSlicers(adData.getAdUrn(), adData.getMonetizationType().key());
+            final NativeDisplayTracker tracker = getMoatFactory().get().createNativeDisplayTracker(imageView, moatSlicers);
             tracker.startTracking();
-
             displayTracker = Optional.of(tracker);
         }
     }
 
     void stopOverlayTracking() {
-        if (displayTracker.isPresent()) {
-            displayTracker.get().stopTracking();
+        displayTracker.ifPresent(tracker -> {
+            tracker.stopTracking();
             displayTracker = Optional.absent();
-        }
+        });
     }
 
-    private void createMoatFactoryIfNeeded() {
+    private Optional<MoatFactory> getMoatFactory() {
         if (!moatFactory.isPresent()) {
             moatFactory = Optional.of(MoatFactory.create());
         }
+        return moatFactory;
     }
 
-    private HashMap<String, String> getMoatSlicers(AdData adData) {
-        final String[] urnComponents = adData.getAdUrn().getStringId().split("-");
+    private HashMap<String, String> getMoatSlicers(Urn adUrn, String monetizationType) {
+        final String[] urnComponents = adUrn.getStringId().split("-");
         final String appVersion = "android-" + String.valueOf(deviceHelper.getAppVersionCode());
         if (urnComponents.length == 2) {
-            if (adData instanceof VideoAd) {
-                return slicersForVideo(urnComponents[0], urnComponents[1], appVersion);
+            if (monetizationType.equals(AdData.MonetizationType.INTERSTITIAL.key())) {
+                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion, monetizationType);
             } else {
-                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion);
+                return slicersForVideo(urnComponents[0], urnComponents[1], appVersion, monetizationType);
             }
         }
         return new HashMap<>(4);
     }
 
-    private HashMap<String, String> slicersForVideo(String levelOne, String levelTwo, String slicerOne) {
+    private HashMap<String, String> slicersForVideo(String levelOne, String levelTwo, String slicerOne, String slicerTwo) {
         final HashMap<String, String> slicers = new HashMap<>(4);
         slicers.put("level1", levelOne);
         slicers.put("level2", levelTwo);
         slicers.put("slicer1", slicerOne);
-        slicers.put("slicer2", "video");
+        slicers.put("slicer2", slicerTwo);
         return slicers;
     }
 
-    private HashMap<String, String> slicersForInterstitial(String levelOne, String levelTwo, String slicerOne) {
+    private HashMap<String, String> slicersForInterstitial(String levelOne, String levelTwo, String slicerOne, String slicerTwo) {
         final HashMap<String, String> slicers = new HashMap<>(4);
         slicers.put("moatClientLevel1", levelOne);
         slicers.put("moatClientLevel2", levelTwo);
         slicers.put("moatClientSlicer1", slicerOne);
-        slicers.put("moatClientSlicer2", "interstitial");
+        slicers.put("moatClientSlicer2", slicerTwo);
         return slicers;
     }
 }

@@ -6,11 +6,16 @@ import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP
 import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
@@ -25,6 +30,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import java.util.List;
@@ -43,6 +49,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
+    @Mock private AdViewabilityController adViewabilityController;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -54,7 +61,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(trackSourceInfo.getOriginScreen()).thenReturn(PAGE_NAME);
         when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_ERROR);
 
-        dispatcher = new AdSessionAnalyticsDispatcher(eventBus, stopReasonProvider);
+        dispatcher = new AdSessionAnalyticsDispatcher(eventBus, stopReasonProvider, adViewabilityController);
     }
 
     @Test
@@ -229,6 +236,46 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         assertThat(((AdPlaybackSessionEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0)).eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.START);
         assertThat(((AdRichMediaSessionEvent) eventBus.eventsOn(EventQueue.TRACKING).get(1)).action()).isEqualTo(AdRichMediaSessionEvent.Action.AUDIO_ACTION_PLAY);
+    }
+
+    @Test
+    public void shouldForwardProgressQuartileEventsToAdViewabilityControllerForVideoAds() {
+        when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_TRACK_FINISHED);
+
+        final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
+        final Urn urn = videoAd.getAdUrn();
+
+        dispatcher.setAdMetadata(videoAd, trackSourceInfo);
+        dispatcher.onPlayTransition(TestPlayStates.playing(urn, 0, 100), false);
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100, urn), urn));
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(50, 100, urn), urn));
+        dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(75, 100, urn), urn));
+        dispatcher.onStopTransition(TestPlayStates.complete(urn, 100, 100), false);
+
+        InOrder inOrder = inOrder(adViewabilityController);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.START, 0);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.FIRST_QUARTILE, 25);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.SECOND_QUARTILE, 50);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.THIRD_QUARTILE, 75);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.FINISH, 100);
+    }
+
+    @Test
+    public void shouldForwardPauseAndResumeEventsToAdViewabilityControllerForVideoAds() {
+        when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_PAUSE);
+
+        final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
+        final Urn urn = videoAd.getAdUrn();
+
+        dispatcher.setAdMetadata(videoAd, trackSourceInfo);
+        dispatcher.onPlayTransition(TestPlayStates.playing(urn, 0, 100), false);
+        dispatcher.onStopTransition(TestPlayStates.idle(urn, 25, 100), false);
+        dispatcher.onPlayTransition(TestPlayStates.playing(urn, 25, 100), false);
+
+        InOrder inOrder = inOrder(adViewabilityController);
+        inOrder.verify(adViewabilityController).onProgressQuartileEvent(videoAd, PlayableAdData.ReportingEvent.START, 0);
+        inOrder.verify(adViewabilityController).onPaused(videoAd, 25);
+        inOrder.verify(adViewabilityController).onResume(videoAd, 25);
     }
 
     private PlaybackStateTransition playTransition() {

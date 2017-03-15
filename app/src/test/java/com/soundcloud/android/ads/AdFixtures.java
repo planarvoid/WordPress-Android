@@ -280,6 +280,7 @@ public class AdFixtures {
         return ApiVideoAd.create(
                 Urn.forAd("dfp", "905"),
                 60,
+                30L,
                 title,
                 clickthroughText,
                 "http://clickthrough.videoad.com",

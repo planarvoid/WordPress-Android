@@ -360,6 +360,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void applyAdPrefersVideoWhenAllAdTypesAreAvailable() throws Exception {
         ApiAdsForTrack fullAdsForTrack = AdFixtures.fullAdsForTrack();
+
         adsOperations.applyAdToUpcomingTrack(fullAdsForTrack);
 
         verifyVideoInserted(fullAdsForTrack.videoAd().get());

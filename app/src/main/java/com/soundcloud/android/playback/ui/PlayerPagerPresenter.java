@@ -284,9 +284,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             final PlayerPagePresenter presenter = pagePresenter(pageData);
             final View view = entry.getKey();
             presenter.onForeground(view);
-            if (pageData.isVideoAd()) {
-                setVideoSurface(pageData, presenter, view);
-            }
+            setVideoSurfaceIfNecessary(pageData, presenter, view);
         }
     }
 
@@ -442,9 +440,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         if (isForeground) {
             // this will attach the cast button
             presenter.onForeground(view);
-            if (playQueueItem.isVideoAd()) {
-                setVideoSurface(playQueueItem, presenter, view);
-            }
+            setVideoSurfaceIfNecessary(playQueueItem, presenter, view);
         }
 
         foregroundSubscription.add(getTrackOrAdObservable(playQueueItem)
@@ -462,9 +458,13 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 : Observable.just(PlayerTrackState.EMPTY);
     }
 
-    private void setVideoSurface(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
-        final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
-        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), Origin.PLAYER, textureView);
+    private void setVideoSurfaceIfNecessary(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
+        if (playQueueItem.isVideoAd()) {
+            final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
+            final VideoAd ad = (VideoAd) playQueueItem.getAdData().get();
+            videoSurfaceProvider.setTextureView(ad.getUuid(), Origin.PLAYER, textureView);
+        }
+
     }
 
     private void configureInitialPageState(final View view) {
