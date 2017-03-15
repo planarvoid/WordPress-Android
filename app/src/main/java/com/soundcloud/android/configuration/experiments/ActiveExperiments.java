@@ -10,8 +10,7 @@ import java.util.List;
 public class ActiveExperiments {
     static final String LISTENING_LAYER = "android_listening";
 
-    public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = asList(OpusExperiment.CONFIGURATION,
-                                                                                  SuggestedCreatorsExperiment.CONFIGURATION,
+    public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = asList(SuggestedCreatorsExperiment.CONFIGURATION,
                                                                                   PlaylistDiscoveryConfig.CONFIGURATION,
                                                                                   MiniplayerExperiment.CONFIGURATION,
                                                                                   FlipperConfiguration.CONFIGURATION,

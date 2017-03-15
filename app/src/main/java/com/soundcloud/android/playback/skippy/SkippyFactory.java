@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.skippy;
 
-import com.soundcloud.android.configuration.experiments.OpusExperiment;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -28,18 +27,15 @@ public class SkippyFactory {
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
     private final StreamCacheConfig.SkippyConfig cacheConfig;
-    private final OpusExperiment opusExperiment;
 
     @Inject
     SkippyFactory(Context context, CryptoOperations cryptoOperations,
                   ApplicationProperties applicationProperties,
-                  StreamCacheConfig.SkippyConfig cacheConfig,
-                  OpusExperiment opusExperiment) {
+                  StreamCacheConfig.SkippyConfig cacheConfig) {
         this.context = context;
         this.cryptoOperations = cryptoOperations;
         this.applicationProperties = applicationProperties;
         this.cacheConfig = cacheConfig;
-        this.opusExperiment = opusExperiment;
     }
 
     public Skippy create() {
@@ -85,9 +81,7 @@ public class SkippyFactory {
     }
 
     private Skippy.SkippyMediaType getPreferredMediaType() {
-        return opusExperiment.isEnabled() ?
-               Skippy.SkippyMediaType.OPUS :
-               Skippy.SkippyMediaType.MP3;
+        return Skippy.SkippyMediaType.OPUS;
     }
 
 }
