@@ -181,7 +181,9 @@ dependencies {
   compile libraries.skippy
   compile libraries.flipper
   compile libraries.soundCloudVorbisEncoder
-  compile libraries.lightCycle
+  compile (libraries.lightCycle) {
+    exclude group: 'com.android.support', module: 'preference-v7'
+  }
 
   /* 3rd Party Libraries */
   compile libraries.autoParcel
