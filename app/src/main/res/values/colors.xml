@@ -7,7 +7,7 @@
     <color name="ak_sc_dark_orange">#cce36711</color>
 
     <color name="white_80">#ccffffff</color>
-    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_70">#b3ffffff</color>
     <color name="white_50">#80ffffff</color>
     <color name="white_20">#33ffffff</color>
     <color name="white_10">#1affffff</color>
@@ -16,14 +16,14 @@
     <color name="black_90">#e6000000</color>
     <color name="black_60">#99000000</color>
     <color name="black_50">#80000000</color>
-    <color name="black_30">#4D000000</color>
+    <color name="black_30">#4d000000</color>
     <color name="black_20">#33000000</color>
     <color name="black_15">#26000000</color>
 
     <color name="translucent_status_bar">@color/white_12</color>
     <color name="translucent_white">@color/white_80</color>
     <color name="translucent_black">@color/black_20</color>
-    <color name="transparent">@color/black</color>
+    <color name="transparent">#00000000</color>
 
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
