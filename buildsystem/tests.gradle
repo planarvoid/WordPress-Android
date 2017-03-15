@@ -1,0 +1,4 @@
+task runUnitTests(dependsOn: [':app:runUnitTests', ':modules:groupie:groupie-compiler:test']) {
+
+}
+

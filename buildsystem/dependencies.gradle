@@ -23,83 +23,87 @@ ext {
 
   libraries = [
           // Annotation processors / Annotations
-          daggerCompiler              : "com.google.dagger:dagger-compiler:$daggerVersion",
-          dagger                      : "com.google.dagger:dagger:$daggerVersion",
-          lightCycleProcessor         : "com.soundcloud.lightcycle:lightcycle-processor:$lightCycleVersion",
-          lightCycle                  : "com.soundcloud.lightcycle:lightcycle-lib:$lightCycleVersion",
-          findBugsAnnotations         : "com.google.code.findbugs:annotations:$findBugsVersion",
-          findBugsJsr305              : "com.google.code.findbugs:jsr305:$findBugsVersion",
-          intellijAnnotations         : "com.intellij:annotations:9.0.4",
-          javaxAnnotations            : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
-          autoValue                   : "com.google.auto.value:auto-value:1.2",
-          autoFactory                 : "com.google.auto.factory:auto-factory:1.0-beta3",
-          autoParcelProcessor         : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
-          autoParcel                  : "com.github.frankiesardo:auto-parcel:0.3.1",
-          autoValueIgnoreEquals       : "com.github.reggar:auto-value-ignore-hash-equals:1.1.2",
+          daggerCompiler               : "com.google.dagger:dagger-compiler:$daggerVersion",
+          dagger                       : "com.google.dagger:dagger:$daggerVersion",
+          lightCycleProcessor          : "com.soundcloud.lightcycle:lightcycle-processor:$lightCycleVersion",
+          lightCycle                   : "com.soundcloud.lightcycle:lightcycle-lib:$lightCycleVersion",
+          findBugsAnnotations          : "com.google.code.findbugs:annotations:$findBugsVersion",
+          findBugsJsr305               : "com.google.code.findbugs:jsr305:$findBugsVersion",
+          intellijAnnotations          : "com.intellij:annotations:9.0.4",
+          javaxAnnotations             : "javax.annotation:jsr250-api:1.0", // adds the @Generated annotation
+          autoValue                    : "com.google.auto.value:auto-value:1.2",
+          autoFactory                  : "com.google.auto.factory:auto-factory:1.0-beta3",
+          autoParcelProcessor          : "com.github.frankiesardo:auto-parcel-processor:0.3.1",
+          autoParcel                   : "com.github.frankiesardo:auto-parcel:0.3.1",
+          autoValueIgnoreEquals        : "com.github.reggar:auto-value-ignore-hash-equals:1.1.2",
 
           // SoundCloud libraries
-          androidKit                  : ["com.soundcloud.android-kit:core:$androidKitVersion",
-                                         dependencies.create("com.soundcloud.android-kit:platform:$androidKitVersion@aar") {
-                                           //TODO: only until we update the app to the latest version
-                                           exclude group: "com.soundcloud.lightcycle"
-                                         }],
-          propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:$skippyVersion@aar",
-          flipper                     : "com.soundcloud.flippernative:flipper:$flipperVersion@aar",
-          soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
+          androidKit                   : ["com.soundcloud.android-kit:core:$androidKitVersion",
+                                          dependencies.create("com.soundcloud.android-kit:platform:$androidKitVersion@aar") {
+                                            //TODO: only until we update the app to the latest version
+                                            exclude group: "com.soundcloud.lightcycle"
+                                          }],
+          propeller                    : "com.soundcloud.propeller:propeller:$propellerVersion",
+          skippy                       : "com.soundcloud.android:skippy:$skippyVersion@aar",
+          flipper                      : "com.soundcloud.flippernative:flipper:$flipperVersion@aar",
+          soundCloudVorbisEncoder      : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking
-          comscore                    : "com.comscore:comscore:3.1508.28",
-          adjustAndroid               : "com.adjust.sdk:adjust-android:4.10.4",
-          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.6.7",
-          appBoy                      : "com.appboy:android-sdk-ui:1.15.3",
-          krux                        : "com.krux:androidsdk:2.0.0",
-          moat                        : "com.moat.analytics.mobile:app-kit:2.0.0",
+          comscore                     : "com.comscore:comscore:3.1508.28",
+          adjustAndroid                : "com.adjust.sdk:adjust-android:4.10.4",
+          crashlytics                  : "com.crashlytics.sdk.android:crashlytics:2.6.7",
+          appBoy                       : "com.appboy:android-sdk-ui:1.15.3",
+          krux                         : "com.krux:androidsdk:2.0.0",
+          moat                         : "com.moat.analytics.mobile:app-kit:2.0.0",
 
           // Utility libraries
-          jacksonAnnotations          : "com.fasterxml.jackson.core:jackson-annotations:2.8.6",
-          jacksonCore                 : "com.fasterxml.jackson.core:jackson-core:2.8.6",
-          jacksonDataBind             : "com.fasterxml.jackson.core:jackson-databind:2.8.6",
-          okHttp                      : "com.squareup.okhttp3:okhttp:3.6.0",
-          rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
-          rxJava                      : "io.reactivex:rxjava:1.2.7",
-          rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
-          universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
+          jacksonAnnotations           : "com.fasterxml.jackson.core:jackson-annotations:2.8.6",
+          jacksonCore                  : "com.fasterxml.jackson.core:jackson-core:2.8.6",
+          jacksonDataBind              : "com.fasterxml.jackson.core:jackson-databind:2.8.6",
+          okHttp                       : "com.squareup.okhttp3:okhttp:3.6.0",
+          rxAndroid                    : "io.reactivex:rxandroid:1.2.1",
+          rxJava                       : "io.reactivex:rxjava:1.2.7",
+          rxJavaAsyncUtil              : "io.reactivex:rxjava-async-util:0.21.0",
+          universalImageLoader         : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
 
           // UI libraries
-          slidingUpPanel              : "com.sothree.slidinguppanel:library:3.3.1@aar",
-          androidCrop                 : "com.soundcloud.android:android-crop:1.0.1@aar",
-          facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
-          facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
-          butterKnife                 : "com.jakewharton:butterknife:8.4.0",
-          butterKnifeCompiler         : "com.jakewharton:butterknife-compiler:8.4.0",
-          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
-          tapTargetView               : "com.getkeepsafe.taptargetview:taptargetview:1.7.0",
+          slidingUpPanel               : "com.sothree.slidinguppanel:library:3.3.1@aar",
+          androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",
+          facebookRebound              : "com.facebook.rebound:rebound:0.3.4",
+          facebookAndroidSdk           : "com.facebook.android:facebook-android-sdk:4.4.0",
+          butterKnife                  : "com.jakewharton:butterknife:8.4.0",
+          butterKnifeCompiler          : "com.jakewharton:butterknife-compiler:8.4.0",
+          castCompanionLibrary         : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
+          tapTargetView                : "com.getkeepsafe.taptargetview:taptargetview:1.7.0",
 
           // Android libraries
-          androidMultidex                 : "com.android.support:multidex:$androidMultiDex",
-          androidSupportLibrary           : "com.android.support:support-v4:$androidSupportVersion",
-          androidAppCompatLibrary         : "com.android.support:appcompat-v7:$androidSupportVersion",
-          androidMediaRouterLibrary       : "com.android.support:mediarouter-v7:$androidSupportVersion",
-          androidRecyclerView             : "com.android.support:recyclerview-v7:$androidSupportVersion",
-          androidCardView                 : "com.android.support:cardview-v7:$androidSupportVersion",
-          androidPalette                  : "com.android.support:palette-v7:$androidSupportVersion",
-          androidDesign                   : "com.android.support:design:$androidSupportVersion",
-          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$googleServicesVersion",
-          androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$googleServicesVersion",
-          androidPlayServicesCastLegacy   : "com.google.android.gms:play-services-cast:$googleServicesVersion",
-          androidPlayServicesCast         : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
-          firebaseCore                    : "com.google.firebase:firebase-core:$googleServicesVersion",
-          firebaseConfig                  : "com.google.firebase:firebase-config:$googleServicesVersion",
-          firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion",
-          firebaseAnalytics               : "com.google.firebase:firebase-analytics:$googleServicesVersion"
+          androidMultidex              : "com.android.support:multidex:$androidMultiDex",
+          androidSupportLibrary        : "com.android.support:support-v4:$androidSupportVersion",
+          androidAppCompatLibrary      : "com.android.support:appcompat-v7:$androidSupportVersion",
+          androidMediaRouterLibrary    : "com.android.support:mediarouter-v7:$androidSupportVersion",
+          androidRecyclerView          : "com.android.support:recyclerview-v7:$androidSupportVersion",
+          androidCardView              : "com.android.support:cardview-v7:$androidSupportVersion",
+          androidPalette               : "com.android.support:palette-v7:$androidSupportVersion",
+          androidDesign                : "com.android.support:design:$androidSupportVersion",
+          androidPlayServicesBase      : "com.google.android.gms:play-services-base:$googleServicesVersion",
+          androidPlayServicesAuth      : "com.google.android.gms:play-services-auth:$googleServicesVersion",
+          androidPlayServicesCastLegacy: "com.google.android.gms:play-services-cast:$googleServicesVersion",
+          androidPlayServicesCast      : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
+          firebaseCore                 : "com.google.firebase:firebase-core:$googleServicesVersion",
+          firebaseConfig               : "com.google.firebase:firebase-config:$googleServicesVersion",
+          firebaseMessaging            : "com.google.firebase:firebase-messaging:$googleServicesVersion",
+          firebaseAnalytics            : "com.google.firebase:firebase-analytics:$googleServicesVersion",
+
+          // Annotation Processor libraries
+          autoService                  : 'com.google.auto.service:auto-service:1.0-rc3',
+          javaPoet                     : 'com.squareup:javapoet:1.8.0'
   ]
 
   devLibraries = [
-          leakCanary                      : "com.squareup.leakcanary:leakcanary-android:1.5",
-          leakCanaryStub                  : "com.squareup.leakcanary:leakcanary-android-no-op:1.5",
-          stetho                          : "com.facebook.stetho:stetho:1.4.1",
-          stethoOkhttp                    : 'com.facebook.stetho:stetho-okhttp3:1.4.1'
+          leakCanary    : "com.squareup.leakcanary:leakcanary-android:1.5",
+          leakCanaryStub: "com.squareup.leakcanary:leakcanary-android-no-op:1.5",
+          stetho        : "com.facebook.stetho:stetho:1.4.1",
+          stethoOkhttp  : 'com.facebook.stetho:stetho-okhttp3:1.4.1'
   ]
 
   unitTestLibraries = [
@@ -113,6 +117,7 @@ ext {
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           androidSupportAnnotations       : "com.android.support:support-annotations:$androidSupportVersion",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
+          compileTesting                  : 'com.google.testing.compile:compile-testing:0.10'
   ]
 
   acceptanceTestLibraries = [

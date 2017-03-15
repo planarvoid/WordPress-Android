@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile project(':modules:groupie:groupie')
+  compile libraries.autoService
+  compile libraries.javaPoet
+
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.compileTesting
+
+  // See: https://github.com/google/compile-testing/issues/28#issuecomment-69204681
+  testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"

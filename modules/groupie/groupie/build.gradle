@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+configurations {
+  apt
+}
+
+dependencies {
+  def libraries = rootProject.ext.libraries
+
+  compile project(':modules:groupie:groupie-annotation')
+
+  apt libraries.autoValue
+  compileOnly libraries.autoValue
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
