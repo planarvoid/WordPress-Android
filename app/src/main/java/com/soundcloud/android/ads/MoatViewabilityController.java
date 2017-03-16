@@ -124,10 +124,11 @@ public class MoatViewabilityController {
         final String[] urnComponents = adUrn.getStringId().split("-");
         final String appVersion = "android-" + String.valueOf(deviceHelper.getAppVersionCode());
         if (urnComponents.length == 2) {
+            final String slicerTwo = slicerForMonetizationType(monetizationType);
             if (monetizationType.equals(AdData.MonetizationType.INTERSTITIAL.key())) {
-                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion, monetizationType);
+                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion, slicerTwo);
             } else {
-                return slicersForVideo(urnComponents[0], urnComponents[1], appVersion, monetizationType);
+                return slicersForVideo(urnComponents[0], urnComponents[1], appVersion, slicerTwo);
             }
         }
         return new HashMap<>(4);
@@ -149,5 +150,15 @@ public class MoatViewabilityController {
         slicers.put("moatClientSlicer1", slicerOne);
         slicers.put("moatClientSlicer2", slicerTwo);
         return slicers;
+    }
+
+    private String slicerForMonetizationType(String monetizationType) {
+        if (monetizationType.equals(AdData.MonetizationType.VIDEO.key())) {
+            return "video";
+        } else if (monetizationType.equals(AdData.MonetizationType.INLAY.key())) {
+            return "video-inlay";
+        } else {
+            return "interstitial";
+        }
     }
 }
