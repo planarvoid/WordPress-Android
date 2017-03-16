@@ -27,5 +27,5 @@ task installNetworkManagerApk(type:Exec, dependsOn: ['uninstallNetworkManagerApk
 }
 
 task runAcceptanceTests(dependsOn: ['installNetworkManagerApk', 'connectedAndroidTest']) {
-  description 'Intalls NetworkManager and installs and runs the tests for Debug build on connected devices.'
+  description 'Installs NetworkManager and installs and runs the tests for Debug build on connected devices.'
 }
