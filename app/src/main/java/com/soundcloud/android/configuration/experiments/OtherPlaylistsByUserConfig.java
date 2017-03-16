@@ -1,19 +1,22 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.android.configuration.experiments.ActiveExperiments.LISTENING_LAYER;
+import static com.soundcloud.android.configuration.experiments.ExperimentOperations.LISTENING_LAYER;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.groupie.ActiveExperiment;
+import com.soundcloud.groupie.ExperimentConfiguration;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 
+@ActiveExperiment
 public class OtherPlaylistsByUserConfig {
     static final String NAME = "other_playlists_by_user";
     static final String CONTROL = "control";
     static final String HIDE_OTHER_PLAYLISTS = "hide_other_playlists";
 
-    static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
+    public static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
             .fromName(LISTENING_LAYER,
                       NAME,
                       Arrays.asList(CONTROL, HIDE_OTHER_PLAYLISTS));

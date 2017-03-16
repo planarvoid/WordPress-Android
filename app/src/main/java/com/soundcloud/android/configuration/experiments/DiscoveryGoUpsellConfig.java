@@ -1,10 +1,14 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.android.configuration.experiments.ActiveExperiments.LISTENING_LAYER;
+import static com.soundcloud.android.configuration.experiments.ExperimentOperations.LISTENING_LAYER;
+
+import com.soundcloud.groupie.ActiveExperiment;
+import com.soundcloud.groupie.ExperimentConfiguration;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 
+@ActiveExperiment
 public class DiscoveryGoUpsellConfig {
     private static final String NAME = "android_go_upsell_in_discovery";
 

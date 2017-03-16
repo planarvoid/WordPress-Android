@@ -169,6 +169,7 @@ dependencies {
   annotationProcessor libraries.autoParcelProcessor
   annotationProcessor libraries.butterKnifeCompiler
   annotationProcessor libraries.autoValueIgnoreEquals
+  annotationProcessor libraries.groupieCompiler
 
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
@@ -184,6 +185,7 @@ dependencies {
   compile (libraries.lightCycle) {
     exclude group: 'com.android.support', module: 'preference-v7'
   }
+  compile libraries.groupie
 
   /* 3rd Party Libraries */
   compile libraries.autoParcel

@@ -3,10 +3,10 @@ package com.soundcloud.android.main;
 import static com.soundcloud.java.strings.Strings.isNullOrEmpty;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.experiments.ActiveExperiments;
-import com.soundcloud.android.configuration.experiments.ExperimentConfiguration;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.experiments.ActiveExperiments;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.groupie.ExperimentConfiguration;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;

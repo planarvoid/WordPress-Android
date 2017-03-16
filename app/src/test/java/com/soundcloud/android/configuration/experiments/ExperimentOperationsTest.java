@@ -5,7 +5,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.groupie.ExperimentConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,13 +22,13 @@ public class ExperimentOperationsTest {
     private ExperimentOperations operations;
 
     @Mock private ExperimentStorage experimentStorage;
-    @Mock private ActiveExperiments activeExperiments;
+    @Mock private ApplicationProperties applicationProperties;
     @Mock private Assignment assignment;
 
     @Before
     public void setUp() throws Exception {
         when(experimentStorage.readAssignment()).thenReturn(assignment);
-        operations = new ExperimentOperations(experimentStorage, activeExperiments);
+        operations = new ExperimentOperations(experimentStorage, applicationProperties);
     }
 
     @Test
@@ -104,6 +106,46 @@ public class ExperimentOperationsTest {
 
         operations.loadAssignment();
         assertThat(operations.findLayer(configuration).isPresent()).isFalse();
+    }
+
+    @Test
+    public void experimentFromPatternReturnsTrueWhenPatternMatches() {
+        final Layer layer = new Layer("layer", 1, "experiment-1", 0, "variant-0");
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern("layer", "experiment-.*");
+
+        assertThat(ExperimentOperations.matches(configuration, layer)).isTrue();
+    }
+
+    @Test
+    public void experimentFromPatternReturnsFalseWhenPatternDoesNotMatch() {
+        final Layer layer = new Layer("layer", 1, "something-else-1", 0, "variant-0");
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromPattern("layer", "experiment-.*");
+
+        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
+    }
+
+    @Test
+    public void experimentFromNameReturnsTrueWhenNameAreIdentical() {
+        final Layer layer = new Layer("layer", 1, "experiment-1", 0, "variant-0");
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-1", Collections.emptyList());
+
+        assertThat(ExperimentOperations.matches(configuration, layer)).isTrue();
+    }
+
+    @Test
+    public void experimentFromNameReturnsFalseWhenNameIsDifferent() {
+        final Layer layer = new Layer("layer", 1, "experiment-1", 0, "variant-0");
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-.*", Collections.emptyList());
+
+        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
+    }
+
+    @Test
+    public void experimentReturnsFalseWhenLayersAreDifferent() {
+        final Layer layer = new Layer("another-layer", 1, "experiment-1", 0, "variant-0");
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-1", Collections.emptyList());
+
+        assertThat(ExperimentOperations.matches(configuration, layer)).isFalse();
     }
 
     private Assignment createAssignment(String layerName) {

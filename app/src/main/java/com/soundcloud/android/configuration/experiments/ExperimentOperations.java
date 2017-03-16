@@ -1,6 +1,10 @@
 package com.soundcloud.android.configuration.experiments;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.experiments.ActiveExperiments;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.groupie.ExperimentConfiguration;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -12,20 +16,23 @@ import java.util.List;
 @Singleton
 public class ExperimentOperations {
 
+    static final String LISTENING_LAYER = "android_listening";
+    private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
+
     private final ExperimentStorage experimentStorage;
-    private final ActiveExperiments activeExperiments;
+    private final ApplicationProperties applicationProperties;
 
     private Assignment assignment;
 
     @Inject
-    public ExperimentOperations(ExperimentStorage experimentStorage, ActiveExperiments activeExperiments) {
+    public ExperimentOperations(ExperimentStorage experimentStorage, ApplicationProperties applicationProperties) {
         this.experimentStorage = experimentStorage;
-        this.activeExperiments = activeExperiments;
+        this.applicationProperties = applicationProperties;
         loadAssignment();
     }
 
     public String[] getActiveLayers() {
-        return activeExperiments.getRequestLayers();
+        return ACTIVE_LAYERS;
     }
 
     public void update(Assignment updatedAssignment) {
@@ -52,7 +59,7 @@ public class ExperimentOperations {
 
     Optional<Layer> findLayer(ExperimentConfiguration experiment) {
         for (Layer layer : assignment.getLayers()) {
-            if (experiment.matches(layer)) {
+            if (matches(experiment, layer)) {
                 return Optional.of(layer);
             }
         }
@@ -64,12 +71,35 @@ public class ExperimentOperations {
         ArrayList<Integer> activeVariants = new ArrayList<>();
 
         for (Layer layer : assignment.getLayers()) {
-            if (activeExperiments.isActive(layer)) {
+            if (isActive(layer)) {
                 activeVariants.add(layer.getVariantId());
             }
         }
 
         return activeVariants;
+    }
+
+    private boolean isActive(Layer layer) {
+        if (!applicationProperties.isDevelopmentMode()) {
+            for (ExperimentConfiguration experiment : ActiveExperiments.ACTIVE_EXPERIMENTS) {
+                if (matches(experiment, layer)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @VisibleForTesting
+    static boolean matches(ExperimentConfiguration experimentConfiguration, Layer layer) {
+        if (layer.getLayerName().equals(experimentConfiguration.getLayerName())) {
+            if (experimentConfiguration.isPattern()) {
+                return layer.getExperimentName().matches(experimentConfiguration.getName());
+            } else {
+                return layer.getExperimentName().equals(experimentConfiguration.getName());
+            }
+        }
+        return false;
     }
 
     public void forceExperimentVariation(ExperimentConfiguration experiment, String variation) {

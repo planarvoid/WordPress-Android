@@ -47,6 +47,8 @@ ext {
           skippy                       : "com.soundcloud.android:skippy:$skippyVersion@aar",
           flipper                      : "com.soundcloud.flippernative:flipper:$flipperVersion@aar",
           soundCloudVorbisEncoder      : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
+          groupieCompiler              : project(':modules:groupie:groupie-compiler'),
+          groupie                      : project(':modules:groupie:groupie'),
 
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",

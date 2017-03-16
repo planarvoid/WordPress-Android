@@ -1,14 +1,17 @@
 package com.soundcloud.android.configuration.experiments;
 
-import static com.soundcloud.android.configuration.experiments.ActiveExperiments.LISTENING_LAYER;
+import static com.soundcloud.android.configuration.experiments.ExperimentOperations.LISTENING_LAYER;
 import static java.util.Arrays.asList;
 
 import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.groupie.ActiveExperiment;
+import com.soundcloud.groupie.ExperimentConfiguration;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
+@ActiveExperiment
 public class MiniplayerExperiment {
     static final long PLAY_SESSION_LENGTH = TimeUnit.HOURS.toMillis(1);
 
@@ -17,7 +20,7 @@ public class MiniplayerExperiment {
     static final String VARIANT_INVERSE = "inverse";
     static final String VARIANT_HYBRID = "hybrid";
 
-    static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
+    public static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
             .fromName(LISTENING_LAYER, NAME, asList(VARIANT_CONTROL, VARIANT_INVERSE, VARIANT_HYBRID));
 
     private final ExperimentOperations experimentOperations;
