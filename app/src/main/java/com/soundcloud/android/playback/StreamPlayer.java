@@ -54,8 +54,7 @@ class StreamPlayer implements PlayerListener {
                  Provider<FlipperAdapter> flipperAdapterProvider,
                  NetworkConnectionHelper networkConnectionHelper,
                  EventBus eventBus,
-                 FlipperConfiguration flipperConfiguration,
-                 ApplicationProperties applicationProperties) {
+                 FlipperConfiguration flipperConfiguration) {
 
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
@@ -63,20 +62,11 @@ class StreamPlayer implements PlayerListener {
         this.mediaPlayerDelegate = mediaPlayerAdapter;
         this.videoPlayer = mediaPlayerAdapter;
 
-        if (applicationProperties.isSkippyAvailable()) {
-            this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
-            this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
-            this.offlineContentPlayer = skippyPlayerDelegate;
-            this.defaultPlayer = defaultPlayer();
-            this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
-        } else {
-            // Neither skippy or flipper work on versions prior Jelly Bean
-            this.skippyPlayerDelegate = Optional.absent();
-            this.flipperPlayerDelegate = Optional.absent();
-            this.offlineContentPlayer = Optional.absent();
-            this.defaultPlayer = mediaPlayerAdapter;
-            this.audioAdPlayer = mediaPlayerAdapter;
-        }
+        this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
+        this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
+        this.offlineContentPlayer = skippyPlayerDelegate;
+        this.defaultPlayer = defaultPlayer();
+        this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
 
         this.currentPlayer = defaultPlayer;
     }

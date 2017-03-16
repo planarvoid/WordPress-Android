@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
@@ -14,7 +13,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 
 @Singleton
 public class VideoSurfaceProvider {
@@ -29,26 +27,23 @@ public class VideoSurfaceProvider {
     final private Map<String, VideoTextureContainer> videoTextureContainers = new HashMap<>(MAX_VIDEO_CONTAINERS);
 
     final private VideoTextureContainer.Factory containerFactory;
-    final private ApplicationProperties applicationProperties;
 
     private Optional<Listener> listener = Optional.absent();
 
     @Inject
-    VideoSurfaceProvider(ApplicationProperties applicationProperties,
-                         VideoTextureContainer.Factory containerFactory) {
-        this.applicationProperties = applicationProperties;
+    VideoSurfaceProvider(VideoTextureContainer.Factory containerFactory) {
         this.containerFactory = containerFactory;
     }
 
     public void setListener(Listener listener) {
         this.listener = Optional.of(listener);
-        for (VideoTextureContainer container: videoTextureContainers.values()) {
-           container.setListener(listener);
+        for (VideoTextureContainer container : videoTextureContainers.values()) {
+            container.setListener(listener);
         }
     }
 
     public void setTextureView(String uuid, Origin origin, TextureView videoTexture) {
-        if (videoTextureContainers.containsKey(uuid) && applicationProperties.canReattachSurfaceTexture()) {
+        if (videoTextureContainers.containsKey(uuid)) {
             videoTextureContainers.get(uuid).reattachSurfaceTexture(videoTexture);
         } else {
             // If this texture view was used before (e.g view is recycled),
@@ -75,7 +70,7 @@ public class VideoSurfaceProvider {
 
     // Only clear the TextureViews since we maintain TextureSurfaces on configuration change
     public void onConfigurationChange(Origin origin) {
-        for (VideoTextureContainer container: videoTextureContainers.values()) {
+        for (VideoTextureContainer container : videoTextureContainers.values()) {
             if (container.getOrigin() == origin) {
                 container.releaseTextureView();
             }
@@ -98,6 +93,7 @@ public class VideoSurfaceProvider {
 
     public interface Listener {
         void attemptToSetSurface(String uuid);
+
         void onTextureViewUpdate(String uuid, TextureView textureView);
     }
 }

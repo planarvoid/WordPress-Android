@@ -309,12 +309,11 @@ public class MediaPlayerAdapter implements
             if (internalState == PlaybackState.PAUSED) {
                 pause();
             } else if (internalState.isSupposedToBePlaying()) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-                    // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
-                    // output. Toggling playback seems to fix it
-                    mp.pause();
-                    mp.start();
-                }
+                // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
+                // output. Toggling playback seems to fix it
+                mp.pause();
+                mp.start();
+
                 setInternalState(PlaybackState.PLAYING);
             }
         }

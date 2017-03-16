@@ -1,6 +1,9 @@
 package com.soundcloud.android.playback;
 
-import android.media.CamcorderProfile;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.ApiVideoSource;
@@ -12,19 +15,15 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.media.CamcorderProfile;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
 
 public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
@@ -51,11 +50,9 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(deviceHelper.hasCamcorderProfile(anyInt())).thenReturn(false);
-        when(applicationProperties.canAccessCodecInformation()).thenReturn(false);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
 
-        videoSourceProvider = new VideoSourceProvider(applicationProperties,
-                                                      deviceHelper,
+        videoSourceProvider = new VideoSourceProvider(deviceHelper,
                                                       mediaCodecInfoProvider,
                                                       networkConnectionHelper);
         videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES), 0L);
@@ -135,7 +132,6 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf1080PReturns1080PSourceForWIFI() {
-        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_1080P);
 
         final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
@@ -144,7 +140,6 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf1080PReturns360PSourceFor3G() {
-        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_1080P);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.THREE_G);
 
@@ -154,7 +149,6 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void deviceNotCapableOfCamcorderProfileAndCodecCapableOf720PReturns720PSourceForWIFI() {
-        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_720P);
 
         final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
@@ -176,12 +170,11 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void getCurrentSourceReturnsNothingIfNoSourceSelected() {
-       assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.absent());
+        assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.absent());
     }
 
     @Test
     public void getCurrentSourceReturnsLastSelectedSourceWhenASourceWasPreviouslySelected() {
-        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_720P);
 
         final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);

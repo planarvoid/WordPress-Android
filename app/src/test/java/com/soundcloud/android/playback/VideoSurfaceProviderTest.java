@@ -1,27 +1,24 @@
 package com.soundcloud.android.playback;
 
-import android.view.Surface;
-import android.view.TextureView;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Listener;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import android.view.Surface;
+import android.view.TextureView;
 
 
 public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
-    @Mock ApplicationProperties applicationProperties;
     @Mock VideoTextureContainer.Factory containerFactory;
     @Mock VideoTextureContainer textureContainer;
     @Mock Listener surfaceProviderListener;
@@ -34,19 +31,18 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     private static final String UUID = "111-1111-111";
     private static final String UUID2 = "222-2222-222";
 
-    private static final Origin ORIGIN  = Origin.STREAM;
+    private static final Origin ORIGIN = Origin.STREAM;
     private static final Origin ORIGIN2 = Origin.PLAYER;
 
     @Before
     public void setUp() {
         listener = Optional.of(surfaceProviderListener);
 
-        videoSurfaceProvider = new VideoSurfaceProvider(applicationProperties, containerFactory);
+        videoSurfaceProvider = new VideoSurfaceProvider(containerFactory);
         videoSurfaceProvider.setListener(surfaceProviderListener);
 
         when(containerFactory.build(UUID, ORIGIN, textureView, listener)).thenReturn(textureContainer);
         when(textureContainer.getOrigin()).thenReturn(ORIGIN);
-        when(applicationProperties.canReattachSurfaceTexture()).thenReturn(true);
     }
 
     @Test
@@ -63,17 +59,6 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
         verify(containerFactory).build(UUID, ORIGIN, textureView, listener);
         verify(textureContainer).reattachSurfaceTexture(textureView);
-    }
-
-    @Test
-    public void rebuildsTextureViewContainerForIceCreamSandwichIfContainerForUrnExists() {
-        when(applicationProperties.canReattachSurfaceTexture()).thenReturn(false);
-
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
-
-        verify(containerFactory, times(2)).build(UUID, ORIGIN, textureView, listener);
-        verify(textureContainer, never()).reattachSurfaceTexture(textureView);
     }
 
     @Test
@@ -97,7 +82,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
     @Test
     public void canSetSurfaceTextureWithoutListener() {
-        videoSurfaceProvider = new VideoSurfaceProvider(applicationProperties, containerFactory);
+        videoSurfaceProvider = new VideoSurfaceProvider(containerFactory);
 
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
 
@@ -151,7 +136,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
         assertThat(videoSurfaceProvider.getSurface(UUID)).isNull();
     }
 
-     @Test
+    @Test
     public void getTextureViewReturnsViewIfContainerForUrnExists() {
         when(textureContainer.getTextureView()).thenReturn(textureView);
 

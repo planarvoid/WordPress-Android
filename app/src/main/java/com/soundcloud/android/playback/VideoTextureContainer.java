@@ -38,7 +38,6 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
         this.listener = Optional.of(listener);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     void reattachSurfaceTexture(TextureView textureView) {
         setTextureView(textureView);
         if (surfaceTexture != null && !surfaceTextureAlreadyAttached(textureView)) {

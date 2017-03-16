@@ -197,9 +197,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         analyticsEngine.onAppCreated(this);
 
         // initialise skippy so it can do it's expensive one-shot ops
-        if (applicationProperties.isSkippyAvailable()) {
-            skippyFactory.create().preload();
-        }
+        skippyFactory.create().preload();
 
         imageOperations.initialise(this, applicationProperties);
 
@@ -272,12 +270,10 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void setupMoatAnalytics() {
-        if (applicationProperties.canUseMoatForAdViewability()) {
-            final MoatOptions options = new MoatOptions();
-            options.disableAdIdCollection = true;
-            MoatAnalytics.getInstance().start(options, this);
-            MoatAnalytics.getInstance().prepareNativeDisplayTracking(getString(R.string.moat_display_partner_id));
-        }
+        final MoatOptions options = new MoatOptions();
+        options.disableAdIdCollection = true;
+        MoatAnalytics.getInstance().start(options, this);
+        MoatAnalytics.getInstance().prepareNativeDisplayTracking(getString(R.string.moat_display_partner_id));
     }
 
     private void setupCurrentUserAccount() {

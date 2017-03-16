@@ -6,8 +6,6 @@
     android:versionName="2017.03.03"
     package="com.soundcloud.android">
 
-    <uses-sdk android:minSdkVersion="14" tools:overrideLibrary="me.everything, com.moat.analytics.mobile.scl"/>
-
     <supports-screens android:anyDensity="true"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>

@@ -119,10 +119,6 @@ public class ApplicationProperties {
                 buildType);
     }
 
-    public boolean isSkippyAvailable() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-    }
-
     public boolean allowDatabaseMigrationsSilentErrors() {
         return BuildType.RELEASE.equals(buildType) || BuildType.BETA.equals(buildType);
     }
@@ -137,18 +133,6 @@ public class ApplicationProperties {
 
     public boolean isDevBuildRunningOnDevice() {
         return isDebugBuild() && IS_RUNNING_ON_DEVICE;
-    }
-
-    public boolean canAccessCodecInformation() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-    }
-
-    public boolean canReattachSurfaceTexture() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-    }
-
-    public boolean canUseMoatForAdViewability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
     }
 
     public boolean canChangeOfflineContentLocation() {

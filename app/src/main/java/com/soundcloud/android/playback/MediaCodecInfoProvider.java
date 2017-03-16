@@ -19,7 +19,6 @@ import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_36
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_480P;
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_720P;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MediaCodecInfoProvider {
 
     @Inject

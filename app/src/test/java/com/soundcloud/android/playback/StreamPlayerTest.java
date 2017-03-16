@@ -20,7 +20,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -41,7 +40,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private Player.PlayerListener playerListener;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private FlipperConfiguration flipperConfiguration;
-    @Mock private ApplicationProperties applicationProperties;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -56,7 +54,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(skippyAdapter.init()).thenReturn(true);
         when(flipperConfiguration.isEnabled()).thenReturn(false);
-        when(applicationProperties.isSkippyAvailable()).thenReturn(true);
     }
 
     @After
@@ -65,16 +62,8 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), networkConnectionHelper, eventBus, flipperConfiguration, applicationProperties);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), networkConnectionHelper, eventBus, flipperConfiguration);
         streamPlayerWrapper.setListener(playerListener);
-    }
-
-    @Test
-    public void doNotInitSkippyWhenNotAvailable() {
-        when(applicationProperties.isSkippyAvailable()).thenReturn(false);
-
-        instantiateStreamPlaya();
-        verify(skippyAdapter, never()).init();
     }
 
     @Test

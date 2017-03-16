@@ -1,11 +1,5 @@
 package com.soundcloud.android.ads;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.view.TextureView;
-import android.view.View;
-
 import com.moat.analytics.mobile.scl.MoatAdEvent;
 import com.moat.analytics.mobile.scl.MoatAdEventType;
 import com.moat.analytics.mobile.scl.MoatFactory;
@@ -18,11 +12,13 @@ import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
 
-import java.util.HashMap;
+import android.content.Context;
+import android.view.TextureView;
+import android.view.View;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class MoatViewabilityController {
 
     private final DeviceHelper deviceHelper;

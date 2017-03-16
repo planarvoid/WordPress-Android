@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.ConnectionType;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
@@ -26,7 +25,6 @@ import static com.soundcloud.android.playback.PlaybackConstants.MAX_BITRATE_KPBS
 import static com.soundcloud.android.playback.PlaybackConstants.MAX_BITRATE_KBPS_4G;
 import static com.soundcloud.android.playback.PlaybackConstants.MAX_BITRATE_KBPS_WIFI;
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_1080P;
-import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_360P;
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_480P;
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_720P;
 
@@ -36,7 +34,6 @@ public class VideoSourceProvider {
     private static final List<String> SUPPORTED_FORMATS = Collections.singletonList(PlaybackConstants.MIME_TYPE_MP4);
     private static final Predicate<VideoAdSource> SUPPORTED_FORMAT_PREDICATE = source -> SUPPORTED_FORMATS.contains(source.getType());
 
-    private final ApplicationProperties applicationProperties;
     private final DeviceHelper deviceHelper;
     private final MediaCodecInfoProvider mediaCodecInfoProvider;
     private final NetworkConnectionHelper networkConnectionHelper;
@@ -44,11 +41,9 @@ public class VideoSourceProvider {
     private Optional<VideoAdSource> currentSource = Optional.absent();
 
     @Inject
-    public VideoSourceProvider(ApplicationProperties applicationProperties,
-                               DeviceHelper deviceHelper,
+    public VideoSourceProvider(DeviceHelper deviceHelper,
                                MediaCodecInfoProvider mediaCodecInfoProvider,
                                NetworkConnectionHelper networkConnectionHelper) {
-        this.applicationProperties = applicationProperties;
         this.deviceHelper = deviceHelper;
         this.mediaCodecInfoProvider = mediaCodecInfoProvider;
         this.networkConnectionHelper = networkConnectionHelper;
@@ -101,11 +96,7 @@ public class VideoSourceProvider {
             return RESOLUTION_PX_720P;
         } else if (deviceHelper.hasCamcorderProfile(QUALITY_480P)) {
             return RESOLUTION_PX_480P;
-        } else if (applicationProperties.canAccessCodecInformation()) {
-            return mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice();
-        } else {
-            return RESOLUTION_PX_360P;
-        }
+        } else return mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice();
     }
 
     private int maxBitrateForConnection(ConnectionType connectionType) {
