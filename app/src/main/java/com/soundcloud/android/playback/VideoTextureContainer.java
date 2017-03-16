@@ -1,14 +1,11 @@
 package com.soundcloud.android.playback;
 
-import android.annotation.TargetApi;
 import android.graphics.SurfaceTexture;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
 import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
-import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 
@@ -17,25 +14,24 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
     final private String uuid;
     final private Origin origin;
+    final private Listener listener;
 
     @Nullable private Surface surface;
     @Nullable private SurfaceTexture surfaceTexture;
     @Nullable private TextureView currentTextureView;
 
-    private Optional<VideoSurfaceProvider.Listener> listener = Optional.absent();
+    public interface Listener {
+        void attemptToSetSurface(String uuid);
+    }
 
     VideoTextureContainer(String videoUuid,
                           Origin origin,
                           TextureView textureView,
-                          Optional<VideoSurfaceProvider.Listener> listener) {
+                          Listener listener) {
         this.uuid = videoUuid;
         this.origin = origin;
         this.listener = listener;
         setTextureView(textureView);
-    }
-
-    void setListener(VideoSurfaceProvider.Listener listener) {
-        this.listener = Optional.of(listener);
     }
 
     void reattachSurfaceTexture(TextureView textureView) {
@@ -95,9 +91,7 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
         if (surfaceTexture == null) {
             surfaceTexture = surface;
             this.surface = new Surface(surface);
-            if (listener.isPresent()) {
-                listener.get().attemptToSetSurface(uuid);
-            }
+            listener.attemptToSetSurface(uuid);
         }
     }
 
@@ -124,7 +118,7 @@ class VideoTextureContainer implements TextureView.SurfaceTextureListener {
         VideoTextureContainer build(String uuid,
                                     Origin origin,
                                     TextureView textureView,
-                                    Optional<VideoSurfaceProvider.Listener> listener) {
+                                    Listener listener) {
             return new VideoTextureContainer(uuid, origin, textureView, listener);
         }
     }

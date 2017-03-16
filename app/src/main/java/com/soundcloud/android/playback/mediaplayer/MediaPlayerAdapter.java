@@ -39,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -124,7 +123,7 @@ public class MediaPlayerAdapter implements
         this.accountOperations = accountOperations;
         this.videoSourceProvider = videoSourceProvider;
         this.videoSurfaceProvider = videoSurfaceProvider;
-        this.videoSurfaceProvider.setListener(this);
+        this.videoSurfaceProvider.addListener(this);
         this.adViewabilityController = adViewabilityController;
     }
 
@@ -660,7 +659,8 @@ public class MediaPlayerAdapter implements
 
     private void stopVideoTracking() {
         if (isPlayingVideo()) {
-            adViewabilityController.stopVideoTracking(((VideoAdPlaybackItem) currentItem).getUuid());
+            final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
+            adViewabilityController.stopVideoTracking(videoItem.getUuid());
         }
     }
 
@@ -671,15 +671,17 @@ public class MediaPlayerAdapter implements
 
     private void attemptToSetSurface() {
         if (isPlayingVideo()) {
-            attemptToSetSurface(((VideoAdPlaybackItem) currentItem).getUuid());
+            final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
+            attemptToSetSurface(videoItem.getUuid());
         }
     }
 
     @Override
     public void attemptToSetSurface(String uuid) {
         if (isPlayingVideo()) {
+            final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
             final Surface surface = videoSurfaceProvider.getSurface(uuid);
-            if (mediaPlayer != null && surface != null) {
+            if (mediaPlayer != null && surface != null && uuid.equals(videoItem.getUuid())) {
                 mediaPlayer.setSurface(surface);
             }
         }

@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Listener;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,12 +21,12 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
     @Mock VideoTextureContainer.Factory containerFactory;
     @Mock VideoTextureContainer textureContainer;
-    @Mock Listener surfaceProviderListener;
+    @Mock Listener listener;
+    @Mock Listener listener2;
     @Mock TextureView textureView;
     @Mock Surface surface;
 
     private VideoSurfaceProvider videoSurfaceProvider;
-    private Optional<VideoSurfaceProvider.Listener> listener;
 
     private static final String UUID = "111-1111-111";
     private static final String UUID2 = "222-2222-222";
@@ -36,12 +36,11 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        listener = Optional.of(surfaceProviderListener);
-
         videoSurfaceProvider = new VideoSurfaceProvider(containerFactory);
-        videoSurfaceProvider.setListener(surfaceProviderListener);
+        videoSurfaceProvider.addListener(listener);
+        videoSurfaceProvider.addListener(listener2);
 
-        when(containerFactory.build(UUID, ORIGIN, textureView, listener)).thenReturn(textureContainer);
+        when(containerFactory.build(UUID, ORIGIN, textureView, videoSurfaceProvider)).thenReturn(textureContainer);
         when(textureContainer.getOrigin()).thenReturn(ORIGIN);
     }
 
@@ -49,7 +48,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     public void createsNewTextureViewContainerIfNewVideoUrn() {
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, listener);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, videoSurfaceProvider);
     }
 
     @Test
@@ -57,7 +56,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, listener);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, videoSurfaceProvider);
         verify(textureContainer).reattachSurfaceTexture(textureView);
     }
 
@@ -68,26 +67,25 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
         videoSurfaceProvider.setTextureView(UUID2, ORIGIN, textureView);
 
-        verify(containerFactory).build(UUID, ORIGIN, textureView, listener);
+        verify(containerFactory).build(UUID, ORIGIN, textureView, videoSurfaceProvider);
         verify(textureContainer).release();
-        verify(containerFactory).build(UUID2, ORIGIN, textureView, listener);
+        verify(containerFactory).build(UUID2, ORIGIN, textureView, videoSurfaceProvider);
     }
 
     @Test
-    public void settingSurfaceTextureForwardsUpdateToListener() {
+    public void settingSurfaceTextureForwardsUpdateToListeners() {
         videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
 
-        verify(surfaceProviderListener).onTextureViewUpdate(UUID, textureView);
+        verify(listener).onTextureViewUpdate(UUID, textureView);
+        verify(listener2).onTextureViewUpdate(UUID, textureView);
     }
 
     @Test
-    public void canSetSurfaceTextureWithoutListener() {
-        videoSurfaceProvider = new VideoSurfaceProvider(containerFactory);
+    public void attemptToSetSurfaceForwardsCallToListeners() {
+        videoSurfaceProvider.attemptToSetSurface(UUID);
 
-        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
-
-        verify(surfaceProviderListener, never()).onTextureViewUpdate(UUID, textureView);
-        verify(containerFactory).build(UUID, ORIGIN, textureView, Optional.absent());
+        verify(listener).attemptToSetSurface(UUID);
+        verify(listener2).attemptToSetSurface(UUID);
     }
 
     @Test

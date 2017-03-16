@@ -4,18 +4,22 @@ import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
+import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class VideoSurfaceProvider {
+public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
 
     public enum Origin {
         STREAM,
@@ -28,18 +32,20 @@ public class VideoSurfaceProvider {
 
     final private VideoTextureContainer.Factory containerFactory;
 
-    private Optional<Listener> listener = Optional.absent();
+    private List<WeakReference<Listener>> listeners = new LinkedList<>();
 
     @Inject
     VideoSurfaceProvider(VideoTextureContainer.Factory containerFactory) {
         this.containerFactory = containerFactory;
     }
 
-    public void setListener(Listener listener) {
-        this.listener = Optional.of(listener);
-        for (VideoTextureContainer container : videoTextureContainers.values()) {
-            container.setListener(listener);
-        }
+    public void addListener(Listener listener) {
+        listeners.add(new WeakReference<>(listener));
+    }
+
+    @Override
+    public void attemptToSetSurface(String uuid) {
+        updateListeners(listener -> listener.attemptToSetSurface(uuid));
     }
 
     public void setTextureView(String uuid, Origin origin, TextureView videoTexture) {
@@ -49,12 +55,10 @@ public class VideoSurfaceProvider {
             // If this texture view was used before (e.g view is recycled),
             // release & remove any old containers referencing it
             removeContainers(container -> container.containsTextureView(videoTexture));
-            videoTextureContainers.put(uuid, containerFactory.build(uuid, origin, videoTexture, listener));
+            videoTextureContainers.put(uuid, containerFactory.build(uuid, origin, videoTexture, this));
         }
 
-        if (listener.isPresent()) {
-            listener.get().onTextureViewUpdate(uuid, videoTexture);
-        }
+        updateListeners(listener -> listener.onTextureViewUpdate(uuid, videoTexture));
     }
 
     private void removeContainers(Predicate<VideoTextureContainer> predicate) {
@@ -73,6 +77,18 @@ public class VideoSurfaceProvider {
         for (VideoTextureContainer container : videoTextureContainers.values()) {
             if (container.getOrigin() == origin) {
                 container.releaseTextureView();
+            }
+        }
+    }
+
+    private void updateListeners(Consumer<Listener> consumer) {
+        Iterator<WeakReference<Listener>> iterator = listeners.iterator();
+        while (iterator.hasNext()) {
+            final Listener listener = iterator.next().get();
+            if (listener != null) {
+                consumer.accept(listener);
+            } else {
+                iterator.remove();
             }
         }
     }
