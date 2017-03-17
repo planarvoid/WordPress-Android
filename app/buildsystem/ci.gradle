@@ -37,9 +37,10 @@ task buildAlpha(dependsOn: ['clean', 'versionizeAlpha', 'assembleAlphaWrapper'])
 }
 assembleAlphaWrapper.mustRunAfter('versionizeAlpha')
 
-task deployAlpha(dependsOn: ['buildAlpha', 'crashlyticsUploadDistributionProdAlpha']) {
+task deployAlpha(dependsOn: ['crashlyticsUploadDistributionProdAlpha']) {
   description = 'Deploys Alpha via Crashlytics Beta.'
 }
+deployAlpha.mustRunAfter('buildAlpha')
 
 // *********************************************************************************************************************
 // BETA BUILDS
