@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
@@ -21,6 +23,11 @@ public class OldSearchSuggestionsTest extends TrackingActivityTest<MainActivity>
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.autocompleteTestUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.AUTOCOMPLETE);
     }
 
     @Override
