@@ -87,7 +87,7 @@ public class TabbedSearchFragment extends Fragment {
 
         SearchPagerAdapter searchPagerAdapter =
                 new SearchPagerAdapter(resources,
-                                       this.getChildFragmentManager(),
+                                       getFragmentManager(),
                                        getApiQuery(),
                                        getUserQuery(),
                                        getSearchQueryUrn(),
