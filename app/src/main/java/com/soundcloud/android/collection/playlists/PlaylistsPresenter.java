@@ -6,7 +6,6 @@ import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.CollectionItemDecoration;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -34,6 +33,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.android.view.collection.GridSpacingItemDecoration;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -87,7 +87,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               OfflinePropertiesProvider offlinePropertiesProvider,
                               FeatureFlags featureFlags,
                               EntityItemCreator entityItemCreator) {
-        super(swipeRefreshAttacher);
+        super(swipeRefreshAttacher, new Options.Builder()
+                .useDividers(Options.DividerMode.NONE)
+                .build());
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.collectionOptionsStorage = collectionOptionsStorage;
@@ -121,11 +123,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
         RecyclerView recyclerView = getRecyclerView();
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addItemDecoration(new CollectionItemDecoration(itemMargin));
-        recyclerView.setPadding(itemMargin, 0, 0, 0);
-        recyclerView.setClipToPadding(false);
-        recyclerView.setClipChildren(false);
-
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(itemMargin, spanCount));
     }
 
     @Override
