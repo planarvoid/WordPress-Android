@@ -128,5 +128,10 @@
         <attr name="blurRadius" format="float" />
     </declare-styleable>
 
+    <declare-styleable name="SummaryRadioButton">
+        <attr name="android:summary" />
+        <attr name="summarySize" format="dimension" />
+        <attr name="summaryColor" format="color" />
+    </declare-styleable>
 
 </resources>

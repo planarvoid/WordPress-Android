@@ -284,6 +284,7 @@
         <!-- settings -->
         <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/change_storage_location" android:name=".settings.ChangeStorageLocationActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_notification_settings" android:name=".settings.notifications.NotificationPreferencesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_about" android:name=".settings.LicensesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
         <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud.Settings"/>

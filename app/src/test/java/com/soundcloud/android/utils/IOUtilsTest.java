@@ -83,6 +83,56 @@ public class IOUtilsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getExternalStorageFreeSpace() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.getExternalStorageFreeSpace(context)).isEqualTo(0);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1});
+        assertThat(IOUtils.getExternalStorageFreeSpace(context)).isGreaterThan(0);
+    }
+
+    @Test
+    public void getExternalStorageTotalSpace() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.getExternalStorageTotalSpace(context)).isEqualTo(0);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1});
+        assertThat(IOUtils.getExternalStorageTotalSpace(context)).isGreaterThan(0);
+    }
+
+    @Test
+    public void getSDCardFreeSpace() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        File file2 = tempFolder.newFile("file2");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.getSDCardStorageFreeSpace(context)).isEqualTo(0);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1, file2});
+        assertThat(IOUtils.getSDCardStorageFreeSpace(context)).isGreaterThan(0);
+    }
+
+    @Test
+    public void getSDCardTotalSpace() throws IOException {
+        File file1 = tempFolder.newFile("file1");
+        File file2 = tempFolder.newFile("file2");
+        Context context = mock(Context.class);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(null);
+        assertThat(IOUtils.getSDCardStorageTotalSpace(context)).isEqualTo(0);
+
+        when(context.getExternalFilesDirs(null)).thenReturn(new File[]{file1, file2});
+        assertThat(IOUtils.getSDCardStorageTotalSpace(context)).isGreaterThan(0);
+    }
+
+    @Test
     public void maxUsableSpaceIsCappedBySpaceLeft() {
         long spaceLeft = 20 * MB;
         long maxSpace = 60 * MB;

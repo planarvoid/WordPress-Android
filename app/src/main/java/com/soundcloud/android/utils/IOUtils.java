@@ -48,6 +48,7 @@ import java.util.Locale;
 public class IOUtils {
 
     private static final int BUFFER_SIZE = 8192;
+    private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
 
     @Inject
     public IOUtils() {
@@ -92,6 +93,30 @@ public class IOUtils {
     public static boolean isSDCardMounted(Context context) {
         File sdCardDir = getSDCardDir(context);
         return sdCardDir != null && Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(sdCardDir));
+    }
+
+    public static long getExternalStorageFreeSpace(Context context) {
+        return getStorageFreeSpace(getExternalStorageDir(context));
+    }
+
+    public static long getExternalStorageTotalSpace(Context context) {
+        return getStorageTotalSpace(getExternalStorageDir(context));
+    }
+
+    public static long getSDCardStorageFreeSpace(Context context) {
+        return getStorageFreeSpace(getSDCardDir(context));
+    }
+
+    public static long getSDCardStorageTotalSpace(Context context) {
+        return getStorageTotalSpace(getSDCardDir(context));
+    }
+
+    public static long getStorageFreeSpace(File file) {
+        return file == null ? 0 : Math.max(file.getFreeSpace() - FREE_SPACE_BUFFER, 0);
+    }
+
+    public static long getStorageTotalSpace(File file) {
+        return file == null ? 0 : file.getTotalSpace();
     }
 
     @NotNull

@@ -27,7 +27,6 @@ public class SecureFileStorage {
     private static final String TAG = "SecureFileStorage";
     private static final String DIRECTORY_NAME = "offline";
     private static final String ENC_FILE_EXTENSION = ".enc";
-    private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
     private static final int MINIMUM_SPACE = 5 * 1024 * 1024; // 5MB
 
     @Nullable File offlineDir;
@@ -130,11 +129,11 @@ public class SecureFileStorage {
     }
 
     public long getStorageAvailable() {
-        return offlineDir == null ? 0 : Math.max(offlineDir.getFreeSpace() - FREE_SPACE_BUFFER, 0);
+        return IOUtils.getStorageFreeSpace(offlineDir);
     }
 
     public long getStorageCapacity() {
-        return offlineDir == null ? 0 : offlineDir.getTotalSpace();
+        return IOUtils.getStorageTotalSpace(offlineDir);
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {

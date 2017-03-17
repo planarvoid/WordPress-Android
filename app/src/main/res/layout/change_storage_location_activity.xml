@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/storage_options"
+        android:checkedButton="@+id/internal_device_storage"
+        android:paddingTop="8dp"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp">
+
+        <com.soundcloud.android.settings.SummaryRadioButton
+            android:id="@+id/internal_device_storage"
+            android:text="@string/internal_device_storage"
+            style="@style/SummaryRadioButton" />
+
+        <com.soundcloud.android.settings.SummaryRadioButton
+            android:id="@+id/sd_card"
+            android:text="@string/sd_card"
+            style="@style/SummaryRadioButton" />
+
+    </RadioGroup>
+
+</LinearLayout>

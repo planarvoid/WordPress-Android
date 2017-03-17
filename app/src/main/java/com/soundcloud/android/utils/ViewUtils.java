@@ -67,7 +67,7 @@ public final class ViewUtils {
         });
     }
 
-    public static void clearTouchDelegate(final View delegate) {
+    private static void clearTouchDelegate(final View delegate) {
         final View parent = (View) delegate.getParent();
         parent.setTouchDelegate(null);
     }
@@ -85,7 +85,7 @@ public final class ViewUtils {
         return 0.0f;
     }
 
-    public static Iterable<View> childViewsOf(final ViewGroup viewGroup) {
+    private static Iterable<View> childViewsOf(final ViewGroup viewGroup) {
         return new Iterable<View>() {
             private final int count = viewGroup.getChildCount();
 

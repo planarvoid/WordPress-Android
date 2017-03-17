@@ -120,8 +120,9 @@ import com.soundcloud.android.search.SearchPremiumResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
-import com.soundcloud.android.search.topresults.TopResultsFragment;
 import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
+import com.soundcloud.android.search.topresults.TopResultsFragment;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.ClearCacheDialog;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.LegalFragment;
@@ -321,6 +322,7 @@ public interface ApplicationComponent {
     void inject(LegalFragment legalFragment);
     void inject(LicensesActivity licensesActivity);
     void inject(BasicSettingsFragment basicSettingsFragment);
+    void inject(ChangeStorageLocationActivity changeStorageLocationActivity);
 
     //StationsModule
     void inject(StationInfoActivity stationInfoActivity);

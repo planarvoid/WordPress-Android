@@ -33,6 +33,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -92,9 +93,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
         setupClearContent();
 
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            offlinePropertiesProvider.states()
+            subscription.add(offlinePropertiesProvider.states()
                                      .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new CurrentDownloadSubscriber());
+                                     .subscribe(new CurrentDownloadSubscriber()));
         } else {
             subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                                      .filter(event -> event.state == OfflineState.DOWNLOADED)
@@ -211,6 +212,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
         switch (preference.getKey()) {
             case OFFLINE_REMOVE_ALL_OFFLINE_CONTENT:
                 showRemoveAllOfflineContentDialog();
+                return true;
+            case OFFLINE_CHANGE_STORAGE_LOCATION:
+                startActivity(new Intent(getActivity(), ChangeStorageLocationActivity.class));
                 return true;
             default:
                 return false;

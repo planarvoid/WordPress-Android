@@ -236,4 +236,7 @@
 
     <!-- Suggested Creators -->
     <dimen name="card_height">152dp</dimen>
+    
+    <!-- SummaryRadioButton -->
+    <dimen name="summary_radio_button_summary_size">14sp</dimen>
 </resources>
