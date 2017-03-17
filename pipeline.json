@@ -120,7 +120,7 @@
       "jobs": [
         {
           "deploy_alpha": {
-            "cmd": "./scripts/pull_all_translations.sh && ./gradlew buildAlpha deployAlpha",
+            "cmd": "./scripts/pull_all_translations.sh && ./gradlew buildAlpha && ./gradlew deployAlpha",
             "manual": true,
             "schedule": "H 3 * * 2-6",
             "artifacts": [
