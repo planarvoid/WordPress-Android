@@ -598,14 +598,12 @@ public class ImageOperations {
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(ImageResource imageResource, ApiImageSize apiImageSize) {
         final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
-        Log.d(TAG, "ImageResource " + imageResource.getUrn() + "; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(Urn urn, ApiImageSize apiImageSize) {
         final String imageUrl = imageUrlBuilder.imageResolverUrl(urn, apiImageSize);
-        Log.d(TAG, "URN " + urn + "; url=" + imageUrl);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 
@@ -646,10 +644,9 @@ public class ImageOperations {
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
             if (failReason.getCause() instanceof FileNotFoundException) {
-                Log.d(TAG, "404 Not Found for " + imageUri);
                 notFoundUris.add(imageUri);
             } else {
-                Log.d(TAG, "Failed loading " + imageUri + "; reason: " + failReason.getType());
+                Log.e(TAG, "Failed loading " + imageUri + "; reason: " + failReason.getType());
             }
             animatePlaceholder(view);
             if (listenerAdapter != null) {

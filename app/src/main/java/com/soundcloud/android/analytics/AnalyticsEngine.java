@@ -184,7 +184,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private abstract class EventSubscriber<EventT> extends DefaultSubscriber<EventT> {
         @Override
         public void onNext(EventT event) {
-            Log.d(AnalyticsEngine.this, "Track event " + event);
             if (event instanceof OnboardingEvent) {
                 log(INFO, ONBOARDING_TAG, "onboarding event published: " + event);
             }
