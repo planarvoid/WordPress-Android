@@ -231,7 +231,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         configurationFeatureController.subscribe();
 
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN) || featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN) || true) {
             likesStateProvider.subscribe();
             repostsStateProvider.subscribe();
             followingStateProvider.subscribe();
