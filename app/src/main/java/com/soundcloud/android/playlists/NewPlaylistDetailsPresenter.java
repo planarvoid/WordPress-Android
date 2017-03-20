@@ -23,7 +23,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
@@ -37,6 +36,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -58,7 +58,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -66,6 +65,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.support.annotation.Nullable;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,6 +90,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final SearchQuerySourceInfo searchQuerySourceInfo;
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private final EntityItemCreator entityItemCreator;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
@@ -153,6 +154,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided RepostOperations repostOperations,
                                 @Provided FeedbackController feedbackController,
                                 @Provided AccountOperations accountOperations,
+                                @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                 @Provided EntityItemCreator entityItemCreator) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
@@ -172,6 +174,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.repostOperations = repostOperations;
         this.feedbackController = feedbackController;
         this.accountOperations = accountOperations;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.entityItemCreator = entityItemCreator;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
@@ -282,7 +285,8 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                        .flatMap(playlistOperations::trackUrnsForPlayback)
                                        .withLatestFrom(playSessionSource(), Pair::of)
                                        .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
-                                       .subscribe(showPlaybackResult());
+                                       .doOnNext(this::sendErrorIfUnsuccessful)
+                                       .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     private Subscription actionPlayPlaylistStartingFromTrack(PublishSubject<PlaylistDetailTrackItem> trigger) {
@@ -294,7 +298,14 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                     return playTracksFromPosition(position, playSessionSource, transform(tracks, PlaylistDetailTrackItem::getUrn));
                 })
                 .flatMap(x -> x)
-                .subscribe(showPlaybackResult());
+                .doOnNext(this::sendErrorIfUnsuccessful)
+                .subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    private void sendErrorIfUnsuccessful(PlaybackResult playbackResult) {
+        if (!playbackResult.isSuccess()) {
+            playbackError.onNext(playbackResult.getErrorReason());
+        }
     }
 
     private Subscription actionTracklistUpdated(PublishSubject<List<PlaylistDetailTrackItem>> newTrackItemOrder) {
@@ -475,16 +486,6 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private EntityMetadata createEntityMetadata(Playlist playlist) {
         return EntityMetadata.from(playlist.creatorName(), playlist.creatorUrn(),
                                    playlist.title(), playlist.urn());
-    }
-
-    private Action1<PlaybackResult> showPlaybackResult() {
-        return playbackResult -> {
-            if (playbackResult.isSuccess()) {
-                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            } else {
-                playbackError.onNext(playbackResult.getErrorReason());
-            }
-        };
     }
 
     private Func1<PlaylistWithExtras, PlaySessionSource> createPlaySessionSource() {
@@ -690,7 +691,8 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                        return playbackInitiator
                                .playTracksShuffled(just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second())
                                .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext(viewModel.metadata().urn()))));
-                   }).subscribe(showPlaybackResult());
+                   }).doOnNext(this::sendErrorIfUnsuccessful)
+                   .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override

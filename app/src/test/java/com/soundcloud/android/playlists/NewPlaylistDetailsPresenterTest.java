@@ -44,6 +44,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -55,6 +56,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
@@ -75,6 +77,7 @@ import rx.subjects.PublishSubject;
 
 import android.support.annotation.NonNull;
 
+import javax.inject.Provider;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +103,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private RepostsStateProvider repostsStateProvider;
     @Mock private FeedbackController feedbackController;
     @Mock private SharePresenter shareOperations;
+    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -158,6 +162,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(syncPlaylist);
         when(offlinePropertiesProvider.states()).thenReturn(offlineProperties);
 
+        expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
         newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistUrn,
                                                                screen,
                                                                searchQuerySourceInfo,
@@ -178,6 +183,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                repostOperations,
                                                                feedbackController,
                                                                accountOperations,
+                                                               expandPlayerSubscriberProvider,
                                                                ModelFixtures.entityItemCreator());
 
     }
