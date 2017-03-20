@@ -35,7 +35,7 @@ expected_events:
     client_id: '3152'
     user: soundcloud:users:285710974
     click_name: search
-    query_position: '1'
+    query_position: '[0-9]+'
     page_name: search:main
     connection_type: wifi
     app_version: '[0-9]+'
