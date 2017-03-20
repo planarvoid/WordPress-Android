@@ -14,7 +14,7 @@
             style="@style/Search.Suggestion.AutocompleteIcon" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/title"
+            android:id="@+id/search_title"
             android:layout_marginLeft="@dimen/search_suggestion_left_margin"
             style="@style/Search.Suggestion.Text"
             android:layout_width="match_parent" />

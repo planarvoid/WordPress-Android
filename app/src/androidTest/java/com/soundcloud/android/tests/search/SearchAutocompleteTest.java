@@ -51,7 +51,7 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
                                                            .setSearchQuery("clown")
-                                                           .clickOnAutocompleteSuggestion();
+                                                           .clickOnAutocompleteSuggestion("clowns");
 
         assertThat("Search results screen should be visible", resultsScreen.isVisible());
 

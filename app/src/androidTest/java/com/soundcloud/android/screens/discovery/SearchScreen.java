@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens.discovery;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.framework.Han;
@@ -13,8 +11,6 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class SearchScreen extends Screen {
 
@@ -61,14 +57,10 @@ public class SearchScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public SearchResultsScreen clickOnAutocompleteSuggestion() {
-        List<ViewElement> autocompleteResults = testDriver.findOnScreenElements(AutocompleteSuggestion());
-
-        assertThat("Expected autocomplete results, have: " + autocompleteResults.size(),
-                   autocompleteResults.size() > 1);
-
-        autocompleteResults.get(1) // item 0 would be the "local" result we always show to execute the search
-                           .click();
+    public SearchResultsScreen clickOnAutocompleteSuggestion(String target) {
+        testDriver
+                .findOnScreenElement(AutocompleteSuggestion(), With.text(target))
+                .click();
 
         return new SearchResultsScreen(testDriver);
     }
@@ -95,7 +87,7 @@ public class SearchScreen extends Screen {
     }
 
     private static With AutocompleteSuggestion() {
-        return With.id(R.id.search_icon);
+        return With.id(R.id.search_title);
     }
 
     private static With Suggestion(final int drawableId, final String description) {

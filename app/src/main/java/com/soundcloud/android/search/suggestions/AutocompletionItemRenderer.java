@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 class AutocompletionItemRenderer implements CellRenderer<AutocompletionItem> {
-    @BindView(R.id.title) TextView titleText;
+    @BindView(R.id.search_title) TextView titleText;
 
     @Inject
     AutocompletionItemRenderer() {

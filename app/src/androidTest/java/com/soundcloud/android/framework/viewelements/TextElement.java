@@ -18,4 +18,8 @@ public class TextElement {
         }
         throw new UnsupportedOperationException("View is not a text element: " + view);
     }
+
+    public void click() {
+        this.viewElement.click();
+    }
 }
