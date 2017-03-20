@@ -63,6 +63,21 @@ public final class AccountAssistant {
         return accountAdded;
     }
 
+    public static boolean loginWith(Context context, TestUser testUser) {
+        int tryCount = 0;
+        boolean accountAdded = false;
+        do {
+            try {
+                tryCount++;
+                PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(testUser.token.getAccessToken());
+                accountAdded = AccountAssistant.addAccountAndEnableSync(context, testUser.token, loggedInUser.toApiMobileUser());
+            } catch (IOException e) {
+                Log.e(TAG, "Error fetching account data", e);
+            }
+        } while (!accountAdded && tryCount <= MAX_RETRIES);
+        return accountAdded;
+    }
+
     private static void cycleWifi(NetworkManagerClient networkManagerClient) {
         networkManagerClient.switchWifiOff();
         networkManagerClient.switchWifiOn();

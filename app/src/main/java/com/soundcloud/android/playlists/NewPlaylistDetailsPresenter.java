@@ -37,6 +37,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -50,6 +51,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.transformers.Transformers;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.AsyncViewModel;
+import com.soundcloud.android.view.ViewError;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
@@ -69,7 +71,7 @@ import java.util.Collections;
 import java.util.List;
 
 @AutoFactory
-class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
+public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private final PlaylistOperations playlistOperations;
     private final PlaylistUpsellOperations playlistUpsellOperations;
@@ -258,7 +260,9 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     private Observable<Urn> currentTrackPlaying() {
-        return eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).map(item -> item.getCurrentPlayQueueItem().getUrn()).startWith(Urn.NOT_SET);
+        return eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                       .filter(event -> event.getCurrentPlayQueueItem() != PlayQueueItem.EMPTY)
+                       .map(item -> item.getCurrentPlayQueueItem().getUrn()).startWith(Urn.NOT_SET);
     }
 
     private void showRefreshErrorIfPresent(PlaylistWithExtrasState playlistWithExtrasState) {
@@ -509,6 +513,7 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         /**
          * This is a mess. Clean this up when we get rid of the old fragment, and can properly build the model in one place
          */
+        Optional<ViewError> viewError = playlistWithExtrasState.viewError();
         if (playlistWithExtrasState.playlistWithExtras().isPresent()) {
             PlaylistWithExtras playlistWithExtras = playlistWithExtrasState.playlistWithExtras().get();
             Playlist playlist = playlistWithExtras.playlist();
@@ -520,9 +525,13 @@ class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                                                     isEditMode,
                                                                     isEditMode ? OfflineState.NOT_OFFLINE : offlineProperties.state(urn),
                                                                     createOtherPlaylistsItem(playlistWithExtras, isEditMode)
-            )), !playlistWithExtras.tracks().isPresent(), playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
+            )), !playlistWithExtras.tracks().isPresent(), playlistWithExtrasState.isRefreshing(), viewError);
         } else {
-            return AsyncViewModel.create(absent(), true, playlistWithExtrasState.isRefreshing(), playlistWithExtrasState.viewError());
+            if (viewError.isPresent()) {
+                return AsyncViewModel.create(absent(), false, playlistWithExtrasState.isRefreshing(), viewError);
+            } else {
+                return AsyncViewModel.create(absent(), true, playlistWithExtrasState.isRefreshing(), viewError);
+            }
         }
 
     }

@@ -14,7 +14,10 @@ public class Sleeper {
     }
 
     public void sleep(long sleepTime, TimeUnit timeUnit) {
-        SystemClock.sleep(timeUnit.toMillis(sleepTime));
+        sleep(timeUnit.toMillis(sleepTime));
     }
 
+    public void sleep(long sleepTime) {
+        SystemClock.sleep(sleepTime);
+    }
 }

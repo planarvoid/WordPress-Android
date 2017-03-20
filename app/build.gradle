@@ -105,6 +105,10 @@ android {
       assets.srcDirs rootProject.ext.assetsSrcDirs
       aidl.srcDirs rootProject.ext.javaSrcDirs
     }
+
+    androidTest {
+      java.srcDirs 'src/integrationTest/java'
+    }
   }
 
   lintOptions {
@@ -254,6 +258,9 @@ dependencies {
   androidTestCompile (acceptanceTestLibraries.androidTestRunner) {
     exclude group: 'com.android.support', module: 'support-annotations'
   }
+  androidTestCompile ('com.android.support.test:rules:0.5') {
+    exclude group: 'com.android.support', module: 'support-annotations'
+  }
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient
@@ -267,6 +274,7 @@ dependencies {
     exclude group: 'org.hamcrest', module: 'hamcrest-core'
   }
   androidTestCompile acceptanceTestLibraries.httpComponents // needed for wiremock
+  androidTestCompile unitTestLibraries.assertj
 }
 
 //ADD THIS AT THE BOTTOM

@@ -1,9 +1,7 @@
 package com.soundcloud.android.tests;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -91,9 +89,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     }
 
     private void configureWiremock() {
-        String apiMobileBaseUrl = getInstrumentation().getTargetContext().getResources().getString(R.string.mobile_api_base_url);
-        WireMockConfiguration wireMockConfiguration = new WireMockConfiguration().port(NetworkMappings.MOCK_API_PORT);
-        wireMockServer = NetworkMappings.create(wireMockConfiguration, apiMobileBaseUrl);
+        wireMockServer = NetworkMappings.create(getInstrumentation().getTargetContext());
         wireMockServer.start();
 
         addInitialStubMappings();
@@ -102,7 +98,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected void addActivityMonitors(Instrumentation instrumentation) {
 
     }
-
 
     /***
      * Add stubs for wiremock, e.g. :

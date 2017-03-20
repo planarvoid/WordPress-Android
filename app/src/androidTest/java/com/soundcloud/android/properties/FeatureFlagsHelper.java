@@ -42,8 +42,8 @@ public class FeatureFlagsHelper {
         runtimeConfig.setFlagValue(flag, false);
     }
 
-    public void assertIsEnabled(Flag... requiredEnabledFeatures) {
-        checkState(isLocallyDisabled(requiredEnabledFeatures), "Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures));
+    public void assertEnabled(Flag... requiredEnabledFeatures) {
+        checkState(isLocallyEnabled(requiredEnabledFeatures), "Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures));
     }
 
     public boolean isLocallyEnabled(Flag[] requiredEnabledFeatures) {

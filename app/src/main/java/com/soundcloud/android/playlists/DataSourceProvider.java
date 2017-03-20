@@ -101,15 +101,18 @@ class DataSourceProvider {
                 urnChanged().subscribe(latestUrn),
 
                 // the actual output
-                pageSequenceStarters.switchMap(
-                        urn -> Observable.merge(
-                                refreshStateSubject, // refresh state
-                                playlistWithExtras(urn) // current load
-                        ).scan(
+                pageSequenceStarters
+                        .switchMap(
+                                urn -> Observable.merge(
+                                        refreshStateSubject, // refresh state
+                                        playlistWithExtras(urn) // current load
+                                )
+                        )
+                        .scan(
                                 PlaylistWithExtrasState.initialState(),
                                 (oldState, partialState) -> partialState.newState(oldState)
                         )
-                ).subscribe(data)
+                        .subscribe(data)
         );
     }
 
@@ -172,7 +175,7 @@ class DataSourceProvider {
                 .map(input -> transform(input, Playlist::from));
     }
 
-    private Func1<List<Playlist>, List<Playlist>> playlistsWithExclusion(Playlist playlist) {
+    private static Func1<List<Playlist>, List<Playlist>> playlistsWithExclusion(Playlist playlist) {
         return playlistItems -> newArrayList(filter(playlistItems,
                                                     input -> !input.urn().equals(playlist.urn())
                                                             && input.isAlbum() == playlist.isAlbum()));

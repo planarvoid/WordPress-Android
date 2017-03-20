@@ -88,7 +88,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, of(trackItems), singletonList(otherPlaylist));
     private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist,absent(), emptyList());
     private PlaylistWithExtras updatedPlaylistWithTracks = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), emptyList());
-    private PlaylistWithExtras updatedPlaylistWithExtras = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
+    private PlaylistWithExtras updatedPlaylistWithTracksAndOtherExtras = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
     private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, absent());
     private PlaylistWithExtras pushedPlaylistWithTracks = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), emptyList());
     private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
@@ -348,11 +348,12 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build(),
+
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).isRefreshing(true).build(),
-                PlaylistWithExtrasState.initialState(),
+
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(updatedPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(updatedPlaylistWithTracks)).build(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(updatedPlaylistWithExtras)).build()
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(updatedPlaylistWithTracksAndOtherExtras)).build()
         );
     }
 
@@ -377,7 +378,6 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build(),
-                PlaylistWithExtrasState.initialState(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(pushedPlaylistWithoutTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(pushedPlaylistWithTracks)).build(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(pushedPlaylistWithExtras)).build()
