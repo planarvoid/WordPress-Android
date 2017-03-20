@@ -11,7 +11,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
-import com.soundcloud.android.screens.discovery.SearchTopResultsScreen;
 
 import android.widget.TextView;
 
@@ -41,15 +40,6 @@ public class ToolBarElement extends Element {
         waiter.waitForFragmentByTag(SearchPresenter.SEARCH_RESULTS_TAG);
         return new SearchResultsScreen(testDriver);
     }
-
-    public SearchTopResultsScreen doSearchTopResults(String query) {
-        setSearchQuery(query);
-        testDriver.pressSoftKeyboardSearchButton();
-        waiter.waitForActivity(SearchActivity.class);
-        waiter.waitForFragmentByTag(SearchPresenter.SEARCH_RESULTS_TAG);
-        return new SearchTopResultsScreen(testDriver);
-    }
-
 
     public ToolBarElement setSearchQuery(String query) {
         waiter.waitForActivity(SearchActivity.class);

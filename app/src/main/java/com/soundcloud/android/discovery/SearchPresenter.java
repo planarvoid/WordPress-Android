@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
@@ -246,7 +247,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void displaySearchView(int searchViewIndex) {
-        if (!true) {
+        if (!featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
             setElevation(searchViewIndex);
         }
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
@@ -282,7 +283,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private Fragment getResultsFragment(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
-        return true ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
+        return featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS) ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
                                                                :  TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
     }
 

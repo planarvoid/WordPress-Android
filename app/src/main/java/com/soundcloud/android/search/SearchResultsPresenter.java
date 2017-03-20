@@ -18,6 +18,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -74,7 +75,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final Func1<SearchResult, SearchResult> addHeaderItem = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult searchResult) {
-            if (true) {
+            if (featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
                 final SearchResultHeaderRenderer.SearchResultHeader headerItem = SearchResultHeaderRenderer.SearchResultHeader.create(searchType, contentType, searchResult.getResultsCount());
                 searchResult.addItem(0, headerItem);
             }
