@@ -301,7 +301,7 @@ public class TestUser {
             "android_ad_user",
             "guillaume+android+ad+user@soundcloud.com",
             "android_ad_user",
-            "1-21686-276289453-03b99d74abe1f2",
+            "1-21686-276289453-57ff1011de8ea3",
             276289453,
             true);
 
