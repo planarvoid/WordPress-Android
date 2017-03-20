@@ -41,7 +41,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         assertThat(upgradeScreen, is(visible()));
 
         waiter.waitTwoSeconds();
-        upgradeScreen.clickBuyForWebCheckout();
+        upgradeScreen.clickDefaultCheckout();
 
         finishEventTracking(UPGRADE_TEST_SCENARIO);
     }

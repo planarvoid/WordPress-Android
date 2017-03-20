@@ -19,12 +19,18 @@ public class UpgradeScreen extends Screen {
         return ACTIVITY;
     }
 
-    public WebCheckoutScreen clickBuyForWebCheckout() {
-        clickBuy();
+    public WebCheckoutScreen clickDefaultCheckout() {
+        clickBuyButton();
         return new WebCheckoutScreen(testDriver);
     }
 
-    private UpgradeScreen clickBuy() {
+    public ProductChoiceScreen clickProductChoice() {
+        waiter.waitForAnimationToFinish(upgradeButton());
+        moreProductsButton().click();
+        return new ProductChoiceScreen(testDriver);
+    }
+
+    private UpgradeScreen clickBuyButton() {
         ViewElement button = upgradeButton();
         waiter.waitForAnimationToFinish(button);
         button.click();
@@ -33,6 +39,10 @@ public class UpgradeScreen extends Screen {
 
     public ViewElement upgradeButton() {
         return testDriver.findOnScreenElement(With.id(R.id.conversion_buy));
+    }
+
+    private ViewElement moreProductsButton() {
+        return testDriver.findOnScreenElement(With.id(R.id.conversion_more_products));
     }
 
 }
