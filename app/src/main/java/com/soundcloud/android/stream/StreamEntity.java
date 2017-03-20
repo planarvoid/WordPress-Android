@@ -12,20 +12,22 @@ public abstract class StreamEntity implements UrnHolder {
 
     public abstract Date createdAt();
 
-    public abstract Optional<String> reposter();
+    public abstract Optional<String> avatarUrlTemplate();
 
-    public abstract Optional<Urn> reposterUrn();
-
-    public abstract Optional<String> avatarUrl();
+    public abstract Optional<RepostedProperties> repostedProperties();
 
     public abstract Optional<PromotedProperties> promotedProperties();
 
-    public static StreamEntity.Builder builder(Urn urn, Date createdAt, Optional<String> reposter, Optional<Urn> reposterUrn, Optional<String> avatarUrl) {
-        return new AutoValue_StreamEntity.Builder().urn(urn).createdAt(createdAt).reposter(reposter).reposterUrn(reposterUrn).avatarUrl(avatarUrl).promotedProperties(Optional.absent());
+    public static StreamEntity.Builder builder(Urn urn, Date createdAt) {
+        return new AutoValue_StreamEntity.Builder().urn(urn).createdAt(createdAt).avatarUrlTemplate(Optional.absent()).promotedProperties(Optional.absent()).repostedProperties(Optional.absent());
     }
 
     public boolean isPromoted() {
         return promotedProperties().isPresent();
+    }
+
+    public boolean isReposted() {
+        return repostedProperties().isPresent();
     }
 
     @AutoValue.Builder
@@ -35,13 +37,19 @@ public abstract class StreamEntity implements UrnHolder {
 
         abstract Builder createdAt(Date createdAt);
 
-        abstract Builder reposter(Optional<String> reposter);
+        abstract Builder avatarUrlTemplate(Optional<String> avatarUrl);
 
-        abstract Builder reposterUrn(Optional<Urn> reposterUrn);
+        abstract Builder repostedProperties(Optional<RepostedProperties> repostedProperties);
 
-        abstract Builder avatarUrl(Optional<String> avatarUrl);
+        public Builder repostedProperties(RepostedProperties repostedProperties) {
+            return repostedProperties(Optional.of(repostedProperties));
+        }
 
-        public abstract Builder promotedProperties(Optional<PromotedProperties> promotedProperties);
+        abstract Builder promotedProperties(Optional<PromotedProperties> promotedProperties);
+
+        public Builder promotedProperties(PromotedProperties promotedProperties) {
+            return promotedProperties(Optional.of(promotedProperties));
+        }
 
         public abstract StreamEntity build();
     }

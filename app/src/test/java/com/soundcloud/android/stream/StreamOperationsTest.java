@@ -461,9 +461,9 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         final List<StreamItem> items = new ArrayList<>(dataItems.size());
         for (StreamEntity source : dataItems) {
             if (source.urn().equals(promotedTrackItem.getUrn())) {
-                items.add(TrackStreamItem.create(promotedTrackItem, new Date()));
+                items.add(TrackStreamItem.create(promotedTrackItem, new Date(), source.avatarUrlTemplate()));
             } else if (source.urn().equals(upsellableTrack.getUrn())) {
-                items.add(TrackStreamItem.create(upsellableTrack, new Date()));
+                items.add(TrackStreamItem.create(upsellableTrack, new Date(), source.avatarUrlTemplate()));
             } else {
                 items.add(ModelFixtures.trackFromStreamEntity(source));
             }
@@ -539,14 +539,14 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     }
 
     private StreamEntity.Builder builderFromTrackItem(Date createdAt, TrackItem promotedTrackItem) {
-        return StreamEntity.builder(promotedTrackItem.getUrn(), createdAt, Optional.absent(), Optional.absent(), promotedTrackItem.avatarUrlTemplate());
+        return StreamEntity.builder(promotedTrackItem.getUrn(), createdAt);
     }
 
     private void initWithTrack() {
         when(streamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.empty())
                 .thenReturn(just(promotedStreamTrack));
-        List<StreamItem> result = Lists.newArrayList(TrackStreamItem.create(promotedTrackItem, promotedStreamTrack.createdAt()));
+        List<StreamItem> result = Lists.newArrayList(TrackStreamItem.create(promotedTrackItem, promotedStreamTrack.createdAt(), Optional.absent()));
         when(streamEntityToItemTransformer.call(eq(Lists.newArrayList(promotedStreamTrack)))).thenReturn(just(result));
     }
 

@@ -55,7 +55,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
         itemView.resetAdditionalInformation();
 
-        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(playlistItem, position), playlistStreamItem.createdAt());
+        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(playlistItem, position), playlistStreamItem.createdAt(), playlistStreamItem.avatarUrlTemplate());
         showTrackCount(itemView, playlistItem);
         setupEngagementBar(itemView, playlistItem, position);
     }

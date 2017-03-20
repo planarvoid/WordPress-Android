@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
+import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -35,6 +36,7 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
     private PlaylistItem playlistItem;
 
     private PostedPlaylistItemRenderer renderer;
+    private PlaylistItem.Builder playlistItemBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -45,7 +47,8 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
                                                .likesCount(5)
                                                .trackCount(11)
                                                .build();
-        playlistItem = ModelFixtures.playlistItemBuilder(playlist).isUserLike(false).build();
+        playlistItemBuilder = ModelFixtures.playlistItemBuilder(playlist).isUserLike(false);
+        playlistItem = playlistItemBuilder.build();
 
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
@@ -58,7 +61,7 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindReposterIfAny() {
         final String reposter = "reposter";
-        PlaylistItem repostedPlaylist = playlistItem.updateWithReposter(reposter, Urn.NOT_SET);
+        PlaylistItem repostedPlaylist = playlistItemBuilder.repostedProperties(RepostedProperties.create(reposter, Urn.NOT_SET)).build();
         renderer.bindItemView(0, itemView, singletonList(repostedPlaylist));
 
         assertThat(textView(R.id.reposter).getVisibility()).isEqualTo(View.VISIBLE);

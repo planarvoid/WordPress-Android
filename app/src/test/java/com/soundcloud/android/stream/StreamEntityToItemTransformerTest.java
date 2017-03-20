@@ -10,13 +10,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,11 +47,11 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
     @Test
     public void enrichesTrackStreamItem() throws Exception {
         final TrackItem trackItem = ModelFixtures.trackItem(track);
-        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, trackItem.getUrn(), trackItem.avatarUrlTemplate()).build();
+        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, trackItem.getUrn(), trackItem).build();
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Observable.just(Collections.singletonMap(track.urn(), track)));
 
-        final TrackStreamItem trackStreamItem = TrackStreamItem.create(trackItem, streamEntity.createdAt());
+        final TrackStreamItem trackStreamItem = TrackStreamItem.create(trackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(trackStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -64,7 +64,7 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
         when(trackRepository.fromUrns(eq(Lists.newArrayList(track.urn())))).thenReturn(Observable.just(Collections.singletonMap(track.urn(), track)));
 
-        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt());
+        final TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedTrackStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -72,12 +72,12 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
     @Test
     public void enrichesPlaylistStreamItem() throws Exception {
-        final PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist);
-        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).build();
+        final PlaylistItem playlistItem = PlaylistItem.from(playlist);
+        final StreamEntity streamEntity = builderFromImageResource(CREATED_AT, playlistItem.getUrn(), playlistItem).build();
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Observable.just(Collections.singletonMap(playlist.urn(), playlist)));
 
-        final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, streamEntity.createdAt());
+        final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(playlistStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
@@ -90,21 +90,21 @@ public class StreamEntityToItemTransformerTest extends AndroidUnitTest {
 
         when(playlistRepository.withUrns(eq(Lists.newArrayList(playlist.urn())))).thenReturn(Observable.just(Collections.singletonMap(playlist.urn(), playlist)));
 
-        final PlaylistStreamItem promotedPlaylistStreamItem = PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt());
+        final PlaylistStreamItem promotedPlaylistStreamItem = PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), streamEntity.avatarUrlTemplate());
         final ArrayList<StreamItem> expectedResult = Lists.newArrayList(promotedPlaylistStreamItem);
 
         transformer.call(Lists.newArrayList(streamEntity)).test().assertValueCount(1).assertValue(expectedResult);
     }
 
-    private StreamEntity.Builder builderFromImageResource(Date createdAt, Urn urn, Optional<String> avatarUrlTemplate) {
-        return StreamEntity.builder(urn, createdAt, Optional.absent(), Optional.absent(), avatarUrlTemplate);
+    private StreamEntity.Builder builderFromImageResource(Date createdAt, Urn urn, PlayableItem trackItem) {
+        return StreamEntity.builder(urn, createdAt).repostedProperties(trackItem.repostedProperties());
     }
 
     private StreamEntity fromPromotedTrackItem(Date createdAt, TrackItem trackItem) {
-        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem.avatarUrlTemplate()).promotedProperties(trackItem.promotedProperties()).build();
+        return builderFromImageResource(createdAt, trackItem.getUrn(), trackItem).promotedProperties(trackItem.promotedProperties()).build();
     }
 
     private StreamEntity fromPromotedPlaylistItem(Date createdAt, PlaylistItem playlistItem) {
-        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem.avatarUrlTemplate()).promotedProperties(playlistItem.promotedProperties()).build();
+        return builderFromImageResource(createdAt, playlistItem.getUrn(), playlistItem).promotedProperties(playlistItem.promotedProperties()).build();
     }
 }

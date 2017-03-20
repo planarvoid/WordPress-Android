@@ -151,11 +151,11 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void canLoadStreamItems() {
         final TrackItem promotedTrackItem = expectedPromotedTrack();
-        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, CREATED_AT);
+        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, CREATED_AT, Optional.absent());
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
-        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT);
+        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
         final PlaylistItem playlistItem = expectedLikedPlaylistForPlaylistsScreen();
-        PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, CREATED_AT);
+        PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, CREATED_AT, Optional.absent());
         final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
                                                      normalTrackStreamItem,
                                                      playlistStreamItem);
@@ -171,7 +171,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void canRefreshStreamItems() {
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
-        final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT);
+        final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
         when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
                 Collections.singletonList(streamItem)
         ));
@@ -188,7 +188,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final TrackItem clickedTrack = ModelFixtures.trackItem();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -201,7 +201,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final TrackItem clickedTrack = expectedPromotedTrack();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -214,7 +214,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final PlaylistItem clickedPlaylist = PlayableFixtures.expectedPromotedPlaylist();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedPlaylist.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(clickedPlaylist, clickedPlaylist.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(clickedPlaylist, clickedPlaylist.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
@@ -228,7 +228,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
         final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(playlistItem.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
-        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(playlistItem, playlistItem.getCreatedAt()));
+        when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(playlistItem, playlistItem.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);

@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -59,7 +60,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
-        final StreamEntity normalTrack = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
+        final StreamEntity normalTrack = createFromImageResource(CREATED_AT, track.getUrn(), track.getUser().getImageUrlTemplate());
         final StreamEntity promotedStreamEntity = createPromotedDataItem(track, promoter, CREATED_AT);
 
         storage.timelineItems(50).subscribe(subscriber);
@@ -75,7 +76,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
+        final StreamEntity trackPost = createFromImageResource(CREATED_AT, track.getUrn(), track.getUser().getImageUrlTemplate());
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -112,7 +113,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getImageUrlTemplate());
+        final StreamEntity trackPost = createFromImageResource(CREATED_AT, track.getUrn(), track.getUser().getImageUrlTemplate());
         final StreamEntity trackRepost = createFromImageResourceWithReposter(track, reposter, new Date(repostedTimestamp));
 
         verify(observer, never()).onNext(trackPost);
@@ -148,7 +149,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
-        final StreamEntity trackPost = createFromImageResource(track, CREATED_AT, track.getUser().getImageUrlTemplate());
+        final StreamEntity trackPost = createFromImageResource(CREATED_AT, track.getUrn(), track.getUser().getImageUrlTemplate());
 
         verify(observer).onNext(trackPost);
         verify(observer).onCompleted();
@@ -250,7 +251,7 @@ public class StreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackPost(trackOne.getId(), TIMESTAMP);
         final ApiTrack trackTwo = testFixtures().insertTrack();
         final ApiUser reposter = testFixtures().insertUser();
-        final TrackItem trackItem = ModelFixtures.trackItem(trackTwo).updateWithReposter(reposter.getUsername(), reposter.getUrn());
+        final TrackItem trackItem = ModelFixtures.trackItem(trackTwo).toBuilder().repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn())).build();
         testFixtures().insertStreamTrackRepost(trackTwo.getId(), TIMESTAMP - 1, reposter.getId());
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         testFixtures().insertStreamPlaylistPost(apiPlaylist.getId(), TIMESTAMP - 2);
@@ -263,21 +264,21 @@ public class StreamStorageTest extends StorageIntegrationTest {
                 PlayableWithReposter.from(apiPlaylist.getUrn()));
     }
 
-    private StreamEntity createFromImageResource(ImageResource resource, Date createdAt, Optional<String> imageUrlTemplate) {
-        return builderFromImageResource(resource, createdAt, imageUrlTemplate).build();
+    private StreamEntity createFromImageResource(Date createdAt, Urn urn, Optional<String> avatarUrlTemplate) {
+        return builderFromImageResource(createdAt, Optional.absent(), urn, avatarUrlTemplate).build();
     }
 
 
-    private StreamEntity.Builder builderFromImageResource(ImageResource resource, Date createdAt, Optional<String> imageUrlTemplate) {
-        return StreamEntity.builder(resource.getUrn(), createdAt, Optional.absent(), Optional.absent(), imageUrlTemplate);
+    private StreamEntity.Builder builderFromImageResource(Date createdAt, Optional<RepostedProperties> repostedProperties, Urn urn, Optional<String> avatarUrlTemplate) {
+        return StreamEntity.builder(urn, createdAt).avatarUrlTemplate(avatarUrlTemplate).repostedProperties(repostedProperties);
     }
 
     private StreamEntity createFromImageResourceWithReposter(ImageResource track, ApiUser reposter, Date createdAt) {
-        return StreamEntity.builder(track.getUrn(), createdAt, Optional.of(reposter.getUsername()), Optional.of(reposter.getUrn()), reposter.getImageUrlTemplate()).build();
+        return StreamEntity.builder(track.getUrn(), createdAt).avatarUrlTemplate(reposter.getImageUrlTemplate()).repostedProperties(RepostedProperties.create(reposter.getUsername(), reposter.getUrn())).build();
     }
 
     private StreamEntity createPromotedDataItem(ApiTrack track, ApiUser promoter, Date createdAt) {
-        final StreamEntity.Builder builder = builderFromImageResource(track, createdAt, promoter.getAvatarUrlTemplate());
+        final StreamEntity.Builder builder = builderFromImageResource(createdAt, Optional.absent(), track.getUrn(), promoter.getImageUrlTemplate());
         builder.promotedProperties(Optional.of(promotedProperties(promoter)));
         return builder.build();
     }

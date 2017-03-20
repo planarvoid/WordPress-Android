@@ -71,8 +71,8 @@ public class PlayQueueTest extends AndroidUnitTest {
     public void fromPlayableListShouldApplyPlaybackContext() {
         final Urn reposterUrn = Urn.forUser(123L);
         final String reposter = "reposter";
-        final TrackItem trackItem = PlayableFixtures.fromApiTrack().updateWithReposter(reposter, reposterUrn);
-        final PlaylistItem playlistItem = PlayableFixtures.fromApiPlaylist().updateWithReposter(reposter, reposterUrn);
+        final TrackItem trackItem = PlayableFixtures.fromApiTrackWithReposter(reposter, reposterUrn);
+        final PlaylistItem playlistItem = PlayableFixtures.fromApiPlaylistWithReposter(reposter, reposterUrn);
         final PlayableWithReposter track = PlayableWithReposter.from(trackItem);
         final PlayableWithReposter playlist = PlayableWithReposter.from(playlistItem);
         final List<PlayableWithReposter> playables = asList(track, playlist);

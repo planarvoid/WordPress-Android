@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -20,6 +19,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,8 +42,8 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     private final PlaylistItem playlistItem = ModelFixtures.playlistItem();
     private Date createdAt = new Date();
-    private final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem,
-                                                                                    createdAt);
+    private Optional<String> avatarUrlTemplate = Optional.of("avatarUrl");
+    private final PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, createdAt, avatarUrlTemplate);
 
     private StreamPlaylistItemRenderer renderer;
     private View itemView;
@@ -62,7 +62,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     public void bindsCardViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
-        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt));
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt), eq(avatarUrlTemplate));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(playlistStreamItem));
 
         verify(viewHolder).setOverflowListener(any(StreamItemViewHolder.OverflowListener.class));
-        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt));
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class), eq(createdAt), eq(avatarUrlTemplate));
     }
 
     private String tracksString(int trackCount) {

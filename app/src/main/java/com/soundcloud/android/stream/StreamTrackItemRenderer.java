@@ -55,7 +55,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
         trackView.resetAdditionalInformation();
 
-        streamCardViewPresenter.bind(trackView, track, getEventContextMetadataBuilder(track, position), trackStreamItem.createdAt());
+        streamCardViewPresenter.bind(trackView, track, getEventContextMetadataBuilder(track, position), trackStreamItem.createdAt(), trackStreamItem.avatarUrlTemplate());
         engagementsPresenter.bind(trackView, track, getEventContextMetadataBuilder(track, position).build());
 
         showPlayCountOrNowPlaying(trackView, track);

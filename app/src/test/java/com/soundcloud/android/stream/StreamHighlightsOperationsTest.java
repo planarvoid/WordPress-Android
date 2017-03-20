@@ -7,6 +7,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -58,8 +59,10 @@ public class StreamHighlightsOperationsTest extends AndroidUnitTest {
     public StreamItem.StreamHighlights createHighlights(List<ApiStreamItem> suggestedTracks) {
         final List<TrackStreamItem> suggestedTrackItems = new ArrayList<>(suggestedTracks.size());
         for (ApiStreamItem apiStreamItem : suggestedTracks) {
-            suggestedTrackItems.add(TrackStreamItem.create(ModelFixtures.trackItem(apiStreamItem.getTrack().get()),
-                                                           new Date(apiStreamItem.getCreatedAtTime())));
+            final ApiTrack track = apiStreamItem.getTrack().get();
+            suggestedTrackItems.add(TrackStreamItem.create(ModelFixtures.trackItem(track),
+                                                           new Date(apiStreamItem.getCreatedAtTime()),
+                                                           track.getUser().getImageUrlTemplate()));
         }
         return StreamItem.StreamHighlights.create(suggestedTrackItems);
     }

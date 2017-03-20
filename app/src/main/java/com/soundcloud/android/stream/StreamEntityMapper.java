@@ -43,22 +43,20 @@ class StreamEntityMapper {
 
     private static StreamEntity.Builder streamEntityBuilder(Urn urn, CursorReader cursorReader) {
         final Date createdAt = cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT);
+        final StreamEntity.Builder builder = StreamEntity.builder(urn, createdAt);
         Optional<String> avatarUrl = Optional.fromNullable(cursorReader.getString(TableColumns.SoundView.USER_AVATAR_URL));
-        Optional<String> reposter = Optional.absent();
-        Optional<Urn> reposterUrn = Optional.absent();
 
         final String reposterUserName = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
         if (isNotBlank(reposterUserName)) {
-            reposter = Optional.of(reposterUserName);
-            reposterUrn = Optional.of(Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
+            final Urn reposterUrn = Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID));
             avatarUrl = Optional.fromNullable(cursorReader.getString(SoundStreamView.REPOSTER_AVATAR_URL));
+            builder.repostedProperties(RepostedProperties.create(reposterUserName, reposterUrn));
         }
-
-        return StreamEntity.builder(urn, createdAt, reposter, reposterUrn, avatarUrl);
+        return builder.avatarUrlTemplate(avatarUrl);
     }
 
     private static StreamEntity toPromotedStreamEntity(Urn urn, CursorReader cursorReader) {
-        final StreamEntity.Builder streamEntity = streamEntityBuilder(urn, cursorReader);
+        final StreamEntity.Builder builder = streamEntityBuilder(urn, cursorReader);
         if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
             final String adUrn = cursorReader.getString(PromotedTracks.AD_URN);
             final List<String> trackClickedUrls = splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS));
@@ -70,10 +68,7 @@ class StreamEntityMapper {
             if (cursorReader.isNotNull(PromotedTracks.PROMOTER_ID)) {
                 promoterUrn = Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID)));
                 promoterName = Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME));
-                final Optional<String> promoterAvatarUrl = Optional.fromNullable(cursorReader.getString(SoundStreamView.PROMOTER_AVATAR_URL));
-                if (promoterAvatarUrl.isPresent()) {
-                    streamEntity.avatarUrl(promoterAvatarUrl);
-                }
+                builder.avatarUrlTemplate(Optional.fromNullable(cursorReader.getString(SoundStreamView.PROMOTER_AVATAR_URL)));
             }
 
             final PromotedProperties promotedProperties = PromotedProperties.create(adUrn,
@@ -83,9 +78,9 @@ class StreamEntityMapper {
                                                                                     promoterClickedUrls,
                                                                                     promoterUrn,
                                                                                     promoterName);
-            streamEntity.promotedProperties(Optional.of(promotedProperties));
+            builder.promotedProperties(promotedProperties);
         }
-        return streamEntity.build();
+        return builder.build();
     }
 
 

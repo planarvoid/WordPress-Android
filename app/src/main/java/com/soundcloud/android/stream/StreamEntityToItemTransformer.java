@@ -10,6 +10,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -41,22 +42,13 @@ public class StreamEntityToItemTransformer implements Func1<List<StreamEntity>, 
                                   final List<StreamItem> result = new ArrayList<>(streamEntities.size());
                                   for (StreamEntity streamEntity : streamEntities) {
                                       final Urn urn = streamEntity.urn();
+                                      final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
                                       if (trackMap.containsKey(urn)) {
-                                          if (streamEntity.isPromoted()) {
-                                              final TrackItem promotedTrackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
-                                              result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt()));
-                                          } else {
-                                              final TrackItem trackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
-                                              result.add(TrackStreamItem.create(trackItem, streamEntity.createdAt()));
-                                          }
+                                          final TrackItem promotedTrackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
+                                          result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), avatarUrlTemplate));
                                       } else if (playlistMap.containsKey(urn)) {
-                                          if (streamEntity.isPromoted()) {
-                                              final PlaylistItem promotedPlaylistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
-                                              result.add(PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt()));
-                                          } else {
-                                              final PlaylistItem playlistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
-                                              result.add(PlaylistStreamItem.create(playlistItem, streamEntity.createdAt()));
-                                          }
+                                          final PlaylistItem promotedPlaylistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
+                                          result.add(PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), avatarUrlTemplate));
                                       }
                                   }
                                   return result;

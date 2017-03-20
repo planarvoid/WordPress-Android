@@ -52,9 +52,10 @@ class StreamCardViewPresenter {
     void bind(StreamItemViewHolder itemView,
               PlayableItem item,
               EventContextMetadata.Builder eventContextMetadataBuilder,
-              Date createdAt) {
+              Date createdAt,
+              Optional<String> avatarUrlTemplate) {
 
-        bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder, createdAt);
+        bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder, createdAt, avatarUrlTemplate);
         bindArtworkView(itemView, item, eventContextMetadataBuilder);
     }
 
@@ -62,7 +63,8 @@ class StreamCardViewPresenter {
                                 PlayableItem playableItem,
                                 Urn itemUrn,
                                 EventContextMetadata.Builder eventContextMetadataBuilder,
-                                Date createdAt) {
+                                Date createdAt,
+                                Optional<String> avatarUrlTemplate) {
         itemView.resetCardView();
 
         final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTOR)
@@ -73,11 +75,12 @@ class StreamCardViewPresenter {
                          playableItem,
                          playableItem.getPlayableType(),
                          itemUrn,
-                         eventContextMetadata);
+                         eventContextMetadata,
+                         avatarUrlTemplate);
         } else {
             loadAvatar(itemView,
                        playableItem.getUserUrn(),
-                       playableItem.avatarUrlTemplate(),
+                       avatarUrlTemplate,
                        itemUrn,
                        eventContextMetadata);
             setHeaderText(itemView, playableItem);
@@ -136,11 +139,12 @@ class StreamCardViewPresenter {
                               PlayableItem promoted,
                               String playableType,
                               Urn itemUrn,
-                              EventContextMetadata eventContextMetadata) {
+                              EventContextMetadata eventContextMetadata,
+                              Optional<String> avatarUrlTemplate) {
         if (promoted.isPromoted() && promoted.promoterUrn().isPresent()) {
             final PromotedProperties promotedProperties = promoted.promotedProperties().get();
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promotedProperties.promoterUrn().get(), promoted.avatarUrlTemplate(), itemUrn,
+            loadAvatar(itemView, promotedProperties.promoterUrn().get(), avatarUrlTemplate, itemUrn,
                        eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
             itemView.setPromoterHeader(promotedProperties.promoterName().get(), headerSpannableBuilder.get());

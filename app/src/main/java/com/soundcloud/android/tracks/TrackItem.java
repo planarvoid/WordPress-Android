@@ -11,6 +11,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.stream.PromotedProperties;
+import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.java.optional.Optional;
 
@@ -30,11 +31,12 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
     }
 
     public static TrackItem from(Track track, StreamEntity streamEntity) {
-        Builder builder = builder(track).reposter(streamEntity.reposter())
-                                        .reposterUrn(streamEntity.reposterUrn())
-                                        .avatarUrlTemplate(streamEntity.avatarUrl());
+        final Builder builder = builder(track);
         if (streamEntity.isPromoted()) {
             builder.promotedProperties(streamEntity.promotedProperties());
+        }
+        if (streamEntity.isReposted()) {
+            builder.repostedProperties(streamEntity.repostedProperties());
         }
         return builder.build();
     }
@@ -49,11 +51,9 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
                         .likesCount(track.likesCount())
                         .isUserRepost(track.userRepost())
                         .repostsCount(track.repostsCount())
-                        .reposter(Optional.absent())
-                        .reposterUrn(Optional.absent())
-                        .avatarUrlTemplate(Optional.absent())
                         .track(track)
                         .isPlaying(false)
+                        .repostedProperties(Optional.absent())
                         .promotedProperties(Optional.absent());
     }
 
@@ -221,11 +221,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         return toBuilder().isUserLike(isLiked).build();
     }
 
-    @Override
-    public TrackItem updateWithReposter(String reposter, Urn reposterUrn) {
-        return toBuilder().reposter(Optional.of(reposter)).reposterUrn(Optional.of(reposterUrn)).build();
-    }
-
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -241,12 +236,6 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
 
         public abstract Builder repostsCount(int repostsCount);
 
-        public abstract Builder reposter(Optional<String> reposter);
-
-        public abstract Builder reposterUrn(Optional<Urn> reposterUrn);
-
-        public abstract Builder avatarUrlTemplate(Optional<String> avatarUrlTemplate);
-
         public abstract Builder track(Track track);
 
         public Builder promotedProperties(PromotedProperties promotedProperties) {
@@ -254,6 +243,12 @@ public abstract class TrackItem extends PlayableItem implements UpdatableTrackIt
         }
 
         public abstract Builder promotedProperties(Optional<PromotedProperties> promotedProperties);
+
+        public Builder repostedProperties(RepostedProperties repostedProperties) {
+            return repostedProperties(Optional.of(repostedProperties));
+        }
+
+        public abstract Builder repostedProperties(Optional<RepostedProperties> repostedProperties);
 
         public abstract TrackItem build();
     }

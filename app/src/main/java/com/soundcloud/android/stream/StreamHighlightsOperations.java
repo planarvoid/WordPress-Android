@@ -62,7 +62,8 @@ class StreamHighlightsOperations {
         for (ApiStreamItem apiStreamItem : suggestedTracks) {
             Optional<ApiTrack> track = apiStreamItem.getTrack();
             if (track.isPresent()) {
-                suggestedTrackItems.add(TrackStreamItem.create(entityItemCreator.trackItem(track.get()), new Date(apiStreamItem.getCreatedAtTime())));
+                final ApiTrack apiTrack = track.get();
+                suggestedTrackItems.add(TrackStreamItem.create(entityItemCreator.trackItem(apiTrack), new Date(apiStreamItem.getCreatedAtTime()), apiTrack.getUser().getImageUrlTemplate()));
             }
         }
         return StreamItem.StreamHighlights.create(suggestedTrackItems);

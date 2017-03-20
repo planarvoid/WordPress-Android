@@ -14,6 +14,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.stream.PromotedProperties;
+import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -258,6 +259,10 @@ public abstract class PlayableFixtures {
         return fromApiTrack(ModelFixtures.create(ApiTrack.class));
     }
 
+    public static TrackItem fromApiTrackWithReposter(String reposter, Urn reposterUrn) {
+        return builderFromApiTrack(ModelFixtures.create(ApiTrack.class)).repostedProperties(RepostedProperties.create(reposter, reposterUrn)).build();
+    }
+
     public static TrackItem fromApiTrack(ApiTrack apiTrack) {
         return builderFromApiTrack(apiTrack).build();
     }
@@ -274,25 +279,28 @@ public abstract class PlayableFixtures {
         return ModelFixtures.entityItemCreator().trackItem(builder.build()).toBuilder();
     }
 
-    public static PlaylistItem fromApiPlaylist() {
-        return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false);
+    public static PlaylistItem fromApiPlaylistWithReposter(String reposter, Urn reposterUrn) {
+        final RepostedProperties repostedProperties = RepostedProperties.create(reposter, reposterUrn);
+        return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false, Optional.of(repostedProperties));
     }
 
     public static PlaylistItem fromApiPlaylist(ApiPlaylist apiPlaylist,
                                                boolean isLiked,
                                                boolean isReposted,
-                                               boolean markedForOffline) {
+                                               boolean markedForOffline,
+                                               Optional<RepostedProperties> repostedProperties) {
         final PlaylistItem.Builder playlistItem = ModelFixtures.playlistItem(apiPlaylist).toBuilder();
         playlistItem.isUserLike(isLiked);
         playlistItem.isUserRepost(isReposted);
         playlistItem.isMarkedForOffline(Optional.of(markedForOffline));
+        playlistItem.repostedProperties(repostedProperties);
         return playlistItem.build();
     }
 
     public static StreamEntity timelineItem(Date createdAt) {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final Urn urn = apiTrack.getUrn();
-        return StreamEntity.builder(urn, createdAt, Optional.absent(), Optional.absent(), apiTrack.getUser().getImageUrlTemplate()).build();
+        return StreamEntity.builder(urn, createdAt).build();
     }
 
     public static ActivityItem activityTrackLike(Date createdAt) {

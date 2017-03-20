@@ -34,6 +34,7 @@ import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -310,7 +311,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false);
+        PlaylistItem likedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
 
         playlistItem = likedPlaylist;
         presenter.show(button, playlistItem);
@@ -326,7 +327,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedAndPostedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false);
+        PlaylistItem likedAndPostedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
         playlistItem = likedAndPostedPlaylist;
 
         when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);

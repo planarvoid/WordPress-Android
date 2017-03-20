@@ -9,21 +9,26 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.LikeableItem;
 import com.soundcloud.android.presentation.RepostableItem;
 import com.soundcloud.android.presentation.UpdatablePlaylistItem;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
 @AutoValue
 public abstract class PlaylistStreamItem extends StreamItem implements LikeableItem, RepostableItem, UpdatablePlaylistItem {
     public abstract PlaylistItem playlistItem();
+
     public abstract boolean promoted();
+
     public abstract Date createdAt();
 
-    static PlaylistStreamItem create(PlaylistItem playlistItem, Date createdAt) {
-        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, playlistItem.isPromoted(), createdAt);
+    public abstract Optional<String> avatarUrlTemplate();
+
+    static PlaylistStreamItem create(PlaylistItem playlistItem, Date createdAt, Optional<String> avatarUrlTemplate) {
+        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, playlistItem.isPromoted(), createdAt, avatarUrlTemplate);
     }
 
     private PlaylistStreamItem create(PlaylistItem playlistItem) {
-        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, promoted(), createdAt());
+        return new AutoValue_PlaylistStreamItem(Kind.PLAYLIST, playlistItem, promoted(), createdAt(), avatarUrlTemplate());
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.soundcloud.android.presentation.UpdatableTrackItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -22,12 +23,14 @@ public abstract class TrackStreamItem extends StreamItem implements PlayableView
 
     public abstract Date createdAt();
 
-    public static TrackStreamItem create(TrackItem trackItem, Date createdAt) {
-        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, trackItem.isPromoted(), createdAt);
+    public abstract Optional<String> avatarUrlTemplate();
+
+    public static TrackStreamItem create(TrackItem trackItem, Date createdAt, Optional<String> avatarUrlTemplate) {
+        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, trackItem.isPromoted(), createdAt, avatarUrlTemplate);
     }
 
     private TrackStreamItem create(TrackItem trackItem) {
-        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, promoted(), createdAt());
+        return new AutoValue_TrackStreamItem(Kind.TRACK, trackItem, promoted(), createdAt(), avatarUrlTemplate());
     }
 
     @Override

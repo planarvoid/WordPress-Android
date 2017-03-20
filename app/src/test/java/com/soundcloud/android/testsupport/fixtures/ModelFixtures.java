@@ -1,6 +1,5 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +26,6 @@ import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
-import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.offline.DownloadRequest;
@@ -41,8 +39,6 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.topresults.SearchItem;
-import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
-import com.soundcloud.android.search.topresults.TopResultsViewModel;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.stream.StreamItem;
@@ -62,7 +58,6 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -594,19 +589,16 @@ public class ModelFixtures {
 
     public static TrackItem promotedTrackItem(Track track, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
-        final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date(), absent(), absent(), track.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
+        final StreamEntity streamEntity = StreamEntity.builder(track.urn(), new Date()).promotedProperties(promotedStreamProperties).build();
         return ModelFixtures.entityItemCreator().trackItem(track, streamEntity);
     }
 
     public static PlaylistItem promotedPlaylistItem(Playlist playlist, User promoter) {
         final PromotedProperties promotedStreamProperties = getPromotedProperties(promoter);
-        final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date(), absent(), absent(), playlist.imageUrlTemplate()).promotedProperties(of(promotedStreamProperties)).build();
-        return playlistItemBuilder(playlist).reposter(streamEntity.reposter())
-                                            .reposterUrn(streamEntity.reposterUrn())
-                                            .avatarUrlTemplate(streamEntity.avatarUrl())
-                                            .promotedProperties(streamEntity.promotedProperties())
-                                            .build();
-
+        final StreamEntity streamEntity = StreamEntity.builder(playlist.urn(), new Date())
+                                                      .promotedProperties(promotedStreamProperties)
+                                                      .build();
+        return PlaylistItem.from(playlist, streamEntity);
     }
 
     private static PromotedProperties getPromotedProperties(User promoter) {
@@ -618,28 +610,15 @@ public class ModelFixtures {
     }
 
     public static StreamItem trackFromStreamEntity(StreamEntity streamEntity) {
+        final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
         final Track track = trackBuilder().urn(streamEntity.urn())
-                                          .imageUrlTemplate(streamEntity.avatarUrl())
+                                          .imageUrlTemplate(avatarUrlTemplate)
                                           .build();
         if (streamEntity.isPromoted()) {
-            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track, streamEntity), streamEntity.createdAt(), avatarUrlTemplate);
         } else {
-            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt());
+            return TrackStreamItem.create(ModelFixtures.entityItemCreator().trackItem(track), streamEntity.createdAt(), avatarUrlTemplate);
         }
-    }
-
-    public static TopResultsViewModel topResultsViewModel(List<SearchItem> firstBucketItems) {
-        final TopResultsBucketViewModel bucket1 = TopResultsBucketViewModel.create(firstBucketItems,
-                                                                                   new Urn("soundcloud:search-buckets:tracks"),
-                                                                                   0,
-                                                                                   Urn.NOT_SET);
-        final TopResultsBucketViewModel bucket2 = TopResultsBucketViewModel.create(Lists.newArrayList(searchTrack(1), searchTrack(1), searchTrack(1), searchUser(1), searchPlaylist(1)),
-                                                                                   new Urn("soundcloud:search-buckets:top"),
-                                                                                   1,
-                                                                                   Urn.NOT_SET);
-
-        CollectionRendererState<TopResultsBucketViewModel> collectionViewState = CollectionRendererState.create(CollectionLoadingState.builder().build(), Lists.newArrayList(bucket1, bucket2));
-        return TopResultsViewModel.create(collectionViewState);
     }
 
     public static ListItem listItemFromSearchItem(ApiUniversalSearchItem searchItem) {
