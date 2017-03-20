@@ -66,6 +66,7 @@ public class MrLoggaVerifier {
             assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response,
                        response.isSuccessful());
         } catch (ApiMapperException | IOException ex) {
+            ex.printStackTrace();
             fail("Validation request failed: " + ex.getMessage());
         }
     }
