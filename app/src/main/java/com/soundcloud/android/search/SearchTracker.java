@@ -61,18 +61,18 @@ public class SearchTracker {
         eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_MAIN), trackingStateProvider.getLastEvent());
     }
 
-    void trackSearchItemClick(SearchType searchType, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void trackSearchItemClick(SearchType searchType, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         publishItemClickEvent(searchType.getScreen(), urn, searchQuerySourceInfo);
     }
 
-    void trackSearchPremiumItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void trackSearchPremiumItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         publishItemClickEvent(getPremiumTrackingScreen(), urn, searchQuerySourceInfo);
     }
 
-    void trackResultsScreenEvent(SearchType searchType, String searchQuery) {
+    public void trackResultsScreenEvent(SearchType searchType, String searchQuery, SearchOperations.ContentType contentType) {
         //We can only track the page event when the page has been already loaded
         if (screenDataMap.get(searchType).isTrackingDataLoaded()) {
-            final Screen trackingScreen = searchType.getScreen();
+            final Screen trackingScreen = searchType.getScreen(contentType);
             final ScreenData screenData = screenDataMap.get(searchType);
             final Urn queryUrn = screenData.queryUrn;
             eventTracker.trackScreen(ScreenEvent.create(trackingScreen.get(),
@@ -132,11 +132,11 @@ public class SearchTracker {
     private void publishItemClickEvent(Screen screen, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         final SearchResultItem searchResultItem = SearchResultItem.fromUrn(urn);
         if (searchResultItem.isTrack()) {
-            eventTracker.trackSearch(SearchEvent.tapTrackOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isPlaylist()) {
-            eventTracker.trackSearch(SearchEvent.tapPlaylistOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isUser()) {
-            eventTracker.trackSearch(SearchEvent.tapUserOnScreen(screen, searchQuerySourceInfo));
+            eventTracker.trackSearch(SearchEvent.tapItemOnScreen(screen, searchQuerySourceInfo));
         }
     }
 

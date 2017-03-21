@@ -6,7 +6,6 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
-import com.soundcloud.java.optional.Optional;
 
 @AutoValue
 public abstract class ApiTopResultsBucket {
@@ -21,9 +20,5 @@ public abstract class ApiTopResultsBucket {
                                              @JsonProperty("totalResults") int totalResults,
                                              @JsonProperty("results")  ModelCollection<ApiUniversalSearchItem> collection) {
         return new AutoValue_ApiTopResultsBucket(urn, totalResults, collection);
-    }
-
-    public Optional<Urn> queryUrn() {
-        return collection().getQueryUrn();
     }
 }

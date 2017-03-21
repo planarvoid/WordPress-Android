@@ -10,6 +10,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 import com.soundcloud.lightcycle.LightCycles;
+import rx.Observable;
 
 import javax.inject.Inject;
 
@@ -38,5 +39,9 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
 
     protected boolean receiveConfigurationUpdates() {
         return true;
+    }
+
+    public Observable<Void> enterScreen() {
+        return screenTracker.enterScreen;
     }
 }

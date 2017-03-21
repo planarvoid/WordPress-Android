@@ -38,7 +38,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapTrackOnEverythingTab() {
-        searchEvent = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -48,7 +48,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapPlaylistOnEverythingTab() {
-        searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -58,7 +58,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapUserOnEverythingTab() {
-        searchEvent = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -68,7 +68,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapTrackOnTracksTab() {
-        searchEvent = SearchEvent.tapTrackOnScreen(Screen.SEARCH_TRACKS, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_TRACKS, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -78,7 +78,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapPlaylistOnPlaylistsTab() {
-        searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLISTS, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_PLAYLISTS, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -88,7 +88,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapUserOnPeopleTab() {
-        searchEvent = SearchEvent.tapUserOnScreen(Screen.SEARCH_USERS, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_USERS, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);
@@ -98,7 +98,7 @@ public class SearchEventTest {
 
     @Test
     public void shouldCreateEventFromTapPlaylistOnPlaylistTagResults() throws Exception {
-        searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO, searchQuerySourceInfo);
+        searchEvent = SearchEvent.tapItemOnScreen(Screen.SEARCH_PLAYLIST_DISCO, searchQuerySourceInfo);
         assertThat(searchEvent.kind().isPresent()).isFalse();
         assertThat(searchEvent.queryUrn().get()).isEqualTo(QUERY_URN);
         assertThat(searchEvent.queryPosition().get()).isEqualTo(1);

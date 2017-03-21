@@ -12,10 +12,9 @@ import java.util.Collections;
 
 public final class TopResultsFixtures {
 
-    static final String QUERY = "query";
     static final Urn QUERY_URN = new Urn("soundcloud:query_urn:123");
     static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
-    static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:top");
+    static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:topresult");
 
     static ApiUniversalSearchItem searchTrackItem(ApiTrack track) {
         return new ApiUniversalSearchItem(null, null, track);

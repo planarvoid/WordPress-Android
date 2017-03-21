@@ -3,15 +3,19 @@ package com.soundcloud.android.search.topresults;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.transform;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.TrackingStateProvider;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.FollowingStatuses;
-import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.likes.LikedStatuses;
 import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.main.Screen;
@@ -24,18 +28,16 @@ import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.android.utils.collection.CollectionLoader;
 import com.soundcloud.android.utils.collection.CollectionLoaderState;
+import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
@@ -43,7 +45,6 @@ import rx.subscriptions.CompositeSubscription;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 
 public class TopResultsPresenter {
@@ -53,6 +54,9 @@ public class TopResultsPresenter {
         Observable<Pair<String, Optional<Urn>>> searchIntent();
 
         Observable<Void> refreshIntent();
+
+        Observable<Void> enterScreen();
+
     }
 
     private final BehaviorSubject<TopResultsViewModel> viewModel = BehaviorSubject.create();
@@ -64,8 +68,10 @@ public class TopResultsPresenter {
     private CompositeSubscription viewSubscription = new CompositeSubscription();
     private final SearchPlayQueueFilter playQueueFilter;
     private final PlaybackInitiator playbackInitiator;
+    private final EventTracker eventTracker;
     private final EventBus eventBus;
     private final EntityItemCreator entityItemCreator;
+    private final TrackingStateProvider trackingStateProvider;
 
     private final BehaviorSubject<Pair<String, Optional<Urn>>> firstPageIntent = BehaviorSubject.create();
     private final BehaviorSubject<Pair<String, Optional<Urn>>> refreshIntent = BehaviorSubject.create();
@@ -76,23 +82,27 @@ public class TopResultsPresenter {
                         LikesStateProvider likedStatuses,
                         FollowingStateProvider followingStatuses,
                         PlaybackInitiator playbackInitiator,
+                        EventTracker eventTracker,
                         EventBus eventBus,
-                        EntityItemCreator entityItemCreator) {
+                        EntityItemCreator entityItemCreator,
+                        TrackingStateProvider trackingStateProvider) {
         this.playQueueFilter = playQueueFilter;
         this.playbackInitiator = playbackInitiator;
+        this.eventTracker = eventTracker;
         this.eventBus = eventBus;
         this.entityItemCreator = entityItemCreator;
+        this.trackingStateProvider = trackingStateProvider;
 
-        CollectionLoader<List<ApiTopResultsBucket>, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
+        CollectionLoader<ApiTopResults, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
                 firstPageIntent,
                 operations::search,
                 refreshIntent,
                 operations::search);
 
         final Observable<TopResultsViewModel> rObservable = Observable.combineLatest(loader.pages(),
-                                                                   likedStatuses.likedStatuses(),
-                                                                   followingStatuses.followingStatuses(),
-                                                                   this::transformBucketsToViewModel);
+                                                                                     likedStatuses.likedStatuses(),
+                                                                                     followingStatuses.followingStatuses(),
+                                                                                     this::transformBucketsToViewModel);
 
         loaderSubscription = rObservable.subscribe(viewModel);
     }
@@ -105,15 +115,14 @@ public class TopResultsPresenter {
         return viewAllClicked;
     }
 
-    private Observable<PlaybackResult> playTrack(SearchItem clickedItem, Pair<String, Optional<Urn>> searchQueryPair, TopResultsViewModel viewModel) {
+    private Observable<PlaybackResult> playTrack(SearchItem clickedItem, String searchQuery, TopResultsViewModel viewModel) {
+        final List<TopResultsBucketViewModel> buckets = viewModel.buckets().items();
         final SearchItem.Track trackSearchItem = (SearchItem.Track) clickedItem;
-        final int bucketPosition = clickedItem.bucketPosition();
-        final TopResultsBucketViewModel currentBucket = viewModel.buckets().items().get(bucketPosition);
-        final String query = searchQueryPair.first();
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(currentBucket.queryUrn(),
-                                                                                      bucketPosition,
+        final TopResultsBucketViewModel currentBucket = buckets.get(clickedItem.bucketPosition());
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET),
+                                                                                      getPosition(clickedItem, currentBucket, buckets),
                                                                                       trackSearchItem.trackItem().getUrn(),
-                                                                                      query);
+                                                                                      searchQuery);
         final List<TrackItem> tracks = Lists.newArrayList(Iterables.transform(filter(currentBucket.items(),
                                                                                      SearchItem.Track.class),
                                                                               SearchItem.Track::trackItem));
@@ -122,26 +131,32 @@ public class TopResultsPresenter {
         List<TrackItem> adjustedQueue = playQueueFilter.correctQueue(tracks, position);
         int adjustedPosition = playQueueFilter.correctPosition(position);
 
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_TOP_RESULTS);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
 
         List<Urn> transform = transform(adjustedQueue, TrackItem::getUrn);
-        return playbackInitiator.playTracks(transform, adjustedPosition, playSessionSource);
+        return playbackInitiator.playTracks(transform, adjustedPosition, playSessionSource)
+                                .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, getClickSource(currentBucket.kind()))));
     }
 
-    Observable<GoToPlaylistArgs> onGoToPlaylist() {
-        return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.PLAYLIST)
-                                .flatMap(clickedItem -> firstPageIntent.map(searchQuery -> toGoToPlaylistArgs(clickedItem, searchQuery.first())));
+    Observable<GoToItemArgs> onGoToPlaylist() {
+        return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.PLAYLIST).flatMap(this::onSearchItemClicked);
     }
 
-    Observable<GoToProfileArgs> onGoToProfile() {
-        return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.USER)
-                                .flatMap(clickedItem -> firstPageIntent.map(searchQuery -> toGoToProfileArgs(clickedItem, searchQuery.first())));
+    Observable<GoToItemArgs> onGoToProfile() {
+        return searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.USER).flatMap(this::onSearchItemClicked);
+    }
+
+    private Observable<GoToItemArgs> onSearchItemClicked(SearchItem clickedItem) {
+        return Observable.combineLatest(firstPageIntent.map(Pair::first), viewModel, (searchQuery, viewModel) -> toGoToItemArgs(clickedItem, searchQuery, viewModel))
+                         .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, args.searchQuerySourceInfo(), args.clickSource())));
     }
 
     Observable<TopResultsViewAllArgs> goToViewAllPage() {
-        return viewAllClicked.flatMap(clickedItem -> firstPageIntent.map(query -> clickedItem.copyWithSearchQuery(query.first())));
+        return viewAllClicked.flatMap(clickedItem -> Observable.combineLatest(firstPageIntent,
+                                                                              viewModel,
+                                                                              (searchQuery, viewModel) -> clickedItem.copyWithSearchQuery(searchQuery.first(), viewModel.queryUrn())));
     }
 
     void attachView(TopResultsView topResultsView) {
@@ -153,36 +168,52 @@ public class TopResultsPresenter {
                 topResultsView.refreshIntent()
                               .flatMap(ignored -> topResultsView.searchIntent())
                               .subscribe(refreshIntent),
-
+                topResultsView.enterScreen()
+                              .flatMap(event -> Observable.combineLatest(firstPageIntent.map(Pair::first),
+                                                                         viewModel.map(TopResultsViewModel::queryUrn).filter(Optional::isPresent).map(Optional::get),
+                                                                         Pair::of))
+                              .subscribe(LambdaSubscriber.onNext(this::trackPageView)),
                 searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.TRACK)
-                                 .flatMap(clickedItem ->
-                                                  firstPageIntent.flatMap(searchQueryPair ->
-                                                                                  viewModel.flatMap(viewModel ->
-                                                                                                            playTrack(clickedItem, searchQueryPair, viewModel))))
-                                 .subscribe(LambdaSubscriber.onNext(showPlaybackResult()))
+                                 .flatMap(clickedItem -> firstPageIntent.flatMap(searchQueryPair -> viewModel.flatMap(viewModel -> playTrack(clickedItem, searchQueryPair.first(), viewModel))))
+                                 .subscribe(LambdaSubscriber.onNext(this::showPlaybackResult))
 
         );
     }
 
-    private Action1<PlaybackResult> showPlaybackResult() {
-        return playbackResult -> {
-            if (playbackResult.isSuccess()) {
-                eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            } else {
-                playbackError.onNext(playbackResult.getErrorReason());
-            }
-        };
+    private void trackPageView(Pair<String, Urn> searchQueryPair) {
+        eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(), new SearchQuerySourceInfo(searchQueryPair.second(), searchQueryPair.first())),
+                                 trackingStateProvider.getLastEvent());
+    }
+
+    private void showPlaybackResult(PlaybackResult playbackResult) {
+        if (playbackResult.isSuccess()) {
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        } else {
+            playbackError.onNext(playbackResult.getErrorReason());
+        }
     }
 
     @NonNull
     private TopResultsViewModel transformBucketsToViewModel(
-            CollectionLoaderState<List<ApiTopResultsBucket>> collectionLoaderState,
+            CollectionLoaderState<ApiTopResults> collectionLoaderState,
             LikedStatuses likedStatuses,
             FollowingStatuses followingStatuses) {
 
-        final List<ApiTopResultsBucket> apiTopResultsBuckets = collectionLoaderState.data().or(Collections.emptyList());
-        final List<TopResultsBucketViewModel> viewModelItems = Lists.transform(apiTopResultsBuckets, transformBucket(collectionLoaderState, likedStatuses, followingStatuses));
-        return TopResultsViewModel.create(CollectionRendererState.create(collectionLoaderState.collectionLoadingState(), viewModelItems));
+        Optional<Urn> queryUrn = Optional.absent();
+        final List<TopResultsBucketViewModel> viewModelItems = Lists.newArrayList();
+        if (collectionLoaderState.data().isPresent()) {
+            final ApiTopResults apiTopResults = collectionLoaderState.data().get();
+            final ModelCollection<ApiTopResultsBucket> resultCollection = apiTopResults.buckets();
+            queryUrn = resultCollection.getQueryUrn();
+            final List<ApiTopResultsBucket> apiTopResultsBuckets = resultCollection.getCollection();
+            for (ApiTopResultsBucket apiBucket : apiTopResultsBuckets) {
+                final List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
+                final int bucketPosition = apiTopResultsBuckets.indexOf(apiBucket);
+                final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(entityItemCreator, likedStatuses, followingStatuses, apiUniversalSearchItems, bucketPosition);
+                viewModelItems.add(TopResultsBucketViewModel.create(result, apiBucket.urn(), apiBucket.totalResults()));
+            }
+        }
+        return TopResultsViewModel.create(queryUrn, CollectionRendererState.create(collectionLoaderState.collectionLoadingState(), viewModelItems));
     }
 
     void detachView() {
@@ -198,45 +229,70 @@ public class TopResultsPresenter {
         return playbackError;
     }
 
-    private Function<ApiTopResultsBucket, TopResultsBucketViewModel> transformBucket(CollectionLoaderState<List<ApiTopResultsBucket>> collectionLoaderState,
-                                                                                     LikedStatuses likedStatuses,
-                                                                                     FollowingStatuses followingStatuses) {
-        return apiBucket -> {
-            final List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
-            final int bucketPosition = collectionLoaderState.data().get().indexOf(apiBucket);
-            final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(entityItemCreator, likedStatuses, followingStatuses, apiUniversalSearchItems, bucketPosition);
-            return TopResultsBucketViewModel.create(result, apiBucket.urn(), apiBucket.totalResults(), apiBucket.queryUrn().or(Urn.NOT_SET));
-        };
+    private GoToItemArgs toGoToItemArgs(SearchItem searchItem, String searchQuery, TopResultsViewModel viewModel) {
+
+        final List<TopResultsBucketViewModel> buckets = viewModel.buckets().items();
+        final TopResultsBucketViewModel itemBucket = buckets.get(searchItem.bucketPosition());
+        int position = getPosition(searchItem, itemBucket, buckets);
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET), position, searchItem.itemUrn().get(), searchQuery);
+        return GoToItemArgs.create(searchQuerySourceInfo, searchItem.itemUrn().get(), getEventContextMetadata(itemBucket.kind(), position), getClickSource(itemBucket.kind()));
     }
 
-    private GoToPlaylistArgs toGoToPlaylistArgs(SearchItem searchItem, String query) {
-        final SearchItem.Playlist clickedItem = (SearchItem.Playlist) searchItem;
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.getValue().buckets().items().get(clickedItem.bucketPosition()).queryUrn(),
-                                                                                      clickedItem.bucketPosition(),
-                                                                                      clickedItem.playlistItem().getUrn(),
-                                                                                      query);
-        return GoToPlaylistArgs.create(searchQuerySourceInfo,
-                                       clickedItem.playlistItem().getUrn(),
-                                       getEventContextMetadata(clickedItem.playlistItem().creatorUrn()));
+    private SearchEvent.ClickSource getClickSource(TopResultsBucketViewModel.Kind kind) {
+            switch (kind) {
+                case TOP_RESULT:
+                    return SearchEvent.ClickSource.TOP_RESULTS_BUCKET;
+                case GO_TRACKS:
+                    return SearchEvent.ClickSource.GO_TRACKS_BUCKET;
+                case TRACKS:
+                    return SearchEvent.ClickSource.TRACKS_BUCKET;
+                case USERS:
+                    return SearchEvent.ClickSource.PEOPLE_BUCKET;
+                case PLAYLISTS:
+                    return SearchEvent.ClickSource.PLAYLISTS_BUCKET;
+                case ALBUMS:
+                    return SearchEvent.ClickSource.ALBUMS_BUCKET;
+                default:
+                    throw new IllegalArgumentException("Unexpected kind for search");
+            }
     }
 
-    private EventContextMetadata getEventContextMetadata(Urn creatorUrn) {
+    private int getPosition(SearchItem searchItem, TopResultsBucketViewModel itemBucket, List<TopResultsBucketViewModel> buckets) {
+        int position = itemBucket.items().indexOf(searchItem);
+        for (TopResultsBucketViewModel bucket : buckets) {
+            if (bucket.equals(itemBucket)) {
+                break;
+            }
+            position += bucket.items().size();
+        }
+        return position;
+    }
+
+    private EventContextMetadata getEventContextMetadata(TopResultsBucketViewModel.Kind bucketKind, int positionInBucket) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
                                                                          .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(Screen.SEARCH_TOP_RESULTS.get())
-                                                                         .pageName(Screen.SEARCH_TOP_RESULTS.get())
-                                                                         .attributingActivity(AttributingActivity.create(AttributingActivity.POSTED, Optional.of(creatorUrn)))
-                                                                         .linkType(LinkType.SELF);
-
+                                                                         .contextScreen(Screen.SEARCH_EVERYTHING.get())
+                                                                         .pageName(Screen.SEARCH_EVERYTHING.get())
+                                                                         .module(getContextFromBucket(bucketKind, positionInBucket));
         return builder.build();
     }
 
-    private GoToProfileArgs toGoToProfileArgs(SearchItem searchItem, String query) {
-        final SearchItem.User clickedItem = (SearchItem.User) searchItem;
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.getValue().buckets().items().get(clickedItem.bucketPosition()).queryUrn(),
-                                                                                      clickedItem.bucketPosition(),
-                                                                                      clickedItem.userItem().getUrn(),
-                                                                                      query);
-        return GoToProfileArgs.create(searchQuerySourceInfo, clickedItem.userItem().getUrn());
+    private Module getContextFromBucket(TopResultsBucketViewModel.Kind bucketKind, int positionInBucket) {
+        switch (bucketKind) {
+            case TOP_RESULT:
+                return Module.create(Module.SEARCH_TOP_RESULT, positionInBucket);
+            case TRACKS:
+                return Module.create(Module.SEARCH_TRACKS, positionInBucket);
+            case GO_TRACKS:
+                return Module.create(Module.SEARCH_HIGH_TIER, positionInBucket);
+            case USERS:
+                return Module.create(Module.SEARCH_PEOPLE, positionInBucket);
+            case PLAYLISTS:
+                return Module.create(Module.SEARCH_PLAYLISTS, positionInBucket);
+            case ALBUMS:
+                return Module.create(Module.SEARCH_ALBUMS, positionInBucket);
+            default:
+                throw new IllegalArgumentException("Unexpected bucket type");
+        }
     }
 }

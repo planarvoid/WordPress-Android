@@ -19,6 +19,13 @@ public abstract class Module {
     public static final String SUGGESTED_CREATORS = "followings:suggestions";
     public static final String RECOMMENDED_PLAYLISTS = "playlist_discovery";
     public static final String MORE_PLAYLISTS_BY_USER = "more_playlists_by_user";
+    public static final String SEARCH_TOP_RESULT = "search:top_result";
+    public static final String SEARCH_HIGH_TIER = "search:high_tier";
+    public static final String SEARCH_TRACKS = "search:tracks";
+    public static final String SEARCH_PEOPLE = "search:people";
+    public static final String SEARCH_ALBUMS = "search:albums";
+    public static final String SEARCH_PLAYLISTS = "search:playlists";
+
 
     public static Module create(String name, int position) {
         return new AutoValue_Module(name, position);

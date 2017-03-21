@@ -186,6 +186,12 @@ public class Navigator {
         context.startActivity(createProfileIntent(context, user));
     }
 
+    public void openProfile(Context context, Urn user, Screen screen, UIEvent navigationEvent) {
+        eventTracker.trackNavigation(navigationEvent);
+
+        context.startActivity(createProfileIntent(context, user, screen));
+    }
+
     public void legacyOpenProfile(Context context, Urn user) {
         context.startActivity(createProfileIntent(context, user));
     }

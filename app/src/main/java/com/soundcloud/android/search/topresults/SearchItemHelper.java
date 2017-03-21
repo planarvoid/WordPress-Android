@@ -29,9 +29,9 @@ public class SearchItemHelper {
 
     static SearchItem transformApiSearchItem(EntityItemCreator entityItemCreator,
                                              LikedStatuses likedStatuses,
-                                      FollowingStatuses followingStatuses,
-                                      ApiUniversalSearchItem searchItem,
-                                      int bucketPosition) {
+                                             FollowingStatuses followingStatuses,
+                                             ApiUniversalSearchItem searchItem,
+                                             int bucketPosition) {
         if (searchItem.track().isPresent()) {
 
             ApiTrack apiTrack = searchItem.track().get();

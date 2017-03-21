@@ -9,10 +9,14 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.android.search.SearchTracker;
+import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
@@ -45,12 +49,14 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject Navigator navigator;
     @Inject PlaybackToastHelper playbackToastHelper;
+    @Inject SearchTracker searchTracker;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
     private CompositeSubscription subscription;
 
     private final BehaviorSubject<Pair<String, Optional<Urn>>> searchIntent = BehaviorSubject.create();
+    private final BehaviorSubject<Void> enterScreen = BehaviorSubject.create();
 
     public static TopResultsFragment newInstance(String apiQuery,
                                                  String userQuery,
@@ -111,13 +117,13 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         return collectionRenderer.onRefresh();
     }
 
-    private String getApiQuery() {
-        return getArguments().getString(KEY_API_QUERY);
+    @Override
+    public Observable<Void> enterScreen() {
+        return enterScreen;
     }
 
-    // TODO : Not sure what this is for (tracking??), but we should probably use it
-    private String getUserQuery() {
-        return getArguments().getString(KEY_USER_QUERY);
+    private String getApiQuery() {
+        return getArguments().getString(KEY_API_QUERY);
     }
 
     private Optional<Urn> getSearchQueryUrn() {
@@ -136,22 +142,26 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
         subscription = new CompositeSubscription();
 
-        subscription.addAll(presenter
+        subscription.addAll(((RootActivity) getActivity()).enterScreen().subscribe(enterScreen),
+                            presenter
                                     .viewModel()
                                     .map(TopResultsViewModel::buckets)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(this::renderNewState),
 
                             presenter.onGoToProfile()
-                                     .subscribe(args -> navigator.legacyOpenProfile(getContext(), args.user(), Screen.SEARCH_TOP_RESULTS, args.searchQuerySourceInfo())),
+                                     .subscribe(LambdaSubscriber.onNext(args -> navigator.openProfile(getContext(),
+                                                                                                      args.itemUrn(),
+                                                                                                      Screen.SEARCH_EVERYTHING,
+                                                                                                      UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata())))),
 
                             presenter.onGoToPlaylist()
-                                     .subscribe(args -> navigator.openPlaylist(getContext(),
-                                                                               args.playlistUrn(),
-                                                                               Screen.SEARCH_TOP_RESULTS,
-                                                                               args.searchQuerySourceInfo(),
-                                                                               null, // top results cannot be promoted *yet
-                                                                               UIEvent.fromNavigation(args.playlistUrn(), args.eventContextMetadata()))),
+                                     .subscribe(LambdaSubscriber.onNext(args -> navigator.openPlaylist(getContext(),
+                                                                                                       args.itemUrn(),
+                                                                                                       Screen.SEARCH_EVERYTHING,
+                                                                                                       args.searchQuerySourceInfo(),
+                                                                                                       null, // top results cannot be promoted *yet
+                                                                                                       UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata())))),
                             presenter.playbackError().subscribe(playbackToastHelper::showToastOnPlaybackError),
                             presenter.goToViewAllPage()
                                      .subscribe((clickAndQuery) -> navigator.openSearchViewAll(getContext(),
@@ -163,7 +173,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     private void renderNewState(CollectionRendererState<TopResultsBucketViewModel> newState) {
         collectionRenderer.render(newState);
         if (!newState.collectionLoadingState().isLoadingNextPage()) {
-            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_TOP_RESULTS.toString());
+            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_EVERYTHING.toString());
             PerformanceMetric metric = PerformanceMetric.builder()
                                                         .metricType(MetricType.PERFORM_SEARCH)
                                                         .metricParams(params)

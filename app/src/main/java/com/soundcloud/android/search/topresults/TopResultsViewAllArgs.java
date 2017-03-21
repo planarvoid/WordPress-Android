@@ -10,16 +10,16 @@ abstract class TopResultsViewAllArgs {
 
     abstract boolean isPremium();
 
-    abstract Urn queryUrn();
+    abstract Optional<Urn> queryUrn();
 
     abstract Optional<String> query();
 
-    public static TopResultsViewAllArgs create(TopResultsBucketViewModel.Kind kind, Urn queryUrn) {
+    public static TopResultsViewAllArgs create(TopResultsBucketViewModel.Kind kind) {
         final boolean isPremium = kind == TopResultsBucketViewModel.Kind.GO_TRACKS;
-        return new AutoValue_TopResultsViewAllArgs(kind, isPremium, queryUrn, Optional.absent());
+        return new AutoValue_TopResultsViewAllArgs(kind, isPremium, Optional.absent(), Optional.absent());
     }
 
-    public TopResultsViewAllArgs copyWithSearchQuery(String searchQuery) {
-        return new AutoValue_TopResultsViewAllArgs(kind(), isPremium(), queryUrn(), Optional.of(searchQuery));
+    TopResultsViewAllArgs copyWithSearchQuery(String searchQuery, Optional<Urn> queryUrn) {
+        return new AutoValue_TopResultsViewAllArgs(kind(), isPremium(), queryUrn, Optional.of(searchQuery));
     }
 }

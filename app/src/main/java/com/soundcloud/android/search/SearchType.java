@@ -37,6 +37,10 @@ public enum SearchType {
         return screen;
     }
 
+    public Screen getScreen(SearchOperations.ContentType contentType) {
+        return contentType == SearchOperations.ContentType.NORMAL ? screen : Screen.SEARCH_PREMIUM_CONTENT;
+    }
+
     static List<SearchType> asList() {
         return Arrays.asList(values());
     }

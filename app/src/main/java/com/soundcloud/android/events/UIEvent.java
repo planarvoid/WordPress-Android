@@ -560,6 +560,10 @@ public abstract class UIEvent extends TrackingEvent {
 
         abstract Builder clickSource(Optional<String> clickSource);
 
+        Builder clickSource(String clickSource) {
+            return clickSource(Optional.of(clickSource));
+        }
+
         abstract Builder clickSourceUrn(Optional<Urn> clickSourceUrn);
 
         abstract Builder queryUrn(Optional<Urn> queryUrn);

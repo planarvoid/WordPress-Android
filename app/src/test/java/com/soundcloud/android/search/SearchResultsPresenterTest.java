@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -161,8 +160,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false, SEARCH_TAB);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker, times(0)).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
-        verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class), any(String.class));
+        verify(searchTracker, never()).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
+        verify(searchTracker, never()).trackResultsScreenEvent(any(SearchType.class), any(String.class), eq(SearchOperations.ContentType.NORMAL));
     }
 
     @Test
@@ -171,7 +170,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
         verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
         verify(searchTracker).trackSearchFormulationEnd(Screen.SEARCH_MAIN, USER_QUERY, Optional.absent(), Optional.absent());
-        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, API_QUERY);
+        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB, API_QUERY, SearchOperations.ContentType.NORMAL);
     }
 
     @Test

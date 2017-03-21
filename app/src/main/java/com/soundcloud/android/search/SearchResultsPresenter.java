@@ -123,7 +123,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                         publishSearchSubmissionEvent = false;
 
                         //We need to send the event as soon as the fragment is loaded
-                        searchTracker.trackResultsScreenEvent(searchType, apiQuery);
+                        searchTracker.trackResultsScreenEvent(searchType, apiQuery, contentType);
                     }
                 }
             };

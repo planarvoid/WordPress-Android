@@ -7,6 +7,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
+import rx.subjects.BehaviorSubject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
     @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
     private final EventTracker eventTracker;
     final ReferringEventProvider referringEventProvider;
+
+    final BehaviorSubject<Void> enterScreen = BehaviorSubject.create();
 
     @Inject
     public ScreenTracker(ReferringEventProvider referringEventProvider,
@@ -38,6 +41,7 @@ public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity>
         if (screen != Screen.UNKNOWN) {
             eventTracker.trackScreen(ScreenEvent.create(screen), referringEventProvider.getReferringEvent());
         }
+        enterScreen.onNext(null);
     }
 
     @Override

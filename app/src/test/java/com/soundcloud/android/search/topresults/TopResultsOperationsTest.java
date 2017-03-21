@@ -33,7 +33,6 @@ import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class TopResultsOperationsTest extends AndroidUnitTest {
 
@@ -50,7 +49,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
 
     private TopResultsOperations topResultsOperations;
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<List<ApiTopResultsBucket>> subscriber;
+    private TestSubscriber<ApiTopResults> subscriber;
 
     @Before
     public void setUp() throws Exception {
@@ -70,7 +69,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
 
         verify(cacheUniversalSearchCommand).call(apiUniversalSearchItems);
         subscriber.assertValueCount(1);
-        assertThat(apiTopResults.buckets().getCollection()).isEqualTo(subscriber.getOnNextEvents().get(0));
+        assertThat(apiTopResults).isEqualTo(subscriber.getOnNextEvents().get(0));
     }
 
     @Test

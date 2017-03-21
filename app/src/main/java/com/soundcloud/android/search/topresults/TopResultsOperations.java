@@ -1,8 +1,5 @@
 package com.soundcloud.android.search.topresults;
 
-import static com.soundcloud.java.collections.Iterables.filter;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -17,7 +14,6 @@ import rx.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
 class TopResultsOperations {
     static final String QUERY_PARAM = "q";
@@ -37,11 +33,11 @@ class TopResultsOperations {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
     }
 
-    public Observable<List<ApiTopResultsBucket>> search(Pair<String, Optional<Urn>> pairQuery) {
+    public Observable<ApiTopResults> search(Pair<String, Optional<Urn>> pairQuery) {
         return search(pairQuery.first(), pairQuery.second());
     }
 
-    public Observable<List<ApiTopResultsBucket>> search(String query, Optional<Urn> queryUrn) {
+    public Observable<ApiTopResults> search(String query, Optional<Urn> queryUrn) {
         final ApiRequest.Builder requestBuilder = ApiRequest.get(ApiEndpoints.SEARCH_TOP_RESULTS.path())
                                                             .forPrivateApi()
                                                             .addQueryParam(ApiRequest.Param.PAGE_SIZE.toString(), RESULT_LIMIT)
@@ -51,8 +47,7 @@ class TopResultsOperations {
         }
         return apiClientRx.mappedResponse(requestBuilder.build(), TYPE_TOKEN)
                           .subscribeOn(scheduler)
-                          .doOnNext(this::cacheItems)
-                          .map(topResults -> newArrayList(filter(topResults.buckets().getCollection(), item -> !item.collection().getCollection().isEmpty())));
+                          .doOnNext(this::cacheItems);
 
     }
 

@@ -24,6 +24,12 @@ public abstract class SearchEvent extends TrackingEvent {
     }
 
     public enum ClickSource {
+        TOP_RESULTS_BUCKET("search:top_results"),
+        GO_TRACKS_BUCKET("search:high_tier"),
+        TRACKS_BUCKET("search:tracks"),
+        PLAYLISTS_BUCKET("search:playlists"),
+        ALBUMS_BUCKET("search:albums"),
+        PEOPLE_BUCKET("search:people"),
         AUTOCOMPLETE("search-autocomplete");
 
         ClickSource(String key) {
@@ -81,26 +87,25 @@ public abstract class SearchEvent extends TrackingEvent {
                 .build();
     }
 
-    public static SearchEvent tapTrackOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return tapItemOnScreen(screen, searchQuerySourceInfo);
-    }
-
-    public static SearchEvent tapPlaylistOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return tapItemOnScreen(screen, searchQuerySourceInfo);
-    }
-
     public static SearchEvent tapPlaylistOnScreen(Screen screen) {
         return tapItemOnScreen(screen);
     }
 
-    public static SearchEvent tapUserOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return tapItemOnScreen(screen, searchQuerySourceInfo);
+    public static SearchEvent tapItemOnScreen(Screen screen,
+                                               SearchQuerySourceInfo searchQuerySourceInfo,
+                                               ClickSource source) {
+        return tapItemOnScreen(screen, searchQuerySourceInfo, Optional.of(source));
+    }
+
+    public static SearchEvent tapItemOnScreen(Screen screen,
+                                               SearchQuerySourceInfo searchQuerySourceInfo) {
+        return tapItemOnScreen(screen, searchQuerySourceInfo, Optional.absent());
     }
 
     private static SearchEvent tapItemOnScreen(Screen screen,
-                                               SearchQuerySourceInfo searchQuerySourceInfo) {
-        return builderWithSearchQuery(searchQuerySourceInfo, screen, ClickName.ITEM_NAVIGATION)
-                .build();
+                                               SearchQuerySourceInfo searchQuerySourceInfo,
+                                               Optional<ClickSource> source) {
+        return builderWithSearchQuery(searchQuerySourceInfo, screen, ClickName.ITEM_NAVIGATION).clickSource(source).build();
     }
 
     private static SearchEvent tapItemOnScreen(Screen screen) {
@@ -134,16 +139,16 @@ public abstract class SearchEvent extends TrackingEvent {
     private static SearchEvent.Builder emptyBuilder() {
 
         return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
-                .id(defaultId())
-                .timestamp(defaultTimestamp())
-                .referringEvent(Optional.absent())
-                .pageName(Optional.absent())
-                .clickName(Optional.absent())
-                .clickObject(Optional.absent())
-                .clickSource(Optional.absent())
-                .queryUrn(Optional.absent())
-                .query(Optional.absent())
-                .queryPosition(Optional.absent());
+                                                  .id(defaultId())
+                                                  .timestamp(defaultTimestamp())
+                                                  .referringEvent(Optional.absent())
+                                                  .pageName(Optional.absent())
+                                                  .clickName(Optional.absent())
+                                                  .clickObject(Optional.absent())
+                                                  .clickSource(Optional.absent())
+                                                  .queryUrn(Optional.absent())
+                                                  .query(Optional.absent())
+                                                  .queryPosition(Optional.absent());
     }
 
     private static SearchEvent.Builder builderWithSearchQuery(SearchQuerySourceInfo searchQuerySourceInfo, Screen screen,
@@ -154,16 +159,16 @@ public abstract class SearchEvent extends TrackingEvent {
         final int clickPosition = searchQuerySourceInfo.getClickPosition();
         final Optional<Integer> optionalClickPosition = clickPosition >= 0 ? Optional.of(clickPosition) : Optional.absent();
         return new AutoValue_SearchEvent.Builder().kind(Optional.absent())
-                .id(defaultId())
-                .timestamp(defaultTimestamp())
-                .referringEvent(Optional.absent())
-                .pageName(Optional.of(screen.get()))
-                .clickName(Optional.of(clickName))
-                .clickObject(optionalClickUrn)
-                .clickSource(Optional.absent())
-                .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
-                .query(Optional.fromNullable(searchQuerySourceInfo.getQueryString()))
-                .queryPosition(optionalClickPosition);
+                                                  .id(defaultId())
+                                                  .timestamp(defaultTimestamp())
+                                                  .referringEvent(Optional.absent())
+                                                  .pageName(Optional.of(screen.get()))
+                                                  .clickName(Optional.of(clickName))
+                                                  .clickObject(optionalClickUrn)
+                                                  .clickSource(Optional.absent())
+                                                  .queryUrn(Optional.fromNullable(searchQuerySourceInfo.getQueryUrn()))
+                                                  .query(Optional.fromNullable(searchQuerySourceInfo.getQueryString()))
+                                                  .queryPosition(optionalClickPosition);
     }
 
     @AutoValue.Builder

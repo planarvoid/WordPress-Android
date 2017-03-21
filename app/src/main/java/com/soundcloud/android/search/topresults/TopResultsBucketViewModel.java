@@ -16,7 +16,7 @@ import java.util.List;
 
 @AutoValue
 public abstract class TopResultsBucketViewModel {
-    private static final String URN_BUCKET_TOP = "soundcloud:search-buckets:top";
+    private static final String URN_BUCKET_TOP = "soundcloud:search-buckets:topresult";
     private static final String URN_BUCKET_TRACKS = "soundcloud:search-buckets:freetiertracks";
     private static final String URN_BUCKET_GO_TRACKS = "soundcloud:search-buckets:hightiertracks";
     private static final String URN_BUCKET_PEOPLE = "soundcloud:search-buckets:users";
@@ -54,13 +54,11 @@ public abstract class TopResultsBucketViewModel {
 
     public abstract int totalResults();
 
-    public abstract Urn queryUrn();
-
     public abstract List<SearchItem> items();
 
     public abstract boolean shouldShowViewAll();
 
-    public static TopResultsBucketViewModel create(List<SearchItem> topResults, Urn urn, int totalResults, Urn queryUrn) {
+    public static TopResultsBucketViewModel create(List<SearchItem> topResults, Urn urn, int totalResults) {
         final Kind kind = urnToKind(urn);
         final int titleResourceId = kindToTitleResource(kind);
         final boolean shouldShowViewAll = kind != TOP_RESULT && totalResults > TopResultsOperations.RESULT_LIMIT;
@@ -68,7 +66,6 @@ public abstract class TopResultsBucketViewModel {
                 .items(topResults)
                 .kind(kind)
                 .totalResults(totalResults)
-                .queryUrn(queryUrn)
                 .titleResourceId(titleResourceId)
                 .shouldShowViewAll(shouldShowViewAll)
                 .build();
@@ -119,8 +116,6 @@ public abstract class TopResultsBucketViewModel {
         abstract Builder titleResourceId(int value);
 
         abstract Builder totalResults(int value);
-
-        abstract Builder queryUrn(Urn value);
 
         abstract Builder items(List<SearchItem> value);
 

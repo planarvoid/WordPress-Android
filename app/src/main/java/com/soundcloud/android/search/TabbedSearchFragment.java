@@ -69,7 +69,7 @@ public class TabbedSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         searchTracker.init();
-        searchTracker.trackResultsScreenEvent(SearchType.ALL, getApiQuery());
+        searchTracker.trackResultsScreenEvent(SearchType.ALL, getApiQuery(), SearchOperations.ContentType.NORMAL);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class TabbedSearchFragment extends Fragment {
 
         @Override
         public void onPageSelected(int pageSelected) {
-            searchTracker.trackResultsScreenEvent(SearchType.get(pageSelected), searchQuery);
+            searchTracker.trackResultsScreenEvent(SearchType.get(pageSelected), searchQuery, SearchOperations.ContentType.NORMAL);
         }
 
         @Override

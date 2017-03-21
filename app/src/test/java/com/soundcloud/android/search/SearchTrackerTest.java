@@ -107,7 +107,7 @@ public class SearchTrackerTest {
     @Test
     public void mustTrackResultsScreenEventWithValidSearchScreen() {
         tracker.setTrackingData(SearchType.ALL, QUERY_URN, true);
-        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
+        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY, SearchOperations.ContentType.NORMAL);
 
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
@@ -118,14 +118,14 @@ public class SearchTrackerTest {
     @Test
     public void mustNotTrackResultsScreenEventWithInvalidScreen() {
         tracker.setTrackingData(SearchType.TRACKS, QUERY_URN, true);
-        tracker.trackResultsScreenEvent(SearchType.USERS, SEARCH_QUERY);
+        tracker.trackResultsScreenEvent(SearchType.USERS, SEARCH_QUERY, SearchOperations.ContentType.NORMAL);
 
         verifyZeroInteractions(eventTracker);
     }
 
     @Test
     public void mustNotTrackResultsScreenEventWithInvalidQueryUrnNotSet() {
-        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
+        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY, SearchOperations.ContentType.NORMAL);
 
         verifyZeroInteractions(eventTracker);
     }
@@ -248,7 +248,7 @@ public class SearchTrackerTest {
     @Test
     public void mustNotTrackUpsellImpressionIfNotUpsellUser() {
         tracker.setTrackingData(SearchType.ALL, Urn.NOT_SET, true);
-        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
+        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY, SearchOperations.ContentType.NORMAL);
 
         verifyZeroInteractions(eventTracker);
     }
@@ -263,7 +263,7 @@ public class SearchTrackerTest {
         when(featureOperations.upsellHighTier()).thenReturn(true);
 
         tracker.setTrackingData(SearchType.ALL, QUERY_URN, true);
-        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY);
+        tracker.trackResultsScreenEvent(SearchType.ALL, SEARCH_QUERY, SearchOperations.ContentType.NORMAL);
 
         verify(eventTracker).trackScreen(screenEventCaptor.capture(), referringEventCaptor.capture());
 
