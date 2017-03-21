@@ -13,6 +13,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Arrays;
 import java.util.Locale;
 
 @Singleton
@@ -103,24 +104,27 @@ public class ApplicationProperties {
     }
 
     public boolean isReleaseBuild() {
-        return BuildType.RELEASE.equals(buildType);
+        return isBuildType(BuildType.RELEASE);
     }
 
-    public boolean isDebugBuild() {
-        return BuildType.DEBUG.equals(buildType);
+    public boolean isDebuggableFlavor() {
+        return isBuildType(BuildType.DEBUG, BuildType.ALPHA);
     }
 
     boolean isAlphaBuild() {
-        return BuildType.ALPHA.equals(buildType);
+        return isBuildType(BuildType.ALPHA);
+    }
+
+    private boolean isBuildType(BuildType... types) {
+        return Arrays.asList(types).contains(buildType);
     }
 
     public boolean shouldAllowFeedback() {
-        return BuildType.ALPHA.equals(buildType) || BuildType.BETA.equals(buildType) || BuildType.DEBUG.equals(
-                buildType);
+        return isBuildType(BuildType.ALPHA, BuildType.BETA, BuildType.DEBUG);
     }
 
     public boolean allowDatabaseMigrationsSilentErrors() {
-        return BuildType.RELEASE.equals(buildType) || BuildType.BETA.equals(buildType);
+        return isBuildType(BuildType.RELEASE, BuildType.BETA);
     }
 
     public String getBuildType() {
@@ -128,11 +132,11 @@ public class ApplicationProperties {
     }
 
     public boolean isDevelopmentMode() {
-        return isDebugBuild();
+        return isDebuggableFlavor();
     }
 
     public boolean isDevBuildRunningOnDevice() {
-        return isDebugBuild() && IS_RUNNING_ON_DEVICE;
+        return isDebuggableFlavor() && IS_RUNNING_ON_DEVICE;
     }
 
     public boolean canChangeOfflineContentLocation() {
@@ -146,6 +150,6 @@ public class ApplicationProperties {
     }
 
     public boolean shouldReportCrashes() {
-        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !BuildType.DEBUG.equals(buildType) && buildType != null;
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !isBuildType(BuildType.DEBUG) && buildType != null;
     }
 }

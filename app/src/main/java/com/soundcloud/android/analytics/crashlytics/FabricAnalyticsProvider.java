@@ -42,7 +42,7 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
         this.fabricProvider = fabricProvider;
         this.databaseReporting = databaseReporting;
         this.fabricReporter = fabricReporter;
-        this.debugBuild = applicationProperties.isDebugBuild();
+        this.debugBuild = applicationProperties.isDebuggableFlavor();
     }
 
     @Override

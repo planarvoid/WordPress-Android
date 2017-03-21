@@ -80,6 +80,7 @@ android {
       applicationIdSuffix '.alpha'
       versionNameSuffix '-alpha'
       debuggable true
+      minifyEnabled false
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
       proguardFiles = ['buildsystem/proguard.cfg']
@@ -93,7 +94,7 @@ android {
       debuggable true
       signingConfig signingConfigs.debug
       proguardFiles ['buildsystem/proguard.cfg']
-      minifyEnabled project.hasProperty('proguard')
+      minifyEnabled false
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
       buildConfigField "String", "APP_ENVIRONMENT", "\"dev\""

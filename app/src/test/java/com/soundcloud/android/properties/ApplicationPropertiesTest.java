@@ -43,7 +43,7 @@ public class ApplicationPropertiesTest {
     public void shouldSpecifyThatBuildIsDebug() {
         when(resources.getString(string.build_type)).thenReturn("debug");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        assertThat(applicationProperties.isDebugBuild()).isTrue();
+        assertThat(applicationProperties.isDebuggableFlavor()).isTrue();
         assertThat(applicationProperties.isReleaseBuild()).isFalse();
     }
 
@@ -59,7 +59,7 @@ public class ApplicationPropertiesTest {
     public void shouldSpecifyThatBuildIsRelease() {
         when(resources.getString(string.build_type)).thenReturn("RELEASE");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        assertThat(applicationProperties.isDebugBuild()).isFalse();
+        assertThat(applicationProperties.isDebuggableFlavor()).isFalse();
         assertThat(applicationProperties.isReleaseBuild()).isTrue();
     }
 
@@ -67,7 +67,7 @@ public class ApplicationPropertiesTest {
     public void shouldSpecifyThatBuildIsInDevelopmentMode() {
         when(resources.getString(string.build_type)).thenReturn("debug");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
-        assertThat(applicationProperties.isDebugBuild()).isTrue();
+        assertThat(applicationProperties.isDebuggableFlavor()).isTrue();
         assertThat(applicationProperties.isAlphaBuild()).isFalse();
         assertThat(applicationProperties.isReleaseBuild()).isFalse();
         assertThat(applicationProperties.isDevelopmentMode()).isTrue();
