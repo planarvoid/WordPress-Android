@@ -12,7 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.view.DefaultEmptyStateProvider;
+import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
@@ -84,7 +84,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked(), presenter.viewAllClicked()),
                                                       this::isTheSameItem,
                                                       Object::equals,
-                                                      new DefaultEmptyStateProvider(),
+                                                      new SearchEmptyStateProvider(),
                                                       true,
                                                       false);
         presenter.attachView(this);

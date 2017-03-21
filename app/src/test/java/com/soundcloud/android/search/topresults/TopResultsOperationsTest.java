@@ -85,7 +85,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
         assertThat(apiRequest.getUri().toString()).isEqualTo(ApiEndpoints.SEARCH_TOP_RESULTS.path());
         assertThat(apiRequest.getMethod()).isEqualTo("GET");
         assertThat(apiRequest.getQueryParameters().get(TopResultsOperations.QUERY_PARAM).iterator().next()).isEqualTo(QUERY);
-        assertThat(apiRequest.getQueryParameters().get(ApiRequest.Param.PAGE_SIZE.toString()).iterator().next()).isEqualTo("3");
+        assertThat(apiRequest.getQueryParameters().get(ApiRequest.Param.PAGE_SIZE.toString()).iterator().next()).isEqualTo("2");
         assertThat(apiRequest.getQueryParameters().get(TopResultsOperations.QUERY_URN_PARAM).iterator().next()).isEqualTo(QUERY_URN.toString());
     }
 

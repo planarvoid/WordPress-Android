@@ -69,6 +69,8 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
         bindTitle(itemView, bucketText);
         bindResultList(itemView, resources, viewModel.items());
         bindViewAll(itemView, resources, bucketText, viewModel.shouldShowViewAll(), viewModel.totalResults(), viewModel.kind(), viewModel.queryUrn());
+        final boolean lastItem = items.size() - 1 == position;
+        itemView.findViewById(R.id.bucket_bottom_padding).setVisibility(lastItem ? View.VISIBLE : View.GONE);
     }
 
     private void bindViewAll(View itemView, Resources resources, String bucketText, boolean shouldShowViewAll, int totalResults, TopResultsBucketViewModel.Kind kind, Urn queryUrn) {

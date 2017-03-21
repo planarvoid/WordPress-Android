@@ -22,7 +22,6 @@ public abstract class TopResultsBucketViewModel {
     private static final String URN_BUCKET_PEOPLE = "soundcloud:search-buckets:users";
     private static final String URN_BUCKET_PLAYLISTS = "soundcloud:search-buckets:playlists";
     private static final String URN_BUCKET_ALBUMS = "soundcloud:search-buckets:albums";
-    private static final int MIN_VIEW_ALL_RESULTS = 0;
 
     public enum Kind {
         TOP_RESULT,
@@ -64,7 +63,7 @@ public abstract class TopResultsBucketViewModel {
     public static TopResultsBucketViewModel create(List<SearchItem> topResults, Urn urn, int totalResults, Urn queryUrn) {
         final Kind kind = urnToKind(urn);
         final int titleResourceId = kindToTitleResource(kind);
-        final boolean shouldShowViewAll = kind != TOP_RESULT && totalResults > MIN_VIEW_ALL_RESULTS;
+        final boolean shouldShowViewAll = kind != TOP_RESULT && totalResults > TopResultsOperations.RESULT_LIMIT;
         return new AutoValue_TopResultsBucketViewModel.Builder()
                 .items(topResults)
                 .kind(kind)

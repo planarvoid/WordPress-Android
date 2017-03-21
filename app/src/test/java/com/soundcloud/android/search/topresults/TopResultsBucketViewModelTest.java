@@ -24,8 +24,8 @@ public class TopResultsBucketViewModelTest {
     }
 
     @Test
-    public void doesNotShowViewAllForZeroResults() throws Exception {
-        final TopResultsBucketViewModel viewModel = TopResultsBucketViewModel.create(Collections.emptyList(), TRACKS_BUCKET_URN, 0, QUERY_URN);
+    public void doesNotShowViewAllForLessThanLimitResults() throws Exception {
+        final TopResultsBucketViewModel viewModel = TopResultsBucketViewModel.create(Collections.emptyList(), TRACKS_BUCKET_URN, 2, QUERY_URN);
 
         assertThat(viewModel.shouldShowViewAll()).isFalse();
         assertThat(viewModel.kind()).isEqualTo(TopResultsBucketViewModel.Kind.TRACKS);
@@ -33,7 +33,7 @@ public class TopResultsBucketViewModelTest {
 
     @Test
     public void showsViewAllForPlaylistsWithMoreResults() throws Exception {
-        final TopResultsBucketViewModel viewModel = TopResultsBucketViewModel.create(Collections.emptyList(), PLAYLISTS_BUCKET_URN, 1, QUERY_URN);
+        final TopResultsBucketViewModel viewModel = TopResultsBucketViewModel.create(Collections.emptyList(), PLAYLISTS_BUCKET_URN, 3, QUERY_URN);
 
         assertThat(viewModel.shouldShowViewAll()).isTrue();
         assertThat(viewModel.kind()).isEqualTo(TopResultsBucketViewModel.Kind.PLAYLISTS);

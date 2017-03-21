@@ -22,7 +22,7 @@ import java.util.List;
 class TopResultsOperations {
     static final String QUERY_PARAM = "q";
     static final String QUERY_URN_PARAM = "query_urn";
-    private static final int RESULT_LIMIT = 3;
+    public static final int RESULT_LIMIT = 2;
     private static final TypeToken<ApiTopResults> TYPE_TOKEN = new TypeToken<ApiTopResults>() {
     };
 
