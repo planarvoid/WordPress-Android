@@ -11,7 +11,8 @@ public enum MetricKey {
     PLAY_QUEUE_SIZE("play_queue_size"),
     SCREEN("screen"),
     SKIP_ORIGIN("skip_origin"),
-    DOWNLOADED_DURATION("downloaded_duration_ms");
+    DOWNLOADED_DURATION("downloaded_duration_ms"),
+    LISTENING_HISTORY_SIZE("listening_history_size");
 
     private final String metricKey;
 

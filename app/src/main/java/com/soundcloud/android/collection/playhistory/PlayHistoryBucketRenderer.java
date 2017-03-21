@@ -4,6 +4,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.tracks.TrackItem;
@@ -26,13 +28,15 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
 
     private final PlayHistoryAdapter adapter;
     private final Navigator navigator;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private WeakReference<RecyclerView> recyclerViewRef;
 
     @Inject
-    PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator) {
+    PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator, PerformanceMetricsEngine performanceMetricsEngine) {
         this.adapter = adapter;
         this.navigator = navigator;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -99,6 +103,7 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
 
     @OnClick(R.id.play_history_view_all)
     void onViewAllClicked(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.LISTENING_HISTORY_LOAD);
         navigator.openPlayHistory(v.getContext());
     }
 

@@ -1,7 +1,9 @@
 package com.soundcloud.android.testsupport;
 
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.testsupport.assertions.ActivityAssert;
 import com.soundcloud.android.testsupport.assertions.IntentAssert;
+import com.soundcloud.android.testsupport.assertions.PerformanceMetricAssert;
 import com.soundcloud.android.testsupport.assertions.ServiceAssert;
 import com.soundcloud.android.testsupport.assertions.TextViewAssert;
 
@@ -34,4 +36,7 @@ public class Assertions {
         return new IntentAssert(intent);
     }
 
+    public static PerformanceMetricAssert assertThat(PerformanceMetric performanceMetric) {
+        return new PerformanceMetricAssert(performanceMetric);
+    }
 }

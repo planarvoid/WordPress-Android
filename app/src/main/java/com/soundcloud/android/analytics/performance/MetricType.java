@@ -14,7 +14,8 @@ public enum MetricType {
     TIME_TO_SKIP("time_to_skip"),
     OFFLINE_SYNC("offline_sync"),
     PERFORM_SEARCH("perform_search"),
-    COLLECTION_LOAD("collection_load");
+    COLLECTION_LOAD("collection_load"),
+    LISTENING_HISTORY_LOAD("listening_history_load");
 
     private final String metricType;
 

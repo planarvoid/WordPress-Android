@@ -6,9 +6,15 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
+import static com.soundcloud.android.rx.observers.DefaultObserver.onNext;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -37,6 +43,7 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -64,6 +71,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     private final PlayHistoryAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private CompositeSubscription viewLifeCycle;
     private Fragment fragment;
@@ -80,7 +88,8 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          FeedbackController feedbackController,
                          OfflinePropertiesProvider offlinePropertiesProvider,
-                         FeatureFlags featureFlags) {
+                         FeatureFlags featureFlags,
+                         PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher);
         this.playHistoryOperations = playHistoryOperations;
         this.offlineContentOperations = offlineContentOperations;
@@ -90,6 +99,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         this.feedbackController = feedbackController;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.performanceMetricsEngine = performanceMetricsEngine;
 
         adapter.setMenuClickListener(this);
         adapter.setTrackClickListener(this);
@@ -120,9 +130,19 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     @Override
     protected CollectionBinding<List<PlayHistoryItem>, PlayHistoryItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(playHistoryOperations.playHistory().map(toPlayHistoryItem()))
+        return CollectionBinding.from(playHistoryOperations.playHistory()
+                                                           .map(toPlayHistoryItem()))
                                 .withAdapter(adapter)
+                                .addObserver(onNext(items -> endMeasuringListeningHistoryLoad(Iterables.size(items))))
                                 .build();
+    }
+
+    private void endMeasuringListeningHistoryLoad(int historySize) {
+        MetricParams metricParams = new MetricParams().putLong(MetricKey.LISTENING_HISTORY_SIZE, historySize);
+        performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                               .metricType(MetricType.LISTENING_HISTORY_LOAD)
+                                                               .metricParams(metricParams)
+                                                               .build());
     }
 
     private Func1<List<TrackItem>, List<PlayHistoryItem>> toPlayHistoryItem() {
