@@ -170,7 +170,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
 
         verify(view).showDetails("$2", 30);
-        verify(view).enableMorePlans();
+        verify(view).enableMorePlans("$1");
     }
 
     @Test

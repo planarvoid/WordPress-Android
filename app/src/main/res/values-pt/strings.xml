@@ -677,7 +677,6 @@ vão aparecer aqui.</string>
   <string name="notification_username_started_following_you">começou a seguir você</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Inscrever</string>
-  <string name="conversion_title">Descubra mais com o SoundCloud Go+</string>
   <string name="conversion_price">%s / mês</string>
   <string name="conversion_price_promo">%1$s para %2$s</string>
   <string name="conversion_description">Tenha opções de músicas offline, sem anúncios ou visualizações, e a maior coleção de faixas de streaming em qualquer lugar do planeta</string>
@@ -685,7 +684,6 @@ vão aparecer aqui.</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Comece sua avaliação grátis de %d dias</string>
   <string name="conversion_buy_no_trial">Faz o upgrade agora</string>
   <string name="conversion_buy_promo">Obtenha por um tempo limitado</string>
-  <string name="conversion_more_plans">Ver mais planos</string>
   <string name="conversion_retry_heading">Ups... tente novamente</string>
   <string name="conversion_retry_message">Parece que deu alguma coisa errada. Tente novamente.</string>
   <string name="conversion_retry_button">Tenta novamente</string>

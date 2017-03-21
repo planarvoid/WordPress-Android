@@ -223,8 +223,8 @@
     <!-- Conversion -->
     <dimen name="conversion_margin">32dp</dimen>
     <dimen name="conversion_content">380dp</dimen>
-    <dimen name="conversion_headline_text">32sp</dimen>
-    <dimen name="conversion_title_text">24dp</dimen>
+    <dimen name="conversion_headline_text">26sp</dimen>
+    <dimen name="conversion_title_text">22dp</dimen>
     <dimen name="conversion_headline_width">250dp</dimen>
     <dimen name="conversion_button_text">16sp</dimen>
     <dimen name="conversion_divider_width">60dp</dimen>

@@ -123,7 +123,8 @@ class ConversionView {
         buyButton.setRetry();
     }
 
-    void enableMorePlans() {
+    void enableMorePlans(String midTierPrice) {
+        moreButton.setText(resources.getString(R.string.conversion_mt_plan, midTierPrice));
         moreButton.setVisibility(View.VISIBLE);
     }
 

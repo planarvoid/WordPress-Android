@@ -23,7 +23,7 @@
     <color name="translucent_status_bar">@color/white_12</color>
     <color name="translucent_white">@color/white_80</color>
     <color name="translucent_black">@color/black_20</color>
-    <color name="transparent">@color/black</color>
+    <color name="transparent">#00000000</color>
 
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>

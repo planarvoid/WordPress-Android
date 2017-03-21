@@ -25,9 +25,14 @@
         style="@style/ConversionDivider" />
 
     <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/conversion_plan"
+        style="@style/ConversionText.Plan"
+        android:text="@string/tier_plus" />
+
+    <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/conversion_price"
         style="@style/ConversionText.Price"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="12dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/conversion_description"
@@ -37,7 +42,7 @@
     <com.soundcloud.android.view.LoadingButton
         android:id="@+id/conversion_buy"
         style="@style/ConversionButton"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         app:loadingText="@string/conversion_buy_loading"
         app:actionText="@string/conversion_buy_no_trial"
         app:retryText="@string/conversion_buy_retry" />
@@ -45,8 +50,7 @@
     <com.soundcloud.android.view.CustomFontButton
         android:id="@+id/conversion_more_products"
         style="@style/ConversionButton.More"
-        android:layout_marginTop="18dp"
-        android:text="@string/conversion_more_plans"
+        android:layout_marginTop="8dp"
         android:visibility="gone" />
 
     <FrameLayout
