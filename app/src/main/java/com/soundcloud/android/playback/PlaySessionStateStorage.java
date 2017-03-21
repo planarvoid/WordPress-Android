@@ -35,6 +35,13 @@ public class PlaySessionStateStorage {
         editor.apply();
     }
 
+    void clearProgressAndDuration() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(Keys.PROGRESS.name());
+        editor.remove(Keys.DURATION.name());
+        editor.apply();
+    }
+
     void saveProgress(long progress, long duration) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong(Keys.PROGRESS.name(), progress);
@@ -64,9 +71,9 @@ public class PlaySessionStateStorage {
     }
 
     public void clear() {
+        clearProgressAndDuration();
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(Keys.PROGRESS.name());
-        editor.remove(Keys.DURATION.name());
         editor.remove(Keys.ITEM.name());
         editor.remove(Keys.PLAY_ID.name());
         editor.apply();

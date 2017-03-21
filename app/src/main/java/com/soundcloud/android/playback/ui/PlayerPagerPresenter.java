@@ -543,9 +543,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
             final View trackView = entry.getKey();
             if (isTrackView(trackView)) {
-                final Urn urn = entry.getValue().getUrn();
                 trackPagePresenter.onPageChange(trackView);
-                updateProgress(trackPagePresenter, trackView, urn);
             }
         }
     }
@@ -592,10 +590,6 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             return pagesInPlayer.get(pageView).getUrn().equals(trackUrn);
         }
         return trackPageRecycler.isPageForUrn(pageView, trackUrn);
-    }
-
-    private void updateProgress(PlayerPagePresenter presenter, View trackView, Urn urn) {
-        presenter.setProgress(trackView, playSessionStateProvider.getLastProgressForItem(urn));
     }
 
     private static class PlayerItemSubscriber extends DefaultSubscriber<PlayerItem> {
@@ -669,17 +663,17 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
                 final PlayerPagePresenter presenter = pagePresenter(entry.getValue());
                 final View pageView = entry.getKey();
-                final PlayQueueItem pageData = entry.getValue();
+                final PlayQueueItem playQueueItem = entry.getValue();
 
-                if (isProgressEventForPage(pageData, pageView, progress)) {
+                if (isProgressEventForPage(playQueueItem, pageView, progress)) {
                     presenter.setProgress(pageView, progress.getPlaybackProgress());
                 }
             }
         }
 
-        private boolean isProgressEventForPage(PlayQueueItem pageData, View pageView, PlaybackProgressEvent progress) {
+        private boolean isProgressEventForPage(PlayQueueItem playQueueItem, View pageView, PlaybackProgressEvent progress) {
             return (progress.getUrn().isTrack() && isTrackViewRelatedToChange(pageView, progress.getUrn()))
-                    || progress.getUrn().isAd() && progress.getUrn().equals(pageData.getUrn());
+                    || progress.getUrn().isAd() && progress.getUrn().equals(playQueueItem.getUrn());
         }
     }
 

@@ -15,6 +15,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,17 +35,19 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     @Mock private PlaySessionStateStorage playSessionStateStorage;
     @Mock private UuidProvider uuidProvider;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlaybackProgressRepository playbackProgressRepository;
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider();
-        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider, eventBus, dateProvider);
+        provider = new PlaySessionStateProvider(playSessionStateStorage, uuidProvider, eventBus, dateProvider, playbackProgressRepository);
 
         when(playSessionStateStorage.getLastPlayId()).thenReturn(LAST_PLAY_ID);
         when(uuidProvider.getRandomUuid()).thenReturn(RANDOM_UUID);
         when(playSessionStateStorage.getLastPlayingItem()).thenReturn(TRACK_URN);
+        when(playbackProgressRepository.get(any())).thenReturn(Optional.of(PlaybackProgress.empty()));
     }
 
     @Test
@@ -142,9 +145,12 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void returnsLastProgressEventByUrnFromEventQueue() throws Exception {
+        PlaybackProgress playbackProgress = createPlaybackProcess(1L, 2L);
+        when(playbackProgressRepository.get(TestPlayerTransitions.URN)).thenReturn(Optional.of(playbackProgress));
+
         provider.onPlayStateTransition(TestPlayerTransitions.playing(), DURATION);
 
-        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(createPlaybackProcess(1L, 2L), TestPlayerTransitions.URN);
+        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(playbackProgress, TestPlayerTransitions.URN);
 
         provider.onProgressEvent(playbackProgressEvent);
 
@@ -169,6 +175,17 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void updatesProgressRepositoryOnProgressEventReceived() {
+        final Urn urn = TestPlayerTransitions.URN;
+        PlaybackProgress playbackProgress = createPlaybackProcess(1L, 2L);
+        final PlaybackProgressEvent playbackProgressEvent = PlaybackProgressEvent.create(playbackProgress, urn);
+
+        provider.onProgressEvent(playbackProgressEvent);
+
+        verify(playbackProgressRepository).put(urn, playbackProgress);
+    }
+
+    @Test
     public void returnsSavedProgressByUrnIfNoProgressReceivedYet() throws Exception {
         when(playSessionStateStorage.getLastStoredProgress()).thenReturn(123L);
         when(playSessionStateStorage.getLastStoredDuration()).thenReturn(456L);
@@ -184,12 +201,15 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForPlayStoresPlayingItemProgress() throws Exception {
+        long position = 123;
+        long duration = 456;
+        Urn nextTrackUrn = Urn.forTrack(321);
+        when(playbackProgressRepository.get(nextTrackUrn)).thenReturn(Optional.of(new PlaybackProgress(position, duration, dateProvider, nextTrackUrn)));
         provider.onPlayStateTransition(TestPlayerTransitions.playing(1, 456), DURATION);
 
-        Urn nextTrackUrn = Urn.forTrack(321);
-        provider.onPlayStateTransition(TestPlayerTransitions.playing(nextTrackUrn, 123, 456, dateProvider), DURATION);
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(nextTrackUrn, position, duration, dateProvider), DURATION);
 
-        assertThat(provider.getLastProgressForItem(nextTrackUrn)).isEqualTo(createPlaybackProcess(123, 456));
+        assertThat(provider.getLastProgressForItem(nextTrackUrn)).isEqualTo(createPlaybackProcess(position, duration));
     }
 
     private void sendIdleStateEvent() {
@@ -197,9 +217,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onStateTransitionForItemEndSavesQueueWithPositionWithZero() throws Exception {
+    public void onStateTransitionForItemEndSavesQueueWithByClearingItsPosition() throws Exception {
         provider.onPlayStateTransition(TestPlayerTransitions.complete(), DURATION);
-        verify(playSessionStateStorage).saveProgress(0, 0);
+        verify(playSessionStateStorage).clearProgressAndDuration();
     }
 
     @Test
@@ -210,8 +230,13 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
-        provider.onPlayStateTransition(TestPlayerTransitions.idle(123, 456), DURATION);
-        verify(playSessionStateStorage).saveProgress(123, 456);
+        int position = 123;
+        int duration = 456;
+        when(playbackProgressRepository.get(any())).thenReturn(Optional.of(createPlaybackProcess(position, duration)));
+
+        provider.onPlayStateTransition(TestPlayerTransitions.idle(position, duration), DURATION);
+
+        verify(playSessionStateStorage).saveProgress(position, duration);
     }
 
     @Test
@@ -225,9 +250,23 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForWithConsecutivePlaylistEventsSavesProgressOnTrackChange() {
-        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(1), 12, 456), DURATION);
-        provider.onPlayStateTransition(TestPlayerTransitions.playing(Urn.forTrack(2), 34, 456), DURATION);
+        Urn urn1 = Urn.forTrack(1);
+        Urn urn2 = Urn.forTrack(2);
+        when(playbackProgressRepository.get(urn1)).thenReturn(Optional.of(new PlaybackProgress(12, 456, urn1)));
+        when(playbackProgressRepository.get(urn2)).thenReturn(Optional.of(new PlaybackProgress(34, 456, urn2)));
+
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(urn1, 12, 456), DURATION);
+        provider.onPlayStateTransition(TestPlayerTransitions.playing(urn2, 34, 456), DURATION);
+
         verify(playSessionStateStorage).saveProgress(34, 456);
+    }
+
+    @Test
+    public void onStateTransitionProgressIsUpdatedInTheRepository() {
+        PlaybackStateTransition stateTransition = TestPlayerTransitions.playing(TestPlayerTransitions.URN, 12, 456);
+        provider.onPlayStateTransition(stateTransition, DURATION);
+
+        verify(playbackProgressRepository).put(TestPlayerTransitions.URN, stateTransition.getProgress());
     }
 
     @Test

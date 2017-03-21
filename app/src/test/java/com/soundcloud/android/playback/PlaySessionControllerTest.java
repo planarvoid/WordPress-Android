@@ -69,8 +69,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaybackServiceController playbackServiceController;
+    @Mock private PlaybackProgressRepository playbackProgressRepository;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
-
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private PlaySessionController controller;
@@ -87,6 +87,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                InjectionSupport.providerOf(playbackStrategy),
                                                playbackToastHelper,
                                                playbackServiceController,
+                                               playbackProgressRepository,
                                                performanceMetricsEngine);
         controller.subscribe();
 
@@ -573,6 +574,13 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         controller.seek(350L);
 
         verify(playQueueManager).saveCurrentPosition();
+    }
+
+    @Test
+    public void seeksUpdatesProgressRepositoryWithNewPositionValue() {
+        controller.seek(350L);
+
+        verify(playbackProgressRepository).put(trackUrn, 350L);
     }
 
     @Test

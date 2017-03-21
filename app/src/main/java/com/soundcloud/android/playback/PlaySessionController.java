@@ -57,6 +57,7 @@ public class PlaySessionController {
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
     private final PlaybackToastHelper playbackToastHelper;
     private final PlaybackServiceController playbackServiceController;
+    private final PlaybackProgressRepository playbackProgressRepository;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -70,6 +71,7 @@ public class PlaySessionController {
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
                                  PlaybackToastHelper playbackToastHelper,
                                  PlaybackServiceController playbackServiceController,
+                                 PlaybackProgressRepository playbackProgressRepository,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
@@ -80,6 +82,7 @@ public class PlaySessionController {
         this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;
+        this.playbackProgressRepository = playbackProgressRepository;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -133,6 +136,7 @@ public class PlaySessionController {
 
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
+            playbackProgressRepository.put(playQueueManager.getCurrentPlayQueueItem().getUrn(), position);
             if (isPlayingCurrentPlayQueueItem()) {
                 playbackStrategyProvider.get().seek(position);
             } else {
@@ -246,10 +250,10 @@ public class PlaySessionController {
         public void onNext(CurrentPlayQueueItemEvent event) {
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
+                playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                 if (castConnectionHelper.isCasting()) {
                     onNextTrackWhileCasting(event, playQueueItem);
                 } else if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
-                    playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
                 }
             } else if (playQueueItem.isAd()) {

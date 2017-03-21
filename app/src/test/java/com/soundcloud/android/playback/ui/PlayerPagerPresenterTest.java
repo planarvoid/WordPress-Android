@@ -580,28 +580,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void trackChangeSetsProgressOnAllTrackViews() {
-        PlaybackProgress firstProgress = new PlaybackProgress(100, 200, TRACK1_URN);
-        PlaybackProgress secondProgress = new PlaybackProgress(50, 100, TRACK2_URN);
-
-        View firstTrack = getPageView(0);
-        View secondTrack = getPageView(1);
-        getPageView(2);
-
-        when(trackPagePresenter.accept(firstTrack)).thenReturn(true);
-        when(trackPagePresenter.accept(secondTrack)).thenReturn(true);
-        when(playSessionStateProvider.getLastProgressForItem(TRACK1_URN)).thenReturn(firstProgress);
-        when(playSessionStateProvider.getLastProgressForItem(TRACK2_URN)).thenReturn(secondProgress);
-        Mockito.reset(audioAdPresenter); // progress gets set on initial bind, which we are not testing
-
-        presenter.onTrackChange();
-
-        verify(trackPagePresenter).setProgress(firstTrack, firstProgress);
-        verify(trackPagePresenter).setProgress(secondTrack, secondProgress);
-        verify(audioAdPresenter, never()).setProgress(any(View.class), any(PlaybackProgress.class));
-    }
-
-    @Test
     public void getItemPositionReturnsNoneForCustomRecyclingOfTrackViews() {
         assertThat(adapter.getItemPosition(getPageView())).isSameAs(POSITION_NONE);
     }

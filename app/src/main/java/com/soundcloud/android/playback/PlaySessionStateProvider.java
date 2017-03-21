@@ -25,8 +25,8 @@ public class PlaySessionStateProvider {
     private final UuidProvider uuidProvider;
     private final EventBus eventBus;
     private final CurrentDateProvider dateProvider;
+    private final PlaybackProgressRepository playbackProgressRepository;
 
-    private PlaybackProgress lastProgress = PlaybackProgress.empty();
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
     private long lastStateEventTime;
@@ -35,11 +35,13 @@ public class PlaySessionStateProvider {
     public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage,
                                     UuidProvider uuidProvider,
                                     EventBus eventBus,
-                                    CurrentDateProvider dateProvider) {
+                                    CurrentDateProvider dateProvider,
+                                    PlaybackProgressRepository playbackProgressRepository) {
         this.playSessionStateStorage = playSessionStateStorage;
         this.uuidProvider = uuidProvider;
         this.eventBus = eventBus;
         this.dateProvider = dateProvider;
+        this.playbackProgressRepository = playbackProgressRepository;
     }
 
     public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
@@ -56,10 +58,15 @@ public class PlaySessionStateProvider {
         currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
         lastStateEvent = playStateEvent;
         lastStateEventTime = dateProvider.getCurrentTime();
-        lastProgress = playStateEvent.getProgress();
+        playbackProgressRepository.put(currentPlayingUrn, playStateEvent.getProgress());
 
         if (isNewTrack || playStateEvent.getTransition().isPlayerIdle()) {
-            playSessionStateStorage.saveProgress(getPositionOfPlayingTrack(), getDurationOfPlayingTrack());
+            if (currentPlayingUrn.isTrack()) {
+                PlaybackProgress lastProgressForCurrentlyPlayingTrack = getLastProgressForItem(currentPlayingUrn);
+                playSessionStateStorage.saveProgress(lastProgressForCurrentlyPlayingTrack.getPosition(), lastProgressForCurrentlyPlayingTrack.getDuration());
+            } else {
+                playSessionStateStorage.clearProgressAndDuration();
+            }
         }
         return playStateEvent;
     }
@@ -71,38 +78,29 @@ public class PlaySessionStateProvider {
         return PlayStateEvent.create(stateTransition, duration, isFirstPlay, playId);
     }
 
-    private long getPositionOfPlayingTrack() {
-        return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getPosition() : 0;
-    }
-
-    private long getDurationOfPlayingTrack() {
-        return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getDuration() : 0;
-    }
-
     public void onProgressEvent(PlaybackProgressEvent progress) {
-        if (progress.getUrn().equals(currentPlayingUrn)) {
-            lastProgress = progress.getPlaybackProgress();
+        playbackProgressRepository.put(progress.getUrn(), progress.getPlaybackProgress());
+        if (isCurrentlyPlaying(progress.getUrn())) {
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, progress);
         }
     }
 
     public PlaybackProgress getLastProgressForItem(Urn urn) {
-        if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()) {
-            return lastProgress;
-        } else if (isLastPlayed(urn)) {
+        if (!isCurrentlyPlaying(urn) && isLastPlayed(urn)) {
             long lastPosition = playSessionStateStorage.getLastStoredProgress();
             long lastDuration = playSessionStateStorage.getLastStoredDuration();
             return new PlaybackProgress(lastPosition, lastDuration, urn);
         } else {
-            return PlaybackProgress.empty();
+            return getProgressForUrn(urn);
         }
     }
 
     void clearLastProgressForItem(Urn urn) {
-        if (currentPlayingUrn.equals(urn) || isLastPlayed(urn)) {
-            lastProgress = PlaybackProgress.empty();
-            playSessionStateStorage.saveProgress(lastProgress.getPosition(), lastProgress.getDuration());
+        playbackProgressRepository.remove(urn);
+        if (isCurrentlyPlaying(urn) || isLastPlayed(urn)) {
+            playSessionStateStorage.clearProgressAndDuration();
         }
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), urn));
     }
 
     @VisibleForTesting
@@ -127,7 +125,11 @@ public class PlaySessionStateProvider {
     }
 
     public PlaybackProgress getLastProgressEvent() {
-        return lastProgress;
+        return getProgressForUrn(currentPlayingUrn);
+    }
+
+    private PlaybackProgress getProgressForUrn(Urn urn) {
+        return playbackProgressRepository.get(urn).or(PlaybackProgress.empty());
     }
 
     public long getMillisSinceLastPlaySession() {
