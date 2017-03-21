@@ -9,7 +9,7 @@
     android:orientation="horizontal"
     tools:showIn="@layout/player_track_page">
 
-    <android.support.v7.app.MediaRouteButton
+    <com.soundcloud.android.view.ThemeableMediaRouteButton
         android:id="@+id/media_route_button"
         style="@style/PlayerMediaRouteButton"
         tools:visibility="visible" />

@@ -5,6 +5,7 @@ import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 import com.soundcloud.android.R;
+import com.soundcloud.java.optional.Optional;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
@@ -13,6 +14,9 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.IdRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -45,37 +49,53 @@ public class CustomFontTitleToolbar extends Toolbar {
             setLightMode();
         }
         array.recycle();
-
     }
 
     public void setLightMode() {
-        Drawable navIcon = getNavigationIcon();
-        if (navIcon != null){
-            if (darkMode) {
-                darkMode = false;
-                if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
-                    navIcon.setColorFilter(getDarkColor(), PorterDuff.Mode.SRC_IN);
-                } else {
-                    animateNavIcon(navIcon, getLightColor(), getDarkColor());
-                }
-            }
-        }
+        if (darkMode) {
+            darkMode = false;
 
+            getNavigationDrawable().ifPresent(this::setLightMode);
+            getCastButton().ifPresent(ThemeableMediaRouteButton::setLightTheme);
+        }
+    }
+
+    private void setLightMode(Drawable drawable) {
+        if (SDK_INT < LOLLIPOP || hasNoColorFilter(drawable)) {
+            drawable.setColorFilter(getDarkColor(), PorterDuff.Mode.SRC_IN);
+        } else {
+            animateToolbarIcon(drawable, getLightColor(), getDarkColor());
+        }
     }
 
     public void setDarkMode() {
-        Drawable navIcon = getNavigationIcon();
-        if (navIcon != null){
-            if (!darkMode) {
-                darkMode = true;
-                if (SDK_INT < LOLLIPOP || hasNoColorFilter(navIcon)) {
-                    navIcon.setColorFilter(getLightColor(), PorterDuff.Mode.SRC_IN);
-                } else {
-                    animateNavIcon(navIcon, getDarkColor(), getLightColor());
-                }
-            }
-        }
+        if (!darkMode) {
+            darkMode = true;
 
+            getNavigationDrawable().ifPresent(this::setDarkMode);
+            getCastButton().ifPresent(ThemeableMediaRouteButton::setDarkTheme);
+        }
+    }
+
+    private void setDarkMode(Drawable drawable) {
+        if (SDK_INT < LOLLIPOP || hasNoColorFilter(drawable)) {
+            drawable.setColorFilter(getLightColor(), PorterDuff.Mode.SRC_IN);
+        } else {
+            animateToolbarIcon(drawable, getDarkColor(), getLightColor());
+        }
+    }
+
+    private Optional<Drawable> getNavigationDrawable() {
+        return Optional.fromNullable(getNavigationIcon());
+    }
+
+    private Optional<ThemeableMediaRouteButton> getCastButton() {
+        @IdRes final int castMenuItemId = R.id.media_route_menu_item;
+        if (getMenu() != null && getMenu().findItem(castMenuItemId) != null && getMenu().findItem(castMenuItemId).getActionView() instanceof ThemeableMediaRouteButton) {
+            return Optional.fromNullable((ThemeableMediaRouteButton) getMenu().findItem(castMenuItemId).getActionView());
+        } else {
+            return Optional.absent();
+        }
     }
 
     @TargetApi(LOLLIPOP)
@@ -84,19 +104,19 @@ public class CustomFontTitleToolbar extends Toolbar {
     }
 
     @TargetApi(LOLLIPOP)
-    void animateNavIcon(Drawable navIcon, int from, int to) {
+    private void animateToolbarIcon(Drawable drawable, int from, int to) {
         ValueAnimator anim = ValueAnimator.ofArgb(from, to);
-        anim.addUpdateListener(animation -> navIcon.setColorFilter((Integer) anim.getAnimatedValue(),
-                                                                   PorterDuff.Mode.SRC_IN));
+        anim.addUpdateListener(animation -> drawable.setColorFilter((Integer) anim.getAnimatedValue(), PorterDuff.Mode.SRC_IN));
         anim.start();
     }
 
-    int getLightColor() {
+    private int getLightColor() {
         return Color.WHITE;
     }
 
-    int getDarkColor() {
-        return getResources().getColor(R.color.raven);
+    @ColorInt
+    private int getDarkColor() {
+        return ContextCompat.getColor(getContext(), R.color.charcoal);
     }
 
     @Override
