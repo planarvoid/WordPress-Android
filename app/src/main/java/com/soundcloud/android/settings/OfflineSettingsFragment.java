@@ -91,17 +91,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
         setupChangeStorageLocation();
         setupClearContent();
-
-        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            subscription.add(offlinePropertiesProvider.states()
-                                     .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new CurrentDownloadSubscriber()));
-        } else {
-            subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                                     .filter(event -> event.state == OfflineState.DOWNLOADED)
-                                     .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new CurrentDownloadSubscriber()));
-        }
+        setupSubscription();
     }
 
     private void setupChangeStorageLocation() {
@@ -128,6 +118,23 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupClearContent() {
         findPreference(OFFLINE_REMOVE_ALL_OFFLINE_CONTENT).setOnPreferenceClickListener(this);
+    }
+
+    private void setupSubscription() {
+        if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
+            subscription.add(offlinePropertiesProvider.states()
+                                                      .observeOn(AndroidSchedulers.mainThread())
+                                                      .subscribe(new CurrentDownloadSubscriber()));
+        } else {
+            subscription.add(eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
+                                     .filter(event -> event.state == OfflineState.DOWNLOADED)
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .subscribe(new CurrentDownloadSubscriber()));
+        }
+
+        subscription.add(offlineSettings.getOfflineContentLocationChange()
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new ChangeStorageLocationSubscriber()));
     }
 
     @Override
@@ -260,6 +267,14 @@ public class OfflineSettingsFragment extends PreferenceFragment
     private final class CurrentDownloadSubscriber extends DefaultSubscriber<Object> {
         @Override
         public void onNext(final Object signal) {
+            refreshStoragePreference();
+        }
+    }
+
+    private final class ChangeStorageLocationSubscriber extends DefaultSubscriber<Void> {
+        @Override
+        public void onNext(Void ignored) {
+            setupChangeStorageLocation();
             refreshStoragePreference();
         }
     }

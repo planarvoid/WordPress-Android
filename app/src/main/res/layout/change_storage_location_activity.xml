@@ -15,16 +15,19 @@
         android:paddingLeft="16dp"
         android:paddingStart="16dp"
         android:paddingRight="16dp"
-        android:paddingEnd="16dp">
+        android:paddingEnd="16dp"
+        android:saveEnabled="false">
 
         <com.soundcloud.android.settings.SummaryRadioButton
             android:id="@+id/internal_device_storage"
             android:text="@string/internal_device_storage"
+            android:saveEnabled="false"
             style="@style/SummaryRadioButton" />
 
         <com.soundcloud.android.settings.SummaryRadioButton
             android:id="@+id/sd_card"
             android:text="@string/sd_card"
+            android:saveEnabled="false"
             style="@style/SummaryRadioButton" />
 
     </RadioGroup>

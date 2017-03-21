@@ -1,9 +1,9 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.StorageModule;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.content.SharedPreferences;
 
@@ -20,15 +20,6 @@ public class OfflineSettingsStorage {
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
 
     private final SharedPreferences sharedPreferences;
-
-    private static final Func1<String, Boolean> FILTER_WIFI_ONLY_KEY = OFFLINE_WIFI_ONLY::equals;
-
-    private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
-        @Override
-        public Boolean call(String key) {
-            return sharedPreferences.getBoolean(key, false);
-        }
-    };
 
     @Inject
     public OfflineSettingsStorage(@Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences) {
@@ -47,7 +38,7 @@ public class OfflineSettingsStorage {
         return OfflineContentLocation.fromId(sharedPreferences.getString(OFFLINE_CONTENT_LOCATION, OfflineContentLocation.DEVICE_STORAGE.id));
     }
 
-    public void setOfflineContentLocation(OfflineContentLocation offlineContentLocation) {
+    void setOfflineContentLocation(OfflineContentLocation offlineContentLocation) {
         sharedPreferences.edit().putString(OFFLINE_CONTENT_LOCATION, offlineContentLocation.id).apply();
     }
 
@@ -77,8 +68,14 @@ public class OfflineSettingsStorage {
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                         .filter(FILTER_WIFI_ONLY_KEY)
-                         .map(toValue);
+                         .filter(OFFLINE_WIFI_ONLY::equals)
+                         .map(key -> sharedPreferences.getBoolean(key, false));
+    }
+
+    public Observable<Void> getOfflineContentLocationChange() {
+        return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
+                         .filter(OFFLINE_CONTENT_LOCATION::equals)
+                         .map(RxUtils.TO_VOID);
     }
 
     public void clear() {
