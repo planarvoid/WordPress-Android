@@ -268,6 +268,16 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playCurrentResumesPlaybackIfTotallyNewQueueIsLoadedOnTheReceiver() {
+        when(castQueueController.getCurrentQueue()).thenReturn(new CastPlayQueue(TRACK_URN1, Arrays.asList(TRACK_URN1, TRACK_URN2, TRACK_URN3)));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(894561L)));
+
+        castPlayer.playCurrent();
+
+        verify(remoteMediaClient).play();
+    }
+
+    @Test
     public void playCurrentReconnectsToCurrentSessionIfTrackAlreadyLoaded() {
         long progress = 123456L;
         long duration = 1265498413L;

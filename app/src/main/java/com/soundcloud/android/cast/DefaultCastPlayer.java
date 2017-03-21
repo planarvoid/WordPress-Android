@@ -166,6 +166,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
             castPlayQueue = castQueueController.buildUpdatedCastPlayQueue(currentLocalTrackUrn, PlaySessionController.SEEK_POSITION_RESET);
             Log.d(TAG, "updateRemoteQueue() called with: newRemoteIndex = [" + castQueueController.getCurrentQueue().getCurrentIndex() + " -> " + castPlayQueue.getCurrentIndex() + "]");
         } else {
+            resume();
             castPlayQueue = castQueueController.buildCastPlayQueue(currentLocalTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
             Log.d(TAG, "updateRemoteQueue() called with: new track list for current urn = [" + currentLocalTrackUrn + "]");
         }
