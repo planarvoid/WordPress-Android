@@ -429,7 +429,7 @@
     <!-- __DISCOVERY RECOMMENDATIONS -->
     <string name="activity_title_view_all_recommendations">Discover more tracks</string>
     <string name="recommendation_view_all">See all suggested tracks</string>
-    <string name="recommendations_footer">That\'s all the suggestions we have for now.\n\nPlay and collect more tracks to get more suggestions.</string>
+    <string name="recommendations_footer">That’s all the suggestions we have for now.\n\nPlay and collect more tracks to get more suggestions.</string>
     <string name="recommendation_reason_because_you_liked_tracktitle">Because you liked %1$s</string>
     <string name="recommendation_reason_because_you_played_tracktitle">Because you played %1$s</string>
     <string name="recommendation_seeds_header">Discover more tracks</string>
@@ -622,10 +622,10 @@
     <string name="promoted_by_promotorname">Promoted by %s</string>
 
     <!-- __USER WELCOME -->
-    <string name="welcome_user_title_morning">Good Morning, %s</string>
-    <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
-    <string name="welcome_user_title_evening">Good Evening, %s</string>
-    <string name="welcome_user_title_night">Good Night, %s</string>
+    <string name="welcome_user_title_morning">Good morning, %s</string>
+    <string name="welcome_user_title_afternoon">Good afternoon, %s</string>
+    <string name="welcome_user_title_evening">Good evening, %s</string>
+    <string name="welcome_user_title_night">Good night, %s</string>
     <string name="welcome_user_new_signup">Welcome to SoundCloud, %s</string>
     <string name="welcome_user_subtitle">Check out some of these new songs!</string>
 
