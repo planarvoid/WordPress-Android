@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -20,16 +22,14 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
-import javax.inject.Inject;
-
 import rx.Subscription;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import javax.inject.Inject;
 
 class InlayAdPlayer implements Player.PlayerListener {
 
     private final EventBus eventBus;
+    private final AdViewabilityController adViewabilityController;
     private final InlayAdAnalyticsController analyticsController;
     private final PlaySessionController playSessionController;
     private final Player currentPlayer;
@@ -45,12 +45,14 @@ class InlayAdPlayer implements Player.PlayerListener {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public InlayAdPlayer(MediaPlayerAdapter mediaPlayerAdapter,
-                         EventBus eventBus,
-                         InlayAdAnalyticsController analyticsController,
-                         PlaySessionController playSessionController,
-                         CurrentDateProvider currentDateProvider) {
+    InlayAdPlayer(MediaPlayerAdapter mediaPlayerAdapter,
+                  EventBus eventBus,
+                  AdViewabilityController adViewabilityController,
+                  InlayAdAnalyticsController analyticsController,
+                  PlaySessionController playSessionController,
+                  CurrentDateProvider currentDateProvider) {
         this.eventBus = eventBus;
+        this.adViewabilityController = adViewabilityController;
         this.analyticsController = analyticsController;
         this.playSessionController = playSessionController;
         this.currentDateProvider = currentDateProvider;
@@ -106,8 +108,10 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     private void publishVolumeToggleEvent(boolean mute) {
         if (currentAd.isPresent()) {
-            final UIEvent event = mute ? UIEvent.fromVideoMute(currentAd.get(), getSourceInfo())
-                                       : UIEvent.fromVideoUnmute(currentAd.get(), getSourceInfo());
+            final VideoAd ad = currentAd.get();
+            final UIEvent event = mute ? UIEvent.fromVideoMute(ad, getSourceInfo())
+                                       : UIEvent.fromVideoUnmute(ad, getSourceInfo());
+            adViewabilityController.onVolumeToggle(ad, mute);
             eventBus.publish(EventQueue.TRACKING, event);
         }
     }

@@ -17,6 +17,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdViewabilityController;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
@@ -454,7 +456,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playVideoOnPreparedStartsTracking() throws IOException {
+    public void playVideoOnPreparedSetsUpTracking() throws IOException {
         final VideoAdSource videoSource = VideoAdSource.create(AdFixtures.getApiVideoSource(1, 2));
         when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(videoSource);
 
@@ -462,6 +464,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         verify(adViewabilityController).setupVideoTracking(videoItem.getUrn(), videoItem.getDuration(), videoItem.getUuid(), videoItem.getMonetizationType());
+    }
+
+    @Test
+    public void playVideoOnPreparedDoesntSetupTrackingIfItIsntVideoAdsFirstPlay() throws IOException {
+        final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(321L));
+        ad.setEventReported(PlayableAdData.ReportingEvent.START);
+        final VideoAdPlaybackItem video = VideoAdPlaybackItem.create(ad, 0L, 0.5f);
+        final VideoAdSource source = VideoAdSource.create(AdFixtures.getApiVideoSource(1, 2));
+        when(videoSourceProvider.selectOptimalSource(video)).thenReturn(source);
+
+        mediaPlayerAdapter.play(video);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        verify(adViewabilityController, never()).setupVideoTracking(video.getUrn(), video.getDuration(), video.getUuid(), video.getMonetizationType());
     }
 
     @Test

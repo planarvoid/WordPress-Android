@@ -194,6 +194,12 @@ public class MediaPlayerAdapter implements
         }
     }
 
+    private void setupVideoTracking(VideoAdPlaybackItem video) {
+        if (video.isFirstPlay()) {
+            adViewabilityController.setupVideoTracking(video.getUrn(), video.getDuration(), video.getUuid(), video.getMonetizationType());
+        }
+    }
+
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         if (!accountOperations.isUserLoggedIn()) {
@@ -205,7 +211,7 @@ public class MediaPlayerAdapter implements
                     final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
                     final float volume = videoItem.getInitialVolume();
                     mediaPlayer.setVolume(volume, volume);
-                    adViewabilityController.setupVideoTracking(videoItem.getUrn(), videoItem.getDuration(), videoItem.getUuid(), videoItem.getMonetizationType());
+                    setupVideoTracking(videoItem);
                 }
 
                 play();

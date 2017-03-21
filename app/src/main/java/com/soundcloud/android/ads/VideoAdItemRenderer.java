@@ -1,14 +1,7 @@
 package com.soundcloud.android.ads;
 
-import android.content.res.Resources;
-import android.view.LayoutInflater;
-import android.view.TextureView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -22,12 +15,17 @@ import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import java.util.List;
+import android.content.res.Resources;
+import android.view.LayoutInflater;
+import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import javax.inject.Inject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import java.util.List;
 
 public class VideoAdItemRenderer extends AdItemRenderer {
 
@@ -67,6 +65,11 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
 
+        bindVideoSurface(itemView, videoAd);
+    }
+
+    void bindVideoSurface(View itemView, VideoAd videoAd) {
+        final Holder holder = getHolder(itemView);
         if (listener.isPresent()) {
             listener.get().onVideoTextureBind(holder.videoView, videoAd);
         }

@@ -214,12 +214,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     public void onDestroyView(Fragment fragment) {
         streamAdsController.onDestroyView();
 
-        if (fragment.getActivity().isChangingConfigurations()) {
-            videoSurfaceProvider.onConfigurationChange(Origin.STREAM);
-        } else {
-            videoSurfaceProvider.onDestroy(Origin.STREAM);
-        }
-
         if (streamDepthPublisher.isPresent()) {
             streamDepthPublisher.get().unsubscribe();
             streamDepthPublisher = Optional.absent();
@@ -231,6 +225,17 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
         imagePauseOnScrollListener.resume();
         super.onDestroyView(fragment);
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        if (fragment.getActivity().isChangingConfigurations()) {
+            videoSurfaceProvider.onConfigurationChange(Origin.STREAM);
+        } else {
+            videoSurfaceProvider.onDestroy(Origin.STREAM);
+        }
+        streamAdsController.onDestroy();
+        super.onDestroy(fragment);
     }
 
     private void configureEmptyView() {

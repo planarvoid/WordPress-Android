@@ -75,6 +75,14 @@ public class MoatViewabilityController {
         dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_PLAYING, currentPosition);
     }
 
+    void onVideoMute(String uuid) {
+        trackerForAd(uuid).ifPresent(tracker -> tracker.setPlayerVolume(MoatAdEvent.VOLUME_MUTED));
+    }
+
+    void onVideoUnmute(String uuid) {
+        trackerForAd(uuid).ifPresent(tracker -> tracker.setPlayerVolume(MoatAdEvent.VOLUME_UNMUTED));
+    }
+
     void dispatchVideoViewUpdate(String uuid, TextureView textureView) {
         trackerForAd(uuid).ifPresent(tracker -> tracker.changeTargetView(textureView));
     }

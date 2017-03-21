@@ -61,6 +61,15 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
         }
     }
 
+    void onVolumeToggle(VideoAd ad, boolean isMuted) {
+        final String uuid = ad.getUuid();
+        if (isMuted) {
+            moatViewabilityController.onVideoMute(uuid);
+        } else {
+            moatViewabilityController.onVideoUnmute(uuid);
+        }
+    }
+
     public void stopVideoTracking(String uuid) {
         moatViewabilityController.stopVideoTracking(uuid);
     }

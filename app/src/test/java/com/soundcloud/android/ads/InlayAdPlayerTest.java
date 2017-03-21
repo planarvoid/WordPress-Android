@@ -40,6 +40,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Mock CurrentDateProvider currentDateProvider;
     @Mock PlaySessionController playSessionController;
     @Mock InlayAdAnalyticsController analyticsController;
+    @Mock AdViewabilityController adViewabilityController;
 
     private TestEventBus eventBus;
     private InlayAdPlayer player;
@@ -47,9 +48,9 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
-
         eventBus = new TestEventBus();
-        player = new InlayAdPlayer(adapter, eventBus, analyticsController, playSessionController, currentDateProvider);
+        player = new InlayAdPlayer(adapter, eventBus, adViewabilityController,
+                                   analyticsController, playSessionController, currentDateProvider);
     }
 
     @Test
@@ -188,19 +189,21 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void emitsUIEventWhenVideoUnmuted() {
+    public void emitsEventsWhenVideoUnmuted() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
 
+        verify(adViewabilityController).onVolumeToggle(VIDEO_AD, false);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_UNMUTE");
     }
 
     @Test
-    public void emitsUIEventWhenVideoMuted() {
+    public void emitsEventsWhenVideoMuted() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
         player.toggleVolume();
 
+        verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_MUTE");
     }
 

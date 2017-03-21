@@ -1,14 +1,14 @@
 package com.soundcloud.android.playback;
 
-import android.os.Parcelable;
-
+import auto.parcel.AutoParcel;
+import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.model.Urn;
 
-import java.util.List;
+import android.os.Parcelable;
 
-import auto.parcel.AutoParcel;
+import java.util.List;
 
 @AutoParcel
 public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
@@ -16,21 +16,16 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
     private static final float INITIAL_VOLUME = 1.0f;
 
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition) {
-        return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
-                                                  adData.getVideoSources(),
-                                                  startPosition,
-                                                  INITIAL_VOLUME,
-                                                  adData.getUuid(),
-                                                  adData.getMonetizationType().key(),
-                                                  PlaybackType.VIDEO_AD,
-                                                  adData.getDuration());
+        return create(adData, startPosition, INITIAL_VOLUME);
     }
 
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition, float initialVolume) {
+        final boolean firstPlay = !adData.hasReportedEvent(PlayableAdData.ReportingEvent.START);
         return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
                                                   adData.getVideoSources(),
                                                   startPosition,
                                                   initialVolume,
+                                                  firstPlay,
                                                   adData.getUuid(),
                                                   adData.getMonetizationType().key(),
                                                   PlaybackType.VIDEO_AD,
@@ -46,6 +41,8 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
     public abstract long getStartPosition();
 
     public abstract float getInitialVolume();
+
+    public abstract boolean isFirstPlay();
 
     public abstract String getUuid();
 

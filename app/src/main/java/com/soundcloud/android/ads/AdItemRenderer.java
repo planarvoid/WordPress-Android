@@ -21,7 +21,7 @@ public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
         void onWhyAdsClicked(Context context);
     }
 
-    protected Optional<Listener> listener;
+    protected Optional<Listener> listener = Optional.absent();
 
     public void setListener(Listener listener) {
         this.listener = Optional.of(listener);

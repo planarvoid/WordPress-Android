@@ -454,11 +454,21 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldForwardStreamDestroyToStreamAdsController() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onDestroy(fragmentRule.getFragment());
+
+        verify(streamAdsController).onDestroy();
+    }
+
+    @Test
     public void shouldForwardStreamDestroyToVideoSurfaceProvider() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        presenter.onDestroyView(fragmentRule.getFragment());
+        presenter.onDestroy(fragmentRule.getFragment());
 
         verify(videoSurfaceProvider).onDestroy(Origin.STREAM);
     }
@@ -472,7 +482,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        presenter.onDestroyView(fragment);
+        presenter.onDestroy(fragment);
 
         verify(videoSurfaceProvider).onConfigurationChange(Origin.STREAM);
     }

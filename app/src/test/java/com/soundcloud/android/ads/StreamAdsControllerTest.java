@@ -7,9 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -24,20 +23,19 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import rx.Observable;
 
-import org.mockito.Spy;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class StreamAdsControllerTest extends AndroidUnitTest {
 
@@ -55,13 +53,21 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private RecyclerView recycler;
     @Mock private StreamAdapter adapter;
     @Mock private StaggeredGridLayoutManager layoutManager;
+    @Mock private AdViewabilityController adViewabilityController;
     @Spy private TestEventBus eventBus = new TestEventBus();
 
     private StreamAdsController controller;
 
     @Before
     public void setUp() {
-        controller = spy(new StreamAdsController(adsOperations, inlayAdOperations, inlayAdHelperFactory, featureFlags, featureOperations, dateProvider, eventBus));
+        controller = spy(new StreamAdsController(adsOperations,
+                                                 adViewabilityController,
+                                                 inlayAdOperations,
+                                                 inlayAdHelperFactory,
+                                                 featureFlags,
+                                                 featureOperations,
+                                                 dateProvider,
+                                                 eventBus));
 
         when(recycler.getLayoutManager()).thenReturn(layoutManager);
         when(featureOperations.shouldRequestAds()).thenReturn(true);
@@ -282,6 +288,20 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.insertAds();
 
         verify(inlayAdHelper).insertAd(inlays.get(0), SCROLLING_DOWN);
+    }
+
+    @Test
+    public void onDestroyWillCleanUpTrackingForAnyVideoAdsInserted() {
+        final long createdAtMs = ((ExpirableAd) inlays.get(0)).getCreatedAt();
+        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).getExpiryInMins() * 59 * 1000L;
+        when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
+        when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
+        when(inlayAdHelper.insertAd(inlays.get(0), SCROLLING_DOWN)).thenReturn(true);
+
+        controller.insertAds();
+        controller.onDestroy();
+
+        verify(adViewabilityController).stopVideoTracking(((VideoAd) inlays.get(0)).getUuid());
     }
 
     @Test

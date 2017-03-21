@@ -18,7 +18,6 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -29,7 +28,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,9 +36,10 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class StreamAdsController extends RecyclerView.OnScrollListener {
 
-    private final static int EMPTY_ADS_RESPONSE_BACKOFF_MS = 1000 * 60;
+    private final static long EMPTY_ADS_RESPONSE_BACKOFF = TimeUnit.SECONDS.toMillis(60);
 
     private final AdsOperations adsOperations;
+    private final AdViewabilityController adViewabilityController;
     private final InlayAdOperations inlayAdOperations;
     private final InlayAdHelperFactory inlayAdHelperFactory;
     private final FeatureFlags featureFlags;
@@ -51,7 +50,8 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription fetchSubscription = RxUtils.invalidSubscription();
 
-    private List<AdData> inlayAds = Collections.emptyList();
+    private List<AdData> availableAds = Collections.emptyList();
+    private List<AdData> insertedAds = new ArrayList<>(5);
 
     private Optional<Long> lastEmptyResponseTime = Optional.absent();
     private Optional<InlayAdHelper> inlayAdHelper = Optional.absent();
@@ -62,6 +62,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     @Inject
     public StreamAdsController(AdsOperations adsOperations,
+                               AdViewabilityController adViewabilityController,
                                InlayAdOperations inlayAdOperations,
                                InlayAdHelperFactory inlayAdHelperFactory,
                                FeatureFlags featureFlags,
@@ -69,6 +70,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                CurrentDateProvider dateProvider,
                                EventBus eventBus) {
         this.adsOperations = adsOperations;
+        this.adViewabilityController = adViewabilityController;
         this.inlayAdOperations = inlayAdOperations;
         this.inlayAdHelperFactory = inlayAdHelperFactory;
         this.featureFlags = featureFlags;
@@ -96,6 +98,19 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         this.inlayAdHelper = Optional.absent();
     }
 
+    public void onDestroy() {
+        cleanUpInsertedAds();
+    }
+
+    private void cleanUpInsertedAds() {
+        for (AdData ad : insertedAds) {
+            if (ad instanceof VideoAd) {
+                adViewabilityController.stopVideoTracking(((VideoAd) ad).getUuid());
+            }
+        }
+        insertedAds.clear();
+    }
+
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
@@ -115,7 +130,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         if (streamAdsEnabled) {
             clearExpiredAds();
 
-            if (inlayAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {
+            if (availableAds.isEmpty() && fetchSubscription.isUnsubscribed() && shouldFetchMoreAds()) {
                 fetchSubscription = fetchInlays();
             } else {
                 attemptToInsertAd();
@@ -136,7 +151,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     private void clearExpiredAds() {
-        inlayAds = Lists.newArrayList(Iterables.filter(inlayAds, isAdExpired()));
+        availableAds = Lists.newArrayList(Iterables.filter(availableAds, isAdExpired()));
     }
 
     private Predicate<AdData> isAdExpired() {
@@ -151,17 +166,18 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     private boolean shouldFetchMoreAds() {
         return !(lastEmptyResponseTime.isPresent()
-                && Math.abs(dateProvider.getCurrentTime() - lastEmptyResponseTime.get()) < EMPTY_ADS_RESPONSE_BACKOFF_MS);
+                && Math.abs(dateProvider.getCurrentTime() - lastEmptyResponseTime.get()) < EMPTY_ADS_RESPONSE_BACKOFF);
     }
 
     private void attemptToInsertAd() {
         checkState(Thread.currentThread() == Looper.getMainLooper().getThread());
-        if (!inlayAds.isEmpty() && inlayAdHelper.isPresent()) {
-            final AdData ad = inlayAds.get(0);
+        if (!availableAds.isEmpty() && inlayAdHelper.isPresent()) {
+            final AdData ad = availableAds.get(0);
             final boolean inserted = inlayAdHelper.get().insertAd(ad, wasScrollingUp);
 
             if (inserted) {
-                inlayAds.remove(ad);
+                insertedAds.add(ad);
+                availableAds.remove(ad);
                 eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adDelivered(Optional.absent(),
                                                                                   ad.getAdUrn(),
                                                                                   lastRequestId,
@@ -183,7 +199,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
             if (ads.isEmpty()) {
                 setLastEmptyResponseTime();
             } else {
-                inlayAds = filterEnabledAds(ads);
+                availableAds = filterEnabledAds(ads);
                 insertAds();
             }
         }
