@@ -7,7 +7,7 @@
     tools:ignore="UnusedAttribute">
 
     <com.soundcloud.android.view.CustomFontEditText
-        android:id="@+id/search_text"
+        android:id="@+id/search_edit_text"
         style="@style/Search.TextView.Input"
         android:layout_width="0dp"
         android:layout_height="match_parent"

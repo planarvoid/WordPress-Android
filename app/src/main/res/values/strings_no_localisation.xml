@@ -24,8 +24,8 @@
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
 
-    <string name="search_text_transition_name">search_text_view</string>
-    <string name="search_text_holder_transition_name">search_text_holder</string>
+    <string name="search_text_transition_name">search_text_transition</string>
+    <string name="search_text_holder_transition_name">search_text_holder_transition</string>
 
     <string name="interstate_regular">fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf</string>
     <string name="interstate_light">fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf</string>

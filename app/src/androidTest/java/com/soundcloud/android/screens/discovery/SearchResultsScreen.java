@@ -130,7 +130,7 @@ public class SearchResultsScreen extends Screen {
     }
 
     public SearchScreen clickSearch() {
-        testDriver.findOnScreenElement(With.id(R.id.search_text)).click();
+        testDriver.findOnScreenElement(With.id(R.id.search_edit_text)).click();
         return new SearchScreen(testDriver);
     }
 

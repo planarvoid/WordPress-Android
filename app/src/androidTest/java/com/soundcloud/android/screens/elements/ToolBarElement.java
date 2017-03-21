@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class ToolBarElement extends Element {
 
-    private static final int SEARCH_EDIT_TEXT = R.id.search_text;
+    private static final int SEARCH_EDIT_TEXT = R.id.search_edit_text;
     private static final int SEARCH_DISMISS_VIEW = R.id.search_close;
     private static final int CONTAINER = R.id.toolbar_id;
 

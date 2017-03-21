@@ -209,7 +209,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                 .inflate(R.layout.search_text_view, toolbar, false);
         final ActionBar actionBar = activity.getSupportActionBar();
         toolbarElevation = activity.findViewById(R.id.legacy_elevation);
-        searchTextView = (EditText) searchView.findViewById(R.id.search_text);
+        searchTextView = (EditText) searchView.findViewById(R.id.search_edit_text);
         searchCloseView = (ImageView) searchView.findViewById(R.id.search_close);
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
