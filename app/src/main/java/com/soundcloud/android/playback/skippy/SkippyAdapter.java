@@ -491,85 +491,46 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                             String cdnHost,
                                                             Skippy.SkippyMediaType format,
                                                             int bitRate) {
-        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        Urn userUrn = accountOperations.getLoggedInUserUrn();
-        PlaybackProtocol playbackProtocol = getPlaybackProtocol();
+        PlaybackPerformanceEvent.Builder builder;
+
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value,
-                                                           playbackProtocol,
-                                                           PlayerType.SKIPPY,
-                                                           currentConnectionType,
-                                                           cdnHost,
-                                                           format.name(),
-                                                           bitRate,
-                                                           userUrn,
-                                                           currentPlaybackItem.getPlaybackType());
+                builder = PlaybackPerformanceEvent.timeToPlay(currentPlaybackItem.getPlaybackType());
+                break;
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value,
-                                                             playbackProtocol,
-                                                             PlayerType.SKIPPY,
-                                                             currentConnectionType,
-                                                             cdnHost,
-                                                             format.name(),
-                                                             bitRate,
-                                                             userUrn);
+                builder = PlaybackPerformanceEvent.timeToBuffer();
+                break;
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value,
-                                                               playbackProtocol,
-                                                               PlayerType.SKIPPY,
-                                                               currentConnectionType,
-                                                               cdnHost,
-                                                               format.name(),
-                                                               bitRate,
-                                                               userUrn);
+                builder = PlaybackPerformanceEvent.timeToPlaylist();
+                break;
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value,
-                                                           playbackProtocol,
-                                                           PlayerType.SKIPPY,
-                                                           currentConnectionType,
-                                                           cdnHost,
-                                                           format.name(),
-                                                           bitRate,
-                                                           userUrn);
+                builder = PlaybackPerformanceEvent.timeToSeek();
+                break;
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value,
-                                                                     playbackProtocol,
-                                                                     PlayerType.SKIPPY,
-                                                                     currentConnectionType,
-                                                                     cdnHost,
-                                                                     format.name(),
-                                                                     bitRate,
-                                                                     userUrn);
+                builder = PlaybackPerformanceEvent.fragmentDownloadRate();
+                break;
             case TIME_TO_LOAD_LIBRARY:
-                return PlaybackPerformanceEvent.timeToLoad(value,
-                                                           playbackProtocol,
-                                                           PlayerType.SKIPPY,
-                                                           currentConnectionType,
-                                                           cdnHost,
-                                                           format.name(),
-                                                           bitRate,
-                                                           userUrn);
+                builder = PlaybackPerformanceEvent.timeToLoad();
+                break;
             case CACHE_USAGE_PERCENT:
-                return PlaybackPerformanceEvent.cacheUsagePercent(value,
-                                                                  playbackProtocol,
-                                                                  PlayerType.SKIPPY,
-                                                                  currentConnectionType,
-                                                                  cdnHost,
-                                                                  format.name(),
-                                                                  bitRate);
+                builder = PlaybackPerformanceEvent.cacheUsagePercent();
+                break;
             case UNINTERRUPTED_PLAYTIME:
-                return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(value,
-                                                                        playbackProtocol,
-                                                                        PlayerType.SKIPPY,
-                                                                        currentConnectionType,
-                                                                        cdnHost,
-                                                                        format.name(),
-                                                                        bitRate,
-                                                                        currentPlaybackItem.getPlaybackType());
+                builder = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(currentPlaybackItem.getPlaybackType());
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
+
+        return builder.metricValue(value)
+                      .protocol(getPlaybackProtocol())
+                      .playerType(PlayerType.SKIPPY)
+                      .connectionType(connectionHelper.getCurrentConnectionType())
+                      .cdnHost(cdnHost)
+                      .format(format.name())
+                      .bitrate(bitRate)
+                      .userUrn(accountOperations.getLoggedInUserUrn())
+                      .build();
     }
 
     @Override

@@ -38,6 +38,7 @@ import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.flippernative.api.error_message;
 import com.soundcloud.flippernative.api.state_change;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -230,8 +231,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
             if (currentState == PlayerState.Playing) {
                 final PlayStateReason translatedReason = PlayStateReason.NONE;
                 final PlaybackState translatedState = event.getBuffering() ?
-                        PlaybackState.BUFFERING :
-                        PlaybackState.PLAYING;
+                                                      PlaybackState.BUFFERING :
+                                                      PlaybackState.PLAYING;
                 reportStateTransition(event, translatedState, translatedReason);
             }
         }
@@ -290,57 +291,37 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     }
 
     private PlaybackPerformanceEvent createPlaybackPerformanceEvent(audio_performance event) {
-        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        Urn userUrn = accountOperations.getLoggedInUserUrn();
-        PlaybackProtocol playbackProtocol = getPlaybackProtocol();
+        String eventType = event.getType().const_get_value();
+        PlaybackPerformanceEvent.Builder builder;
 
-
-        // TODO : Waiting for a Flipper update.
-        //
-        // Flipper does not provide strong typing when it comes to eventType.
-        // It expects the application to enrich the event (setClientId(), ...) and
-        // directly send it to EventGateway using the toJson() method it provides.
-        final String eventType = event.getType().const_get_value();
         switch (eventType) {
             case "play":
-                return PlaybackPerformanceEvent.timeToPlay(event.getLatency().const_get_value(),
-                                                           playbackProtocol,
-                                                           PlayerType.FLIPPER,
-                                                           currentConnectionType,
-                                                           event.getHost().const_get_value(),
-                                                           event.getFormat().const_get_value(),
-                                                           (int) event.getBitrate().const_get_value(),
-                                                           userUrn,
-                                                           currentPlaybackItem.getPlaybackType());
+                builder = PlaybackPerformanceEvent.timeToPlay(currentPlaybackItem.getPlaybackType());
+                break;
             case "seek":
-                return PlaybackPerformanceEvent.timeToSeek(event.getLatency().const_get_value(),
-                                                           playbackProtocol,
-                                                           PlayerType.FLIPPER,
-                                                           currentConnectionType,
-                                                           event.getHost().const_get_value(),
-                                                           event.getFormat().const_get_value(),
-                                                           (int) event.getBitrate().const_get_value(),
-                                                           userUrn);
+                builder = PlaybackPerformanceEvent.timeToSeek();
+                break;
             case "cacheUsage":
-                return PlaybackPerformanceEvent.cacheUsagePercent(event.getLatency().const_get_value(),
-                                                                  playbackProtocol,
-                                                                  PlayerType.FLIPPER,
-                                                                  currentConnectionType,
-                                                                  event.getHost().const_get_value(),
-                                                                  event.getFormat().const_get_value(),
-                                                                  (int) event.getBitrate().const_get_value());
+                builder = PlaybackPerformanceEvent.cacheUsagePercent();
+                break;
             case "playlist":
-                return PlaybackPerformanceEvent.timeToPlaylist(event.getLatency().const_get_value(),
-                                                               playbackProtocol,
-                                                               PlayerType.FLIPPER,
-                                                               currentConnectionType,
-                                                               event.getHost().const_get_value(),
-                                                               event.getFormat().const_get_value(),
-                                                               (int) event.getBitrate().const_get_value(),
-                                                               userUrn);
+                builder = PlaybackPerformanceEvent.timeToPlaylist();
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + eventType);
         }
+
+        return builder
+                .metricValue(event.getLatency().const_get_value())
+                .protocol(getPlaybackProtocol())
+                .playerType(PlayerType.FLIPPER)
+                .connectionType(connectionHelper.getCurrentConnectionType())
+                .cdnHost(event.getHost().const_get_value())
+                .format(event.getFormat().const_get_value())
+                .bitrate((int) event.getBitrate().const_get_value())
+                .userUrn(accountOperations.getLoggedInUserUrn())
+                .details(Optional.fromNullable(event.getDetails().get_value().toJson()))
+                .build();
     }
 
     private PlaybackProtocol getPlaybackProtocol() {

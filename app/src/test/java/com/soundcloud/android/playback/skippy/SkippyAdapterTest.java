@@ -716,12 +716,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -732,12 +732,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -753,12 +753,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -769,12 +769,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -790,12 +790,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -810,12 +810,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                             BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
-        assertThat(event.getMetricValue()).isEqualTo(1000L);
-        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
-        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
-        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
-        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
+        assertThat(event.metricValue()).isEqualTo(1000L);
+        assertThat(event.cdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.playerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.protocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.userUrn()).isEqualTo(userUrn);
     }
 
     @Test

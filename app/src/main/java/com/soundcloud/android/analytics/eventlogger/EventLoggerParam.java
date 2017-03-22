@@ -71,6 +71,7 @@ class EventLoggerParam {
     static final String OS = "os";
     static final String BITRATE = "bitrate";
     static final String FORMAT = "format";
+    static final String DETAILS = "details";
     static final String URL = "url";
     static final String ERROR_CODE = "errorCode";
     static final String ERROR_NAME = "error_code";

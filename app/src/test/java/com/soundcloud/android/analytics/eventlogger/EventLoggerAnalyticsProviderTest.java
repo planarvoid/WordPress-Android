@@ -107,34 +107,39 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
-                                                                             PlaybackProtocol.HLS,
-                                                                             PlayerType.MEDIA_PLAYER,
-                                                                             ConnectionType.FOUR_G,
-                                                                             "uri",
-                                                                             PlaybackConstants.MediaType.UNKNOWN,
-                                                                             0,
-                                                                             userUrn,
-                                                                             PlaybackType.AUDIO_DEFAULT);
+
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_DEFAULT)
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HLS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost("uri")
+                                                                 .format(PlaybackConstants.MediaType.UNKNOWN)
+                                                                 .bitrate(0)
+                                                                 .userUrn(userUrn)
+                                                                 .build();
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
         verify(eventTrackingManager).trackEvent(captor.capture());
-        assertEventTracked(captor.getValue(), "url", event.getTimestamp());
+        assertEventTracked(captor.getValue(), "url", event.timestamp());
     }
 
-    public void shouldTrackRichMediaPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
-                                                                             PlaybackProtocol.HLS,
-                                                                             PlayerType.MEDIA_PLAYER,
-                                                                             ConnectionType.FOUR_G,
-                                                                             "uri",
-                                                                             "video/mp4",
-                                                                             200,
-                                                                             userUrn,
-                                                                             PlaybackType.VIDEO_AD);
+    @Test
+    public void shouldTrackRichMediaPlaybackPerformanceEventAsEventLoggerEvent() {
+
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.VIDEO_AD)
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HLS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost("uri")
+                                                                 .format("video/mp4")
+                                                                 .bitrate(200)
+                                                                 .userUrn(userUrn)
+                                                                 .build();
         when(dataBuilderv1.buildForRichMediaPerformance(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
@@ -143,7 +148,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.timestamp());
         assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 

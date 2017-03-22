@@ -77,15 +77,17 @@ public class BufferUnderrunListener {
                                                 long uninterruptedPlayTime,
                                                 String format,
                                                 int bitrate) {
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(
-                uninterruptedPlayTime,
-                playbackProtocol,
-                playerType,
-                currentConnectionType,
-                item.toString(),
-                format,
-                bitrate,
-                item.getPlaybackType());
+        PlaybackType playbackType = item.getPlaybackType();
+
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(playbackType)
+                                                                       .metricValue(uninterruptedPlayTime)
+                                                                       .protocol(playbackProtocol)
+                                                                       .playerType(playerType)
+                                                                       .connectionType(currentConnectionType)
+                                                                       .cdnHost(item.toString())
+                                                                       .format(format)
+                                                                       .bitrate(bitrate)
+                                                                       .build();
         Log.i(TAG, "Playa buffer underrun. " + event);
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }

@@ -213,14 +213,14 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
-        return transform(buildBaseEvent(event.eventName().key(), event.getTimestamp())
+        return transform(buildBaseEvent(event.eventName().key(), event.timestamp())
                                  .mediaType(event.isVideoAd() ? "video" : "audio")
-                                 .protocol(event.getProtocol().getValue())
-                                 .playerType(event.getPlayerType().getValue())
-                                 .format(getRichMediaFormatName(event.getFormat()))
-                                 .bitrate(event.getBitrate())
-                                 .metric(getRichMediaPerformanceEventType(event.getMetric()), event.getMetricValue())
-                                 .host(event.getCdnHost()));
+                                 .protocol(event.protocol().getValue())
+                                 .playerType(event.playerType().getValue())
+                                 .format(getRichMediaFormatName(event.format()))
+                                 .bitrate(event.bitrate())
+                                 .metric(getRichMediaPerformanceEventType(event.metric()), event.metricValue())
+                                 .host(event.cdnHost()));
     }
 
     String buildForScreenEvent(ScreenEvent event) {

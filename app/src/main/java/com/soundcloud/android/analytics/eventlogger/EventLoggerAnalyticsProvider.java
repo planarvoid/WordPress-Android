@@ -231,7 +231,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         final String data = eventData.isAd() ?
                             dataBuilderV1.get().buildForRichMediaPerformance(eventData) :
                             dataBuilderV0.get().build(eventData);
-        trackEvent(eventData.getTimestamp(), data);
+        trackEvent(eventData.timestamp(), data);
     }
 
     @Override

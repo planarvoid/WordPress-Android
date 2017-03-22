@@ -903,21 +903,23 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonFromRichMediaPerformanceEvent() throws ApiMapperException {
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(321,
-                                                                                   PlaybackProtocol.HTTPS,
-                                                                                   PlayerType.MEDIA_PLAYER,
-                                                                                   ConnectionType.FOUR_G,
-                                                                                   "host",
-                                                                                   PlaybackConstants.MIME_TYPE_MP4,
-                                                                                   1001,
-                                                                                   Urn.NOT_SET,
-                                                                                   PlaybackType.AUDIO_AD);
+
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_AD)
+                                                                       .metricValue((long) 321)
+                                                                       .protocol(PlaybackProtocol.HTTPS)
+                                                                       .playerType(PlayerType.MEDIA_PLAYER)
+                                                                       .connectionType(ConnectionType.FOUR_G)
+                                                                       .cdnHost("host")
+                                                                       .format(PlaybackConstants.MIME_TYPE_MP4)
+                                                                       .bitrate(1001)
+                                                                       .userUrn(Urn.NOT_SET)
+                                                                       .build();
 
         jsonDataBuilder.buildForRichMediaPerformance(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream_performance",
                                                     BOOGALOO_VERSION,
-                                                    event.getTimestamp())
+                                                    event.timestamp())
                                                .metric("timeToPlayMs", 321)
                                                .mediaType("audio")
                                                .protocol("https")

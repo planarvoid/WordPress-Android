@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
 import static com.soundcloud.android.playback.PlaybackState.IDLE;
 import static com.soundcloud.android.playback.PlaybackState.PLAYING;
 import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -232,20 +233,22 @@ public class MediaPlayerAdapter implements
         }
     }
 
-    void resetConnectionRetries() {
+    private void resetConnectionRetries() {
         connectionRetries = 0;
     }
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                                                                                   getPlaybackProtocol(),
-                                                                                   PlayerType.MEDIA_PLAYER,
-                                                                                   networkConnectionHelper.getCurrentConnectionType(),
-                                                                                   streamUrl,
-                                                                                   getCurrentFormat(),
-                                                                                   getCurrentBitrate(),
-                                                                                   accountOperations.getLoggedInUserUrn(),
-                                                                                   currentItem.getPlaybackType());
+        checkNotNull(currentItem, "MediaPlayer reported time to play without currentItem");
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(currentItem.getPlaybackType())
+                                                                 .metricValue(timeToPlay)
+                                                                 .protocol(getPlaybackProtocol())
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(networkConnectionHelper.getCurrentConnectionType())
+                                                                 .cdnHost(streamUrl)
+                                                                 .format(getCurrentFormat())
+                                                                 .bitrate(getCurrentBitrate())
+                                                                 .userUrn(accountOperations.getLoggedInUserUrn())
+                                                                 .build();
         eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
@@ -713,7 +716,8 @@ public class MediaPlayerAdapter implements
         private WeakReference<MediaPlayerAdapter> mediaPlayerAdapterWeakReference;
 
         @Inject
-        PlayerHandler() {}
+        PlayerHandler() {
+        }
 
         @VisibleForTesting
         void setMediaPlayerAdapter(MediaPlayerAdapter adapter) {

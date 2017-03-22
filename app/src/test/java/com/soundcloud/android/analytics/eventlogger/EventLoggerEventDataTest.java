@@ -3,10 +3,12 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerEventData.ITEM_INTERACTION;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
@@ -190,4 +192,35 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
         data.referringEvent(uuid, "Random Event Type");
     }
+
+    @Test
+    public void shouldAddPlaybackDetailsAsJson() {
+        final String detailsJson = "{\"some\":{\"key\": 1234}}";
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.playbackDetails(Optional.of(detailsJson));
+
+        JsonNode details = (JsonNode) data.payload.get("details");
+        assertThat(details.get("some").get("key").asLong()).isEqualTo(1234);
+    }
+
+    @Test
+    public void shouldIgnoreMalformedPlaybackDetailsJson() {
+        final String detailsJson = "me-no-entiende";
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.playbackDetails(Optional.of(detailsJson));
+
+        assertThat(data.payload.containsKey("details")).isFalse();
+    }
+
+    @Test
+    public void shouldNotAddDetailsWhenNotAvailable() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.playbackDetails(Optional.absent());
+
+        assertThat(data.payload.containsKey("details")).isFalse();
+    }
+
 }

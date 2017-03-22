@@ -19,6 +19,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.COLU
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONTEXT_POSITION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DETAILS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
@@ -76,6 +77,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ReferringEvent;
@@ -90,6 +93,7 @@ import com.soundcloud.java.strings.Strings;
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -438,6 +442,13 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData playbackDetails(Optional<String> json) {
+        if (json.isPresent()) {
+            addJsonToPayload(DETAILS, json.get());
+        }
+        return this;
+    }
+
     public EventLoggerEventData errorName(String errorName) {
         addToPayload(ERROR_NAME, errorName);
         return this;
@@ -597,6 +608,16 @@ class EventLoggerEventData {
     protected void addToPayload(String key, String value) {
         if (Strings.isNotBlank(value)) {
             payload.put(key, value);
+        }
+    }
+
+    private void addJsonToPayload(String key, String value) {
+        if (Strings.isNotBlank(value)) {
+            try {
+                payload.put(key, JacksonJsonTransformer.buildObjectMapper().readValue(value, JsonNode.class));
+            } catch (IOException e) {
+                // ignore malformed json
+            }
         }
     }
 

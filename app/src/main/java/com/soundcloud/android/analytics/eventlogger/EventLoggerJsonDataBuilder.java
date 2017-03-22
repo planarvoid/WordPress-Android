@@ -9,10 +9,10 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -121,15 +121,16 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildPlaybackPerformanceEvent(PlaybackPerformanceEvent event) {
-        return buildBaseEvent(event.eventName().key(), event.getTimestamp())
-                .latency(event.getMetricValue())
-                .protocol(event.getProtocol().getValue())
-                .playerType(event.getPlayerType().getValue())
-                .type(getPerformanceEventType(event.getMetric()))
-                .host(event.getCdnHost())
-                .format(event.getFormat())
-                .bitrate(String.valueOf(event.getBitrate()))
-                .connectionType(event.getConnectionType().getValue());
+        return buildBaseEvent(event.eventName().key(), event.timestamp())
+                .latency(event.metricValue())
+                .protocol(event.protocol().getValue())
+                .playerType(event.playerType().getValue())
+                .type(getPerformanceEventType(event.metric()))
+                .host(event.cdnHost())
+                .format(event.format())
+                .bitrate(String.valueOf(event.bitrate()))
+                .connectionType(event.connectionType().getValue())
+                .playbackDetails(event.details());
     }
 
     public String build(PlaybackErrorEvent event) {

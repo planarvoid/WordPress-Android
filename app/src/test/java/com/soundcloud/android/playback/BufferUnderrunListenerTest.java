@@ -58,8 +58,8 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(playbackPerformanceEvents).hasSize(1);
 
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
-        assertThat(event.getMetricValue()).isEqualTo(900L);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.metricValue()).isEqualTo(900L);
     }
 
     @Test
@@ -86,10 +86,10 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(playbackPerformanceEvents).hasSize(1);
 
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
-        assertThat(event.getMetricValue()).isEqualTo(900L);
-        assertThat(event.getBitrate()).isEqualTo(1001000);
-        assertThat(event.getFormat()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.metricValue()).isEqualTo(900L);
+        assertThat(event.bitrate()).isEqualTo(1001000);
+        assertThat(event.format()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
         assertThat(event.isVideoAd()).isTrue();
     }
 
@@ -129,8 +129,8 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
-        assertThat(event.getMetricValue()).isEqualTo(1050L);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.metricValue()).isEqualTo(1050L);
     }
 
     @Test
@@ -161,8 +161,8 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(playbackPerformanceEvents).hasSize(1);
 
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
-        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
-        assertThat(event.getMetricValue()).isEqualTo(4900L);
+        assertThat(event.metric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.metricValue()).isEqualTo(4900L);
     }
 
     private void createAndProcessStateTransition(PlayerType player,
