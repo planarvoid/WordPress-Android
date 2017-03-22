@@ -2,7 +2,6 @@ package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
 
-import android.support.v4.view.WindowCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -50,7 +49,6 @@ public class BaseLayoutHelper {
     }
 
     private View createLayout(AppCompatActivity activity, int baseLayoutId) {
-        activity.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
         final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
         activity.setContentView(layout);
         return layout;

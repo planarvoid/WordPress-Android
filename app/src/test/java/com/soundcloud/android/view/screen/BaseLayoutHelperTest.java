@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -37,15 +36,6 @@ public class BaseLayoutHelperTest {
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
-    }
-
-    @Test
-    public void shouldRequestActionBarOverlayFeatureOnSettingLayout() {
-        when(inflater.inflate(R.layout.base, null)).thenReturn(layout);
-
-        helper.setBaseLayout(activity);
-
-        verify(activity).supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
     }
 
     @Test
