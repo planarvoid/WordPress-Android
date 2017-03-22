@@ -2,6 +2,6 @@
 <resources>
 
     <!-- Conversion -->
-    <dimen name="conversion_margin">54dp</dimen>
+    <dimen name="conversion_margin">40dp</dimen>
 
 </resources>
