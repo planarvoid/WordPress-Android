@@ -1008,6 +1008,21 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentPlayQueueItem().getUrn()).isEqualTo(track1);
     }
 
+    @Test
+    public void insertItemsPublishesEvent() {
+        final Urn track1 = Urn.forTrack(1);
+        final List<Urn> urns = asList(Urn.forPlaylist(123), Urn.forPlaylist(123), track1);
+
+        playQueueManager.setNewPlayQueue(TestPlayQueue.fromUrns(urns, playlistSessionSource), playlistSessionSource, 2);
+
+
+        playQueueManager.insertItemsAtPosition(1, Lists.newArrayList(TestPlayQueueItem.createTrack(track1)));
+
+        List<PlayQueueEvent> playQueueEvents = eventBus.eventsOn(EventQueue.PLAY_QUEUE);
+        assertThat(playQueueEvents.size()).isEqualTo(2);
+        assertThat(playQueueEvents.get(1).itemAdded()).isTrue();
+    }
+
     public void removeUpcomingItemDoesNotRemoveCurrentItem() {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L);
         final int currentPosition = playQueueManager.getCurrentPosition();
@@ -1425,50 +1440,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getCurrentQueueTrackUrns()).containsAll(trackUrns);
     }
 
-    @Test
-    public void setCurrentPlayQueueItemWithPositionSetsOnlyForTracks() {
-        final PlayQueueItem playlistItem = TestPlayQueueItem.createPlaylist(Urn.forPlaylist(245L));
-        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final SimplePlayQueue playQueue = new SimplePlayQueue(asList(playlistItem, trackItem));
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), 0);
-
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
-    }
-
-    @Test
-    public void setCurrentPlayQueueItemWithPositionFallbacksToUrn() {
-        final PlayQueueItem playlistItem = TestPlayQueueItem.createPlaylist(Urn.forPlaylist(245L));
-        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final SimplePlayQueue playQueue = new SimplePlayQueue(asList(playlistItem, trackItem));
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), -1);
-
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
-    }
-
-    @Test
-    public void setCurrentPlayQueueItemWithSameTrackMultipleTimes() {
-        final PlayQueueItem playlistItem = TestPlayQueueItem.createPlaylist(Urn.forPlaylist(245L));
-        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final List<PlayQueueItem> playQueueItems = asList(playlistItem,
-                                                          trackItem,
-                                                          trackItem,
-                                                          playlistItem,
-                                                          trackItem);
-        final SimplePlayQueue playQueue = new SimplePlayQueue(playQueueItems);
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), 1);
-
-        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
-    }
-
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionOnInsert1() {
         playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
@@ -1505,35 +1476,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
                 PlayQueueEvent.fromNewQueue(PLAYLIST_URN),
                 PlayQueueEvent.fromQueueUpdateMoved(PLAYLIST_URN));
-    }
-
-    @Test
-    public void shouldInsertItemAtPosition() {
-        PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
-        playQueue = mock(PlayQueue.class);
-        playQueueManager.setNewPlayQueue(playQueue,
-                                         PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
-
-        playQueueManager.insertItemAtPosition(5, playQueueItem);
-
-        verify(playQueue).insertPlayQueueItem(5, playQueueItem);
-    }
-
-    @Test
-    public void shouldPublishEventsWhenItemsInserted() {
-        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
-        final PlayQueueItem item1 = new TrackQueueItem.Builder(Urn.forTrack(123L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final PlayQueueItem item2 = new TrackQueueItem.Builder(Urn.forTrack(124L)).withPlaybackContext(
-                PlaybackContext.create(playlistSessionSource)).build();
-        final SimplePlayQueue playQueue = new SimplePlayQueue(newArrayList(item1, item2));
-        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-
-        playQueueManager.insertItemAtPosition(2, playQueueItem);
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
-                PlayQueueEvent.fromNewQueue(PLAYLIST_URN),
-                PlayQueueEvent.fromQueueInsert(PLAYLIST_URN));
     }
 
     @Test

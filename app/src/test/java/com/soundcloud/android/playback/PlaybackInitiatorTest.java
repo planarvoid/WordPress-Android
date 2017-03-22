@@ -418,7 +418,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final Urn currentTrackUrn = station.getTracks().get(0).getTrackUrn();
 
         when(playQueueManager.isCurrentTrack(currentTrackUrn)).thenReturn(true);
-        when(playQueueManager.isCurrentCollectionOrRecommendation(stationUrn)).thenReturn(true);
+        when(playQueueManager.isCurrentCollection(stationUrn)).thenReturn(true);
         when(playSessionController.playNewQueue(any(PlayQueue.class),
                                                 any(Urn.class),
                                                 anyInt(),

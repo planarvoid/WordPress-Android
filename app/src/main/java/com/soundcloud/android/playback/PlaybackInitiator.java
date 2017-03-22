@@ -148,7 +148,7 @@ public class PlaybackInitiator {
     }
 
     private boolean isCurrentPlayQueueOrRecommendationState(Urn trackUrn, PlaySessionSource playSessionSource) {
-        return isCurrentTrack(trackUrn) && isCurrentScreenSource(playSessionSource) && playQueueManager.isCurrentCollectionOrRecommendation(playSessionSource.getCollectionUrn());
+        return isCurrentTrack(trackUrn) && isCurrentScreenSource(playSessionSource) && playQueueManager.isCurrentCollection(playSessionSource.getCollectionUrn());
     }
 
 }

@@ -430,7 +430,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         reset(playQueueViewContract);
         presenter.undoClicked();
 
-        verify(playQueueManager).insertItemAtPosition(eq(0), any());
+        verify(playQueueManager).insertItemsAtPosition(eq(0), any());
         verify(playQueueViewContract).setItems(anyList());
     }
 

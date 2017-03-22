@@ -165,33 +165,6 @@ public class PlayQueueManager {
         return playQueue.indexOfPlayQueueItem(playQueueItem);
     }
 
-    public void setCurrentPlayQueueItem(Urn urn) {
-        setPositionInternal(playQueue.indexOfTrackUrn(urn), true);
-    }
-
-    void setCurrentPlayQueueItem(Urn urn, int trackPosition) {
-        int queuePosition = getQueuePositionFromTrack(trackPosition);
-        PlayQueueItem playQueueItem = getPlayQueueItemAtPosition(queuePosition);
-
-        if (!playQueueItem.isEmpty() && playQueueItem.getUrn().equals(urn)) {
-            setPositionInternal(queuePosition, true);
-        } else {
-            setCurrentPlayQueueItem(urn);
-        }
-    }
-
-    private int getQueuePositionFromTrack(int position) {
-        for (int queuePosition = 0, trackPosition = 0; queuePosition < playQueue.size(); queuePosition++) {
-            if (getPlayQueueItemAtPosition(queuePosition).getUrn().isTrack()) {
-                if (trackPosition == position) {
-                    return queuePosition;
-                }
-                trackPosition++;
-            }
-        }
-        return Consts.NOT_SET;
-    }
-
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
         return Lists.newArrayList(Iterables.filter(playQueue, predicate));
     }
@@ -668,10 +641,6 @@ public class PlayQueueManager {
         return getCollectionUrn().equals(collection);
     }
 
-    boolean isCurrentCollectionOrRecommendation(Urn collection) {
-        return getCollectionUrn().equals(collection);
-    }
-
     public String getScreenTag() {
         return playSessionSource.getOriginScreen();
     }
@@ -740,13 +709,9 @@ public class PlayQueueManager {
         }
     }
 
-    public void insertItemAtPosition(int position, PlayQueueItem item) {
-        playQueue.insertPlayQueueItem(position, item);
-        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
-    }
-
     public void insertItemsAtPosition(int position, List<PlayQueueItem> playQueueItems) {
         playQueue.insertAllItems(position, playQueueItems);
+        eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueInsert(getCollectionUrn()));
     }
 
     public void removeItem(PlayQueueItem item) {
