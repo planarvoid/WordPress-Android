@@ -34,6 +34,7 @@ public class PlayQueueDataProviderTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         playQueueDataProvider = new PlayQueueDataProvider(playQueueOperations, playQueueUIItemMapper, eventBus);
+
     }
 
     @Test
@@ -80,38 +81,5 @@ public class PlayQueueDataProviderTest {
         subscriber.assertValueCount(2);
         subscriber.assertValues(Lists.emptyList(), Lists.emptyList());
     }
-
-    @Test
-    public void emitsUIItemsAfterSecondCurrentEvent() {
-        when(playQueueOperations.getTracks()).thenReturn(Observable.just(Lists.emptyList()));
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.EMPTY_MAP));
-        when(playQueueUIItemMapper.call(anyList(), anyMap())).thenReturn(Lists.emptyList());
-
-        TestSubscriber<List<PlayQueueUIItem>> subscriber = TestSubscriber.create();
-        playQueueDataProvider.getPlayQueueUIItems().subscribe(subscriber);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(PlayQueueItem.EMPTY, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(PlayQueueItem.EMPTY, Urn.NOT_SET, 0));
-
-
-        subscriber.assertValueCount(2);
-        subscriber.assertValues(Lists.emptyList(), Lists.emptyList());
-    }
-
-    @Test
-    public void ignoresFirstCurrentEvent() {
-        when(playQueueOperations.getTracks()).thenReturn(Observable.just(Lists.emptyList()));
-        when(playQueueOperations.getContextTitles()).thenReturn(Observable.just(Collections.EMPTY_MAP));
-        when(playQueueUIItemMapper.call(anyList(), anyMap())).thenReturn(Lists.emptyList());
-
-        TestSubscriber<List<PlayQueueUIItem>> subscriber = TestSubscriber.create();
-        playQueueDataProvider.getPlayQueueUIItems().subscribe(subscriber);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(PlayQueueItem.EMPTY, Urn.NOT_SET, 0));
-
-        subscriber.assertValueCount(1);
-        subscriber.assertValues(Lists.emptyList());
-    }
-
 
 }

@@ -97,6 +97,7 @@ class PlayQueuePresenter {
 
     void detachContract() {
         playQueueView = Optional.absent();
+        playQueueDataProvider.clearRemoveSubscriptions();
         subscriptions.clear();
         resetUI = true;
     }
