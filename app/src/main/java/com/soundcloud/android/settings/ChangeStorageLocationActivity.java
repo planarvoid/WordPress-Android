@@ -24,10 +24,9 @@ public class ChangeStorageLocationActivity extends LoggedInActivity {
         baseLayoutHelper.setupActionBar(this);
     }
 
-    // TODO: Use correct Screen spec once https://soundcloud.atlassian.net/browse/DSMONETIZE-118 is played
     @Override
     public Screen getScreen() {
-        return Screen.SETTINGS_OFFLINE;
+        return Screen.SETTINGS_OFFLINE_STORAGE_LOCATION;
     }
 
     @Override

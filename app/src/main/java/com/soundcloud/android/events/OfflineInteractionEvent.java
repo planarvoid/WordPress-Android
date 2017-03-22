@@ -3,6 +3,8 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_COLLECTION_SYNC_DISABLE;
 import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_OFFLINE_PLAYLIST_ADD;
 import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_OFFLINE_PLAYLIST_REMOVE;
+import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE;
+import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD;
 import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_WIFI_SYNC_DISABLE;
 import static com.soundcloud.android.events.OfflineInteractionEvent.Kind.KIND_WIFI_SYNC_ENABLE;
 import static com.soundcloud.android.events.OfflineInteractionEvent.EventName.IMPRESSION;
@@ -13,6 +15,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.NonNull;
@@ -47,7 +50,9 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
         KIND_OFFLINE_PLAYLIST_ADD("playlist_to_offline::add"),
         KIND_OFFLINE_PLAYLIST_REMOVE("playlist_to_offline::remove"),
         KIND_OFFLINE_LIKES_ADD("automatic_likes_sync::enable"),
-        KIND_OFFLINE_LIKES_REMOVE("automatic_likes_sync::disable");
+        KIND_OFFLINE_LIKES_REMOVE("automatic_likes_sync::disable"),
+        KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD("offline_storage_location::confirm_sd"),
+        KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE("offline_storage_location::confirm_device");
         private final String key;
 
         Kind(String key) {
@@ -118,6 +123,16 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
 
     public static OfflineInteractionEvent forOnlyWifiOverWifiToggle(boolean wifiOnlySyncEnabled) {
         return clickEventBuilder(wifiOnlySyncEnabled ? KIND_WIFI_SYNC_ENABLE : KIND_WIFI_SYNC_DISABLE).build();
+    }
+
+    public static OfflineInteractionEvent forOfflineStorageLocationConfirm(OfflineContentLocation offlineContentLocation, String pageName) {
+        return clickEventBuilder(getOfflineStorageLocationConfirmKind(offlineContentLocation)).pageName(Optional.of(pageName)).build();
+    }
+
+    private static Kind getOfflineStorageLocationConfirmKind(OfflineContentLocation offlineContentLocation) {
+        return OfflineContentLocation.DEVICE_STORAGE == offlineContentLocation
+                                 ? KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE
+                                 : KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD;
     }
 
     public static OfflineInteractionEvent fromRemoveOfflineLikes(String pageName) {

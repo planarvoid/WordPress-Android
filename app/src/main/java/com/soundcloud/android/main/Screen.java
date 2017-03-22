@@ -117,6 +117,8 @@ public enum Screen {
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
     SETTINGS_OFFLINE("settings:offline_sync_settings"),
+    SETTINGS_OFFLINE_STORAGE_LOCATION("settings:offline_storage_location"),
+    SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM("settings:offline_storage_location_confirm"),
     SETTINGS_LEGAL("settings:legal"),
     SETTINGS_LICENSES("settings:licenses"),
     SETTINGS_AUTOMATIC_SYNC_ONBOARDING("settings:automatic_sync_onboarding"),

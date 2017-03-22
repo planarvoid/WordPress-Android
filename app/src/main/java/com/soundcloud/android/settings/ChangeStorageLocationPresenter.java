@@ -9,11 +9,17 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -31,16 +37,18 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
     @BindView(R.id.internal_device_storage) SummaryRadioButton storageRadioButton;
     @BindView(R.id.sd_card) SummaryRadioButton sdCardRadioButton;
 
-    private AppCompatActivity activity;
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final OfflineContentOperations offlineContentOperations;
+    private final EventBus eventBus;
 
+    private AppCompatActivity activity;
     private Unbinder unbinder;
 
     @Inject
-    ChangeStorageLocationPresenter(OfflineSettingsStorage offlineSettingsStorage, OfflineContentOperations offlineContentOperations) {
+    ChangeStorageLocationPresenter(OfflineSettingsStorage offlineSettingsStorage, OfflineContentOperations offlineContentOperations, EventBus eventBus) {
         this.offlineSettingsStorage = offlineSettingsStorage;
         this.offlineContentOperations = offlineContentOperations;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -105,9 +113,12 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
                 .setOnCancelListener((dialog) -> handleCancel())
                 .create()
                 .show();
+
+        trackEvent(ScreenEvent.create(Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM));
     }
 
     private void resetOfflineContent(OfflineContentLocation offlineContentLocation) {
+        trackEvent(OfflineInteractionEvent.forOfflineStorageLocationConfirm(offlineContentLocation, Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM.get()));
         fireAndForget(offlineContentOperations.resetOfflineContent(offlineContentLocation));
         activity.finish();
     }
@@ -115,5 +126,9 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
     private void handleCancel() {
         storageOptionsRadioGroup.setOnCheckedChangeListener(null);
         updateRadioGroup();
+    }
+
+    private void trackEvent(TrackingEvent event) {
+        eventBus.publish(EventQueue.TRACKING, event);
     }
 }
