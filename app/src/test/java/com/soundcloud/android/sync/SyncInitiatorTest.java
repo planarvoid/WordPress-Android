@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,19 +17,20 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class SyncInitiatorTest extends AndroidUnitTest {
 
     private SyncInitiator syncInitiator;
     private TestSubscriber<SyncJobResult> syncSubscriber = new TestSubscriber<>();
+    private TestObserver<SyncJobResult> syncObserver = new TestObserver<>();
 
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
-        syncInitiator = new SyncInitiator(context(),
-                                          accountOperations);
+        syncInitiator = new SyncInitiator(context(), accountOperations);
     }
 
     @Test
@@ -42,7 +44,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
         syncSubscriber.assertCompleted();
     }
 
@@ -58,13 +60,28 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
         syncSubscriber.assertCompleted();
     }
 
     @Test
+    public void synchroniseCreatesObservableForSyncable() {
+        syncInitiator.synchronise(Syncable.CHARTS).subscribe(syncObserver);
+
+        Intent intent = getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
+        assertThat(intent.<Parcelable>getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
+
+        syncObserver.assertNoValues();
+        final SyncJobResult result = sendSyncChangedToReceiver(intent);
+        syncObserver.assertValues(result);
+        syncObserver.assertComplete();
+    }
+
+    @Test
     public void batchSyncTrackCreatesObservableForTrackSync() {
-        final List<Urn> entities = Arrays.asList(Urn.forTrack(123));
+        final List<Urn> entities = Collections.singletonList(Urn.forTrack(123));
         syncInitiator.batchSyncTracks(entities).subscribe(syncSubscriber);
 
         Intent intent = getNextStartedService();
@@ -79,7 +96,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void batchSyncUsersCreatesObservableForUsersSync() {
-        final List<Urn> entities = Arrays.asList(Urn.forUser(123));
+        final List<Urn> entities = Collections.singletonList(Urn.forUser(123));
         syncInitiator.batchSyncUsers(entities).subscribe(syncSubscriber);
 
         Intent intent = getNextStartedService();
@@ -88,13 +105,13 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
         syncSubscriber.assertCompleted();
     }
 
     @Test
     public void batchSyncPlaylistsCreatesObservableForPlaylistsSync() {
-        final List<Urn> entities = Arrays.asList(Urn.forPlaylist(123));
+        final List<Urn> entities = Collections.singletonList(Urn.forPlaylist(123));
         syncInitiator.batchSyncPlaylists(entities).subscribe(syncSubscriber);
 
         Intent intent = getNextStartedService();
@@ -103,7 +120,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
         syncSubscriber.assertCompleted();
     }
 
@@ -113,11 +130,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
-        assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Arrays.asList(Urn.forPlaylist(123)));
+        assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Collections.singletonList(Urn.forPlaylist(123)));
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
         syncSubscriber.assertCompleted();
     }
 
@@ -127,11 +144,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
         Intent intent = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.PLAYLIST);
-        assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Arrays.asList(Urn.forPlaylist(123)));
+        assertThat(SyncIntentHelper.getSyncEntities(intent)).isEqualTo(Collections.singletonList(Urn.forPlaylist(123)));
 
         syncSubscriber.assertNoValues();
         final SyncJobResult result = sendSyncChangedToReceiver(intent);
-        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertReceivedOnNext(Collections.singletonList(result));
 
         Intent syncMyPlaylists = getNextStartedService();
         assertThat(SyncIntentHelper.getSyncable(syncMyPlaylists)).isEqualTo(Syncable.MY_PLAYLISTS);

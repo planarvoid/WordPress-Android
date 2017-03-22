@@ -2,6 +2,7 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import rx.Observable;
 import rx.functions.Action0;
 
@@ -43,6 +44,10 @@ public class SyncInitiator {
 
     public Observable<SyncJobResult> sync(Syncable syncable) {
         return getSyncObservable(createIntent(syncable));
+    }
+
+    public io.reactivex.Observable<SyncJobResult> synchronise(Syncable syncable) {
+        return RxJava.toV2Observable(getSyncObservable(createIntent(syncable)));
     }
 
     public Observable<SyncJobResult> sync(Syncable syncable, String action) {
@@ -112,7 +117,6 @@ public class SyncInitiator {
                     context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                 });
     }
-
 
     public boolean requestSystemSync() {
         final Account soundCloudAccount = accountOperations.getSoundCloudAccount();

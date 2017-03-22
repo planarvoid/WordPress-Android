@@ -1,51 +1,31 @@
 package com.soundcloud.android.rx.observers;
 
-import rx.Observer;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import io.reactivex.observers.ResourceObserver;
 
-public class DefaultObserver<T> implements Observer<T> {
+/**
+ * Default {@link ResourceObserver} base class to be used whenever you want default error handling
+ */
+public class DefaultObserver<T> extends ResourceObserver<T> {
 
-    private Action1<? super T> onNextAction;
-    private Action1<Throwable> onErrorAction;
-    private Action0 onCompletedAction;
+    private final ErrorReporter errorReporter = new ErrorReporter();
 
-    public DefaultObserver(Action1<? super T> onNextAction) {
-        this(onNextAction, null, null);
-    }
-
-    public DefaultObserver(Action1<? super T> onNextAction, Action1<Throwable> onErrorAction) {
-        this(onNextAction, onErrorAction, null);
-    }
-
-    public DefaultObserver(Action1<? super T> onNextAction, Action1<Throwable> onErrorAction, Action0 onCompletedAction) {
-        this.onNextAction = onNextAction;
-        this.onErrorAction = onErrorAction;
-        this.onCompletedAction = onCompletedAction;
-    }
-
-    public static <T> DefaultObserver<T> onNext(Action1<? super T> onNextAction) {
-        return new DefaultObserver<>(onNextAction);
+    @Override
+    protected void onStart() {
+        errorReporter.handleOnStart();
     }
 
     @Override
-    public void onCompleted() {
-        if (onCompletedAction != null) {
-            onCompletedAction.call();
-        }
+    public void onNext(T object) {
+        // no-op by default.
     }
 
     @Override
-    public void onError(Throwable e) {
-        if (onErrorAction != null) {
-            onErrorAction.call(e);
-        }
+    public void onComplete() {
+        errorReporter.handleOnComplete();
     }
 
     @Override
-    public void onNext(T t) {
-        if (onNextAction != null) {
-            onNextAction.call(t);
-        }
+    public void onError(Throwable throwable) {
+        errorReporter.handleOnError(throwable);
     }
 }

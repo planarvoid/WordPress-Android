@@ -19,6 +19,7 @@ import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -40,8 +41,10 @@ import java.util.List;
 
 class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, ChartTrackListItem> {
 
-    private static final int NUM_EXTRA_ITEMS = 2;
     static final int HEADER_OFFSET = 1;
+
+    private static final int NUM_EXTRA_ITEMS = 2;
+
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -129,7 +132,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
         }
     }
 
-    private final Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> toChartTrackListItems() {
+    private Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> toChartTrackListItems() {
         return apiChart -> {
             final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(apiChart.tracks()
                                                                                          .getCollection()
@@ -159,9 +162,9 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     protected CollectionBinding<ApiChart<ApiTrack>, ChartTrackListItem> onBuildBinding(Bundle bundle) {
         final ChartType chartType = (ChartType) bundle.getSerializable(ChartTracksFragment.EXTRA_TYPE);
         final Urn chartUrn = bundle.getParcelable(ChartTracksFragment.EXTRA_GENRE_URN);
+        final Observable<ApiChart<ApiTrack>> chartTracks = RxJava.toV1Observable(chartsOperations.tracks(chartType, chartUrn.getStringId()));
         return CollectionBinding
-                .from(chartsOperations.tracks(chartType, chartUrn.getStringId()).doOnNext(trackChart),
-                      toChartTrackListItems())
+                .from(chartTracks.doOnNext(trackChart), toChartTrackListItems())
                 .withAdapter(chartTracksAdapter)
                 .build();
     }

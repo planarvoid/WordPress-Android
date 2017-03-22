@@ -90,7 +90,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.user());
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.singletonList(Track.from(ModelFixtures.create(ApiTrack.class))));
 
-        when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
+        when(chartsOperations.featuredCharts()).thenReturn(io.reactivex.Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(Observable.just(playlistsItem));
@@ -321,7 +321,7 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadAllItemsWithError() {
-        when(chartsOperations.featuredCharts()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
+        when(chartsOperations.featuredCharts()).thenReturn(io.reactivex.Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));

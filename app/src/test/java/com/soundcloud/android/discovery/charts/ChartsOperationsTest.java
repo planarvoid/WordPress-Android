@@ -11,21 +11,21 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncOperations;
-import com.soundcloud.android.sync.SyncOperations.Result;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.NewSyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,15 +37,17 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     private static final ChartType TYPE = ChartType.TOP;
 
     private final PublishSubject<Result> syncSubject = PublishSubject.create();
-    private final TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
-    private final TestSubscriber<ApiChart<ApiTrack>> chartTrackSubscriber = new TestSubscriber<>();
-    private final TestSubscriber<List<Chart>> genresSubscriber = new TestSubscriber<>();
+
+    private final TestObserver<DiscoveryItem> discoveryItemsObserver = new TestObserver<>();
+    private final TestObserver<ApiChart<ApiTrack>> chartTrackObserver = new TestObserver<>();
+    private final TestObserver<List<Chart>> genresObserver = new TestObserver<>();
+
     private final Chart musicChart = createGenreChart(1L, ChartCategory.MUSIC);
     private final Chart audioChart = createGenreChart(2L, ChartCategory.AUDIO);
 
     private ChartsOperations operations;
 
-    @Mock private SyncOperations syncOperations;
+    @Mock private NewSyncOperations syncOperations;
     @Mock private StoreChartsCommand storeChartsCommand;
     @Mock private ChartsStorage chartsStorage;
     @Mock private StoreTracksCommand storeTracksCommand;
@@ -53,10 +55,8 @@ public class ChartsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        this.operations = new ChartsOperations(syncOperations, storeChartsCommand,
-                                               storeTracksCommand,
-                                               chartsStorage,
-                                               chartsApi, Schedulers.immediate());
+        this.operations = new ChartsOperations(syncOperations, storeChartsCommand, storeTracksCommand, chartsStorage,
+                chartsApi, Schedulers.trampoline());
         when(syncOperations.lazySyncIfStale(Syncable.CHARTS)).thenReturn(syncSubject);
         when(syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)).thenReturn(syncSubject);
     }
@@ -65,24 +65,23 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     public void lazySyncAndLoadFromStorage() {
         initChartsForModule();
 
-        operations.featuredCharts().subscribe(subscriber);
-        subscriber.assertNoValues();
+        operations.featuredCharts().subscribe(discoveryItemsObserver);
+        discoveryItemsObserver.assertNoValues();
 
         syncSubject.onNext(Result.SYNCING);
 
-        subscriber.getOnNextEvents();
-        subscriber.assertValueCount(1);
+        discoveryItemsObserver.assertValueCount(1);
     }
 
     @Test
     public void returnsDiscoveryItemWithHotAndNewAndTopFiftyChartsAndGenres() {
         initChartsForModule();
 
-        operations.featuredCharts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(discoveryItemsObserver);
         syncSubject.onNext(Result.SYNCING);
 
-        subscriber.assertValueCount(1);
-        final DiscoveryItem discoveryItem = subscriber.getOnNextEvents().get(0);
+        discoveryItemsObserver.assertValueCount(1);
+        final DiscoveryItem discoveryItem = discoveryItemsObserver.values().get(0);
 
         assertThat(discoveryItem.getKind()).isEqualTo(ChartItem);
     }
@@ -92,10 +91,10 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final Chart topFiftyChart = createTopFiftyChart();
         initChartsWithTracks(topFiftyChart);
 
-        operations.featuredCharts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(discoveryItemsObserver);
         syncSubject.onNext(Result.SYNCING);
 
-        subscriber.assertNoValues();
+        discoveryItemsObserver.assertNoValues();
     }
 
     @Test
@@ -103,10 +102,10 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final Chart hotAndNewChart = createHotAndNewChart();
         initChartsWithTracks(hotAndNewChart);
 
-        operations.featuredCharts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(discoveryItemsObserver);
         syncSubject.onNext(Result.SYNCING);
 
-        subscriber.assertNoValues();
+        discoveryItemsObserver.assertNoValues();
     }
 
     @Test
@@ -114,10 +113,10 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final ApiChart<ApiTrack> apiChart = ChartsFixtures.createApiChart(GENRE, TYPE);
         when(chartsApi.chartTracks(TYPE, GENRE)).thenReturn(Observable.just(apiChart));
 
-        operations.tracks(TYPE, GENRE).subscribe(chartTrackSubscriber);
+        operations.tracks(TYPE, GENRE).subscribe(chartTrackObserver);
 
-        chartTrackSubscriber.assertValueCount(1);
-        final ApiChart<ApiTrack> chartTrackItems = chartTrackSubscriber.getOnNextEvents().get(0);
+        chartTrackObserver.assertValueCount(1);
+        final ApiChart<ApiTrack> chartTrackItems = chartTrackObserver.values().get(0);
 
         assertThat((chartTrackItems.tracks().getCollection().get(0)).getUrn()).isEqualTo(apiChart.tracks()
                                                                                                  .getCollection()
@@ -131,13 +130,13 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final ChartCategory chartCategory = ChartCategory.MUSIC;
         initGenresStorage(chartCategory);
 
-        operations.genresByCategory(chartCategory).subscribe(genresSubscriber);
+        operations.genresByCategory(chartCategory).subscribe(genresObserver);
 
-        genresSubscriber.assertNoValues();
+        genresObserver.assertNoValues();
 
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(genresSubscriber.getOnNextEvents().get(0)).containsExactly(musicChart);
+        assertThat(genresObserver.values().get(0)).containsExactly(musicChart);
     }
 
     private void initGenresStorage(ChartCategory chartCategory) {
@@ -183,12 +182,12 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final TrackArtwork trackArtwork = TrackArtwork.create(Urn.forTrack(localId), Optional.absent());
 
         return Chart.create(localId,
-                            trending,
-                            none,
-                            "title",
-                            new Urn("soundcloud:chart"),
-                            chartBucketType,
-                            Collections.singletonList(trackArtwork));
+                trending,
+                none,
+                "title",
+                new Urn("soundcloud:chart"),
+                chartBucketType,
+                Collections.singletonList(trackArtwork));
     }
 
     private void initChartsWithTracks(ChartBucket charts) {

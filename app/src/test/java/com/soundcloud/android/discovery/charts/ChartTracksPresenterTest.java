@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery.charts;
 
 import static com.soundcloud.android.api.model.ChartCategory.MUSIC;
 import static com.soundcloud.android.api.model.ChartType.TOP;
-import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItem;
 import static org.mockito.Matchers.any;
@@ -13,12 +12,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
-import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -28,15 +25,11 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -50,10 +43,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 public class ChartTracksPresenterTest extends AndroidUnitTest {
-
-    @Rule public FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
-
     private static final ChartType CHART_TYPE = TOP;
     private static final String GENRE = "rock";
     private static final Urn GENRE_URN = new Urn("soundcloud:genres:" + GENRE);
@@ -61,15 +52,15 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.Header.create(TOP);
     private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1, Optional.of(QUERY_URN));
     private static final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2, Optional.of(QUERY_URN));
-    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3, Optional.<Urn>absent());
+    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3, Optional.absent());
     private static final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.Footer.create(new Date(10));
     private static final ApiChart<ApiTrack> API_CHART = ChartsFixtures.createApiChart(GENRE, CHART_TYPE);
     private static final ApiChart<ApiTrack> API_CHART_NO_QUERY_URN = ChartsFixtures.createApiChart(GENRE, CHART_TYPE, null);
     private static final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
-            FIRST_TRACK_ITEM,
-            SECOND_TRACK_ITEM,
-            THIRD_TRACK_ITEM,
-            FOOTER);
+                                                                          FIRST_TRACK_ITEM,
+                                                                          SECOND_TRACK_ITEM,
+                                                                          THIRD_TRACK_ITEM,
+                                                                          FOOTER);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private ChartsOperations chartsOperations;
@@ -77,13 +68,14 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ChartsTracker chartsTracker;
     @Mock private Fragment fragment;
-    private EventBus eventBus = new TestEventBus();
+    @Mock private EventBus eventBus;
     @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
             new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
+
     private ChartTracksPresenter chartTracksPresenter;
     private Bundle bundle;
 
@@ -98,7 +90,8 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                         ModelFixtures.entityItemCreator(),
                                                         playSessionStateProvider,
                                                         eventBus);
-        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART));
+
+        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(io.reactivex.Observable.just(API_CHART));
         bundle = getChartArguments();
         when(fragment.getArguments()).thenReturn(bundle);
         when(miniplayerExperiment.canExpandPlayer()).thenReturn(true);
@@ -110,6 +103,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         final ArrayList<Urn> expectedPlayQueue = Lists.newArrayList(FIRST_TRACK_ITEM.chartTrackItem().getUrn(),
                                                                     SECOND_TRACK_ITEM.chartTrackItem().getUrn(),
                                                                     THIRD_TRACK_ITEM.chartTrackItem().getUrn());
+
         final int chartItemPosition = CHART_TRACK_ITEMS.indexOf(SECOND_TRACK_ITEM);
         int queryPosition = chartItemPosition - 1;
         when(chartTracksAdapter.getItem(chartItemPosition)).thenReturn(SECOND_TRACK_ITEM);
@@ -123,27 +117,11 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         final ChartTrackItem chartTrackItem = SECOND_TRACK_ITEM.chartTrackItem();
         final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(chartTrackItem.getUrn());
         final PlaySessionSource playSessionSource = PlaySessionSource.forChart(screenString,
-                queryPosition,
-                QUERY_URN,
-                chartTrackItem.chartType(),
-                chartTrackItem.genre());
+                                                                               queryPosition,
+                                                                               QUERY_URN,
+                                                                               chartTrackItem.chartType(),
+                                                                               chartTrackItem.genre());
         verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, playSessionSource);
-    }
-
-    @Test
-    public void triggersSubscriberWhenTrackIsPlaying() {
-        fragmentRule.setFragmentArguments(bundle);
-        chartTracksPresenter.onCreate(fragmentRule.getFragment(), bundle);
-        chartTracksPresenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), bundle);
-
-        Urn urn = Urn.forTrack(123L);
-
-        eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(
-                TestPlayQueueItem.createTrack(urn),
-                Urn.NOT_SET,
-                0));
-
-        verify(chartTracksAdapter).updateNowPlaying(urn);
     }
 
     @Test
@@ -191,7 +169,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotLoadDataInTrackerWhenQueryUrnNotAvailable() {
-        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART_NO_QUERY_URN));
+        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(io.reactivex.Observable.just(API_CHART_NO_QUERY_URN));
         chartTracksPresenter.onCreate(fragment, bundle);
         verifyZeroInteractions(chartsTracker);
     }
@@ -199,7 +177,6 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     private static ChartTrackListItem.Track createChartTrackListItem(int position, Optional<Urn> queryUrn) {
         return ChartTrackListItem.Track.create(new ChartTrackItem(TOP, trackItem(Urn.forTrack(position)), MUSIC, GENRE_URN, queryUrn));
     }
-
 
     private Bundle getChartArguments() {
         Bundle bundle = new Bundle();

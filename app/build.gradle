@@ -122,6 +122,7 @@ android {
     exclude 'META-INF/LICENSE'
     exclude 'META-INF/NOTICE'
     exclude 'META-INF/services/javax.annotation.processing.Processor'
+    exclude 'META-INF/rxjava.properties'
   }
 
   dexOptions {
@@ -210,6 +211,9 @@ dependencies {
   compile libraries.rxAndroid
   compile libraries.rxJava
   compile libraries.rxJavaAsyncUtil // remove when getting rid of LegacyCommand
+  compile libraries.rxAndroid2
+  compile libraries.rxJava2
+  compile libraries.rxJavaInterop
   compile libraries.universalImageLoader
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {

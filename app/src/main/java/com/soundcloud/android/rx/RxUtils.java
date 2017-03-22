@@ -6,6 +6,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
@@ -42,6 +44,10 @@ public final class RxUtils {
      */
     public static Subscription invalidSubscription() {
         return Subscriptions.unsubscribed();
+    }
+
+    public static Disposable emptyDisposable() {
+        return Disposables.empty();
     }
 
     public static <ItemT> Observable.Transformer<List<Observable<ItemT>>, ItemT> concatEagerIgnorePartialErrors() {

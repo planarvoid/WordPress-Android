@@ -3,38 +3,38 @@ package com.soundcloud.android.sync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import io.reactivex.Observable;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.subjects.PublishSubject;
 
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SyncOperationsTest {
+public class NewSyncOperationsTest {
 
     private static final Syncable SYNCABLE = Syncable.CHARTS;
     private static final SyncJobResult JOB_SUCCESS = SyncJobResult.success(SYNCABLE.name(), true);
     private static final long SYNCABLE_STALE_TIME = TimeUnit.DAYS.toMillis(1);
 
-    private SyncOperations syncOperations;
+    private NewSyncOperations syncOperations;
 
     @Mock private SyncInitiator syncInitiator;
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncerRegistry syncerRegistry;
 
-    private TestSubscriber<Object> subscriber = new TestSubscriber<>();
+    private TestObserver<Object> observer = new TestObserver<>();
     private PublishSubject<SyncJobResult> jobResult = PublishSubject.create();
 
     @Before
     public void setUp() throws Exception {
-        syncOperations = new SyncOperations(syncInitiator, syncStateStorage, syncerRegistry);
+        syncOperations = new NewSyncOperations(syncInitiator, syncStateStorage, syncerRegistry);
 
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(jobResult);
+        when(syncInitiator.synchronise(SYNCABLE)).thenReturn(jobResult);
         when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.from(
                 SYNCABLE,
                 false,
@@ -45,67 +45,67 @@ public class SyncOperationsTest {
 
     @Test
     public void syncSyncsThenEmitsIfNeverSynced() {
-        syncOperations.sync(SYNCABLE).subscribe(subscriber);
+        syncOperations.sync(SYNCABLE).subscribe(observer);
 
-        subscriber.assertNoValues();
-        subscriber.assertNoTerminalEvent();
+        observer.assertNoValues();
+        observer.assertNotTerminated();
 
         completeJob();
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     public void completeJob() {
         jobResult.onNext(JOB_SUCCESS);
-        jobResult.onCompleted();
+        jobResult.onComplete();
     }
 
     @Test
     public void syncIfNeededSyncsThenEmitsIfNeverSynced() {
-        syncOperations.sync(SYNCABLE).subscribe(subscriber);
+        syncOperations.sync(SYNCABLE).subscribe(observer);
 
-        subscriber.assertNoValues();
-        subscriber.assertNoTerminalEvent();
+        observer.assertNoValues();
+        observer.assertNotTerminated();
 
         completeJob();
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     @Test
     public void syncIfNeededSyncsThenEmitsWhenStaleContent() {
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(false);
 
-        syncOperations.syncIfStale(SYNCABLE).subscribe(subscriber);
+        syncOperations.syncIfStale(SYNCABLE).subscribe(observer);
 
-        subscriber.assertNoValues();
-        subscriber.assertNoTerminalEvent();
+        observer.assertNoValues();
+        observer.assertNotTerminated();
 
         completeJob();
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     @Test
     public void syncIfNeededDoesNotSyncWhenContentNotStale() {
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(true);
 
-        syncOperations.syncIfStale(SYNCABLE).subscribe(subscriber);
+        syncOperations.syncIfStale(SYNCABLE).subscribe(observer);
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     @Test
     public void lazySyncIfNeededSyncsThenEmitsIfNeverSynced() {
         when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(false);
-        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(subscriber);
+        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(observer);
 
-        subscriber.assertNoValues();
-        subscriber.assertNoTerminalEvent();
+        observer.assertNoValues();
+        observer.assertNotTerminated();
 
         completeJob();
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     @Test
@@ -113,9 +113,9 @@ public class SyncOperationsTest {
         when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(false);
 
-        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(subscriber);
+        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(observer);
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
 
         assertThat(jobResult.hasObservers()).isTrue();
     }
@@ -125,28 +125,29 @@ public class SyncOperationsTest {
         when(syncStateStorage.hasSyncedBefore(SYNCABLE)).thenReturn(true);
         when(syncStateStorage.hasSyncedWithin(SYNCABLE, SYNCABLE_STALE_TIME)).thenReturn(true);
 
-        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(subscriber);
+        syncOperations.lazySyncIfStale(SYNCABLE).subscribe(observer);
 
-        subscriber.assertCompleted();
+        observer.assertComplete();
     }
 
     @Test
     public void syncFailsOnException() {
         final Exception exception = new Exception("SYNC FAILED");
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(exception));
+        when(syncInitiator.synchronise(SYNCABLE)).thenReturn(Observable.error(exception));
 
-        syncOperations.sync(SYNCABLE).subscribe(subscriber);
+        syncOperations.sync(SYNCABLE).subscribe(observer);
 
-        subscriber.assertError(exception);
+        observer.assertError(exception);
     }
 
     @Test
     public void failSafeSyncDoesReturnResultOnException() {
-        when(syncInitiator.sync(SYNCABLE)).thenReturn(Observable.error(new Exception("SYNC FAILED")));
+        when(syncInitiator.synchronise(SYNCABLE)).thenReturn(Observable.error(new Exception("SYNC FAILED")));
 
-        syncOperations.failSafeSync(SYNCABLE).subscribe(subscriber);
+        syncOperations.failSafeSync(SYNCABLE).subscribe(observer);
 
-        subscriber.assertCompleted();
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(SyncOperations.Result.ERROR);
+        observer.assertComplete();
+        assertThat(observer.values().get(0)).isEqualTo(NewSyncOperations.Result.ERROR);
     }
+
 }

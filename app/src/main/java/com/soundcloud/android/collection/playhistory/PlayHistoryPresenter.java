@@ -6,7 +6,7 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
-import static com.soundcloud.android.rx.observers.DefaultObserver.onNext;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.R;

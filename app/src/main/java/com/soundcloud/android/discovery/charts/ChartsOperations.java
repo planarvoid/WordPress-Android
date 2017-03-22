@@ -1,22 +1,24 @@
 package com.soundcloud.android.discovery.charts;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,42 +27,48 @@ import java.util.List;
 
 public class ChartsOperations {
 
-    private final Func1<ChartBucket, Boolean> HAS_EXPECTED_CONTENT = chartBucket -> {
+    private final Predicate<ChartBucket> HAS_EXPECTED_CONTENT = chartBucket -> {
         final Optional<Chart> trending = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TRENDING));
         final Optional<Chart> top = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TOP));
 
         return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
     };
-    private final SyncOperations syncOperations;
+
+    private final Function<NewSyncOperations.Result, Observable<DiscoveryItem>> loadCharts =
+            new Function<NewSyncOperations.Result, Observable<DiscoveryItem>>() {
+                @Override
+                public Observable<DiscoveryItem> apply(@NonNull NewSyncOperations.Result result) throws Exception {
+                    //TODO: Refactor chartsStorage to return RxJava2 observables.
+                    final Observable<ChartBucket> chartBucketObservable = RxJava.toV2Observable(chartsStorage.featuredCharts());
+                    return chartBucketObservable
+                                        .filter(HAS_EXPECTED_CONTENT)
+                                        .subscribeOn(scheduler)
+                                        .switchIfEmpty(NewSyncOperations.emptyResult(result))
+                                        .map(ChartsBucketItem::from);
+                }
+            };
+
+    private final Consumer<ApiChart> storeTracksFromChart = new Consumer<ApiChart>() {
+        @Override
+        public void accept(@NonNull ApiChart apiChart) throws Exception {
+            storeTracksCommand.toAction1().call(apiChart.tracks());
+        }
+    };
+
+    private final NewSyncOperations syncOperations;
     private final StoreChartsCommand storeChartsCommand;
     private final StoreTracksCommand storeTracksCommand;
     private final ChartsStorage chartsStorage;
     private final ChartsApi chartsApi;
     private final Scheduler scheduler;
-    private final Action1<ApiChart> storeTracksFromChart = new Action1<ApiChart>() {
-        @Override
-        public void call(ApiChart apiChart) {
-            storeTracksCommand.toAction1().call(apiChart.tracks());
-        }
-    };
-    private final Func1<SyncOperations.Result, Observable<DiscoveryItem>> loadCharts = new Func1<SyncOperations.Result, Observable<DiscoveryItem>>() {
-        @Override
-        public Observable<DiscoveryItem> call(SyncOperations.Result result) {
-            return chartsStorage.featuredCharts()
-                                .filter(HAS_EXPECTED_CONTENT)
-                                .subscribeOn(scheduler)
-                                .switchIfEmpty(SyncOperations.emptyResult(result))
-                                .map(ChartsBucketItem::from);
-        }
-    };
 
     @Inject
-    ChartsOperations(SyncOperations syncOperations,
+    ChartsOperations(NewSyncOperations syncOperations,
                      StoreChartsCommand storeChartsCommand,
                      StoreTracksCommand storeTracksCommand,
                      ChartsStorage chartsStorage,
                      ChartsApi chartsApi,
-                     @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                     @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.syncOperations = syncOperations;
         this.storeChartsCommand = storeChartsCommand;
         this.storeTracksCommand = storeTracksCommand;
@@ -69,15 +77,15 @@ public class ChartsOperations {
         this.scheduler = scheduler;
     }
 
-    private Predicate<Chart> filterType(final ChartType type) {
+    private com.soundcloud.java.functions.Predicate<Chart> filterType(final ChartType type) {
         return chart -> chart.type() == type;
     }
 
-    private Observable<DiscoveryItem> load(Observable<SyncOperations.Result> source) {
+    private Observable<DiscoveryItem> load(Observable<NewSyncOperations.Result> source) {
         return source.flatMap(loadCharts);
     }
 
-    private Func1<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {
+    private Function<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {
         return apiCharts -> {
             List<Chart> filteredGenres = new ArrayList<>();
             for (Chart genre : apiCharts) {
@@ -98,14 +106,16 @@ public class ChartsOperations {
     }
 
     Observable<ApiChart<ApiTrack>> tracks(ChartType type, String genre) {
-        return chartsApi.chartTracks(type, genre)
+        //TODO: Refactor ChartsApi to return RxJava2 observables/single.
+        return RxJava.toV2Observable(chartsApi.chartTracks(type, genre))
                         .doOnNext(storeTracksFromChart)
                         .subscribeOn(scheduler);
     }
 
     Observable<List<Chart>> genresByCategory(ChartCategory chartCategory) {
         return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
-                             .flatMap(o -> chartsStorage.genres(chartCategory)
+                             //TODO: Refactor ChartsStorage to return RxJava2 observables.
+                             .flatMap(o -> RxJava.toV2Observable(chartsStorage.genres(chartCategory))
                                                         .subscribeOn(scheduler))
                              .map(filterGenresByCategory(chartCategory));
     }

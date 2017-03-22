@@ -16,6 +16,7 @@ import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.android.utils.EmptyThrowable;
+import com.soundcloud.android.rx.RxJava;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -146,8 +147,8 @@ class DiscoveryModulesProvider {
 
     private Observable<DiscoveryItem> charts(boolean isRefresh) {
         return isRefresh ?
-               chartsOperations.refreshFeaturedCharts() :
-               chartsOperations.featuredCharts();
+                RxJava.toV1Observable(chartsOperations.refreshFeaturedCharts()) :
+                RxJava.toV1Observable(chartsOperations.featuredCharts());
     }
 
     private Observable<DiscoveryItem> newForYouFirst(boolean isRefresh) {

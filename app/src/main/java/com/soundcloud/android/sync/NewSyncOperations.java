@@ -1,41 +1,39 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static rx.Observable.just;
+import static com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver.fireAndForget;
+import static io.reactivex.Observable.just;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 
-@Deprecated
-/** Use {@link NewSyncOperations}. */
-public class SyncOperations {
+public class NewSyncOperations {
 
     private final SyncInitiator syncInitiator;
     private final SyncStateStorage syncStateStorage;
     private final SyncerRegistry syncerRegistry;
 
     @Inject
-    public SyncOperations(SyncInitiator syncInitiator,
-                          SyncStateStorage syncStateStorage,
-                          SyncerRegistry syncerRegistry) {
+    public NewSyncOperations(SyncInitiator syncInitiator,
+                             SyncStateStorage syncStateStorage,
+                             SyncerRegistry syncerRegistry) {
         this.syncInitiator = syncInitiator;
         this.syncStateStorage = syncStateStorage;
         this.syncerRegistry = syncerRegistry;
     }
 
     public static <T> Observable<T> emptyResult(Result result) {
-        return result == SyncOperations.Result.ERROR ?
-               Observable.error(new SyncFailedException()) :
-               Observable.empty();
+        return result == Result.ERROR ?
+                Observable.error(new SyncFailedException()) :
+                Observable.empty();
     }
 
     public Observable<Result> sync(Syncable syncable) {
-        return syncInitiator.sync(syncable).map(o -> Result.SYNCED);
+        return syncInitiator.synchronise(syncable).map(o -> Result.SYNCED);
     }
 
     public Observable<Result> failSafeSync(Syncable syncable) {
-        return sync(syncable).onErrorResumeNext(Observable.just(Result.ERROR));
+        return sync(syncable).onErrorResumeNext(just(Result.ERROR));
     }
 
     Observable<Result> syncIfStale(Syncable syncable) {
@@ -49,7 +47,7 @@ public class SyncOperations {
     public Observable<Result> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
             if (!isContentStale(syncable)) {
-                fireAndForget(syncInitiator.sync(syncable));
+                fireAndForget(syncInitiator.synchronise(syncable));
                 return just(Result.SYNCING);
             } else {
                 return just(Result.NO_OP);
@@ -58,6 +56,7 @@ public class SyncOperations {
             return sync(syncable);
         }
     }
+
 
     private boolean isContentStale(Syncable syncable) {
         return syncStateStorage.hasSyncedWithin(syncable, syncerRegistry.get(syncable).staleTime());

@@ -1,11 +1,12 @@
 package com.soundcloud.android.rx;
 
 import com.soundcloud.android.utils.ErrorUtils;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import org.jetbrains.annotations.NotNull;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,16 +22,28 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
+
 public final class ScSchedulers {
 
-    public static final Scheduler HIGH_PRIO_SCHEDULER;
-    public static final Scheduler LOW_PRIO_SCHEDULER;
+    @Deprecated
+    /** Use {@link ScSchedulers#RX_HIGH_PRIORITY_SCHEDULER} */
+    public static final rx.Scheduler HIGH_PRIO_SCHEDULER;
+    @Deprecated
+    /** Use {@link ScSchedulers#RX_LOW_PRIORITY_SCHEDULER} */
+    public static final rx.Scheduler LOW_PRIO_SCHEDULER;
+
+    public static final Scheduler RX_HIGH_PRIORITY_SCHEDULER;
+    public static final Scheduler RX_LOW_PRIORITY_SCHEDULER;
+
+
     private static final long QUEUE_WAIT_WARNING_THRESHOLD = TimeUnit.SECONDS.toMillis(1);
     private static final long QUEUE_SIZE_WARNING_THRESHOLD = 3;
 
     static {
-        HIGH_PRIO_SCHEDULER = Schedulers.from(createExecutor("HighPriorityPool", 6));
-        LOW_PRIO_SCHEDULER = Schedulers.from(createExecutor("LowPriorityPool", 1));
+        HIGH_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(createExecutor("HighPriorityPool", 5));
+        LOW_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(createExecutor("LowPriorityPool", 1));
+        RX_HIGH_PRIORITY_SCHEDULER = Schedulers.from(createExecutor("RxHighPriorityPool", 2));
+        RX_LOW_PRIORITY_SCHEDULER = Schedulers.from(createExecutor("RxLowPriorityPool", 1));
     }
 
     private static Executor createExecutor(final String threadIdentifier, int numThreads) {
@@ -66,14 +79,14 @@ public final class ScSchedulers {
         void logExecuteWarning() {
             final int size = target.getQueue().size();
             if (size > QUEUE_SIZE_WARNING_THRESHOLD) {
-                ErrorUtils.log(android.util.Log.WARN, OperationsInstrumentation.TAG, "Execute Command [queuedCount = " + size + "]");
+                ErrorUtils.log(Log.WARN, OperationsInstrumentation.TAG, "Execute Command [queuedCount = " + size + "]");
             }
         }
 
         void logExecutingWarning(long startTime) {
             final long waitTime = System.currentTimeMillis() - startTime;
             if (waitTime > QUEUE_WAIT_WARNING_THRESHOLD) {
-                ErrorUtils.log(android.util.Log.WARN, OperationsInstrumentation.TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
+                ErrorUtils.log(Log.WARN, OperationsInstrumentation.TAG, "Command Executed [waitTime = " + waitTime + "ms] ");
             }
         }
 

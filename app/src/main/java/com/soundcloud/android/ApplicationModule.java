@@ -49,7 +49,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -92,8 +92,15 @@ import java.util.concurrent.Executors;
         })
 public class ApplicationModule {
 
+    @Deprecated
+    /** Use {@link ApplicationModule#RX_HIGH_PRIORITY}. */
     public static final String HIGH_PRIORITY = "HighPriority";
+    @Deprecated
+    /** Use {@link ApplicationModule#RX_LOW_PRIORITY}. */
     public static final String LOW_PRIORITY = "LowPriority";
+
+    public static final String RX_HIGH_PRIORITY = "RxHighPriority";
+    public static final String RX_LOW_PRIORITY = "RxLowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
     public static final String BUG_REPORTER = "BugReporter";
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
@@ -254,20 +261,32 @@ public class ApplicationModule {
 
     @Provides
     @Named(HIGH_PRIORITY)
-    public Scheduler provideHighPriorityScheduler() {
+    public rx.Scheduler provideHighPriorityScheduler() {
         return ScSchedulers.HIGH_PRIO_SCHEDULER;
     }
 
     @Provides
     @Named(LOW_PRIORITY)
-    public Scheduler provideLowPriorityScheduler() {
+    public rx.Scheduler provideLowPriorityScheduler() {
         return ScSchedulers.LOW_PRIO_SCHEDULER;
+    }
+
+    @Provides
+    @Named(RX_HIGH_PRIORITY)
+    public Scheduler provideHighPriorityRxScheduler() {
+        return ScSchedulers.RX_HIGH_PRIORITY_SCHEDULER;
+    }
+
+    @Provides
+    @Named(RX_LOW_PRIORITY)
+    public Scheduler provideLowPriorityRxScheduler() {
+        return ScSchedulers.RX_LOW_PRIORITY_SCHEDULER;
     }
 
     @Provides
     @Singleton
     @Named(BUG_REPORTER)
-    protected Scheduler provideBugReporterExecutor() {
+    protected rx.Scheduler provideBugReporterExecutor() {
         return Schedulers.from(Executors.newSingleThreadExecutor(r -> new Thread(r, "bugReporterThread")));
     }
 

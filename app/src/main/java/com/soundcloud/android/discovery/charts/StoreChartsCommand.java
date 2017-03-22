@@ -99,7 +99,7 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
         propeller.delete(Charts.TABLE, filter().whereEq(Charts.BUCKET_TYPE, chartBucketType));
     }
 
-    public void clearTables() {
+    void clearTables() {
         propeller.delete(ChartTracks.TABLE);
         propeller.delete(Charts.TABLE);
     }

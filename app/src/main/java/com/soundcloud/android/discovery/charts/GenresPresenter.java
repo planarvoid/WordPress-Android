@@ -5,6 +5,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
 import rx.functions.Func1;
@@ -44,8 +45,9 @@ public class GenresPresenter extends RecyclerViewPresenter<List<Chart>, ChartLis
     @Override
     protected CollectionBinding<List<Chart>, ChartListItem> onBuildBinding(Bundle bundle) {
         final ChartCategory chartCategory = (ChartCategory) bundle.getSerializable(GenresFragment.EXTRA_CHART_CATEGORY);
+        final rx.Observable<List<Chart>> genresByCategory = RxJava.toV1Observable(chartsOperations.genresByCategory(chartCategory));
         return CollectionBinding
-                .from(chartsOperations.genresByCategory(chartCategory), TO_PRESENTATION_MODELS)
+                .from(genresByCategory, TO_PRESENTATION_MODELS)
                 .withAdapter(chartListItemAdapter)
                 .build();
     }
