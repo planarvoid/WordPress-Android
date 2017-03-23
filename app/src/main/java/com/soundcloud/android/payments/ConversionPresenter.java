@@ -53,6 +53,9 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
         view.setupContentView(activity, this);
+        if (isMidTierUser()) {
+            view.setMidTierCopy();
+        }
         if (bundle != null && bundle.getParcelable(LOADED_PRODUCTS) != null) {
             products = bundle.getParcelable(LOADED_PRODUCTS);
             displayProducts();
@@ -85,7 +88,11 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private boolean shouldShowPlanChoice() {
         return products.midTier().isPresent()
-                && !featureOperations.getCurrentPlan().isGoPlan();
+                && !isMidTierUser();
+    }
+
+    private boolean isMidTierUser() {
+        return featureOperations.getCurrentPlan().isGoPlan();
     }
 
     private void displayPrimaryProduct(WebProduct product) {

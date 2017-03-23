@@ -746,9 +746,11 @@
     <!-- __CONVERSION -->
     <string name="conversion_page_title">Subscribe</string>
     <string name="conversion_title">Discover more with our SoundCloud Go plans</string>
+    <string name="conversion_title_mt">Discover even more with SoundCloud Go+</string>
     <string name="conversion_price">%s / month</string>
     <string name="conversion_price_promo">%1$s for %2$s</string>
     <string name="conversion_description">Get offline listening, no ads or previews, and the largest collection of streaming tracks anywhere on the planet</string>
+    <string name="conversion_description_mt">Unlock all previews and get access to more than 150M tracks from emerging and major label artists</string>
     <string name="conversion_buy_loading">Loading</string>
     <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start your free %d day trial</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>

@@ -23,6 +23,8 @@ class ConversionView {
 
     private FragmentManager fragmentManager;
 
+    @BindView(R.id.conversion_title) TextView title;
+    @BindView(R.id.conversion_description) TextView description;
     @BindView(R.id.conversion_buy) LoadingButton buyButton;
     @BindView(R.id.conversion_price) TextView priceView;
     @BindView(R.id.conversion_restrictions) TextView restrictionsView;
@@ -43,6 +45,11 @@ class ConversionView {
         this.fragmentManager = activity.getSupportFragmentManager();
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         setupListener(listener);
+    }
+
+    void setMidTierCopy() {
+        title.setText(R.string.conversion_title_mt);
+        description.setText(R.string.conversion_description_mt);
     }
 
     private void setupListener(final Listener listener) {

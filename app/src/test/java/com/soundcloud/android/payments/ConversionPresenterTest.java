@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -48,6 +49,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(featureOperations.isPlanManageable()).thenReturn(true);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
 
         presenter = new ConversionPresenter(paymentOperations, view, eventBus, featureOperations);
     }
@@ -90,6 +92,25 @@ public class ConversionPresenterTest extends AndroidUnitTest {
         presenter.onSaveInstanceState(activity, savedInstanceState);
 
         assertThat(savedInstanceState.<Parcelable>getParcelable(ConversionPresenter.LOADED_PRODUCTS)).isEqualTo(DEFAULT);
+    }
+
+    @Test
+    public void useDefaultCopyForFreeUser() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+
+        presenter.onCreate(activity, null);
+
+        verify(view, never()).setMidTierCopy();
+    }
+
+    @Test
+    public void useAlternativeCopyForMidTierUser() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setMidTierCopy();
     }
 
     @Test
