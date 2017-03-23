@@ -20,12 +20,11 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksConfig;
+import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -74,7 +73,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
     @Mock private SearchPlayRelatedTracksConfig playRelatedTracksConfig;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private TopResultsConfig topResultsConfig;
     @Mock private FeatureOperations featureOperations;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -106,7 +105,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                searchTracker,
                                                screenProvider,
                                                searchPlayQueueFilter,
-                                               featureFlags,
+                                               topResultsConfig,
                                                featureOperations,
                                                performanceMetricsEngine);
 
@@ -252,7 +251,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void addHeaderWhenFeatureFlagOn() {
         setupFragmentArguments(false, SearchType.TRACKS);
-        when(featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)).thenReturn(true);
+        when(topResultsConfig.isEnabled()).thenReturn(true);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
@@ -267,7 +266,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void doNotAddHeaderWhenFeatureFlagOff() {
         setupFragmentArguments(false, SearchType.TRACKS);
-        when(featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)).thenReturn(false);
+        when(topResultsConfig.isEnabled()).thenReturn(false);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
@@ -317,7 +316,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                searchTracker,
                                                screenProvider,
                                                new SearchPlayQueueFilter(playRelatedTracksConfig),
-                                               featureFlags,
+                                               topResultsConfig,
                                                featureOperations,
                                                performanceMetricsEngine);
 

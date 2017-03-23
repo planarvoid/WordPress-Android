@@ -5,12 +5,11 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
@@ -75,7 +74,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final SearchTracker searchTracker;
     private final EventTracker eventTracker;
     private final ScreenProvider screenProvider;
-    private final FeatureFlags featureFlags;
+    private final TopResultsConfig topResultsConfig;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Resources resources;
     private final EventBus eventBus;
@@ -89,7 +88,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
                     KeyboardHelper keyboardHelper,
                     EventTracker eventTracker,
                     ScreenProvider screenProvider,
-                    FeatureFlags featureFlags,
+                    TopResultsConfig topResultsConfig,
                     PerformanceMetricsEngine performanceMetricsEngine) {
         this.intentResolver = intentResolverFactory.create(this);
         this.searchTracker = searchTracker;
@@ -98,7 +97,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         this.keyboardHelper = keyboardHelper;
         this.eventTracker = eventTracker;
         this.screenProvider = screenProvider;
-        this.featureFlags = featureFlags;
+        this.topResultsConfig = topResultsConfig;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -247,7 +246,7 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void displaySearchView(int searchViewIndex) {
-        if (!featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS)) {
+        if (!topResultsConfig.isEnabled()) {
             setElevation(searchViewIndex);
         }
         if (searchViewFlipper.getDisplayedChild() != searchViewIndex) {
@@ -283,8 +282,8 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private Fragment getResultsFragment(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
-        return featureFlags.isEnabled(Flag.SEARCH_TOP_RESULTS) ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
-                                                               :  TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
+        return topResultsConfig.isEnabled() ? TopResultsFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition)
+                                            : TabbedSearchFragment.newInstance(apiQuery, userQuery, queryUrn, queryPosition);
     }
 
     private void showOutputText(Optional<String> outputText) {
