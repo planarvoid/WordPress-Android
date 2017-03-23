@@ -39,7 +39,7 @@ public class ApplicationProperties {
     static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
     static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
-            "full_x86".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT);
+            "full_x86".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT) || "google_sdk_x86".equals(Build.PRODUCT);
 
     public String getFeedbackEmail() {
         return buildType.feedbackEmail;
