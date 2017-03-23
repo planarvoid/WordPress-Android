@@ -138,6 +138,14 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void filtersOutUnknownBuckets() throws Exception {
+        ApiTopResultsBucket unknownBucket = TopResultsFixtures.unknownBucket(searchPlaylistItem(apiPlaylist));
+        initTopResultsSearch(unknownBucket);
+
+        presenter.viewModel().test().assertValue(getViewModel());
+    }
+
+    @Test
     public void viewModelEmitsLikedTracksBucket() throws Exception {
         final List buckets = singletonList(TopResultsFixtures.apiTrackResultsBucket(searchTrackItem(apiTrack)));
         final ApiTopResults apiTopResults = ApiTopResults.create(1, new ModelCollection(buckets, emptyMap(), QUERY_URN));

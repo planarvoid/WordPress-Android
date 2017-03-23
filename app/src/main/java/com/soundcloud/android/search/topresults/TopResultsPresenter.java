@@ -137,7 +137,7 @@ public class TopResultsPresenter {
 
         List<Urn> transform = transform(adjustedQueue, TrackItem::getUrn);
         return playbackInitiator.playTracks(transform, adjustedPosition, playSessionSource)
-                                .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, getClickSource(currentBucket.kind()))));
+                                .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, currentBucket.kind().toClickSource())));
     }
 
     Observable<GoToItemArgs> onGoToPlaylist() {
@@ -205,7 +205,8 @@ public class TopResultsPresenter {
             final ApiTopResults apiTopResults = collectionLoaderState.data().get();
             final ModelCollection<ApiTopResultsBucket> resultCollection = apiTopResults.buckets();
             queryUrn = resultCollection.getQueryUrn();
-            final List<ApiTopResultsBucket> apiTopResultsBuckets = resultCollection.getCollection();
+            final List<ApiTopResultsBucket> apiTopResultsBuckets = Lists.newArrayList(Iterables.filter(resultCollection.getCollection(),
+                                                                                                       bucket -> TopResultsBucketViewModel.isValidBucketUrn(bucket.urn().toString())));
             for (ApiTopResultsBucket apiBucket : apiTopResultsBuckets) {
                 final List<ApiUniversalSearchItem> apiUniversalSearchItems = apiBucket.collection().getCollection();
                 final int bucketPosition = apiTopResultsBuckets.indexOf(apiBucket);
@@ -235,26 +236,7 @@ public class TopResultsPresenter {
         final TopResultsBucketViewModel itemBucket = buckets.get(searchItem.bucketPosition());
         int position = getPosition(searchItem, itemBucket, buckets);
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET), position, searchItem.itemUrn().get(), searchQuery);
-        return GoToItemArgs.create(searchQuerySourceInfo, searchItem.itemUrn().get(), getEventContextMetadata(itemBucket.kind(), position), getClickSource(itemBucket.kind()));
-    }
-
-    private SearchEvent.ClickSource getClickSource(TopResultsBucketViewModel.Kind kind) {
-            switch (kind) {
-                case TOP_RESULT:
-                    return SearchEvent.ClickSource.TOP_RESULTS_BUCKET;
-                case GO_TRACKS:
-                    return SearchEvent.ClickSource.GO_TRACKS_BUCKET;
-                case TRACKS:
-                    return SearchEvent.ClickSource.TRACKS_BUCKET;
-                case USERS:
-                    return SearchEvent.ClickSource.PEOPLE_BUCKET;
-                case PLAYLISTS:
-                    return SearchEvent.ClickSource.PLAYLISTS_BUCKET;
-                case ALBUMS:
-                    return SearchEvent.ClickSource.ALBUMS_BUCKET;
-                default:
-                    throw new IllegalArgumentException("Unexpected kind for search");
-            }
+        return GoToItemArgs.create(searchQuerySourceInfo, searchItem.itemUrn().get(), getEventContextMetadata(itemBucket.kind(), position), itemBucket.kind().toClickSource());
     }
 
     private int getPosition(SearchItem searchItem, TopResultsBucketViewModel itemBucket, List<TopResultsBucketViewModel> buckets) {

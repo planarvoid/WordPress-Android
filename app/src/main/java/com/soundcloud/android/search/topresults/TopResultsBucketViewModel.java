@@ -9,8 +9,10 @@ import static com.soundcloud.android.search.topresults.TopResultsBucketViewModel
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchType;
+import com.soundcloud.java.collections.Lists;
 
 import java.util.List;
 
@@ -22,6 +24,8 @@ public abstract class TopResultsBucketViewModel {
     private static final String URN_BUCKET_PEOPLE = "soundcloud:search-buckets:users";
     private static final String URN_BUCKET_PLAYLISTS = "soundcloud:search-buckets:playlists";
     private static final String URN_BUCKET_ALBUMS = "soundcloud:search-buckets:albums";
+
+    private static final List<String> AVAILABLE_URNS = Lists.newArrayList(URN_BUCKET_TOP, URN_BUCKET_TRACKS, URN_BUCKET_GO_TRACKS, URN_BUCKET_PEOPLE, URN_BUCKET_PLAYLISTS, URN_BUCKET_ALBUMS);
 
     public enum Kind {
         TOP_RESULT,
@@ -46,6 +50,30 @@ public abstract class TopResultsBucketViewModel {
                     throw new IllegalArgumentException("Unexpected kind for search");
             }
         }
+
+
+        public SearchEvent.ClickSource toClickSource() {
+            switch (this) {
+                case TOP_RESULT:
+                    return SearchEvent.ClickSource.TOP_RESULTS_BUCKET;
+                case GO_TRACKS:
+                    return SearchEvent.ClickSource.GO_TRACKS_BUCKET;
+                case TRACKS:
+                    return SearchEvent.ClickSource.TRACKS_BUCKET;
+                case USERS:
+                    return SearchEvent.ClickSource.PEOPLE_BUCKET;
+                case PLAYLISTS:
+                    return SearchEvent.ClickSource.PLAYLISTS_BUCKET;
+                case ALBUMS:
+                    return SearchEvent.ClickSource.ALBUMS_BUCKET;
+                default:
+                    throw new IllegalArgumentException("Unexpected kind for search");
+            }
+        }
+    }
+
+    public static boolean isValidBucketUrn(String urn) {
+        return AVAILABLE_URNS.contains(urn);
     }
 
     public abstract Kind kind();

@@ -15,6 +15,7 @@ public final class TopResultsFixtures {
     static final Urn QUERY_URN = new Urn("soundcloud:query_urn:123");
     static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
     static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:topresult");
+    static final Urn UNKNOWN_BUCKET_URN = new Urn("soundcloud:search-buckets:unknown");
 
     static ApiUniversalSearchItem searchTrackItem(ApiTrack track) {
         return new ApiUniversalSearchItem(null, null, track);
@@ -34,5 +35,9 @@ public final class TopResultsFixtures {
 
     static ApiTopResultsBucket apiTopResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
         return ApiTopResultsBucket.create(TOP_RESULT_BUCKET_URN, apiUniversalSearchItems.length, new ModelCollection<>(Arrays.asList(apiUniversalSearchItems), Collections.emptyMap(), QUERY_URN));
+    }
+
+    static ApiTopResultsBucket unknownBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
+        return ApiTopResultsBucket.create(UNKNOWN_BUCKET_URN, apiUniversalSearchItems.length, new ModelCollection<>(Arrays.asList(apiUniversalSearchItems), Collections.emptyMap(), QUERY_URN));
     }
 }
