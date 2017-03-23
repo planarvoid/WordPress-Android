@@ -31,6 +31,7 @@ class InlayAdPlayer implements Player.PlayerListener {
     private final EventBus eventBus;
     private final AdViewabilityController adViewabilityController;
     private final InlayAdAnalyticsController analyticsController;
+    private final InlayAdStateProvider stateProvider;
     private final PlaySessionController playSessionController;
     private final Player currentPlayer;
     private final CurrentDateProvider currentDateProvider;
@@ -49,11 +50,13 @@ class InlayAdPlayer implements Player.PlayerListener {
                   EventBus eventBus,
                   AdViewabilityController adViewabilityController,
                   InlayAdAnalyticsController analyticsController,
+                  InlayAdStateProvider inlayAdStateProvider,
                   PlaySessionController playSessionController,
                   CurrentDateProvider currentDateProvider) {
         this.eventBus = eventBus;
         this.adViewabilityController = adViewabilityController;
         this.analyticsController = analyticsController;
+        this.stateProvider = inlayAdStateProvider;
         this.playSessionController = playSessionController;
         this.currentDateProvider = currentDateProvider;
         currentPlayer = mediaPlayerAdapter;
@@ -181,10 +184,12 @@ class InlayAdPlayer implements Player.PlayerListener {
         }
 
         if (currentAd.isPresent()) {
-            final InlayPlayStateTransition event = InlayPlayStateTransition.create(currentAd.get(), lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
+            final VideoAd ad = currentAd.get();
             final PlayStateEvent playState = PlayStateEvent.create(stateTransition, stateTransition.getProgress().getDuration());
-            analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, currentAd.get(), playState);
-            eventBus.publish(EventQueue.INLAY_AD, event);
+            final InlayPlayStateTransition stateEvent = InlayPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
+            analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, ad, playState);
+            stateProvider.put(ad.getUuid(), stateEvent);
+            eventBus.publish(EventQueue.INLAY_AD, stateEvent);
         }
     }
 

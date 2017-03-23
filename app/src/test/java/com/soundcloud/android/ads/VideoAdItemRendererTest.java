@@ -1,14 +1,14 @@
 package com.soundcloud.android.ads;
 
-import android.content.res.Resources;
-import android.view.TextureView;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+import static org.assertj.android.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -18,20 +18,20 @@ import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
+import android.view.TextureView;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static org.assertj.android.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class VideoAdItemRendererTest extends AndroidUnitTest {
 
@@ -44,6 +44,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private VideoAdItemRenderer.Listener listener;
     @Mock private CurrentDateProvider currentDateProvider;
+    @Mock private InlayAdStateProvider stateProvider;
 
     private TestEventBus eventBus;
     private VideoAdItemRenderer renderer;
@@ -52,9 +53,12 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        renderer = new VideoAdItemRenderer(resources(), eventBus, currentDateProvider);
+        renderer = new VideoAdItemRenderer(resources(), eventBus, stateProvider, currentDateProvider);
         renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
+
+        when(stateProvider.get(VIDEO_AD_1.getUuid())).thenReturn(Optional.absent());
+        when(stateProvider.get(VIDEO_AD_2.getUuid())).thenReturn(Optional.absent());
     }
 
     @Test
@@ -264,7 +268,29 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         renderer.setPlayState(adView, TestPlayerTransitions.playing(), false);
         assertThat(adView.findViewById(R.id.video_progress)).isGone();
-         renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
+        renderer.setPlayState(adView, TestPlayerTransitions.idle(), false);
         assertThat(adView.findViewById(R.id.video_progress)).isGone();
+    }
+
+    @Test
+    public void setsPlayStateOnBindIfPreviousStateForAdExists() {
+        final InlayPlayStateTransition transition = InlayPlayStateTransition.create(VIDEO_AD_1, TestPlayerTransitions.playing(), false, new Date(999));
+        when(stateProvider.get(VIDEO_AD_1.getUuid())).thenReturn(Optional.of(transition));
+
+        renderer.bindItemView(0, adView, ITEMS);
+
+        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        assertThat(view.isChecked()).isTrue();
+        assertThat(adView.findViewById(R.id.video_progress)).isGone();
+        assertThat(adView.findViewById(R.id.video_view)).isVisible();
+    }
+
+    @Test
+    public void doesntSetPlayStateOnBindIfPreviousStateForAdDoesNotExist() {
+        renderer.bindItemView(0, adView, ITEMS);
+
+        final IconToggleButton view = (IconToggleButton) adView.findViewById(R.id.video_volume_control);
+        assertThat(view.isChecked()).isFalse();
+        assertThat(adView.findViewById(R.id.video_view)).isNotVisible();
     }
 }

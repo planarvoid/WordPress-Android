@@ -198,6 +198,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     void onFocusChange(boolean hasFocus) {
         this.hasFocus = hasFocus;
+        streamAdsController.onFocus(hasFocus);
         if (streamDepthPublisher.isPresent()) {
             streamDepthPublisher.get().onFocusChange(hasFocus);
         }

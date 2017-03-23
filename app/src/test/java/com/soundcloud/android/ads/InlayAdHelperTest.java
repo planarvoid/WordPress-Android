@@ -1,9 +1,16 @@
 package com.soundcloud.android.ads;
 
-import android.graphics.Rect;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.view.TextureView;
-import android.view.View;
+import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -16,7 +23,6 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,20 +30,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
+import android.graphics.Rect;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.TextureView;
+import android.view.View;
+
 import java.util.Date;
 import java.util.List;
-
-import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
-import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class InlayAdHelperTest extends AndroidUnitTest {
 
@@ -48,6 +47,8 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     private static final Date CURRENT_DATE = new Date();
     private static final boolean SCROLLING_UP = true;
     private static final boolean SCROLLING_DOWN = false;
+    private static final boolean SHOULD_REBIND_VIDEO_VIEWS = true;
+    private static final boolean DO_NOT_REBIND_VIDEO_VIEWS = false;
     private static final AppInstallAd APP_INSTALL = appInstall();
     private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(32L);
     private static final StreamItem VIDEO_AD_ITEM = StreamItem.forVideoAd(VIDEO_AD);
@@ -221,7 +222,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(99, 101);
 
         assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(-1, -1));
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
         assertThat(visibleRange(inlayAdHelper)).isEqualTo(Pair.of(99, 101));
     }
 
@@ -240,9 +241,33 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(8)).thenReturn(StreamItem.forAppInstall(tracked));
         when(adapter.getItem(10)).thenReturn(StreamItem.forAppInstall(untracked));
 
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(10, untracked, CURRENT_DATE));
+    }
+
+    @Test
+    public void onScrollRebindsVideoViewForVideoAdsOnScreenIfRequested() {
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 51);
+
+        inlayAdHelper.onChangeToAdsOnScreen(SHOULD_REBIND_VIDEO_VIEWS);
+
+        verify(videoAdItemRenderer).bindVideoSurface(any(View.class), eq(VIDEO_AD));
+    }
+
+    @Test
+    public void onScrollDoesNotRebindVideoViewsIfNotRequested() {
+        setEdgeVisiblePosition(7, 10);
+        setStreamItems(15, TRACK_ITEM);
+        when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
+        setVideoViewVisibility(8, 51);
+
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
+
+        verify(videoAdItemRenderer, never()).bindVideoSurface(any(View.class), any(VideoAd.class));
     }
 
     @Test
@@ -252,7 +277,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
         setVideoViewVisibility(8, 51);
 
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
@@ -266,7 +291,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setVideoViewVisibility(8, 51);
         setVideoViewVisibility(9, 52);
 
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
@@ -278,7 +303,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         when(adapter.getItem(8)).thenReturn(VIDEO_AD_ITEM);
         setVideoViewVisibility(8, 49);
 
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
     }
@@ -288,7 +313,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setEdgeVisiblePosition(7, 10);
         setStreamItems(15, TRACK_ITEM);
 
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
     }
@@ -296,10 +321,10 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     @Test
     public void isOnScreenUsesLastStoredVisibleIndicesInclusive() {
         setEdgeVisiblePosition(5, 6);
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         setEdgeVisiblePosition(7, 10);
-        inlayAdHelper.onScroll();
+        inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
         assertThat(inlayAdHelper.isOnScreen(6)).isFalse();
         assertThat(inlayAdHelper.isOnScreen(7)).isTrue();

@@ -1,5 +1,11 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.main.Screen;
@@ -14,7 +20,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,12 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Date;
-
-import static com.soundcloud.android.events.InlayAdEvent.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class InlayAdPlayerTest extends AndroidUnitTest {
     private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(1L);
@@ -40,6 +39,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Mock CurrentDateProvider currentDateProvider;
     @Mock PlaySessionController playSessionController;
     @Mock InlayAdAnalyticsController analyticsController;
+    @Mock InlayAdStateProvider stateProvider;
     @Mock AdViewabilityController adViewabilityController;
 
     private TestEventBus eventBus;
@@ -49,8 +49,8 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     public void setUp() {
         when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
         eventBus = new TestEventBus();
-        player = new InlayAdPlayer(adapter, eventBus, adViewabilityController,
-                                   analyticsController, playSessionController, currentDateProvider);
+        player = new InlayAdPlayer(adapter, eventBus, adViewabilityController, analyticsController,
+                                   stateProvider, playSessionController, currentDateProvider);
     }
 
     @Test
@@ -262,6 +262,18 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
 
         verify(analyticsController).onStateTransition(eq(Screen.STREAM), eq(NOT_USER_INITIATED), eq(VIDEO_AD), requestData.capture());
         assertThat(requestData.getValue().getTransition()).isEqualTo(transition);
+    }
+
+    @Test
+    public void stateChangesAreForwardedToInlayStateProviderController() {
+        final ArgumentCaptor<InlayPlayStateTransition> inlayTransition = ArgumentCaptor.forClass(InlayPlayStateTransition.class);
+        final PlaybackStateTransition playerTransition = TestPlayerTransitions.playing(VIDEO_AD.getAdUrn());
+
+        this.player.play(VIDEO_AD, NOT_USER_INITIATED);
+        this.player.onPlaystateChanged(playerTransition);
+
+        verify(stateProvider).put(eq(VIDEO_AD.getUuid()), inlayTransition.capture());
+        assertThat(inlayTransition.getValue().stateTransition()).isEqualTo(playerTransition);
     }
 
     @Test

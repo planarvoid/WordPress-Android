@@ -222,7 +222,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private void bindPagerToTabs() {
         pager.setAdapter(pagerAdapter);
         tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
-        pager.addOnPageChangeListener(pageChangeListenerFor(tabBar));
+        pager.addOnPageChangeListener(pageChangeListenerFor(tabBar, pagerAdapter));
         setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
     }
 
@@ -269,16 +269,24 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         };
     }
 
-    private static ViewPager.OnPageChangeListener pageChangeListenerFor(final TabLayout tabBar) {
-        /*
-         * Workaround for tab re-selection callback issue:
-         * https://code.google.com/p/android/issues/detail?id=177189#c16
-         */
+    private static ViewPager.OnPageChangeListener pageChangeListenerFor(final TabLayout tabBar, final MainPagerAdapter pagerAdapter) {
         return new TabLayout.TabLayoutOnPageChangeListener(tabBar) {
+            /*
+            * Workaround for tab re-selection callback issue:
+            * https://code.google.com/p/android/issues/detail?id=177189#c16
+            */
             @Override
             public void onPageSelected(int position) {
                 if (tabBar.getSelectedTabPosition() != position) {
                     super.onPageSelected(position);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    pagerAdapter.setCurrentFragmentFocused();
                 }
             }
         };

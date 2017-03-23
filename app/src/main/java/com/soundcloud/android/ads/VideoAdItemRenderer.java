@@ -31,12 +31,14 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
     private final EventBus eventBus;
+    private final InlayAdStateProvider lastStateProvider;
     private final CurrentDateProvider currentDateProvider;
 
     @Inject
-    public VideoAdItemRenderer(Resources resources, EventBus eventBus, CurrentDateProvider currentDateProvider) {
+    public VideoAdItemRenderer(Resources resources, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
         this.resources = resources;
         this.eventBus = eventBus;
+        this.lastStateProvider = stateProvider;
         this.currentDateProvider = currentDateProvider;
     }
 
@@ -66,6 +68,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
 
         bindVideoSurface(itemView, videoAd);
+        lastStateProvider.get(videoAd.getUuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));
     }
 
     void bindVideoSurface(View itemView, VideoAd videoAd) {
@@ -114,6 +117,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     public void setPlayState(View itemView, PlaybackStateTransition stateTransition, boolean isMuted) {
         final Holder holder = getHolder(itemView);
+        final boolean videoHadStarted = stateTransition.isPlayerPlaying() || stateTransition.isPaused();
         final boolean playbackCompleted = stateTransition.playbackEnded();
         final boolean isVideoViewVisible = holder.videoView.getVisibility() == View.VISIBLE;
 
@@ -124,7 +128,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.playButton.setVisibility(stateTransition.isPaused() || playbackCompleted ? View.VISIBLE : View.GONE);
         holder.loadingIndicator.setVisibility(stateTransition.isBuffering() ? View.VISIBLE : View.GONE);
 
-        if (!isVideoViewVisible && stateTransition.isPlayerPlaying()) {
+        if (!isVideoViewVisible && videoHadStarted) {
             holder.videoView.setVisibility(View.VISIBLE);
         } else if (playbackCompleted) {
             holder.videoView.setVisibility(View.INVISIBLE);

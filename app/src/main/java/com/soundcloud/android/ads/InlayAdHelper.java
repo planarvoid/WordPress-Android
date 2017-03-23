@@ -1,8 +1,5 @@
 package com.soundcloud.android.ads;
 
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.view.View;
-
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.auto.value.AutoValue;
@@ -19,13 +16,16 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
+
+import android.support.annotation.Nullable;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import rx.Subscription;
 
 @AutoFactory(allowSubclasses = true)
 class InlayAdHelper {
@@ -34,7 +34,6 @@ class InlayAdHelper {
     final static int MIN_DISTANCE_BETWEEN_ADS = 4;
     final static int MAX_SEARCH_DISTANCE = 5;
 
-    private final static int MAX_INLAYS_ON_SCREEN = 3;
     private final static float MINIMUM_VIDEO_VIEWABLE_PERCENTAGE = 50.0f;
 
     private final StaggeredGridLayoutManager layoutManager;
@@ -88,14 +87,15 @@ class InlayAdHelper {
         }
     }
 
-    public void onScroll() {
+    // Called when recycler view becomes focused or scrolled
+    void onChangeToAdsOnScreen(boolean shouldRebindVideoViews) {
         final Date now = dateProvider.getCurrentDate();
         minimumVisibleIndex = firstVisibleItemPosition();
         maximumVisibleIndex = lastVisibleItemPosition();
-        forAdsOnScreen(now, adsOnScreenWithPosition());
+        forAdsOnScreen(now, adsOnScreenWithPosition(), shouldRebindVideoViews);
     }
 
-    private void forAdsOnScreen(Date now, List<Pair<Integer, AdData>> adsOnScreenWithPosition) {
+    private void forAdsOnScreen(Date now, List<Pair<Integer, AdData>> adsOnScreenWithPosition, boolean shouldRebindVideoViews) {
         Optional<VideoOnScreen> mostViewableVideo = Optional.absent();
 
         for (Pair<Integer, AdData> positionAndAd : adsOnScreenWithPosition) {
@@ -103,7 +103,11 @@ class InlayAdHelper {
             if (adData instanceof AppInstallAd) {
                 forAppInstallOnScreen(now, positionAndAd.first(), (AppInstallAd) adData);
             } else if (adData instanceof VideoAd) {
-                mostViewableVideo = mostViewableVideoOnScreen(mostViewableVideo, positionAndAd);
+                final View itemView = layoutManager.findViewByPosition(positionAndAd.first());
+                mostViewableVideo = mostViewableVideoOnScreen(mostViewableVideo, positionAndAd, itemView);
+                if (shouldRebindVideoViews) {
+                    bindVideoSurface(itemView, (VideoAd) adData);
+                }
             }
         }
 
@@ -115,8 +119,14 @@ class InlayAdHelper {
         }
     }
 
-    private Optional<VideoOnScreen> mostViewableVideoOnScreen(Optional<VideoOnScreen> currentMostViewable, Pair<Integer, AdData> currentAd) {
-        final float viewablePercentage = viewablePercentageForVideoView(currentAd.first());
+    private void bindVideoSurface(@Nullable View itemView, VideoAd adData) {
+        if (itemView != null) {
+            videoAdItemRenderer.bindVideoSurface(itemView, adData);
+        }
+    }
+
+    private Optional<VideoOnScreen> mostViewableVideoOnScreen(Optional<VideoOnScreen> currentMostViewable, Pair<Integer, AdData> currentAd, View itemView) {
+        final float viewablePercentage = viewablePercentageForVideoView(itemView);
         final VideoOnScreen currentVideo = VideoOnScreen.create(viewablePercentage, currentAd.first(), (VideoAd) currentAd.second());
 
         if (viewablePercentage > MINIMUM_VIDEO_VIEWABLE_PERCENTAGE && currentVideo.isMoreViewable(currentMostViewable)) {
@@ -126,9 +136,9 @@ class InlayAdHelper {
         }
     }
 
-    private float viewablePercentageForVideoView(int position) {
-        final View videoView = videoAdItemRenderer.getVideoView(layoutManager.findViewByPosition(position));
-        return ViewUtils.calculateViewablePercentage(videoView);
+    private float viewablePercentageForVideoView(@Nullable View itemView) {
+        return itemView != null ? ViewUtils.calculateViewablePercentage(videoAdItemRenderer.getVideoView(itemView))
+                                : 0.0f;
     }
 
     private void forAppInstallOnScreen(Date now, int position, AppInstallAd adData) {
@@ -150,7 +160,7 @@ class InlayAdHelper {
     }
 
     private List<Pair<Integer, AdData>> adsInRangeWithPosition(int minInclusive, int maxInclusive) {
-        final List<Pair<Integer, AdData>> result = new ArrayList<>(MAX_INLAYS_ON_SCREEN);
+        final List<Pair<Integer, AdData>> result = new ArrayList<>(AdConstants.MAX_INLAYS_ON_SCREEN);
         final int startInclusive = Math.max(minInclusive, 0);
         final int endInclusive = Math.min(maxInclusive, getNumberOfStreamItems() - 1);
 
@@ -243,7 +253,7 @@ class InlayAdHelper {
 
     private class InlayStateTransitionSubscriber extends DefaultSubscriber<InlayPlayStateTransition> {
 
-        final HashMap<VideoAd, Integer> positionCache = new HashMap<>(MAX_INLAYS_ON_SCREEN);
+        final HashMap<VideoAd, Integer> positionCache = new HashMap<>(AdConstants.MAX_INLAYS_ON_SCREEN);
 
         @Override
         public void onNext(InlayPlayStateTransition event) {

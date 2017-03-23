@@ -96,6 +96,10 @@ public class MainPagerAdapter extends PagerAdapter {
         fragment.setUserVisibleHint(hasFocus);
     }
 
+    void setCurrentFragmentFocused() {
+        setFocus(currentPrimaryItem, true);
+    }
+
     private String makeFragmentName(int position) {
         return FRAGMENT_NAME + position;
     }
@@ -122,7 +126,6 @@ public class MainPagerAdapter extends PagerAdapter {
             if (currentPrimaryItem != null) {
                 setFocus(currentPrimaryItem, false);
             }
-            setFocus(fragment, true);
             currentPrimaryItem = fragment;
         }
     }

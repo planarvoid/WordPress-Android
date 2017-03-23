@@ -46,6 +46,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private InlayAdHelperFactory inlayAdHelperFactory;
     @Mock private InlayAdOperations inlayAdOperations;
+    @Mock private InlayAdStateProvider stateProvider;
     @Mock private FeatureOperations featureOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private CurrentDateProvider dateProvider;
@@ -64,6 +65,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
                                                  adViewabilityController,
                                                  inlayAdOperations,
                                                  inlayAdHelperFactory,
+                                                 stateProvider,
                                                  featureFlags,
                                                  featureOperations,
                                                  dateProvider,
@@ -100,7 +102,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     public void onScrolledCallsInlayAdHelperOnScroll() {
         controller.onScrolled(recycler, 9000, 42);
 
-        verify(inlayAdHelper).onScroll();
+        verify(inlayAdHelper).onChangeToAdsOnScreen(false);
     }
 
     @Test
@@ -291,7 +293,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onDestroyWillCleanUpTrackingForAnyVideoAdsInserted() {
+    public void onDestroyWillCleanUpStateForAnyVideoAdsInserted() {
         final long createdAtMs = ((ExpirableAd) inlays.get(0)).getCreatedAt();
         final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).getExpiryInMins() * 59 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
@@ -301,7 +303,23 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.insertAds();
         controller.onDestroy();
 
-        verify(adViewabilityController).stopVideoTracking(((VideoAd) inlays.get(0)).getUuid());
+        final String uuid = ((VideoAd) inlays.get(0)).getUuid();
+        verify(adViewabilityController).stopVideoTracking(uuid);
+        verify(stateProvider).remove(uuid);
+    }
+
+    @Test
+    public void onFocusTrueWillCallOnScrollAndRequestRebindingOfVideoSurfaces() {
+        controller.onFocus(true);
+
+        verify(inlayAdHelper).onChangeToAdsOnScreen(true);
+    }
+
+    @Test
+    public void onFocusFalseDoesntCallOnScrollAtAll() {
+        controller.onFocus(false);
+
+        verify(inlayAdHelper, never()).onChangeToAdsOnScreen(anyBoolean());
     }
 
     @Test

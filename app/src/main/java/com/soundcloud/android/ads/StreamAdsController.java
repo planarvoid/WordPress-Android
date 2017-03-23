@@ -42,6 +42,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final AdViewabilityController adViewabilityController;
     private final InlayAdOperations inlayAdOperations;
     private final InlayAdHelperFactory inlayAdHelperFactory;
+    private final InlayAdStateProvider stateProvider;
     private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
@@ -51,7 +52,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private Subscription fetchSubscription = RxUtils.invalidSubscription();
 
     private List<AdData> availableAds = Collections.emptyList();
-    private List<AdData> insertedAds = new ArrayList<>(5);
+    private List<AdData> insertedAds = new ArrayList<>(AdConstants.MAX_INLAYS_ON_SCREEN);
 
     private Optional<Long> lastEmptyResponseTime = Optional.absent();
     private Optional<InlayAdHelper> inlayAdHelper = Optional.absent();
@@ -65,6 +66,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                AdViewabilityController adViewabilityController,
                                InlayAdOperations inlayAdOperations,
                                InlayAdHelperFactory inlayAdHelperFactory,
+                               InlayAdStateProvider inlayAdStateProvider,
                                FeatureFlags featureFlags,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
@@ -73,6 +75,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         this.adViewabilityController = adViewabilityController;
         this.inlayAdOperations = inlayAdOperations;
         this.inlayAdHelperFactory = inlayAdHelperFactory;
+        this.stateProvider = inlayAdStateProvider;
         this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
@@ -92,6 +95,13 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                              inlayAdHelper.get().subscribe());
     }
 
+    public void onFocus(boolean hasFocus) {
+        // This will make sure we reattach the video surface, as well as restart playback
+        if (inlayAdHelper.isPresent() && hasFocus) {
+            inlayAdHelper.get().onChangeToAdsOnScreen(true);
+        }
+    }
+
     public void onDestroyView() {
         fetchInlays().unsubscribe();
         subscriptions.unsubscribe();
@@ -99,13 +109,17 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     public void onDestroy() {
-        cleanUpInsertedAds();
+        if (streamAdsEnabled) {
+            cleanUpInsertedAds();
+        }
     }
 
     private void cleanUpInsertedAds() {
         for (AdData ad : insertedAds) {
             if (ad instanceof VideoAd) {
-                adViewabilityController.stopVideoTracking(((VideoAd) ad).getUuid());
+                final String uuid = ((VideoAd) ad).getUuid();
+                stateProvider.remove(uuid);
+                adViewabilityController.stopVideoTracking(uuid);
             }
         }
         insertedAds.clear();
@@ -122,7 +136,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         wasScrollingUp = dy < 0;
         if (streamAdsEnabled && inlayAdHelper.isPresent()) {
-            inlayAdHelper.get().onScroll();
+            inlayAdHelper.get().onChangeToAdsOnScreen(false);
         }
     }
 

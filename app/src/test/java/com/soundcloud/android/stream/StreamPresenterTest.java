@@ -474,6 +474,16 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldForwardOnFocusToStreamAdsController() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onFocusChange(true);
+
+        verify(streamAdsController).onFocus(true);
+    }
+
+    @Test
     public void shouldForwardOrientationChangeToVideoSurfaceProvider() {
         final Fragment fragment = mock(Fragment.class);
         final FragmentActivity activity = mock(FragmentActivity.class);

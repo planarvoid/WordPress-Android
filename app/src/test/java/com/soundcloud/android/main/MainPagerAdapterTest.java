@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -8,9 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,15 +46,23 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onFocusUpdatesSentIfFragmentImplementsFocusListener() {
+    public void focusUpdateSentIfFragmentImplementsFocusListener() {
+        when(fragmentManager.findFragmentByTag("soundcloud:main:0")).thenReturn(fragment1);
+
+        adapter.setPrimaryItem(null, 0, fragment1);
+        adapter.setCurrentFragmentFocused();
+
+        verify((MainPagerAdapter.FocusListener) fragment1, times(1)).onFocusChange(true);
+    }
+
+    @Test
+    public void unFocusUpdateSentIfFragmentImplementsFocusListener() {
         when(fragmentManager.findFragmentByTag("soundcloud:main:0")).thenReturn(fragment1);
 
         adapter.setPrimaryItem(null, 0, fragment1);
         adapter.setPrimaryItem(null, 0, fragment2);
 
-        InOrder inOrder = Mockito.inOrder(fragment1);
-        inOrder.verify((MainPagerAdapter.FocusListener) fragment1).onFocusChange(true);
-        inOrder.verify((MainPagerAdapter.FocusListener) fragment1).onFocusChange(false);
+        verify((MainPagerAdapter.FocusListener) fragment1).onFocusChange(false);
     }
 
     private NavigationModel buildTestNavigationModel() {

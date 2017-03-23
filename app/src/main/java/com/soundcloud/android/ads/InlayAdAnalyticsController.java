@@ -17,7 +17,7 @@ public class InlayAdAnalyticsController {
     private PlayStateEvent playStateEvent = PlayStateEvent.DEFAULT;
 
     @Inject
-    public InlayAdAnalyticsController(AdSessionAnalyticsDispatcher adAnalyticsController) {
+    InlayAdAnalyticsController(AdSessionAnalyticsDispatcher adAnalyticsController) {
         this.adAnalyticsDispatcher = adAnalyticsController;
     }
 
