@@ -455,6 +455,13 @@
 
         <receiver android:name=".cast.CastMediaIntentReceiver"/>
 
+        <receiver android:name=".offline.MediaMountedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_MOUNTED"/>
+                <data android:scheme="file"/>
+            </intent-filter>
+        </receiver>
+
         <!-- Legacy Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
             <intent-filter>

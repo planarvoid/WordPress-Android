@@ -71,7 +71,7 @@ public class IOUtils {
     }
 
     @Nullable
-    private static File getSDCardDir(Context context) {
+    public static File getSDCardDir(Context context) {
         final File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null);
         if (externalFilesDirs == null || externalFilesDirs.length == 0 || externalFilesDirs.length == 1) {
             return null;

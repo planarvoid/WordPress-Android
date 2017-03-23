@@ -32,6 +32,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.LikesStateProvider;
 import com.soundcloud.android.main.ApplicationStartupMeterFactory;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineStorageOperations;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
@@ -138,6 +139,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject ApplicationStartupMeterFactory applicationStartupMeterFactory;
     @Inject PlaybackMeter playbackMeter;
+    @Inject OfflineStorageOperations offlineStorageOperations;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -205,6 +207,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         setupCurrentUserAccount();
 
+        offlineStorageOperations.checkForOfflineStorageConsistency(this);
         cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         networkConnectivityListener.startListening();
         widgetController.subscribe();

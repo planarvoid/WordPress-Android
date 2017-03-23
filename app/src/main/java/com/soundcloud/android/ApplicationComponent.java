@@ -62,6 +62,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.more.BasicSettingsFragment;
 import com.soundcloud.android.more.MoreFragment;
 import com.soundcloud.android.offline.AlarmManagerReceiver;
+import com.soundcloud.android.offline.MediaMountedReceiver;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
@@ -283,6 +284,7 @@ public interface ApplicationComponent {
     void inject(OfflineLikesDialog offlineLikesDialog);
     void inject(AlarmManagerReceiver alarmManagerReceiver);
     void inject(OfflineSettingsOnboardingActivity offlineSettingsOnboardingActivity);
+    void inject(MediaMountedReceiver mediaMountedReceiver);
 
     //PoliciesModule
     void inject(DailyUpdateService dailyUpdateService);

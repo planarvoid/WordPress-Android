@@ -48,7 +48,7 @@ public class CryptoOperations {
     }
 
     public void generateAndStoreDeviceKeyIfNeeded() {
-        fireAndForget(Observable.fromCallable(() -> checkAndGetDeviceKey()).subscribeOn(storageScheduler));
+        fireAndForget(Observable.fromCallable(this::checkAndGetDeviceKey).subscribeOn(storageScheduler));
     }
 
     public String generateHashForUrn(Urn urn) throws EncryptionException {
@@ -76,6 +76,10 @@ public class CryptoOperations {
             generateAndStoreDeviceKey();
         }
         return storage.get(DEVICE_KEY);
+    }
+
+    public boolean containsDeviceKey() {
+        return storage.contains(DEVICE_KEY);
     }
 
     private DeviceSecret generateKey(String name) {
