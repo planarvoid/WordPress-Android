@@ -154,15 +154,15 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playOfflineCallsPlayOfflineOnSkippyWhenFlipperEnabled() {
+    public void playOfflineCallsPlayOfflineOnFlipperWhenFlipperEnabled() {
         when(flipperConfiguration.isEnabled()).thenReturn(true);
 
         instantiateStreamPlaya();
 
         startPlaybackOnSkippy(offlinePlaybackItem);
 
-        verify(flipperAdapter, never()).play(offlinePlaybackItem);
-        verify(skippyAdapter).play(offlinePlaybackItem);
+        verify(flipperAdapter).play(offlinePlaybackItem);
+        verify(skippyAdapter, never()).play(offlinePlaybackItem);
     }
 
     @Test

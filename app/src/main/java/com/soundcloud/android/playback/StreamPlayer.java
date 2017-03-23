@@ -10,7 +10,6 @@ import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -64,7 +63,7 @@ class StreamPlayer implements PlayerListener {
 
         this.skippyPlayerDelegate = initSkippy(skippyAdapterProvider.get());
         this.flipperPlayerDelegate = flipperConfiguration.isEnabled() ? Optional.of(flipperAdapterProvider.get()) : Optional.absent();
-        this.offlineContentPlayer = skippyPlayerDelegate;
+        this.offlineContentPlayer = flipperPlayerDelegate.isPresent() ? flipperPlayerDelegate : skippyPlayerDelegate;
         this.defaultPlayer = defaultPlayer();
         this.audioAdPlayer = skippyPlayerDelegate.isPresent() ? skippyPlayerDelegate.get() : mediaPlayerAdapter;
 
