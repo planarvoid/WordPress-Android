@@ -73,6 +73,11 @@ public class KitKatArtworkView extends ArtworkView implements PlayerTrackArtwork
     }
 
     @Override
+    void resetProgress() {
+        progressController.reset();
+    }
+
+    @Override
     public void setProgressControllerValues(int startX, int endX) {
         TranslateXHelper helper = new TranslateXHelper(startX, endX);
         progressController.setHelper(helper);

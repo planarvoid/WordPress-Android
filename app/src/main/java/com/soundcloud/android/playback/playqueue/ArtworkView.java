@@ -16,5 +16,8 @@ public abstract class ArtworkView extends SupportFragmentLightCycleDispatcher<Fr
 
     abstract void setPlaybackProgress(PlaybackProgress progress, long duration);
 
+    abstract void resetProgress();
+
     abstract void setProgressControllerValues(int startX, int endX);
+
 }

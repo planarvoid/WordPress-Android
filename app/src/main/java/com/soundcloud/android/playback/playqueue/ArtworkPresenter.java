@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -7,11 +8,10 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -26,18 +26,16 @@ public class ArtworkPresenter {
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
-    private final PlaySessionStateProvider playSessionStateProvider;
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private Optional<ArtworkView> artworkViewContract = Optional.absent();
     private Urn lastUrn = Urn.NOT_SET;
 
     @Inject
-    public ArtworkPresenter(EventBus eventBus, TrackRepository trackRepository, PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider) {
+    public ArtworkPresenter(EventBus eventBus, TrackRepository trackRepository, PlayQueueManager playQueueManager) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
-        this.playSessionStateProvider = playSessionStateProvider;
     }
 
     void attachView(ArtworkView artworkView) {
@@ -62,8 +60,9 @@ public class ArtworkPresenter {
         subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
                                   .map(PlaybackProgressEvent::getPlaybackProgress)
                                   .observeOn(AndroidSchedulers.mainThread())
+                                  .filter(event -> sameAsLast(event.getUrn()))
                                   .filter(event -> artworkViewContract.isPresent())
-                                  .subscribe(new ProgressSubscriber()));
+                                  .subscribe(LambdaSubscriber.onNext(event -> artworkViewContract.get().setPlaybackProgress(event, event.getDuration()))));
         subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .filter(event -> artworkViewContract.isPresent())
@@ -73,9 +72,14 @@ public class ArtworkPresenter {
                                   .startWith(Observable.just(playQueueManager.getCurrentPlayQueueItem()))
                                   .filter(PlayQueueItem::isTrack)
                                   .flatMap(playQueueItem -> trackRepository.track(playQueueItem.getUrn()))
+                                  .map(track -> SimpleImageResource.create(track.urn(), track.imageUrlTemplate()))
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .filter(event -> artworkViewContract.isPresent())
-                                  .subscribe(new ImageSetterSubscriber()));
+                                  .subscribe(LambdaSubscriber.onNext(image -> {
+                                      lastUrn = image.getUrn();
+                                      artworkViewContract.get().setImage(image);
+                                      artworkViewContract.get().resetProgress();
+                                  })));
     }
 
     private boolean sameAsLast(Urn urn) {
@@ -97,29 +101,6 @@ public class ArtworkPresenter {
             } else {
                 artworkViewContract.get().cancelProgressAnimation();
             }
-        }
-    }
-
-    private class ProgressSubscriber extends DefaultSubscriber<PlaybackProgress> {
-
-        @Override
-        public void onNext(PlaybackProgress progress) {
-            if (sameAsLast(progress.getUrn())) {
-                artworkViewContract.get().setPlaybackProgress(progress, progress.getDuration());
-            }
-        }
-    }
-
-    private class ImageSetterSubscriber extends DefaultSubscriber<Track> {
-
-        @Override
-        public void onNext(Track track) {
-            artworkViewContract.get().setImage(SimpleImageResource.create(track.urn(), track.imageUrlTemplate()));
-            PlaybackProgress progressEvent = playSessionStateProvider.getLastProgressEvent();
-            if (progressEvent.getUrn().equals(track.urn())) {
-                artworkViewContract.get().setPlaybackProgress(progressEvent, progressEvent.getDuration());
-            }
-            lastUrn = track.urn();
         }
     }
 

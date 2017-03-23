@@ -49,19 +49,17 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
     @Mock private ArtworkView artworkView;
     @Mock private TrackRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     private ArtworkPresenter artworkPresenter;
 
     @Before
     public void setUp() {
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(PlaybackProgress.empty());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(Urn.forTrack(1L))
                                                                             .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY))
                                                                             .build());
         when(trackRepository.track(any())).thenReturn(Observable.just(track.track()));
 
-        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager, playSessionStateProvider);
+        artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager);
         artworkPresenter.attachView(artworkView);
     }
 
@@ -91,6 +89,17 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.forPlaylist(2L), 0));
 
         verify(artworkView, times(2)).setImage(SimpleImageResource.create(track.getUrn(), track.getImageUrlTemplate()));
+    }
+
+    @Test
+    public void resetProgressOnNewQueueEvent() {
+        PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(1L))
+                .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.EXPLICIT))
+                .build();
+
+        eventBus.publish(CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(playQueueItem, Urn.forPlaylist(2L), 0));
+
+        verify(artworkView, times(2)).resetProgress();
     }
 
     @Test
@@ -146,23 +155,6 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         artworkPresenter.attachView(artworkView);
 
         verify(artworkView, times(2)).setImage(any());
-    }
-
-    @Test
-    public void doNotInitialSetProgressIfDifferentUrn() {
-        verify(artworkView, never()).setPlaybackProgress(any(), anyInt());
-    }
-
-    @Test
-    public void setInitialProgressIfSameUrn() {
-        artworkPresenter.detachView();
-
-        PlaybackProgress playbackProgress = new PlaybackProgress(0, 100, Urn.NOT_SET);
-        when(playSessionStateProvider.getLastProgressEvent()).thenReturn(playbackProgress);
-
-        artworkPresenter.attachView(artworkView);
-
-        verify(artworkView).setPlaybackProgress(playbackProgress, playbackProgress.getDuration());
     }
 
 }

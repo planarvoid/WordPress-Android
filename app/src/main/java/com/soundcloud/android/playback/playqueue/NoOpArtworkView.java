@@ -18,6 +18,9 @@ public class NoOpArtworkView extends ArtworkView {
     void setPlaybackProgress(PlaybackProgress progress, long duration) {}
 
     @Override
+    void resetProgress() {}
+
+    @Override
     void setProgressControllerValues(int startX, int endX) {}
 
 }
