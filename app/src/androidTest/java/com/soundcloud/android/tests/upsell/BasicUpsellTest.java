@@ -32,6 +32,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
 
     public void testSettingsUpsellImpressionAndClick() {
         MoreScreen moreScreen = mainNavHelper.goToMore();
+        waiter.waitTwoSeconds();
         startEventTracking();
 
         UpgradeScreen upgradeScreen = moreScreen.clickSubscribe();
