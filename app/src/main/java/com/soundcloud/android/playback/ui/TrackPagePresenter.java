@@ -309,6 +309,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Override
     public void updateCastData(View view, boolean animate) {
+        getViewHolder(view).mediaRouteButton.setVisibility(castConnectionHelper.isCastAvailable() ? View.VISIBLE : View.GONE);
         getViewHolder(view).castPlayerStripController.update(animate);
     }
 
@@ -837,7 +838,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   profileLink,
                                                   upsellView.getUpsellButton(),
                                                   playQueueButton);
-                                                  List<View> trackViews = Arrays.asList(close,
+            List<View> trackViews = Arrays.asList(close,
                                                   more,
                                                   likeToggle,
                                                   title,

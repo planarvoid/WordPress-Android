@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycle;
 
 import android.content.Context;
@@ -23,7 +24,7 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     void removeOnConnectionChangeListener(OnConnectionChangeListener listener);
 
-    MenuItem addMediaRouterButton(Context context, Menu menu, int itemId);
+    Optional<MenuItem> addMediaRouterButton(Context context, Menu menu, int itemId);
 
     void removeMediaRouterButton(Context context, MenuItem castMenu);
 

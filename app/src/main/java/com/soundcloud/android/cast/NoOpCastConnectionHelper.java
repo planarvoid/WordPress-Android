@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast;
 
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -27,8 +28,8 @@ class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
-    public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
-        return null;
+    public Optional<MenuItem> addMediaRouterButton(Context context, Menu menu, int itemId) {
+        return Optional.absent();
     }
 
     @Override

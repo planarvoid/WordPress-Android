@@ -9,7 +9,13 @@ import android.support.v7.app.MediaRouteChooserDialog;
 import android.support.v7.app.MediaRouteChooserDialogFragment;
 import android.support.v7.app.MediaRouteDialogFactory;
 
+import javax.inject.Inject;
+
 public class CustomMediaRouteDialogFactory extends MediaRouteDialogFactory {
+
+    @Inject
+    CustomMediaRouteDialogFactory() {
+    }
 
     @NonNull
     @Override

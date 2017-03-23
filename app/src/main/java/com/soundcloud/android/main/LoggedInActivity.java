@@ -50,11 +50,19 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        castMenu = Optional.fromNullable(castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item));
-        if (castConnectionHelper.isCastAvailable()) {
-            showIntroductoryOverlayForCastIfNeeded();
-        }
+        castMenu = castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
+        updateCastMenuItemVisibility();
         return true;
+    }
+
+    private void updateCastMenuItemVisibility() {
+        castMenu.ifPresent(menuItem -> menuItem.setVisible(castConnectionHelper.isCastAvailable()));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        castConnectionHelper.addOnConnectionChangeListener(this);
     }
 
     @Override
@@ -63,6 +71,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
             castConnectionHelper.removeMediaRouterButton(this, castMenu.get());
             castMenu = Optional.absent();
         }
+        castConnectionHelper.removeOnConnectionChangeListener(this);
         super.onPause();
     }
 
@@ -122,15 +131,12 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
 
     @Override
     public void onCastAvailable() {
-        showIntroductoryOverlayForCastIfNeeded();
-    }
-
-    private void showIntroductoryOverlayForCastIfNeeded() {
+        updateCastMenuItemVisibility();
         castIntroductoryOverlayPresenter.showIntroductoryOverlayForCastIfNeeded();
     }
 
     @Override
     public void onCastUnavailable() {
-        // default impl.: no-op
+        updateCastMenuItemVisibility();
     }
 }

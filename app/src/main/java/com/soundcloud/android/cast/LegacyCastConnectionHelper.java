@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -72,8 +73,8 @@ public class LegacyCastConnectionHelper extends VideoCastConsumerImpl implements
     }
 
     @Override
-    public MenuItem addMediaRouterButton(Context context, Menu menu, int itemId) {
-        return null;
+    public Optional<MenuItem> addMediaRouterButton(Context context, Menu menu, int itemId) {
+        return Optional.absent();
     }
 
     @Override
