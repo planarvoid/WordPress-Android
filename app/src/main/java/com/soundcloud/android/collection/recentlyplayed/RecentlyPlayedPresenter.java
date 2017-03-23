@@ -1,8 +1,14 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -20,6 +26,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.snackbar.FeedbackController;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -46,6 +53,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private Fragment fragment;
     private FeedbackController feedbackController;
     private EventBus eventBus;
@@ -59,7 +67,8 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
                                    FeedbackController feedbackController,
                                    EventBus eventBus,
                                    OfflinePropertiesProvider offlinePropertiesProvider,
-                                   FeatureFlags featureFlags) {
+                                   FeatureFlags featureFlags,
+                                   PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, new Options.Builder().useDividers(Options.DividerMode.NONE).build());
         this.adapter = adapterFactory.create(false, this);
         this.resources = resources;
@@ -68,6 +77,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         this.eventBus = eventBus;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -97,7 +107,16 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(recentlyPlayedOperations.recentlyPlayed().map(augmentRecentlyPlayedItems()))
                                 .withAdapter(adapter)
+                                .addObserver(onNext(items -> endMeasuringLoadTime(Iterables.size(items))))
                                 .build();
+    }
+
+    private void endMeasuringLoadTime(int itemsCount) {
+        MetricParams params = new MetricParams().putLong(MetricKey.RECENTLY_PLAYED_SIZE, itemsCount);
+        performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                               .metricType(MetricType.RECENTLY_PLAYED_LOAD)
+                                                               .metricParams(params)
+                                                               .build());
     }
 
     @Override
@@ -134,8 +153,8 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
     private void subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
             subscription = offlinePropertiesProvider.states()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new OfflineContentSubscriber(adapter));
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(new OfflineContentSubscriber(adapter));
         } else {
             subscription = eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new CurrentDownloadSubscriber(adapter));
         }

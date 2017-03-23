@@ -15,7 +15,8 @@ public enum MetricType {
     OFFLINE_SYNC("offline_sync"),
     PERFORM_SEARCH("perform_search"),
     COLLECTION_LOAD("collection_load"),
-    LISTENING_HISTORY_LOAD("listening_history_load");
+    LISTENING_HISTORY_LOAD("listening_history_load"),
+    RECENTLY_PLAYED_LOAD("recently_played_load");
 
     private final String metricType;
 

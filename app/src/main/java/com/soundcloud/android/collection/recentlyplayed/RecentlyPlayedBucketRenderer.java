@@ -4,6 +4,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -23,14 +25,17 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
 
     private final RecentlyPlayedAdapter adapter;
     private final Navigator navigator;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private WeakReference<RecyclerView> recyclerViewRef;
 
     @Inject
     RecentlyPlayedBucketRenderer(RecentlyPlayedAdapterFactory recentlyPlayedAdapterFactory,
-                                 Navigator navigator) {
+                                 Navigator navigator,
+                                 PerformanceMetricsEngine performanceMetricsEngine) {
         this.adapter = recentlyPlayedAdapterFactory.create(true, null);
         this.navigator = navigator;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -94,6 +99,7 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
 
     @OnClick(R.id.recently_played_view_all)
     void onViewAllClicked(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.RECENTLY_PLAYED_LOAD);
         navigator.openRecentlyPlayed(v.getContext());
     }
 }
