@@ -93,7 +93,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
         screen.assertLastState(state -> state.data().get().tracks(), not(empty()));
     }
 
-    @Test
+     @Test
     @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
     public void editTrackList() {
         final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);

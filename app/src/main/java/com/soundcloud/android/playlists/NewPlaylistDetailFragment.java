@@ -325,7 +325,7 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
     @Override
     public void onUpsellItemPresented() {
-        presenter.fireUpsellImpression();
+        presenter.firePlaylistTracksUpsellImpression();
     }
 
     public void onDragStarted() {

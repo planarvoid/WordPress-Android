@@ -35,6 +35,7 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -201,8 +202,10 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistAvailableOfflinePublishesEntityStateChange() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        List<Urn> playlists = singletonList(playlistUrn);
+        final List<Urn> playlists = singletonList(playlistUrn);
+
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
+        when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.empty());
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
@@ -225,12 +228,26 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistAvailableOfflineStartsService() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(
-                txnResult));
+        final PublishSubject<SyncJobResult> sync = PublishSubject.create();
+
+        when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(txnResult));
+        when(syncInitiator.syncPlaylists(singletonList(playlistUrn))).thenReturn(sync);
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
-        verify(startServiceAction).call(any());
+        assertThat(sync.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void makePlaylistAvailableOfflineStartsServiceAndIgnoreSyncErrors() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+
+        when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(txnResult));
+        when(syncInitiator.syncPlaylists(singletonList(playlistUrn))).thenReturn(Observable.error(new UnknownHostException("Sync error")));
+
+        operations.makePlaylistAvailableOffline(playlistUrn)
+                  .test()
+                  .assertNoErrors();
     }
 
     @Test

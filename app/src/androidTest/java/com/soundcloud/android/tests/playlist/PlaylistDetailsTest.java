@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -65,7 +66,10 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
         finishEventTracking(TEST_PLAYLIST_SHUFFLE);
     }
 
-    public void testRemovingAndAddingTrackFromPlaylist() throws Exception {
+    // TODO remove this test when the new playlist screen is out
+    // This feature changed and this behavior is actually covered in integration test.
+    public void disabled_testRemovingAndAddingTrackFromPlaylist() throws Exception {
+        setRequiredDisabledFeatures(Flag.NEW_PLAYLIST_SCREEN);
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.scrollToAndClickPlaylistWithTitle("whatever");
         int initialTrackCount = playlistDetailsScreen.getTrackCount();
 

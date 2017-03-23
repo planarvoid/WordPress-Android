@@ -184,7 +184,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                feedbackController,
                                                                accountOperations,
                                                                expandPlayerSubscriberProvider,
-                                                               ModelFixtures.entityItemCreator());
+                                                               ModelFixtures.entityItemCreator(), featureOperations);
 
     }
 
@@ -645,7 +645,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlistUrn);
 
-        newPlaylistPresenter.fireUpsellImpression();
+        newPlaylistPresenter.firePlaylistTracksUpsellImpression();
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());

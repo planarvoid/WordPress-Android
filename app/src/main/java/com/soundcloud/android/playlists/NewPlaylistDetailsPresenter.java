@@ -19,6 +19,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.associations.RepostStatuses;
 import com.soundcloud.android.associations.RepostsStateProvider;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -45,6 +46,7 @@ import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -133,6 +135,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource;
     private final DataSourceProvider dataSourceProvider;
+    private final FeatureOperations featureOperations;
 
     NewPlaylistDetailsPresenter(Urn playlistUrn,
                                 String screen,
@@ -155,7 +158,8 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided FeedbackController feedbackController,
                                 @Provided AccountOperations accountOperations,
                                 @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                @Provided EntityItemCreator entityItemCreator) {
+                                @Provided EntityItemCreator entityItemCreator,
+                                @Provided FeatureOperations featureOperations) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
@@ -176,6 +180,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.accountOperations = accountOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.entityItemCreator = entityItemCreator;
+        this.featureOperations = featureOperations;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         dataSourceProvider = dataSourceProviderFactory.create(playlistUrn, refresh);
@@ -211,6 +216,23 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
                 emitViewModel()
         );
+
+        if (featureOperations.upsellOfflineContent()) {
+            firePlaylistPageUpsellImpression();
+        }
+    }
+
+    private void firePlaylistPageUpsellImpression() {
+        fireAndForget(
+                viewModel()
+                        .filter(model -> model.data().isPresent())
+                        .first()
+                        .doOnNext(model -> {
+                            final Urn playlistUrn = model.data().get().metadata().urn();
+                            final UpgradeFunnelEvent event = UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn);
+                            eventBus.publish(EventQueue.TRACKING, event);
+                        })
+        );
     }
 
     @Override
@@ -222,13 +244,17 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         onUpsellDismissed.onNext(item);
     }
 
-    void fireUpsellImpression() {
-        fireAndForget(lastModel()
-                              .doOnNext(mode -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression(mode.metadata().urn()))));
+    void firePlaylistTracksUpsellImpression() {
+        fireAndForget(lastModel().doOnNext(mode -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression(mode.metadata().urn()))));
     }
 
     private Observable<PlaylistDetailsViewModel> lastModel() {
-        return viewModelSubject.flatMap(asyncModel -> asyncModel.data().isPresent() ? just(asyncModel.data().get()) : empty());
+        return models().first();
+    }
+
+    private Observable<PlaylistDetailsViewModel> models() {
+        return viewModelSubject
+                .flatMap(asyncModel -> asyncModel.data().isPresent() ? just(asyncModel.data().get()) : empty());
     }
 
     void actionUpdateTrackList(List<PlaylistDetailTrackItem> trackItems) {
@@ -276,6 +302,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Observable<PlaylistWithExtras> lastPlaylistWithExtras() {
         return dataSource.filter(playlistWithExtrasState -> playlistWithExtrasState.playlistWithExtras().isPresent())
+                         .first()
                          .map(playlistWithExtrasState -> playlistWithExtrasState.playlistWithExtras().get());
     }
 
@@ -290,7 +317,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     private Subscription actionPlayPlaylistStartingFromTrack(PublishSubject<PlaylistDetailTrackItem> trigger) {
-        return lastModel()
+        return models()
                 .compose(Transformers.takePairWhen(trigger))
                 .withLatestFrom(playSessionSource(), (modelWithItem, playSessionSource) -> {
                     final List<PlaylistDetailTrackItem> tracks = modelWithItem.first.tracks();
@@ -387,28 +414,42 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return viewModelSubject.compose(Transformers.takeWhen(trigger))
                                .withLatestFrom(playSessionSource(), Pair::of)
                                .flatMap(this::makePlaylistAvailableOffline)
-                               .subscribe(viewModelSubject);
+                               .doOnNext(viewModelSubject::onNext)
+                               .subscribe(new DefaultSubscriber<>());
     }
 
     private Observable<AsyncViewModel<PlaylistDetailsViewModel>> makePlaylistAvailableOffline(Pair<AsyncViewModel<PlaylistDetailsViewModel>, PlaySessionSource> pair) {
-        AsyncViewModel<PlaylistDetailsViewModel> lastModel = pair.first();
-        PlaylistDetailsViewModel latestViewModel = lastModel.data().get();
-        Urn urn = latestViewModel.metadata().urn();
-        PlaySessionSource playSessionSource = pair.second();
-        Observable<Void> makeOfflineAndTrack = offlineContentOperations.makePlaylistAvailableOffline(urn)
-                                                                       .doOnNext(aVoid -> eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(urn, true, playSessionSource)));
-        if (likesStateProvider.latest().isLiked(urn) || accountOperations.isLoggedInUser(latestViewModel.metadata().creatorUrn())) {
-            return makeOfflineAndTrack.map(aVoid -> lastModel.withNewData(latestViewModel.updateWithMarkedForOffline(true)));
-        } else {
-            return likeOperations.toggleLike(urn, true).flatMap(likeResult -> {
-                if (likeResult == LikeOperations.LikeResult.LIKE_SUCCEEDED) {
-                    return makeOfflineAndTrack.map(aVoid -> lastModel.withNewData(latestViewModel.updateWithMarkedForOffline(true)));
-                } else {
-                    return just(lastModel.withNewData(latestViewModel.updateWithMarkedForOffline(false)));
-                }
+        final PlaylistDetailsViewModel model = pair.first().data().get();
+        final Urn playlistUrn = model.metadata().urn();
+        final Urn creatorUrn = model.metadata().creatorUrn();
+        final PlaySessionSource playSessionSource = pair.second();
 
-            });
+        final Observable<Void> operation = offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)
+                                                                   .doOnNext(aVoid -> {
+                                                                       final OfflineInteractionEvent event = getOfflinePlaylistTrackingEvent(playlistUrn, true, playSessionSource);
+                                                                       eventBus.publish(EventQueue.TRACKING, event);
+                                                                   });
+        if (isInUserCollection(playlistUrn, creatorUrn)) {
+            return operation.flatMap(ignored -> submitUpdateViewModel(true));
+        } else {
+            return likeOperations.toggleLike(playlistUrn, true).flatMap(whenLikeSucceeded(operation));
         }
+    }
+
+    private Func1<LikeOperations.LikeResult, Observable<? extends AsyncViewModel<PlaylistDetailsViewModel>>> whenLikeSucceeded(Observable<Void> action) {
+        return likeResult -> likeResult == LikeOperations.LikeResult.LIKE_SUCCEEDED ?
+                             action.flatMap(ignored -> submitUpdateViewModel(true)) :
+                             submitUpdateViewModel(false);
+    }
+
+    private Observable<AsyncViewModel<PlaylistDetailsViewModel>> submitUpdateViewModel(boolean isMarkedForOffline) {
+        return viewModelSubject
+                .first()
+                .map(model -> model.withNewData(model.data().get().updateWithMarkedForOffline(isMarkedForOffline)));
+    }
+
+    private boolean isInUserCollection(Urn playlistUrn, Urn creatorUrn) {
+        return likesStateProvider.latest().isLiked(playlistUrn) || accountOperations.isLoggedInUser(creatorUrn);
     }
 
     private Observable<PlaySessionSource> playSessionSource() {
@@ -451,24 +492,24 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     private Subscription actionGoToUpsellFromTrack(PublishSubject<PlaylistDetailUpsellItem> trigger) {
-        return lastModel().compose(Transformers.takeWhen(trigger))
-                          .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
-                          .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick(urn)))
-                          .subscribe(goToUpsell);
+        return models().compose(Transformers.takeWhen(trigger))
+                       .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
+                       .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick(urn)))
+                       .subscribe(goToUpsell);
     }
 
     private Subscription actionOnMakeOfflineUpsell(PublishSubject<Void> trigger) {
-        return lastModel().compose(Transformers.takeWhen(trigger))
-                          .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
-                          .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(urn)))
-                          .subscribe(goToUpsell);
+        return models().compose(Transformers.takeWhen(trigger))
+                       .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
+                       .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(urn)))
+                       .subscribe(goToUpsell);
     }
 
     private Subscription actionOnOverflowMakeOfflineUpsell(PublishSubject<Void> trigger) {
-        return lastModel().compose(Transformers.takeWhen(trigger))
-                          .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
-                          .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(urn)))
-                          .subscribe(goToUpsell);
+        return models().compose(Transformers.takeWhen(trigger))
+                       .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
+                       .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(urn)))
+                       .subscribe(goToUpsell);
     }
 
     private Subscription actionDismissUpsell(PublishSubject<PlaylistDetailUpsellItem> trigger) {
@@ -679,20 +720,20 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     @Override
     public void onOverflowUpsellImpression() {
-        fireAndForget(lastModel()
-                              .doOnNext(model -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(model.metadata().getUrn()))));
+        fireAndForget(lastModel().doOnNext(model -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowImpression(model.metadata().getUrn()))));
     }
 
     @Override
     public void onPlayShuffled() {
-        lastModel().withLatestFrom(playSessionSource(), Pair::of)
-                   .flatMap(pair -> {
-                       PlaylistDetailsViewModel viewModel = pair.first();
-                       return playbackInitiator
-                               .playTracksShuffled(just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second())
-                               .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext(viewModel.metadata().urn()))));
-                   }).doOnNext(this::sendErrorIfUnsuccessful)
-                   .subscribe(expandPlayerSubscriberProvider.get());
+        lastModel()
+                .withLatestFrom(playSessionSource(), Pair::of)
+                .flatMap(pair -> {
+                    PlaylistDetailsViewModel viewModel = pair.first();
+                    return playbackInitiator
+                            .playTracksShuffled(just(transform(viewModel.tracks(), PlaylistDetailTrackItem::getUrn)), pair.second())
+                            .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext(viewModel.metadata().urn()))));
+                }).doOnNext(this::sendErrorIfUnsuccessful)
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override

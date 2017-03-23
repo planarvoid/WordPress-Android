@@ -108,6 +108,7 @@ android {
     }
 
     debug {
+      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
