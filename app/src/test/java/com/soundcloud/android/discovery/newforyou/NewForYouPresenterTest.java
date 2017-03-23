@@ -13,7 +13,6 @@ import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouHeaderI
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -76,7 +75,6 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
     @Mock NewForYouHeaderRenderer.Listener headerListener;
     @Mock TrackItemRenderer.Listener trackListener;
     @Mock Fragment fragment;
-    @Mock PlayQueueManager playQueueManager;
     @Mock PlaySessionStateProvider playSessionStateProvider;
 
     @Captor ArgumentCaptor<Iterable<NewForYouItem>> itemsCaptor;
@@ -95,7 +93,6 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
         when(resources.getQuantityString(eq(R.plurals.elapsed_seconds_ago), any(Integer.class), any(Integer.class))).thenReturn(LAST_UPDATED);
         when(resources.getString(eq(R.string.new_for_you_updated_at), any(Object.class))).thenReturn(LAST_UPDATED);
         when(playbackInitiator.playTracks(any(List.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(mock(PlaybackResult.class)));
-        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.forNewForYou("hey", 0, new Urn("this:is:fake")));
         when(playSessionStateProvider.isCurrentlyPlaying(FIRST_TRACK_ITEM.getUrn())).thenReturn(false);
 
         presenter = new NewForYouPresenter(swipeRefreshAttacher,
@@ -105,7 +102,6 @@ public class NewForYouPresenterTest extends AndroidUnitTest {
                                            expandPlayerSubscriberProvider,
                                            resources,
                                            eventBus,
-                                           playQueueManager,
                                            playSessionStateProvider,
                                            ModelFixtures.entityItemCreator());
     }

@@ -9,16 +9,15 @@ import com.soundcloud.android.discovery.newforyou.NewForYouItem.NewForYouTrackIt
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -53,7 +52,6 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Resources resources;
     private final EventBus eventBus;
-    private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final EntityItemCreator entityItemCreator;
 
@@ -67,7 +65,6 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                        Resources resources,
                        EventBus eventBus,
-                       PlayQueueManager playQueueManager,
                        PlaySessionStateProvider playSessionStateProvider,
                        EntityItemCreator entityItemCreator) {
         super(swipeRefreshAttacher, Options.list().build());
@@ -78,7 +75,6 @@ class NewForYouPresenter extends RecyclerViewPresenter<NewForYou, NewForYouItem>
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.resources = resources;
         this.eventBus = eventBus;
-        this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
         this.entityItemCreator = entityItemCreator;
     }

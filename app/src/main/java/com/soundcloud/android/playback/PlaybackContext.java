@@ -32,6 +32,7 @@ public abstract class PlaybackContext {
         YOUR_LIKES(Screen.LIKES, Screen.YOUR_LIKES),
         SEARCH_RESULT(Screen.SEARCH_EVERYTHING, Screen.SEARCH_PREMIUM_CONTENT, Screen.SEARCH_TRACKS),
         CAST,
+        NEW_FOR_YOU,
         OTHER;
 
         private List<Screen> screens;
@@ -93,6 +94,7 @@ public abstract class PlaybackContext {
     private static Bucket bucketFromPlaySessionSource(PlaySessionSource playSessionSource) {
         final String screenTag = playSessionSource.getOriginScreen();
         final Urn collectionUrn = playSessionSource.getCollectionUrn();
+        final DiscoverySource discoverySource = playSessionSource.getDiscoverySource();
 
         if (collectionUrn.isPlaylist()) {
             return Bucket.PLAYLIST;
@@ -108,8 +110,10 @@ public abstract class PlaybackContext {
             return Bucket.LISTENING_HISTORY;
         } else if (playSessionSource.isFromRecommendations()) {
             return Bucket.SUGGESTED_TRACKS;
-        } else if (DiscoverySource.CAST.equals(playSessionSource.getDiscoverySource())) {
+        } else if (DiscoverySource.CAST.equals(discoverySource)) {
             return Bucket.CAST;
+        } else if (DiscoverySource.NEW_FOR_YOU.equals(discoverySource)) {
+            return Bucket.NEW_FOR_YOU;
         } else {
             return Bucket.fromScreen(Screen.fromTag(screenTag));
         }

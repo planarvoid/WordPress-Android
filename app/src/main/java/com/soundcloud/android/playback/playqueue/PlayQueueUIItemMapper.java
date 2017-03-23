@@ -150,6 +150,8 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
                     return resources.getString(R.string.play_queue_header_explicit);
                 case CAST:
                     return resources.getString(R.string.play_queue_header_cast);
+                case NEW_FOR_YOU:
+                    return resources.getString(R.string.play_queue_header_new_for_you);
                 case OTHER:
                     return resources.getString(R.string.play_queue_header_other);
                 default:

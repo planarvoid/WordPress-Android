@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -196,6 +197,15 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(Screen.PLAY_HISTORY.get());
         assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.HISTORY);
+    }
+
+    @Test
+    public void createsPlaySessionSourceForNewForYou() {
+        final PlaySessionSource playSessionSource = PlaySessionSource.forNewForYou(Screen.NEW_FOR_YOU.get(), 1, Urn.NOT_SET);
+
+        assertThat(playSessionSource.getOriginScreen()).isEqualTo(Screen.NEW_FOR_YOU.get());
+        assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.NEW_FOR_YOU);
+        assertThat(playSessionSource.getQuerySourceInfo()).isEqualTo(QuerySourceInfo.create(1, Urn.NOT_SET));
     }
 
     @Test

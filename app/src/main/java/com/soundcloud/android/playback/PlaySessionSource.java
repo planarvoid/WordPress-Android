@@ -107,6 +107,7 @@ public class PlaySessionSource implements Parcelable {
                                              Urn queryUrn) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTag);
         playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        playSessionSource.discoverySource = DiscoverySource.NEW_FOR_YOU;
         return playSessionSource;
     }
 
