@@ -24,7 +24,7 @@ class PlaylistDetailFixtures {
         PlaylistDetailsViewModel viewModel = create(resources, playlist, trackItems, otherPlaylists, Optional.absent());
         return viewModel
                 .toBuilder()
-                .metadata(viewModel.metadata().toBuilder().showOwnerOptions(true).build())
+                .metadata(viewModel.metadata().toBuilder().isOwner(true).build())
                 .build();
     }
 

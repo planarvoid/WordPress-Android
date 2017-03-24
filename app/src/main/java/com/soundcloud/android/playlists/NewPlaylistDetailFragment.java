@@ -395,7 +395,7 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
             if (viewModelOpt.isPresent()) {
                 PlaylistDetailsViewModel viewModel = viewModelOpt.get();
                 EmptyStatus emptyStatus = EmptyStatus.fromErrorAndLoading(asyncViewModel.error(), asyncViewModel.isLoadingNextPage());
-                PlaylistDetailEmptyItem emptyItem = new PlaylistDetailEmptyItem(emptyStatus, viewModel.metadata().showOwnerOptions());
+                PlaylistDetailEmptyItem emptyItem = new PlaylistDetailEmptyItem(emptyStatus, viewModel.metadata().isOwner());
                 return viewModel.metadata().isInEditMode() || !inlineHeader ? viewModel.itemsWithoutHeader(emptyItem)
                                                                             : viewModel.itemsWithHeader(emptyItem);
 

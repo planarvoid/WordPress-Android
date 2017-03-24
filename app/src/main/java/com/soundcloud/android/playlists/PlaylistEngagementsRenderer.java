@@ -94,7 +94,8 @@ class PlaylistEngagementsRenderer {
             menu.inflate(R.menu.playlist_details_actions);
 
             configureMyOptions(item, menu);
-            configurePrivacyOptions(item, menu);
+            configureRepostOptions(item, menu);
+            configureShareOptions(item, menu);
             configureShuffleOptions(item, menu);
             configurePlayNext(menu);
             configureOfflineAvailability(item, menu, onEngagementListener);
@@ -135,7 +136,7 @@ class PlaylistEngagementsRenderer {
     }
 
     private void configureMyOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
-        if (item.showOwnerOptions()) {
+        if (item.isOwner()) {
             menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN));
             menu.setItemVisible(R.id.delete_playlist, true);
         } else {
@@ -144,16 +145,22 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void configurePrivacyOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
-        if (!item.isPrivate()) {
-            boolean repostedByUser = item.isRepostedByUser();
-            menu.setItemVisible(R.id.share, true);
-            menu.setItemVisible(R.id.repost, !repostedByUser);
-            menu.setItemVisible(R.id.unpost, repostedByUser);
-        } else {
+    private void configureShareOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
+        if (item.isPrivate()) {
             menu.setItemVisible(R.id.share, false);
+        } else {
+            menu.setItemVisible(R.id.share, true);
+        }
+    }
+
+    private void configureRepostOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
+        if (item.isPrivate() || item.isOwner()) {
             menu.setItemVisible(R.id.repost, false);
             menu.setItemVisible(R.id.unpost, false);
+        } else {
+            boolean repostedByUser = item.isRepostedByUser();
+            menu.setItemVisible(R.id.repost, !repostedByUser);
+            menu.setItemVisible(R.id.unpost, repostedByUser);
         }
     }
 

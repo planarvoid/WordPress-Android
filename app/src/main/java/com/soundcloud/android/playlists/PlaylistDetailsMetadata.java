@@ -44,7 +44,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .isLikedByUser(isLiked)
                 .likesCount(playlist.likesCount())
                 .isMarkedForOffline(offlineState != OfflineState.NOT_OFFLINE)
-                .showOwnerOptions(isOwner)
+                .isOwner(isOwner)
                 .headerText(PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems)))
                 .offlineOptions(offlineOptions)
                 .offlineState(offlineState)
@@ -85,7 +85,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
 
     abstract public boolean isMarkedForOffline();
 
-    abstract public boolean showOwnerOptions();
+    abstract public boolean isOwner();
 
     abstract public OfflineState offlineState();
 
@@ -178,7 +178,7 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
 
         abstract Builder isMarkedForOffline(boolean value);
 
-        abstract Builder showOwnerOptions(boolean value);
+        abstract Builder isOwner(boolean value);
 
         abstract Builder offlineState(OfflineState value);
 

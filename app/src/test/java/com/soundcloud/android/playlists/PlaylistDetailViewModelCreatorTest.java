@@ -115,7 +115,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
 
         final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, false, Optional.absent());
 
-        assertThat(item.metadata().showOwnerOptions()).isFalse();
+        assertThat(item.metadata().isOwner()).isFalse();
     }
 
     @Test
@@ -125,7 +125,7 @@ public class PlaylistDetailViewModelCreatorTest extends AndroidUnitTest {
 
         final PlaylistDetailsViewModel item = creator.create(playlist, emptyList(), false, false, false, Optional.absent());
 
-        assertThat(item.metadata().showOwnerOptions()).isTrue();
+        assertThat(item.metadata().isOwner()).isTrue();
     }
 
     @Test
