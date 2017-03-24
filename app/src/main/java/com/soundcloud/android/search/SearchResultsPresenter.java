@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListItem>
-        implements SearchPremiumContentRenderer.OnPremiumContentClickListener {
+        implements SearchPremiumContentRenderer.OnPremiumContentClickListener, SearchUpsellRenderer.OnUpsellClickListener {
 
     private static final int PREMIUM_ITEMS_POSITION = 0;
     private static final int PREMIUM_ITEMS_DISPLAYED = 1;
@@ -223,6 +223,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
     private CollectionBinding<SearchResult, ListItem> createCollectionBinding() {
         adapter.setPremiumContentListener(this);
+        adapter.setUpsellListener(this);
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchOperations
@@ -315,5 +316,11 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     public void onPremiumContentViewAllClicked(Context context, List<Urn> premiumItemsSource, Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn, apiQuery);
         navigator.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource, nextHref, queryUrn);
+    }
+
+    @Override
+    public void onUpsellClicked(Context context) {
+        searchTracker.trackPremiumResultsUpsellClick();
+        navigator.openUpgrade(context);
     }
 }

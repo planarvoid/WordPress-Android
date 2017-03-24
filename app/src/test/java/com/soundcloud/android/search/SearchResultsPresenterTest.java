@@ -23,6 +23,7 @@ import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksC
 import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -89,7 +90,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        setupFragmentArguments(true, SEARCH_TAB);
+        setupFragmentArguments(true, SEARCH_TAB, false);
         final List<ListItem> trackItems = Collections.singletonList(ModelFixtures.trackItem(TRACK_URN));
         final SearchResult searchResult = SearchResult.fromSearchableItems(trackItems,
                                                                            Optional.absent(),
@@ -156,7 +157,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doesNotTrackNonFirstSearch() {
-        setupFragmentArguments(false, SEARCH_TAB);
+        setupFragmentArguments(false, SEARCH_TAB, false);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
         verify(searchTracker, never()).trackSearchFormulationEnd(eq(Screen.SEARCH_MAIN), any(String.class), any(Optional.class), any(Optional.class));
@@ -250,7 +251,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void addHeaderWhenFeatureFlagOn() {
-        setupFragmentArguments(false, SearchType.TRACKS);
+        setupFragmentArguments(false, SearchType.TRACKS, false);
         when(topResultsConfig.isEnabled()).thenReturn(true);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
@@ -265,7 +266,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void doNotAddHeaderWhenFeatureFlagOff() {
-        setupFragmentArguments(false, SearchType.TRACKS);
+        setupFragmentArguments(false, SearchType.TRACKS, false);
         when(topResultsConfig.isEnabled()).thenReturn(false);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
@@ -277,7 +278,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldEndMeasuringSearchPerformanceOnAllSearchType() {
-        setupFragmentArguments(false, SearchType.ALL);
+        setupFragmentArguments(false, SearchType.ALL, false);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
@@ -289,11 +290,62 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotEndMeasuringSearchPerformanceOnOtherSearchType() {
-        setupFragmentArguments(false, SearchType.TRACKS);
+        setupFragmentArguments(false, SearchType.TRACKS, false);
 
         presenter.onCreate(fragmentRule.getFragment(), bundle);
 
         verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
+    }
+
+    @Test
+    public void setsAdapterUpsellListener() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+        presenter.onDestroyView(fragmentRule.getFragment());
+
+        verify(adapter).setUpsellListener(presenter);
+    }
+
+    @Test
+    public void shouldOpenUpgradeSubscriptionOnUpsellClick() {
+        setupFragmentArguments(false, SearchType.TRACKS, true);
+        presenter.onUpsellClicked(context());
+
+        verify(navigator).openUpgrade(context());
+    }
+
+    @Test
+    public void shouldNotContainUpsellItemIfHighTierUser() {
+        setupFragmentArguments(false, SearchType.TRACKS, true);
+        setupAdapter();
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        final CollectionBinding<SearchResult, ListItem> collectionBinding = presenter.onBuildBinding(new Bundle());
+        final ListItem firstListItem = collectionBinding.adapter().getItem(0);
+
+        assertThat(firstListItem).isInstanceOf(TrackItem.class);
+    }
+
+    @Test
+    public void shouldTrackPremiumResultsUpsellImpression() {
+        setupFragmentArguments(false, SearchType.TRACKS, true);
+        setupAdapter();
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+
+        presenter.onCreate(fragmentRule.getFragment(), new Bundle());
+
+        verify(searchTracker).trackPremiumResultsUpsellImpression();
+    }
+
+    @Test
+    public void shouldNotTrackPremiumResultsUpsellImpressionIfNotHighTierUpsell() {
+        setupFragmentArguments(false, SearchType.TRACKS, true);
+        setupAdapter();
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), new Bundle());
+
+        verify(searchTracker, never()).trackPremiumResultsUpsellImpression();
     }
 
     private List<ListItem> setupAdapter() {
@@ -335,10 +387,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(playRelatedTracksConfig.isEnabled()).thenReturn(false);
     }
 
-    private void setupFragmentArguments(boolean publishSearchSubmissionEvent, SearchType searchType) {
+    private void setupFragmentArguments(boolean publishSearchSubmissionEvent, SearchType searchType, boolean isPremium) {
         final Bundle arguments = new Bundle();
         arguments.putParcelable(SearchResultsFragment.EXTRA_ARGS,
-                                SearchFragmentArgs.create(searchType, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), publishSearchSubmissionEvent, false));
+                                SearchFragmentArgs.create(searchType, API_QUERY, USER_QUERY, Optional.absent(), Optional.absent(), publishSearchSubmissionEvent, isPremium));
         fragmentRule.setFragmentArguments(arguments);
     }
 }
