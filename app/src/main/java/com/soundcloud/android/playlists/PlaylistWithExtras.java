@@ -42,9 +42,4 @@ abstract class PlaylistWithExtras {
         abstract PlaylistWithExtras build();
 
     }
-
-    @Override
-    public String toString() {
-        return "PlaylistWithExtras{ "+ playlist().title() + " " + tracks() + " " + otherPlaylistsByCreator() + " }";
-    }
 }

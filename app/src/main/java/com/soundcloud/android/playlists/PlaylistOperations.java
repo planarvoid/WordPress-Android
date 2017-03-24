@@ -142,7 +142,7 @@ public class PlaylistOperations {
                                                                               updatedTracklist))
                                   .flatMap(o -> playlistRepository.withUrn(playlistUrn))
                                   .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
-                                  .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                  .doOnNext(playlist -> fireAndForget(syncInitiator.syncPlaylist(playlist.urn())))
                                   .subscribeOn(scheduler);
     }
 

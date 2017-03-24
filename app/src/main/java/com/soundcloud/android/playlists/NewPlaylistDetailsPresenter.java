@@ -300,20 +300,19 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         }
     }
 
-    private Observable<PlaylistWithExtras> lastPlaylistWithExtras() {
+    private Observable<PlaylistWithExtras> playlistWithExtras() {
         return dataSource.filter(playlistWithExtrasState -> playlistWithExtrasState.playlistWithExtras().isPresent())
-                         .first()
                          .map(playlistWithExtrasState -> playlistWithExtrasState.playlistWithExtras().get());
     }
 
     private Subscription actionPlayPlaylist(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
-                                       .flatMap(playlistOperations::trackUrnsForPlayback)
-                                       .withLatestFrom(playSessionSource(), Pair::of)
-                                       .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
-                                       .doOnNext(this::sendErrorIfUnsuccessful)
-                                       .subscribe(expandPlayerSubscriberProvider.get());
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
+                                   .flatMap(playlistOperations::trackUrnsForPlayback)
+                                   .withLatestFrom(playSessionSource(), Pair::of)
+                                   .flatMap(pair -> playbackInitiator.playTracks(pair.first(), 0, pair.second()))
+                                   .doOnNext(this::sendErrorIfUnsuccessful)
+                                   .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     private Subscription actionPlayPlaylistStartingFromTrack(PublishSubject<PlaylistDetailTrackItem> trigger) {
@@ -337,7 +336,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private Subscription actionTracklistUpdated(PublishSubject<List<PlaylistDetailTrackItem>> newTrackItemOrder) {
         return newTrackItemOrder.map(playlistDetailTrackItems -> transform(playlistDetailTrackItems, PlaylistDetailTrackItem::getUrn))
-                                .withLatestFrom(lastPlaylistWithExtras(), this::getSortedPlaylistWithExtras)
+                                .withLatestFrom(playlistWithExtras(), this::getSortedPlaylistWithExtras)
                                 .doOnNext(this::savePlaylist)
                                 .map(playlistWithExtras -> PlaylistWithExtrasState.builder().playlistWithExtras(of(playlistWithExtras)).build())
                                 .subscribe(dataSource);
@@ -368,7 +367,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                 .filter(event -> event.kind() == UrnStateChangedEvent.Kind.ENTITY_DELETED)
                 .filter(UrnStateChangedEvent::containsPlaylist);
 
-        return lastPlaylistWithExtras()
+        return playlistWithExtras()
                 .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
                 .compose(Transformers.takePairWhen(playlistDeleted))
                 .filter(pair -> pair.second.urns().contains(pair.first))
@@ -384,30 +383,30 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     private Subscription actionLike(PublishSubject<Boolean> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takePairWhen(trigger))
-                                       .withLatestFrom(playSessionSource(), this::like)
-                                       .flatMap(x -> x)
-                                       .subscribe(showLikeResult);
+        return playlistWithExtras().compose(Transformers.takePairWhen(trigger))
+                                   .withLatestFrom(playSessionSource(), this::like)
+                                   .flatMap(x -> x)
+                                   .subscribe(showLikeResult);
     }
 
     private Subscription actionRepost(PublishSubject<Boolean> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takePairWhen(trigger))
-                                       .withLatestFrom(playSessionSource(), this::repost)
-                                       .flatMap(x -> x)
-                                       .subscribe(showRepostResult);
+        return playlistWithExtras().compose(Transformers.takePairWhen(trigger))
+                                   .withLatestFrom(playSessionSource(), this::repost)
+                                   .flatMap(x -> x)
+                                   .subscribe(showRepostResult);
     }
 
     private Subscription actionMakeOfflineUnavailableOffline(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
-                                       .withLatestFrom(playSessionSource(), Pair::of)
-                                       .subscribe(data -> {
-                                           if (offlineContentOperations.isOfflineCollectionEnabled()) {
-                                               showDisableOfflineCollectionConfirmation.onNext(data);
-                                           } else {
-                                               makePlaylistUnAvailableOffline(data);
-                                           }
-                                       });
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
+                                   .withLatestFrom(playSessionSource(), Pair::of)
+                                   .subscribe(data -> {
+                                             if (offlineContentOperations.isOfflineCollectionEnabled()) {
+                                                 showDisableOfflineCollectionConfirmation.onNext(data);
+                                             } else {
+                                                 makePlaylistUnAvailableOffline(data);
+                                             }
+                                         });
     }
 
     private Subscription actionMakeAvailableOffline(PublishSubject<Void> trigger) {
@@ -453,41 +452,41 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     private Observable<PlaySessionSource> playSessionSource() {
-        return lastPlaylistWithExtras().map(createPlaySessionSource());
+        return playlistWithExtras().map(createPlaySessionSource());
     }
 
     private Subscription actionGoToCreator(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().creatorUrn())
-                                       .subscribe(gotoCreator);
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().creatorUrn())
+                                   .subscribe(gotoCreator);
     }
 
     private Subscription actionPlayNext(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
-                                       .subscribe(playQueueHelper::playNext);
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
+                                   .subscribe(playQueueHelper::playNext);
     }
 
     private Subscription actionDeletePlaylist(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
-                                       .subscribe(showPlaylistDeletionConfirmation);
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .map(PlaylistWithExtras -> PlaylistWithExtras.playlist().urn())
+                                   .subscribe(showPlaylistDeletionConfirmation);
     }
 
     private Subscription actionSharePlaylist(PublishSubject<Void> trigger) {
-        return lastPlaylistWithExtras().compose(Transformers.takeWhen(trigger))
-                                       .filter(playlistWithExtras -> playlistWithExtras.playlist().permalinkUrl().isPresent())
-                                       .withLatestFrom(playSessionSource(), Pair::of)
-                                       .map(pair -> {
-                                           Playlist playlist = pair.first().playlist();
-                                           return SharePresenter.ShareOptions.create(
-                                                   playlist.permalinkUrl().get(),
-                                                   getEventContext(playlist.urn()),
-                                                   pair.second().getPromotedSourceInfo(),
-                                                   createEntityMetadata(playlist)
-                                           );
-                                       })
-                                       .subscribe(sharePlaylist);
+        return playlistWithExtras().compose(Transformers.takeWhen(trigger))
+                                   .filter(playlistWithExtras -> playlistWithExtras.playlist().permalinkUrl().isPresent())
+                                   .withLatestFrom(playSessionSource(), Pair::of)
+                                   .map(pair -> {
+                                             Playlist playlist = pair.first().playlist();
+                                             return SharePresenter.ShareOptions.create(
+                                                     playlist.permalinkUrl().get(),
+                                                     getEventContext(playlist.urn()),
+                                                     pair.second().getPromotedSourceInfo(),
+                                                     createEntityMetadata(playlist)
+                                             );
+                                         })
+                                   .subscribe(sharePlaylist);
 
     }
 

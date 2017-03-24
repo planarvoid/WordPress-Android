@@ -135,7 +135,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             viewModelCreator,
                                             ModelFixtures.entityItemCreator());
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
-        when(syncInitiator.syncPlaylist(any(Urn.class))).thenReturn(playlistSyncSubject);
+        when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(playlistSyncSubject);
         when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
     }
 
@@ -280,6 +280,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(myPlaylistSyncSubject);
         when(trackRepository.forPlaylist(localPlaylist.urn())).thenReturn(just(trackList));
         when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(just(localPlaylist));
+        when(syncInitiator.syncPlaylist(localPlaylist.urn())).thenReturn(playlistSyncSubject);
 
         operations.playlist(localPlaylist.urn()).subscribe(playlistSubscriber);
 
@@ -428,7 +429,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         operations.editPlaylist(playlist.urn(), NEW_TITLE, IS_PRIVATE, asList(trackUrn)).subscribe();
 
         verifyEditPlaylistCommandParams();
-        verify(requestSystemSyncAction).call();
+        assertThat(playlistSyncSubject.hasObservers()).isTrue();
     }
 
     @Test

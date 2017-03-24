@@ -23,7 +23,6 @@ import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,7 +41,6 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     }
 
     @Test
-    @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
     public void presenterDoesNotEmitWhenNotConnected() {
         noNetwork();
 
@@ -53,7 +51,6 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     }
 
     @Test
-    @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
     public void presenterStartsWithEmptyModel() {
         unrespondingNetwork();
 
@@ -66,7 +63,6 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     }
 
     @Test
-    @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
     public void showNetworkError() throws InterruptedException {
         noNetwork();
 
@@ -80,7 +76,6 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     }
 
     @Test
-    @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
     public void showPlaylistWithTracks() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         final NewPlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
@@ -93,8 +88,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
         screen.assertLastState(state -> state.data().get().tracks(), not(empty()));
     }
 
-     @Test
-    @Ignore("Disabling until NEW_PLAYLIST_SCREEN is enabled")
+    @Test
     public void editTrackList() {
         final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);
         final NewPlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
