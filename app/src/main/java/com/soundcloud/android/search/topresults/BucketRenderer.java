@@ -1,10 +1,14 @@
 package com.soundcloud.android.search.topresults;
 
+import static com.soundcloud.android.search.topresults.TopResults.Bucket.Kind.GO_TRACKS;
+
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
+import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import rx.subjects.PublishSubject;
 
@@ -27,18 +31,24 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private final PublishSubject<SearchItem> searchItemClicked;
     private final PublishSubject<TopResultsViewAllArgs> viewAllClicked;
+    private final PublishSubject<Void> helpClicked;
     private final SearchItemAdapterFactory searchItemAdapterFactory;
     private final CondensedNumberFormatter numberFormatter;
+    private final FeatureOperations featureOperations;
 
     @Inject
     BucketRenderer(PublishSubject<SearchItem> searchItemClicked,
                    PublishSubject<TopResultsViewAllArgs> viewAllClicked,
+                   PublishSubject<Void> helpClicked,
                    @Provided SearchItemAdapterFactory searchItemAdapterFactory,
-                   @Provided CondensedNumberFormatter numberFormatter) {
+                   @Provided CondensedNumberFormatter numberFormatter,
+                   @Provided FeatureOperations featureOperations) {
         this.searchItemClicked = searchItemClicked;
         this.viewAllClicked = viewAllClicked;
+        this.helpClicked = helpClicked;
         this.searchItemAdapterFactory = searchItemAdapterFactory;
         this.numberFormatter = numberFormatter;
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -70,9 +80,10 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
         bindViewAll(itemView, resources, bucketText, viewModel.shouldShowViewAll(), viewModel.totalResults(), viewModel.kind());
         final boolean lastItem = items.size() - 1 == position;
         itemView.findViewById(R.id.bucket_bottom_padding).setVisibility(lastItem ? View.VISIBLE : View.GONE);
+        bindHighTierHelpItem(itemView, viewModel.kind());
     }
 
-    private void bindViewAll(View itemView, Resources resources, String bucketText, boolean shouldShowViewAll, int totalResults, TopResultsBucketViewModel.Kind kind) {
+    private void bindViewAll(View itemView, Resources resources, String bucketText, boolean shouldShowViewAll, int totalResults, Bucket.Kind kind) {
         final View viewAllButton = itemView.findViewById(R.id.bucket_view_all);
         viewAllButton.setVisibility(shouldShowViewAll ? View.VISIBLE : View.GONE);
         if (shouldShowViewAll) {
@@ -90,6 +101,17 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private void bindTitle(View itemView, String bucketText) {
         ((TextView) itemView.findViewById(R.id.bucket_header)).setText(bucketText);
+    }
+
+
+    private void bindHighTierHelpItem(View itemView, Bucket.Kind kind) {
+        final View helpItemView = itemView.findViewById(R.id.help);
+        if (featureOperations.upsellHighTier() && kind == GO_TRACKS) {
+            helpItemView.setVisibility(View.VISIBLE);
+            helpItemView.setOnClickListener(ignored -> helpClicked.onNext(null));
+        } else {
+            helpItemView.setVisibility(View.GONE);
+        }
     }
 
     private void addListDividers(RecyclerView recyclerView, Resources resources) {

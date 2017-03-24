@@ -18,7 +18,7 @@ import javax.inject.Named;
 class TopResultsOperations {
     static final String QUERY_PARAM = "q";
     static final String QUERY_URN_PARAM = "query_urn";
-    public static final int RESULT_LIMIT = 2;
+    static final int RESULT_LIMIT = 2;
     private static final TypeToken<ApiTopResults> TYPE_TOKEN = new TypeToken<ApiTopResults>() {
     };
 
@@ -33,11 +33,11 @@ class TopResultsOperations {
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
     }
 
-    public Observable<ApiTopResults> search(Pair<String, Optional<Urn>> pairQuery) {
+    public Observable<TopResults> search(Pair<String, Optional<Urn>> pairQuery) {
         return search(pairQuery.first(), pairQuery.second());
     }
 
-    public Observable<ApiTopResults> search(String query, Optional<Urn> queryUrn) {
+    public Observable<TopResults> search(String query, Optional<Urn> queryUrn) {
         final ApiRequest.Builder requestBuilder = ApiRequest.get(ApiEndpoints.SEARCH_TOP_RESULTS.path())
                                                             .forPrivateApi()
                                                             .addQueryParam(ApiRequest.Param.PAGE_SIZE.toString(), RESULT_LIMIT)
@@ -47,7 +47,8 @@ class TopResultsOperations {
         }
         return apiClientRx.mappedResponse(requestBuilder.build(), TYPE_TOKEN)
                           .subscribeOn(scheduler)
-                          .doOnNext(this::cacheItems);
+                          .doOnNext(this::cacheItems)
+                .map(ApiTopResultsMapper::toDomainModel);
 
     }
 

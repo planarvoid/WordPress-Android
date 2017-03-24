@@ -6,6 +6,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
@@ -29,6 +31,7 @@ public class PlaySessionStateProvider {
 
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
+    private BehaviorSubject<Urn> nowPlayingUrn = BehaviorSubject.create(currentPlayingUrn);
     private long lastStateEventTime;
 
     @Inject
@@ -55,7 +58,7 @@ public class PlaySessionStateProvider {
             playSessionStateStorage.savePlayId(playStateEvent.getPlayId());
         }
 
-        currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
+        setCurrentPlayingUrn(playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn());
         lastStateEvent = playStateEvent;
         lastStateEventTime = dateProvider.getCurrentTime();
         playbackProgressRepository.put(currentPlayingUrn, playStateEvent.getProgress());
@@ -136,4 +139,12 @@ public class PlaySessionStateProvider {
         return isPlaying() ? 0 : (dateProvider.getCurrentTime() - lastStateEventTime);
     }
 
+    public Observable<Urn> nowPlayingUrn() {
+        return nowPlayingUrn;
+    }
+
+    private void setCurrentPlayingUrn(Urn urn) {
+        this.currentPlayingUrn = urn;
+        nowPlayingUrn.onNext(urn);
+    }
 }

@@ -3,19 +3,13 @@ package com.soundcloud.android.search.topresults;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-import java.util.Collections;
-
 public final class TopResultsFixtures {
 
     static final Urn QUERY_URN = new Urn("soundcloud:query_urn:123");
-    static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
-    static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:topresult");
-    static final Urn UNKNOWN_BUCKET_URN = new Urn("soundcloud:search-buckets:unknown");
 
     static ApiUniversalSearchItem searchTrackItem(ApiTrack track) {
         return new ApiUniversalSearchItem(null, null, track);
@@ -29,15 +23,15 @@ public final class TopResultsFixtures {
         return new ApiUniversalSearchItem(null, playlist, null);
     }
 
-    static ApiTopResultsBucket apiTrackResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
-        return ApiTopResultsBucket.create(TRACKS_BUCKET_URN, apiUniversalSearchItems.length, new ModelCollection<>(Arrays.asList(apiUniversalSearchItems), Collections.emptyMap(), QUERY_URN));
+    static TopResults.Bucket trackResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
+        return TopResults.Bucket.create(TopResults.Bucket.Kind.TRACKS, apiUniversalSearchItems.length, Arrays.asList(apiUniversalSearchItems));
     }
 
-    static ApiTopResultsBucket apiTopResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
-        return ApiTopResultsBucket.create(TOP_RESULT_BUCKET_URN, apiUniversalSearchItems.length, new ModelCollection<>(Arrays.asList(apiUniversalSearchItems), Collections.emptyMap(), QUERY_URN));
+    static TopResults.Bucket playlistResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
+        return TopResults.Bucket.create(TopResults.Bucket.Kind.PLAYLISTS, apiUniversalSearchItems.length, Arrays.asList(apiUniversalSearchItems));
     }
 
-    static ApiTopResultsBucket unknownBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
-        return ApiTopResultsBucket.create(UNKNOWN_BUCKET_URN, apiUniversalSearchItems.length, new ModelCollection<>(Arrays.asList(apiUniversalSearchItems), Collections.emptyMap(), QUERY_URN));
+    static TopResults.Bucket topResultsBucket(ApiUniversalSearchItem... apiUniversalSearchItems) {
+        return TopResults.Bucket.create(TopResults.Bucket.Kind.TOP_RESULT, apiUniversalSearchItems.length, Arrays.asList(apiUniversalSearchItems));
     }
 }

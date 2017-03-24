@@ -68,6 +68,11 @@ public class PlaybackInitiator {
         return playTracks(urns, initialTrack, position, playSessionSource);
     }
 
+    public Observable<PlaybackResult> playPosts(List<Urn> playableUrns, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+        Observable<List<Urn>> urns = Observable.just(playableUrns);
+        return playTracks(urns, initialTrack, position, playSessionSource);
+    }
+
 
     public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {

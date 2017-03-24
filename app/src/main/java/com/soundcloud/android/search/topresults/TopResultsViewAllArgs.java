@@ -2,11 +2,12 @@ package com.soundcloud.android.search.topresults;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
 abstract class TopResultsViewAllArgs {
-    abstract TopResultsBucketViewModel.Kind kind();
+    abstract Bucket.Kind kind();
 
     abstract boolean isPremium();
 
@@ -14,8 +15,8 @@ abstract class TopResultsViewAllArgs {
 
     abstract Optional<String> query();
 
-    public static TopResultsViewAllArgs create(TopResultsBucketViewModel.Kind kind) {
-        final boolean isPremium = kind == TopResultsBucketViewModel.Kind.GO_TRACKS;
+    public static TopResultsViewAllArgs create(Bucket.Kind kind) {
+        final boolean isPremium = kind == Bucket.Kind.GO_TRACKS;
         return new AutoValue_TopResultsViewAllArgs(kind, isPremium, Optional.absent(), Optional.absent());
     }
 

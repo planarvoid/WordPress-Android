@@ -51,8 +51,8 @@ import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
+import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
-import com.soundcloud.android.search.topresults.TopResultsBucketViewModel;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -347,7 +347,7 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openSearchViewAll(Context context, String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
+    public void openSearchViewAll(Context context, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
         Intent intent = new Intent(context, TopResultsBucketActivity.class);
         intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY, query);
         intent.putExtra(TopResultsBucketActivity.EXTRA_BUCKET_KIND, kind);

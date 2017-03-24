@@ -5,6 +5,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.associations.FollowingStatuses;
 import com.soundcloud.android.likes.LikedStatuses;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
@@ -22,20 +23,22 @@ public class SearchItemHelper {
     static List<SearchItem> transformApiSearchItems(EntityItemCreator entityItemCreator,
                                                     LikedStatuses likedStatuses,
                                                     FollowingStatuses followingStatuses,
+                                                    Urn nowPlayingUrn,
                                                     List<ApiUniversalSearchItem> apiUniversalSearchItems,
                                                     int bucketPosition) {
-        return Lists.transform(apiUniversalSearchItems, item -> transformApiSearchItem(entityItemCreator, likedStatuses, followingStatuses, item, bucketPosition));
+        return Lists.transform(apiUniversalSearchItems, item -> transformApiSearchItem(entityItemCreator, likedStatuses, followingStatuses, nowPlayingUrn, item, bucketPosition));
     }
 
     static SearchItem transformApiSearchItem(EntityItemCreator entityItemCreator,
                                              LikedStatuses likedStatuses,
                                              FollowingStatuses followingStatuses,
+                                             Urn nowPlayingUrn,
                                              ApiUniversalSearchItem searchItem,
                                              int bucketPosition) {
         if (searchItem.track().isPresent()) {
 
             ApiTrack apiTrack = searchItem.track().get();
-            TrackItem trackItem = entityItemCreator.trackItem(apiTrack).updateLikeState(likedStatuses.isLiked(apiTrack.getUrn()));
+            TrackItem trackItem = entityItemCreator.trackItem(apiTrack).updateLikeState(likedStatuses.isLiked(apiTrack.getUrn())).updateNowPlaying(nowPlayingUrn);
             return SearchItem.Track.create(trackItem, bucketPosition);
 
         } else if (searchItem.playlist().isPresent()) {

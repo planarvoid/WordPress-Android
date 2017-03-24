@@ -14,8 +14,11 @@ import javax.inject.Inject;
 class TopResultsAdapter extends RecyclerItemAdapter<TopResultsBucketViewModel, RecyclerView.ViewHolder> {
 
     @Inject
-    TopResultsAdapter(PublishSubject<SearchItem> searchItemClicked, PublishSubject<TopResultsViewAllArgs> viewAllClicked, @Provided BucketRendererFactory bucketRendererFactory) {
-        super(bucketRendererFactory.create(searchItemClicked, viewAllClicked));
+    TopResultsAdapter(PublishSubject<SearchItem> searchItemClicked,
+                      PublishSubject<TopResultsViewAllArgs> viewAllClicked,
+                      PublishSubject<Void> helpClicked,
+                      @Provided BucketRendererFactory bucketRendererFactory) {
+        super(bucketRendererFactory.create(searchItemClicked, viewAllClicked, helpClicked));
     }
 
     @Override

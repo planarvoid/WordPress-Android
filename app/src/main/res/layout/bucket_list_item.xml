@@ -3,16 +3,35 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <View style="@style/Divider.Background" />
 
     <View style="@style/Divider.Section" />
 
-    <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/bucket_header"
-        style="@style/Module.Header" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="@dimen/discovery_search_help_padding">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/bucket_header"
+            style="@style/Module.Header" />
+
+        <ImageView
+            android:id="@+id/help"
+            android:layout_width="@dimen/discovery_search_help_button"
+            android:layout_height="@dimen/discovery_search_help_button"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackground"
+            android:scaleType="center"
+            android:visibility="gone"
+            android:src="@drawable/help_icon" />
+
+    </RelativeLayout>
 
     <View style="@style/Divider.Item" />
 

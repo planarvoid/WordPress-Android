@@ -13,10 +13,9 @@ import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
+import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.SearchTracker;
-import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
@@ -87,7 +86,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         searchIntent.onNext(Pair.of(getApiQuery(), getSearchQueryUrn()));
-        collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked(), presenter.viewAllClicked()),
+        collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked(), presenter.viewAllClicked(), presenter.helpClicked()),
                                                       this::isTheSameItem,
                                                       Object::equals,
                                                       new SearchEmptyStateProvider(),
@@ -148,7 +147,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                     .map(TopResultsViewModel::buckets)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(this::renderNewState),
-
+                            presenter.helpClicked().subscribe(LambdaSubscriber.onNext(this::onHelpClicked)),
                             presenter.onGoToProfile()
                                      .subscribe(LambdaSubscriber.onNext(args -> navigator.openProfile(getContext(),
                                                                                                       args.itemUrn(),
@@ -168,6 +167,11 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                                                                                clickAndQuery.query().get(),
                                                                                                clickAndQuery.kind(),
                                                                                                clickAndQuery.isPremium())));
+    }
+
+    private void onHelpClicked(Void ignore) {
+        searchTracker.trackResultsUpsellClick(Screen.SEARCH_EVERYTHING);
+        navigator.openUpgrade(getContext());
     }
 
     private void renderNewState(CollectionRendererState<TopResultsBucketViewModel> newState) {

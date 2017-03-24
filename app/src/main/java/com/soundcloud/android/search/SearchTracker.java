@@ -97,7 +97,11 @@ public class SearchTracker {
     }
 
     void trackResultsUpsellClick(SearchType searchType) {
-        eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
+        trackResultsUpsellClick(searchType.getScreen());
+    }
+
+    public void trackResultsUpsellClick(Screen screen) {
+        eventTracker.trackUpgradeFunnel(UpgradeFunnelEvent.forSearchResultsClick(screen));
     }
 
     void trackPremiumResultsUpsellImpression() {

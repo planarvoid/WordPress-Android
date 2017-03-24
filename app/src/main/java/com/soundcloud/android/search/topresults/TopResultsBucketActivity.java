@@ -6,6 +6,7 @@ import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.PlaylistResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
+import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 
@@ -34,16 +35,16 @@ public class TopResultsBucketActivity extends PlayerActivity {
         setTitle(String.format(TITLE_FORMAT, query));
 
         if (savedInstanceState == null) {
-            final TopResultsBucketViewModel.Kind kind = getKind();
+            final Bucket.Kind kind = getKind();
             createFragmentForPlaylistDiscovery(query, kind, isPremium);
         }
     }
 
-    private TopResultsBucketViewModel.Kind getKind() {
-        return (TopResultsBucketViewModel.Kind) getIntent().getSerializableExtra(EXTRA_BUCKET_KIND);
+    private Bucket.Kind getKind() {
+        return (Bucket.Kind) getIntent().getSerializableExtra(EXTRA_BUCKET_KIND);
     }
 
-    private void createFragmentForPlaylistDiscovery(String query, TopResultsBucketViewModel.Kind kind, boolean isPremium) {
+    private void createFragmentForPlaylistDiscovery(String query, Bucket.Kind kind, boolean isPremium) {
         final SearchResultsFragment searchResultsFragment = SearchResultsFragment.createForViewAll(kind.toSearchType(), query, query, Optional.absent(), Optional.absent(), isPremium);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -60,5 +61,4 @@ public class TopResultsBucketActivity extends PlayerActivity {
     public Screen getScreen() {
         return getKind().toSearchType().getScreen();
     }
-
 }

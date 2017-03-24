@@ -6,12 +6,12 @@ import static com.soundcloud.android.search.topresults.TopResultsFixtures.search
 import static com.soundcloud.android.search.topresults.TopResultsFixtures.searchUserItem;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
-import static edu.emory.mathcs.backport.java.util.Collections.emptyMap;
 import static edu.emory.mathcs.backport.java.util.Collections.singleton;
 import static edu.emory.mathcs.backport.java.util.Collections.singletonList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,7 +26,6 @@ import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.FollowingStatuses;
 import com.soundcloud.android.events.EventQueue;
@@ -40,11 +39,13 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
+import com.soundcloud.android.search.topresults.TopResults.Bucket.Kind;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -53,7 +54,7 @@ import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import edu.emory.mathcs.backport.java.util.Collections;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -72,12 +73,11 @@ import java.util.List;
 public class TopResultsPresenterTest extends AndroidUnitTest {
 
     private static final String QUERY = "query";
-    private static final Urn TRACKS_BUCKET_URN = new Urn("soundcloud:search-buckets:freetiertracks");
-    private static final Urn TOP_RESULT_BUCKET_URN = new Urn("soundcloud:search-buckets:topresult");
     private static final int BUCKET_POSITION = 0;
 
     private final BehaviorSubject<LikedStatuses> likesStatuses = BehaviorSubject.create();
     private final BehaviorSubject<FollowingStatuses> followingStatuses = BehaviorSubject.create();
+    private final BehaviorSubject<Urn> nowPlaying = BehaviorSubject.create();
     private TopResultsPresenter presenter;
 
     @Mock private TopResultsOperations operations;
@@ -89,6 +89,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private EventTracker eventTracker;
     @Mock private TrackingStateProvider trackingStateProvider;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Captor private ArgumentCaptor<SearchEvent> searchEventCaptor;
 
     private final ApiTrack apiTrack = ModelFixtures.apiTrack();
@@ -106,6 +107,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(likesStateProvider.likedStatuses()).thenReturn(likesStatuses);
         when(followingStateProvider.followingStatuses()).thenReturn(followingStatuses);
+        when(playSessionStateProvider.nowPlayingUrn()).thenReturn(nowPlaying);
 
         presenter = new TopResultsPresenter(operations,
                                             playQueueFilter,
@@ -115,7 +117,8 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
                                             eventTracker,
                                             eventBus,
                                             ModelFixtures.entityItemCreator(),
-                                            trackingStateProvider);
+                                            trackingStateProvider,
+                                            playSessionStateProvider);
 
         when(topResultsView.searchIntent()).thenReturn(searchIntent);
         when(topResultsView.refreshIntent()).thenReturn(refreshIntent);
@@ -125,11 +128,11 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitsViewModel() throws Exception {
-        ApiTopResultsBucket multipleTypeBucket = TopResultsFixtures.apiTopResultsBucket(searchTrackItem(apiTrack), searchPlaylistItem(apiPlaylist), searchUserItem(apiUser));
+        TopResults.Bucket multipleTypeBucket = TopResultsFixtures.topResultsBucket(searchTrackItem(apiTrack), searchPlaylistItem(apiPlaylist), searchUserItem(apiUser));
         initTopResultsSearch(multipleTypeBucket);
 
         presenter.viewModel().test().assertValue(
-                getViewModel(getBucketViewModel(TOP_RESULT_BUCKET_URN,
+                getViewModel(getBucketViewModel(Kind.TOP_RESULT,
                                                 3,
                                                 SearchItem.Track.create(getTrackItem(apiTrack), BUCKET_POSITION),
                                                 SearchItem.Playlist.create(getPlaylistItem(apiPlaylist), BUCKET_POSITION),
@@ -138,56 +141,67 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void filtersOutUnknownBuckets() throws Exception {
-        ApiTopResultsBucket unknownBucket = TopResultsFixtures.unknownBucket(searchPlaylistItem(apiPlaylist));
-        initTopResultsSearch(unknownBucket);
-
-        presenter.viewModel().test().assertValue(getViewModel());
-    }
-
-    @Test
     public void viewModelEmitsLikedTracksBucket() throws Exception {
-        final List buckets = singletonList(TopResultsFixtures.apiTrackResultsBucket(searchTrackItem(apiTrack)));
-        final ApiTopResults apiTopResults = ApiTopResults.create(1, new ModelCollection(buckets, emptyMap(), QUERY_URN));
-        when(operations.search(searchQueryPair)).thenReturn(Observable.just(apiTopResults));
+        final List buckets = singletonList(TopResultsFixtures.trackResultsBucket(searchTrackItem(apiTrack)));
+        final TopResults topResults = TopResults.create(1, of(QUERY_URN), buckets);
+        when(operations.search(searchQueryPair)).thenReturn(Observable.just(topResults));
         likesStatuses.onNext(LikedStatuses.create(singleton(apiTrack.getUrn())));
 
         presenter.attachView(topResultsView);
         searchIntent.onNext(searchQueryPair);
         followingStatuses.onNext(FollowingStatuses.create(emptySet()));
+        nowPlaying.onNext(Urn.NOT_SET);
 
         presenter.viewModel().test().assertValue(
-                getViewModel(getBucketViewModel(TRACKS_BUCKET_URN, 1, SearchItem.Track.create(getTrackItem(apiTrack, true), BUCKET_POSITION)))
+                getViewModel(getBucketViewModel(Kind.TRACKS, 1, SearchItem.Track.create(getTrackItem(apiTrack, true), BUCKET_POSITION)))
+        );
+    }
+
+    @Test
+    public void viewModelEmitsNowPlayingTracksBucket() throws Exception {
+        final List buckets = singletonList(TopResultsFixtures.trackResultsBucket(searchTrackItem(apiTrack)));
+        final TopResults topResults = TopResults.create(1, of(QUERY_URN), buckets);
+        when(operations.search(searchQueryPair)).thenReturn(Observable.just(topResults));
+        nowPlaying.onNext(apiTrack.getUrn());
+
+        presenter.attachView(topResultsView);
+        searchIntent.onNext(searchQueryPair);
+        likesStatuses.onNext(LikedStatuses.create(emptySet()));
+        followingStatuses.onNext(FollowingStatuses.create(emptySet()));
+
+        presenter.viewModel().test().assertValue(
+                getViewModel(getBucketViewModel(Kind.TRACKS, 1, SearchItem.Track.create(getNowPlayingTrack(apiTrack), BUCKET_POSITION)))
         );
     }
 
     @Test
     public void viewModelEmitsLikedPlaylistsBucket() throws Exception {
-        final List buckets = singletonList(TopResultsFixtures.apiTrackResultsBucket(searchPlaylistItem(apiPlaylist)));
-        final ApiTopResults apiTopResults = ApiTopResults.create(1, new ModelCollection(buckets, emptyMap(), QUERY_URN));
-        when(operations.search(searchQueryPair)).thenReturn(Observable.just(apiTopResults));
+        final List buckets = singletonList(TopResultsFixtures.trackResultsBucket(searchPlaylistItem(apiPlaylist)));
+        final TopResults topResults = TopResults.create(1, of(QUERY_URN), buckets);
+        when(operations.search(searchQueryPair)).thenReturn(Observable.just(topResults));
         likesStatuses.onNext(LikedStatuses.create(singleton(apiPlaylist.getUrn())));
 
         presenter.attachView(topResultsView);
         searchIntent.onNext(searchQueryPair);
         followingStatuses.onNext(FollowingStatuses.create(emptySet()));
+        nowPlaying.onNext(Urn.NOT_SET);
 
         presenter.viewModel().test().assertValue(
-                getViewModel(getBucketViewModel(TRACKS_BUCKET_URN, 1, SearchItem.Playlist.create(getPlaylistItem(apiPlaylist, true), BUCKET_POSITION)))
+                getViewModel(getBucketViewModel(Kind.TRACKS, 1, SearchItem.Playlist.create(getPlaylistItem(apiPlaylist, true), BUCKET_POSITION)))
         );
     }
 
     @Test
     public void viewModelEmitsLikedTracksBucketAfterUpdate() throws Exception {
-        initTopResultsSearch(TopResultsFixtures.apiTrackResultsBucket(searchTrackItem(apiTrack)));
+        initTopResultsSearch(TopResultsFixtures.trackResultsBucket(searchTrackItem(apiTrack)));
 
         presenter.viewModel().test().assertValue(
-                getViewModel(getBucketViewModel(TRACKS_BUCKET_URN, 1, SearchItem.Track.create(getTrackItem(apiTrack), BUCKET_POSITION))));
+                getViewModel(getBucketViewModel(Kind.TRACKS, 1, SearchItem.Track.create(getTrackItem(apiTrack), BUCKET_POSITION))));
 
         likesStatuses.onNext(LikedStatuses.create(singleton(apiTrack.getUrn())));
 
         presenter.viewModel().test().assertValue(
-                getViewModel(getBucketViewModel(TRACKS_BUCKET_URN, 1, SearchItem.Track.create(getTrackItem(apiTrack, true), BUCKET_POSITION)))
+                getViewModel(getBucketViewModel(Kind.TRACKS, 1, SearchItem.Track.create(getTrackItem(apiTrack, true), BUCKET_POSITION)))
         );
     }
 
@@ -227,7 +241,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final SearchItem.Track searchTrack2 = SearchItem.Track.create(ModelFixtures.trackItem(track2.track().get()), BUCKET_POSITION);
         final SearchItem.Track searchTrack3 = SearchItem.Track.create(ModelFixtures.trackItem(track3.track().get()), BUCKET_POSITION);
 
-        final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(track1, track2, track3);
+        final TopResults.Bucket apiTopResultsBucket = TopResultsFixtures.trackResultsBucket(track1, track2, track3);
         doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctPosition(anyInt());
         doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctQueue(anyList(), anyInt());
 
@@ -242,12 +256,44 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
         this.playbackResultSubject = PublishSubject.create();
-        when(playbackInitiator.playTracks(expectedQueue, 1, playSessionSource)).thenReturn(playbackResultSubject);
+        when(playbackInitiator.playPosts(anyList(), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(playbackResultSubject);
 
         presenter.searchItemClicked().onNext(searchTrack2);
 
         assertThat(playbackResultSubject.hasObservers()).isTrue();
+        verify(playbackInitiator).playPosts(expectedQueue, searchTrack2.itemUrn().get(), 1, playSessionSource);
         return searchTrack2;
+    }
+
+    @Test
+    public void buildsPlayQueueWithTrackAndPlaylistsFromSeparateBuckets() {
+        final ApiUniversalSearchItem track = searchTrackItem(ModelFixtures.apiTrack());
+        final ApiUniversalSearchItem playlist = searchPlaylistItem(ModelFixtures.apiPlaylist());
+        final SearchItem.Track searchTrack = SearchItem.Track.create(ModelFixtures.trackItem(track.track().get()), 0);
+        final SearchItem.Playlist searchPlaylist = SearchItem.Playlist.create(ModelFixtures.playlistItem(playlist.playlist().get()), 1);
+
+        final TopResults.Bucket apiTrackBucket = TopResultsFixtures.trackResultsBucket(track);
+        final TopResults.Bucket apiPlaylistBucket = TopResultsFixtures.playlistResultsBucket(playlist);
+        doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctPosition(anyInt());
+        doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctQueue(anyList(), anyInt());
+
+        initTopResultsSearch(apiTrackBucket, apiPlaylistBucket);
+
+        List<Urn> expectedQueue = asList(searchTrack.trackItem().getUrn(), searchPlaylist.playlistItem().getUrn());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(searchQueryPair.second().get(),
+                                                                                      BUCKET_POSITION,
+                                                                                      searchTrack.trackItem().getUrn(),
+                                                                                      searchQueryPair.first());
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+        this.playbackResultSubject = PublishSubject.create();
+        when(playbackInitiator.playPosts(anyList(), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(playbackResultSubject);
+
+        presenter.searchItemClicked().onNext(searchTrack);
+
+        assertThat(playbackResultSubject.hasObservers()).isTrue();
+        verify(playbackInitiator).playPosts(expectedQueue, searchTrack.itemUrn().get(), 0, playSessionSource);
     }
 
     @Test
@@ -256,7 +302,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist.playlist().get());
         final SearchItem.Playlist searchPlaylist = SearchItem.Playlist.create(playlistItem, BUCKET_POSITION);
 
-        final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(playlist);
+        final TopResults.Bucket apiTopResultsBucket = TopResultsFixtures.trackResultsBucket(playlist);
         initTopResultsSearch(apiTopResultsBucket);
 
         final AssertableSubscriber<GoToItemArgs> testSubscriber = presenter.onGoToPlaylist().test();
@@ -282,8 +328,8 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         final UserItem userItem = ModelFixtures.userItem(user.user().get());
         final SearchItem.User searchUser = SearchItem.User.create(userItem, BUCKET_POSITION);
 
-        final ApiTopResultsBucket apiTopResultsBucket = TopResultsFixtures.apiTrackResultsBucket(user);
-        initTopResultsSearch(apiTopResultsBucket);
+        final TopResults.Bucket topResultsBucket = TopResultsFixtures.trackResultsBucket(user);
+        initTopResultsSearch(topResultsBucket);
 
         final AssertableSubscriber<GoToItemArgs> testSubscriber = presenter.onGoToProfile().test();
 
@@ -305,9 +351,9 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Test
     public void handleViewAllClick() throws Exception {
 
-        initTopResultsSearch(TopResultsFixtures.apiTrackResultsBucket(searchUserItem(ModelFixtures.apiUser())));
+        initTopResultsSearch(TopResultsFixtures.trackResultsBucket(searchUserItem(ModelFixtures.apiUser())));
 
-        final TopResultsViewAllArgs topResultsViewAllArgs = TopResultsViewAllArgs.create(TopResultsBucketViewModel.Kind.ALBUMS);
+        final TopResultsViewAllArgs topResultsViewAllArgs = TopResultsViewAllArgs.create(Kind.ALBUMS);
 
         final AssertableSubscriber<TopResultsViewAllArgs> testSubscriber = presenter.goToViewAllPage().test();
 
@@ -320,7 +366,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackEnterScreenEvent() throws Exception {
-        initTopResultsSearch(TopResultsFixtures.apiTrackResultsBucket(searchUserItem(ModelFixtures.apiUser())));
+        initTopResultsSearch(TopResultsFixtures.trackResultsBucket(searchUserItem(ModelFixtures.apiUser())));
         final Optional<ReferringEvent> referringEvent = of(ReferringEvent.create("123A", "kind"));
         when(trackingStateProvider.getLastEvent()).thenReturn(referringEvent);
 
@@ -330,21 +376,22 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
     }
 
-    private void initTopResultsSearch(ApiTopResultsBucket apiTopResultsBucket) {
+    private void initTopResultsSearch(TopResults.Bucket... buckets) {
 
-        final List buckets = singletonList(apiTopResultsBucket);
-        final ApiTopResults apiTopResults = ApiTopResults.create(1, new ModelCollection(buckets, Collections.emptyMap(), QUERY_URN));
-        when(operations.search(searchQueryPair)).thenReturn(Observable.just(apiTopResults));
+        final List<TopResults.Bucket> bucketList = Arrays.asList(buckets);
+        final TopResults topResults = TopResults.create(1, of(QUERY_URN), bucketList);
+        when(operations.search(searchQueryPair)).thenReturn(Observable.just(topResults));
 
         presenter.attachView(topResultsView);
         searchIntent.onNext(searchQueryPair);
         likesStatuses.onNext(LikedStatuses.create(emptySet()));
         followingStatuses.onNext(FollowingStatuses.create(emptySet()));
+        nowPlaying.onNext(Urn.NOT_SET);
     }
 
     @NonNull
-    private TopResultsBucketViewModel getBucketViewModel(Urn bucketUrn, int totalResults, SearchItem... searchItems) {
-        return TopResultsBucketViewModel.create(asList(searchItems), bucketUrn, totalResults);
+    private TopResultsBucketViewModel getBucketViewModel(Kind kind, int totalResults, SearchItem... searchItems) {
+        return TopResultsBucketViewModel.create(asList(searchItems), kind, totalResults);
     }
 
     @NonNull
@@ -359,6 +406,10 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
 
     private TrackItem getTrackItem(ApiTrack apiTrack, boolean isLiked) {
         return ModelFixtures.trackItemBuilder(apiTrack).isUserLike(isLiked).build();
+    }
+
+    private TrackItem getNowPlayingTrack(ApiTrack apiTrack) {
+        return ModelFixtures.trackItemBuilder(apiTrack).isPlaying(true).build();
     }
 
     private PlaylistItem getPlaylistItem(ApiPlaylist apiPlaylist) {
