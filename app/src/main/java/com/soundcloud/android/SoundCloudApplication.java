@@ -26,7 +26,6 @@ import com.soundcloud.android.cast.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
-import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.LikesStateProvider;
@@ -114,7 +113,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
-    @Inject TopResultsConfig topResultsConfig;
     @Inject CryptoOperations cryptoOperations;
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
@@ -235,11 +233,11 @@ public class SoundCloudApplication extends MultiDexApplication {
         streamPreloader.subscribe();
 
         configurationFeatureController.subscribe();
+        likesStateProvider.subscribe();
+        followingStateProvider.subscribe();
 
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN) || topResultsConfig.isEnabled()) {
-            likesStateProvider.subscribe();
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN)) {
             repostsStateProvider.subscribe();
-            followingStateProvider.subscribe();
             offlinePropertiesProvider.subscribe();
         } else if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
             offlinePropertiesProvider.subscribe();
