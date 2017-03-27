@@ -13,7 +13,6 @@ import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
 
-
     @Override
     protected void addInitialStubMappings() {
         stubFor(post(urlPathEqualTo(ApiEndpoints.SIGN_UP.path()))

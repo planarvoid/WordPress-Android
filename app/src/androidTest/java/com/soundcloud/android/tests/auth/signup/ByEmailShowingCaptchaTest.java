@@ -19,6 +19,11 @@ public class ByEmailShowingCaptchaTest extends SignUpTest {
                         .willReturn(aResponse().withStatus(428).withBody("{\"error_key\": \"captcha_required\"}")));
     }
 
+    @Override
+    protected boolean wiremockLoggingEnabled() {
+        return true;
+    }
+
     public void testSignupTriggersCaptcha() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();
         signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
