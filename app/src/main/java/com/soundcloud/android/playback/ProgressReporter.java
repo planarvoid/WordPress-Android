@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.cast.LegacyCastOperations;
+import com.soundcloud.android.cast.legacy.LegacyCastOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Scheduler;

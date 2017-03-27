@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 

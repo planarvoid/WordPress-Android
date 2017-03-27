@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cast.DefaultCastSessionController;
-import com.soundcloud.android.cast.LegacyCastSessionController;
+import com.soundcloud.android.cast.legacy.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;

@@ -1,8 +1,9 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import static java.util.Collections.singletonList;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.cast.legacy.AutoValue_RemotePlayQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlaySessionSource;

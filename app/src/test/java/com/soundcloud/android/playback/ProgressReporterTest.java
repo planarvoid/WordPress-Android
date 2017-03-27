@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.cast.LegacyCastOperations;
+import com.soundcloud.android.cast.legacy.LegacyCastOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

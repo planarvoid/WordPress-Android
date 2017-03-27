@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.soundcloud.android.model.Urn;

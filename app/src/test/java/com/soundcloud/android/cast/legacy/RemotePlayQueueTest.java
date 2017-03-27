@@ -1,7 +1,8 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.cast.legacy.RemotePlayQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.TestUrns;
 import org.junit.Test;

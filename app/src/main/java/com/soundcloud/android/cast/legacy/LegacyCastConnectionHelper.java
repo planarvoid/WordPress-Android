@@ -1,7 +1,8 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 

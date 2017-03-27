@@ -22,7 +22,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
-import com.soundcloud.android.cast.LegacyCastSessionController;
+import com.soundcloud.android.cast.legacy.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;

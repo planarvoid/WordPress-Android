@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueSet;
 import static com.soundcloud.java.collections.Lists.newArrayList;
@@ -25,6 +25,10 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
+import com.soundcloud.android.cast.CastPlayStatePublisher;
+import com.soundcloud.android.cast.legacy.LegacyCastOperations;
+import com.soundcloud.android.cast.legacy.LegacyCastPlayer;
+import com.soundcloud.android.cast.legacy.LocalPlayQueue;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;

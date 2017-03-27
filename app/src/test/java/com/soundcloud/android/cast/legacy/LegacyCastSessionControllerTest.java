@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.legacy;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +13,10 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.PlaybackServiceController;
+import com.soundcloud.android.cast.legacy.LegacyCastOperations;
+import com.soundcloud.android.cast.legacy.LegacyCastPlayer;
+import com.soundcloud.android.cast.legacy.LegacyCastSessionController;
+import com.soundcloud.android.cast.legacy.RemotePlayQueue;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
