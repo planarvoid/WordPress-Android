@@ -14,7 +14,7 @@ ext {
   androidKitVersion = '0.57'
   googleServicesVersion = '10.0.1'
   lightCycleVersion = '1.5.1'
-  daggerVersion = '2.9'
+  daggerVersion = '2.10'
   propellerVersion = '0.70'
   findBugsVersion = '3.0.0'
   networkManager = '29'
