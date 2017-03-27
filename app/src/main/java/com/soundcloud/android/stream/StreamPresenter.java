@@ -7,6 +7,7 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDism
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
@@ -17,7 +18,13 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -89,6 +96,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final VideoSurfaceProvider videoSurfaceProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final FollowingOperations followingOperations;
+    private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final StationsOperations stationsOperations;
     private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
@@ -115,7 +124,9 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     FollowingOperations followingOperations,
                     WhyAdsDialogPresenter whyAdsDialogPresenter,
                     VideoSurfaceProvider videoSurfaceProvider,
-                    UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
+                    UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
+                    DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
+                    PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
               newItemsIndicator, streamOperations, adapter);
         this.streamOperations = streamOperations;
@@ -130,11 +141,12 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.navigator = navigator;
         this.newItemsIndicator = newItemsIndicator;
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
-
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
         this.videoSurfaceProvider = videoSurfaceProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.followingOperations = followingOperations;
+        this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
         adapter.setOnStationsOnboardingStreamClickListener(this);
@@ -158,7 +170,18 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                                                       .doOnNext(streamItems -> adapter.clear()))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
+                                .addObserver(onNext(streamItems -> endMeasuringLoginTime()))
                                 .build();
+    }
+
+    private void endMeasuringLoginTime() {
+        if (defaultHomeScreenConfiguration.isStreamHome()) {
+            MetricParams params = MetricParams.of(MetricKey.HOME_SCREEN, Screen.STREAM.get());
+            performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                                   .metricType(MetricType.LOGIN)
+                                                                   .metricParams(params)
+                                                                   .build());
+        }
     }
 
     @Override

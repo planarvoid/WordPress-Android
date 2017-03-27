@@ -13,7 +13,9 @@ public enum MetricKey {
     SKIP_ORIGIN("skip_origin"),
     DOWNLOADED_DURATION("downloaded_duration_ms"),
     LISTENING_HISTORY_SIZE("listening_history_size"),
-    RECENTLY_PLAYED_SIZE("recently_played_size");
+    RECENTLY_PLAYED_SIZE("recently_played_size"),
+    LOGIN_PROVIDER("login_provider"),
+    HOME_SCREEN("home_screen");
 
     private final String metricKey;
 

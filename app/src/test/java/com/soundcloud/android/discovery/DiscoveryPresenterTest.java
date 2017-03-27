@@ -10,6 +10,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRenderer;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
@@ -25,6 +29,7 @@ import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.UpdatePlayableAdapterSubscriber;
@@ -34,6 +39,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -41,6 +48,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import java.util.Collections;
 import java.util.List;
 
 public class DiscoveryPresenterTest extends AndroidUnitTest {
@@ -66,6 +74,10 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private List<DiscoveryItem> discoveryItems;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
@@ -92,7 +104,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
                 updatePlayableAdapterSubscriberFactory,
-                discoveryOperations);
+                discoveryOperations,
+                defaultHomeScreenConfiguration,
+                performanceMetricsEngine);
 
         presenter.onCreate(fragment, bundle);
     }
@@ -189,5 +203,31 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         presenter.onUpsellItemCreated();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
+    }
+
+    @Test
+    public void shouldEndMeasuringLoginPerformanceWhenDiscoveryIsHome() {
+        List<DiscoveryItem> items = Collections.singletonList(DiscoveryItem.forSearchItem());
+        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.just(items));
+        when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(true);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
+
+        Assertions.assertThat(performanceMetricArgumentCaptor.getValue())
+                  .hasMetricType(MetricType.LOGIN)
+                  .containsMetricParam(MetricKey.HOME_SCREEN, Screen.SEARCH_MAIN.get());
+    }
+
+    @Test
+    public void shouldNotEndMeasuringLoginPerformanceWhenStreamIsNotHome() {
+        List<DiscoveryItem> items = Collections.singletonList(DiscoveryItem.forSearchItem());
+        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.just(items));
+        when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
     }
 }

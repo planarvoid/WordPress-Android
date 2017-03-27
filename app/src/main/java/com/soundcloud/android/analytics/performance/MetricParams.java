@@ -35,4 +35,16 @@ public class MetricParams {
     public Bundle toBundle() {
         return bundle;
     }
+
+    public static MetricParams of(MetricKey key, String value) {
+        return new MetricParams().putString(key, value);
+    }
+
+    public static MetricParams of(MetricKey key, long value) {
+        return new MetricParams().putLong(key, value);
+    }
+
+    public static MetricParams of(MetricKey key, boolean value) {
+        return new MetricParams().putBoolean(key, value);
+    }
 }

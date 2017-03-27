@@ -26,7 +26,12 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -44,6 +49,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -60,6 +66,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
@@ -109,6 +117,10 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private WhyAdsDialogPresenter whyAdsDialogPresenter;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
     @Mock private TextureView textureView;
+    @Mock private DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
@@ -137,7 +149,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 followingOperations,
                 whyAdsDialogPresenter,
                 videoSurfaceProvider,
-                updatePlayableAdapterSubscriberFactory);
+                updatePlayableAdapterSubscriberFactory,
+                defaultHomeScreenConfiguration,
+                performanceMetricsEngine);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.empty());
         when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
@@ -574,6 +588,40 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragmentRule.getFragment());
 
         verify(imagePauseOnScrollListener).resume();
+    }
+
+    @Test
+    public void shouldEndMeasuringLoginPerformanceWhenStreamIsHome() {
+
+        final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
+        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
+        List<StreamItem> items = Collections.singletonList(normalTrackStreamItem);
+
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
+        when(defaultHomeScreenConfiguration.isStreamHome()).thenReturn(true);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
+
+        Assertions.assertThat(performanceMetricArgumentCaptor.getValue())
+                  .hasMetricType(MetricType.LOGIN)
+                  .containsMetricParam(MetricKey.HOME_SCREEN, Screen.STREAM.get());
+    }
+
+    @Test
+    public void shouldNotEndMeasuringLoginPerformanceWhenStreamIsNotHome() {
+
+        final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
+        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
+        List<StreamItem> items = Collections.singletonList(normalTrackStreamItem);
+
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
+        when(defaultHomeScreenConfiguration.isStreamHome()).thenReturn(false);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
     }
 
     @Test

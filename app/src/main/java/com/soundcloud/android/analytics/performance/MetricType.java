@@ -16,7 +16,8 @@ public enum MetricType {
     PERFORM_SEARCH("perform_search"),
     COLLECTION_LOAD("collection_load"),
     LISTENING_HISTORY_LOAD("listening_history_load"),
-    RECENTLY_PLAYED_LOAD("recently_played_load");
+    RECENTLY_PLAYED_LOAD("recently_played_load"),
+    LOGIN("login");
 
     private final String metricType;
 

@@ -46,4 +46,23 @@ public class LoginTaskFragment extends AuthTaskFragment {
             return super.getErrorFromResult(activity, result);
         }
     }
+
+    public interface Factory {
+
+        Factory DEFAULT = new Factory() {
+            @Override
+            public LoginTaskFragment create(String username, String password) {
+                return LoginTaskFragment.create(username, password);
+            }
+
+            @Override
+            public LoginTaskFragment create(Bundle bundle) {
+                return LoginTaskFragment.create(bundle);
+            }
+        };
+
+        LoginTaskFragment create(String username, String password);
+
+        LoginTaskFragment create(Bundle bundle);
+    }
 }

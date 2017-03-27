@@ -18,6 +18,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -113,6 +118,9 @@ public class OnboardActivity extends FragmentActivity
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
     private ActivityResult activityResult = ActivityResult.empty();
+    private LoginTaskFragment.Factory loginTaskFragmentFactory = LoginTaskFragment.Factory.DEFAULT;
+    private GooglePlusSignInTaskFragment.Factory googlePlusSignInTaskFragmentFactory = GooglePlusSignInTaskFragment.Factory.DEFAULT;
+
     @Nullable private Urn userUrn = Urn.NOT_SET;
 
     private View photoBottomBar, photoLogo;
@@ -189,6 +197,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject FeatureFlags featureFlags;
     @Inject Navigator navigator;
     @Inject OAuth oauth;
+    @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -201,7 +210,10 @@ public class OnboardActivity extends FragmentActivity
                     Navigator navigator,
                     FacebookSdk facebookSdk,
                     LoginManager facebookLoginManager,
-                    CallbackManager facebookCallbackManager) {
+                    CallbackManager facebookCallbackManager,
+                    PerformanceMetricsEngine performanceMetricsEngine,
+                    LoginTaskFragment.Factory loginTaskFragmentFactory,
+                    GooglePlusSignInTaskFragment.Factory googlePlusSignInTaskFragmentFactory) {
         this.configurationManager = configurationManager;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
@@ -209,6 +221,9 @@ public class OnboardActivity extends FragmentActivity
         this.facebookSdk = facebookSdk;
         this.facebookLoginManager = facebookLoginManager;
         this.facebookCallbackManager = facebookCallbackManager;
+        this.performanceMetricsEngine = performanceMetricsEngine;
+        this.loginTaskFragmentFactory = loginTaskFragmentFactory;
+        this.googlePlusSignInTaskFragmentFactory = googlePlusSignInTaskFragmentFactory;
     }
 
     @Override
@@ -298,8 +313,18 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onLogin(String email, String password) {
-        LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        startMeasuringLoginTime(LoginProvider.PASSWORD);
+
+        loginTaskFragmentFactory.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
+    }
+
+    private void startMeasuringLoginTime(LoginProvider provider) {
+        MetricParams params = MetricParams.of(MetricKey.LOGIN_PROVIDER, provider.toString());
+        performanceMetricsEngine.startMeasuring(PerformanceMetric.builder()
+                                                                 .metricType(MetricType.LOGIN)
+                                                                 .metricParams(params)
+                                                                 .build());
     }
 
     @Override
@@ -516,7 +541,8 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void createNewUserFromGooglePlus(Bundle signupParams) {
-        GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
+        startMeasuringLoginTime(LoginProvider.GOOGLE);
+        googlePlusSignInTaskFragmentFactory.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
     }
 
     private void createNewUserFromFacebook() {
@@ -841,6 +867,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void loginWithFacebook(String facebookToken) {
+        startMeasuringLoginTime(LoginProvider.FACEBOOK);
         login(SignInOperations.getFacebookTokenBundle(facebookToken));
     }
 
@@ -1020,7 +1047,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void login(Bundle data) {
-        LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        loginTaskFragmentFactory.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
 }

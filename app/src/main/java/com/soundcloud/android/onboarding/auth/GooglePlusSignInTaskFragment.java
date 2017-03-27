@@ -82,4 +82,11 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
         }
 
     }
+
+    public interface Factory {
+
+        Factory DEFAULT = GooglePlusSignInTaskFragment::create;
+
+        GooglePlusSignInTaskFragment create(Bundle params);
+    }
 }

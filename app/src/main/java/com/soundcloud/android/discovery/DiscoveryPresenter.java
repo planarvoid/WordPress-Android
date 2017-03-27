@@ -1,6 +1,13 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
+
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.discovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.discovery.recommendations.TrackRecommendationPlaybackInitiator;
@@ -41,6 +48,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final DiscoveryModulesProvider discoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final DiscoveryOperations discoveryOperations;
+    private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
@@ -61,11 +70,15 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        StartStationHandler startStationPresenter,
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
                        UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
-                       DiscoveryOperations discoveryOperations) {
+                       DiscoveryOperations discoveryOperations,
+                       DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
+                       PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryModulesProvider = discoveryModulesProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
         this.discoveryOperations = discoveryOperations;
+        this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
@@ -158,9 +171,20 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
         return CollectionBinding
                 .from(source)
-                .withAdapter(adapter).build();
+                .withAdapter(adapter)
+                .addObserver(onNext(items -> endMeasuringLoginTime()))
+                .build();
     }
 
+    private void endMeasuringLoginTime() {
+        if (defaultHomeScreenConfiguration.isDiscoveryHome()) {
+            MetricParams params = MetricParams.of(MetricKey.HOME_SCREEN, Screen.SEARCH_MAIN.get());
+            performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
+                                                                   .metricType(MetricType.LOGIN)
+                                                                   .metricParams(params)
+                                                                   .build());
+        }
+    }
 
     @Override
     protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onRefreshBinding() {

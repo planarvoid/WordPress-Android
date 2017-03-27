@@ -1,8 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.collection.CollectionNavigationTarget;
-import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
+import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.stream.StreamNavigationTarget;
@@ -11,18 +10,16 @@ import javax.inject.Inject;
 
 public class NavigationModelFactory {
 
-    private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
 
-    private final FeatureOperations featureOperations;
+    private DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
 
     @Inject
-    public NavigationModelFactory(PlaylistDiscoveryConfig playlistDiscoveryConfig, FeatureOperations featureOperations) {
-        this.playlistDiscoveryConfig = playlistDiscoveryConfig;
-        this.featureOperations = featureOperations;
+    public NavigationModelFactory(DefaultHomeScreenConfiguration defaultHomeScreenConfiguration) {
+        this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
     }
 
     public NavigationModel build() {
-        if (playlistDiscoveryConfig.isEnabled() || featureOperations.isNewHomeEnabled()) {
+        if (defaultHomeScreenConfiguration.isDiscoveryHome()) {
             return new NavigationModel(
                     new DiscoveryNavigationTarget(),
                     new StreamNavigationTarget(false),
