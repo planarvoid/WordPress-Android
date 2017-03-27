@@ -11,6 +11,8 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.FlipperPreloadConfiguration;
+import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -67,6 +69,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private final CurrentDateProvider dateProvider;
     private final NetworkConnectionHelper connectionHelper;
     private final LockUtil lockUtil;
+    private final CryptoOperations cryptoOperations;
 
 
     @Nullable private volatile String currentStreamUrl;
@@ -89,6 +92,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                    CurrentDateProvider dateProvider,
                    FlipperFactory flipperFactory,
                    EventBus eventBus,
+                   CryptoOperations cryptoOperations,
                    FlipperPreloadConfiguration flipperPreloadConfiguration) {
         this.accountOperations = accountOperations;
         this.stateHandler = stateChangeHandler;
@@ -102,6 +106,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         this.flipperPreloadConfiguration = flipperPreloadConfiguration;
         this.playerListener = PlayerListener.EMPTY;
         this.isSeekPending = false;
+        this.cryptoOperations = cryptoOperations;
     }
 
     @Override
@@ -481,8 +486,11 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
             case AUDIO_SNIPPET:
                 flipper.open(currentStreamUrl, fromPos);
                 break;
-            case AUDIO_AD:
             case AUDIO_OFFLINE:
+                final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
+                flipper.openEncrypted(currentStreamUrl, deviceSecret.getKey(), deviceSecret.getInitVector(), fromPos);
+                break;
+            case AUDIO_AD:
             case VIDEO_AD:
             default:
                 throw new IllegalStateException("Flipper does not accept playback type: " + playbackItem.getPlaybackType());
