@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -126,9 +127,15 @@ public class Navigator {
         context.startActivity(homeIntent);
     }
 
+    public void openFullscreenVideoAd(Context context, Urn adUrn) {
+        Intent intent = new Intent(context, FullScreenVideoActivity.class)
+                .putExtra(FullScreenVideoActivity.EXTRA_AD_URN, adUrn);
+        context.startActivity(intent);
+    }
+
     public void openAdClickthrough(Context context, Uri clickUrl) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW, clickUrl);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final Intent intent = new Intent(Intent.ACTION_VIEW, clickUrl)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 

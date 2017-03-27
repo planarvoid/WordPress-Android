@@ -25,7 +25,9 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 class InlayAdPlayer implements Player.PlayerListener {
 
     private final EventBus eventBus;
@@ -61,6 +63,10 @@ class InlayAdPlayer implements Player.PlayerListener {
         this.currentDateProvider = currentDateProvider;
         currentPlayer = mediaPlayerAdapter;
         currentPlayer.setListener(this);
+    }
+
+    Optional<VideoAd> getCurrentAd() {
+        return currentAd;
     }
 
     void play(VideoAd videoAd, boolean isUserInitiated) {

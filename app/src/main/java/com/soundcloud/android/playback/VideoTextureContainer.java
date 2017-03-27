@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
+
 import android.graphics.SurfaceTexture;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
-
-import com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 
 import javax.inject.Inject;
 
@@ -13,8 +13,8 @@ import javax.inject.Inject;
 class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
     final private String uuid;
-    final private Origin origin;
     final private Listener listener;
+    final private Origin origin;
 
     @Nullable private Surface surface;
     @Nullable private SurfaceTexture surfaceTexture;

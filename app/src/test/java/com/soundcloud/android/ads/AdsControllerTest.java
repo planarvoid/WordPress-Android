@@ -73,7 +73,6 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final Track nextMonetizableTrack = ModelFixtures.trackWithUrnAndMonetizable(nextTrackUrn, true);
     private final Track nextNonMonetizableTrack = ModelFixtures.trackWithUrnAndMonetizable(nextTrackUrn, false);
 
-    @Mock private AdViewabilityController adViewabilityController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private FeatureOperations featureOperations;
@@ -109,7 +108,6 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           featureOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
-                                          adViewabilityController,
                                           videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,
@@ -563,7 +561,6 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           featureOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
-                                          adViewabilityController,
                                           videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,

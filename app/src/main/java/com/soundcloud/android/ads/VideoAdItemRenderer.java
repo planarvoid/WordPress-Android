@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -30,13 +31,15 @@ import java.util.List;
 public class VideoAdItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
+    private final Navigator navigator;
     private final EventBus eventBus;
     private final InlayAdStateProvider lastStateProvider;
     private final CurrentDateProvider currentDateProvider;
 
     @Inject
-    public VideoAdItemRenderer(Resources resources, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
+    public VideoAdItemRenderer(Resources resources, Navigator navigator, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
         this.resources = resources;
+        this.navigator = navigator;
         this.eventBus = eventBus;
         this.lastStateProvider = stateProvider;
         this.currentDateProvider = currentDateProvider;
@@ -56,7 +59,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         final Holder holder = getHolder(itemView);
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
-        holder.videoView.setAspectRatio(getVideoProportion(videoAd));
+        holder.videoView.setAspectRatio(videoAd.getVideoProportion());
         holder.videoView.setVisibility(View.INVISIBLE);
         holder.resetMuteState(holder);
 
@@ -66,6 +69,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd, holder));
         holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
+        holder.fullscreenButton.setOnClickListener(view -> navigator.openFullscreenVideoAd(view.getContext(), videoAd.getAdUrn()));
 
         bindVideoSurface(itemView, videoAd);
         lastStateProvider.get(videoAd.getUuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));
@@ -145,11 +149,6 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     TextureView getVideoView(View itemView) {
         return getHolder(itemView).videoView;
-    }
-
-    private float getVideoProportion(VideoAd videoAd) {
-        final VideoAdSource source = videoAd.getFirstSource();
-        return (float) source.getHeight() / (float) source.getWidth();
     }
 
     private Holder getHolder(View adView) {

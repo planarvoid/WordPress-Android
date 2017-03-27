@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -168,6 +169,15 @@ public class NavigatorTest extends AndroidUnitTest {
                                    .containsAction(Intent.ACTION_VIEW)
                                    .containsUri(uri)
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
+    }
+
+    @Test
+    public void openVideoFullScreen() {
+        final Urn urn = Urn.forAd("network", "123");
+        navigator.openFullscreenVideoAd(activityContext, urn);
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn)
+                                   .opensActivity(FullScreenVideoActivity.class);
     }
 
     @Test

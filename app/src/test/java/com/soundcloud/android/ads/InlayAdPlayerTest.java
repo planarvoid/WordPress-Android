@@ -19,6 +19,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +52,18 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         player = new InlayAdPlayer(adapter, eventBus, adViewabilityController, analyticsController,
                                    stateProvider, playSessionController, currentDateProvider);
+    }
+
+    @Test
+    public void getCurrentAdReturnsAd() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+
+        assertThat(player.getCurrentAd()).isEqualTo(Optional.of(VIDEO_AD));
+    }
+
+    @Test
+    public void getCurrentAdReturnsAbsentIfNoAdExists() {
+        assertThat(player.getCurrentAd()).isEqualTo(Optional.absent());
     }
 
     @Test

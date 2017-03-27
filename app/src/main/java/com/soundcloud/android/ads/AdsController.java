@@ -55,7 +55,6 @@ public class AdsController {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final FeatureOperations featureOperations;
-    private final AdViewabilityController adViewabilityController;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
     private final AdOverlayImpressionOperations adOverlayImpressionOperations;
     private final VideoSourceProvider videoSourceProvider;
@@ -132,19 +131,17 @@ public class AdsController {
                          FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository, CastConnectionHelper castConnectionHelper) {
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
+             videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
@@ -152,7 +149,7 @@ public class AdsController {
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             adViewabilityController, videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler,
+             videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler,
              DEFAULT_OPERATION_STALE_TIME);
     }
 
@@ -160,7 +157,6 @@ public class AdsController {
                          FeatureOperations featureOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         AdViewabilityController adViewabilityController,
                          VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
@@ -172,7 +168,6 @@ public class AdsController {
         this.featureOperations = featureOperations;
         this.visualAdImpressionOperations = visualAdImpressionOperations;
         this.adOverlayImpressionOperations = adOverlayImpressionOperations;
-        this.adViewabilityController = adViewabilityController;
         this.videoSourceProvider = videoSourceProvider;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;

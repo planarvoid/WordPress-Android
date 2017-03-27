@@ -24,6 +24,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
     @Mock Listener listener;
     @Mock Listener listener2;
     @Mock TextureView textureView;
+    @Mock TextureView textureView2;
     @Mock Surface surface;
 
     private VideoSurfaceProvider videoSurfaceProvider;
@@ -42,6 +43,7 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
         when(containerFactory.build(UUID, ORIGIN, textureView, videoSurfaceProvider)).thenReturn(textureContainer);
         when(textureContainer.getOrigin()).thenReturn(ORIGIN);
+        when(textureContainer.getUuid()).thenReturn(UUID);
     }
 
     @Test
@@ -70,6 +72,18 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
         verify(containerFactory).build(UUID, ORIGIN, textureView, videoSurfaceProvider);
         verify(textureContainer).release();
         verify(containerFactory).build(UUID2, ORIGIN, textureView, videoSurfaceProvider);
+    }
+
+    @Test
+    public void releasesExistingContainerBeforeBuildingNewContainerIfNewOriginForExistingVideo() {
+        when(textureContainer.containsTextureView(textureView)).thenReturn(true);
+
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN, textureView);
+        videoSurfaceProvider.setTextureView(UUID, ORIGIN2, textureView2);
+
+        verify(containerFactory).build(UUID, ORIGIN, textureView, videoSurfaceProvider);
+        verify(textureContainer).release();
+        verify(containerFactory).build(UUID, ORIGIN2, textureView2, videoSurfaceProvider);
     }
 
     @Test

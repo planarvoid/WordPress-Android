@@ -109,6 +109,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ads.FullScreenVideoActivity"
+            android:theme="@style/Theme.SoundCloud.NoActionBar"
+            android:screenOrientation="landscape" />
+
         <activity
             android:name=".stream.StreamHighlightsActivity"
             android:theme="@style/Theme.SoundCloud"

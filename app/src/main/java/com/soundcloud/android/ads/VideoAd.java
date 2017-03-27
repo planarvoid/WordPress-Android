@@ -78,4 +78,9 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         final VideoAdSource source = getFirstSource();
         return source.getHeight() > source.getWidth();
     }
+
+    public float getVideoProportion() {
+        final VideoAdSource source = getFirstSource();
+        return (float) source.getHeight() / (float) source.getWidth();
+    }
 }

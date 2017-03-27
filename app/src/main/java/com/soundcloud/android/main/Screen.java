@@ -23,6 +23,9 @@ public enum Screen {
     STREAM("stream:main"),
     STREAM_HIGHLIGHTS("stream:highlights"),
 
+    // ads
+    VIDEO_FULLSCREEN("ads:video"),
+
     // collection
     COLLECTIONS("collection:main"),
     LIKES("collection:likes"),

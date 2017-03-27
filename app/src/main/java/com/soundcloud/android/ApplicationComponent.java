@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
+import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastMediaIntentReceiver;
@@ -211,6 +212,7 @@ public interface ApplicationComponent {
     void inject(MetadataFragment metadataFragment);
     void inject(DevDrawerFragment devDrawerFragment);
     void inject(FullImageDialog fullImageDialog);
+    void inject(FullScreenVideoActivity fullScreenVideoActivity);
 
     //Cast
     void inject(CastRedirectActivity castRedirectActivity);
