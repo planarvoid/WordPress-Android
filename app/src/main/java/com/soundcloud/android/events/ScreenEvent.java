@@ -41,6 +41,10 @@ public abstract class ScreenEvent extends TrackingEvent {
         return builder(screen).queryUrn(Optional.of(queryUrn)).build();
     }
 
+    public static ScreenEvent create(String screen, Optional<Urn> queryUrn) {
+        return builder(screen).queryUrn(queryUrn).build();
+    }
+
     public static ScreenEvent create(Screen screen, Urn pageUrn) {
         return builder(screen.get()).pageUrn(Optional.of(pageUrn)).build();
     }

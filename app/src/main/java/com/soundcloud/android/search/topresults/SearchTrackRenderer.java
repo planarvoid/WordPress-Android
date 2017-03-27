@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.java.optional.Optional;
 import rx.subjects.PublishSubject;
 
 import android.view.View;
@@ -32,7 +33,6 @@ public class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
     public void bindItemView(int position, View itemView, List<SearchItem.Track> items) {
         final SearchItem.Track track = items.get(position);
         itemView.setOnClickListener(view -> searchItemClicked.onNext(track));
-        trackItemRenderer.bindTrackView(position, itemView, track.trackItem());
+        trackItemRenderer.bindTrackView(track.trackItem(), itemView, position, Optional.of(track.trackSourceInfo()), Optional.absent());
     }
-
 }

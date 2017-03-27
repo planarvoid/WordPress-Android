@@ -65,10 +65,14 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistView(playlists.get(position), itemView, Optional.absent());
+        bindPlaylistView(playlists.get(position), itemView, Optional.absent(), Optional.absent());
     }
 
     public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module) {
+        bindPlaylistView(playlist, itemView, module, Optional.absent());
+    }
+
+    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module, Optional<String> clickSource) {
         getTextView(itemView, R.id.list_item_header).setText(playlist.creatorName());
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.title());
 
@@ -76,15 +80,16 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module, clickSource);
     }
 
     private void setupOverFlow(final View button,
                                final PlaylistItem playlist,
-                               final Optional<Module> module) {
+                               final Optional<Module> module,
+                               Optional<String> clickSource) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button,
-                                                              playlist,
-                                                              getEventContextMetaDataBuilder(playlist, module)));
+                                                                      playlist,
+                                                                      getEventContextMetaDataBuilder(playlist, module, clickSource)));
     }
 
     private void showTrackCount(View itemView, PlaylistItem playlist) {
@@ -171,7 +176,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,
-                                                                        Optional<Module> module) {
+                                                                        Optional<Module> module,
+                                                                        Optional<String> clickSource) {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
@@ -179,7 +185,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                                                          .contextScreen(screen)
                                                                          .pageName(screen)
                                                                          .attributingActivity(AttributingActivity.fromPlayableItem(
-                                                                                 item));
+                                                                                 item))
+                                                                         .clickSource(clickSource);
 
         if (module.isPresent()) {
             builder.module(module.get());

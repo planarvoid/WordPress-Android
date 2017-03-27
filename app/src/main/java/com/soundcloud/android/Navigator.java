@@ -347,9 +347,12 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openSearchViewAll(Context context, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
+    public void openSearchViewAll(Context context, String query, Optional<Urn> queryUrn, TopResults.Bucket.Kind kind, boolean isPremium) {
         Intent intent = new Intent(context, TopResultsBucketActivity.class);
         intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY, query);
+        if (queryUrn.isPresent()) {
+            intent.putExtra(TopResultsBucketActivity.EXTRA_QUERY_URN, queryUrn.get());
+        }
         intent.putExtra(TopResultsBucketActivity.EXTRA_BUCKET_KIND, kind);
         intent.putExtra(TopResultsBucketActivity.EXTRA_IS_PREMIUM, isPremium);
         context.startActivity(intent);

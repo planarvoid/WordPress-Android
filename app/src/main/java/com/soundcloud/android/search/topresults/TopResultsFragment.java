@@ -18,7 +18,6 @@ import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
-import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -54,7 +53,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
     private CompositeSubscription subscription;
 
-    private final BehaviorSubject<Pair<String, Optional<Urn>>> searchIntent = BehaviorSubject.create();
+    private final BehaviorSubject<SearchParams> searchIntent = BehaviorSubject.create();
     private final BehaviorSubject<Void> enterScreen = BehaviorSubject.create();
 
     public static TopResultsFragment newInstance(String apiQuery,
@@ -85,7 +84,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchIntent.onNext(Pair.of(getApiQuery(), getSearchQueryUrn()));
+        searchIntent.onNext(SearchParams.create(getApiQuery(),getUserQuery(), getSearchQueryUrn(), getSearchQueryPosition()));
         collectionRenderer = new CollectionRenderer<>(adapterFactory.create(presenter.searchItemClicked(), presenter.viewAllClicked(), presenter.helpClicked()),
                                                       this::isTheSameItem,
                                                       Object::equals,
@@ -107,7 +106,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     @Override
-    public Observable<Pair<String, Optional<Urn>>> searchIntent() {
+    public Observable<SearchParams> searchIntent() {
         return searchIntent;
     }
 
@@ -125,8 +124,16 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         return getArguments().getString(KEY_API_QUERY);
     }
 
+    private String getUserQuery() {
+        return getArguments().getString(KEY_USER_QUERY);
+    }
+
     private Optional<Urn> getSearchQueryUrn() {
         return Optional.fromNullable(getArguments().<Urn>getParcelable(KEY_QUERY_URN));
+    }
+
+    private Optional<Integer> getSearchQueryPosition() {
+        return Optional.fromNullable(getArguments().getInt(KEY_QUERY_POSITION));
     }
 
     @Override
@@ -165,6 +172,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                             presenter.goToViewAllPage()
                                      .subscribe((clickAndQuery) -> navigator.openSearchViewAll(getContext(),
                                                                                                clickAndQuery.query().get(),
+                                                                                               clickAndQuery.queryUrn(),
                                                                                                clickAndQuery.kind(),
                                                                                                clickAndQuery.isPremium())));
     }
@@ -192,4 +200,5 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
         collectionRenderer.detach();
         super.onDestroyView();
     }
+
 }

@@ -14,12 +14,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
-public class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist> {
+class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist> {
     private final PlaylistItemRenderer playlistItemRenderer;
     private final PublishSubject<SearchItem> searchItemClicked;
 
     @Inject
-    public SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
+    SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
         this.playlistItemRenderer = playlistItemRenderer;
         this.searchItemClicked = searchItemClicked;
     }
@@ -33,7 +33,7 @@ public class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist>
     public void bindItemView(int position, View itemView, List<SearchItem.Playlist> items) {
         final SearchItem.Playlist playlist = items.get(position);
         itemView.setOnClickListener(view -> searchItemClicked.onNext(playlist));
-        playlistItemRenderer.bindPlaylistView(playlist.playlistItem(), itemView, Optional.absent());
+        playlistItemRenderer.bindPlaylistView(playlist.playlistItem(), itemView, Optional.absent(), Optional.of(playlist.source().key));
     }
 
 }

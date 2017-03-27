@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
@@ -12,6 +13,7 @@ public abstract class EventContextMetadata {
     public static Builder builder() {
         return new AutoValue_EventContextMetadata.Builder()
                 .isFromOverflow(false)
+                .clickSource(Optional.absent())
                 .pageUrn(Urn.NOT_SET);
     }
 
@@ -40,6 +42,8 @@ public abstract class EventContextMetadata {
     @Nullable
     public abstract TrackSourceInfo trackSourceInfo();
 
+    public abstract Optional<String> clickSource();
+
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder invokerScreen(String invokerScreen);
@@ -59,6 +63,8 @@ public abstract class EventContextMetadata {
         public abstract Builder attributingActivity(AttributingActivity attributingActivityType);
 
         public abstract Builder isFromOverflow(boolean isFromOverflow);
+
+        public abstract Builder clickSource(Optional<String> clickSource);
 
         public abstract EventContextMetadata build();
     }

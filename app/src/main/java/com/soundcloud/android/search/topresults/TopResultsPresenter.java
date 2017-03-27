@@ -28,6 +28,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchPlayQueueFilter;
+import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.utils.collection.CollectionLoader;
 import com.soundcloud.android.utils.collection.CollectionLoaderState;
@@ -51,7 +52,7 @@ public class TopResultsPresenter {
 
     interface TopResultsView {
 
-        Observable<Pair<String, Optional<Urn>>> searchIntent();
+        Observable<SearchParams> searchIntent();
 
         Observable<Void> refreshIntent();
 
@@ -69,12 +70,13 @@ public class TopResultsPresenter {
     private final SearchPlayQueueFilter playQueueFilter;
     private final PlaybackInitiator playbackInitiator;
     private final EventTracker eventTracker;
+    private final SearchTracker searchTracker;
     private final EventBus eventBus;
     private final EntityItemCreator entityItemCreator;
     private final TrackingStateProvider trackingStateProvider;
 
-    private final BehaviorSubject<Pair<String, Optional<Urn>>> firstPageIntent = BehaviorSubject.create();
-    private final BehaviorSubject<Pair<String, Optional<Urn>>> refreshIntent = BehaviorSubject.create();
+    private final BehaviorSubject<SearchParams> firstPageIntent = BehaviorSubject.create();
+    private final BehaviorSubject<SearchParams> refreshIntent = BehaviorSubject.create();
 
     @Inject
     TopResultsPresenter(TopResultsOperations operations,
@@ -83,18 +85,19 @@ public class TopResultsPresenter {
                         FollowingStateProvider followingStatuses,
                         PlaybackInitiator playbackInitiator,
                         EventTracker eventTracker,
-                        EventBus eventBus,
+                        SearchTracker searchTracker, EventBus eventBus,
                         EntityItemCreator entityItemCreator,
                         TrackingStateProvider trackingStateProvider,
                         PlaySessionStateProvider playSessionStateProvider) {
         this.playQueueFilter = playQueueFilter;
         this.playbackInitiator = playbackInitiator;
         this.eventTracker = eventTracker;
+        this.searchTracker = searchTracker;
         this.eventBus = eventBus;
         this.entityItemCreator = entityItemCreator;
         this.trackingStateProvider = trackingStateProvider;
 
-        CollectionLoader<TopResults, Pair<String, Optional<Urn>>> loader = new CollectionLoader<>(
+        CollectionLoader<TopResults, SearchParams> loader = new CollectionLoader<>(
                 firstPageIntent,
                 operations::search,
                 refreshIntent,
@@ -153,7 +156,7 @@ public class TopResultsPresenter {
     }
 
     private Observable<GoToItemArgs> onSearchItemClicked(SearchItem clickedItem) {
-        return Observable.combineLatest(firstPageIntent.map(Pair::first), viewModel, (searchQuery, viewModel) -> toGoToItemArgs(clickedItem, searchQuery, viewModel))
+        return Observable.combineLatest(firstPageIntent.map(SearchParams::apiQuery), viewModel, (searchQuery, viewModel) -> toGoToItemArgs(clickedItem, searchQuery, viewModel))
                          .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, args.searchQuerySourceInfo(), args.clickSource())))
                          .take(1);
     }
@@ -161,8 +164,8 @@ public class TopResultsPresenter {
     Observable<TopResultsViewAllArgs> goToViewAllPage() {
         return viewAllClicked.flatMap(clickedItem -> Observable.combineLatest(firstPageIntent,
                                                                               viewModel,
-                                                                              (searchQuery, viewModel) -> clickedItem.copyWithSearchQuery(searchQuery.first(), viewModel.queryUrn()))
-                                                               .take(1));
+                                                                              (searchQuery, viewModel) -> clickedItem.copyWithSearchQuery(searchQuery.apiQuery(), viewModel.queryUrn()))
+                             .take(1));
     }
 
     void attachView(TopResultsView topResultsView) {
@@ -170,18 +173,19 @@ public class TopResultsPresenter {
 
         viewSubscription.addAll(
                 topResultsView.searchIntent()
+                              .doOnNext(this::trackFirstSearch)
                               .subscribe(firstPageIntent),
                 topResultsView.refreshIntent()
                               .flatMap(ignored -> topResultsView.searchIntent())
                               .subscribe(refreshIntent),
                 topResultsView.enterScreen()
-                              .flatMap(event -> Observable.combineLatest(firstPageIntent.map(Pair::first),
+                              .flatMap(event -> Observable.combineLatest(firstPageIntent.map(SearchParams::apiQuery),
                                                                          viewModel.map(TopResultsViewModel::queryUrn).filter(Optional::isPresent).map(Optional::get),
                                                                          Pair::of)
                                                           .take(1))
                               .subscribe(LambdaSubscriber.onNext(this::trackPageView)),
                 searchItemClicked.filter(clickedItem -> clickedItem.kind() == SearchItem.Kind.TRACK)
-                                 .flatMap(clickedItem -> firstPageIntent.flatMap(searchQueryPair -> viewModel.flatMap(viewModel -> playTrack(clickedItem, searchQueryPair.first(), viewModel))).take(1))
+                                 .flatMap(clickedItem -> firstPageIntent.flatMap(searchParams -> viewModel.flatMap(viewModel -> playTrack(clickedItem, searchParams.apiQuery(), viewModel))).take(1))
                                  .subscribe(LambdaSubscriber.onNext(this::showPlaybackResult))
 
         );
@@ -190,6 +194,10 @@ public class TopResultsPresenter {
     private void trackPageView(Pair<String, Urn> searchQueryPair) {
         eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(), new SearchQuerySourceInfo(searchQueryPair.second(), searchQueryPair.first())),
                                  trackingStateProvider.getLastEvent());
+    }
+
+    private void trackFirstSearch(SearchParams params) {
+        searchTracker.trackSearchFormulationEnd(Screen.SEARCH_EVERYTHING, params.userQuery(), params.queryUrn(), params.queryPosition());
     }
 
     private void showPlaybackResult(PlaybackResult playbackResult) {
@@ -216,7 +224,7 @@ public class TopResultsPresenter {
             for (Bucket bucket : buckets) {
                 final List<ApiUniversalSearchItem> apiUniversalSearchItems = bucket.items();
                 final int bucketPosition = buckets.indexOf(bucket);
-                final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(entityItemCreator, likedStatuses, followingStatuses, nowPlayingUrn, apiUniversalSearchItems, bucketPosition);
+                final List<SearchItem> result = SearchItemHelper.transformApiSearchItems(entityItemCreator, likedStatuses, followingStatuses, nowPlayingUrn, apiUniversalSearchItems, bucketPosition, bucket.kind());
                 viewModelItems.add(TopResultsBucketViewModel.create(result, bucket.kind(), bucket.totalResults()));
             }
         }

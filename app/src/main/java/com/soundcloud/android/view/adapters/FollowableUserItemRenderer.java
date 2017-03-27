@@ -11,6 +11,7 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
 import android.widget.ToggleButton;
@@ -42,11 +43,15 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
     }
 
     public void bindItemView(int position, View itemView, UserItem user) {
-        super.bindItemView(itemView, user);
-        setupFollowToggle(itemView, user, position);
+        bindItemView(position, itemView, user, Optional.absent());
     }
 
-    private void setupFollowToggle(View itemView, final UserItem user, final int position) {
+    public void bindItemView(int position, View itemView, UserItem user, Optional<String> clickSource) {
+        super.bindItemView(itemView, user);
+        setupFollowToggle(itemView, user, position, clickSource);
+    }
+
+    private void setupFollowToggle(View itemView, final UserItem user, final int position, Optional<String> clickSource) {
         final ToggleButton toggleFollow = ((ToggleButton) itemView.findViewById(R.id.toggle_btn_follow));
         toggleFollow.setVisibility(View.VISIBLE);
         toggleFollow.setChecked(user.isFollowedByMe());
@@ -57,13 +62,14 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
 
             engagementsTracking.followUserUrn(user.getUrn(),
                                               toggleFollow.isChecked(),
-                                              EventContextMetadata.builder()
-                                                                  .module(Module.create(
-                                                                          screen,
-                                                                          position
-                                                                  ))
-                                                                  .pageName(screen)
-                                                                  .build());
+                                              getEventContextMetadata(position, screen, clickSource));
         });
+    }
+
+    private EventContextMetadata getEventContextMetadata(int position, String screen, Optional<String> clickSource) {
+        return EventContextMetadata.builder()
+                                   .module(Module.create(screen, position))
+                                   .pageName(screen)
+                                   .clickSource(clickSource).build();
     }
 }

@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
+import com.soundcloud.java.optional.Optional;
 import rx.subjects.PublishSubject;
 
 import android.view.View;
@@ -13,12 +14,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
-public class SearchUserRenderer implements CellRenderer<SearchItem.User> {
+class SearchUserRenderer implements CellRenderer<SearchItem.User> {
     private final FollowableUserItemRenderer userItemRenderer;
     private final PublishSubject<SearchItem> searchItemClicked;
 
     @Inject
-    public SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
+    SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
         this.userItemRenderer = userItemRenderer;
         this.searchItemClicked = searchItemClicked;
     }
@@ -32,7 +33,7 @@ public class SearchUserRenderer implements CellRenderer<SearchItem.User> {
     public void bindItemView(int position, View itemView, List<SearchItem.User> items) {
         final SearchItem.User user = items.get(position);
         itemView.setOnClickListener(view -> searchItemClicked.onNext(user));
-        userItemRenderer.bindItemView(position, itemView, user.userItem());
+        userItemRenderer.bindItemView(position, itemView, user.userItem(), Optional.of(user.source().key));
     }
 
 }

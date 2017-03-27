@@ -38,7 +38,6 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.profile.ApiPlayableSource;
 import com.soundcloud.android.search.ApiUniversalSearchItem;
-import com.soundcloud.android.search.topresults.SearchItem;
 import com.soundcloud.android.stream.PromotedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.stream.StreamItem;
@@ -632,17 +631,5 @@ public class ModelFixtures {
         } else {
             throw new RuntimeException("Unknown search item type " + searchItem);
         }
-    }
-
-    private static SearchItem.User searchUser(int bucketPosition) {
-        return SearchItem.User.create(create(UserItem.class), bucketPosition);
-    }
-
-    private static SearchItem.Playlist searchPlaylist(int bucketPosition) {
-        return SearchItem.Playlist.create(playlistItem(), bucketPosition);
-    }
-
-    private static SearchItem.Track searchTrack(int bucketPosition) {
-        return SearchItem.Track.create(trackItem(), bucketPosition);
     }
 }

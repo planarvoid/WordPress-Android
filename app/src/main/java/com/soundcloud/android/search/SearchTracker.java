@@ -47,7 +47,7 @@ public class SearchTracker {
         initializeScreenQueryUrnMap();
     }
 
-    void trackSearchFormulationEnd(Screen screen, String query, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+    public void trackSearchFormulationEnd(Screen screen, String query, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
         eventTracker.trackSearch(SearchEvent.searchFormulationEnd(screen, query, queryUrn, queryPosition));
     }
 

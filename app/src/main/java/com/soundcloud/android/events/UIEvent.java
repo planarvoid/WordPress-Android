@@ -613,6 +613,9 @@ public abstract class UIEvent extends TrackingEvent {
             module(Optional.fromNullable(eventContextMetadata.module()));
             isFromOverflow(Optional.of(eventContextMetadata.isFromOverflow()));
             trackSourceInfo(eventContextMetadata.trackSourceInfo());
+            if (eventContextMetadata.clickSource().isPresent()) {
+                clickSource(eventContextMetadata.clickSource());
+            }
             return this;
         }
 
