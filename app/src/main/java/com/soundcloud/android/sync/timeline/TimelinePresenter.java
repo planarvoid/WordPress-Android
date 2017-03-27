@@ -80,7 +80,7 @@ public abstract class TimelinePresenter<ItemT>
 
     @Override
     public void onNewItemsIndicatorClicked() {
-        scrollToTop();
+        getRecyclerView().scrollToPosition(0);
         rebuildBinding(null).connect();
     }
 
