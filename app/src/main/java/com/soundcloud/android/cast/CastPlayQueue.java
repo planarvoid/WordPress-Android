@@ -22,7 +22,7 @@ public class CastPlayQueue {
     }
 
     public CastPlayQueue(Urn currentUrn, List<Urn> urns) {
-        queue = Lists.transform(urns, RemoteTrack::new);
+        queue = Lists.transform(urns, RemoteTrack::create);
         currentIndex = urns.indexOf(currentUrn);
     }
 
@@ -77,12 +77,12 @@ public class CastPlayQueue {
     public Urn getCurrentTrackUrn() {
         int currentTrackIndex = getCurrentIndex();
         boolean isWithinRange = currentTrackIndex >= 0 && currentTrackIndex < getQueue().size();
-        return isWithinRange ? new Urn(getQueue().get(currentTrackIndex).getUrn()) : Urn.NOT_SET;
+        return isWithinRange ? getQueue().get(currentTrackIndex).urn() : Urn.NOT_SET;
     }
 
     @JsonIgnore
     public List<Urn> getQueueUrns() {
-        return Lists.transform(queue, input -> new Urn(input.getUrn()));
+        return Lists.transform(queue, RemoteTrack::urn);
     }
 
     @JsonIgnore

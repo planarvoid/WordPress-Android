@@ -1,61 +1,28 @@
 package com.soundcloud.android.cast;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
-class RemoteTrack {
+@AutoValue
+public abstract class RemoteTrack {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String id;
-    private Urn urn;
+    public abstract Optional<String> id();
 
-    public RemoteTrack() {
-        /* For deserialization */
+    public abstract Urn urn();
+
+    @JsonCreator
+    public static RemoteTrack create(@JsonProperty("id") String id, @JsonProperty("urn") Urn urn) {
+        return new AutoValue_RemoteTrack(Optional.fromNullable(id), urn);
     }
 
-    public RemoteTrack(Urn urn) {
-        this.urn = urn;
+    public static RemoteTrack create(Urn urn) {
+        return new AutoValue_RemoteTrack(Optional.absent(), urn);
     }
 
     public String getUrn() {
-        return urn.toString();
-    }
-
-    public void setUrn(String urn) {
-        this.urn = new Urn(urn);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "RemoteTrack{" +
-                "id='" + id + '\'' +
-                ", urn=" + urn +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RemoteTrack that = (RemoteTrack) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        return urn != null ? urn.equals(that.urn) : that.urn == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (urn != null ? urn.hashCode() : 0);
-        return result;
+        return urn().toString();
     }
 }
