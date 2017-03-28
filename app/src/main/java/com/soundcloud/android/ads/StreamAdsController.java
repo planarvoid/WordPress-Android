@@ -18,6 +18,7 @@ import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -43,6 +44,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final InlayAdOperations inlayAdOperations;
     private final InlayAdHelperFactory inlayAdHelperFactory;
     private final InlayAdStateProvider stateProvider;
+    private final Lazy<InlayAdPlayer> inlayAdPlayer;
     private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
@@ -60,6 +62,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private String lastRequestId = Strings.EMPTY;
     private boolean wasScrollingUp;
     private boolean streamAdsEnabled;
+    private boolean isInFullscreen;
 
     @Inject
     public StreamAdsController(AdsOperations adsOperations,
@@ -67,6 +70,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                InlayAdOperations inlayAdOperations,
                                InlayAdHelperFactory inlayAdHelperFactory,
                                InlayAdStateProvider inlayAdStateProvider,
+                               Lazy<InlayAdPlayer> inlayAdPlayer,
                                FeatureFlags featureFlags,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
@@ -76,6 +80,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         this.inlayAdOperations = inlayAdOperations;
         this.inlayAdHelperFactory = inlayAdHelperFactory;
         this.stateProvider = inlayAdStateProvider;
+        this.inlayAdPlayer = inlayAdPlayer;
         this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
@@ -110,11 +115,11 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
     public void onDestroy() {
         if (streamAdsEnabled) {
-            cleanUpInsertedAds();
+            reset();
         }
     }
 
-    private void cleanUpInsertedAds() {
+    private void reset() {
         for (AdData ad : insertedAds) {
             if (ad instanceof VideoAd) {
                 final String uuid = ((VideoAd) ad).getUuid();
@@ -123,6 +128,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
             }
         }
         insertedAds.clear();
+        inlayAdPlayer.get().reset();
     }
 
     @Override
@@ -150,6 +156,14 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 attemptToInsertAd();
             }
         }
+    }
+
+    void onScreenSizeChange(boolean isInFullscreen) {
+        this.isInFullscreen = isInFullscreen;
+    }
+
+    public boolean isInFullscreen() {
+        return isInFullscreen;
     }
 
     private Subscription fetchInlays() {

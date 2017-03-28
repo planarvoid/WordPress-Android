@@ -160,6 +160,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(followingOperations.onUserFollowed()).thenReturn(followSubject);
         when(followingOperations.onUserUnfollowed()).thenReturn(unfollowSubject);
         when(streamDepthPublisherFactory.create(any(StaggeredGridLayoutManager.class), anyBoolean())).thenReturn(streamDepthPublisher);
+        when(streamAdsController.isInFullscreen()).thenReturn(false);
     }
 
     @Test
@@ -498,6 +499,16 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldCallOnFocusChangeInStreamAdsControllerWhenOnResumeIsCalled() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onResume(fragmentRule.getFragment());
+
+        verify(streamAdsController).onFocus(false);
+    }
+
+    @Test
     public void shouldForwardOrientationChangeToVideoSurfaceProvider() {
         final Fragment fragment = mock(Fragment.class);
         final FragmentActivity activity = mock(FragmentActivity.class);
@@ -631,5 +642,15 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoTextureBind(textureView, videoAd);
 
         verify(videoSurfaceProvider).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+    }
+
+    @Test
+    public void shouldSetTextureViewForVideoAdIsntSetInVideoSurfaceProviderIfVideoInFullscreen() {
+        when(streamAdsController.isInFullscreen()).thenReturn(true);
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
+
+        presenter.onVideoTextureBind(textureView, videoAd);
+
+        verify(videoSurfaceProvider, never()).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
     }
 }

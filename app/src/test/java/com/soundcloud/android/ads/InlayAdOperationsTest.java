@@ -79,7 +79,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         assertThat(impressionEvent.contextPosition()).isEqualTo(42);
         assertThat(impressionEvent.getTimestamp()).isEqualTo(999);
     }
-
+    
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreen() {
         when(inlayAdPlayer.isPlaying()).thenReturn(false);
@@ -88,7 +88,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(videoAd, false);
+        verify(inlayAdPlayer).autoplay(videoAd);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).play(videoAd, false);
+        verify(inlayAdPlayer).autoplay(videoAd);
     }
 
     @Test

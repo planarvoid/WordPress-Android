@@ -38,23 +38,22 @@ class InlayAdHelper {
 
     private final StaggeredGridLayoutManager layoutManager;
     private final StreamAdapter adapter;
-    private final VideoAdItemRenderer videoAdItemRenderer;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
+    private final VideoAdItemRenderer videoAdItemRenderer;
 
     @VisibleForTesting int minimumVisibleIndex = -1;
     @VisibleForTesting int maximumVisibleIndex = -1;
 
     InlayAdHelper(StaggeredGridLayoutManager layoutManager,
                   StreamAdapter adapter,
-                  @Provided VideoAdItemRenderer videoAdItemRenderer,
                   @Provided CurrentDateProvider dateProvider,
                   @Provided EventBus eventBus) {
         this.layoutManager = layoutManager;
         this.adapter = adapter;
-        this.videoAdItemRenderer = videoAdItemRenderer;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
+        this.videoAdItemRenderer = adapter.getVideoAdItemRenderer();
     }
 
     Subscription subscribe() {

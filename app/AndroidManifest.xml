@@ -110,7 +110,7 @@
         </activity>
 
         <activity android:name=".ads.FullScreenVideoActivity"
-            android:theme="@style/Theme.SoundCloud.NoActionBar"
+            android:theme="@style/Theme.SoundCloud.Translucent"
             android:screenOrientation="landscape" />
 
         <activity

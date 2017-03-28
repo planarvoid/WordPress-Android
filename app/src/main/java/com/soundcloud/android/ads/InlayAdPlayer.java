@@ -65,6 +65,12 @@ class InlayAdPlayer implements Player.PlayerListener {
         currentPlayer.setListener(this);
     }
 
+    public void autoplay(VideoAd videoAd) {
+        if (!isPausedByUser(videoAd)) {
+            play(videoAd, false);
+        }
+    }
+
     Optional<VideoAd> getCurrentAd() {
         return currentAd;
     }
@@ -153,8 +159,25 @@ class InlayAdPlayer implements Player.PlayerListener {
         currentPlayer.pause();
     }
 
+    void reset() {
+        shouldReturnToPlaySession = false;
+        isUserInitiated = false;
+        isPlayerMuted = false;
+        lastState = PlaybackStateTransition.DEFAULT;
+        currentAd = Optional.absent();
+        subscription.unsubscribe();
+        currentPlayer.destroy();
+    }
+
     boolean isPlaying() {
         return lastState.isPlayerPlaying();
+    }
+
+    private boolean isPausedByUser(VideoAd videoAd) {
+        return currentAd.isPresent()
+                && currentAd.get().equals(videoAd)
+                && lastState.isPaused()
+                && isUserInitiated;
     }
 
     private boolean wasPaused(Urn urn) {

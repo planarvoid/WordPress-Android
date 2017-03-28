@@ -32,8 +32,8 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
     private final AppInstallItemRenderer appInstallItemRenderer;
-    private final VideoAdItemRenderer videoAdItemRenderer;
     private final StreamHighlightsItemRenderer streamHighlightsItemRenderer;
+    private final VideoAdItemRenderer videoAdItemRenderer;
 
     @Inject
     public StreamAdapter(StreamTrackItemRenderer trackItemRenderer,
@@ -138,6 +138,10 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     private void checkMainThread() {
         Preconditions.checkState(Looper.myLooper() == Looper.getMainLooper(),
                                  "Altering adapter off main thread");
+    }
+
+    public VideoAdItemRenderer getVideoAdItemRenderer() {
+        return videoAdItemRenderer;
     }
 
     void onFollowingEntityChange(FollowingStatusEvent event) {

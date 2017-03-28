@@ -1,29 +1,27 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.InlayAdEvent.ImageLoaded;
+import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
+import static com.soundcloud.android.events.InlayAdEvent.TogglePlayback;
+import static com.soundcloud.android.events.InlayAdEvent.ToggleVolume;
+import static com.soundcloud.android.events.InlayAdEvent.WithAdData;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import dagger.Lazy;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
-import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
-
 import java.lang.ref.WeakReference;
 import java.util.Date;
-
-import static com.soundcloud.android.events.InlayAdEvent.ImageLoaded;
-import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
-import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
-import static com.soundcloud.android.events.InlayAdEvent.TogglePlayback;
-import static com.soundcloud.android.events.InlayAdEvent.ToggleVolume;
-import static com.soundcloud.android.events.InlayAdEvent.WithAdData;
 
 class InlayAdOperations {
 
@@ -74,7 +72,7 @@ class InlayAdOperations {
         public void onNext(InlayAdEvent event) {
             if (event instanceof OnScreen) {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
-                inlayAdPlayer.play(videoAd, false);
+                inlayAdPlayer.autoplay(videoAd);
             } else if (event instanceof NoVideoOnScreen && inlayAdPlayer.isPlaying()) {
                 inlayAdPlayer.muteAndPause();
             } else if (event instanceof ToggleVolume) {

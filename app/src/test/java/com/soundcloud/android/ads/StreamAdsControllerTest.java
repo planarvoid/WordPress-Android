@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -51,6 +52,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;
+    @Mock private InlayAdPlayer inlayAdPlayer;
     @Mock private RecyclerView recycler;
     @Mock private StreamAdapter adapter;
     @Mock private StaggeredGridLayoutManager layoutManager;
@@ -66,6 +68,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
                                                  inlayAdOperations,
                                                  inlayAdHelperFactory,
                                                  stateProvider,
+                                                 lazyOf(inlayAdPlayer),
                                                  featureFlags,
                                                  featureOperations,
                                                  dateProvider,

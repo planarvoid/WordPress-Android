@@ -2,15 +2,21 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
@@ -64,6 +70,47 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void getCurrentAdReturnsAbsentIfNoAdExists() {
         assertThat(player.getCurrentAd()).isEqualTo(Optional.absent());
+    }
+
+    @Test
+    public void autoplayWhenNoAdWasPlayedBeforeShouldStopForTrackTransitionAndPlay() {
+        player.autoplay(VIDEO_AD);
+
+        verify(adapter).stopForTrackTransition();
+        verify(adapter).play(VIDEO_ITEM);
+    }
+
+    @Test
+    public void autoplayWhenUserInitiatedPauseWillNotResumeAd() {
+        player.play(VIDEO_AD, false);
+        player.pause();
+
+        player.autoplay(VIDEO_AD);
+
+        verify(adapter, never()).resume(any(PlaybackItem.class));
+    }
+
+    @Test
+    public void autoplayWhenUserDidNotInitiatePauseWillResumeAd() {
+        player.play(VIDEO_AD, false);
+        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.getAdUrn(), -1, -1, PlayStateReason.NONE));
+
+        player.autoplay(VIDEO_AD);
+
+        verify(adapter).resume(VIDEO_ITEM);
+    }
+
+    @Test
+    public void autoplayWhenAdIsNewAdShouldPlayNewAd() {
+        final VideoAd ad = AdFixtures.getVideoAd(Urn.forAd("123", "ABC"), Urn.forTrack(123));
+        final VideoAdPlaybackItem item = VideoAdPlaybackItem.create(ad, 0L, 0L);
+
+        player.play(VIDEO_AD, false);
+        player.autoplay(ad);
+
+        verify(adapter, times(2)).stopForTrackTransition();
+        verify(adapter).play(VIDEO_ITEM);
+        verify(adapter).play(item);
     }
 
     @Test
@@ -300,5 +347,14 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         final PlaybackProgress playbackProgress = requestData.getValue().getPlaybackProgress();
         assertThat(playbackProgress.getPosition()).isEqualTo(100);
         assertThat(playbackProgress.getDuration()).isEqualTo(200);
+    }
+
+    @Test
+    public void resetDestroysMediaPlayerAndResetsCurrentAd() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.reset();
+
+        verify(adapter).destroy();
+        assertThat(player.getCurrentAd()).isEqualTo(Optional.absent());
     }
 }

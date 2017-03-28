@@ -37,6 +37,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Mock InlayAdPlayer inlayAdPlayer;
     @Mock InlayAdStateProvider stateProvider;
     @Mock CurrentDateProvider dateProvider;
+    @Mock StreamAdsController controller;
     @Mock Navigator navigator;
 
     @Mock AppCompatActivity activity;
@@ -47,7 +48,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        presenter = new FullScreenVideoPresenter(videoView, inlayAdPlayer, stateProvider, dateProvider, navigator, eventBus);
+        presenter = new FullScreenVideoPresenter(videoView, inlayAdPlayer, stateProvider, controller, dateProvider, navigator, eventBus);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
         intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.getAdUrn());
@@ -121,6 +122,21 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
+    }
+
+    @Test
+    public void onCreateSetsScreenSizeChangeTrueOnStreamAdsController() {
+        presenter.onCreate(activity, null);
+
+        verify(controller).onScreenSizeChange(true);
+    }
+
+    @Test
+    public void onPauseSetsScreenSizeChangeFalseOnStreamAdsController() {
+        presenter.onCreate(activity, null);
+        presenter.onPause(activity);
+
+        verify(controller).onScreenSizeChange(false);
     }
 
     @Test

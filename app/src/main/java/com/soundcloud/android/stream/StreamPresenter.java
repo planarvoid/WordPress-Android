@@ -227,6 +227,12 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         }
     }
 
+    @Override
+    public void onResume(Fragment fragment) {
+        super.onResume(fragment);
+        streamAdsController.onFocus(hasFocus);
+    }
+
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getRecyclerView().addOnScrollListener(streamAdsController);
@@ -397,6 +403,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onVideoTextureBind(TextureView textureView, VideoAd videoAd) {
-        videoSurfaceProvider.setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+        if (!streamAdsController.isInFullscreen()) {
+            videoSurfaceProvider.setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+        }
     }
 }

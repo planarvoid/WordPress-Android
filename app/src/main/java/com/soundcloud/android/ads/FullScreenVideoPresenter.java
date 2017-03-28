@@ -40,6 +40,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final EventBus eventBus;
     private final Navigator navigator;
     private final TrackSourceInfo trackSourceInfo;
+    private final StreamAdsController streamAdsController;
 
     private Optional<VideoAd> ad = Optional.absent();
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -50,6 +51,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     FullScreenVideoPresenter(FullScreenVideoView view,
                              InlayAdPlayer adPlayer,
                              InlayAdStateProvider stateProvider,
+                             StreamAdsController streamAdsController,
                              CurrentDateProvider dateProvider,
                              Navigator navigator,
                              EventBus eventBus) {
@@ -60,6 +62,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         this.dateProvider = dateProvider;
         this.navigator = navigator;
         this.eventBus = eventBus;
+        this.streamAdsController = streamAdsController;
         this.trackSourceInfo = new TrackSourceInfo(Screen.VIDEO_FULLSCREEN.get(), true);
     }
 
@@ -69,6 +72,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (extras.containsKey(FullScreenVideoActivity.EXTRA_AD_URN)) {
             ad = adPlayer.getCurrentAd();
             activityRef = new WeakReference<>(activity);
+            streamAdsController.onScreenSizeChange(true);
             bindView((Urn) extras.get(FullScreenVideoActivity.EXTRA_AD_URN), activity);
         } else {
             activity.finish();
@@ -95,6 +99,10 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         }
     }
 
+    private boolean hasActivityRef() {
+        return activityRef != null && activityRef.get() != null;
+    }
+
     @Override
     public void onResume(AppCompatActivity activity) {
         ad.ifPresent(videoAd -> view.bindVideoSurface(videoAd.getUuid(), VideoSurfaceProvider.Origin.FULLSCREEN));
@@ -106,6 +114,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onPause(AppCompatActivity activity) {
+        streamAdsController.onScreenSizeChange(false);
         subscription.unsubscribe();
     }
 
@@ -126,7 +135,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onShrinkClick() {
-        if (activityRef != null && activityRef.get() != null) {
+        if (hasActivityRef()) {
             activityRef.get().finish();
         }
     }
@@ -142,7 +151,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private class TransitionSubscriber extends DefaultSubscriber<InlayPlayStateTransition> {
         @Override
         public void onNext(InlayPlayStateTransition event) {
-            if (activityRef != null && activityRef.get() != null) {
+            if (hasActivityRef()) {
                onInlayStateTransition(activityRef.get(), event);
             }
         }

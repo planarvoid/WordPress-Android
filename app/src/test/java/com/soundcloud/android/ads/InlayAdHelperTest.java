@@ -78,7 +78,8 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        inlayAdHelper = new InlayAdHelper(layoutManager, adapter, videoAdItemRenderer, dateProvider, eventBus);
+        when(adapter.getVideoAdItemRenderer()).thenReturn(videoAdItemRenderer);
+        inlayAdHelper = new InlayAdHelper(layoutManager, adapter, dateProvider, eventBus);
     }
 
     @After
