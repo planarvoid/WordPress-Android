@@ -22,6 +22,12 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     }
 
     @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
+    }
+
+
+    @Override
     protected TestUser getUserForLogin() {
         return TestUser.autocompleteTestUser;
     }

@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.discovery.SearchResultsTest;
@@ -14,6 +16,11 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
 
     public ItemOverflowTest() {
         super(MainActivity.class);
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
     }
 
     @Override

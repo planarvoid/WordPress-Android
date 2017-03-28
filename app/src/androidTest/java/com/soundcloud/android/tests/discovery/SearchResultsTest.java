@@ -11,6 +11,8 @@ import static org.hamcrest.Matchers.lessThan;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
@@ -31,6 +33,11 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
     @Override
     protected TestUser getUserForLogin() {
         return TestUser.defaultUser;
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
     }
 
     @Override

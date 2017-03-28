@@ -9,6 +9,8 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -17,6 +19,11 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     public PlayerTest() {
         super(MainActivity.class);
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
     }
 
     @Override

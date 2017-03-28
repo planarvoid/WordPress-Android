@@ -4,10 +4,17 @@ import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailAgeOfMajority extends SignUpTest {
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
+    }
 
     public void testCanFollowAgeGatedProfile() throws Exception {
         signUpMethodScreen = homeScreen.clickSignUpButton();

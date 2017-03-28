@@ -9,6 +9,8 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.SearchResultsHighTier;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.discovery.SearchPremiumResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
@@ -33,6 +35,7 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 

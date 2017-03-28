@@ -28,6 +28,7 @@ public class OldSearchSuggestionsTest extends TrackingActivityTest<MainActivity>
     @Override
     protected void beforeStartActivity() {
         FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.AUTOCOMPLETE);
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).disable(Flag.SEARCH_TOP_RESULTS);
     }
 
     @Override
