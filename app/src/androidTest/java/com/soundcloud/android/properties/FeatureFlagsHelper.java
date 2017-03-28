@@ -1,45 +1,36 @@
 package com.soundcloud.android.properties;
 
-import static com.soundcloud.android.storage.StorageModule.PREFS_FEATURE_FLAGS;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import com.soundcloud.android.crypto.Obfuscator;
-import com.soundcloud.android.storage.PersistentStorage;
-import com.soundcloud.android.utils.ObfuscatedPreferences;
+import com.soundcloud.android.tests.SoundCloudTestApplication;
 import com.soundcloud.annotations.VisibleForTesting;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 
 /**
- * {@link FeatureFlags} decorator to avoid increasing scope and visibility of
- * {@link FeatureFlags} class for testing purpose. <br>
- *
  * Used only for testing, otherwise use injectable {@link FeatureFlags} class.
  */
 @VisibleForTesting
 public class FeatureFlagsHelper {
 
-    private final RuntimeConfig runtimeConfig;
+    private final FeatureFlags featureFlags;
 
-    private FeatureFlagsHelper(Context context) {
-        final PersistentStorage persistentStorage = new PersistentStorage(createPreferencesForFeatureFlags(context));
-        runtimeConfig = new RuntimeConfig(persistentStorage);
+    private FeatureFlagsHelper(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
     }
 
     public static FeatureFlagsHelper create(Context context) {
-        return new FeatureFlagsHelper(context);
+        return new FeatureFlagsHelper(SoundCloudTestApplication.fromContext(context).getFeatureFlags());
     }
 
     public void enable(Flag flag) {
-        runtimeConfig.setFlagValue(flag, true);
+        featureFlags.setRuntimeFeatureFlagValue(flag, true);
     }
 
     public void disable(Flag flag) {
-        runtimeConfig.setFlagValue(flag, false);
+        featureFlags.setRuntimeFeatureFlagValue(flag, false);
     }
 
     public void assertEnabled(Flag... requiredEnabledFeatures) {
@@ -48,7 +39,7 @@ public class FeatureFlagsHelper {
 
     public boolean isLocallyEnabled(Flag[] requiredEnabledFeatures) {
         for (Flag flag : requiredEnabledFeatures) {
-            if (!runtimeConfig.getFlagValue(flag)) {
+            if (!featureFlags.getRuntimeFeatureFlagValue(flag)) {
                 return false;
             }
         }
@@ -57,7 +48,7 @@ public class FeatureFlagsHelper {
 
     public boolean isLocallyDisabled(Flag[] requiredDisabledFeatures) {
         for (Flag flag : requiredDisabledFeatures) {
-            if (runtimeConfig.getFlagValue(flag)) {
+            if (featureFlags.getRuntimeFeatureFlagValue(flag)) {
                 return false;
             }
         }
@@ -65,12 +56,6 @@ public class FeatureFlagsHelper {
     }
 
     public void reset(Flag flag) {
-        runtimeConfig.resetFlagValue(flag);
+        featureFlags.resetRuntimeFlagValue(flag);
     }
-
-    @NonNull
-    private SharedPreferences createPreferencesForFeatureFlags(Context context) {
-        return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE), new Obfuscator());
-    }
-
 }

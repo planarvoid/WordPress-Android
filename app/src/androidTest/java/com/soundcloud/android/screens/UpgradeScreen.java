@@ -45,4 +45,8 @@ public class UpgradeScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.conversion_more_products));
     }
 
+    public void goBack() {
+        testDriver.goBack();
+    }
+
 }

@@ -203,4 +203,8 @@ public class PlaylistDetailsScreen extends Screen {
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = viewElement -> new TrackItemElement(testDriver, viewElement);
 
     private final Function<ViewElement, PlaylistElement> toPlaylistItemElement = viewElement -> PlaylistElement.forCard(testDriver, viewElement);
+
+    public void goBack() {
+        testDriver.goBack();
+    }
 }

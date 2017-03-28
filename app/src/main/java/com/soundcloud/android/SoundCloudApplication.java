@@ -143,12 +143,12 @@ public class SoundCloudApplication extends MultiDexApplication {
     // even if it appears to be unused
     @Inject @SuppressWarnings("unused") AnalyticsEngine analyticsEngine;
 
-    protected ApplicationComponent applicationComponent;
+    private ApplicationComponent applicationComponent;
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        this.applicationComponent = getApplicationComponentBuilder().build();
+        this.applicationComponent = buildApplicationComponent();
     }
 
     @Override
@@ -174,9 +174,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         FirebaseApp.initializeApp(this, options);
     }
 
-    protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
+    protected ApplicationComponent buildApplicationComponent() {
         return DaggerApplicationComponent.builder()
-                                         .applicationModule(new ApplicationModule(this));
+                                         .applicationModule(new ApplicationModule(this)).build();
     }
 
     protected void bootApplication() {

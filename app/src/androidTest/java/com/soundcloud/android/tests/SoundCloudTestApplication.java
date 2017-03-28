@@ -1,25 +1,36 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.DaggerApplicationComponent;
+import com.soundcloud.android.ApplicationComponent;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
+import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.Context;
 
+import javax.inject.Inject;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/** Application subclass used in UI tests. */
+/**
+ * Application subclass used in UI tests.
+ */
 public class SoundCloudTestApplication extends SoundCloudApplication {
-    /** Used in tests to wait for {@link #onCreate()} to complete. */
+    /**
+     * Used in tests to wait for {@link #onCreate()} to complete.
+     */
     private final CountDownLatch onCreateLatch = new CountDownLatch(1);
+    private TestApplicationComponent testApplicationComponent;
+
+    @Inject FeatureFlags featureFlags;
 
     @Override
     public void onCreate() {
         beforeOnCreate();
         super.onCreate();
         onCreateLatch.countDown();
+        testApplicationComponent.inject(this);
     }
 
     private void beforeOnCreate() {
@@ -46,9 +57,20 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     }
 
     @Override
-    protected DaggerApplicationComponent.Builder getApplicationComponentBuilder() {
-        return super.getApplicationComponentBuilder()
-                    .apiModule(new TestApiModule())
-                    .analyticsModule(new TestAnalyticsModule());
+    protected ApplicationComponent buildApplicationComponent() {
+        if (testApplicationComponent != null) {
+            throw new IllegalStateException("ApplicationComponent already built.");
+        }
+
+        testApplicationComponent = DaggerTestApplicationComponent.builder()
+                                                                 .applicationModule(new ApplicationModule(this))
+                                                                 .apiModule(new TestApiModule())
+                                                                 .analyticsModule(new TestAnalyticsModule())
+                                                                 .build();
+        return testApplicationComponent;
+    }
+
+    public FeatureFlags getFeatureFlags() {
+        return featureFlags;
     }
 }

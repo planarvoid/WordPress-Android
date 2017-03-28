@@ -20,6 +20,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment<SearchResul
         implements RefreshableScreen {
 
     static final String EXTRA_ARGS = "args";
+    public static final String TAG = "search_results";
 
     @Inject @LightCycle SearchResultsPresenter presenter;
 

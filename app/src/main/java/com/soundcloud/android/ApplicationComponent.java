@@ -154,6 +154,9 @@ import dagger.Component;
 
 import javax.inject.Singleton;
 
+/**
+ * Must be kept in sync with the TestApplicationComponent class.
+ */
 @Singleton
 @Component(modules = {
         ApplicationModule.class,

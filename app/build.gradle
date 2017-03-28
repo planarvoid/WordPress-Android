@@ -279,6 +279,7 @@ dependencies {
   }
   androidTestCompile acceptanceTestLibraries.httpComponents // needed for wiremock
   androidTestCompile unitTestLibraries.assertj
+  androidTestAnnotationProcessor libraries.daggerCompiler
 }
 
 //ADD THIS AT THE BOTTOM

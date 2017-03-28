@@ -59,6 +59,13 @@ public class FeatureFlags {
     }
 
     /**
+     * Local development: get runtime flag value
+     */
+    public boolean getRuntimeFeatureFlagValue(Flag flag) {
+        return runtimeConfig.getFlagValue(flag);
+    }
+
+    /**
      * Local development: set runtime flag key and value
      */
     public void setRuntimeFeatureFlagValue(Flag flag, boolean value) {

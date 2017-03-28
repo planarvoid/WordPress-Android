@@ -11,6 +11,7 @@ import android.view.View;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class With implements Predicate<ViewElement> {
     public static void setResources(Resources resources) {
@@ -35,6 +36,10 @@ public abstract class With implements Predicate<ViewElement> {
 
     public static With textContaining(String text) {
         return new WithTextContaining(text);
+    }
+
+    public static With textMatching(Pattern regexPattern) {
+        return new WithTextMatching(regexPattern);
     }
 
     public static With contentDescription(String description) {
@@ -178,6 +183,28 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public String getSelector() {
             return String.format("Containing text: %s", searchedText);
+        }
+    }
+
+    static class WithTextMatching extends With {
+        private final Pattern regexPattern;
+
+        WithTextMatching(Pattern regexPattern) {
+            this.regexPattern = regexPattern;
+        }
+
+        @Override
+        public boolean apply(ViewElement viewElement) {
+            try {
+                return regexPattern.matcher(new TextElement(viewElement).getText()).matches();
+            } catch (UnsupportedOperationException ignored) {
+                return false;
+            }
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("Matching regex: %s", regexPattern);
         }
     }
 

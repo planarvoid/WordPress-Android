@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.search.PlaylistResultsFragment;
 import com.soundcloud.android.search.SearchResultsFragment;
 import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -62,7 +61,7 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
         final SearchResultsFragment searchResultsFragment = SearchResultsFragment.createForViewAll(kind.toSearchType(), query, query, queryUrn, Optional.absent(), isPremium);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, searchResultsFragment, PlaylistResultsFragment.TAG)
+                .replace(R.id.container, searchResultsFragment, SearchResultsFragment.TAG)
                 .commit();
     }
 

@@ -29,6 +29,10 @@ public class SearchScreen extends Screen {
         return actionBar().doSearch(query);
     }
 
+    public SearchTopResultsScreen doSearchTopResults(String query) {
+        return actionBar().doSearchTopResults(query);
+    }
+
     public SearchScreen setSearchQuery(String query) {
         actionBar().setSearchQuery(query);
         return this;
