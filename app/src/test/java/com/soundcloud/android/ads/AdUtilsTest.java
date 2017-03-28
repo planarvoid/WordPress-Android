@@ -33,24 +33,6 @@ public class AdUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isAudioAdItemShouldReturnTrueForAudioAdPlayQueueItem() {
-        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
-        assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(adItem)).isTrue();
-    }
-
-    @Test
-    public void isAudioAdItemShouldReturnFalseForVideoAdPlayQueueItem() {
-        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
-        assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(adItem)).isFalse();
-    }
-
-    @Test
-    public void isAudioAdItemShouldReturnFalseForRegularTrackItem() {
-        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
-        assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(trackItem)).isFalse();
-    }
-
-    @Test
     public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsAudioAd() {
         PlaybackItem playbackItem = TestPlaybackItem.audioAd(Urn.forTrack(123L), 0L, 1000L);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();

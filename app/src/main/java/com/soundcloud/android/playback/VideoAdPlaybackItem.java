@@ -8,6 +8,8 @@ import com.soundcloud.android.model.Urn;
 
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @AutoParcel
@@ -36,6 +38,12 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
     public abstract Urn getUrn();
 
     public abstract List<VideoAdSource> getSources();
+
+    List<VideoAdSource> getSortedSources() {
+        final List<VideoAdSource> sources = new ArrayList<>(getSources());
+        Collections.sort(sources, VideoAdSource.BITRATE_COMPARATOR);
+        return sources;
+    }
 
     @Override
     public abstract long getStartPosition();

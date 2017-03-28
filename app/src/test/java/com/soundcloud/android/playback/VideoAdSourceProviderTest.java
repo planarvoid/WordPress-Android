@@ -27,14 +27,13 @@ import java.util.List;
 
 public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
+    private static ApiVideoSource SOURCE_HLS = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_HLS, 0);
     private static ApiVideoSource SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);
     private static ApiVideoSource SOURCE_480P = createApiVideoSource(858, 480, PlaybackConstants.MIME_TYPE_MP4, 1000);
     private static ApiVideoSource SOURCE_720P = createApiVideoSource(1920, 720, PlaybackConstants.MIME_TYPE_MP4, 2128);
-    private static ApiVideoSource SOURCE_1080P = createApiVideoSource(1280,
-                                                                      1080,
-                                                                      PlaybackConstants.MIME_TYPE_MP4,
-                                                                      3628);
-    private static final List<ApiVideoSource> VALID_SOURCES = Arrays.asList(SOURCE_480P,
+    private static ApiVideoSource SOURCE_1080P = createApiVideoSource(1280, 1080, PlaybackConstants.MIME_TYPE_MP4, 3628);
+    private static final List<ApiVideoSource> VALID_SOURCES = Arrays.asList(SOURCE_HLS,
+                                                                            SOURCE_480P,
                                                                             SOURCE_720P,
                                                                             SOURCE_1080P,
                                                                             SOURCE_360P);
@@ -54,8 +53,9 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
         videoSourceProvider = new VideoSourceProvider(deviceHelper,
                                                       mediaCodecInfoProvider,
-                                                      networkConnectionHelper);
+                                                      networkConnectionHelper, applicationProperties);
         videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES), 0L);
+        when(applicationProperties.canMediaPlayerSupportVideoHLS()).thenReturn(false);
     }
 
     @Test
@@ -69,6 +69,14 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage()).isNotEmpty();
         }
+    }
+
+    @Test
+    public void shouldReturnHLSIfDeviceSupportsItAndExistsInSources() {
+        when(applicationProperties.canMediaPlayerSupportVideoHLS()).thenReturn(true);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+
+        assertVideoSource(videoSource, SOURCE_HLS);
     }
 
     @Test

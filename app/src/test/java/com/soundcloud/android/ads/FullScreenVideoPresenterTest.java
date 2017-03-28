@@ -128,7 +128,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     public void onCreateSetsScreenSizeChangeTrueOnStreamAdsController() {
         presenter.onCreate(activity, null);
 
-        verify(controller).onScreenSizeChange(true);
+        verify(controller).setFullscreenEnabled();
     }
 
     @Test
@@ -136,7 +136,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onPause(activity);
 
-        verify(controller).onScreenSizeChange(false);
+        verify(controller).setFullscreenDisabled();
     }
 
     @Test

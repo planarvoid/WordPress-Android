@@ -143,6 +143,10 @@ public class ApplicationProperties {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
+    public boolean canMediaPlayerSupportVideoHLS() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("buildType", buildType).add("isDevice", IS_RUNNING_ON_DEVICE).

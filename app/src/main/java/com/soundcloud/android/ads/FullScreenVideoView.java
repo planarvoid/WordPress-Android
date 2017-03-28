@@ -10,9 +10,7 @@ import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -49,8 +47,8 @@ class FullScreenVideoView {
 
     void setupContentView(AppCompatActivity activity, VideoAd videoAd) {
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
+        AdUtils.setupCallToActionButton(videoAd, resources, ctaButton);
         videoView.setAspectRatio(videoAd.getVideoProportion());
-        setupCallToActionButton(videoAd);
         setupClickListeners();
     }
 
@@ -61,31 +59,6 @@ class FullScreenVideoView {
             playButton.setOnClickListener(toggleListener);
             shrinkControl.setOnClickListener(view -> callback.onShrinkClick());
             ctaButton.setOnClickListener(view -> callback.onLearnMoreClick(view.getContext()));
-        });
-    }
-
-    private ColorStateList getColorStates(String focusedColor, String pressedColor, String defaultColor) {
-        return new ColorStateList(new int[][]{
-                new int[]{android.R.attr.state_focused},
-                new int[]{android.R.attr.state_pressed},
-                new int[]{},
-        }, new int[]{Color.parseColor(focusedColor), Color.parseColor(pressedColor), Color.parseColor(defaultColor)});
-    }
-
-    private void setupCallToActionButton(VideoAd videoAd) {
-        final String defaultText = resources.getString(R.string.ads_call_to_action);
-        ctaButton.setText(videoAd.getCallToActionButtonText().or(defaultText));
-        videoAd.getDisplayProperties().ifPresent(properties ->  {
-            ctaButton.setTextColor(getColorStates(
-                    properties.getFocusedTextColor(),
-                    properties.getPressedTextColor(),
-                    properties.getDefaultTextColor()
-            ));
-            ctaButton.setBackground(getColorStates(
-                    properties.getFocusedBackgroundColor(),
-                    properties.getPressedBackgroundColor(),
-                    properties.getDefaultBackgroundColor()
-            ));
         });
     }
 

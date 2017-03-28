@@ -72,7 +72,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (extras.containsKey(FullScreenVideoActivity.EXTRA_AD_URN)) {
             ad = adPlayer.getCurrentAd();
             activityRef = new WeakReference<>(activity);
-            streamAdsController.onScreenSizeChange(true);
+            streamAdsController.setFullscreenEnabled();
             bindView((Urn) extras.get(FullScreenVideoActivity.EXTRA_AD_URN), activity);
         } else {
             activity.finish();
@@ -114,7 +114,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onPause(AppCompatActivity activity) {
-        streamAdsController.onScreenSizeChange(false);
+        streamAdsController.setFullscreenDisabled();
         subscription.unsubscribe();
     }
 

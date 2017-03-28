@@ -127,6 +127,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 adViewabilityController.stopVideoTracking(uuid);
             }
         }
+        isInFullscreen = false;
         insertedAds.clear();
         inlayAdPlayer.get().reset();
     }
@@ -158,8 +159,12 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         }
     }
 
-    void onScreenSizeChange(boolean isInFullscreen) {
-        this.isInFullscreen = isInFullscreen;
+    void setFullscreenEnabled() {
+        this.isInFullscreen = true;
+    }
+
+    void setFullscreenDisabled() {
+        this.isInFullscreen = false;
     }
 
     public boolean isInFullscreen() {
