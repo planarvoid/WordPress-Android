@@ -29,6 +29,8 @@ import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdatePlaylistListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateUserListSubscriber;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -285,13 +287,21 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
     @Override
     protected void onItemClicked(View view, int position) {
-        final List<ListItem> playQueue = playQueueFilter.correctQueue((premiumItems.isPresent() ? buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems()), position);
-        final Urn urn = adapter.getItem(position).getUrn();
-        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position,
+        final List<ListItem> listItems = premiumItems.isPresent() ? buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
+        final ListItem clickedItem = listItems.get(position);
+        final List<ListItem> filteredList = Lists.newArrayList(Iterables.filter(listItems, this::isNotHeaderOrUpsellItem));
+        final int readjustedPosition = filteredList.indexOf(clickedItem);
+        final List<ListItem> playQueue = playQueueFilter.correctQueue(filteredList, readjustedPosition);
+        final Urn urn = clickedItem.getUrn();
+        final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(readjustedPosition,
                                                                                                     urn,
                                                                                                     apiQuery);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
-        clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), playQueueFilter.correctPosition(position));
+        clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo).onItemClick(playQueue, view.getContext(), playQueueFilter.correctPosition(readjustedPosition));
+    }
+
+    private boolean isNotHeaderOrUpsellItem(ListItem item) {
+        return item != null && !(item instanceof SearchResultHeaderRenderer.SearchResultHeader) && !(item instanceof UpsellSearchableItem) ;
     }
 
     @Override

@@ -38,7 +38,12 @@ public enum SearchType {
     }
 
     public Screen getScreen(SearchOperations.ContentType contentType) {
-        return contentType == SearchOperations.ContentType.NORMAL ? screen : Screen.SEARCH_PREMIUM_CONTENT;
+        return getScreen(contentType == SearchOperations.ContentType.PREMIUM);
+    }
+
+
+    public Screen getScreen(boolean isPremium) {
+        return isPremium ? Screen.SEARCH_PREMIUM_CONTENT : screen;
     }
 
     static List<SearchType> asList() {

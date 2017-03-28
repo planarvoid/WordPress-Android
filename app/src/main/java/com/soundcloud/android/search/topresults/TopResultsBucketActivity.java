@@ -50,6 +50,10 @@ public class TopResultsBucketActivity extends PlayerActivity implements TopResul
         return (Bucket.Kind) getIntent().getSerializableExtra(EXTRA_BUCKET_KIND);
     }
 
+    public boolean isPremium() {
+        return getIntent().getBooleanExtra(EXTRA_IS_PREMIUM, false);
+    }
+
     @Override
     protected void onDestroy() {
         presenter.detachView();

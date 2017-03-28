@@ -18,6 +18,8 @@ public class TopResultsBucketPresenter {
 
         TopResults.Bucket.Kind getKind();
 
+        boolean isPremium();
+
         Optional<Urn> getQueryUrn();
 
         Observable<Void> enterScreen();
@@ -34,7 +36,7 @@ public class TopResultsBucketPresenter {
     }
 
     public void attachView(TopResultsBucketView topResultsBucketActivity) {
-        final Screen screen = topResultsBucketActivity.getKind().toSearchType().getScreen();
+        final Screen screen = topResultsBucketActivity.getKind().toSearchType().getScreen(topResultsBucketActivity.isPremium());
         final Optional<Urn> queryUrn = topResultsBucketActivity.getQueryUrn();
         subscription = topResultsBucketActivity.enterScreen()
                                                .subscribe(LambdaSubscriber.onNext(event -> eventTracker.trackScreen(ScreenEvent.create(screen.get(), queryUrn),
