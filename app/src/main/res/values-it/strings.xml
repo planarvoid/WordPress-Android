@@ -382,12 +382,9 @@
   <string name="search_for_query">Cerca per \'%s\'</string>
   <string name="top_results_top_item">Miglior risultato</string>
   <string name="top_results_tracks">Tracce</string>
-  <string name="top_results_go_tracks">Tracce di SoundCloud Go</string>
   <string name="top_results_albums">Album</string>
   <string name="top_results_playlists">Playlist</string>
   <string name="top_results_people">Persone</string>
-  <string name="top_results_view_all">Vedi tutti %1$s %2$s</string>
-  <string name="search_found_results_header">Trovati %1$s %2$s</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Scopri altre tracce</string>
   <string name="recommendation_view_all">Visualizza tutte le tracce suggerite</string>
