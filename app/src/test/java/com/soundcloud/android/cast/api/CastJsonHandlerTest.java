@@ -1,12 +1,10 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.cast.CastJsonHandler;
-import com.soundcloud.android.cast.CastPlayQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.json.JSONException;

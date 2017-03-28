@@ -20,6 +20,8 @@ import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
+import com.soundcloud.android.cast.api.CastPlayQueue;
+import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;

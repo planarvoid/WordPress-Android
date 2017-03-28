@@ -6,6 +6,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.cast.legacy.LegacyCastConnectionHelper;
 import com.soundcloud.android.cast.legacy.LegacyCastOperations;
 import com.soundcloud.android.cast.legacy.LegacyCastPlayer;
+import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;

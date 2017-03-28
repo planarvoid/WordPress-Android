@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,9 +20,5 @@ public abstract class RemoteTrack {
 
     public static RemoteTrack create(Urn urn) {
         return new AutoValue_RemoteTrack(Optional.absent(), urn);
-    }
-
-    public String getUrn() {
-        return urn().toString();
     }
 }

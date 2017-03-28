@@ -1,6 +1,6 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
-import static com.soundcloud.android.cast.CastProtocol.TAG;
+import static com.soundcloud.android.cast.api.CastProtocol.TAG;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;

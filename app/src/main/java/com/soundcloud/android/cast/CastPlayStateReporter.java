@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import static com.soundcloud.android.cast.api.CastProtocol.TAG;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -27,8 +29,8 @@ public class CastPlayStateReporter {
     }
 
     private void reportStateChange(PlaybackStateTransition stateTransition) {
-        Log.d(CastProtocol.TAG, "Received new playState " + stateTransition);
-        
+        Log.d(TAG, "Received new playState " + stateTransition);
+
         PlaybackProgress playbackProgress = stateTransition.getProgress();
         final AudioPlaybackItem playbackItem = AudioPlaybackItem.create(stateTransition.getUrn(),
                                                                         playbackProgress.getPosition(),

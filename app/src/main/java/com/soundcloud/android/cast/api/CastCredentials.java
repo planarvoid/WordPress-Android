@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;

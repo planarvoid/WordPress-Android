@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
@@ -6,6 +6,8 @@ import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.cast.RemoteMediaClientLogger;
+import com.soundcloud.android.cast.SimpleRemoteMediaClientListener;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;

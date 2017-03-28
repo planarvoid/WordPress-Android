@@ -1,8 +1,9 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.model.Urn;
 import org.junit.Before;
 import org.junit.Test;

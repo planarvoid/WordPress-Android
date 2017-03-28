@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;

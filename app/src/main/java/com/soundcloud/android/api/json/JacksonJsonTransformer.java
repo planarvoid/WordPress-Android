@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.soundcloud.android.api.ApiDateFormat;
 import com.soundcloud.android.api.ApiMapperException;
-import com.soundcloud.android.cast.RemoteTrack;
+import com.soundcloud.android.cast.api.RemoteTrack;
 import com.soundcloud.android.cast.api.json.RemoteTrackSerializer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;

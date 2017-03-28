@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import static com.soundcloud.android.cast.api.CastProtocol.TAG;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
@@ -29,7 +31,7 @@ public class CastPlayStatePublisher {
 
     public void publish(PlaybackStateTransition stateTransition, PlaybackItem currentPlaybackItem) {
         if (shouldIgnoreStateTransition(stateTransition)) {
-            Log.d(CastProtocol.TAG, this.getClass().getSimpleName() + " ignored " + stateTransition.getNewState() + " as Casting is off");
+            Log.d(TAG, this.getClass().getSimpleName() + " ignored " + stateTransition.getNewState() + " as Casting is off");
             return;
         }
 

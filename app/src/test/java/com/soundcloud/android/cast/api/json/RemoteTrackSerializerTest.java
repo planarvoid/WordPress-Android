@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.soundcloud.android.cast.RemoteTrack;
+import com.soundcloud.android.cast.api.RemoteTrack;
 import com.soundcloud.android.model.Urn;
 import org.junit.Before;
 import org.junit.Test;

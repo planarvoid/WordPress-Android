@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import static java.util.Collections.singletonList;
 
+import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlaySessionSource;

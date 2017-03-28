@@ -1,10 +1,12 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.cast.CastProtocol.TAG;
+import static com.soundcloud.android.cast.api.CastProtocol.TAG;
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
 
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.soundcloud.android.cast.api.CastPlayQueue;
+import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.cast;
+package com.soundcloud.android.cast.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,7 +26,7 @@ public class CastPlayQueue {
         currentIndex = urns.indexOf(currentUrn);
     }
 
-    CastPlayQueue(String revision, Urn currentTrackUrn, List<Urn> tracks) {
+    public CastPlayQueue(String revision, Urn currentTrackUrn, List<Urn> tracks) {
         this(currentTrackUrn, tracks);
         this.revision = revision;
     }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import static com.soundcloud.android.cast.api.CastProtocol.TAG;
+
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.CastStateListener;
@@ -49,7 +51,7 @@ public class DefaultCastContextWrapper implements CastContextWrapper {
             return Optional.fromNullable(context.getSessionManager().getCurrentCastSession());
         } catch (RuntimeException ex) {
             // in case the device has no Google Play Services installed or if it's an emulator
-            Log.e(CastProtocol.TAG, "Unable to get current cast session", ex);
+            Log.e(TAG, "Unable to get current cast session", ex);
             return Optional.absent();
         }
     }

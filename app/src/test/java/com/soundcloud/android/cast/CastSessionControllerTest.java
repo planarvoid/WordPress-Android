@@ -10,6 +10,7 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastSession;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
