@@ -244,7 +244,7 @@ public class PlaySessionController {
 
     private class PlayQueueTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
 
-        private Urn lastKnownPlayQueueTrackUrn = Urn.NOT_SET;
+        private PlayQueueItem lastPlayQueueItem = PlayQueueItem.EMPTY;
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
@@ -253,7 +253,7 @@ public class PlaySessionController {
                 playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                 if (castConnectionHelper.isCasting()) {
                     onNextTrackWhileCasting(event, playQueueItem);
-                } else if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
+                } else if (shouldPlayTrack(event, playQueueItem) || playSessionStateProvider.isInErrorState()) {
                     playCurrent();
                 }
             } else if (playQueueItem.isAd()) {
@@ -261,18 +261,18 @@ public class PlaySessionController {
                     playCurrent();
                 }
             }
-            lastKnownPlayQueueTrackUrn = playQueueItem.getUrnOrNotSet();
+            lastPlayQueueItem = playQueueItem;
         }
 
         private void onNextTrackWhileCasting(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
-            if (event.isRepeat() || !lastKnownPlayQueueTrackUrn.equals(playQueueItem.getUrn())) {
+            if (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem)) {
                 playCurrent();
             }
         }
 
-        private boolean shouldPlayTrack(Urn newTrack, CurrentPlayQueueItemEvent event) {
+        private boolean shouldPlayTrack(CurrentPlayQueueItemEvent event, PlayQueueItem playQueueItem) {
             return playSessionStateProvider.isPlaying()
-                    && (event.isRepeat() || !lastKnownPlayQueueTrackUrn.equals(newTrack));
+                    && (event.isRepeat() || !lastPlayQueueItem.equals(playQueueItem));
         }
 
     }

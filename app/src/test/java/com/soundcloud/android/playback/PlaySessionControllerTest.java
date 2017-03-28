@@ -200,7 +200,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueTrackChangedIsIgnoredWhenAlreadyPlayingTrack() {
+    public void playQueueTrackChangedIsIgnoredWhenAlreadyPlayingSameQueueItem() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
@@ -216,6 +216,26 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         assertThat(nextPlayCurrentSubject.hasObservers()).isFalse();
     }
+
+    @Test
+    public void playQueueTrackChangedIsNotIgnoredWhenSameTrackUrnButDifferentQueueItem() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
+
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
+        playCurrentSubject.onCompleted();
+
+        final PublishSubject<Void> nextPlayCurrentSubject = PublishSubject.create();
+        when(playbackStrategy.playCurrent()).thenReturn(nextPlayCurrentSubject);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
+
+        assertThat(nextPlayCurrentSubject.hasObservers()).isTrue();
+    }
+
 
     @Test
     public void playQueueTrackPlaysWhenLastTrackIsSameAndEventIsFromPositionRepeat() {
