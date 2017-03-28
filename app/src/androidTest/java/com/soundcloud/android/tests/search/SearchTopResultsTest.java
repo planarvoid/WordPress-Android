@@ -43,14 +43,16 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
         featureFlagsHelper.reset(Flag.SEARCH_TOP_RESULTS);
     }
 
-    public void testTopResults() throws Exception {
+    public void testTopResultsUpgradeAndTracks() throws Exception {
+        startEventTracking();
         SearchTopResultsScreen topResultsScreen = discoveryScreen.clickSearch().doSearchTopResults("coldplay");
         assertThat("Search top results buckets screen should be visible", topResultsScreen.isVisible());
-
         assertTrue(topResultsScreen.goTracksHeader().hasVisibility());
+
         SearchTrackResultsScreen trackResultsScreen = topResultsScreen.clickSeeAllGoTracksButton();
         assertThat("Search results screen should be visible", trackResultsScreen.isVisible());
         assertTrue(trackResultsScreen.goTracksCountHeader().hasVisibility());
+
         UpgradeScreen upgradeScreen = trackResultsScreen.clickOnUpgradeSubscription();
         assertThat("Upgrade subscription screen should be visible", upgradeScreen.isVisible());
         upgradeScreen.goBack();
@@ -58,9 +60,16 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
         assertThat("Search top results buckets screen should be visible", topResultsScreen.isVisible());
 
         assertTrue(topResultsScreen.tracksHeader().hasVisibility());
-        VisualPlayerElement playerElement = topResultsScreen.findAndClickFirstTrackItem().pressBackToCollapse();
-        assertThat("Player is collapsed", playerElement.isCollapsed());
-        assertThat("Search results screen should be visible", topResultsScreen.isVisible());
+        VisualPlayerElement playerElement = topResultsScreen.findAndClickFirstTrackItem();
+        assertThat("Player should be expanded", playerElement.isExpanded());
+
+        finishEventTracking("search_top_results_upgrade_and_tracks");
+    }
+
+    public void testTopResultsProfileAndAlbum() throws Exception {
+        startEventTracking();
+        SearchTopResultsScreen topResultsScreen = discoveryScreen.clickSearch().doSearchTopResults("coldplay");
+        assertThat("Search top results buckets screen should be visible", topResultsScreen.isVisible());
 
         assertTrue(topResultsScreen.peopleHeader().hasVisibility());
         ProfileScreen profileScreen = topResultsScreen.findAndClickFirstUserItem();
@@ -75,5 +84,6 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
         assertThat("Search results screen should be visible", topResultsScreen.isVisible());
 
         assertTrue(topResultsScreen.playlistHeader().hasVisibility());
+        finishEventTracking("search_top_results_profile_and_album");
     }
 }

@@ -86,7 +86,7 @@ public class SearchTopResultsScreen extends Screen {
     }
 
     public ProfileScreen findAndClickFirstUserItem() {
-        testDriver.findOnScreenElement(With.id(R.id.user_list_item)).click();
+        scrollToBucketAndClickFirstItem(Bucket.PEOPLE, R.id.user_list_item);
         return new ProfileScreen(testDriver);
     }
 
