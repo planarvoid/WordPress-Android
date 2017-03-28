@@ -381,7 +381,6 @@
   <string name="top_results_albums">Alben</string>
   <string name="top_results_playlists"> Playlists</string>
   <string name="top_results_people">Leute</string>
-  <string name="top_results_view_all">Alle %1$s %2$s anzeigen</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Weitere Tracks entdecken</string>
   <string name="recommendation_view_all">Alle vorgeschlagenen Tracks anzeigen</string>

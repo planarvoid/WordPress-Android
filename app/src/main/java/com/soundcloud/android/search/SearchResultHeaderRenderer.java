@@ -22,7 +22,7 @@ public class SearchResultHeaderRenderer implements CellRenderer<SearchResultHead
     private final CondensedNumberFormatter condensedNumberFormatter;
 
     @Inject
-    public SearchResultHeaderRenderer(CondensedNumberFormatter condensedNumberFormatter) {
+    SearchResultHeaderRenderer(CondensedNumberFormatter condensedNumberFormatter) {
         this.condensedNumberFormatter = condensedNumberFormatter;
     }
 
@@ -34,15 +34,21 @@ public class SearchResultHeaderRenderer implements CellRenderer<SearchResultHead
     @Override
     public void bindItemView(int position, View itemView, List<SearchResultHeader> items) {
         TextView textView = ButterKnife.findById(itemView, R.id.header);
-        final View topMargin = ButterKnife.findById(itemView, R.id.top_margin);
-        topMargin.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+        final boolean isFirst = position == 0;
+        setupWhenUpsellVisible(itemView, isFirst);
         final SearchResultHeader header = items.get(position);
-        final String type = itemView.getResources().getString(header.typeResource());
-        textView.setText(itemView.getResources().getString(R.string.search_found_results_header, condensedNumberFormatter.format(header.resultCount()), type));
+        textView.setText(itemView.getResources().getString(header.typeResource(), condensedNumberFormatter.format(header.resultCount())));
+    }
+
+    private void setupWhenUpsellVisible(View itemView, boolean isVisible) {
+        final View topMargin = ButterKnife.findById(itemView, R.id.top_margin);
+        final View topLine = ButterKnife.findById(itemView, R.id.top_line);
+        topMargin.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        topLine.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @AutoValue
-    public abstract static class SearchResultHeader implements ListItem {
+    abstract static class SearchResultHeader implements ListItem {
         abstract int typeResource();
 
         abstract int resultCount();
@@ -55,16 +61,16 @@ public class SearchResultHeaderRenderer implements CellRenderer<SearchResultHead
             switch (searchType) {
                 case TRACKS:
                     if (contentType == SearchOperations.ContentType.PREMIUM) {
-                        return R.string.top_results_go_tracks;
+                        return R.string.search_found_go_tracks_results_header;
                     } else {
-                        return R.string.top_results_tracks;
+                        return R.string.search_found_tracks_results_header;
                     }
                 case USERS:
-                    return R.string.top_results_people;
+                    return R.string.search_found_people_results_header;
                 case PLAYLISTS:
-                    return R.string.top_results_playlists;
+                    return R.string.search_found_playlists_results_header;
                 case ALBUMS:
-                    return R.string.top_results_albums;
+                    return R.string.search_found_albums_results_header;
                 default:
                     throw new IllegalArgumentException("Unexpected search type");
             }

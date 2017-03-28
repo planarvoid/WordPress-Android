@@ -8,10 +8,11 @@
     <View style="@style/Divider.Background"
         android:id="@+id/top_margin"/>
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Section"
+        android:id="@+id/top_line"/>
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/header"
-        style="@style/Chart.TextItem" />
+        style="@style/Module.Header" />
 
 </LinearLayout>

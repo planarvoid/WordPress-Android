@@ -10,6 +10,7 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.java.optional.Optional;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
@@ -74,21 +75,21 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     public void bindItemView(int position, View itemView, List<TopResultsBucketViewModel> items) {
         final TopResultsBucketViewModel viewModel = items.get(position);
         final Resources resources = itemView.getResources();
-        final String bucketText = resources.getString(viewModel.titleResourceId());
-        bindTitle(itemView, bucketText);
+        final String titleText = resources.getString(viewModel.titleResourceId());
+        bindTitle(itemView, titleText);
         bindResultList(itemView, resources, viewModel.items());
-        bindViewAll(itemView, resources, bucketText, viewModel.shouldShowViewAll(), viewModel.totalResults(), viewModel.kind());
+        bindViewAll(itemView, resources, viewModel.viewAllResourceId(), viewModel.shouldShowViewAll(), viewModel.totalResults(), viewModel.kind());
         final boolean lastItem = items.size() - 1 == position;
         itemView.findViewById(R.id.bucket_bottom_padding).setVisibility(lastItem ? View.VISIBLE : View.GONE);
         bindHighTierHelpItem(itemView, viewModel.kind());
     }
 
-    private void bindViewAll(View itemView, Resources resources, String bucketText, boolean shouldShowViewAll, int totalResults, Bucket.Kind kind) {
+    private void bindViewAll(View itemView, Resources resources, Optional<Integer> viewAllResource, boolean shouldShowViewAll, int totalResults, Bucket.Kind kind) {
         final View viewAllButton = itemView.findViewById(R.id.bucket_view_all);
         viewAllButton.setVisibility(shouldShowViewAll ? View.VISIBLE : View.GONE);
-        if (shouldShowViewAll) {
+        if (shouldShowViewAll && viewAllResource.isPresent()) {
             String resultsCountString = numberFormatter.format(totalResults);
-            final String viewAllText = resources.getString(R.string.top_results_view_all, resultsCountString, bucketText);
+            final String viewAllText = resources.getString(viewAllResource.get(), resultsCountString);
             ((TextView) itemView.findViewById(R.id.bucket_view_all_text)).setText(viewAllText);
             viewAllButton.setOnClickListener(view -> viewAllClicked.onNext(TopResultsViewAllArgs.create(kind)));
         }

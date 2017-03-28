@@ -383,7 +383,6 @@
   <string name="top_results_albums">Albums</string>
   <string name="top_results_playlists">Playlists</string>
   <string name="top_results_people">People</string>
-  <string name="top_results_view_all">See all %1$s %2$s</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Discover more tracks</string>
   <string name="recommendation_view_all">See all suggested tracks</string>
