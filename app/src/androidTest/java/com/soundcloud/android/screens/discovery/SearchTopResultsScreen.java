@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class SearchTopResultsScreen extends Screen {
 
     public enum Bucket {
-        GO_TRACKS(R.string.top_results_go_tracks),
+        GO_TRACKS(R.string.top_results_soundcloud_go_tracks),
         TRACKS(R.string.top_results_tracks),
         PEOPLE(R.string.top_results_people),
         ALBUMS(R.string.top_results_albums),
