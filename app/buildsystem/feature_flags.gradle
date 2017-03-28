@@ -126,6 +126,7 @@ android {
     }
 
     release {
+      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
@@ -138,6 +139,7 @@ android {
     }
 
     preRelease {
+      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
@@ -150,6 +152,7 @@ android {
     }
 
     releaseNonPlayStore {
+      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE

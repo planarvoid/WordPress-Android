@@ -37,7 +37,7 @@ import java.util.List;
 public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
 
     public NewPlaylistDetailsPresenterIntegrationTest() {
-        super(TestUser.playlistUser, Flag.NEW_PLAYLIST_SCREEN, Flag.OFFLINE_PROPERTIES_PROVIDER);
+        super(TestUser.playlistUser, Flag.NEW_PLAYLIST_SCREEN);
     }
 
     @Test
