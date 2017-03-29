@@ -108,7 +108,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     public void scrollTo(int position) {
-        recyclerView.scrollToPosition(position);
+        recyclerView.smoothScrollToPosition(position);
     }
 
     public void switchItems(int fromPosition, int toPosition) {
