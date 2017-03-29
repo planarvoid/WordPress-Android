@@ -86,10 +86,10 @@ public class OfflinePropertiesProvider {
 
     private Observable<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)
-                                    .map(this::loadPLoyalistsOfflineStatesSync);
+                                    .map(this::loadPlaylistsOfflineStatesSync);
     }
 
-    private Map<Urn, OfflineState> loadPLoyalistsOfflineStatesSync(List<Playlist> playlists) {
+    private Map<Urn, OfflineState> loadPlaylistsOfflineStatesSync(List<Playlist> playlists) {
         final List<Urn> playlistUrns = transform(playlists, Playlist::urn);
         final Map<OfflineState, Collection<Urn>> playlistOfflineStates = offlineStateOperations.loadPlaylistsOfflineState(playlistUrns);
         final Map<Urn, OfflineState> playlistToState = new HashMap<>();
