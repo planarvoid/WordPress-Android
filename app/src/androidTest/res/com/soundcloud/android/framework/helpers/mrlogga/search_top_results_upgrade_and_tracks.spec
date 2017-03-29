@@ -63,7 +63,7 @@ expected_events:
     client_id: 3152
     connection_type: wifi
     query_urn: soundcloud:search:(\w|-)+
-    page_name: search:tracks
+    page_name: search:high_tier
     user: soundcloud:users:[0-9]+
   version: '1'
   optional: false
@@ -103,7 +103,7 @@ expected_events:
     client_id: 3152
     connection_type: wifi
     query_urn: soundcloud:search:(\w|-)+
-    page_name: search:tracks
+    page_name: search:high_tier
     user: soundcloud:users:[0-9]+
   version: '1'
   optional: false
