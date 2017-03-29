@@ -6,6 +6,8 @@ import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
@@ -24,6 +26,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Looper;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
@@ -50,7 +53,8 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
 
-    private CompositeSubscription subscriptions = new CompositeSubscription();
+    private final CompositeSubscription subscriptions = new CompositeSubscription();
+
     private Subscription fetchSubscription = RxUtils.invalidSubscription();
 
     private List<AdData> availableAds = Collections.emptyList();
@@ -60,6 +64,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private Optional<InlayAdHelper> inlayAdHelper = Optional.absent();
 
     private String lastRequestId = Strings.EMPTY;
+
     private boolean wasScrollingUp;
     private boolean streamAdsEnabled;
     private boolean isInFullscreen;
@@ -92,24 +97,48 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         final StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
         this.inlayAdHelper = Optional.of(inlayAdHelperFactory.create(staggeredGridLayoutManager, adapter));
 
-        subscriptions = new CompositeSubscription();
         subscriptions.addAll(featureOperations.adsEnabled()
                                               .startWith(Boolean.TRUE)
                                               .subscribe(new AdsEnabled()),
                              inlayAdOperations.subscribe(inlayAdHelper.get()),
-                             inlayAdHelper.get().subscribe());
+                             inlayAdHelper.get().subscribe(),
+                             eventBus.queue(EventQueue.PLAYER_UI)
+                                     .subscribe(new PlayerUISubscriber()));
     }
 
-    public void onFocus(boolean hasFocus) {
-        // This will make sure we reattach the video surface, as well as restart playback
-        if (inlayAdHelper.isPresent() && hasFocus) {
+    public void onFocusGain()  {
+        if (inlayAdHelper.isPresent() && !isInFullscreen()) {
             inlayAdHelper.get().onChangeToAdsOnScreen(true);
         }
     }
 
+    public void onFocusLoss(boolean wasDueToTabChange) {
+        if (inlayAdHelper.isPresent() && !isInFullscreen() && wasDueToTabChange) {
+            publishNoVideoOnScreenEvent();
+        }
+    }
+
+    public void onResume(boolean hasFocus) {
+        if (hasFocus) {
+            onFocusGain();
+        } else {
+            onFocusLoss(false);
+        }
+    }
+
+    public void onPause(Fragment fragment) {
+        if (!isOrientationChanging(fragment) && !isInFullscreen()) {
+            publishNoVideoOnScreenEvent();
+        }
+    }
+
+    private boolean isOrientationChanging(Fragment fragment) {
+        return fragment.getActivity().isChangingConfigurations();
+    }
+
     public void onDestroyView() {
         fetchInlays().unsubscribe();
-        subscriptions.unsubscribe();
+        subscriptions.clear();
         this.inlayAdHelper = Optional.absent();
     }
 
@@ -130,6 +159,10 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         isInFullscreen = false;
         insertedAds.clear();
         inlayAdPlayer.get().reset();
+    }
+
+    private void publishNoVideoOnScreenEvent() {
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(dateProvider.getCurrentDate(), false));
     }
 
     @Override
@@ -159,7 +192,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         }
     }
 
-    void setFullscreenEnabled() {
+    public void setFullscreenEnabled() {
         this.isInFullscreen = true;
     }
 
@@ -258,6 +291,15 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
 
         private void setLastEmptyResponseTime() {
             lastEmptyResponseTime = Optional.of(dateProvider.getCurrentTime());
+        }
+    }
+
+    private class PlayerUISubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent event) {
+            if (event.getKind() == PlayerUIEvent.PLAYER_EXPANDED) {
+                publishNoVideoOnScreenEvent();
+            }
         }
     }
 }

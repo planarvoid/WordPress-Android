@@ -72,7 +72,6 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (extras.containsKey(FullScreenVideoActivity.EXTRA_AD_URN)) {
             ad = adPlayer.getCurrentAd();
             activityRef = new WeakReference<>(activity);
-            streamAdsController.setFullscreenEnabled();
             bindView((Urn) extras.get(FullScreenVideoActivity.EXTRA_AD_URN), activity);
         } else {
             activity.finish();

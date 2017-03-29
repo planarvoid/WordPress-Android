@@ -46,9 +46,19 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void focusUpdateSentIfFragmentImplementsFocusListener() {
+    public void focusUpdateSentIfFragmentImplementsFocusListenerOnFirstSet() {
         when(fragmentManager.findFragmentByTag("soundcloud:main:0")).thenReturn(fragment1);
 
+        adapter.setPrimaryItem(null, 0, fragment1);
+
+        verify((MainPagerAdapter.FocusListener) fragment1, times(1)).onFocusChange(true);
+    }
+
+    @Test
+    public void focusUpdateSentIfFragmentImplementsFocusListenerOnSubsequentSetViaSetCurrentFragmentFocused() {
+        when(fragmentManager.findFragmentByTag("soundcloud:main:0")).thenReturn(fragment1);
+
+        adapter.setPrimaryItem(null, 0, fragment2);
         adapter.setPrimaryItem(null, 0, fragment1);
         adapter.setCurrentFragmentFocused();
 

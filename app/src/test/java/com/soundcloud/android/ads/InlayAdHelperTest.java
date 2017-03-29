@@ -306,7 +306,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE, true));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE, true));
     }
 
     @Test

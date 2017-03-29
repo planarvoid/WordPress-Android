@@ -74,7 +74,8 @@ class InlayAdOperations {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
                 inlayAdPlayer.autoplay(videoAd);
             } else if (event instanceof NoVideoOnScreen && inlayAdPlayer.isPlaying()) {
-                inlayAdPlayer.muteAndPause();
+                final boolean shouldMute = ((NoVideoOnScreen) event).shouldMute();
+                inlayAdPlayer.autopause(shouldMute);
             } else if (event instanceof ToggleVolume) {
                 inlayAdPlayer.toggleVolume();
             } else if (event instanceof TogglePlayback) {

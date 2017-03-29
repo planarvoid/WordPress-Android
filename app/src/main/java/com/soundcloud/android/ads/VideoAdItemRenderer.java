@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -31,15 +30,13 @@ import java.util.List;
 public class VideoAdItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
-    private final Navigator navigator;
     private final EventBus eventBus;
     private final InlayAdStateProvider lastStateProvider;
     private final CurrentDateProvider currentDateProvider;
 
     @Inject
-    public VideoAdItemRenderer(Resources resources, Navigator navigator, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
+    VideoAdItemRenderer(Resources resources, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
         this.resources = resources;
-        this.navigator = navigator;
         this.eventBus = eventBus;
         this.lastStateProvider = stateProvider;
         this.currentDateProvider = currentDateProvider;
@@ -69,7 +66,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.volumeButton.setOnClickListener(view -> publishVolumeToggle(position, videoAd, holder));
         holder.playButton.setOnClickListener(view -> publishPlayToggle(position, videoAd));
         holder.videoView.setOnClickListener(view -> handleVideoViewClick(position, videoAd, holder));
-        holder.fullscreenButton.setOnClickListener(view -> navigator.openFullscreenVideoAd(view.getContext(), videoAd.getAdUrn()));
+        holder.fullscreenButton.setOnClickListener(view -> listener.ifPresent(callback -> callback.onVideoFullscreenClicked(view.getContext(), videoAd)));
 
         bindVideoSurface(itemView, videoAd);
         lastStateProvider.get(videoAd.getUuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));

@@ -132,7 +132,7 @@ class InlayAdPlayer implements Player.PlayerListener {
     }
 
     private void pausePlaySessionIfNeeded() {
-        if (!isPlayerMuted && playSessionController.isPlayingCurrentPlayQueueItem()) {
+        if (!isPlayerMuted && playSessionController.isPlaying()) {
             playSessionController.pause();
             shouldReturnToPlaySession = true;
         }
@@ -143,9 +143,9 @@ class InlayAdPlayer implements Player.PlayerListener {
         shouldReturnToPlaySession = false;
     }
 
-    void muteAndPause() {
+    void autopause(boolean shouldMute) {
         setUserInitiated(false);
-        if (!isPlayerMuted) {
+        if (!isPlayerMuted && shouldMute) {
             toggleVolume(true);
         }
         currentPlayer.pause();
@@ -202,7 +202,7 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
-        Log.d(Log.ADS_TAG, "InlayAdPlayer: " + stateTransition.toString());
+        Log.d(Log.ADS_TAG, String.format("InlayAdPlayer: Muted: %s, %s", isPlayerMuted, stateTransition.toString()));
         lastState = stateTransition;
 
         if (lastState.playbackEnded() || lastState.wasError()) {

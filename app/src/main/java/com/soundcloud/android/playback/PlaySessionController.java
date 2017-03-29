@@ -118,6 +118,10 @@ public class PlaySessionController {
         return !currentPlayQueueItem.isEmpty() && playSessionStateProvider.isCurrentlyPlaying(currentPlayQueueItem.getUrn());
     }
 
+    public boolean isPlaying() {
+        return playSessionStateProvider.isPlaying();
+    }
+
     public void play() {
         if (isPlayingCurrentPlayQueueItem()) {
             playbackStrategyProvider.get().resume();

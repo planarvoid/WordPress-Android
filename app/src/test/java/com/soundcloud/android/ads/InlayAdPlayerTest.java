@@ -134,7 +134,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playPausesPlaySessionVideoUnMutedAndIfMusicPlayingBeforeResuming() {
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(false, true);
+        when(playSessionController.isPlaying()).thenReturn(false, true);
 
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
@@ -203,7 +203,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
 
     @Test
     public void toggleVolumeAfterPlayUnmutesAndPausesPlaysessionIfMusicIsPlaying() {
-        when(playSessionController.isPlayingCurrentPlayQueueItem()).thenReturn(true);
+        when(playSessionController.isPlaying()).thenReturn(true);
 
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
@@ -224,15 +224,28 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void muteAndPauseWillMutePlayerBeforePausingIfNotAlreadyMuted() {
+    public void autoPauseWithMuteWillMutePlayerBeforePausingIfNotAlreadyMuted() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
-        player.muteAndPause();
+        player.autopause(true);
 
         final InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).play(VIDEO_ITEM);
         inOrder.verify(adapter).setVolume(1.0f);
         inOrder.verify(adapter).setVolume(0.0f);
+        inOrder.verify(adapter).pause();
+    }
+
+    @Test
+    public void autoPauseWithNoMuteWillJustPause() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.toggleVolume();
+        player.autopause(false);
+
+        final InOrder inOrder = Mockito.inOrder(adapter);
+        inOrder.verify(adapter).play(VIDEO_ITEM);
+        inOrder.verify(adapter).setVolume(1.0f);
+        inOrder.verify(adapter, never()).setVolume(0.0f);
         inOrder.verify(adapter).pause();
     }
 

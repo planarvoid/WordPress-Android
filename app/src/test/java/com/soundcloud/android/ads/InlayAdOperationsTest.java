@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -103,13 +104,23 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreen() {
+    public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreenWithMuteTrue() {
         when(inlayAdPlayer.isPlaying()).thenReturn(true);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), true));
 
-        verify(inlayAdPlayer).muteAndPause();
+        verify(inlayAdPlayer).autopause(true);
+    }
+
+    @Test
+    public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreenWithMuteFalse() {
+        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+
+        operations.subscribe(inlayAdHelper);
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), false));
+
+        verify(inlayAdPlayer).autopause(false);
     }
 
     @Test
@@ -117,9 +128,9 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         when(inlayAdPlayer.isPlaying()).thenReturn(false);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), true));
 
-        verify(inlayAdPlayer, never()).muteAndPause();
+        verify(inlayAdPlayer, never()).autopause(anyBoolean());
     }
 
     @Test
