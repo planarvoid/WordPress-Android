@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.absent;
 import static com.soundcloud.java.optional.Optional.of;
@@ -36,6 +37,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -47,6 +49,7 @@ import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
@@ -65,6 +68,7 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import javax.inject.Provider;
@@ -93,6 +97,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final PromotedSourceInfo promotedSourceInfo;
     private final String screen;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     private final EntityItemCreator entityItemCreator;
     private final PlaylistDetailsViewModelCreator viewModelCreator;
@@ -159,7 +164,8 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
                                 @Provided AccountOperations accountOperations,
                                 @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                 @Provided EntityItemCreator entityItemCreator,
-                                @Provided FeatureOperations featureOperations) {
+                                @Provided FeatureOperations featureOperations,
+                                @Provided OfflineSettingsStorage offlineSettingsStorage) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;
@@ -181,6 +187,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.entityItemCreator = entityItemCreator;
         this.featureOperations = featureOperations;
+        this.offlineSettingsStorage = offlineSettingsStorage;
 
         // Note: do NOT store this urn. Always get it from DataSource, as it may change when a local playlist is pushed
         dataSourceProvider = dataSourceProviderFactory.create(playlistUrn, refresh);
@@ -673,8 +680,12 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     }
 
     @Override
-    public void onMakeOfflineAvailable() {
-        offlineAvailable.onNext(null);
+    public void onMakeOfflineAvailable(Context context) {
+        if (offlineSettingsStorage.isOfflineContentAccessible()) {
+            offlineAvailable.onNext(null);
+        } else {
+            OfflineStorageErrorDialog.show(getFragmentActivity(context).getSupportFragmentManager());
+        }
     }
 
     @Override

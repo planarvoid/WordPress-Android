@@ -20,6 +20,7 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -27,6 +28,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -67,7 +69,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
-
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
             new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
@@ -118,8 +120,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      Provider<OfflineLikesDialog> syncLikesDialogProvider,
                                      Navigator navigator,
                                      EventBus eventBus,
-                                     Provider<UpdateHeaderViewSubscriber> subscriberProvider) {
-
+                                     Provider<UpdateHeaderViewSubscriber> subscriberProvider,
+                                     OfflineSettingsStorage offlineSettingsStorage) {
         this.headerViewFactory = headerViewFactory;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
@@ -131,6 +133,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.navigator = navigator;
         this.offlineContentOperations = offlineContentOperations;
         this.subscriberProvider = subscriberProvider;
+        this.offlineSettingsStorage = offlineSettingsStorage;
 
         trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
         viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
@@ -216,9 +219,17 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onMakeAvailableOffline(boolean isAvailable) {
         if (isAvailable) {
-            syncLikesDialogProvider.get().show(fragment.getFragmentManager());
+            enableOfflineLikes();
         } else {
             disableOfflineLikes();
+        }
+    }
+
+    private void enableOfflineLikes() {
+        if (offlineSettingsStorage.isOfflineContentAccessible()) {
+            syncLikesDialogProvider.get().show(fragment.getFragmentManager());
+        } else {
+            OfflineStorageErrorDialog.show(fragment.getFragmentManager());
         }
     }
 
@@ -239,7 +250,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                           .filter(IS_NOT_NULL)
                           .map(toTrackLikesHeaderView);
     }
-
 
     static final class UpdateHeaderViewSubscriber extends DefaultSubscriber<HeaderViewUpdate> {
 
@@ -305,7 +315,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             }
         }
     }
-
 
     @AutoValue
     static abstract class HeaderViewUpdate {

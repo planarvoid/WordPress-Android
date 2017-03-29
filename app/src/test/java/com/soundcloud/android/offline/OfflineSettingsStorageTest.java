@@ -21,7 +21,7 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new OfflineSettingsStorage(preferences);
+        storage = new OfflineSettingsStorage(preferences, context());
     }
 
     @Test
@@ -49,6 +49,12 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     public void savesOfflineContentLocation() {
         storage.setOfflineContentLocation(OfflineContentLocation.SD_CARD);
         assertThat(storage.getOfflineContentLocation()).isEqualTo(OfflineContentLocation.SD_CARD);
+    }
+
+    @Test
+    public void offlineContentIsAccessibleWhenLocationIsDeviceStorage() {
+        storage.setOfflineContentLocation(OfflineContentLocation.DEVICE_STORAGE);
+        assertThat(storage.isOfflineContentAccessible()).isTrue();
     }
 
     @Test
@@ -80,5 +86,4 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
         assertTrue(storage.hasSeenOfflineSettingsOnboarding());
     }
-
 }

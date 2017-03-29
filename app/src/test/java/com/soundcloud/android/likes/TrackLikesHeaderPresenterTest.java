@@ -7,6 +7,7 @@ import static com.soundcloud.android.offline.OfflineContentChangedEvent.requeste
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.inOrder;
@@ -29,12 +30,13 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -51,6 +53,7 @@ import rx.Observable;
 import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.ListView;
 
@@ -63,8 +66,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
 
-    private TrackLikesHeaderPresenter presenter;
-
     @Mock private TrackLikesHeaderViewFactory headerViewFactory;
     @Mock private TrackLikesHeaderView headerView;
     @Mock private OfflineContentOperations offlineContentOperations;
@@ -76,13 +77,15 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private Navigator navigator;
-
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
+    @Mock private FragmentTransaction fragmentTransaction;
 
+    private TrackLikesHeaderPresenter presenter;
     private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
 
@@ -100,9 +103,10 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigator,
                 eventBus,
-                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)));
+                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)), offlineSettingsStorage);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
+        when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
         when(fragment.getActivity()).thenReturn(activity());
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
@@ -112,6 +116,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(headerViewFactory.create(any(View.class),
                                       any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
     }
 
     @Test
@@ -135,7 +140,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void emitTrackingEventOnShuffleButtonClick() {
         when(likeOperations.likedTrackUrns()).thenReturn(just(likedTrackUrns));
         when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
-                .thenReturn(Observable.<PlaybackResult>empty());
+                .thenReturn(Observable.empty());
         createAndBindView();
 
         presenter.onShuffle();
@@ -370,6 +375,18 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void handlesOfflineContentNotAccessible() {
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        createAndBindView();
+        presenter.onMakeAvailableOffline(true);
+
+        verify(fragmentTransaction).add(any(OfflineStorageErrorDialog.class), anyString());
+        verify(fragmentTransaction).commit();
+        verify(offlineLikesDialog, never()).show(any(FragmentManager.class));
+    }
+
+    @Test
     public void neverShowsDownloadButtonIfOfflineAndUpsellUnavailable() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
@@ -404,5 +421,4 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(just(OfflineState.REQUESTED));
     }
-
 }

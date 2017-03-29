@@ -1,10 +1,15 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORAGE;
+import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
+
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.utils.IOUtils;
 import rx.Observable;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
@@ -20,10 +25,12 @@ public class OfflineSettingsStorage {
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
 
     private final SharedPreferences sharedPreferences;
+    private final Context context;
 
     @Inject
-    public OfflineSettingsStorage(@Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences) {
+    public OfflineSettingsStorage(@Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences, Context context) {
         this.sharedPreferences = sharedPreferences;
+        this.context = context;
     }
 
     public boolean isWifiOnlyEnabled() {
@@ -40,6 +47,12 @@ public class OfflineSettingsStorage {
 
     void setOfflineContentLocation(OfflineContentLocation offlineContentLocation) {
         sharedPreferences.edit().putString(OFFLINE_CONTENT_LOCATION, offlineContentLocation.id).apply();
+    }
+
+    public boolean isOfflineContentAccessible() {
+        OfflineContentLocation offlineContentLocation = getOfflineContentLocation();
+        return DEVICE_STORAGE == offlineContentLocation ||
+                (SD_CARD == offlineContentLocation && IOUtils.isSDCardMounted(context));
     }
 
     public boolean hasStorageLimit() {
@@ -81,5 +94,4 @@ public class OfflineSettingsStorage {
     public void clear() {
         sharedPreferences.edit().clear().apply();
     }
-
 }

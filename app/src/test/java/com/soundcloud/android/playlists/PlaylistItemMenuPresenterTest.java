@@ -26,10 +26,13 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -41,16 +44,20 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowAlertDialog;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
-    public static final String SCREEN = "some tag";
+    private static final String SCREEN = "some tag";
+
     @Mock private Context context;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikeOperations likeOperations;
@@ -67,32 +74,28 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private EventTracker eventTracker;
     @Mock private PlaylistItemMenuRendererFactory playlistMenuRenderFactory;
     @Mock private PlaylistItemMenuRenderer playlistMenuRenderer;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private View button;
-
-    private final TestEventBus eventBus = new TestEventBus();
-
     private PlaylistItemMenuPresenter presenter;
+    private final TestEventBus eventBus = new TestEventBus();
     private final Playlist playlist = ModelFixtures.playlist();
     private PlaylistItem playlistItem = ModelFixtures.playlistItem(playlist);
 
     @Before
     public void setUp() throws Exception {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.empty());
-        when(playlistOperations.trackUrnsForPlayback(any(Urn.class)))
-                .thenReturn(Observable.just(Lists.newArrayList(Urn.NOT_SET)));
-
-
+        when(playlistOperations.trackUrnsForPlayback(any(Urn.class))).thenReturn(Observable.just(Lists.newArrayList(Urn.NOT_SET)));
         when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.empty());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        when(likeOperations.toggleLike(any(Urn.class), anyBoolean()))
-                .thenReturn(Observable.empty());
-
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
         when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
+
+        button = new View(activity());
         presenter = new PlaylistItemMenuPresenter(context,
                                                   eventBus,
                                                   playlistOperations,
@@ -107,10 +110,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   eventTracker,
                                                   playlistMenuRenderFactory,
                                                   accountOperations,
-                                                  ModelFixtures.entityItemCreator());
-
-        button = new View(activity());
-
+                                                  ModelFixtures.entityItemCreator(),
+                                                  offlineSettingsStorage);
         when(playlistMenuRenderFactory.create(presenter, button)).thenReturn(playlistMenuRenderer);
     }
 
@@ -208,7 +209,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlistItem);
-        presenter.saveOffline(playlistItem);
+        presenter.saveOffline(activity(), playlistItem);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
         verifyZeroInteractions(likeOperations);
@@ -222,10 +223,22 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, likedPlaylist);
-        presenter.saveOffline(likedPlaylist);
+        presenter.saveOffline(activity(), likedPlaylist);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
         verifyZeroInteractions(likeOperations);
+    }
+
+    @Test
+    public void shouldHandleOfflineContentNotAccessibleOnSaveOffline() {
+        final PlaylistItem likedPlaylist = playlistItem.updateLikeState(true);
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        presenter.show(button, likedPlaylist);
+        presenter.saveOffline(activity(), likedPlaylist);
+
+        assertOfflineStorageErrorDialog();
+        verifyZeroInteractions(offlineOperations);
     }
 
     @Test
@@ -236,7 +249,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlistItem);
-        presenter.saveOffline(playlistItem);
+        presenter.saveOffline(activity(), playlistItem);
 
         assertThat(offlineObservable.hasObservers()).isTrue();
         verify(likeOperations).toggleLike(playlistItem.getUrn(), true);
@@ -247,7 +260,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.make_offline_available);
 
         presenter.show(button, playlistItem);
-        presenter.saveOffline(playlistItem);
+        presenter.saveOffline(activity(), playlistItem);
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);
@@ -311,9 +324,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
 
-        playlistItem = likedPlaylist;
+        playlistItem = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
         presenter.show(button, playlistItem);
 
         presenter.handleLike(playlistItem);
@@ -327,11 +339,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(menuItem.getItemId()).thenReturn(R.id.add_to_likes);
 
         ApiPlaylist playlist1 = ModelFixtures.create(ApiPlaylist.class);
-        PlaylistItem likedAndPostedPlaylist = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
-        playlistItem = likedAndPostedPlaylist;
+        playlistItem = PlayableFixtures.fromApiPlaylist(playlist1, true, false, false, Optional.absent());
 
         when(accountOperations.isLoggedInUser(playlistItem.creatorUrn())).thenReturn(true);
-
 
         presenter.show(button, playlistItem);
 
@@ -363,4 +373,12 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         assertThat(event.originScreen().get()).isEqualTo(SCREEN);
     }
 
+    private void assertOfflineStorageErrorDialog() {
+        Dialog dialog = ShadowAlertDialog.getLatestDialog();
+        Button negativeButton = (Button) dialog.findViewById(android.R.id.button2);
+        negativeButton.performClick();
+        Assertions.assertThat(activity())
+                  .nextStartedIntent()
+                  .opensActivity(ChangeStorageLocationActivity.class);
+    }
 }

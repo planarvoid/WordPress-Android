@@ -22,10 +22,12 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -56,6 +58,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
     private final AccountOperations accountOperations;
     private final EntityItemCreator entityItemCreator;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
@@ -81,7 +84,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      EventTracker eventTracker,
                                      PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
                                      AccountOperations accountOperations,
-                                     EntityItemCreator entityItemCreator) {
+                                     EntityItemCreator entityItemCreator,
+                                     OfflineSettingsStorage offlineSettingsStorage) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.playlistOperations = playlistOperations;
@@ -97,6 +101,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
         this.accountOperations = accountOperations;
         this.entityItemCreator = entityItemCreator;
+        this.offlineSettingsStorage = offlineSettingsStorage;
     }
 
     public void show(View button, PlaylistItem playlist) {
@@ -154,7 +159,15 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         return getFragmentActivity(context).getSupportFragmentManager();
     }
 
-    public void saveOffline(PlaylistItem playlist) {
+    public void saveOffline(Context context, PlaylistItem playlist) {
+        if (offlineSettingsStorage.isOfflineContentAccessible()) {
+            handleSaveOffline(playlist);
+        } else {
+            OfflineStorageErrorDialog.show(toFragmentManager(context));
+        }
+    }
+
+    private void handleSaveOffline(PlaylistItem playlist) {
         if (playlist.isUserLike() || isPlaylistOwnedByCurrentUser(playlist)) {
             saveOffline();
         } else {
@@ -285,5 +298,4 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
             renderer.render(entityItemCreator.playlistItem(playlist));
         }
     }
-
 }

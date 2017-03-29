@@ -41,7 +41,6 @@ class PlaylistEngagementsRenderer {
     private final AccountOperations accountOperations;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
-
     @Inject
     PlaylistEngagementsRenderer(Context context,
                                 FeatureFlags featureFlags,
@@ -175,7 +174,7 @@ class PlaylistEngagementsRenderer {
             if (isAvailable) {
                 listener.onMakeOfflineUnavailable();
             } else {
-                listener.onMakeOfflineAvailable();
+                listener.onMakeOfflineAvailable(v.getContext());
             }
         });
     }
@@ -277,7 +276,7 @@ class PlaylistEngagementsRenderer {
                     listener.onOverflowUpsell();
                     return true;
                 case R.id.make_offline_available:
-                    listener.onMakeOfflineAvailable();
+                    listener.onMakeOfflineAvailable(context);
                     return true;
                 case R.id.make_offline_unavailable:
                     listener.onMakeOfflineUnavailable();
@@ -295,8 +294,6 @@ class PlaylistEngagementsRenderer {
             // no-op
         }
     }
-
-
 
     private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
                                     Optional<Integer> count, boolean checked, int checkedStringId) {
@@ -351,5 +348,4 @@ class PlaylistEngagementsRenderer {
             return defaultInfoText;
         }
     }
-
 }

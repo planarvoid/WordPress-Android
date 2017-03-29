@@ -45,6 +45,7 @@ import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -52,8 +53,10 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -66,12 +69,15 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowAlertDialog;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +87,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
     private static final Screen SCREEN = Screen.SEARCH_MAIN;
 
-    private TestEventBus eventBus;
     @Mock private Navigator navigator;
     @Mock private PlaylistHeaderScrollHelper profileHeaderScrollHelper;
     @Mock private RepostOperations repostOperations;
@@ -104,11 +109,13 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private EventTracker eventTracker;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
+    private TestEventBus eventBus;
     private Observable<List<Urn>> playlistTrackurns;
     private PlaylistDetailsViewModel viewModel;
     private PlaylistHeaderPresenter presenter;
@@ -125,6 +132,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         playlistTrackurns = Observable.just(singletonList(Urn.forTrack(1)));
         viewModel = createPlaylistInfoWithSharingAndIfLikedByCurrentUser(Sharing.PUBLIC, false);
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
         when(playlistOperations.trackUrnsForPlayback(viewModel.metadata().getUrn())).thenReturn(playlistTrackurns);
 
         presenter = new PlaylistHeaderPresenter(
@@ -145,7 +153,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 coverRenderer,
                 engagementsView,
                 featureFlags,
-                accountOperations);
+                accountOperations,
+                offlineSettingsStorage);
 
         view = View.inflate(activity(), R.layout.playlist_details_view, null);
         presenter.bindItemView(0, view, null);
@@ -374,7 +383,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 makePlaylistAvailableOffline);
         when(accountOperations.isLoggedInUser(viewModel.metadata().creatorUrn())).thenReturn(true);
 
-        presenter.onMakeOfflineAvailable();
+        presenter.onMakeOfflineAvailable(getContext());
 
         assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
         verifyZeroInteractions(likeOperations);
@@ -388,7 +397,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(viewModel.metadata().getUrn())).thenReturn(
                 makePlaylistAvailableOffline);
 
-        presenter.onMakeOfflineAvailable();
+        presenter.onMakeOfflineAvailable(getContext());
 
         assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
         verifyZeroInteractions(likeOperations);
@@ -402,10 +411,21 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 makePlaylistAvailableOffline);
         when(likeOperations.toggleLike(viewModel.metadata().getUrn(), true)).thenReturn(Observable.just(LikeOperations.LikeResult.LIKE_SUCCEEDED));
 
-        presenter.onMakeOfflineAvailable();
+        presenter.onMakeOfflineAvailable(getContext());
 
         assertThat(makePlaylistAvailableOffline.hasObservers()).isTrue();
         verify(likeOperations).toggleLike(viewModel.metadata().getUrn(), true);
+    }
+
+    @Test
+    public void shouldHandleOfflineContentNotAccessibleOnMakeOfflineAvailable() {
+        setPlaylistInfo();
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        presenter.onMakeOfflineAvailable(getContext());
+
+        assertOfflineStorageErrorDialog();
+        verifyZeroInteractions(offlineContentOperations);
     }
 
     @Test
@@ -579,5 +599,14 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     protected Context getContext() {
         return fragmentRule.getFragment().getContext();
+    }
+
+    private void assertOfflineStorageErrorDialog() {
+        Dialog dialog = ShadowAlertDialog.getLatestDialog();
+        Button negativeButton = (Button) dialog.findViewById(android.R.id.button2);
+        negativeButton.performClick();
+        Assertions.assertThat(activity())
+                  .nextStartedIntent()
+                  .opensActivity(ChangeStorageLocationActivity.class);
     }
 }

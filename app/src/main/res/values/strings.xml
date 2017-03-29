@@ -874,7 +874,7 @@
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
     <string name="pref_offline_change_storage_location">Change storage location</string>
     <string name="pref_offline_change_storage_location_description_device_storage">Offline content currently saves to your internal device storage.</string>
-    <string name="pref_offline_change_storage_location_description_sd_card">Offline content currently saves to your SD card storage.</string>
+    <string name="pref_offline_change_storage_location_description_sd_card">Offline content currently saves to your SD card.</string>
     <string name="pref_offline_storage_limit">Storage limit</string>
     <string name="pref_offline_storage_limit_description">This will define how much of your available storage can be used for offline listening.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
@@ -905,6 +905,9 @@
     <string name="confirm_change_storage_location_dialog_title">Change storage location?</string>
     <string name="confirm_change_storage_location_dialog_message_internal_device_storage">All current and future offline content will be downloaded to your internal device storage and removed from your SD card.</string>
     <string name="confirm_change_storage_location_dialog_message_sd_card">All current and future offline content will be downloaded to your SD card and removed from your internal device storage.</string>
+    <string name="offline_storage_error_dialog_title">SD card cannot be found</string>
+    <string name="offline_storage_error_dialog_message">Re-insert your SD card or change your storage location to continue managing your offline content.</string>
+    <string name="go_to_settings">Go to settings</string>
 
     <plurals name="downloading_track_of_tracks">
         <item quantity="one">%1$d track</item>

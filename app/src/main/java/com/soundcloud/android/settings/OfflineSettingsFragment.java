@@ -2,6 +2,7 @@ package com.soundcloud.android.settings;
 
 import static android.preference.Preference.OnPreferenceChangeListener;
 import static android.preference.Preference.OnPreferenceClickListener;
+import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_CHANGE_STORAGE_LOCATION;
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_COLLECTION;
@@ -96,7 +97,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupChangeStorageLocation() {
         Preference preference = findPreference(OFFLINE_CHANGE_STORAGE_LOCATION);
-        if (isChangeStorageLocationSupported()) {
+        if (isChangeStorageLocationSupported() && shouldShowChangeStorageLocationPreference()) {
             preference.setSummary(getChangeStorageLocationSummary());
             preference.setOnPreferenceClickListener(this);
         } else {
@@ -105,9 +106,11 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private boolean isChangeStorageLocationSupported() {
-        return featureFlags.isEnabled(Flag.OFFLINE_CONTENT_LOCATION)
-                && applicationProperties.canChangeOfflineContentLocation()
-                && IOUtils.isSDCardMounted(getActivity());
+        return featureFlags.isEnabled(Flag.OFFLINE_CONTENT_LOCATION) && applicationProperties.canChangeOfflineContentLocation();
+    }
+
+    private boolean shouldShowChangeStorageLocationPreference() {
+        return IOUtils.isSDCardMounted(getActivity()) || SD_CARD == offlineSettings.getOfflineContentLocation();
     }
 
     private int getChangeStorageLocationSummary() {

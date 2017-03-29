@@ -13,9 +13,9 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -24,6 +24,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -35,6 +36,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
@@ -47,6 +49,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -73,10 +76,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final SharePresenter sharePresenter;
     private final PlayQueueHelper playQueueHelper;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
-    private FeatureFlags featureFlags;
+    private final FeatureFlags featureFlags;
     private final PlaylistCoverRenderer playlistCoverRenderer;
     private final FeatureOperations featureOperations;
     private final AccountOperations accountOperations;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     @LightCycle final PlaylistHeaderScrollHelper playlistHeaderScrollHelper;
 
@@ -108,7 +112,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             PlaylistCoverRenderer playlistCoverRenderer,
                             PlaylistEngagementsRenderer playlistEngagementsRenderer,
                             FeatureFlags featureFlags,
-                            AccountOperations accountOperations) {
+                            AccountOperations accountOperations,
+                            OfflineSettingsStorage offlineSettingsStorage) {
         this.eventBus = eventBus;
         this.eventTracker = eventTracker;
         this.navigator = navigator;
@@ -127,6 +132,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.accountOperations = accountOperations;
+        this.offlineSettingsStorage = offlineSettingsStorage;
     }
 
     @Override
@@ -250,7 +256,15 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
-    public void onMakeOfflineAvailable() {
+    public void onMakeOfflineAvailable(Context ignored) {
+        if (offlineSettingsStorage.isOfflineContentAccessible()) {
+            makeOfflineAvailable();
+        } else {
+            OfflineStorageErrorDialog.show(fragmentManager);
+        }
+    }
+
+    private void makeOfflineAvailable() {
         if (viewModel.metadata().isLikedByUser() || isPlaylistOwnedByCurrentUser()) {
             saveOffline();
         } else {

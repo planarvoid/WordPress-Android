@@ -31,7 +31,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
         void handleUpsell(Context context);
 
-        void saveOffline(PlaylistItem playlist);
+        void saveOffline(Context context, PlaylistItem playlist);
 
         void removeFromOffline(Context context);
 
@@ -190,7 +190,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                 listener.handleUpsell(context);
                 return true;
             case R.id.make_offline_available:
-                listener.saveOffline(playlist);
+                listener.saveOffline(context, playlist);
                 return true;
             case R.id.make_offline_unavailable:
                 listener.removeFromOffline(context);

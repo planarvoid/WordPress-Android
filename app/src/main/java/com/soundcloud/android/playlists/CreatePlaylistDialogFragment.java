@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -41,6 +42,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Inject EventBus eventBus;
     @Inject ApplicationProperties properties;
     @Inject FeatureOperations featureOperations;
+    @Inject OfflineSettingsStorage offlineSettingsStorage;
 
     @BindView(android.R.id.edit) EditText input;
     @BindView(R.id.chk_private) CheckBox privacy;
@@ -95,6 +97,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private void setOfflineVisibility() {
         if (featureOperations.isOfflineContentEnabled()
+                && offlineSettingsStorage.isOfflineContentAccessible()
                 && !offlineContentOperations.isOfflineCollectionEnabled()) {
             offline.setVisibility(View.VISIBLE);
         }

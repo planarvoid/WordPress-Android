@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
@@ -43,6 +44,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -51,10 +53,12 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackResult.ErrorReason;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.Track;
@@ -69,13 +73,16 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLog;
 import rx.Observable;
 import rx.observers.AssertableSubscriber;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
+import android.app.Dialog;
 import android.support.annotation.NonNull;
+import android.widget.Button;
 
 import javax.inject.Provider;
 import java.util.HashSet;
@@ -103,7 +110,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private RepostsStateProvider repostsStateProvider;
     @Mock private FeedbackController feedbackController;
     @Mock private SharePresenter shareOperations;
-    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -161,8 +168,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(repostsStateProvider.repostedStatuses()).thenReturn(repostStatuses);
         when(syncInitiator.syncPlaylist(playlistUrn)).thenReturn(syncPlaylist);
         when(offlinePropertiesProvider.states()).thenReturn(offlineProperties);
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
-        expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
+        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
         newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistUrn,
                                                                screen,
                                                                searchQuerySourceInfo,
@@ -184,8 +192,9 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                                feedbackController,
                                                                accountOperations,
                                                                expandPlayerSubscriberProvider,
-                                                               ModelFixtures.entityItemCreator(), featureOperations);
-
+                                                               ModelFixtures.entityItemCreator(),
+                                                               featureOperations,
+                                                               offlineSettingsStorage);
     }
 
     private void connect() {
@@ -269,7 +278,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        newPlaylistPresenter.onMakeOfflineAvailable();
+        newPlaylistPresenter.onMakeOfflineAvailable(context());
 
         offlineSubject.onNext(null);
 
@@ -289,7 +298,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        newPlaylistPresenter.onMakeOfflineAvailable();
+        newPlaylistPresenter.onMakeOfflineAvailable(context());
 
         assertThat(offlineSubject.hasObservers()).isFalse();
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(initialModel));
@@ -307,7 +316,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        newPlaylistPresenter.onMakeOfflineAvailable();
+        newPlaylistPresenter.onMakeOfflineAvailable(context());
 
         offlineSubject.onNext(null);
 
@@ -323,7 +332,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineContentOperations.makePlaylistAvailableOffline(playlistUrn)).thenReturn(offlineSubject);
         when(accountOperations.isLoggedInUser(initialPlaylist.creatorUrn())).thenReturn(true);
 
-        newPlaylistPresenter.onMakeOfflineAvailable();
+        newPlaylistPresenter.onMakeOfflineAvailable(context());
 
         offlineSubject.onNext(null);
 
@@ -331,6 +340,21 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         assertThat(event.clickObject()).isEqualTo(of(playlistUrn));
         assertThat(event.clickName()).isEqualTo(of(OfflineInteractionEvent.Kind.KIND_OFFLINE_PLAYLIST_ADD));
         assertThat(event.eventName()).isEqualTo(OfflineInteractionEvent.EventName.CLICK);
+    }
+
+    @Test
+    public void onMakeAvailableOfflineHandlesOfflineContentNotAccessible() {
+        connect();
+
+        PublishSubject<Void> offlineSubject = PublishSubject.create();
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        newPlaylistPresenter.onMakeOfflineAvailable(activity());
+
+        offlineSubject.onNext(null);
+
+        assertOfflineStorageErrorDialog();
+        verifyZeroInteractions(offlineContentOperations);
     }
 
     @Test
@@ -836,5 +860,14 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
     @NonNull
     private AsyncViewModel<PlaylistDetailsViewModel> getRefreshingModel(PlaylistDetailsViewModel initialModel) {
         return AsyncViewModel.create(of(initialModel), false, true, absent());
+    }
+
+    private void assertOfflineStorageErrorDialog() {
+        Dialog dialog = ShadowAlertDialog.getLatestDialog();
+        Button negativeButton = (Button) dialog.findViewById(android.R.id.button2);
+        negativeButton.performClick();
+        Assertions.assertThat(activity())
+                  .nextStartedIntent()
+                  .opensActivity(ChangeStorageLocationActivity.class);
     }
 }

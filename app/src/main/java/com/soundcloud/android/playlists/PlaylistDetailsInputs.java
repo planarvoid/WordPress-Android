@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import android.content.Context;
+
 interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onHeaderPlayButtonClicked();
@@ -22,7 +24,7 @@ interface PlaylistDetailsInputs /* remove after new fragment live */ {
 
     void onShareClicked();
 
-    void onMakeOfflineAvailable();
+    void onMakeOfflineAvailable(Context context);
 
     void onMakeOfflineUnavailable();
 
