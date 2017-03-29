@@ -114,7 +114,7 @@ class InlayAdHelper {
             final VideoOnScreen videoOnScreen = mostViewableVideo.get();
             publishInlayAdEvent(InlayAdEvent.OnScreen.create(videoOnScreen.position(), videoOnScreen.adData(), now));
         } else {
-            publishInlayAdEvent(InlayAdEvent.NoVideoOnScreen.create(now));
+            publishInlayAdEvent(InlayAdEvent.NoVideoOnScreen.create(now, true));
         }
     }
 

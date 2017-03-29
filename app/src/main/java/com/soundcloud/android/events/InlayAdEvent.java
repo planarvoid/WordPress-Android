@@ -48,8 +48,10 @@ public abstract class InlayAdEvent {
 
     @AutoValue
     public abstract static class NoVideoOnScreen extends InlayAdEvent {
-        public static NoVideoOnScreen create(Date at) {
-            return new AutoValue_InlayAdEvent_NoVideoOnScreen(at);
+        public abstract boolean shouldMute();
+
+        public static NoVideoOnScreen create(Date at, boolean shouldMute) {
+            return new AutoValue_InlayAdEvent_NoVideoOnScreen(at, shouldMute);
         }
     }
 

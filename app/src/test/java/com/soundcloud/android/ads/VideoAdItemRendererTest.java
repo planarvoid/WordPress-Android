@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
@@ -46,7 +45,6 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Mock private VideoAdItemRenderer.Listener listener;
     @Mock private CurrentDateProvider currentDateProvider;
     @Mock private InlayAdStateProvider stateProvider;
-    @Mock private Navigator navigator;
 
     private TestEventBus eventBus;
     private VideoAdItemRenderer renderer;
@@ -55,7 +53,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        renderer = new VideoAdItemRenderer(resources(), navigator, eventBus, stateProvider, currentDateProvider);
+        renderer = new VideoAdItemRenderer(resources(), eventBus, stateProvider, currentDateProvider);
         renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
 
@@ -195,7 +193,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.video_fullscreen_control).performClick();
 
-        verify(navigator).openFullscreenVideoAd(adView.getContext(), VIDEO_AD_1.getAdUrn());
+        verify(listener).onVideoFullscreenClicked(adView.getContext(), VIDEO_AD_1);
     }
 
     @Test

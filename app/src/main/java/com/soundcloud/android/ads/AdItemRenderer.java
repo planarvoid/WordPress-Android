@@ -1,5 +1,10 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.java.optional.Optional;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.SpannableString;
@@ -8,16 +13,12 @@ import android.text.style.ForegroundColorSpan;
 import android.view.TextureView;
 import android.view.View;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stream.StreamItem;
-import com.soundcloud.java.optional.Optional;
-
 public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
 
     public interface Listener {
         void onAdItemClicked(Context context, AdData adData);
         void onVideoTextureBind(TextureView textureView, VideoAd videoAd);
+        void onVideoFullscreenClicked(Context context, VideoAd videoAd);
         void onWhyAdsClicked(Context context);
     }
 

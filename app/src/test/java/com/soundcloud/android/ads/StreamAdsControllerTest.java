@@ -4,17 +4,19 @@ import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.InlayAdEvent;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -31,11 +33,14 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import rx.Observable;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class StreamAdsControllerTest extends AndroidUnitTest {
@@ -57,12 +62,13 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private StreamAdapter adapter;
     @Mock private StaggeredGridLayoutManager layoutManager;
     @Mock private AdViewabilityController adViewabilityController;
-    @Spy private TestEventBus eventBus = new TestEventBus();
+    @Spy private TestEventBus eventBus;
 
     private StreamAdsController controller;
 
     @Before
     public void setUp() {
+        eventBus = new TestEventBus();
         controller = spy(new StreamAdsController(adsOperations,
                                                  adViewabilityController,
                                                  inlayAdOperations,
@@ -82,6 +88,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
         when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
         when(featureOperations.adsEnabled()).thenReturn(Observable.just(Boolean.TRUE));
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
 
         controller.onViewCreated(recycler, adapter);
     }
@@ -106,13 +113,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.onScrolled(recycler, 9000, 42);
 
         verify(inlayAdHelper).onChangeToAdsOnScreen(false);
-    }
-
-    @Test
-    public void onScrolledDosNotCallInlayAdHelperOnScrollWithoutFetchAdsFeature() {
-        when(featureOperations.shouldRequestAds()).thenReturn(false);
-        controller.onScrolled(recycler, 9000, 42);
-        verifyZeroInteractions(eventBus);
     }
 
     @Test
@@ -312,17 +312,90 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onFocusTrueWillCallOnScrollAndRequestRebindingOfVideoSurfaces() {
-        controller.onFocus(true);
+    public void onFocusGainWillCallOnChangeToAdsOnScreenAndRequestRebindingOfVideoSurfaces() {
+        controller.onFocusGain();
 
         verify(inlayAdHelper).onChangeToAdsOnScreen(true);
+        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
     }
 
     @Test
-    public void onFocusFalseDoesntCallOnScrollAtAll() {
-        controller.onFocus(false);
+    public void onFocusLossWhenNotForTabChangeDoesntCallOnChangeToAdsOnScreenAtAll() {
+        controller.onFocusLoss(false);
 
         verify(inlayAdHelper, never()).onChangeToAdsOnScreen(anyBoolean());
+    }
+
+    @Test
+    public void onFocusLossWhenForTabChangePublishesNoAdOnScreenEvent() {
+        controller.onFocusLoss(true);
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+    }
+
+    @Test
+    public void onFocusLossWhenForTabChangeButFullscreenEnabledDoesNothing() {
+        controller.setFullscreenEnabled();
+        controller.onFocusLoss(true);
+
+        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        verify(inlayAdHelper, never()).onChangeToAdsOnScreen(anyBoolean());
+    }
+
+    @Test
+    public void onResumeWithFocusCallsOnFocusGain() {
+        controller.onResume(true);
+
+        verify(controller).onFocusGain();
+    }
+
+    @Test
+    public void onResumeWithoutFocusCallsOnFocusLossNotForTabChange() {
+        controller.onResume(false);
+
+        verify(controller).onFocusLoss(false);
+    }
+
+    @Test
+    public void onPausePublishsNoVideoOnScreenEventIfOrientationNotChangingAndNotInFullscreen() {
+        final Fragment fragment = setUpFragment(false);
+
+        controller.onPause(fragment);
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+    }
+
+    @Test
+    public void onPauseDoesNotPublishEventIfOrientationChangingAndNotInFullscreen() {
+        final Fragment fragment = setUpFragment(true);
+
+        controller.onPause(fragment);
+
+        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+    }
+
+    @Test
+    public void onPauseDoesNothingIfOrientationChangingAndNotInFullscreen() {
+        final Fragment fragment = setUpFragment(false);
+
+        controller.setFullscreenEnabled();
+        controller.onPause(fragment);
+
+        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+    }
+
+    @Test
+    public void playerExpandEventWillPublishNoAdOnScreenEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
+
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+    }
+
+    @Test
+    public void playerCollapseEventDoesntPublishAnyInlayEvent() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+
+        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
     }
 
     @Test
@@ -358,4 +431,13 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     private Observable<List<AdData>> justEmpty() {
         return Observable.just(Collections.<AdData>emptyList());
     }
+
+    private Fragment setUpFragment(boolean isChangingOrientation) {
+        final Fragment fragment = mock(Fragment.class);
+        final FragmentActivity activity = mock(FragmentActivity.class);
+        when(fragment.getActivity()).thenReturn(activity);
+        when(activity.isChangingConfigurations()).thenReturn(isChangingOrientation);
+        return fragment;
+    }
+
 }

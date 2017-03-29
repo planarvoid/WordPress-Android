@@ -221,16 +221,26 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     void onFocusChange(boolean hasFocus) {
         this.hasFocus = hasFocus;
-        streamAdsController.onFocus(hasFocus);
+        if (hasFocus) {
+            streamAdsController.onFocusGain();
+        } else {
+            streamAdsController.onFocusLoss(true);
+        }
         if (streamDepthPublisher.isPresent()) {
             streamDepthPublisher.get().onFocusChange(hasFocus);
         }
     }
 
     @Override
+    public void onPause(Fragment fragment) {
+        super.onPause(fragment);
+        streamAdsController.onPause(fragment);
+    }
+
+    @Override
     public void onResume(Fragment fragment) {
         super.onResume(fragment);
-        streamAdsController.onFocus(hasFocus);
+        streamAdsController.onResume(hasFocus);
     }
 
     private void addScrollListeners() {
@@ -406,5 +416,11 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         if (!streamAdsController.isInFullscreen()) {
             videoSurfaceProvider.setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
         }
+    }
+
+    @Override
+    public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
+        streamAdsController.setFullscreenEnabled();
+        navigator.openFullscreenVideoAd(context, videoAd.getAdUrn());
     }
 }

@@ -489,13 +489,23 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldForwardOnFocusToStreamAdsController() {
+    public void shouldForwardOnFocusGainToStreamAdsController() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         presenter.onFocusChange(true);
 
-        verify(streamAdsController).onFocus(true);
+        verify(streamAdsController).onFocusGain();
+    }
+
+    @Test
+    public void shouldForwardOnFocusLossToStreamAdsController() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onFocusChange(false);
+
+        verify(streamAdsController).onFocusLoss(true);
     }
 
     @Test
@@ -505,7 +515,17 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(fragmentRule.getFragment());
 
-        verify(streamAdsController).onFocus(false);
+        verify(streamAdsController).onResume(false);
+    }
+
+    @Test
+    public void shouldCallOnPauseInStreamAdsControllerWhenOnPauseIsCalled() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        presenter.onPause(fragmentRule.getFragment());
+
+        verify(streamAdsController).onPause(fragmentRule.getFragment());
     }
 
     @Test
@@ -652,5 +672,15 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoTextureBind(textureView, videoAd);
 
         verify(videoSurfaceProvider, never()).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+    }
+
+    @Test
+    public void shouldSetFullscreenEnabledAndOpenFullscreenVideoAdOnVideoFullscreenClicked() {
+        final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
+
+        presenter.onVideoFullscreenClicked(context(), videoAd);
+
+        verify(streamAdsController).setFullscreenEnabled();
+        verify(navigator).openFullscreenVideoAd(context(), videoAd.getAdUrn());
     }
 }

@@ -123,9 +123,14 @@ public class MainPagerAdapter extends PagerAdapter {
 
     private void setPrimaryItem(Fragment fragment) {
         if (!fragment.equals(currentPrimaryItem)) {
-            if (currentPrimaryItem != null) {
+            if (currentPrimaryItem == null) {
+                // First time this adapter is getting a primary item set so,
+                // inform it that it's focused
+                setFocus(fragment, true);
+            } else {
                 setFocus(currentPrimaryItem, false);
             }
+
             currentPrimaryItem = fragment;
         }
     }

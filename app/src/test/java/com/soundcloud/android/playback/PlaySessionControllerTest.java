@@ -818,6 +818,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         verify(performanceMetricsEngine, never()).startMeasuring(any(PerformanceMetric.class));
     }
 
+    @Test
+    public void isPlayingShouldForwardCallToPlaySessionStateProvider() {
+        setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
+
+        controller.isPlaying();
+
+        verify(playSessionStateProvider).isPlaying();
+    }
+
     private void setupSetNewQueue(Urn track,
                                   PlaySessionSource playSessionSource,
                                   PlayQueue playQueue,
