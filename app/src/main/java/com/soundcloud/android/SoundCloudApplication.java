@@ -4,6 +4,7 @@ import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CRE
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.facebook.FacebookSdk;
+import com.facebook.stetho.Stetho;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.moat.analytics.mobile.scl.MoatAnalytics;
@@ -65,6 +66,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
+import com.squareup.leakcanary.LeakCanary;
 import dagger.Lazy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +97,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
 
-    @Inject DevToolsHelper devTools;
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
     @Inject NetworkConnectivityListener networkConnectivityListener;
@@ -154,6 +155,10 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+
         instance = this;
 
         initializePreInjectionObjects();
@@ -161,7 +166,12 @@ public class SoundCloudApplication extends MultiDexApplication {
         initializeFirebase();
 
         applicationComponent.inject(this);
-        devTools.initialize(this);
+
+        if (applicationProperties.isDevelopmentMode()) {
+            LeakCanary.install(this);
+            Stetho.initializeWithDefaults(this);
+        }
+
         bootApplication();
 
         performanceMetricsEngine.endMeasuringFrom(appOnCreateMetric);
