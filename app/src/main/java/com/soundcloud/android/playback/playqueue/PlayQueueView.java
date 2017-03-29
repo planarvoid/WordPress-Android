@@ -136,8 +136,8 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    public void showUndo() {
-        final Feedback feedback = Feedback.create(R.string.track_removed, R.string.undo, view -> playQueuePresenter.undoClicked());
+    public void showUndo(int textId) {
+        final Feedback feedback = Feedback.create(textId, R.string.undo, view -> playQueuePresenter.undoClicked());
         feedbackController.showFeedback(feedback);
     }
 

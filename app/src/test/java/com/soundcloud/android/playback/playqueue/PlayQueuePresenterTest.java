@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -297,7 +298,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.remove(position);
 
         verify(playQueueManager).removeItem(any());
-        verify(playQueueViewContract).showUndo();
+        verify(playQueueViewContract).showUndo(R.string.track_removed);
         verify(playQueueViewContract).removeItem(position);
     }
 
@@ -328,7 +329,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         assertThat(presenter.isRemovable(0)).isFalse();
         verify(playQueueManager, never()).removeItem(any(PlayQueueItem.class));
-        verify(playQueueViewContract, never()).showUndo();
+        verify(playQueueViewContract, never()).showUndo(R.string.track_removed);
         verify(playQueueViewContract, never()).setItems(anyList());
     }
 
@@ -343,7 +344,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
         presenter.remove(position);
 
-        verify(playQueueViewContract).showUndo();
+        verify(playQueueViewContract).showUndo(R.string.track_removed);
         verify(playQueueViewContract).setItems(Collections.emptyList());
     }
 

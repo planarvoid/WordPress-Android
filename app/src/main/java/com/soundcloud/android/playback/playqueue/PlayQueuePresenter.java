@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.playqueue;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -255,19 +256,19 @@ class PlayQueuePresenter {
                 final int playQueuePosition = playQueueManager.indexOfPlayQueueItem(playQueueItem);
                 if (isSingleTrackSection(adapterPosition)) {
                     int headerPosition = adapterPosition - 1;
-                    removeSection(headerPosition);
+                    removeSection(headerPosition, R.string.track_removed);
                 } else {
                     removeSingleItem(adapterPosition, playQueueItem, playQueuePosition);
                 }
             } else if (adapterItem.isHeader()) {
-                removeSection(adapterPosition);
+                removeSection(adapterPosition, R.string.tracks_removed);
             }
         }
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueRemove(Screen.PLAY_QUEUE));
     }
 
     private void removeSingleItem(int adapterPosition, PlayQueueItem playQueueItem, int playQueuePosition) {
-        playQueueView.get().showUndo();
+        playQueueView.get().showUndo(R.string.track_removed);
         playQueueView.get().removeItem(adapterPosition);
         undoHolder = Optional.of(new UndoHolder(Lists.newArrayList(playQueueItem), playQueuePosition, Lists.newArrayList(items.remove(adapterPosition)), adapterPosition));
         if (playQueuePosition >= 0) {
@@ -279,7 +280,7 @@ class PlayQueuePresenter {
         return isHeader(adapterPosition - 1) && isHeader(adapterPosition + 1);
     }
 
-    private void removeSection(int headerPosition) {
+    private void removeSection(int headerPosition, int textId) {
         List<PlayQueueUIItem> playQueueUIItems = new ArrayList<>();
         playQueueUIItems.add(items.get(headerPosition));
         for (int i = headerPosition + 1; i < items.size(); i++) {
@@ -293,7 +294,7 @@ class PlayQueuePresenter {
             playQueueUIItems.add(playQueueUIItem);
         }
 
-        playQueueView.get().showUndo();
+        playQueueView.get().showUndo(textId);
         items.removeAll(playQueueUIItems);
         rebuildSubject.onNext(true);
         List<PlayQueueItem> trackPlayQueueItems = new ArrayList<>();
