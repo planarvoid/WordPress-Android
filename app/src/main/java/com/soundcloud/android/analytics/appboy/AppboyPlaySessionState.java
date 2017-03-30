@@ -41,7 +41,7 @@ public class AppboyPlaySessionState {
         eventBus.subscribe(EventQueue.AD_OVERLAY, new AdOverlaySubscriber());
     }
 
-    public void setSessionPlayed() {
+    void setSessionPlayed() {
         sessionPlayed = true;
     }
 
@@ -59,7 +59,7 @@ public class AppboyPlaySessionState {
                 && !hasAdOverlay();
     }
 
-    public boolean isSessionPlayed() {
+    boolean isSessionPlayed() {
         return sessionPlayed;
     }
 

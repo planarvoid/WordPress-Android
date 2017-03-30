@@ -21,22 +21,11 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.strings.Strings;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 
 class AppboyEventHandler {
 
-    private static final List<AppboyAttributeName> PLAYABLE_ATTRIBUTES =
-            Arrays.asList(CREATOR_DISPLAY_NAME, CREATOR_URN, PLAYABLE_TITLE, PLAYABLE_URN, PLAYABLE_TYPE);
-
-    private static final List<AppboyAttributeName> CREATOR_ATTRIBUTES = Arrays.asList(CREATOR_DISPLAY_NAME,
-                                                                                      CREATOR_URN);
-
     private static final String ENABLED_PROPERTY = "enabled";
     private static final String CONTEXT_PROPERTY = "context";
-    private static final String LIKES_CONTEXT = "likes";
-    private static final String PLAYLIST_CONTEXT = "playlist";
-    private static final String ALL_CONTEXT = "all";
     private static final String MONETIZATION_MODEL_PROPERTY = "monetization_model";
 
     private final AppboyWrapper appboy;

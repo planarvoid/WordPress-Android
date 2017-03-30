@@ -23,9 +23,9 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
     private final AppboyEventHandler eventHandler;
 
     @Inject
-    public AppboyAnalyticsProvider(AppboyWrapper appboy,
-                                   AppboyEventHandler eventHandler,
-                                   AccountOperations accountOperations) {
+    AppboyAnalyticsProvider(AppboyWrapper appboy,
+                            AppboyEventHandler eventHandler,
+                            AccountOperations accountOperations) {
         this.appboy = appboy;
         this.eventHandler = eventHandler;
         changeUser(accountOperations.getLoggedInUserUrn());
