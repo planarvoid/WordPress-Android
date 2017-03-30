@@ -299,13 +299,6 @@ public class Han {
         sleep(500);
     }
 
-    public void clickOnView(With with) {
-        List<ViewElement> views = findOnScreenElements(with);
-        if (!views.isEmpty()) {
-            views.get(0).click();
-        }
-    }
-
     public void finishOpenedActivities() {
         solo.finishOpenedActivities();
     }

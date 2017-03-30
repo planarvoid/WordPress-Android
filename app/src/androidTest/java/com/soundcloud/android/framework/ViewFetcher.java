@@ -64,19 +64,20 @@ public class ViewFetcher {
 
     public List<ViewElement> findOnScreenElements(With with) {
         List<ViewElement> viewElements = elementWaiter.waitForOnScreenElements(with);
-        if (!viewElements.get(0).isOnScreen() && waitForBusyUi()) {
+        if (viewElements.isEmpty() && waitForBusyUi()) {
             return elementWaiter.waitForOnScreenElements(with);
         }
         return viewElements;
     }
 
     public ViewElement findOnScreenElement(final With... withs) {
-        return findOnScreenElements(withs).get(0);
+        List<ViewElement> elements = findOnScreenElements(withs);
+        return elements.isEmpty() ? new EmptyViewElement(failedToFindElementsMessage(withs)) : elements.get(0);
     }
 
     public List<ViewElement> findOnScreenElements(final With... withs) {
         if (withs.length == 0) {
-            return emptyViewElementList("Zero arguments");
+            return new ArrayList<>();
         }
 
         if (withs.length == 1) {
@@ -88,7 +89,7 @@ public class ViewFetcher {
 
     private List<ViewElement> findOnScreenElements(With with, final With... withs) {
         if (withs.length == 0) {
-            return emptyViewElementList("Not enough arguments");
+            return new ArrayList<>();
         }
 
         List<ViewElement> results = Lists.newArrayList(filter(
@@ -109,15 +110,9 @@ public class ViewFetcher {
         ));
 
         if (results.size() == 0) {
-            return emptyViewElementList(failedToFindElementsMessage(withs));
+            return new ArrayList<>();
         }
         return results;
-    }
-
-    private List<ViewElement> emptyViewElementList(String message) {
-        List<ViewElement> result = new ArrayList<>();
-        result.add(new EmptyViewElement(message));
-        return result;
     }
 
     private String failedToFindElementsMessage(With... withs) {
@@ -170,7 +165,7 @@ public class ViewFetcher {
         if (viewElements.size() > 0) {
             return viewElements;
         }
-        return emptyViewElementList(failedToFindElementsMessage(matcher));
+        return new ArrayList<>();
     }
 
     private List<ViewElement> getAllOnScreenElements() {
@@ -218,11 +213,12 @@ public class ViewFetcher {
                     throw new ViewNotFoundException(e);
                 }
             }
-            return Collections.singletonList(new EmptyViewElement(selector));
+            return Collections.emptyList();
         }
 
         private ViewElement waitForOne(String selector, Callable<List<ViewElement>> callable) {
-            return waitForMany(selector, callable).get(0);
+            List<ViewElement> viewElements = waitForMany(selector, callable);
+            return viewElements.isEmpty() ? new EmptyViewElement(selector) : viewElements.get(0);
         }
     }
 
