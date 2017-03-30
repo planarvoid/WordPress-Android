@@ -1,9 +1,5 @@
 package com.soundcloud.android.screens.discovery;
 
-import static com.soundcloud.java.checks.Preconditions.checkState;
-import static com.soundcloud.java.collections.Iterables.filter;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.SearchPresenter;
@@ -15,7 +11,6 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class SearchTopResultsScreen extends Screen {
@@ -99,28 +94,7 @@ public class SearchTopResultsScreen extends Screen {
     }
 
     private void scrollToBucketAndClickFirstItem(final Bucket bucket, final int elementsId) {
-        final ViewElement bucketHeader = scrollToBucket(bucket);
-        scrollToElementsBelow(elementsId, bucketHeader).get(0).click();
-    }
-
-    private List<ViewElement> scrollToElementsBelow(int elementsId, final ViewElement topElement) {
-        List<ViewElement> elementsBelow = getElementsBelow(elementsId, topElement);
-        int attempts = 0;
-        while (elementsBelow.size() == 0 && attempts++ < 1) {
-            testDriver.scrollDown();
-            elementsBelow = getElementsBelow(elementsId, topElement);
-        }
-
-        checkState(elementsBelow.size() > 0, "No elements found after " + attempts + " attempts.");
-        return elementsBelow;
-    }
-
-    private List<ViewElement> getElementsBelow(int elementsId, final ViewElement topElement) {
-        return newArrayList(filter(testDriver.findOnScreenElements(With.id(elementsId)), input -> input != null && input.getGlobalTop() > topElement.getGlobalTop()));
-    }
-
-    private ViewElement scrollToBucket(final Bucket bucket) {
-        return scrollToItem(With.text(bucket.getHeaderTitleId()));
+        testDriver.scrollToFirstItemUnderHeader(With.text(bucket.getHeaderTitleId()), With.id(elementsId)).click();
     }
 
     @Override

@@ -1,13 +1,10 @@
 package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
-import static com.soundcloud.java.collections.Iterables.filter;
-import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -23,7 +20,6 @@ import com.soundcloud.android.screens.profile.UserPlaylistsScreen;
 import com.soundcloud.android.screens.profile.UserRepostsScreen;
 import com.soundcloud.android.screens.profile.UserTracksScreen;
 import com.soundcloud.java.functions.Function;
-import org.jetbrains.annotations.Nullable;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -312,9 +308,7 @@ public class ProfileScreen extends Screen {
     }
 
     private void scrollToBucketAndClickFirstItem(final Bucket bucket, final int elementsId) {
-        final ViewElement bucketHeader = scrollToBucket(bucket);
-
-        scrollToElementsBelow(elementsId, bucketHeader.getGlobalTop()).get(0).click();
+        testDriver.scrollToFirstItemUnderHeader(With.and(With.text(bucket.getHeaderTitle()), With.id(R.id.sounds_header_text)), With.id(elementsId)).click();
     }
 
     public VisualPlayerElement scrollToBucketAndClickFirstTrack(final Bucket bucket) {
@@ -380,45 +374,4 @@ public class ProfileScreen extends Screen {
 
         return new UserLikesScreen(testDriver);
     }
-
-
-    private ViewElement scrollToBucket(final Bucket bucket) {
-        return scrollToItem(withHeaderText(bucket.getHeaderTitle()));
-    }
-
-    private static With withHeaderText(final String string) {
-        return new With() {
-            @Override
-            public String getSelector() {
-                return "sounds_header_text:" + string;
-            }
-
-            @Override
-            public boolean apply(@Nullable ViewElement input) {
-                if (input.getId() != R.id.sounds_header_text) {
-                    return false;
-                }
-
-                final ViewElement thing = input.findOnScreenElement(With.text(string));
-
-                return !(thing instanceof EmptyViewElement);
-            }
-        };
-    }
-
-    private List<ViewElement> getElementsBelow(int elementsId, final int globalTop) {
-        return newArrayList(filter(testDriver.findOnScreenElements(With.id(elementsId)), input -> input != null && input.getGlobalTop() > globalTop));
-    }
-
-    private List<ViewElement> scrollToElementsBelow(int elementsId, final int globalTop) {
-        List<ViewElement> elementsBelow = getElementsBelow(elementsId, globalTop);
-        // if we did not find matching elements, scroll down a bit and select again
-        if (elementsBelow.size() == 0) {
-            testDriver.scrollDown();
-            return getElementsBelow(elementsId, globalTop);
-        } else {
-            return elementsBelow;
-        }
-    }
-
 }

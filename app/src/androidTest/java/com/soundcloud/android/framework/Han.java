@@ -1,9 +1,12 @@
 package com.soundcloud.android.framework;
 
+import static com.soundcloud.java.checks.Preconditions.checkState;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
-import com.soundcloud.android.framework.viewelements.DefaultViewElement;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -15,7 +18,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -24,7 +26,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -80,11 +81,7 @@ public class Han {
         Thread thread = new Thread(runnable, "activityListenerThread");
         thread.start();
     }
-
-    public ViewElement wrap(View view) {
-        return new DefaultViewElement(view, this);
-    }
-
+    
     public ViewElement findOnScreenElement(With findBy) {
         return viewFetcher.findOnScreenElement(findBy);
     }
@@ -134,10 +131,6 @@ public class Han {
         solo.clearEditText(editText);
     }
 
-    public void clickOnText(String text) {
-        findOnScreenElement(With.text(text)).click();
-    }
-
     public void clickOnText(int stringId) {
         String text = getString(stringId);
         findOnScreenElement(With.text(text)).click();
@@ -147,26 +140,8 @@ public class Han {
         solo.clearTextInWebElement(by);
     }
 
-    public void sendKey(int key) {
-        solo.sendKey(key);
-    }
-
     public void pressSoftKeyboardSearchButton() {
         solo.pressSoftKeyboardSearchButton();
-    }
-
-    public void clickOnActionBarHomeButton() {
-        solo.clickOnActionBarHomeButton();
-    }
-
-    public void clickOnActionBarItem(int itemId) {
-        final ArrayList<ActionMenuItemView> currentViews = solo.getCurrentViews(ActionMenuItemView.class);
-        for (View view : currentViews) {
-            if (view.getId() == itemId) {
-                solo.clickOnView(view);
-                break;
-            }
-        }
     }
 
     public ArrayList<View> getViews(View view) {
@@ -193,20 +168,6 @@ public class Han {
         return solo.getCurrentActivity().getResources().getQuantityString(resId, quantity, args);
     }
 
-    @Deprecated
-    public GridView getCurrentGridView() {
-        solo.waitForView(GridView.class);
-        final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
-        return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
-    }
-
-    @Deprecated
-    public ListView getCurrentListView() {
-        solo.waitForView(ListView.class);
-        final ArrayList<ListView> currentListViews = solo.getCurrentViews(ListView.class);
-        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
-    }
-
     public void swipeLeft() {
         swipeHorizontal(Solo.LEFT);
     }
@@ -214,7 +175,6 @@ public class Han {
     public void swipeRight() {
         swipeHorizontal(Solo.RIGHT);
     }
-
 
     public void scrollDown() {
         Point deviceSize = new Point();
@@ -340,8 +300,25 @@ public class Han {
         );
     }
 
-    public boolean searchText(String text, boolean onlyVisible) {
-        return solo.searchText(text, onlyVisible);
+    public ViewElement scrollToFirstItemUnderHeader(With headerIdentifier, final With itemIdentifier) {
+        final ViewElement header = scrollToItem(headerIdentifier);
+        return scrollToElementsBelow(itemIdentifier, header).get(0);
+    }
+
+    private List<ViewElement> scrollToElementsBelow(With itemIdentifier, final ViewElement topElement) {
+        List<ViewElement> elementsBelow = getElementsBelow(itemIdentifier, topElement);
+        int attempts = 1;
+        while (elementsBelow.size() == 0 && attempts++ < 2) {
+            scrollDown();
+            elementsBelow = getElementsBelow(itemIdentifier, topElement);
+        }
+
+        checkState(elementsBelow.size() > 0, "No elements found after " + attempts + " attempts.");
+        return elementsBelow;
+    }
+
+    private List<ViewElement> getElementsBelow(With itemIdentifier, final ViewElement topElement) {
+        return newArrayList(filter(findOnScreenElements(itemIdentifier), input -> input.getGlobalTop() > topElement.getGlobalTop()));
     }
 
     public boolean waitForWebElement(By by) {
@@ -370,10 +347,6 @@ public class Han {
 
     public void waitForDialogToOpen(long timeout) {
         solo.waitForDialogToOpen(timeout);
-    }
-
-    public void openSystemMenu() {
-        solo.sendKey(Solo.MENU);
     }
 
     public boolean waitForFragmentByTag(String fragment_tag, int timeout) {

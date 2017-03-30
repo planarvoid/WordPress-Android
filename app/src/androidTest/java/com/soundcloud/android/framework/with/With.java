@@ -4,6 +4,7 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
 import android.support.annotation.StringRes;
@@ -60,6 +61,10 @@ public abstract class With implements Predicate<ViewElement> {
 
     public static With either(With first, With second) {
         return new WithEither(first, second);
+    }
+
+    public static With and(With first, With second) {
+        return new WithAnd(first, second);
     }
 
     @Override
@@ -227,7 +232,7 @@ public abstract class With implements Predicate<ViewElement> {
     }
 
     private static class WithClassName extends With {
-        private String className;
+        private final String className;
 
         public WithClassName(String classStringName) {
             className = classStringName;
@@ -245,7 +250,7 @@ public abstract class With implements Predicate<ViewElement> {
     }
 
     private static class WithClassSimpleName extends With {
-        private String classSimpleName;
+        private final String classSimpleName;
 
         public WithClassSimpleName(String classStringName) {
             classSimpleName = classStringName;
@@ -259,6 +264,26 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public String getSelector() {
             return String.format("With ClassSimpleName: %s", classSimpleName);
+        }
+    }
+
+    private static class WithAnd extends With {
+        private final With first;
+        private final With second;
+
+        public WithAnd(With first, With second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With: [%s] and [%s]", first.getSelector(), second.getSelector());
+        }
+
+        @Override
+        public boolean apply(@Nullable ViewElement viewElement) {
+            return first.apply(viewElement) && second.apply(viewElement);
         }
     }
 }
