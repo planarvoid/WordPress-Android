@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="626"
-    android:versionName="2017.03.29"
+    android:versionCode="629"
+    android:versionName="2017.03.30"
     package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
