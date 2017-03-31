@@ -368,7 +368,9 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @Override
     public void onTrimMemory(int level) {
-        uncaughtExceptionHandlerController.reportMemoryTrim(level);
+        if (!LeakCanary.isInAnalyzerProcess(this)) {
+            uncaughtExceptionHandlerController.reportMemoryTrim(level);
+        }
         super.onTrimMemory(level);
     }
 
