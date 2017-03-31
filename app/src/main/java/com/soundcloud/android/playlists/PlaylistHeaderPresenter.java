@@ -30,7 +30,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -70,7 +70,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final OfflineContentOperations offlineOperations;
     private final PlaybackInitiator playbackInitiator;
     private final PlaylistOperations playlistOperations;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
     private final SharePresenter sharePresenter;
@@ -103,7 +103,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             OfflineContentOperations offlineOperations,
                             PlaybackInitiator playbackInitiator,
                             PlaylistOperations playlistOperations,
-                            PlaybackToastHelper playbackToastHelper,
+                            PlaybackFeedbackHelper playbackFeedbackHelper,
                             LikeOperations likeOperations,
                             RepostOperations repostOperations,
                             SharePresenter sharePresenter,
@@ -124,7 +124,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.offlineOperations = offlineOperations;
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
         this.sharePresenter = sharePresenter;
@@ -328,7 +328,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             playbackInitiator
                     .playTracksShuffled(tracks, playSessionSource)
                     .doOnCompleted(() -> eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(getEventContext())))
-                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         }
     }
 

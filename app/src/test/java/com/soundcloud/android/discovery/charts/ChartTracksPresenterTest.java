@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -70,11 +70,11 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private EventBus eventBus;
     @Mock private MiniplayerExperiment miniplayerExperiment;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Spy private ExpandPlayerSubscriber expandPlayerSubscriber =
-            new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
+            new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
 
     private ChartTracksPresenter chartTracksPresenter;
     private Bundle bundle;

@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
@@ -61,7 +61,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final PlaybackInitiator playbackInitiator;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final EventTracker eventTracker;
     private PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -102,7 +102,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            AccountOperations accountOperations,
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
-                           PlaybackToastHelper playbackToastHelper,
+                           PlaybackFeedbackHelper playbackFeedbackHelper,
                            EventTracker eventTracker,
                            PerformanceMetricsEngine performanceMetricsEngine) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -118,7 +118,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.playbackInitiator = playbackInitiator;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.eventTracker = eventTracker;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
@@ -273,7 +273,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         if (playQueueManager.isQueueEmpty()) {
             final PlaySessionSource playSessionSource = PlaySessionSource.forPlayNext(lastScreen);
             playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
-                             .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+                             .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         } else {
             playQueueManager.insertNext(trackUrn);
         }

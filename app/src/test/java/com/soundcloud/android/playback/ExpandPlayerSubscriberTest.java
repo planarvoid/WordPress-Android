@@ -9,7 +9,7 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -21,14 +21,14 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
     private ExpandPlayerSubscriber subscriber;
 
     private TestEventBus eventBus;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        subscriber = new ExpandPlayerSubscriber(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
+        subscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
     }
 
     @Test
@@ -52,12 +52,12 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsToastOnPlaybackResultError() {
+    public void showsFeedbackOnPlaybackResultError() {
         PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
         subscriber.onNext(errorResult);
 
-        verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
+        verify(playbackFeedbackHelper).showFeedbackOnPlaybackError(errorResult.getErrorReason());
     }
 
     @Test

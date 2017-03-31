@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -34,7 +34,7 @@ public class StartStationPresenter {
     private final StationsOperations stationsOperations;
     private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final ScreenProvider screenProvider;
     private final MiniplayerExperiment miniplayerExperiment;
     private PerformanceMetricsEngine performanceMetricsEngine;
@@ -43,7 +43,7 @@ public class StartStationPresenter {
     @Inject
     public StartStationPresenter(DelayedLoadingDialogPresenter.Builder dialogBuilder,
                                  StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
-                                 EventBus eventBus, PlaybackToastHelper playbackToastHelper,
+                                 EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper,
                                  ScreenProvider screenProvider,
                                  MiniplayerExperiment miniplayerExperiment,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
@@ -51,7 +51,7 @@ public class StartStationPresenter {
         this.stationsOperations = stationsOperations;
         this.playbackInitiator = playbackInitiator;
         this.eventBus = eventBus;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.screenProvider = screenProvider;
         this.miniplayerExperiment = miniplayerExperiment;
         this.performanceMetricsEngine = performanceMetricsEngine;
@@ -74,7 +74,7 @@ public class StartStationPresenter {
                              final int position) {
         subscription = station
                 .flatMap(toPlaybackResult(discoverySource, position))
-                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
+                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackFeedbackHelper,
                                                                 getLoadingDialogPresenter(context),
                                                                 miniplayerExperiment, performanceMetricsEngine));
 
@@ -102,7 +102,7 @@ public class StartStationPresenter {
                      final DiscoverySource discoverySource) {
         subscription = station
                 .flatMap(toPlaybackResult(discoverySource))
-                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
+                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackFeedbackHelper,
                                                                 getLoadingDialogPresenter(context),
                                                                 miniplayerExperiment, performanceMetricsEngine));
 
@@ -147,11 +147,11 @@ public class StartStationPresenter {
 
         ExpandAndDismissDialogSubscriber(Context context,
                                          EventBus eventBus,
-                                         PlaybackToastHelper playbackToastHelper,
+                                         PlaybackFeedbackHelper playbackFeedbackHelper,
                                          DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
                                          MiniplayerExperiment miniplayerExperiment,
                                          PerformanceMetricsEngine performanceMetricsEngine) {
-            super(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
+            super(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
         }

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener {
 
     private final ReplaySubject<Integer> scrollStateSubject = ReplaySubject.createWithSize(1);
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
 
@@ -27,10 +27,10 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private PlayerPagerPresenter presenter;
     private boolean wasPageChange;
 
-    private final DefaultSubscriber<Integer> showBlockedSwipeToast = new DefaultSubscriber<Integer>() {
+    private final DefaultSubscriber<Integer> showBlockedSwipeFeedback = new DefaultSubscriber<Integer>() {
         @Override
         public void onNext(Integer args) {
-            playbackToastHelper.showUnskippableAdToast();
+            playbackFeedbackHelper.showUnskippableAdFeedback();
         }
     };
 
@@ -49,10 +49,10 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     };
 
     @Inject
-    PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackToastHelper playbackToastHelper,
+    PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackFeedbackHelper playbackFeedbackHelper,
                               AdsOperations adsOperations) {
         this.playQueueManager = playQueueManager;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.adsOperations = adsOperations;
     }
 
@@ -93,7 +93,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
         subscription = new CompositeSubscription();
         subscription.add(scrollStateSubject
                                  .filter(noPageChangedScrollOnAd)
-                                 .subscribe(showBlockedSwipeToast));
+                                 .subscribe(showBlockedSwipeFeedback));
     }
 
     public void unsubscribe() {

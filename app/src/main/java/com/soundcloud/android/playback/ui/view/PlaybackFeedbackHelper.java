@@ -9,57 +9,57 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import javax.inject.Inject;
 
 
-public class PlaybackToastHelper {
+public class PlaybackFeedbackHelper {
 
     private final PlaySessionStateProvider playSessionStateProvider;
     private final FeedbackController feedbackController;
 
     @Inject
-    public PlaybackToastHelper(PlaySessionStateProvider playSessionStateProvider,
-                               FeedbackController feedbackController) {
+    public PlaybackFeedbackHelper(PlaySessionStateProvider playSessionStateProvider,
+                                  FeedbackController feedbackController) {
         this.playSessionStateProvider = playSessionStateProvider;
         this.feedbackController = feedbackController;
     }
 
-    public void showToastOnPlaybackError(PlaybackResult.ErrorReason errorReason) {
+    public void showFeedbackOnPlaybackError(PlaybackResult.ErrorReason errorReason) {
         switch (errorReason) {
             case UNSKIPPABLE:
-                showUnskippableAdToast();
+                showUnskippableAdFeedback();
                 break;
             case TRACK_UNAVAILABLE_OFFLINE:
-                showTrackUnavailableOfflineToast();
+                showTrackUnavailableOfflineFeedback();
                 break;
             case MISSING_PLAYABLE_TRACKS:
-                showMissingPlayableTracksToast();
+                showMissingPlayableTracksFeedback();
                 break;
             case TRACK_UNAVAILABLE_CAST:
-                showUnableToCastTrack();
+                showUnableToCastFeedback();
                 break;
             default:
                 throw new IllegalStateException("Unknown error reason: " + errorReason);
         }
     }
 
-    public void showUnskippableAdToast() {
+    public void showUnskippableAdFeedback() {
         final int stringId = playSessionStateProvider.isPlaying()
                 ? R.string.ads_ad_in_progress
                 : R.string.ads_resume_playing_ad_to_continue;
         feedbackController.showFeedback(Feedback.create(stringId));
     }
 
-    public void showTrackUnavailableOfflineToast() {
-        feedbackController.showFeedback(Feedback.create(R.string.offline_track_not_available));
-    }
-
-    public void showMissingPlayableTracksToast() {
-        feedbackController.showFeedback(Feedback.create(R.string.playback_missing_playable_tracks));
-    }
-
-    public void showConcurrentStreamingStoppedToast() {
+    public void showConcurrentStreamingStoppedFeedback() {
         feedbackController.showFeedback(Feedback.create(R.string.concurrent_streaming_stopped));
     }
 
-    private void showUnableToCastTrack() {
+    private void showTrackUnavailableOfflineFeedback() {
+        feedbackController.showFeedback(Feedback.create(R.string.offline_track_not_available));
+    }
+
+    private void showMissingPlayableTracksFeedback() {
+        feedbackController.showFeedback(Feedback.create(R.string.playback_missing_playable_tracks));
+    }
+
+    private void showUnableToCastFeedback() {
         feedbackController.showFeedback(Feedback.create(R.string.cast_unable_play_track));
     }
 }

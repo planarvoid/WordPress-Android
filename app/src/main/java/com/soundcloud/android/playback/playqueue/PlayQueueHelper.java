@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
@@ -35,7 +35,7 @@ public class PlayQueueHelper {
     private final PlayQueueManager playQueueManager;
     private final PlaylistOperations playlistOperations;
     private final TrackRepository trackRepository;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final EventBus eventBus;
     private final PlaybackInitiator playbackInitiator;
     private final ScreenProvider screenProvider;
@@ -43,14 +43,14 @@ public class PlayQueueHelper {
     @Inject
     public PlayQueueHelper(PlayQueueManager playQueueManager,
                            PlaylistOperations playlistOperations,
-                           TrackRepository trackRepository, PlaybackToastHelper playbackToastHelper,
+                           TrackRepository trackRepository, PlaybackFeedbackHelper playbackFeedbackHelper,
                            EventBus eventBus,
                            PlaybackInitiator playbackInitiator,
                            ScreenProvider screenProvider) {
         this.playQueueManager = playQueueManager;
         this.playlistOperations = playlistOperations;
         this.trackRepository = trackRepository;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.eventBus = eventBus;
         this.playbackInitiator = playbackInitiator;
         this.screenProvider = screenProvider;
@@ -61,7 +61,7 @@ public class PlayQueueHelper {
             playlistOperations.trackUrnsForPlayback(playlistUrn)
                               .flatMap(playTracks)
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+                              .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         } else {
             trackRepository.forPlaylist(playlistUrn)
                               .observeOn(AndroidSchedulers.mainThread())

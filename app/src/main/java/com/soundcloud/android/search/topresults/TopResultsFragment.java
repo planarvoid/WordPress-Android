@@ -12,7 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.SearchTracker;
@@ -46,7 +46,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject TopResultsPresenter presenter;
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject Navigator navigator;
-    @Inject PlaybackToastHelper playbackToastHelper;
+    @Inject PlaybackFeedbackHelper playbackFeedbackHelper;
     @Inject SearchTracker searchTracker;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -168,7 +168,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
                                                                                                        args.searchQuerySourceInfo(),
                                                                                                        null, // top results cannot be promoted *yet
                                                                                                        UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata())))),
-                            presenter.playbackError().subscribe(playbackToastHelper::showToastOnPlaybackError),
+                            presenter.playbackError().subscribe(playbackFeedbackHelper::showFeedbackOnPlaybackError),
                             presenter.goToViewAllPage()
                                      .subscribe((clickAndQuery) -> navigator.openSearchViewAll(getContext(),
                                                                                                clickAndQuery.query().get(),

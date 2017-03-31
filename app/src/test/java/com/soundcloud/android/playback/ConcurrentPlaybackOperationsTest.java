@@ -4,7 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -15,7 +15,7 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
     @Mock StopReasonProvider stopReasonProvider;
     @Mock PlaySessionStateProvider playSessionStateProvider;
     @Mock PlaySessionController playSessionController;
-    @Mock PlaybackToastHelper playbackToastHelper;
+    @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
 
     @InjectMocks private ConcurrentPlaybackOperations operations;
 
@@ -38,12 +38,12 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void pauseIfPlayingShowsToastWhenIsPlaying() {
+    public void pauseIfPlayingShowsFeedbackWhenIsPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
         operations.pauseIfPlaying();
 
-        verify(playbackToastHelper).showConcurrentStreamingStoppedToast();
+        verify(playbackFeedbackHelper).showConcurrentStreamingStoppedFeedback();
     }
 
     @Test
@@ -65,12 +65,12 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void pauseIfPlayingDoesNotShowToastIfNotPlaying() {
+    public void pauseIfPlayingDoesNotShowFeedbackIfNotPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
 
         operations.pauseIfPlaying();
 
-        verify(playbackToastHelper, never()).showConcurrentStreamingStoppedToast();
+        verify(playbackFeedbackHelper, never()).showConcurrentStreamingStoppedFeedback();
     }
 
 }

@@ -14,7 +14,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -34,7 +34,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private AdsController adsController;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaySessionController playSessionController;

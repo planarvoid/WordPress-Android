@@ -2,7 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -10,12 +10,12 @@ import javax.inject.Inject;
 
 public class ShowPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     private final EventBus eventBus;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
 
     @Inject
-    public ShowPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
+    public ShowPlayerSubscriber(EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper) {
         this.eventBus = eventBus;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
     }
 
     @Override
@@ -23,7 +23,7 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
         if (result.isSuccess()) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
         } else {
-            playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
+            playbackFeedbackHelper.showFeedbackOnPlaybackError(result.getErrorReason());
         }
     }
 

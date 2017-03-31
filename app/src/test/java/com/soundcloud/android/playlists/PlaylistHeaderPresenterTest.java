@@ -51,7 +51,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.share.SharePresenter;
@@ -97,7 +97,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaybackInitiator playbackInitiator;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private SharePresenter sharePresenter;
@@ -144,7 +144,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 offlineContentOperations,
                 playbackInitiator,
                 playlistOperations,
-                playbackToastHelper,
+                playbackFeedbackHelper,
                 likeOperations,
                 repostOperations,
                 sharePresenter,

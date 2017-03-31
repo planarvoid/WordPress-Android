@@ -30,7 +30,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -65,7 +65,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private PlaybackStrategy playbackStrategy;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlaybackServiceController playbackServiceController;
@@ -85,7 +85,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
                                                playSessionStateProvider,
                                                castConnectionHelper,
                                                InjectionSupport.providerOf(playbackStrategy),
-                                               playbackToastHelper,
+                                               playbackFeedbackHelper,
                                                playbackServiceController,
                                                playbackProgressRepository,
                                                performanceMetricsEngine);
@@ -441,12 +441,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void previousTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
+    public void previousTrackShowsUnskippableFeedbackWhenPlaybackNotSkippable() {
         setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.previousTrack();
 
-        verify(playbackToastHelper).showUnskippableAdToast();
+        verify(playbackFeedbackHelper).showUnskippableAdFeedback();
     }
 
     @Test
@@ -500,12 +500,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void nextTrackShowsUnskippableToastWhenPlaybackNotSkippable() {
+    public void nextTrackShowsUnskippableFeedbackWhenPlaybackNotSkippable() {
         setupAudioAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
         controller.nextTrack();
 
-        verify(playbackToastHelper).showUnskippableAdToast();
+        verify(playbackFeedbackHelper).showUnskippableAdFeedback();
     }
 
     @Test

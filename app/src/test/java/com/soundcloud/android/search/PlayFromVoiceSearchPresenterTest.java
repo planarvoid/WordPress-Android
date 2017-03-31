@@ -12,7 +12,7 @@ import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -48,7 +48,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Random random;
     @Mock private Navigator navigator;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     private TestEventBus eventBus;
@@ -61,7 +61,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter = new PlayFromVoiceSearchPresenter(searchOperations,
                                                      playbackInitiator,
                                                      random,
-                                                     playbackToastHelper,
+                                                     playbackFeedbackHelper,
                                                      navigator,
                                                      eventBus,
                                                      miniplayerExperiment,

@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -37,7 +37,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaylistOperations playlistOperations;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ScreenProvider screenProvider;
     @Mock private TrackRepository trackRepository;
@@ -53,7 +53,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
         Urn track2 = Urn.forTrack(2L);
         trackList = newArrayList(track1, track2);
         when(screenProvider.getLastScreenTag()).thenReturn(Screen.STREAM.get());
-        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackToastHelper, eventBus,
+        playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, trackRepository, playbackFeedbackHelper, eventBus,
                                               playbackInitiator, screenProvider);
     }
 

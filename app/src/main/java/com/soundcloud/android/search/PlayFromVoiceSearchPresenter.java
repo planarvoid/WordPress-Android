@@ -12,7 +12,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
@@ -41,7 +41,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final SearchOperations searchOperations;
     private final PlaybackInitiator playbackInitiator;
     private final Random random;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final Navigator navigator;
     private final EventBus eventBus;
     private final MiniplayerExperiment miniplayerExperiment;
@@ -71,7 +71,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     PlayFromVoiceSearchPresenter(SearchOperations searchOperations,
                                  PlaybackInitiator playbackInitiator,
                                  Random random,
-                                 PlaybackToastHelper playbackToastHelper,
+                                 PlaybackFeedbackHelper playbackFeedbackHelper,
                                  Navigator navigator,
                                  EventBus eventBus,
                                  MiniplayerExperiment miniplayerExperiment,
@@ -79,7 +79,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
         this.random = random;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.miniplayerExperiment = miniplayerExperiment;
@@ -125,7 +125,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                 .searchResult(query, Optional.absent(), SearchType.TRACKS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(toPlayWithRecommendations)
-                .subscribe(new PlayFromQuerySubscriber(eventBus, playbackToastHelper, query));
+                .subscribe(new PlayFromQuerySubscriber(eventBus, playbackFeedbackHelper, query));
     }
 
     private void playPlaylist(final String query) {
@@ -143,8 +143,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private class PlayFromQuerySubscriber extends ExpandPlayerSubscriber {
         private final String query;
 
-        public PlayFromQuerySubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper, String query) {
-            super(eventBus, playbackToastHelper, miniplayerExperiment, performanceMetricsEngine);
+        public PlayFromQuerySubscriber(EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper, String query) {
+            super(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
             this.query = query;
         }
 

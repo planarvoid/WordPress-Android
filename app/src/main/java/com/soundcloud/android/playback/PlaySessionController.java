@@ -21,7 +21,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
@@ -55,7 +55,7 @@ public class PlaySessionController {
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final PlaybackServiceController playbackServiceController;
     private final PlaybackProgressRepository playbackProgressRepository;
 
@@ -69,7 +69,7 @@ public class PlaySessionController {
                                  PlaySessionStateProvider playSessionStateProvider,
                                  CastConnectionHelper castConnectionHelper,
                                  Provider<PlaybackStrategy> playbackStrategyProvider,
-                                 PlaybackToastHelper playbackToastHelper,
+                                 PlaybackFeedbackHelper playbackFeedbackHelper,
                                  PlaybackServiceController playbackServiceController,
                                  PlaybackProgressRepository playbackProgressRepository,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
@@ -78,7 +78,7 @@ public class PlaySessionController {
         this.adsController = adsController;
         this.playQueueManager = playQueueManager;
         this.playbackStrategyProvider = playbackStrategyProvider;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.playbackServiceController = playbackServiceController;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castConnectionHelper = castConnectionHelper;
@@ -151,7 +151,7 @@ public class PlaySessionController {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastHelper.showUnskippableAdToast();
+            playbackFeedbackHelper.showUnskippableAdFeedback();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !adsOperations.isCurrentItemAd()) {
@@ -168,7 +168,7 @@ public class PlaySessionController {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastHelper.showUnskippableAdToast();
+            playbackFeedbackHelper.showUnskippableAdFeedback();
         } else {
             if (playQueueManager.hasNextItem()) {
                 startMeasuringTimeToSkip();

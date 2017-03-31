@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -28,7 +28,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
 
     @Mock PlayQueueManager playQueueManager;
     @Mock PlayerTrackPager playerTrackPager;
-    @Mock PlaybackToastHelper playbackToastHelper;
+    @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock AdsOperations adsOperations;
     @Mock PlayerPagerPresenter presenter;
 
@@ -40,7 +40,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         observer = new TestObserver<>();
-        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackToastHelper, adsOperations);
+        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackFeedbackHelper, adsOperations);
         pagerScrollListener.initialize(playerTrackPager, presenter);
         pagerScrollListener.getPageChangedObservable().subscribe(observer);
     }
@@ -63,19 +63,19 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsBlockedSwipeToastWhenSwipeOnAdPage() {
+    public void showsBlockedSwipeFeedbackWhenSwipeOnAdPage() {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackToastHelper).showUnskippableAdToast();
+        verify(playbackFeedbackHelper).showUnskippableAdFeedback();
     }
 
     @Test
-    public void doesNotShowBlocksSwipeToastWhenSwipeOnTrackPage() {
+    public void doesNotShowBlocksSwipeFeedbackWhenSwipeOnTrackPage() {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackToastHelper, never()).showUnskippableAdToast();
+        verify(playbackFeedbackHelper, never()).showUnskippableAdFeedback();
     }
 
     @Test

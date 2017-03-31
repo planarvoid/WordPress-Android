@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -66,9 +66,9 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private Navigator navigator;
     @Mock private Context context;
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
-    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackToastHelper, mock(MiniplayerExperiment.class), mock(PerformanceMetricsEngine.class));
+    @Spy private ExpandPlayerSubscriber expandPlayerSubscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, mock(MiniplayerExperiment.class), mock(PerformanceMetricsEngine.class));
 
     @Before
     public void setUp() {

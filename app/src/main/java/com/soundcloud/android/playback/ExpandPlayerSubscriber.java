@@ -5,7 +5,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -14,17 +14,17 @@ import javax.inject.Inject;
 public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
 
     private final EventBus eventBus;
-    private final PlaybackToastHelper playbackToastHelper;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final MiniplayerExperiment miniplayerExperiment;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @Inject
     public ExpandPlayerSubscriber(EventBus eventBus,
-                                  PlaybackToastHelper playbackToastHelper,
+                                  PlaybackFeedbackHelper playbackFeedbackHelper,
                                   MiniplayerExperiment miniplayerExperiment,
                                   PerformanceMetricsEngine performanceMetricsEngine) {
         this.eventBus = eventBus;
-        this.playbackToastHelper = playbackToastHelper;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.miniplayerExperiment = miniplayerExperiment;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
@@ -35,7 +35,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
             expandPlayer();
         } else {
             onPlaybackError();
-            playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
+            playbackFeedbackHelper.showFeedbackOnPlaybackError(result.getErrorReason());
         }
     }
 

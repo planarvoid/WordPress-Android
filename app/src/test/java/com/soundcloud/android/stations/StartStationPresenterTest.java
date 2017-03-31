@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -33,7 +33,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
     @Mock StationsOperations stationsOperations;
     @Mock PlaybackInitiator playbackInitiator;
     @Mock EventBus eventBus;
-    @Mock PlaybackToastHelper playbackToastHelper;
+    @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock ScreenProvider screenProvider;
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock DelayedLoadingDialogPresenter dialogPresenter;
@@ -60,7 +60,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
                                               stationsOperations,
                                               playbackInitiator,
                                               eventBus,
-                                              playbackToastHelper,
+                                              playbackFeedbackHelper,
                                               screenProvider,
                                               miniplayerExperiment,
                                               performanceMetricsEngine);

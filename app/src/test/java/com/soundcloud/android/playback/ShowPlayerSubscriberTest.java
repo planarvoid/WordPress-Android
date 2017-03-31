@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -13,7 +13,7 @@ import org.mockito.Mock;
 
 public class ShowPlayerSubscriberTest extends AndroidUnitTest {
 
-    @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
 
     private ShowPlayerSubscriber subscriber;
     private TestEventBus eventBus;
@@ -21,7 +21,7 @@ public class ShowPlayerSubscriberTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        subscriber = new ShowPlayerSubscriber(eventBus, playbackToastHelper);
+        subscriber = new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper);
     }
 
     @Test
@@ -32,11 +32,11 @@ public class ShowPlayerSubscriberTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsToastOnPlaybackResultError() {
+    public void showsFeedbackOnPlaybackResultError() {
         PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS);
 
         subscriber.onNext(errorResult);
 
-        verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
+        verify(playbackFeedbackHelper).showFeedbackOnPlaybackError(errorResult.getErrorReason());
     }
 }
