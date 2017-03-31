@@ -101,16 +101,20 @@ public class FullImageDialog extends DialogFragment {
 
             @Override
             public void onLoadingFailed(String s, View view, String failedReason) {
-                handleLoadingError();
+                if (isAdded()) {
+                    handleLoadingError();
+                }
             }
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                if (loadedImage == null) {
-                    handleLoadingError();
-                } else if (isAdded()) {
-                    image.setVisibility(View.VISIBLE);
-                    progress.setVisibility(View.INVISIBLE);
+                if (isAdded()) {
+                    if (loadedImage == null) {
+                        handleLoadingError();
+                    } else {
+                        image.setVisibility(View.VISIBLE);
+                        progress.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });
