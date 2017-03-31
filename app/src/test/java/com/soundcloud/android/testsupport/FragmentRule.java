@@ -58,9 +58,13 @@ public class FragmentRule implements TestRule {
 
     @Override
     public Statement apply(Statement statement, Description description) {
-        fragment = new DummyFragment(fragmentLayout, fragmentArgs);
+        fragment = createFragment(fragmentLayout, fragmentArgs);
         SupportFragmentTestUtil.startVisibleFragment(fragment, DummyFragmentActivity.class, R.id.container);
         return statement;
+    }
+
+    protected Fragment createFragment(@LayoutRes int fragmentLayout, Bundle fragmentArgs) {
+        return new DummyFragment(fragmentLayout, fragmentArgs);
     }
 
     private static class DummyFragmentActivity extends FragmentActivity {

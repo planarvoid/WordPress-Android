@@ -12,6 +12,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -26,12 +29,7 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.StreamAdsController;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
-import com.soundcloud.android.analytics.performance.MetricKey;
-import com.soundcloud.android.analytics.performance.MetricType;
-import com.soundcloud.android.analytics.performance.PerformanceMetric;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -48,9 +46,11 @@ import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stream.perf.StreamMeasurements;
+import com.soundcloud.android.stream.perf.StreamMeasurementsFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.RefreshableFragmentRule;
 import com.soundcloud.android.testsupport.TestPager;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
@@ -66,9 +66,9 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import rx.Observable;
 import rx.Observer;
 import rx.subjects.PublishSubject;
@@ -91,10 +91,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     private static final Date CREATED_AT = new Date();
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
-    private final Date DATE = new Date(123L);
-
-    private StreamPresenter presenter;
+    @Rule public final FragmentRule fragmentRule = new RefreshableFragmentRule(R.layout.default_recyclerview_with_refresh);
 
     @Mock private StreamOperations streamOperations;
     @Mock private StreamAdapter adapter;
@@ -102,7 +99,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private StreamAdsController streamAdsController;
     @Mock private StreamDepthPublisherFactory streamDepthPublisherFactory;
     @Mock private StreamDepthPublisher streamDepthPublisher;
-    @Mock private StreamSwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
@@ -117,15 +113,17 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private WhyAdsDialogPresenter whyAdsDialogPresenter;
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
     @Mock private TextureView textureView;
-    @Mock private DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
-    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private StreamMeasurementsFactory streamMeasurementsFactory;
+    @Mock private StreamMeasurements streamMeasurements;
 
-    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
+    @Spy private StreamSwipeRefreshAttacher swipeRefreshAttacher;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
     private PublishSubject<Urn> followSubject = PublishSubject.create();
     private PublishSubject<Urn> unfollowSubject = PublishSubject.create();
+    private final Date DATE = new Date(123L);
+    private StreamPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
@@ -133,6 +131,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
         updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
         when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
         when(itemClickListenerFactory.create(Screen.STREAM, null)).thenReturn(itemClickListener);
+        when(streamMeasurementsFactory.create()).thenReturn(streamMeasurements);
+        doNothing().when(swipeRefreshAttacher).forceRefresh();
+
         presenter = new StreamPresenter(
                 streamOperations,
                 adapter,
@@ -150,8 +151,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 whyAdsDialogPresenter,
                 videoSurfaceProvider,
                 updatePlayableAdapterSubscriberFactory,
-                defaultHomeScreenConfiguration,
-                performanceMetricsEngine);
+                streamMeasurementsFactory);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.empty());
         when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
@@ -400,7 +400,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onStreamRefreshUpdatesOnlyWhenThereAreVisibleItems() {
         when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
-        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(null);
+        when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.absent());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -629,30 +629,31 @@ public class StreamPresenterTest extends AndroidUnitTest {
         List<StreamItem> items = Collections.singletonList(normalTrackStreamItem);
 
         when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
-        when(defaultHomeScreenConfiguration.isStreamHome()).thenReturn(true);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
-        verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
-
-        Assertions.assertThat(performanceMetricArgumentCaptor.getValue())
-                  .hasMetricType(MetricType.LOGIN)
-                  .containsMetricParam(MetricKey.HOME_SCREEN, Screen.STREAM.get());
+        verify(streamMeasurements).endLoading();
     }
 
     @Test
-    public void shouldNotEndMeasuringLoginPerformanceWhenStreamIsNotHome() {
+    public void shouldInvokeStreamMeasurementsOnRefresh() {
+
+        doCallRealMethod().when(swipeRefreshAttacher).forceRefresh();
 
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
-        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
-        List<StreamItem> items = Collections.singletonList(normalTrackStreamItem);
-
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
-        when(defaultHomeScreenConfiguration.isStreamHome()).thenReturn(false);
+        final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
+        when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
+                Collections.singletonList(streamItem)
+        ));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
-        verify(performanceMetricsEngine, never()).endMeasuring(any(PerformanceMetric.class));
+        swipeRefreshAttacher.forceRefresh();
+
+        InOrder inOrder = inOrder(streamMeasurements);
+        inOrder.verify(streamMeasurements).startRefreshing();
+        inOrder.verify(streamMeasurements).endRefreshing();
     }
 
     @Test
