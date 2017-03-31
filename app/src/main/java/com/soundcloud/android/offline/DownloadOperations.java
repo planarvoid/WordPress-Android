@@ -31,6 +31,7 @@ class DownloadOperations {
     private final Scheduler scheduler;
     private final OfflineTrackAssetDownloader assetDownloader;
     private final DownloadConnectionHelper downloadConnectionHelper;
+    private final OfflineSettingsStorage offlineSettingsStorage;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -47,7 +48,8 @@ class DownloadOperations {
                        StreamUrlBuilder urlBuilder,
                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        OfflineTrackAssetDownloader assetDownloader,
-                       DownloadConnectionHelper downloadConnectionHelper) {
+                       DownloadConnectionHelper downloadConnectionHelper,
+                       OfflineSettingsStorage offlineSettingsStorage) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
@@ -56,9 +58,10 @@ class DownloadOperations {
         this.scheduler = scheduler;
         this.assetDownloader = assetDownloader;
         this.downloadConnectionHelper = downloadConnectionHelper;
+        this.offlineSettingsStorage = offlineSettingsStorage;
     }
 
-    public boolean isConnectionValid() {
+    boolean isConnectionValid() {
         return !downloadConnectionHelper.isNetworkDisconnected() && downloadConnectionHelper.isDownloadPermitted();
     }
 
@@ -73,6 +76,10 @@ class DownloadOperations {
     }
 
     DownloadState download(DownloadRequest request, DownloadProgressListener listener) {
+        if (!offlineSettingsStorage.isOfflineContentAccessible()) {
+            return DownloadState.inaccessibleStorage(request);
+        }
+
         if (!fileStorage.isEnoughMinimumSpace()) {
             return DownloadState.notEnoughMinimumSpace(request);
         }
@@ -111,11 +118,15 @@ class DownloadOperations {
         } catch (EncryptionException encryptionException) {
             return DownloadState.error(request);
         } catch (IOException ioException) {
+            if (!offlineSettingsStorage.isOfflineContentAccessible()) {
+                return DownloadState.inaccessibleStorage(request);
+            }
+
             if (downloadConnectionHelper.isNetworkDisconnected()) {
                 return DownloadState.disconnectedNetworkError(request);
-            } else {
-                return DownloadState.invalidNetworkError(request);
             }
+
+            return DownloadState.invalidNetworkError(request);
         } finally {
             IOUtils.close(response);
         }
@@ -131,12 +142,12 @@ class DownloadOperations {
     private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
-        fileStorage.storeTrack(request.getUrn(), response.getInputStream(), totalProcessed -> listener.onProgress(totalProcessed));
+        fileStorage.storeTrack(request.getUrn(), response.getInputStream(), listener::onProgress);
 
         Log.d(OfflineContentService.TAG, "Track stored on device: " + request.getUrn());
     }
 
-    public interface DownloadProgressListener {
+    interface DownloadProgressListener {
         void onProgress(long downloaded);
     }
 }

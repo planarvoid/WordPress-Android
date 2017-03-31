@@ -174,6 +174,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         if (state.isConnectivityError()) {
             Log.d(TAG, "onError> Connection error.");
             stopAndRetryLater(state);
+        } else if (state.isInaccessibleStorage()) {
+            Log.d(TAG, "onError> Inaccessible storage location");
+            stopAndFinish(state);
         } else if (state.isNotEnoughMinimumSpace()) {
             Log.d(TAG, "onError> Not enough minimum space");
             stopAndFinish(state);

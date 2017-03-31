@@ -9,13 +9,14 @@ import com.soundcloud.java.objects.MoreObjects;
 
 public final class DownloadState {
 
-    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, NOT_ENOUGH_MINIMUM_SPACE, CONNECTIVITY_ERROR, ERROR}
+    private enum Status {PROGRESS, SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, NOT_ENOUGH_MINIMUM_SPACE, INACCESSIBLE_STORAGE, CONNECTIVITY_ERROR, ERROR}
 
-    final Status status;
     final DownloadRequest request;
     final long timestamp;
     final boolean isNetworkError;
-    long progress = Consts.NOT_SET;
+
+    private final Status status;
+    private long progress = Consts.NOT_SET;
 
     private DownloadState(Status status, DownloadRequest request) {
         this(status, request, Consts.NOT_SET);
@@ -47,28 +48,33 @@ public final class DownloadState {
         return new DownloadState(Status.UNAVAILABLE, request);
     }
 
-    public static DownloadState disconnectedNetworkError(DownloadRequest request) {
+    static DownloadState disconnectedNetworkError(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getUrn());
         return new DownloadState(Status.CONNECTIVITY_ERROR, request, true);
     }
 
-    public static DownloadState invalidNetworkError(DownloadRequest request) {
+    static DownloadState invalidNetworkError(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Invalid network error download result: " + request.getUrn());
         return new DownloadState(Status.CONNECTIVITY_ERROR, request, false);
     }
 
-    public static DownloadState inProgress(DownloadRequest request, long progress) {
+    static DownloadState inProgress(DownloadRequest request, long progress) {
         return new DownloadState(Status.PROGRESS, request, progress);
     }
 
-    public static DownloadState notEnoughSpace(DownloadRequest request) {
+    static DownloadState notEnoughSpace(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.getUrn());
         return new DownloadState(Status.NOT_ENOUGH_SPACE, request);
     }
 
-    public static DownloadState notEnoughMinimumSpace(DownloadRequest request) {
+    static DownloadState notEnoughMinimumSpace(DownloadRequest request) {
         Log.d(OfflineContentService.TAG, "Not enough minimum space");
         return new DownloadState(Status.NOT_ENOUGH_MINIMUM_SPACE, request);
+    }
+
+    static DownloadState inaccessibleStorage(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Inaccessible storage");
+        return new DownloadState(Status.INACCESSIBLE_STORAGE, request);
     }
 
     public static DownloadState canceled(DownloadRequest request) {
@@ -80,7 +86,7 @@ public final class DownloadState {
         return new DownloadState(Status.ERROR, request);
     }
 
-    public boolean isInProgress() {
+    boolean isInProgress() {
         return status == Status.PROGRESS;
     }
 
@@ -92,7 +98,7 @@ public final class DownloadState {
         return status == Status.CANCELLED;
     }
 
-    public boolean isConnectivityError() {
+    boolean isConnectivityError() {
         return status == Status.CONNECTIVITY_ERROR;
     }
 
@@ -100,15 +106,19 @@ public final class DownloadState {
         return status == Status.UNAVAILABLE;
     }
 
-    public boolean isNotEnoughSpace() {
+    boolean isNotEnoughSpace() {
         return status == Status.NOT_ENOUGH_SPACE;
     }
 
-    public boolean isNotEnoughMinimumSpace() {
+    boolean isNotEnoughMinimumSpace() {
         return status == Status.NOT_ENOUGH_MINIMUM_SPACE;
     }
 
-    public boolean isDownloadFailed() {
+    boolean isInaccessibleStorage() {
+        return status == Status.INACCESSIBLE_STORAGE;
+    }
+
+    boolean isDownloadFailed() {
         return status == Status.ERROR;
     }
 
@@ -124,7 +134,7 @@ public final class DownloadState {
         return progress;
     }
 
-    public long getTotalBytes() {
+    long getTotalBytes() {
         return calculateFileSizeInBytes(request.getDuration());
     }
 

@@ -60,6 +60,15 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void testInaccessibleStorageError() {
+        performanceTracker.downloadFailed(DownloadState.inaccessibleStorage(DOWNLOAD_REQUEST));
+
+        assertTrackingEventSent(
+                eventBus.lastEventOn(EventQueue.TRACKING, OfflinePerformanceEvent.class),
+                OfflinePerformanceEvent.Kind.KIND_STORAGE_INACCESSIBLE);
+    }
+
+    @Test
     public void testStorageLimitReachedError() {
         performanceTracker.downloadFailed(DownloadState.notEnoughSpace(DOWNLOAD_REQUEST));
 

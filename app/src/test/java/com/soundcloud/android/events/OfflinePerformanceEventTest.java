@@ -44,6 +44,14 @@ public class OfflinePerformanceEventTest {
     }
 
     @Test
+    public void createSyncErrorFromStorageInaccessibleEvent() {
+        final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStorageInaccessible(TRACK_URN, TRACK_CONTEXT);
+
+        assertThat(event.kind()).isEqualTo(OfflinePerformanceEvent.Kind.KIND_STORAGE_INACCESSIBLE);
+        assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
+    }
+
+    @Test
     public void createSyncErrorFromStorageLimitReachedEvent() {
         final OfflinePerformanceEvent event = OfflinePerformanceEvent.fromStorageLimit(TRACK_URN, TRACK_CONTEXT);
 

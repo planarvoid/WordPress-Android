@@ -42,6 +42,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Mock private DownloadOperations.DownloadProgressListener listener;
     @Mock private OfflineTrackAssetDownloader assetDownloader;
     @Mock private DownloadConnectionHelper downloadConnectionHelper;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
     private DownloadOperations operations;
 
@@ -58,7 +59,8 @@ public class DownloadOperationsTest extends AndroidUnitTest {
                                             streamUrlBuilder,
                                             Schedulers.immediate(),
                                             assetDownloader,
-                                            downloadConnectionHelper);
+                                            downloadConnectionHelper,
+                                            offlineSettingsStorage);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -68,6 +70,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(fileStorage.isEnoughSpace(anyLong())).thenReturn(true);
         when(fileStorage.isEnoughMinimumSpace()).thenReturn(true);
         when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(true);
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
     }
 
     @Test
@@ -124,6 +127,14 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(response.isUnavailable()).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isDownloadFailed()).isTrue();
+    }
+
+    @Test
+    public void returnsInaccessibleStorageErrorWhenIOExceptionThrown() throws IOException {
+        when(httpClient.getFileStream(streamUrl)).thenThrow(new IOException());
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        assertThat(operations.download(downloadRequest, listener).isInaccessibleStorage()).isTrue();
     }
 
     @Test
@@ -229,6 +240,13 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         when(fileStorage.isEnoughMinimumSpace()).thenReturn(false);
 
         assertThat(operations.download(downloadRequest, listener).isNotEnoughMinimumSpace()).isTrue();
+    }
+
+    @Test
+    public void returnsInaccessibleStorageResult() {
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        assertThat(operations.download(downloadRequest, listener).isInaccessibleStorage()).isTrue();
     }
 
     @Test

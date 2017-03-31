@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_COMPLETE;
 import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_FAIL;
+import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_STORAGE_INACCESSIBLE;
 import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_START;
 import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_STORAGE_LIMIT;
 import static com.soundcloud.android.events.OfflinePerformanceEvent.Kind.KIND_USER_CANCEL;
@@ -21,6 +22,7 @@ public abstract class OfflinePerformanceEvent extends TrackingEvent {
         KIND_FAIL("fail"),
         KIND_USER_CANCEL("user_cancelled"),
         KIND_COMPLETE("complete"),
+        KIND_STORAGE_INACCESSIBLE("storage_inaccessible"),
         KIND_STORAGE_LIMIT("storage_limit_reached");
         private final String key;
 
@@ -51,6 +53,10 @@ public abstract class OfflinePerformanceEvent extends TrackingEvent {
 
     public static OfflinePerformanceEvent fromFailed(Urn track, TrackingMetadata trackingMetadata) {
         return create(KIND_FAIL, track, trackingMetadata);
+    }
+
+    public static OfflinePerformanceEvent fromStorageInaccessible(Urn track, TrackingMetadata trackingMetadata) {
+        return create(KIND_STORAGE_INACCESSIBLE, track, trackingMetadata);
     }
 
     public static OfflinePerformanceEvent fromStorageLimit(Urn track, TrackingMetadata trackingMetadata) {

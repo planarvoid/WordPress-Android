@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
@@ -43,16 +44,16 @@ class DownloadNotificationController {
     private ProgressNotificationData lastProgressNotificationData;
 
     @Inject
-    public DownloadNotificationController(Context context, NotificationManager notificationManager,
-                                          Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                          Resources resources) {
+    DownloadNotificationController(Context context, NotificationManager notificationManager,
+                                   Provider<NotificationCompat.Builder> notificationBuilderProvider,
+                                   Resources resources) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
         this.notificationBuilderProvider = notificationBuilderProvider;
     }
 
-    public Notification onPendingRequests(DownloadQueue pendingQueue) {
+    Notification onPendingRequests(DownloadQueue pendingQueue) {
 
         final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
         totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
@@ -78,19 +79,19 @@ class DownloadNotificationController {
         }
     }
 
-    public void onDownloadProgress(DownloadState currentDownload) {
+    void onDownloadProgress(DownloadState currentDownload) {
         this.currentDownload = currentDownload;
         updateProgressNotificationIfChanged(currentDownload);
     }
 
-    public void onDownloadSuccess(DownloadState lastDownload) {
+    void onDownloadSuccess(DownloadState lastDownload) {
         currentDownload = null;
         previousDownloads.add(lastDownload);
         updateProgressNotificationIfChanged(lastDownload);
         completedBytes += lastDownload.getTotalBytes();
     }
 
-    public void onDownloadError(DownloadState lastDownload) {
+    void onDownloadError(DownloadState lastDownload) {
         // we want to show this as completed in the progress bar, even though it failed
         completedBytes += lastDownload.getTotalBytes();
         currentDownload = null;
@@ -98,14 +99,14 @@ class DownloadNotificationController {
         updateProgressNotificationIfChanged(lastDownload);
     }
 
-    public void onDownloadCancel(DownloadState cancelled) {
+    void onDownloadCancel(DownloadState cancelled) {
         if (totalDownloads > 0) {
             totalDownloads--;
             updateProgressNotificationIfChanged(cancelled);
         }
     }
 
-    public void onDownloadsFinished(@Nullable DownloadState lastDownload, boolean showResult) {
+    void onDownloadsFinished(@Nullable DownloadState lastDownload, boolean showResult) {
         if (showResult) {
             showNotificationForDownloads(lastDownload);
         } else {
@@ -115,7 +116,10 @@ class DownloadNotificationController {
     }
 
     private void showNotificationForDownloads(@Nullable DownloadState lastDownload) {
-        if (hasStorageErrors()) {
+        if (hasInaccessibleStorageError()) {
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                                       completedWithInaccessibleStorageErrorNotification());
+        } else if (hasStorageErrors()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
                                        completedWithStorageErrorsNotification());
         } else if (lastDownload != null && totalDownloads != getErrorCount()) {
@@ -142,7 +146,11 @@ class DownloadNotificationController {
         return Iterables.tryFind(previousDownloads, downloadState -> downloadState.isNotEnoughSpace() || downloadState.isNotEnoughMinimumSpace()).isPresent();
     }
 
-    public void onConnectionError(DownloadState lastDownload, boolean showResult) {
+    private boolean hasInaccessibleStorageError() {
+        return Iterables.tryFind(previousDownloads, DownloadState::isInaccessibleStorage).isPresent();
+    }
+
+    void onConnectionError(DownloadState lastDownload, boolean showResult) {
         if (showResult) {
             final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
@@ -157,6 +165,15 @@ class DownloadNotificationController {
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
+    }
+
+    private Notification completedWithInaccessibleStorageErrorNotification() {
+        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+
+        notification.setContentIntent(getChangeStorageLocationIntent());
+        notification.setContentTitle(resources.getString(R.string.sd_card_cannot_be_found));
+        notification.setContentText(resources.getString(R.string.tap_here_to_change_storage_location));
+        return notification.build();
     }
 
     private Notification completedWithStorageErrorsNotification() {
@@ -238,6 +255,11 @@ class DownloadNotificationController {
         }
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private PendingIntent getChangeStorageLocationIntent() {
+        final Intent intent = new Intent(context, ChangeStorageLocationActivity.class);
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 

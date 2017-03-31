@@ -36,6 +36,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     private final DownloadRequest downloadRequest = ModelFixtures.downloadRequestFromLikes(Urn.forTrack(123L));
     private final DownloadState successfulDownloadState = DownloadState.success(downloadRequest);
     private final DownloadState failedDownloadState = DownloadState.error(downloadRequest);
+    private final DownloadState inaccessibleStorageState = DownloadState.inaccessibleStorage(downloadRequest);
     private final DownloadState storageLimitResult = DownloadState.notEnoughSpace(downloadRequest);
     private final DownloadState minimumStorageLimitResult = DownloadState.notEnoughMinimumSpace(downloadRequest);
 
@@ -105,12 +106,17 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
 
     @Test
     public void onDownloadsFinishedShowsStorageLimitReachedNotification() {
-        verifyShowsStorageLimitReachedForResult(storageLimitResult);
+        verifyShowsStorageErrorNotificationForResult(storageLimitResult, getString(R.string.offline_update_storage_limit_reached_title), getString(R.string.offline_update_storage_limit_reached_message));
     }
 
     @Test
     public void onDownloadsFinishedWithNotEnoughMinimumSpaceShowsStorageLimitReachedNotification() {
-        verifyShowsStorageLimitReachedForResult(minimumStorageLimitResult);
+        verifyShowsStorageErrorNotificationForResult(minimumStorageLimitResult, getString(R.string.offline_update_storage_limit_reached_title), getString(R.string.offline_update_storage_limit_reached_message));
+    }
+
+    @Test
+    public void onDownloadsFinishedWithInaccessibleStorageNotification() {
+        verifyShowsStorageErrorNotificationForResult(inaccessibleStorageState, getString(R.string.sd_card_cannot_be_found), getString(R.string.tap_here_to_change_storage_location));
     }
 
     @Test
@@ -273,15 +279,15 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
-    private void verifyShowsStorageLimitReachedForResult(DownloadState result) {
+    private void verifyShowsStorageErrorNotificationForResult(DownloadState result, String title, String text) {
         notificationController.onPendingRequests(createQueue(1));
         notificationController.onDownloadError(result);
 
         reset(notificationBuilder, notificationManager);
         notificationController.onDownloadsFinished(result, true);
 
-        verify(notificationBuilder).setContentTitle(getString(R.string.offline_update_storage_limit_reached_title));
-        verify(notificationBuilder).setContentText(getString(R.string.offline_update_storage_limit_reached_message));
+        verify(notificationBuilder).setContentTitle(title);
+        verify(notificationBuilder).setContentText(text);
     }
 
     private String getQuantifiedDownloadString(int completed, int queueSize) {

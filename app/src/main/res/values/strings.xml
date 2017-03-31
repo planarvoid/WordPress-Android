@@ -835,6 +835,8 @@
     <string name="offline_not_available_offline">Not available offline</string>
     <string name="offline_no_wifi">No Wi-Fi</string>
     <string name="offline_no_connection">No connection</string>
+    <string name="sd_card_cannot_be_found">SD card cannot be found</string>
+    <string name="tap_here_to_change_storage_location">Tap here to change storage location</string>
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>

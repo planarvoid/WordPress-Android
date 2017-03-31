@@ -59,6 +59,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     private final DownloadState unavailableTrackResult1 = DownloadState.unavailable(downloadRequest1);
     private final DownloadState failedResult1 = DownloadState.invalidNetworkError(downloadRequest1);
     private final DownloadState notEnoughMinimumSpace = DownloadState.notEnoughMinimumSpace(downloadRequest1);
+    private final DownloadState inaccessibleStorage = DownloadState.inaccessibleStorage(downloadRequest1);
 
     private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -258,6 +259,27 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         service.onError(failedResult1);
 
         verify(offlineContentScheduler).scheduleRetryForConnectivityError();
+        verify(downloadHandler).quit();
+    }
+
+    @Test
+    public void showsNotificationWhenInaccessibleStorage() {
+        setUpsDownloads(downloadRequest1);
+
+        startServiceWithResultRequested();
+        service.onError(inaccessibleStorage);
+
+        verify(notificationController).onDownloadsFinished(inaccessibleStorage, true);
+    }
+
+    @Test
+    public void stopsWithoutRetryingWhenInaccessibleStorage() {
+        setUpsDownloads(downloadRequest1);
+
+        startService();
+        service.onError(inaccessibleStorage);
+
+        verify(offlineContentScheduler, never()).scheduleRetryForConnectivityError();
         verify(downloadHandler).quit();
     }
 
