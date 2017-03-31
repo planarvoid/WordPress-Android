@@ -67,8 +67,8 @@ ext {
           rxJava                      : "io.reactivex:rxjava:1.2.9",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           rxAndroid2                  : "io.reactivex.rxjava2:rxandroid:2.0.1",
-          rxJava2                     : "io.reactivex.rxjava2:rxjava:2.0.7",
-          rxJavaInterop               : "com.github.akarnokd:rxjava2-interop:0.9.3",
+          rxJava2                     : "io.reactivex.rxjava2:rxjava:2.0.8",
+          rxJavaInterop               : "com.github.akarnokd:rxjava2-interop:0.9.5",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
 
           // UI libraries
