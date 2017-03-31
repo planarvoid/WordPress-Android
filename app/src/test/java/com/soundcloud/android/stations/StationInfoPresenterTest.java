@@ -9,6 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -18,6 +22,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
@@ -25,6 +30,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -53,6 +60,9 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
     @Mock StationInfoTracksBucketRenderer bucketRenderer;
     @Mock StartStationPresenter stationPresenter;
     @Mock PlayQueueManager playQueueManager;
+    @Mock PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
 
     private TestEventBus eventBus;
     private StationWithTracks stationWithTracks;
@@ -76,7 +86,8 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
                                              stationPresenter,
                                              rendererFactory,
                                              playQueueManager,
-                                             eventBus);
+                                             eventBus,
+                                             performanceMetricsEngine);
     }
 
     @Test
@@ -140,6 +151,18 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
         presenter.onLikeToggled(context(), true);
 
         assertThat(toggleLikeObservable.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void shouldEndMeasuringLoadTrackStation() {
+
+        presenter.onCreate(fragmentRule1.getFragment(), null);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
+
+        Assertions.assertThat(performanceMetricCaptor.getValue())
+                  .hasMetricType(MetricType.LOAD_TRACK_STATION)
+                  .containsMetricParam(MetricKey.TRACKS_COUNT, 1);
     }
 
     private CurrentPlayQueueItemEvent positionChangedEvent(Urn trackUrn) {

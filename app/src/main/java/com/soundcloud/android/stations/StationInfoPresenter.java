@@ -2,9 +2,15 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
@@ -17,6 +23,7 @@ import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListen
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -38,8 +45,9 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     private final StationsOperations stationOperations;
     private final StationInfoAdapter adapter;
     private final PlayQueueManager playQueueManager;
-
     private final EventBus eventBus;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
+
     private Subscription subscription = RxUtils.invalidSubscription();
     private DiscoverySource discoverySource;
     private Optional<Urn> seedTrack;
@@ -52,12 +60,14 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                          StartStationPresenter stationPresenter,
                          StationInfoTracksBucketRendererFactory bucketRendererFactory,
                          PlayQueueManager playQueueManager,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher);
         this.stationOperations = stationOperations;
         this.stationPresenter = stationPresenter;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.adapter = adapterFactory.create(this, bucketRendererFactory.create(this));
     }
 
@@ -82,7 +92,25 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         seedTrack = getSeedTrackUrn(fragmentArgs);
         stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
 
-        return CollectionBinding.from(getStation(stationUrn)).withAdapter(adapter).build();
+        return CollectionBinding.from(getStation(stationUrn))
+                                .withAdapter(adapter)
+                                .addObserver(onNext(this::endMeasureLoadTrackStation))
+                                .build();
+    }
+
+    private void endMeasureLoadTrackStation(Iterable<StationInfoItem> items) {
+        MetricParams metricParams = MetricParams.of(MetricKey.TRACKS_COUNT, findTracksCount(items));
+        PerformanceMetric performanceMetric = PerformanceMetric.builder()
+                                                               .metricType(MetricType.LOAD_TRACK_STATION)
+                                                               .metricParams(metricParams)
+                                                               .build();
+
+        performanceMetricsEngine.endMeasuring(performanceMetric);
+    }
+
+    private int findTracksCount(Iterable<StationInfoItem> items) {
+        StationInfoItem stationInfoItem = Iterables.find(items, item -> item instanceof StationInfoTracksBucket);
+        return ((StationInfoTracksBucket) stationInfoItem).stationTracks().size();
     }
 
     private DiscoverySource getDiscoverySource(Bundle fragmentArgs) {
