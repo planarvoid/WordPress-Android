@@ -109,6 +109,8 @@
   <string name="authentication_captcha_message">We’re having some trouble signing you in.</string>
   <string name="authentication_email_taken_message">That email address is already associated with an account. Enter a different email address or try signing in.</string>
   <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
+  <string name="authentication_age_restriction">You need to be at least %1$s years old to create an account in this region.</string>
+  <string name="authentication_email_other_error_message">Sorry we couldn’t create an account for you with the details you provided.</string>
   <string name="authentication_error_unable_to_use_google_play_services">Google+ sign in cannot be used without Google Play Services. Please try another sign in method.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Please sign in or sign up to open this link.</string>
@@ -134,9 +136,10 @@
   <!--__ERRORS-->
   <!--__reusable-->
   <string name="empty_no_internet_connection">No internet connection</string>
-  <string name="empty_no_internet_connection_sub">Couldn\'t download content, maybe your connection is down? Pull to try again.</string>
+  <string name="empty_no_internet_connection_sub">Couldn’t download content, maybe your connection is down? Pull to try again.</string>
   <string name="empty_server_error">@string/ak_error_soundcloud_no_response</string>
   <string name="empty_server_error_sub">@string/error_server_problems_message</string>
+  <!--__legacy-->
   <!--@Todo from l10n: move these error messages to other categories-->
   <string name="error_unauthorized_message">We’re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
   <string name="error_unauthorized_title">Account error</string>
@@ -273,6 +276,7 @@
   <string name="delete_playlist">Delete playlist</string>
   <string name="search_playlists">search playlists</string>
   <string name="more_playlists_by">More playlists by %s</string>
+  <string name="more_albums_by">More albums by %s</string>
   <string name="empty_playlist_main">No tracks here yet</string>
   <string name="empty_playlist_sub">Find some and add them to this playlist</string>
   <string name="edit_playlists_introductory_overlay_title">Edit your playlists on the fly</string>
@@ -380,14 +384,26 @@
   <string name="search_for_query">Search for \'%s\'</string>
   <string name="top_results_top_item">Top result</string>
   <string name="top_results_tracks">Tracks</string>
+  <string name="top_results_soundcloud_go_tracks">SoundCloud Go+ tracks</string>
   <string name="top_results_albums">Albums</string>
   <string name="top_results_playlists">Playlists</string>
   <string name="top_results_people">People</string>
+  <string name="top_results_see_all_go_tracks_results">See all %s Go+ tracks</string>
+  <string name="top_results_see_all_tracks_results">See all %s tracks</string>
+  <string name="top_results_see_all_albums_results">See all %s albums</string>
+  <string name="top_results_see_all_playlists_results">See all %s playlists</string>
+  <string name="top_results_see_all_people_results">See all %s people</string>
+  <string name="search_found_go_tracks_results_header">Found %s SoundCloud Go+ tracks</string>
+  <string name="search_found_tracks_results_header">Found %s tracks</string>
+  <string name="search_found_albums_results_header">Found %s albums</string>
+  <string name="search_found_playlists_results_header">Found %s playlists</string>
+  <string name="search_found_people_results_header">Found %s people</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Discover more tracks</string>
   <string name="recommendation_view_all">See all suggested tracks</string>
-  <string name="recommendations_footer">That\'s all the suggestions we have for now.\n\nPlay and collect more tracks to get more suggestions.</string>
-  <!--https://github.com/soundcloud/personalized-tracks/-->
+  <string name="recommendations_footer">That’s all the suggestions we have for now.\n\nPlay and collect more tracks to get more suggestions.</string>
+  <string name="recommendation_reason_because_you_liked_tracktitle">Because you liked %1$s</string>
+  <string name="recommendation_reason_because_you_played_tracktitle">Because you played %1$s</string>
   <string name="recommendation_seeds_header">Discover more tracks</string>
   <string name="discovery_search_hint">Search SoundCloud</string>
   <string name="discovery_search_title">Search</string>
@@ -566,10 +582,10 @@
   <string name="promoted">Promoted</string>
   <string name="promoted_by_promotorname">Promoted by %s</string>
   <!--__USER WELCOME-->
-  <string name="welcome_user_title_morning">Good Morning, %s</string>
-  <string name="welcome_user_title_afternoon">Good Afternoon, %s</string>
-  <string name="welcome_user_title_evening">Good Evening, %s</string>
-  <string name="welcome_user_title_night">Good Night, %s</string>
+  <string name="welcome_user_title_morning">Good morning, %s</string>
+  <string name="welcome_user_title_afternoon">Good afternoon, %s</string>
+  <string name="welcome_user_title_evening">Good evening, %s</string>
+  <string name="welcome_user_title_night">Good night, %s</string>
   <string name="welcome_user_new_signup">Welcome to SoundCloud, %s</string>
   <string name="welcome_user_subtitle">Check out some of these new songs!</string>
   <!--__FACEBOOK INVITES-->
@@ -631,6 +647,7 @@
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Home</string>
+  <string name="tab_stream">Stream</string>
   <string name="tab_discovery">Discover</string>
   <string name="tab_collection">Collection</string>
   <string name="tab_more">More</string>
@@ -663,7 +680,7 @@
   <string name="stream_track">track</string>
   <string name="stream_promoted_playable">Promoted %s</string>
   <string name="stream_sponsored_item">Sponsored %s</string>
-  <string name="stream_highlights">Stream Highlights</string>
+  <string name="stream_highlights">Stream highlights</string>
   <string name="stream_highlights_description_one">With a track from %s</string>
   <string name="stream_highlights_description_two">With tracks from %1$s and %2$s</string>
   <string name="stream_highlights_description_other">With tracks from %1$s, %2$s and %3$s</string>
@@ -676,13 +693,17 @@
   <string name="notification_username_started_following_you">started following you</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Subscribe</string>
+  <string name="conversion_title">Discover more with our SoundCloud Go plans</string>
+  <string name="conversion_title_mt">Discover even more with SoundCloud Go+</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
   <string name="conversion_description">Get offline listening, no adverts or previews, and the largest collection of streaming tracks anywhere on the planet</string>
+  <string name="conversion_description_mt">Unlock all previews and get access to more than 150M tracks from emerging and major label artists</string>
   <string name="conversion_buy_loading">Loading…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start your free %d day trial</string>
   <string name="conversion_buy_no_trial">Upgrade now</string>
   <string name="conversion_buy_promo">Get it for a limited time</string>
+  <string name="conversion_mt_plan">View our %s plan</string>
   <string name="conversion_retry_heading">Oops… try again</string>
   <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
   <string name="conversion_retry_button">Try again</string>
@@ -749,6 +770,7 @@
   <string name="offline_no_connection">No connection</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>
+  <string name="go_onboarding_landing_title_mid">Welcome to SoundCloud Go!</string>
   <string name="go_onboarding_landing_body">Things are a little different now, in a good way</string>
   <string name="go_onboarding_full_tracks_title">Millions of SoundCloud Go+ tracks</string>
   <string name="go_onboarding_full_tracks_body">All previews are now full tracks with SoundCloud Go+</string>
@@ -778,6 +800,9 @@
   <string name="pref_offline_offline_collection_description_on">Turn this off to stop saving automatically and remove anything previously saved offline.</string>
   <string name="pref_offline_wifi_only_sync">Only save via Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
+  <string name="pref_offline_change_storage_location">Change storage location</string>
+  <string name="pref_offline_change_storage_location_description_device_storage">Offline content currently saves to your internal device storage.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">Offline content currently saves to your SD card storage.</string>
   <string name="pref_offline_storage_limit">Storage limit</string>
   <string name="pref_offline_storage_limit_description">This will define how much of your available storage can be used for offline listening.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
@@ -802,6 +827,12 @@
   <string name="title_offline_settings">Offline listening settings</string>
   <string name="more_offline_sync_settings">Offline listening settings</string>
   <string name="unlimited">unlimited</string>
+  <string name="change_storage_location">Change storage location</string>
+  <string name="internal_device_storage">Internal device storage</string>
+  <string name="sd_card">SD card</string>
+  <string name="confirm_change_storage_location_dialog_title">Change storage location?</string>
+  <string name="confirm_change_storage_location_dialog_message_internal_device_storage">All current and future offline content will be downloaded to your internal device storage and removed from your SD card.</string>
+  <string name="confirm_change_storage_location_dialog_message_sd_card">All current and future offline content will be downloaded to your SD card and removed from your internal device storage.</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d track</item>
     <item quantity="other">%1$d of %2$d tracks</item>
@@ -862,6 +893,9 @@
   <string name="upsell_upgrade_button">Get SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_title">Unlock previews with SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalogue, with ad‑free and offline listening.</string>
+  <string name="upsell_discovery_upgrade_title">Get SoundCloud Go+</string>
+  <string name="upsell_discovery_upgrade_description">Access the world’s largest music and audio streaming catalogue, listen offline, and unlock all previews.</string>
+  <string name="upsell_discovery_button_trial">Try it free for %1$d days</string>
   <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
   <string name="upsell_track_preview">Preview</string>
@@ -955,6 +989,7 @@
   <string name="play_queue_header_magic_box_subtitle">New music based on what’s playing</string>
   <string name="play_queue_header_auto_play_toggle">Station Autoplay</string>
   <string name="play_queue_header_cast">Casting</string>
+  <string name="play_queue_header_new_for_you">From The Upload</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Suggested artists</string>
   <string name="suggested_creators_blurb">Follow your favourite artists so you never miss any of their latest tracks</string>
