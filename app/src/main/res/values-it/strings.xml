@@ -382,13 +382,24 @@
   <string name="search_for_query">Cerca per \'%s\'</string>
   <string name="top_results_top_item">Miglior risultato</string>
   <string name="top_results_tracks">Tracce</string>
+  <string name="top_results_soundcloud_go_tracks">Tracce di SoundCloud Go+</string>
   <string name="top_results_albums">Album</string>
   <string name="top_results_playlists">Playlist</string>
   <string name="top_results_people">Persone</string>
+  <string name="top_results_see_all_go_tracks_results">Visualizza tutte e %s le tracce Go+</string>
+  <string name="top_results_see_all_tracks_results">Visualizza tutte e %s le tracce</string>
+  <string name="top_results_see_all_albums_results">Visualizza tutti e %s gli album</string>
+  <string name="top_results_see_all_playlists_results">Visualizza tutte e %s le playlist</string>
+  <string name="top_results_see_all_people_results">Visualizza tutte e %s le persone</string>
+  <string name="search_found_go_tracks_results_header">Trovate %s tracce SoundCloud Go+</string>
+  <string name="search_found_tracks_results_header">Trovate %s tracce</string>
+  <string name="search_found_albums_results_header">Trovati %s album</string>
+  <string name="search_found_playlists_results_header">Trovate %s playlist</string>
+  <string name="search_found_people_results_header">Trovate %s persone</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Scopri altre tracce</string>
   <string name="recommendation_view_all">Visualizza tutte le tracce suggerite</string>
-  <string name="recommendations_footer">Per ora non abbiamo altri suggerimenti.\n\nRiproduci e raccogli altre tracce per ricevere nuovi suggerimenti.</string>
+  <string name="recommendations_footer">Per ora abbiamo esaurito i nostri suggerimenti.\n\nRiproduci e raccogli altre tracce per ricevere altri suggerimenti.</string>
   <string name="recommendation_reason_because_you_liked_tracktitle">Perché hai messo Mi piace a %1$s</string>
   <string name="recommendation_reason_because_you_played_tracktitle">Perché hai ascoltato %1$s</string>
   <string name="recommendation_seeds_header">Scopri altre tracce</string>
@@ -569,10 +580,10 @@
   <string name="promoted">Sponsorizzata</string>
   <string name="promoted_by_promotorname">Sponsorizzata da %s</string>
   <!--__USER WELCOME-->
-  <string name="welcome_user_title_morning">Buongiorno %s</string>
-  <string name="welcome_user_title_afternoon">Buon pomeriggio %s</string>
-  <string name="welcome_user_title_evening">Buonasera %s</string>
-  <string name="welcome_user_title_night">Buonanotte %s</string>
+  <string name="welcome_user_title_morning">Buongiorno, %s</string>
+  <string name="welcome_user_title_afternoon">Buon pomeriggio, %s</string>
+  <string name="welcome_user_title_evening">Buonasera, %s</string>
+  <string name="welcome_user_title_night">Buonanotte, %s</string>
   <string name="welcome_user_new_signup">Benvenuto in SoundCloud, %s</string>
   <string name="welcome_user_subtitle">Scopri queste canzoni nuove!</string>
   <!--__FACEBOOK INVITES-->
@@ -634,6 +645,7 @@
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Home</string>
+  <string name="tab_stream">Stream</string>
   <string name="tab_discovery">Scopri</string>
   <string name="tab_collection">Libreria</string>
   <string name="tab_more">Altro</string>
@@ -679,14 +691,17 @@
   <string name="notification_username_started_following_you">ha iniziato a seguirti</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abbonati</string>
-  <string name="conversion_title">Scopri di più con SoundCloud Go+</string>
+  <string name="conversion_title">Scopri di più con i nostri piani SoundCloud Go</string>
+  <string name="conversion_title_mt">Scopri di più con SoundCloud Go+</string>
   <string name="conversion_price">%s al mese</string>
   <string name="conversion_price_promo">%1$s per %2$s</string>
   <string name="conversion_description">Ascolto offline, nessuna pubblicità né anteprima e accesso alla più vasta libreria di tracce in streaming al mondo </string>
+  <string name="conversion_description_mt">Sblocca tutte le anteprime e accedi a oltre 150 milioni di tracce di artisti famosi ed emergenti </string>
   <string name="conversion_buy_loading">Caricamento…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Inizia la prova gratuita di %d giorni</string>
   <string name="conversion_buy_no_trial">Aggiorna subito</string>
   <string name="conversion_buy_promo">Acquistalo per un periodo di tempo limitato</string>
+  <string name="conversion_mt_plan">Visualizza il nostro piano da %s</string>
   <string name="conversion_retry_heading">Ops... riprova</string>
   <string name="conversion_retry_message">Qualcosa è andato storto, riprova.</string>
   <string name="conversion_retry_button">Riprova</string>
@@ -755,7 +770,8 @@
   <string name="go_onboarding_landing_title">Benvenuto in SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Benvenuto in SoundCloud Go!</string>
   <string name="go_onboarding_landing_body">Abbiamo cambiato un po\' le cose, in meglio!</string>
-  <string name="go_onboarding_full_tracks_title">Milioni di tracce SoundCloud Go+</string>
+  <string name="go_onboarding_full_tracks_title">Milioni di tracce 
+SoundCloud Go+</string>
   <string name="go_onboarding_full_tracks_body">Niente più anteprime! Solo tracce complete con SoundCloud Go+</string>
   <string name="go_onboarding_offline_title">Ascolta quando vuoi, dove vuoi</string>
   <string name="go_onboarding_offline_body">Porta la tua musica sempre con te. Tocca la freccia per scaricare una traccia e ascoltarla offline</string>
@@ -766,7 +782,8 @@
   <string name="go_onboarding_start">Inizia ad ascoltare</string>
   <string name="go_onboarding_retry">Caricamento non riuscito. Vuoi riprovare?</string>
   <string name="go_onboarding_error_dialog_title">Qualcosa è andato storto</string>
-  <string name="go_onboarding_error_dialog_msg">Si è verificato un errore nell\'attivazione delle tue nuove funzionalità e contenuti. Riavvia l\'applicazione.</string>
+  <string name="go_onboarding_error_dialog_msg">Si è verificato un errore nell\'attivazione delle tue nuove funzionalità e contenuti. 
+Riavvia l\'applicazione.</string>
   <string name="go_onboarding_error_dialog_button">Riprova più tardi</string>
   <string name="go_onboarding_offline_settings_title">Salva tutto automaticamente</string>
   <string name="go_onboarding_offline_settings_subtext">Attiva questa opzione per salvare tutti i preferiti, playlist e album offline attuali e futuri.</string>
@@ -783,6 +800,9 @@
   <string name="pref_offline_offline_collection_description_on">Disattiva questa opzione per non salvare più automaticamente e rimuovere tutti i contenuti salvati offline precedentemente.</string>
   <string name="pref_offline_wifi_only_sync">Salva solo tramite Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Attiva questa opzione per salvare le tracce offline solamente con connessione Wi-Fi.</string>
+  <string name="pref_offline_change_storage_location">Modifica percorso di archiviazione</string>
+  <string name="pref_offline_change_storage_location_description_device_storage">Attualmente i contenuti offline vengono salvati nella memoria interna del dispositivo.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">Attualmente i contenuti offline vengono salvati nella memoria della scheda SD.</string>
   <string name="pref_offline_storage_limit">Limite di archiviazione</string>
   <string name="pref_offline_storage_limit_description">Indica lo spazio libero assegnato all\'ascolto offline.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB liberi su %2$.1f GB</string>
@@ -807,6 +827,12 @@
   <string name="title_offline_settings">Impostazioni di ascolto offline</string>
   <string name="more_offline_sync_settings">Impostazioni di ascolto offline</string>
   <string name="unlimited">illimitato</string>
+  <string name="change_storage_location">Modifica percorso di archiviazione</string>
+  <string name="internal_device_storage">Memoria interna del dispositivo</string>
+  <string name="sd_card">Scheda SD</string>
+  <string name="confirm_change_storage_location_dialog_title">Modificare il percorso di archiviazione?</string>
+  <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Tutti i contenuti offline presenti e futuri verranno scaricati nella memoria interna del dispositivo e rimossi dalla scheda SD.</string>
+  <string name="confirm_change_storage_location_dialog_message_sd_card">Tutti i contenuti offline presenti e futuri verranno scaricati nella scheda SD e rimossi dalla memoria interna del dispositivo.</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d traccia</item>
     <item quantity="other">%1$d di %2$d tracce</item>
@@ -963,6 +989,7 @@
   <string name="play_queue_header_magic_box_subtitle">Nuova musica basata su quello che stai ascoltando</string>
   <string name="play_queue_header_auto_play_toggle">Riproduzione automatica stazione</string>
   <string name="play_queue_header_cast">Trasmissione</string>
+  <string name="play_queue_header_new_for_you">Dal caricamento</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artisti consigliati</string>
   <string name="suggested_creators_blurb">Segui i tuoi artisti preferiti per essere sempre aggiornato sulle loro nuove tracce</string>

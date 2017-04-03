@@ -108,7 +108,9 @@
   <!--@Todo from l10n: we don’t have sign-in on mobi anymore. Also unclear if this is still used?-->
   <string name="authentication_captcha_message">Estamos teniendo problemas para iniciar tu sesión.</string>
   <string name="authentication_email_taken_message">Esa dirección de email ya está asociada con una cuenta. Introduce otra dirección de email o intenta iniciar sesión.</string>
-  <string name="authentication_email_invalid_message">El dominio que has introducido parece no poder recibir mensajes de email. ¿Lo escribiste correctamente?</string>
+  <string name="authentication_email_invalid_message">El dominio que has introducido parece no poder recibir mensajes de correo electrónico. ¿Seguro que lo escribiste correctamente?</string>
+  <string name="authentication_age_restriction">Debes tener %1$s años como mínimo para crear una cuenta en esta región.</string>
+  <string name="authentication_email_other_error_message">No hemos podido crear una cuenta con los datos que has proporcionado.</string>
   <string name="authentication_error_unable_to_use_google_play_services">No se puede usar el inicio de sesión de Google+ sin los servicios de Google Play. Por favor, elige otro método para iniciar sesión.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Inicia sesión o regístrate para abrir este enlace.</string>
@@ -137,6 +139,7 @@
   <string name="empty_no_internet_connection_sub">No se pudo descargar el contenido, ¿seguro que estás conectado? Vuelve a intentarlo.</string>
   <string name="empty_server_error">@string/ak_error_soundcloud_no_response</string>
   <string name="empty_server_error_sub">@string/error_server_problems_message</string>
+  <!--__legacy-->
   <!--@Todo from l10n: move these error messages to other categories-->
   <string name="error_unauthorized_message">Tenemos un problema con tu cuenta. Vuelve a iniciar sesión en SoundCloud para seguir utilizando la app.</string>
   <string name="error_unauthorized_title">Error en la cuenta</string>
@@ -271,6 +274,7 @@
   <string name="delete_playlist">Borrar lista</string>
   <string name="search_playlists">buscar listas</string>
   <string name="more_playlists_by">Más listas de %s</string>
+  <string name="more_albums_by">Más álbumes de %s</string>
   <string name="empty_playlist_main">Aún no hay pistas</string>
   <string name="empty_playlist_sub">Busca algunas y añádelas a esta lista</string>
   <string name="edit_playlists_introductory_overlay_title">Edita tus listas sobre la marcha</string>
@@ -378,14 +382,26 @@
   <string name="search_for_query">Buscar \'%s\'</string>
   <string name="top_results_top_item">Resultado principal</string>
   <string name="top_results_tracks">Pistas</string>
+  <string name="top_results_soundcloud_go_tracks">Pistas SoundCloud Go+</string>
   <string name="top_results_albums">Álbumes</string>
   <string name="top_results_playlists">Listas</string>
   <string name="top_results_people">Gente</string>
+  <string name="top_results_see_all_go_tracks_results">Ver las %s pistas Go+</string>
+  <string name="top_results_see_all_tracks_results">Ver las %s pistas</string>
+  <string name="top_results_see_all_albums_results">Ver los %s álbumes</string>
+  <string name="top_results_see_all_playlists_results">Ver las %s listas</string>
+  <string name="top_results_see_all_people_results">Ver a las %s personas</string>
+  <string name="search_found_go_tracks_results_header">Encontramos %s pistas SoundCloud Go+</string>
+  <string name="search_found_tracks_results_header">Encontramos %s pistas</string>
+  <string name="search_found_albums_results_header">Encontramos %s álbumes</string>
+  <string name="search_found_playlists_results_header">Encontramos %s listas</string>
+  <string name="search_found_people_results_header">Encontramos a %s personas</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_view_all_recommendations">Descubre más pistas</string>
   <string name="recommendation_view_all">Ver todas las pistas recomendadas</string>
   <string name="recommendations_footer">Estas son todas las sugerencias que tenemos por ahora.\n\nEscucha y colecciona más pistas para obtener más sugerencias.</string>
-  <!--https://github.com/soundcloud/personalized-tracks/-->
+  <string name="recommendation_reason_because_you_liked_tracktitle">Porque te ha gustado %1$s</string>
+  <string name="recommendation_reason_because_you_played_tracktitle">Porque has escuchado %1$s</string>
   <string name="recommendation_seeds_header">Descubre más pistas</string>
   <string name="discovery_search_hint">Buscar en SoundCloud</string>
   <string name="discovery_search_title">Buscar</string>
@@ -417,7 +433,7 @@
   <string tools:ignore="UnusedResources" name="charts_country">Country</string>
   <string tools:ignore="UnusedResources" name="charts_danceedm">Dance y EDM</string>
   <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
-  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
+  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep house</string>
   <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
   <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
   <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
@@ -460,8 +476,8 @@
   <string name="pref_autoplay_related">Reproducción automática</string>
   <string name="pref_autoplay_related_desc">Cuando una lista finaliza, reproduce pistas similares a la última pista reproducida</string>
   <string name="pref_revoke_access">Cerrar sesión</string>
-  <string name="pref_sync_wifi_only">Actualizar datos solo con Wi-Fi</string>
-  <string name="pref_sync_wifi_only_description">Actualizar los Me gusta, etc., solamente con conexión Wi-Fi</string>
+  <string name="pref_sync_wifi_only">Actualizar datos solo con wifi</string>
+  <string name="pref_sync_wifi_only_description">Actualizar los Me gusta, etc., solamente con conexión wifi</string>
   <string name="pref_analytics">Analíticas</string>
   <string name="pref_analytics_desc">La habilitación de las analíticas nos permite la recolección de datos del uso de la app y nos ayuda a mejorarla. Consulta nuestra Política de privacidad para más detalles.</string>
   <string name="pref_crashlogs">CrashLogs</string>
@@ -629,6 +645,7 @@
   </plurals>
   <!--__TABS-->
   <string name="tab_home">Inicio</string>
+  <string name="tab_stream">Stream</string>
   <string name="tab_discovery">Descubre</string>
   <string name="tab_collection">Colección</string>
   <string name="tab_more">Más</string>
@@ -674,13 +691,17 @@
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Suscribirse</string>
+  <string name="conversion_title">Descubre más con nuestros planes SoundCloud Go</string>
+  <string name="conversion_title_mt">Descubre todavía más con SoundCloud Go+</string>
   <string name="conversion_price">%s / mes</string>
   <string name="conversion_price_promo">%1$s por %2$s</string>
   <string name="conversion_description">Hazte con la mayor colección de pistas en streaming del planeta, sin conexión, sin anuncios y sin vistas previas</string>
+  <string name="conversion_description_mt">Desbloquea todas las vistas previas y accede a más de 150 millones de pistas de artistas emergentes y grandes discográficas</string>
   <string name="conversion_buy_loading">Cargando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Comienza tu periodo de prueba gratuito de %d días</string>
   <string name="conversion_buy_no_trial">Mejorar la cuenta</string>
   <string name="conversion_buy_promo">Hazte con ello por tiempo limitado</string>
+  <string name="conversion_mt_plan">Ver nuestro plan de %s</string>
   <string name="conversion_retry_heading">Vaya... Inténtalo de nuevo</string>
   <string name="conversion_retry_message">Parece que algo ha ido mal. Inténtalo de nuevo.</string>
   <string name="conversion_retry_button">Inténtalo de nuevo</string>
@@ -733,7 +754,7 @@
   <string name="offline_update_storage_limit_reached_message">Toca aquí para ver la configuración de almacenamiento</string>
   <string name="offline_update_in_progress">Guardando en modo sin conexión</string>
   <string name="offline_likes_dialog_title">Guarda tus Me gusta sin conexión</string>
-  <string name="offline_likes_dialog_message">Tus Me gusta actuales y futuros se guardarán en modo sin conexión para poder escucharlos sin conexión Wi-Fi o de datos.</string>
+  <string name="offline_likes_dialog_message">Tus Me gusta actuales y futuros se guardarán en modo sin conexión para poder escucharlos sin conexión wifi o de datos.</string>
   <string name="make_offline_available">Guardar sin conexión</string>
   <string name="make_offline_unavailable">Eliminar del modo sin conexión</string>
   <string name="offline_dialog_go_online_continue">Continuar</string>
@@ -741,15 +762,16 @@
   <string name="offline_dialog_go_online_error_content">Este dispositivo lleva más de 30 días desconectado, por lo que no hemos podido verificar tu suscripción. Para poder acceder de nuevo a tu contenido sin conexión, conecta el dispositivo a Internet .</string>
   <string name="offline_update_paused">Guardar sin conexión en pausa</string>
   <string name="no_network_connection">No hay conexión de red</string>
-  <string name="no_wifi_connection">No hay conexión Wi-Fi</string>
+  <string name="no_wifi_connection">No hay conexión wifi</string>
   <string name="offline_not_available_offline">No está disponible sin conexión a Internet</string>
-  <string name="offline_no_wifi">Sin Wi-Fi</string>
+  <string name="offline_no_wifi">Sin conexión wifi</string>
   <string name="offline_no_connection">Sin conexión</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenido a SoundCloud Go+</string>
-  <string name="go_onboarding_landing_body">Hemos cambiado un poco las cosas, para mejor</string>
-  <string name="go_onboarding_full_tracks_body">Con SoundCloud Go+, ahora todas las vistas previas son pistas completas</string>
+  <string name="go_onboarding_landing_title_mid">¡Bienvenido a SoundCloud Go!</string>
+  <string name="go_onboarding_landing_body">Hemos cambiado un poco las cosas... en el buen sentido</string>
   <string name="go_onboarding_full_tracks_title">Millones de pistas SoundCloud Go+</string>
+  <string name="go_onboarding_full_tracks_body">Con SoundCloud Go+ ahora todas las vistas previas son pistas completas</string>
   <string name="go_onboarding_offline_title">Llévate la música donde quieras, cuando quieras</string>
   <string name="go_onboarding_offline_body">Solo tienes que tocar la flecha para descargarte las pistas y escucharlas sin conexión</string>
   <string name="go_onboarding_no_ads_title">Sin anuncios</string>
@@ -774,8 +796,11 @@
   <string name="pref_offline_offline_collection">Guardar automáticamente</string>
   <string name="pref_offline_offline_collection_description_off">Activa esta opción para guardar tus listas, tus Me gusta y tus álbumes actuales y futuros sin conexión.</string>
   <string name="pref_offline_offline_collection_description_on">Desactiva esta opción para dejar de guardar pistas sin conexión automáticamente y eliminar todas las guardadas hasta ahora.</string>
-  <string name="pref_offline_wifi_only_sync">Guardar solo con conexión Wi-Fi</string>
-  <string name="pref_offline_wifi_only_description">Cuando esta opción está activada, solo sincronizamos las pistas en modo sin conexión con una conexión Wi-Fi.</string>
+  <string name="pref_offline_wifi_only_sync">Guardar solo con conexión wifi</string>
+  <string name="pref_offline_wifi_only_description">Cuando esta opción está activada, solo sincronizamos las pistas en modo sin conexión con una conexión wifi.</string>
+  <string name="pref_offline_change_storage_location">Cambiar ubicación de almacenamiento</string>
+  <string name="pref_offline_change_storage_location_description_device_storage">Actualmente, el contenido sin conexión se guarda en el almacenamiento interno de tu dispositivo.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">Actualmente, el contenido sin conexión se guarda en el almacenamiento de tu tarjeta SD.</string>
   <string name="pref_offline_storage_limit">Límite de almacenamiento</string>
   <string name="pref_offline_storage_limit_description">Esto determinará cuánto del almacenamiento que tienes disponible se utiliza para escuchar sin conexión.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB libres de %2$.1f GB</string>
@@ -800,6 +825,12 @@
   <string name="title_offline_settings">Configuración para escuchar sin conexión</string>
   <string name="more_offline_sync_settings">Configuración para escuchar sin conexión</string>
   <string name="unlimited">Sin límite</string>
+  <string name="change_storage_location">Cambiar ubicación de almacenamiento</string>
+  <string name="internal_device_storage">Almacenamiento interno del dispositivo</string>
+  <string name="sd_card">Tarjeta SD</string>
+  <string name="confirm_change_storage_location_dialog_title">¿Cambiar ubicación de almacenamiento?</string>
+  <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Todo el contenido sin conexión actual y futuro se descargará en el almacenamiento interno de tu dispositivo y se eliminará de tu tarjeta SD.</string>
+  <string name="confirm_change_storage_location_dialog_message_sd_card">Todo el contenido sin conexión actual y futuro se descargará en tu tarjeta SD y se eliminará del almacenamiento interno de tu dispositivo.</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d pista</item>
     <item quantity="other">%1$d de %2$d pistas</item>
@@ -860,6 +891,9 @@
   <string name="upsell_upgrade_button">Hazte con SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_title">Desbloquea las vistas previas con SoundCloud Go+</string>
   <string name="upsell_stream_upgrade_description">Accede al mayor catálogo mundial de música y audio en streaming, sin conexión y sin anuncios.</string>
+  <string name="upsell_discovery_upgrade_title">Hazte con SoundCloud Go+</string>
+  <string name="upsell_discovery_upgrade_description">Accede al mayor catálogo mundial de música y audio en streaming sin conexión y desbloquea todas las vistas previas.</string>
+  <string name="upsell_discovery_button_trial">Pruébalo gratis durante %1$d días</string>
   <string name="upsell_playlist_upgrade_title">Reproduce pistas enteras con SoundCloud Go+</string>
   <string name="upsell_playlist_upgrade_description">Se acabaron las vistas previas. Escucha cada segundo de todas las pistas.</string>
   <string name="upsell_track_preview">Vista previa</string>
@@ -953,6 +987,7 @@
   <string name="play_queue_header_magic_box_subtitle">Nueva música basada en lo que estás escuchando</string>
   <string name="play_queue_header_auto_play_toggle">Reproducción automática de emisora</string>
   <string name="play_queue_header_cast">Enviando</string>
+  <string name="play_queue_header_new_for_you">De la subida</string>
   <!--__SUGGESTED CREATORS-->
   <string name="suggested_creators">Artistas sugeridos</string>
   <string name="suggested_creators_blurb">Sigue a tus artistas favoritos para no perderte sus pistas más recientes</string>

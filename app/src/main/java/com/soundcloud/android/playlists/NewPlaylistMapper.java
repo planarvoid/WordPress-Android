@@ -5,6 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -27,7 +28,7 @@ public class NewPlaylistMapper extends RxResultMapper<Playlist> {
                                                  .isAlbum(cursorReader.getBoolean(Tables.PlaylistView.IS_ALBUM.name()))
                                                  .imageUrlTemplate(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.ARTWORK_URL.name())))
                                                  .creatorUrn(Urn.forUser(cursorReader.getLong(Tables.PlaylistView.USER_ID.name())))
-                                                 .creatorName(cursorReader.getString(Tables.PlaylistView.USERNAME.name()))
+                                                 .creatorName(Optional.fromNullable(cursorReader.getString(Tables.PlaylistView.USERNAME.name())).or(Strings.EMPTY))
                                                  .trackCount(readTrackCount(cursorReader))
                                                  .likesCount(cursorReader.getInt(Tables.PlaylistView.LIKES_COUNT.name()))
                                                  .genre(cursorReader.getString(Tables.PlaylistView.GENRE.name()))

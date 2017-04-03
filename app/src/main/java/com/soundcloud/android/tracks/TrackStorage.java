@@ -178,7 +178,7 @@ public class TrackStorage {
         builder.snipped(cursorReader.getBoolean(SNIPPED.name()));
         builder.subHighTier(cursorReader.getBoolean(SUB_HIGH_TIER.name()));
         builder.subMidTier(cursorReader.getBoolean(SUB_MID_TIER.name()));
-        builder.monetizationModel(cursorReader.getString(MONETIZATION_MODEL.name()));
+        builder.monetizationModel(Optional.fromNullable(cursorReader.getString(MONETIZATION_MODEL.name())).or(Strings.EMPTY));
         builder.userLike(cursorReader.getBoolean(IS_USER_LIKE.name()));
         builder.permalinkUrl(cursorReader.getString(PERMALINK_URL.name()));
         builder.userRepost(cursorReader.getBoolean(IS_USER_REPOST.name()));
