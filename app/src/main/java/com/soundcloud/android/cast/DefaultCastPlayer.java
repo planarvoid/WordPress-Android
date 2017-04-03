@@ -166,7 +166,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         final CastPlayQueue castPlayQueue;
         if (castQueueController.getCurrentQueue().contains(currentLocalTrackUrn)) {
             castPlayQueue = castQueueController.buildUpdatedCastPlayQueue(currentLocalTrackUrn, PlaySessionController.SEEK_POSITION_RESET);
-            Log.d(TAG, "updateRemoteQueue() called with: newRemoteIndex = [" + castQueueController.getCurrentQueue().getCurrentIndex() + " -> " + castPlayQueue.getCurrentIndex() + "]");
+            Log.d(TAG, "updateRemoteQueue() called with: newRemoteIndex = [" + castQueueController.getCurrentQueue().currentIndex() + " -> " + castPlayQueue.currentIndex() + "]");
         } else {
             resume();
             castPlayQueue = castQueueController.buildCastPlayQueue(currentLocalTrackUrn, playQueueManager.getCurrentQueueTrackUrns());
@@ -207,7 +207,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     private void updateLocalPlayQueueAndPlayState(@NonNull CastPlayQueue remoteQueue) {
-        final int remotePosition = remoteQueue.getCurrentIndex();
+        final int remotePosition = remoteQueue.currentIndex();
 
         Log.d(TAG, "DefaultCastPlayer::localQueue = " + playQueueManager.getCurrentQueueTrackUrns());
         if (remoteQueue.hasSameTracks(playQueueManager.getCurrentQueueTrackUrns())) {

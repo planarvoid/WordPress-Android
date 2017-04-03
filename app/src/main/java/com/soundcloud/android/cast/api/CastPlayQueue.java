@@ -1,88 +1,98 @@
 package com.soundcloud.android.cast.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import java.util.List;
 
-public class CastPlayQueue {
+@AutoValue
+public abstract class CastPlayQueue {
 
-    private String revision;
-    private List<RemoteTrack> queue;
-    private int currentIndex;
-    private long progress = 0;
-    private String source = "";
-    private String version = "1.0.0";
-    private CastCredentials credentials;
+    private static final String CAST_PROTOCOL_VERSION = "1.0.0";
 
-    public CastPlayQueue() {
-        /* For Deserialization */
+    @JsonProperty("revision")
+    public abstract Optional<String> revision();
+
+    @JsonProperty("queue")
+    public abstract List<RemoteTrack> queue();
+
+    @JsonProperty("current_index")
+    public abstract int currentIndex();
+
+    @JsonProperty("progress")
+    public abstract long progress();
+
+    @JsonProperty("source")
+    public abstract String source();
+
+    @JsonProperty("version")
+    public abstract String version();
+
+    @JsonProperty("credentials")
+    public abstract Optional<CastCredentials> credentials();
+
+    @JsonCreator
+    public static CastPlayQueue deserialize(@JsonProperty("revision") String revision,
+                                            @JsonProperty("queue") List<RemoteTrack> queue,
+                                            @JsonProperty("current_index") int currentIndex,
+                                            @JsonProperty("progress") long progress,
+                                            @JsonProperty("source") String source,
+                                            @JsonProperty("version") String version,
+                                            @JsonProperty("credentials") CastCredentials credentials) {
+        return new AutoValue_CastPlayQueue.Builder().revision(Optional.of(revision))
+                                                    .queue(queue)
+                                                    .currentIndex(currentIndex)
+                                                    .progress(progress)
+                                                    .source(source == null ? Strings.EMPTY : source)
+                                                    .version(version)
+                                                    .credentials(Optional.fromNullable(credentials))
+                                                    .build();
     }
 
-    public CastPlayQueue(Urn currentUrn, List<Urn> urns) {
-        queue = Lists.transform(urns, RemoteTrack::create);
-        currentIndex = urns.indexOf(currentUrn);
+    public abstract Builder toBuilder();
+
+    private static Builder builder(Urn currentUrn, List<Urn> tracks) {
+        return new AutoValue_CastPlayQueue.Builder().revision(Optional.absent())
+                                                    .queue(Lists.transform(tracks, RemoteTrack::create))
+                                                    .currentIndex(tracks.indexOf(currentUrn))
+                                                    .progress(0)
+                                                    .source(Strings.EMPTY)
+                                                    .version(CAST_PROTOCOL_VERSION)
+                                                    .credentials(Optional.absent());
     }
 
-    public CastPlayQueue(String revision, Urn currentTrackUrn, List<Urn> tracks) {
-        this(currentTrackUrn, tracks);
-        this.revision = revision;
+    public static CastPlayQueue create(Urn currentUrn, List<Urn> tracks) {
+        return builder(currentUrn, tracks).build();
     }
 
-    CastPlayQueue(CastPlayQueue original) {
-        revision = original.revision;
-        queue = original.queue;
-        currentIndex = original.currentIndex;
-        progress = original.progress;
-        source = original.source;
-        version = original.version;
-        credentials = original.credentials;
+    public static CastPlayQueue create(Optional<String> revision, Urn currentUrn, List<Urn> tracks) {
+        return builder(currentUrn, tracks).revision(revision).build();
     }
 
     public static CastPlayQueue forUpdate(Urn currentUrn, long progress, CastPlayQueue original) {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(original);
-        castPlayQueue.currentIndex = original.getQueueUrns().indexOf(currentUrn);
-        castPlayQueue.progress = progress;
-        return castPlayQueue;
+        return original.toBuilder().currentIndex(original.getQueueUrns().indexOf(currentUrn)).progress(progress).build();
     }
 
-    public String getRevision() {
-        return revision;
-    }
-
-    public List<RemoteTrack> getQueue() {
-        return queue;
-    }
-
-    @JsonProperty("current_index")
-    public int getCurrentIndex() {
-        return currentIndex;
-    }
-
-    public long getProgress() {
-        return progress;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public String getVersion() {
-        return version;
+    public CastPlayQueue withCredentials(CastCredentials credentials) {
+        return toBuilder().credentials(credentials).build();
     }
 
     @JsonIgnore
     public Urn getCurrentTrackUrn() {
-        int currentTrackIndex = getCurrentIndex();
-        boolean isWithinRange = currentTrackIndex >= 0 && currentTrackIndex < getQueue().size();
-        return isWithinRange ? getQueue().get(currentTrackIndex).urn() : Urn.NOT_SET;
+        int currentTrackIndex = currentIndex();
+        boolean isWithinRange = currentTrackIndex >= 0 && currentTrackIndex < queue().size();
+        return isWithinRange ? queue().get(currentTrackIndex).urn() : Urn.NOT_SET;
     }
 
     @JsonIgnore
     public List<Urn> getQueueUrns() {
-        return Lists.transform(queue, RemoteTrack::urn);
+        return Lists.transform(queue(), RemoteTrack::urn);
     }
 
     @JsonIgnore
@@ -92,7 +102,7 @@ public class CastPlayQueue {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return queue.isEmpty();
+        return queue().isEmpty();
     }
 
     @JsonIgnore
@@ -100,52 +110,28 @@ public class CastPlayQueue {
         return !isEmpty() && tracks != null && tracks.equals(getQueueUrns());
     }
 
-    public void setCredentials(CastCredentials credentials) {
-        this.credentials = credentials;
-    }
+    @AutoValue.Builder
+    static abstract class Builder {
 
-    @JsonProperty("credentials")
-    public CastCredentials getCredentials() {
-        return credentials;
-    }
+        abstract Builder revision(Optional<String> revision);
 
-    @Override
-    public String toString() {
-        return "CastPlayQueue{" +
-                "revision='" + revision + '\'' +
-                ", queue=" + queue +
-                ", currentIndex=" + currentIndex +
-                ", progress=" + progress +
-                ", source='" + source + '\'' +
-                ", version='" + version + '\'' +
-                ", credentials=" + credentials +
-                '}';
-    }
+        abstract Builder queue(List<RemoteTrack> queue);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        abstract Builder currentIndex(int currentIndex);
 
-        CastPlayQueue that = (CastPlayQueue) o;
+        abstract Builder progress(long progress);
 
-        if (currentIndex != that.currentIndex) return false;
-        if (progress != that.progress) return false;
-        if (revision != null ? !revision.equals(that.revision) : that.revision != null) return false;
-        if (queue != null ? !queue.equals(that.queue) : that.queue != null) return false;
-        if (source != null ? !source.equals(that.source) : that.source != null) return false;
-        return version != null ? version.equals(that.version) : that.version == null;
+        abstract Builder source(String source);
 
-    }
+        abstract Builder version(String version);
 
-    @Override
-    public int hashCode() {
-        int result = revision != null ? revision.hashCode() : 0;
-        result = 31 * result + (queue != null ? queue.hashCode() : 0);
-        result = 31 * result + currentIndex;
-        result = 31 * result + (int) (progress ^ (progress >>> 32));
-        result = 31 * result + (source != null ? source.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
-        return result;
+        abstract Builder credentials(Optional<CastCredentials> credentials);
+
+        Builder credentials(CastCredentials credentials) {
+            return credentials(Optional.of(credentials));
+        }
+
+        abstract CastPlayQueue build();
+
     }
 }

@@ -3,8 +3,8 @@ package com.soundcloud.android.cast.api;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,27 +21,27 @@ public class CastPlayQueueTest {
 
     @Before
     public void setUp() {
-        castPlayQueue = new CastPlayQueue(TRACK_URN1, PLAY_QUEUE);
+        castPlayQueue = CastPlayQueue.create(TRACK_URN1, PLAY_QUEUE);
     }
 
     @Test
     public void constructorDoesNotSetRevision() {
-        assertThat(castPlayQueue.getRevision()).isNull();
+        assertThat(castPlayQueue.revision()).isEqualTo(Optional.absent());
     }
 
     @Test
     public void specialRevisionConstructorWillSetTheRevision() {
         String revision = "rev";
-        CastPlayQueue revisionedCastPlayQueue = new CastPlayQueue(revision, TRACK_URN1, PLAY_QUEUE);
+        CastPlayQueue revisionedCastPlayQueue = CastPlayQueue.create(Optional.of(revision), TRACK_URN1, PLAY_QUEUE);
 
-        assertThat(revisionedCastPlayQueue.getRevision()).isEqualTo(revision);
+        assertThat(revisionedCastPlayQueue.revision().get()).isEqualTo(revision);
     }
 
     @Test
     public void constructorSetsCurrentIndexCorrectlyForCurrentPlayingTrack() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN2, PLAY_QUEUE);
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN2, PLAY_QUEUE);
 
-        assertThat(castPlayQueue.getCurrentIndex()).isEqualTo(1);
+        assertThat(castPlayQueue.currentIndex()).isEqualTo(1);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class CastPlayQueueTest {
 
     @Test
     public void tryingToGetCurrentTrackUrnForTrackNotPresentInQueueWillReturnNotSet() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(Urn.forTrack(789L), PLAY_QUEUE);
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(Urn.forTrack(789L), PLAY_QUEUE);
 
         assertThat(castPlayQueue.getCurrentTrackUrn()).isEqualTo(Urn.NOT_SET);
     }
@@ -80,7 +80,7 @@ public class CastPlayQueueTest {
 
     @Test
     public void hasSameTracksReturnsFalseIfHasEmptyQueue() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(null, emptyList());
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(null, emptyList());
 
         assertThat(castPlayQueue.hasSameTracks(Arrays.asList(TRACK_URN1, TRACK_URN2))).isFalse();
     }
@@ -92,6 +92,6 @@ public class CastPlayQueueTest {
 
     @Test
     public void isEmptyReturnsTrueForEmptyUrnList() {
-        assertThat(new CastPlayQueue(TRACK_URN1, emptyList()).isEmpty()).isTrue();
+        assertThat(CastPlayQueue.create(TRACK_URN1, emptyList()).isEmpty()).isTrue();
     }
 }

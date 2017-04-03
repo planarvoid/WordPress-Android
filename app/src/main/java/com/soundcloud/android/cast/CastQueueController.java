@@ -6,6 +6,7 @@ import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.Nullable;
 
@@ -28,11 +29,11 @@ public class CastQueueController {
     }
 
     public CastPlayQueue buildCastPlayQueue(Urn currentTrackUrn, List<Urn> tracks) {
-        return new CastPlayQueue(getCurrentRevision(), currentTrackUrn, tracks);
+        return CastPlayQueue.create(getCurrentRevision(), currentTrackUrn, tracks);
     }
 
-    private String getCurrentRevision() {
-        return castPlayQueue != null && castPlayQueue.getRevision() != null ? castPlayQueue.getRevision() : null;
+    private Optional<String> getCurrentRevision() {
+        return castPlayQueue == null ? Optional.absent() : castPlayQueue.revision();
     }
 
     @Nullable

@@ -1,8 +1,8 @@
 package com.soundcloud.android.cast;
 
-import com.appboy.support.StringUtils;
 import com.google.android.gms.cast.framework.CastSession;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.content.Context;
@@ -105,9 +105,9 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     public String getDeviceName() {
         Optional<CastSession> castSession = castContextWrapper.getCurrentCastSession();
         if (castSession.isPresent() && castSession.get().getCastDevice() != null) {
-            return Optional.fromNullable(castSession.get().getCastDevice().getFriendlyName()).or(StringUtils.EMPTY_STRING);
+            return Optional.fromNullable(castSession.get().getCastDevice().getFriendlyName()).or(Strings.EMPTY);
         } else {
-            return StringUtils.EMPTY_STRING;
+            return Strings.EMPTY;
         }
     }
 }

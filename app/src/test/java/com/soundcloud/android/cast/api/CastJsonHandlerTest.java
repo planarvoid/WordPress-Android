@@ -34,8 +34,8 @@ public class CastJsonHandlerTest extends AndroidUnitTest {
 
         CastPlayQueue castPlayQueue = castJsonHandler.parseCastPlayQueue(new JSONObject(json));
 
-        assertThat(castPlayQueue.getRevision()).isEqualTo(revision);
-        assertThat(castPlayQueue.getQueue()).isEmpty();
+        assertThat(castPlayQueue.revision().get()).isEqualTo(revision);
+        assertThat(castPlayQueue.queue()).isEmpty();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class CastJsonHandlerTest extends AndroidUnitTest {
         Urn urn1 = Urn.forTrack(123L);
         Urn urn2 = Urn.forTrack(456L);
         List<Urn> playQueue = Arrays.asList(urn1, urn2);
-        CastPlayQueue castPlayQueue = new CastPlayQueue(urn2, playQueue);
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(urn2, playQueue);
 
         JSONObject jsonObject = castJsonHandler.toJson(castPlayQueue);
 

@@ -75,8 +75,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
                 .setContentType(MIME_TYPE_AUDIO_MPEG)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .build();
-        playQueue.setCredentials(getCredentials());
-        getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue));
+        getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue.withCredentials(getCredentials())));
         Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " for pos. " + playPosition + " with playQueue = " + playQueue);
     }
 
@@ -102,18 +101,8 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     }
 
     public void sendUpdateQueue(CastPlayQueue castPlayQueue) {
-        CastMessage message = CastMessage.create(UPDATE_QUEUE, castPlayQueue);
-        attachCredentialsToMessage(message);
+        CastMessage message = CastMessage.create(UPDATE_QUEUE, castPlayQueue.withCredentials(getCredentials()));
         sendMessage(message);
-    }
-
-    private void attachCredentialsToMessage(CastMessage castMessage) {
-        CastPlayQueue castPlayQueue = castMessage.payload();
-        if (castPlayQueue != null) {
-            castPlayQueue.setCredentials(getCredentials());
-        } else {
-            Log.e(TAG, "CastProtocol::attachCredentialsToMessage - Tried to attach credentials to null payload message: " + castMessage);
-        }
     }
 
     private void sendMessage(CastMessage message) {
@@ -122,7 +111,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
             Log.i(TAG, "CastProtocol::sendMessage = " + json);
             castSession.get().sendMessage(PROTOCOL_CHANNEL_NAMESPACE, json);
         } catch (ApiMapperException e) {
-            Log.e(TAG, "CastProtocol::sendMessage - could not map message to JSON: " + message);
+            Log.e(TAG, "CastProtocol::sendMessage - could not map message to JSON: " + message, e);
         }
     }
 
@@ -163,7 +152,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
                         }
                     }
                 } catch (IOException | ApiMapperException | JSONException e) {
-                    Log.e(TAG, "Could not parse received queue");
+                    Log.e(TAG, "Could not parse received queue", e);
                 }
             }
         }
@@ -183,10 +172,10 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     private void onNonEmptyMetadataReceived(int playerState, JSONObject remoteLoadedData) throws IOException, ApiMapperException, JSONException {
         CastPlayQueue castPlayQueue = jsonHandler.parseCastPlayQueue(remoteLoadedData);
-        if (hasStateChanged(playerState, Optional.fromNullable(castPlayQueue.getRevision()))) {
+        if (hasStateChanged(playerState, castPlayQueue.revision())) {
             RemoteMediaClientLogger.logState("onNonEmptyMetadataReceived", getRemoteMediaClient());
             listener.onQueueReceived(castPlayQueue);
-            updateState(playerState, castPlayQueue.getRevision());
+            updateState(playerState, castPlayQueue.revision());
         } else {
             RemoteMediaClientLogger.logState("Swallowed State", getRemoteMediaClient());
         }
@@ -197,7 +186,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         if (hasStateChanged(playerState, Optional.absent())) {
             RemoteMediaClientLogger.logState("onIdleEmptyMetadataReceived", getRemoteMediaClient());
             listener.onRemoteEmptyStateFetched();
-            updateState(playerState, null);
+            updateState(playerState, Optional.absent());
         } else {
             RemoteMediaClientLogger.logState("Swallowed State", getRemoteMediaClient());
         }
@@ -211,7 +200,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         return !remoteState.isPresent() || playerState != remoteState.get().playerState || !revision.equals(remoteState.get().revision);
     }
 
-    private void updateState(int playerState, String revision) {
+    private void updateState(int playerState, Optional<String> revision) {
         this.remoteState = Optional.of(new RemoteState(playerState, revision));
     }
 
@@ -219,9 +208,9 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         private int playerState;
         private Optional<String> revision;
 
-        RemoteState(int playerState, String revision) {
+        RemoteState(int playerState, Optional<String> revision) {
             this.playerState = playerState;
-            this.revision = Optional.fromNullable(revision);
+            this.revision = revision;
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.cast.api;
 
+import static java.util.Collections.emptyList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +16,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -32,6 +34,7 @@ public class CastProtocolTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final String TOKEN = "fakeToken";
+    private CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN, emptyList());
 
     @Mock private CastJsonHandler castJsonHandler;
     @Mock private AccountOperations accountOperations;
@@ -39,8 +42,8 @@ public class CastProtocolTest extends AndroidUnitTest {
     @Mock private CastSession castSession;
     @Mock private CastProtocol.Listener listener;
     @Mock private RemoteMediaClient remoteMediaClient;
-    @Mock private CastPlayQueue castPlayQueue;
     @Captor private ArgumentCaptor<String> jsonCaptor;
+    @Captor private ArgumentCaptor<CastMessage> castMessageCaptor;
     @Captor private ArgumentCaptor<MediaInfo> mediaInfoCaptor;
     @Captor private ArgumentCaptor<CastCredentials> credentialsCaptor;
 
@@ -59,13 +62,11 @@ public class CastProtocolTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateQueueMessageIsSentWithAttachedCredentials() {
+    public void updateQueueMessageIsSentWithAttachedCredentials() throws ApiMapperException {
         castProtocol.sendUpdateQueue(castPlayQueue);
 
-        verify(castPlayQueue).setCredentials(credentialsCaptor.capture());
-
-        CastCredentials castCredentials = credentialsCaptor.getValue();
-        assertThat(castCredentials.getAuthorization()).contains(TOKEN);
+        verify(castJsonHandler).toString(castMessageCaptor.capture());
+        assertThat(castMessageCaptor.getValue().payload().credentials().get().getAuthorization()).contains(TOKEN);
     }
 
     @Test
@@ -101,7 +102,7 @@ public class CastProtocolTest extends AndroidUnitTest {
         String contentId = "fakeId";
         long position = 123L;
         JSONObject customData = new JSONObject();
-        when(castJsonHandler.toJson(castPlayQueue)).thenReturn(customData);
+        when(castJsonHandler.toJson(any(CastPlayQueue.class))).thenReturn(customData);
 
         castProtocol.sendLoad(contentId, true, position, castPlayQueue);
 
@@ -147,7 +148,7 @@ public class CastProtocolTest extends AndroidUnitTest {
 
     @Test
     public void handleMulticastScenarioByForwardingTheCurrentlyRemoteQueueToListener() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN, Collections.singletonList(TRACK_URN));
         mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
         castProtocol.setListener(listener);
 
@@ -158,7 +159,7 @@ public class CastProtocolTest extends AndroidUnitTest {
 
     @Test
     public void doNotForwardQueueToListenerIfStateDidNotChange() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN, Collections.singletonList(TRACK_URN));
         mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
         castProtocol.setListener(listener);
 
@@ -171,7 +172,7 @@ public class CastProtocolTest extends AndroidUnitTest {
 
     @Test
     public void invalidateCachedStateAfterSessionIsUnregistered() {
-        CastPlayQueue castPlayQueue = new CastPlayQueue(TRACK_URN, Collections.singletonList(TRACK_URN));
+        CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN, Collections.singletonList(TRACK_URN));
         mockRemoteState(MediaStatus.PLAYER_STATE_PLAYING, castPlayQueue);
         castProtocol.setListener(listener);
         castProtocol.onMetadataUpdated();
