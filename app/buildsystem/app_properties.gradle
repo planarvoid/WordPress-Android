@@ -61,7 +61,7 @@ android {
       resValue "bool",   "log_queries", "false"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "true"
 
-      resValue "string", "cast_v3_receiver_app_id", "9A5289F5"
+      resValue "string", "cast_v3_receiver_app_id", "BCFFBE3E"
     }
 
     beta {
