@@ -79,7 +79,7 @@ ext {
           butterKnife                  : "com.jakewharton:butterknife:8.4.0",
           butterKnifeCompiler          : "com.jakewharton:butterknife-compiler:8.4.0",
           castCompanionLibrary         : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
-          tapTargetView                : "com.getkeepsafe.taptargetview:taptargetview:1.7.0",
+          tapTargetView                : "com.getkeepsafe.taptargetview:taptargetview:1.9.1",
 
           // Android libraries
           androidMultidex              : "com.android.support:multidex:$androidMultiDex",
