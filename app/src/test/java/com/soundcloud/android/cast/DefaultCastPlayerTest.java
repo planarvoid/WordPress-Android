@@ -381,12 +381,6 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).isTrue();
     }
 
-    private void mockForPlayCurrent() {
-        when(castProtocol.isConnected()).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
-        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
-    }
-
     @Test
     public void doesNotShowThePlayerWhenTheFetchedRemotePlayQueueIsEmpty() {
         castPlayer.onRemoteEmptyStateFetched();
@@ -438,8 +432,12 @@ public class DefaultCastPlayerTest extends AndroidUnitTest {
         assertThat(playbackProgressEventArgumentCaptor.getValue().getPlaybackProgress().getPosition()).isEqualTo(progress);
     }
 
+    private void mockForPlayCurrent() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
+        when(castQueueController.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
+    }
+
     private void mockProgressAndDuration(long progress, long duration) {
-        when(castProtocol.isConnected()).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(playbackProgress);
         when(playSessionStateProvider.getLastProgressForItem(any(Urn.class))).thenReturn(playbackProgress);
         when(playbackProgress.getPosition()).thenReturn(progress);

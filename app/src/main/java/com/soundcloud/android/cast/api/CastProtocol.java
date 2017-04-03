@@ -139,11 +139,6 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         this.listener = null;
     }
 
-    @Nullable
-    private RemoteMediaClient getRemoteMediaClient() {
-        return isConnected() ? castSession.get().getRemoteMediaClient() : null;
-    }
-
     public void sendUpdateQueue(CastPlayQueue castPlayQueue) {
         CastMessage message = CastMessage.create(UPDATE_QUEUE, castPlayQueue.withCredentials(getCredentials()));
         sendMessage(message);
@@ -281,8 +276,13 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
         }
     }
 
-    public boolean isConnected() {
+    private boolean isConnected() {
         return castSession.isPresent() && castSession.get().isConnected();
+    }
+
+    @Nullable
+    private RemoteMediaClient getRemoteMediaClient() {
+        return isConnected() ? castSession.get().getRemoteMediaClient() : null;
     }
 
     private boolean hasStateChanged(int playerState, Optional<String> revision) {
