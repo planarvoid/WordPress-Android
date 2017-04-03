@@ -3,8 +3,6 @@ package com.soundcloud.android.cast;
 import static com.soundcloud.android.cast.api.CastProtocol.TAG;
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
 
-import com.google.android.gms.cast.MediaStatus;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.events.EventQueue;
@@ -20,9 +18,7 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -35,8 +31,6 @@ import java.util.List;
 
 @Singleton
 class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
-
-    private static final long SEEK_CORRECTION_ON_OVERFLOW = 100L;
 
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
@@ -78,8 +72,23 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public void onStatusUpdated() {
-        reportPlayerState();
+    public void onIdle(long progress, long duration, PlayStateReason idleReason) {
+        playStateReporter.reportIdle(idleReason, castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
+    }
+
+    @Override
+    public void onPlaying(long progress, long duration) {
+        playStateReporter.reportPlaying(castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
+    }
+
+    @Override
+    public void onBuffering(long progress, long duration) {
+        playStateReporter.reportBuffering(castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
+    }
+
+    @Override
+    public void onPaused(long progress, long duration) {
+        playStateReporter.reportPaused(castQueueController.getRemoteCurrentTrackUrn(), progress, duration);
     }
 
     @Override
@@ -88,54 +97,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         PlaybackProgressEvent progressEvent = PlaybackProgressEvent.create(new PlaybackProgress(progressMs, durationMs, currentRemoteTrackUrn), currentRemoteTrackUrn);
 
         playSessionStateProvider.onProgressEvent(progressEvent);
-    }
-
-    @VisibleForTesting
-    void reportPlayerState() {
-        final int remotePlayerState = getRemoteMediaClient().getPlayerState();
-        final Urn remoteTrackUrn = castQueueController.getRemoteCurrentTrackUrn();
-        final long remoteTrackProgress = getRemoteMediaClient().getApproximateStreamPosition();
-        final long remoteTrackDuration = getRemoteMediaClient().getStreamDuration();
-
-        switch (remotePlayerState) {
-            case MediaStatus.PLAYER_STATE_PLAYING:
-                playStateReporter.reportPlaying(remoteTrackUrn, remoteTrackProgress, remoteTrackDuration);
-                break;
-            case MediaStatus.PLAYER_STATE_PAUSED:
-                playStateReporter.reportPaused(remoteTrackUrn, remoteTrackProgress, remoteTrackDuration);
-                break;
-            case MediaStatus.PLAYER_STATE_BUFFERING:
-                playStateReporter.reportBuffering(remoteTrackUrn, remoteTrackProgress, remoteTrackDuration);
-                break;
-            case MediaStatus.PLAYER_STATE_IDLE:
-                final PlayStateReason translatedIdleReason = getTranslatedIdleReason(getRemoteMediaClient().getIdleReason());
-                if (translatedIdleReason != null) {
-                    playStateReporter.reportIdle(translatedIdleReason, remoteTrackUrn, remoteTrackProgress, remoteTrackDuration);
-                }
-                break;
-            case MediaStatus.PLAYER_STATE_UNKNOWN:
-                Log.e(this, "received an unknown media status"); // not sure when this happens yet
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown Media State code returned " + remotePlayerState);
-        }
-    }
-
-    @Nullable
-    private PlayStateReason getTranslatedIdleReason(int idleReason) {
-        switch (idleReason) {
-            case MediaStatus.IDLE_REASON_ERROR:
-                return PlayStateReason.ERROR_FAILED;
-            case MediaStatus.IDLE_REASON_FINISHED:
-                return PlayStateReason.PLAYBACK_COMPLETE;
-            case MediaStatus.IDLE_REASON_CANCELED:
-                return PlayStateReason.NONE;
-            case MediaStatus.IDLE_REASON_INTERRUPTED:
-            case MediaStatus.IDLE_REASON_NONE:
-            default:
-                // do not fail fast, we want to ignore non-handled codes
-                return null;
-        }
     }
 
     @Override
@@ -147,7 +108,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         } else {
             final Urn currentLocalTrackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
             if (castQueueController.isCurrentlyLoadedOnRemotePlayer(currentLocalTrackUrn)) {
-                reportPlayerState();
+                castProtocol.requestStatusUpdate();
             } else {
                 updateRemoteQueue(currentLocalTrackUrn);
             }
@@ -222,44 +183,22 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
     }
 
     @Override
-    public boolean resume() {
-        getRemoteMediaClient().play();
-        return true;
+    public void resume() {
+        castProtocol.play();
     }
 
     @Override
     public void pause() {
-        getRemoteMediaClient().pause();
+        castProtocol.pause();
     }
 
     @Override
     public void togglePlayback() {
-        getRemoteMediaClient().togglePlayback();
+        castProtocol.togglePlayback();
     }
 
     @Override
-    public long seek(long position) {
-        long trackDuration = getRemoteMediaClient().getStreamDuration();
-        long correctedPosition = correctSeekingPositionIfNeeded(position, trackDuration);
-
-        onProgressUpdated(correctedPosition, trackDuration);
-        getRemoteMediaClient().seek(correctedPosition);
-
-        return correctedPosition;
-    }
-
-    private long correctSeekingPositionIfNeeded(long seekPosition, long trackDuration) {
-        if (seekPosition >= trackDuration) {
-            // if the user tries to seek past the end of the track we have to correct it
-            // to avoid weird states because of the syncing time between cast sender & receiver
-            return trackDuration - SEEK_CORRECTION_ON_OVERFLOW;
-        } else {
-            return seekPosition;
-        }
-    }
-
-    @Nullable
-    private RemoteMediaClient getRemoteMediaClient() {
-        return castProtocol.getRemoteMediaClient();
+    public void seek(long position) {
+        castProtocol.seek(position, this::onProgressUpdated);
     }
 }

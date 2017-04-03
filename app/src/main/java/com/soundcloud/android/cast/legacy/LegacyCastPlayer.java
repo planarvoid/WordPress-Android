@@ -306,14 +306,12 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
     }
 
-    public boolean resume() {
+    public void resume() {
         try {
             castManager.play();
-            return true;
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
             Log.e(LegacyCastOperations.TAG, "Unable to resume playback", e);
         }
-        return false;
     }
 
     public void pause() {
@@ -332,14 +330,13 @@ public class LegacyCastPlayer extends VideoCastConsumerImpl implements ProgressR
         }
     }
 
-    public long seek(long ms) {
+    public void seek(long ms) {
         try {
             castManager.seek((int) ms);
             progressReporter.stop();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
             Log.e(LegacyCastOperations.TAG, "Unable to seek", e);
         }
-        return ms;
     }
 
     public long getProgress() {

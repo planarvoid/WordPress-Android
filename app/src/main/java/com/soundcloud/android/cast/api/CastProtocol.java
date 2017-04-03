@@ -8,12 +8,14 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.cast.RemoteMediaClientLogger;
 import com.soundcloud.android.cast.SimpleRemoteMediaClientListener;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import org.json.JSONException;
 import org.json.JSONObject;
+import rx.functions.Action2;
 
 import android.support.annotation.Nullable;
 
@@ -27,6 +29,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     public static final String TAG = "GoogleCast";
     private static final String PROTOCOL_CHANNEL_NAMESPACE = "urn:x-cast:com.soundcloud.chromecast";
     @VisibleForTesting static final String MIME_TYPE_AUDIO_MPEG = "audio/mpeg";
+    private static final long SEEK_CORRECTION_ON_OVERFLOW = 100L;
 
     private static final String UPDATE_QUEUE = "UPDATE_QUEUE";
 
@@ -38,7 +41,13 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     private final AccountOperations accountOperations;
 
     public interface Listener extends RemoteMediaClient.ProgressListener {
-        void onStatusUpdated();
+        void onIdle(long progress, long duration, PlayStateReason idleReason);
+
+        void onPlaying(long progress, long duration);
+
+        void onPaused(long progress, long duration);
+
+        void onBuffering(long progress, long duration);
 
         void onRemoteEmptyStateFetched();
 
@@ -66,6 +75,41 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     private CastCredentials getCredentials() {
         return new CastCredentials(accountOperations.getSoundCloudToken());
+    }
+
+    public void requestStatusUpdate() {
+        Log.w(TAG, "CastProtocol::requestStatusUpdate() called");
+        getRemoteMediaClient().requestStatus();
+    }
+
+    public void play() {
+        getRemoteMediaClient().play();
+    }
+
+    public void pause() {
+        getRemoteMediaClient().pause();
+    }
+
+    public void togglePlayback() {
+        getRemoteMediaClient().togglePlayback();
+    }
+
+    public void seek(long position, Action2<Long, Long> callback) {
+        long trackDuration = getRemoteMediaClient().getStreamDuration();
+        long correctedPosition = correctSeekingPositionIfNeeded(position, trackDuration);
+
+        callback.call(correctedPosition, trackDuration);
+        getRemoteMediaClient().seek(correctedPosition);
+    }
+
+    private long correctSeekingPositionIfNeeded(long seekPosition, long trackDuration) {
+        if (seekPosition >= trackDuration) {
+            // if the user tries to seek past the end of the track we have to correct it
+            // to avoid weird states because of the syncing time between cast sender & receiver
+            return trackDuration - SEEK_CORRECTION_ON_OVERFLOW;
+        } else {
+            return seekPosition;
+        }
     }
 
     public void sendLoad(String contentId, boolean autoplay, long playPosition, CastPlayQueue playQueue) {
@@ -96,7 +140,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     }
 
     @Nullable
-    public RemoteMediaClient getRemoteMediaClient() {
+    private RemoteMediaClient getRemoteMediaClient() {
         return isConnected() ? castSession.get().getRemoteMediaClient() : null;
     }
 
@@ -124,8 +168,53 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
             if (wasIdleReceivedAfterLoad(getRemoteMediaClient().getPlayerState())) {
                 Log.w(TAG, "onStatusUpdated() ignored IDLE state: those shouldn't exist after LOAD has been issued");
             } else {
-                listener.onStatusUpdated();
+                dispatchStatusUpdate(remoteMediaClient);
             }
+        }
+    }
+
+    private void dispatchStatusUpdate(RemoteMediaClient remoteMediaClient) {
+        final long remoteTrackProgress = remoteMediaClient.getApproximateStreamPosition();
+        final long remoteTrackDuration = remoteMediaClient.getStreamDuration();
+
+        switch (remoteMediaClient.getPlayerState()) {
+            case MediaStatus.PLAYER_STATE_PLAYING:
+                listener.onPlaying(remoteTrackProgress, remoteTrackDuration);
+                break;
+            case MediaStatus.PLAYER_STATE_PAUSED:
+                listener.onPaused(remoteTrackProgress, remoteTrackDuration);
+                break;
+            case MediaStatus.PLAYER_STATE_BUFFERING:
+                listener.onBuffering(remoteTrackProgress, remoteTrackDuration);
+                break;
+            case MediaStatus.PLAYER_STATE_IDLE:
+                final PlayStateReason translatedIdleReason = getTranslatedIdleReason(remoteMediaClient.getIdleReason());
+                if (translatedIdleReason != null) {
+                    listener.onIdle(remoteTrackProgress, remoteTrackDuration, translatedIdleReason);
+                }
+                break;
+            case MediaStatus.PLAYER_STATE_UNKNOWN:
+                Log.e(TAG, "Received an unknown media status");
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown Media State code returned " + remoteMediaClient.getPlayerState());
+        }
+    }
+
+    @Nullable
+    private PlayStateReason getTranslatedIdleReason(int idleReason) {
+        switch (idleReason) {
+            case MediaStatus.IDLE_REASON_ERROR:
+                return PlayStateReason.ERROR_FAILED;
+            case MediaStatus.IDLE_REASON_FINISHED:
+                return PlayStateReason.PLAYBACK_COMPLETE;
+            case MediaStatus.IDLE_REASON_CANCELED:
+                return PlayStateReason.NONE;
+            case MediaStatus.IDLE_REASON_INTERRUPTED:
+            case MediaStatus.IDLE_REASON_NONE:
+            default:
+                // do not fail fast, we want to ignore non-handled codes
+                return null;
         }
     }
 

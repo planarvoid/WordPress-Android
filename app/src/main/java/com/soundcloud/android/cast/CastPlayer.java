@@ -13,7 +13,7 @@ public interface CastPlayer {
 
     void togglePlayback();
 
-    boolean resume();
+    void resume();
 
     void pause();
 
@@ -21,5 +21,5 @@ public interface CastPlayer {
 
     Observable<PlaybackResult> setNewQueue(PlayQueue playQueue, Urn initialTrackUrn, PlaySessionSource playSessionSource);
 
-    long seek(long position);
+    void seek(long position);
 }

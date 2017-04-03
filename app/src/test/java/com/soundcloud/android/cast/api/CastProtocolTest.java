@@ -19,6 +19,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -33,6 +34,8 @@ import java.util.Collections;
 public class CastProtocolTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private final long progress = 345678L;
+    private final long duration = 8345678L;
     private static final String TOKEN = "fakeToken";
     private CastPlayQueue castPlayQueue = CastPlayQueue.create(TRACK_URN, emptyList());
 
@@ -114,12 +117,78 @@ public class CastProtocolTest extends AndroidUnitTest {
     }
 
     @Test
-    public void forwardUpdateStatusCallbackToListener() {
+    public void forwardPlayingStatusToListener() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
         castProtocol.setListener(listener);
 
         castProtocol.onStatusUpdated();
 
-        verify(listener).onStatusUpdated();
+        verify(listener).onPlaying(eq(progress), eq(duration));
+    }
+
+    @Test
+    public void forwardPausedStatusToListener() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_PAUSED);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
+        castProtocol.setListener(listener);
+
+        castProtocol.onStatusUpdated();
+
+        verify(listener).onPaused(eq(progress), eq(duration));
+    }
+
+    @Test
+    public void forwardBufferingStatusToListener() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_BUFFERING);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
+        castProtocol.setListener(listener);
+
+        castProtocol.onStatusUpdated();
+
+        verify(listener).onBuffering(eq(progress), eq(duration));
+    }
+
+    @Test
+    public void forwardIdleStatusToListenerWithMappedReason() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_FINISHED);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
+        castProtocol.setListener(listener);
+
+        castProtocol.onStatusUpdated();
+
+        verify(listener).onIdle(eq(progress), eq(duration), eq(PlayStateReason.PLAYBACK_COMPLETE));
+    }
+
+    @Test
+    public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_INTERRUPTED);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
+        castProtocol.setListener(listener);
+
+        castProtocol.onStatusUpdated();
+
+        verifyZeroInteractions(listener);
+    }
+
+    @Test
+    public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() {
+        when(remoteMediaClient.getPlayerState()).thenReturn(MediaStatus.PLAYER_STATE_IDLE);
+        when(remoteMediaClient.getIdleReason()).thenReturn(MediaStatus.PLAYER_STATE_UNKNOWN);
+        when(remoteMediaClient.getApproximateStreamPosition()).thenReturn(progress);
+        when(remoteMediaClient.getStreamDuration()).thenReturn(duration);
+        castProtocol.setListener(listener);
+
+        castProtocol.onStatusUpdated();
+
+        verifyZeroInteractions(listener);
     }
 
     @Test
@@ -201,6 +270,15 @@ public class CastProtocolTest extends AndroidUnitTest {
         castProtocol.onMetadataUpdated();
 
         verifyZeroInteractions(listener);
+    }
+
+    @Test
+    public void seekAfterDurationForcesPosition() {
+        long progress = 5000L;
+        long expectedProgress = 3900L;
+        when(remoteMediaClient.getStreamDuration()).thenReturn(4000L);
+
+        castProtocol.seek(progress, (actualProgress, duration) -> assertThat(actualProgress).isEqualTo(expectedProgress));
     }
 
     private void mockRemoteState(int playerState, CastPlayQueue queue) {
