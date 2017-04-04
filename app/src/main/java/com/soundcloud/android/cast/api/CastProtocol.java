@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast.api;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.CastSession;
@@ -15,6 +17,8 @@ import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import org.json.JSONException;
 import org.json.JSONObject;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action2;
 
 import android.support.annotation.Nullable;
@@ -22,6 +26,7 @@ import android.support.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 @Singleton
 public class CastProtocol extends SimpleRemoteMediaClientListener {
@@ -79,27 +84,32 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
 
     public void requestStatusUpdate() {
         Log.w(TAG, "CastProtocol::requestStatusUpdate() called");
-        getRemoteMediaClient().requestStatus();
+        onMainThread(() -> getRemoteMediaClient().requestStatus());
     }
 
     public void play() {
-        getRemoteMediaClient().play();
+        onMainThread(() -> getRemoteMediaClient().play());
     }
 
     public void pause() {
-        getRemoteMediaClient().pause();
+        onMainThread(() -> getRemoteMediaClient().pause());
     }
 
     public void togglePlayback() {
-        getRemoteMediaClient().togglePlayback();
+        onMainThread(() -> {
+            getRemoteMediaClient().togglePlayback();
+            return null;
+        });
     }
 
     public void seek(long position, Action2<Long, Long> callback) {
-        long trackDuration = getRemoteMediaClient().getStreamDuration();
-        long correctedPosition = correctSeekingPositionIfNeeded(position, trackDuration);
+        onMainThread(() -> {
+            long trackDuration = getRemoteMediaClient().getStreamDuration();
+            long correctedPosition = correctSeekingPositionIfNeeded(position, trackDuration);
 
-        callback.call(correctedPosition, trackDuration);
-        getRemoteMediaClient().seek(correctedPosition);
+            callback.call(correctedPosition, trackDuration);
+            return getRemoteMediaClient().seek(correctedPosition);
+        });
     }
 
     private long correctSeekingPositionIfNeeded(long seekPosition, long trackDuration) {
@@ -119,7 +129,7 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
                 .setContentType(MIME_TYPE_AUDIO_MPEG)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .build();
-        getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue.withCredentials(getCredentials())));
+        onMainThread(() -> getRemoteMediaClient().load(mediaInfo, autoplay, playPosition, jsonHandler.toJson(playQueue.withCredentials(getCredentials()))));
         Log.d(TAG, "CastProtocol::sendLoad" + (autoplay ? " in autoplay" : "") + " for pos. " + playPosition + " with playQueue = " + playQueue);
     }
 
@@ -283,6 +293,10 @@ public class CastProtocol extends SimpleRemoteMediaClientListener {
     @Nullable
     private RemoteMediaClient getRemoteMediaClient() {
         return isConnected() ? castSession.get().getRemoteMediaClient() : null;
+    }
+
+    private void onMainThread(Callable action) {
+        fireAndForget(Observable.fromCallable(action).subscribeOn(AndroidSchedulers.mainThread()));
     }
 
     private boolean hasStateChanged(int playerState, Optional<String> revision) {
