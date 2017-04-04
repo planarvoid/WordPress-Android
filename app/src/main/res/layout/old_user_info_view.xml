@@ -30,7 +30,7 @@
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/website"
                     style="@style/Profile.Info.Link"
-                    android:drawableLeft="@drawable/favicon_website"
+                    android:drawableLeft="@drawable/legacy_favicon_website"
                     android:text="@string/website"
                     android:visibility="gone" />
 
@@ -44,7 +44,7 @@
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/myspace_name"
                     style="@style/Profile.Info.Link"
-                    android:drawableLeft="@drawable/favicon_myspace"
+                    android:drawableLeft="@drawable/legacy_favicon_myspace"
                     android:text="@string/myspace"
                     android:visibility="gone" />
 
