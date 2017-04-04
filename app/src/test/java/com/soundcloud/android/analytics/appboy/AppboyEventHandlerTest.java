@@ -67,7 +67,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackLikeEvents() {
-        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
@@ -77,7 +77,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackUnLikeEvents() {
-        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
@@ -145,8 +145,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackCommentEvents() {
-        EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
-        UIEvent event = UIEvent.fromComment(eventContextMetadata, METADATA);
+        UIEvent event = UIEvent.fromComment(METADATA);
 
         eventHandler.handleEvent(event);
 
@@ -311,7 +310,6 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return EventContextMetadata.builder()
-                                   .contextScreen("context_screen")
                                    .pageName("page_name")
                                    .pageUrn(Urn.NOT_SET);
     }

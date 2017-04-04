@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -181,8 +180,6 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(screen)
                                                                          .pageName(screen)
                                                                          .attributingActivity(AttributingActivity.fromPlayableItem(
                                                                                  item))

@@ -118,8 +118,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -142,8 +140,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -161,8 +157,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -180,8 +174,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -199,8 +191,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -222,8 +212,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -241,8 +229,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -265,8 +251,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -288,8 +272,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -311,8 +293,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -334,8 +314,6 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -352,8 +330,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -370,8 +346,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -388,8 +362,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -406,8 +378,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -428,8 +398,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                  trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -446,8 +414,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -464,8 +430,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(false, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -486,8 +450,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                  playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -508,8 +470,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                  playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNLIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNLIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -526,8 +486,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleLike(true, USER_URN, eventContext, null, EntityMetadata.EMPTY);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.LIKE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.LIKE);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_USERS_2);
@@ -544,7 +502,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -566,7 +523,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -595,7 +551,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -620,7 +575,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -637,7 +591,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -654,7 +607,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -675,7 +627,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -692,7 +643,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -714,7 +664,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -735,7 +684,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -756,7 +704,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -777,7 +724,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.REPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -794,7 +740,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -811,7 +756,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -828,7 +772,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -845,7 +788,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -862,7 +804,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(CLICK_OBJECT_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -883,7 +824,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -900,7 +840,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -921,7 +860,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -942,7 +880,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -963,7 +900,6 @@ public class UIEventTest extends AndroidUnitTest {
                                                    playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.UNREPOST);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(SOUNDCLOUD_PLAYLISTS_42);
@@ -978,16 +914,13 @@ public class UIEventTest extends AndroidUnitTest {
     public void shouldCreateEventFromAddToPlaylist() {
         UIEvent uiEvent = UIEvent.fromAddToPlaylist(eventContextBuilder().build());
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.ADD_TO_PLAYLIST);
-        assertThat(uiEvent.invokerScreen().get()).isEqualTo(INVOKER_SCREEN);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
     }
 
     @Test
     public void shouldCreateEventFromComment() {
-        EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
-        UIEvent uiEvent = UIEvent.fromComment(eventContextMetadata, trackMetadata);
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder().build();
+        UIEvent uiEvent = UIEvent.fromComment(trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.COMMENT);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo("screen");
         assertThat(uiEvent.playableTitle().get()).isEqualTo(PLAYABLE_TITLE);
     }
 
@@ -997,7 +930,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromShareRequest(TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SHARE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE_REQUEST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
         assertThat(uiEvent.creatorName().get()).isEqualTo(CREATOR_NAME);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(USER_URN);
         assertThat(uiEvent.playableTitle().get()).isEqualTo(PLAYABLE_TITLE);
@@ -1010,7 +942,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromShareRequest(PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SHARE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SHARE_REQUEST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
         assertThat(uiEvent.creatorName().get()).isEqualTo(CREATOR_NAME);
         assertThat(uiEvent.creatorUrn().get()).isEqualTo(USER_URN);
         assertThat(uiEvent.playableTitle().get()).isEqualTo(PLAYABLE_TITLE);
@@ -1170,7 +1101,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromNavigation(TRACK_URN, eventContext);
 
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.NAVIGATION);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(CONTEXT_SCREEN);
 
         assertThat(uiEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(uiEvent.clickObjectUrn().get()).isEqualTo(CLICK_OBJECT_URN);
@@ -1264,12 +1194,11 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     private EventContextMetadata.Builder eventContextBuilder() {
-        return eventContextNoInvokerScreen().invokerScreen(INVOKER_SCREEN);
+        return eventContextNoInvokerScreen();
     }
 
     private EventContextMetadata.Builder eventContextNoInvokerScreen() {
         return EventContextMetadata.builder()
-                                   .contextScreen(CONTEXT_SCREEN)
                                    .pageName(ORIGIN_SCREEN_NAME)
                                    .pageUrn(Urn.NOT_SET);
     }

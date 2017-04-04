@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.AttributingActivity;
@@ -162,8 +161,6 @@ public class MixedItemClickListener {
 
     private EventContextMetadata getEventContextMetadata(PlayableItem item, Optional<Module> module) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(screen.get())
                                                                          .pageName(screen.get())
                                                                          .attributingActivity(AttributingActivity.fromPlayableItem(
                                                                                  item))

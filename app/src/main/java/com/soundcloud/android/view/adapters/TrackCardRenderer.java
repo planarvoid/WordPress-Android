@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -85,10 +84,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     }
 
     private EventContextMetadata.Builder getEventContextMetadataBuilder(Optional<Module> module) {
-        EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                   .invokerScreen(ScreenElement.LIST.get())
-                                                                   .contextScreen(screenProvider.getLastScreenTag())
-                                                                   .pageName(screenProvider.getLastScreenTag());
+        EventContextMetadata.Builder builder = EventContextMetadata.builder().pageName(screenProvider.getLastScreenTag());
         if (module.isPresent()) {
             builder.module(module.get());
         }

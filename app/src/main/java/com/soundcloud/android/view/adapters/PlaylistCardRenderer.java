@@ -5,7 +5,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -96,14 +95,12 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                                       getEventContextMetadataBuilder(module).build());
 
         playlistView.overflowButton.setOnClickListener(overflowButton -> playlistItemMenuPresenter.show(overflowButton,
-                                                                                                playlistItem,
-                                                                                                getEventContextMetadataBuilder(module)));
+                                                                                                        playlistItem,
+                                                                                                        getEventContextMetadataBuilder(module)));
     }
 
     private EventContextMetadata.Builder getEventContextMetadataBuilder(final Optional<Module> module) {
-        final EventContextMetadata.Builder builder = EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                                                                   .contextScreen(screenProvider.getLastScreenTag())
-                                                                   .pageName(screenProvider.getLastScreenTag());
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder().pageName(screenProvider.getLastScreenTag());
         if (module.isPresent()) {
             builder.module(module.get());
         }

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -142,8 +141,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
         EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .invokerScreen(ScreenElement.LIST.get())
-                                    .contextScreen(screenProvider.getLastScreenTag())
                                     .pageName(screenProvider.getLastScreenTag())
                                     .pageUrn(Urn.NOT_SET)
                                     .isFromOverflow(true)

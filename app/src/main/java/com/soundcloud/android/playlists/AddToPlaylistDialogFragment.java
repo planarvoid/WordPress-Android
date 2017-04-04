@@ -40,10 +40,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
 
-    private static final String KEY_CONTEXT_SCREEN = "CONTEXT_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
-    private static final String KEY_INVOKER_SCREEN = "INVOKER_LOCATION";
 
     @Inject PlaylistOperations playlistOperations;
     @Inject FeatureOperations featureOperations;
@@ -55,18 +53,14 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     private Observable<List<AddTrackToPlaylistItem>> loadPlaylists;
 
     public static AddToPlaylistDialogFragment from(Urn trackUrn,
-                                                   String trackTitle,
-                                                   String invokerScreen,
-                                                   String contextScreen) {
-        return createFragment(createBundle(trackUrn, trackTitle, invokerScreen, contextScreen));
+                                                   String trackTitle) {
+        return createFragment(createBundle(trackUrn, trackTitle));
     }
 
-    private static Bundle createBundle(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {
+    private static Bundle createBundle(Urn trackUrn, String trackTitle) {
         Bundle bundle = new Bundle();
         bundle.putLong(KEY_TRACK_ID, trackUrn.getNumericId());
         bundle.putString(KEY_TRACK_TITLE, trackTitle);
-        bundle.putString(KEY_INVOKER_SCREEN, invokerScreen);
-        bundle.putString(KEY_CONTEXT_SCREEN, contextScreen);
         return bundle;
     }
 
@@ -114,10 +108,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     }
 
     private void showPlaylistCreationScreen() {
-        final String invokerScreen = getArguments().getString(KEY_INVOKER_SCREEN);
-        final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        CreatePlaylistDialogFragment.from(firstTrackId, invokerScreen, contextScreen).show(getFragmentManager());
+        CreatePlaylistDialogFragment.from(firstTrackId).show(getFragmentManager());
     }
 
     public void show(FragmentManager fragmentManager) {
@@ -137,8 +129,6 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
-                                   .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
-                                   .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
                                    .build();
     }
 

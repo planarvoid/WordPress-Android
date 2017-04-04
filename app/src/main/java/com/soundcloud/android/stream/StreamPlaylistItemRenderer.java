@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -79,8 +78,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
 
     @VisibleForTesting
     EventContextMetadata.Builder getEventContextMetadataBuilder(PlaylistItem playlistItem, int position) {
-        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(Screen.STREAM.get())
+        return EventContextMetadata.builder()
                                    .module(Module.create(Module.STREAM, position))
                                    .pageName(Screen.STREAM.get())
                                    .attributingActivity(AttributingActivity.fromPlayableItem(playlistItem));

@@ -219,7 +219,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.LIKE);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -233,7 +232,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.UNLIKE);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -247,7 +245,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.REPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -261,7 +258,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.kind()).isSameAs(UIEvent.Kind.UNREPOST);
-        assertThat(uiEvent.contextScreen().get()).isEqualTo(SCREEN.get());
     }
 
     @Test
@@ -270,10 +266,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onShareClicked();
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                                                                        .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
                                                                         .pageUrn(viewModel.metadata().getUrn())
-                                                                        .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
         verify(sharePresenter).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }
@@ -363,10 +357,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onShareClicked();
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                                                                        .contextScreen(SCREEN.get())
                                                                         .pageName(Screen.PLAYLIST_DETAILS.get())
                                                                         .pageUrn(viewModel.metadata().getUrn())
-                                                                        .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                                                         .build();
         verify(sharePresenter).share(getContext(), viewModel.metadata().permalinkUrl().get(), eventContextMetadata, null, entityMetadata());
     }

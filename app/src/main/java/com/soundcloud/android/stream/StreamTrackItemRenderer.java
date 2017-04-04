@@ -3,7 +3,6 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -65,9 +64,8 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
 
     @VisibleForTesting
     EventContextMetadata.Builder getEventContextMetadataBuilder(TrackItem trackItem, Integer position) {
-        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
+        return EventContextMetadata.builder()
                                    .module(Module.create(Module.STREAM, position))
-                                   .contextScreen(Screen.STREAM.get())
                                    .pageName(Screen.STREAM.get())
                                    .attributingActivity(AttributingActivity.fromPlayableItem(trackItem));
     }

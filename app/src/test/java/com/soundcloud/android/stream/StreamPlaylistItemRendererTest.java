@@ -7,7 +7,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -17,7 +16,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -30,7 +28,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
@@ -70,8 +67,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         final int position = 0;
         final EventContextMetadata context = renderer.getEventContextMetadataBuilder(playlistItem, position).build();
 
-        assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
-        assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
         assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, position));
         assertThat(context.attributingActivity()).isEqualTo(AttributingActivity.fromPlayableItem(playlistItem));
@@ -94,8 +89,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         verify(engagementsPresenter).bind(eq(viewHolder), eq(playlistItem), eventContextCaptor.capture());
 
         EventContextMetadata context = eventContextCaptor.getValue();
-        assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
-        assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
     }
 
@@ -109,10 +102,6 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
 
     private String tracksString(int trackCount) {
         return resources().getQuantityString(R.plurals.number_of_tracks, trackCount);
-    }
-
-    private String formattedTime(long time) {
-        return ScTextUtils.formatTimestamp(time, TimeUnit.MILLISECONDS);
     }
 
 }

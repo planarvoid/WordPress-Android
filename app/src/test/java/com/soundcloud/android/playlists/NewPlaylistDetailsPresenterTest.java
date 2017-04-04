@@ -840,9 +840,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private EventContextMetadata eventContext(Playlist playlist) {
         return EventContextMetadata.builder()
-                                   .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())
-                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                    .pageUrn(playlist.urn())
                                    .build();
     }

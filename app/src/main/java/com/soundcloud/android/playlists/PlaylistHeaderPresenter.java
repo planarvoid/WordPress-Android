@@ -413,9 +413,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private EventContextMetadata getEventContext() {
         return EventContextMetadata.builder()
-                                   .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())
-                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                    .pageUrn(viewModel.metadata().getUrn())
                                    .build();
     }

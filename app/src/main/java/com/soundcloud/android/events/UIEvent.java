@@ -165,7 +165,7 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public enum Action {
-        SHARE("share"),
+        SHARE("share::prompt"),
         REPOST_ADD("repost::add"),
         REPOST_REMOVE("repost::remove"),
         LIKE_ADD("like::add"),
@@ -211,10 +211,6 @@ public abstract class UIEvent extends TrackingEvent {
     public abstract Optional<ClickName> clickName();
 
     public abstract Optional<ClickCategory> clickCategory();
-
-    public abstract Optional<String> contextScreen();
-
-    public abstract Optional<String> invokerScreen();
 
     public abstract Optional<String> clickSource();
 
@@ -303,8 +299,8 @@ public abstract class UIEvent extends TrackingEvent {
         return event(Kind.ADD_TO_PLAYLIST).eventContextMetadata(eventContextMetadata).build();
     }
 
-    public static UIEvent fromComment(EventContextMetadata eventContextMetadata, EntityMetadata playable) {
-        return event(Kind.COMMENT).eventContextMetadata(eventContextMetadata).entityMetadata(playable).build();
+    public static UIEvent fromComment(EntityMetadata playable) {
+        return event(Kind.COMMENT).entityMetadata(playable).build();
     }
 
     public static UIEvent fromShuffle(EventContextMetadata contextMetadata) {
@@ -492,8 +488,6 @@ public abstract class UIEvent extends TrackingEvent {
                                               .attributingActivity(Optional.absent())
                                               .module(Optional.absent())
                                               .linkType(Optional.absent())
-                                              .contextScreen(Optional.absent())
-                                              .invokerScreen(Optional.absent())
                                               .clickName(Optional.absent())
                                               .clickCategory(Optional.absent())
                                               .clickObjectUrn(Optional.absent())
@@ -547,10 +541,6 @@ public abstract class UIEvent extends TrackingEvent {
         abstract Builder module(Optional<Module> module);
 
         abstract Builder linkType(Optional<String> linkType);
-
-        abstract Builder contextScreen(Optional<String> contextScreen);
-
-        abstract Builder invokerScreen(Optional<String> invokerScreen);
 
         abstract Builder clickName(Optional<ClickName> clickName);
 
@@ -606,8 +596,6 @@ public abstract class UIEvent extends TrackingEvent {
         Builder eventContextMetadata(EventContextMetadata eventContextMetadata) {
             pageUrn(Optional.of(eventContextMetadata.pageUrn()));
             originScreen(Optional.fromNullable(eventContextMetadata.pageName()));
-            contextScreen(Optional.fromNullable(eventContextMetadata.contextScreen()));
-            invokerScreen(Optional.fromNullable(eventContextMetadata.invokerScreen()));
             attributingActivity(Optional.fromNullable(eventContextMetadata.attributingActivity()));
             linkType(Optional.fromNullable(eventContextMetadata.linkType()).transform(LinkType::getName));
             module(Optional.fromNullable(eventContextMetadata.module()));

@@ -4,7 +4,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -69,12 +68,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CommentAddedSubscriber(trackUrn));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(arguments.getOriginScreen()),
-                EntityMetadata.from(arguments.creatorName(), arguments.creatorUrn(), arguments.trackTitle(), arguments.trackUrn())));
-    }
-
-    private EventContextMetadata getEventContextMetadata(String originScreen) {
-        return EventContextMetadata.builder().contextScreen(originScreen).build();
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(EntityMetadata.from(arguments.creatorName(), arguments.creatorUrn(), arguments.trackTitle(), arguments.trackUrn())));
     }
 
     private class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment> {

@@ -85,10 +85,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     @Test
     public void testLikeTrackUrnForWidgetTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(TRACK);
-        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                                                                              .invokerScreen("widget")
-                                                                              .contextScreen("context_screen")
-                                                                              .pageName("widget").build();
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().pageName("widget").build();
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
@@ -117,18 +114,12 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
 
     private void assertCorrectEvent(UIEvent event, UIEvent expectedEvent) {
         assertThat(event.kind()).isEqualTo(expectedEvent.kind());
-        if (event.contextScreen().isPresent() && expectedEvent.contextScreen().isPresent()) {
-            assertThat(event.contextScreen().get()).isEqualTo(expectedEvent.contextScreen().get());
-        }
         if (event.module().isPresent() && expectedEvent.module().isPresent()) {
             assertThat(event.module().get()).isEqualTo(expectedEvent.module().get());
         }
     }
 
     private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder()
-                                   .invokerScreen("invoker")
-                                   .contextScreen("context_screen")
-                                   .pageName("page").build();
+        return EventContextMetadata.builder().pageName("page").build();
     }
 }

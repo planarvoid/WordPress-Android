@@ -13,7 +13,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
@@ -175,10 +174,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.handleShare(context, playlistItem);
 
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                                                                        .contextScreen(screenProvider.getLastScreenTag())
                                                                         .pageName(screenProvider.getLastScreenTag())
                                                                         .isFromOverflow(true)
-                                                                        .invokerScreen(ScreenElement.LIST.get())
                                                                         .build();
 
         verify(sharePresenter).share(context,

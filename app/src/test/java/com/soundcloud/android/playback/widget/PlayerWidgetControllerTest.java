@@ -332,8 +332,6 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
 
     private EventContextMetadata getWidgetContextMetadata() {
         return EventContextMetadata.builder()
-                                   .invokerScreen("widget")
-                                   .contextScreen("context_screen")
                                    .pageName("widget")
                                    .build();
     }

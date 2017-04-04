@@ -119,8 +119,6 @@ public class PlayerWidgetController {
 
     private EventContextMetadata getEventMetadata() {
         return EventContextMetadata.builder()
-                                   .invokerScreen(Screen.WIDGET.get())
-                                   .contextScreen(playQueueManager.getScreenTag())
                                    .pageName(Screen.WIDGET.get())
                                    .pageUrn(Urn.NOT_SET)
                                    .build();

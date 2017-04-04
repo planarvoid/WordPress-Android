@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -223,8 +222,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(screen)
                                                                          .pageName(screen)
                                                                          .attributingActivity(AttributingActivity.fromPlayableItem(
                                                                                  item));

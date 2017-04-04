@@ -25,12 +25,6 @@ public abstract class EventContextMetadata {
     public abstract String pageName();
 
     @Nullable
-    public abstract String invokerScreen();
-
-    @Nullable
-    public abstract String contextScreen();
-
-    @Nullable
     public abstract LinkType linkType();
 
     @Nullable
@@ -46,10 +40,6 @@ public abstract class EventContextMetadata {
 
     @AutoValue.Builder
     public abstract static class Builder {
-        public abstract Builder invokerScreen(String invokerScreen);
-
-        public abstract Builder contextScreen(String contextScreen);
-
         public abstract Builder pageName(String pageName);
 
         public abstract Builder pageUrn(Urn pageUrn);

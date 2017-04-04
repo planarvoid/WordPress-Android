@@ -5,7 +5,6 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -62,8 +61,6 @@ class TrackPageListener extends PageListener {
 
     private EventContextMetadata getEventContextMetadata(Urn trackUrn) {
         return EventContextMetadata.builder()
-                                   .invokerScreen(ScreenElement.PLAYER.get())
-                                   .contextScreen(playQueueManager.getScreenTag())
                                    .pageName(Screen.PLAYER_MAIN.get())
                                    .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
                                    .pageUrn(trackUrn)

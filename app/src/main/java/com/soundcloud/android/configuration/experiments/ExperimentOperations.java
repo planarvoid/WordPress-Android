@@ -75,7 +75,6 @@ public class ExperimentOperations {
                 activeVariants.add(layer.getVariantId());
             }
         }
-
         return activeVariants;
     }
 

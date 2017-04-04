@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EntityMetadata;
@@ -180,7 +179,6 @@ public class TrackPageMenuController
 
     private EventContextMetadata getContextMetadata(Urn trackUrn) {
         return EventContextMetadata.builder()
-                                   .contextScreen(playQueueManager.getScreenTag())
                                    .pageName(Screen.PLAYER_MAIN.get())
                                    .pageUrn(trackUrn)
                                    .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
@@ -189,8 +187,7 @@ public class TrackPageMenuController
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
-                track.getUrn(), track.getTitle(), ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.getUrn(), track.getTitle());
         from.show(activity.getFragmentManager());
     }
 

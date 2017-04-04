@@ -1226,7 +1226,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .contextScreen("screen")
                                     .trackSourceInfo(trackSourceInfo)
                                     .pageName(PAGE_NAME)
                                     .module(module)
@@ -1271,7 +1270,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .contextScreen("screen")
                                     .trackSourceInfo(trackSourceInfo)
                                     .pageName(PAGE_NAME)
                                     .module(module)
@@ -1309,7 +1307,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final Module module = Module.create(Module.SINGLE, position);
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .contextScreen("screen")
                                     .pageName(PAGE_NAME)
                                     .module(module)
                                     .build();
@@ -1337,7 +1334,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final Module module = Module.create(Module.SINGLE, position);
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .contextScreen("screen")
                                     .pageName(PAGE_NAME)
                                     .module(module)
                                     .build();
@@ -1462,7 +1458,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromEngagementClickFromOverflow() throws ApiMapperException {
         EventContextMetadata eventContext = EventContextMetadata.builder()
-                                                                .contextScreen("screen")
                                                                 .pageName(PAGE_NAME)
                                                                 .pageUrn(TRACK_URN)
                                                                 .isFromOverflow(true)
@@ -1488,7 +1483,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         info.setSource("stream", "version");
 
         EventContextMetadata eventContext = EventContextMetadata.builder()
-                                                                .contextScreen("screen")
                                                                 .pageName(PAGE_NAME)
                                                                 .pageUrn(TRACK_URN)
                                                                 .isFromOverflow(true)
@@ -1817,7 +1811,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final Module module = Module.create(Module.STREAM, position);
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                                    .contextScreen("screen")
                                     .pageName(PAGE_NAME)
                                     .module(module)
                                     .build();
@@ -1948,7 +1941,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private EventContextMetadata createEventContextMetadata() {
         return EventContextMetadata.builder()
-                                   .contextScreen("screen")
                                    .trackSourceInfo(trackSourceInfo)
                                    .pageName(PAGE_NAME)
                                    .pageUrn(TRACK_URN)

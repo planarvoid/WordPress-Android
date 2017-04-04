@@ -778,9 +778,7 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private EventContextMetadata getEventContext(Urn playlistUrn) {
         return EventContextMetadata.builder()
-                                   .contextScreen(screen)
                                    .pageName(Screen.PLAYLIST_DETAILS.get())
-                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                                    .pageUrn(playlistUrn)
                                    .build();
     }

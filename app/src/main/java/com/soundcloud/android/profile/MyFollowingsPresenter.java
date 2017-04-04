@@ -139,7 +139,6 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .pageName(screen.get())
                                                                         .linkType(LinkType.SELF)
                                                                         .module(Module.create(Module.USER_FOLLOWING, position))
-                                                                        .contextScreen(screen.get())
                                                                         .build();
 
         navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadata));

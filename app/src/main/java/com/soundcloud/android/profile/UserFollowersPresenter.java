@@ -98,8 +98,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
                                                                                        .module(Module.create(Module.USER_FOLLOWERS, position));
 
         if (screen != null) {
-            eventContextMetadataBuilder.pageName(screen.get())
-                                       .contextScreen(screen.get());
+            eventContextMetadataBuilder.pageName(screen.get());
         }
 
         navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));

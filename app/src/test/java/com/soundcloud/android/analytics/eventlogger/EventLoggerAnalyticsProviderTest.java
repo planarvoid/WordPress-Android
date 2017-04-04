@@ -229,7 +229,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackLikeEventsWithV1() {
         TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleLike(true,
                                                Urn.forTrack(123),
                                                eventContext,
@@ -248,7 +248,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackUnlikeEventsWithV1() {
         TrackItem promotedTrack = PlayableFixtures.expectedPromotedTrack();
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
-        EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
+        EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleLike(false,
                                                Urn.forTrack(123),
                                                eventContext,
@@ -737,7 +737,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return EventContextMetadata.builder()
-                                   .contextScreen("context_screen")
                                    .pageName("page_name")
                                    .pageUrn(Urn.NOT_SET);
     }

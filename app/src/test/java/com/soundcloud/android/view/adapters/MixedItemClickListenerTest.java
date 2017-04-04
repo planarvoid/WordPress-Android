@@ -233,8 +233,6 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                         .get()).isEqualTo(AttributingActivity.fromPlayableItem(
                 playlistItem));
 
-        assertThat(uiEventArgumentCaptor.getValue().contextScreen().get()).isEqualTo(screen.get());
-
         assertThat(uiEventArgumentCaptor.getValue().linkType().get()).isEqualTo(LinkType.SELF.getName());
     }
 

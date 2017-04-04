@@ -84,8 +84,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onToggleLike(true, TRACK_URN);
 
         EventContextMetadata contextMetadata = EventContextMetadata.builder()
-                                                                   .invokerScreen("player")
-                                                                   .contextScreen("context_screen")
                                                                    .pageName("tracks:main")
                                                                    .pageUrn(TRACK_URN)
                                                                    .build();
@@ -103,8 +101,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onToggleLike(false, TRACK_URN);
 
         EventContextMetadata contextMetadata = EventContextMetadata.builder()
-                                                                   .invokerScreen("player")
-                                                                   .contextScreen("context_screen")
                                                                    .pageName("tracks:main")
                                                                    .pageUrn(TRACK_URN)
                                                                    .build();

@@ -83,7 +83,6 @@ public class SharePresenterTest extends AndroidUnitTest {
 
         assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
         assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
-        assertThat(shareRequestEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
         assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
         assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo("soundcloud:tracks:123");
     }
@@ -98,7 +97,6 @@ public class SharePresenterTest extends AndroidUnitTest {
 
         assertThat(shareRequestEvent.kind()).isSameAs(UIEvent.Kind.SHARE);
         assertThat(shareRequestEvent.clickName().get()).isSameAs(UIEvent.ClickName.SHARE_REQUEST);
-        assertThat(shareRequestEvent.contextScreen().get()).isEqualTo(SCREEN_TAG);
         assertThat(shareRequestEvent.originScreen().get()).isEqualTo(PAGE_NAME);
         assertThat(shareRequestEvent.pageUrn().get()).isEqualTo(PAGE_URN);
         assertThat(shareRequestEvent.clickObjectUrn().get().toString()).isEqualTo(PROMOTED_TRACK_URN);
@@ -250,7 +248,6 @@ public class SharePresenterTest extends AndroidUnitTest {
 
     private EventContextMetadata eventContext() {
         return EventContextMetadata.builder()
-                                   .contextScreen(SCREEN_TAG)
                                    .pageName(PAGE_NAME)
                                    .pageUrn(PAGE_URN).build();
     }

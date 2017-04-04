@@ -7,7 +7,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -79,8 +78,6 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         final Integer position = 0;
         final EventContextMetadata context = renderer.getEventContextMetadataBuilder(postedTrack, position).build();
 
-        assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
-        assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
         assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, position));
         assertThat(context.attributingActivity()).isEqualTo(AttributingActivity.fromPlayableItem(postedTrack));

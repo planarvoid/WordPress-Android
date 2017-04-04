@@ -7,7 +7,6 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -78,10 +77,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                                                                         Optional<TrackSourceInfo> trackSourceInfo) {
         final String screen = screenProvider.getLastScreenTag();
 
-        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(screen)
-                                                                         .pageName(screen);
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder().pageName(screen);
 
         if (module.isPresent()) {
             builder.module(module.get());

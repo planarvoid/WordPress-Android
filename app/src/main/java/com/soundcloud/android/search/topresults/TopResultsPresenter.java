@@ -3,7 +3,6 @@ package com.soundcloud.android.search.topresults;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.associations.FollowingStateProvider;
@@ -280,8 +279,6 @@ public class TopResultsPresenter {
 
     private EventContextMetadata getEventContextMetadata(Bucket.Kind bucketKind, int positionInBucket) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(Screen.SEARCH_EVERYTHING.get())
                                                                          .pageName(Screen.SEARCH_EVERYTHING.get())
                                                                          .module(getContextFromBucket(bucketKind, positionInBucket));
         return builder.build();

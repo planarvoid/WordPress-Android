@@ -7,7 +7,6 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -202,8 +201,6 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         final EventContextMetadata.Builder builder = eventContextMetadataBuilder.isPresent() ?
                                                      eventContextMetadataBuilder.get() :
                                                      EventContextMetadata.builder()
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .contextScreen(screenProvider.getLastScreenTag())
                                                                          .pageName(screenProvider.getLastScreenTag());
 
         return builder.isFromOverflow(true).build();

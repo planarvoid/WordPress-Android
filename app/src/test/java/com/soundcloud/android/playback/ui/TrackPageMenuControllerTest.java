@@ -110,7 +110,6 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void clickingShareMenuItemSendsShareIntentWithAllData() {
         MenuItem share = mockMenuItem(R.id.share);
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                                                                        .contextScreen("screen")
                                                                         .pageName(Screen.PLAYER_MAIN.get())
                                                                         .pageUrn(track.getUrn())
                                                                         .isFromOverflow(true)

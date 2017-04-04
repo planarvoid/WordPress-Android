@@ -6,7 +6,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -125,9 +124,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .contextScreen(screenProvider.getLastScreenTag())
-                                                                         .pageName(screenProvider.getLastScreenTag())
-                                                                         .invokerScreen(ScreenElement.LIST.get());
+                                                                         .pageName(screenProvider.getLastScreenTag());
         show(activity, button, track, builder);
     }
 
@@ -286,9 +283,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
-                track.getUrn(), track.title(), ScreenElement.LIST.get(),
-                screenProvider.getLastScreenTag());
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track.getUrn(), track.title());
         from.show(activity.getFragmentManager());
     }
 

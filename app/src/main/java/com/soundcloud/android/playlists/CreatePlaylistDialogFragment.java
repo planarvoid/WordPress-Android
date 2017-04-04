@@ -33,8 +33,6 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private static final String CREATE_PLAYLIST_DIALOG_TAG = "create_new_set_dialog";
 
-    private static final String KEY_INVOKER_SCREEN = "INVOKER_SCREEN";
-    private static final String KEY_CONTEXT_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
     @Inject PlaylistOperations playlistOperations;
@@ -48,15 +46,13 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @BindView(R.id.chk_private) CheckBox privacy;
     @BindView(R.id.chk_offline) CheckBox offline;
 
-    public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
-        return createFragment(createBundle(trackId, invokerScreen, contextScreen));
+    public static CreatePlaylistDialogFragment from(long trackId) {
+        return createFragment(createBundle(trackId));
     }
 
-    private static Bundle createBundle(long trackId, String invokerScreen, String contextScreen) {
+    private static Bundle createBundle(long trackId) {
         Bundle bundle = new Bundle();
         bundle.putLong(KEY_TRACK_ID, trackId);
-        bundle.putString(KEY_INVOKER_SCREEN, invokerScreen);
-        bundle.putString(KEY_CONTEXT_SCREEN, contextScreen);
         return bundle;
     }
 
@@ -118,9 +114,6 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     }
 
     private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder()
-                                   .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
-                                   .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
-                                   .build();
+        return EventContextMetadata.builder().build();
     }
 }
