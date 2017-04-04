@@ -4,9 +4,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
@@ -43,6 +45,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
+    @Mock private Navigator navigator;
 
     private DownloadNotificationController notificationController;
     private Provider<NotificationCompat.Builder> notificationBuilderProvider = new Provider<NotificationCompat.Builder>() {
@@ -59,7 +62,8 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
                 context(),
                 notificationManager,
                 notificationBuilderProvider,
-                resources());
+                resources(),
+                navigator);
     }
 
     @Test
@@ -69,6 +73,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         reset(notificationBuilder);
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
+        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -153,6 +158,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
+        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -185,6 +191,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
 
+        verify(navigator, times(3)).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -217,6 +224,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadError(failedDownloadState);
 
+        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -233,6 +241,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
+        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -248,6 +257,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         DownloadState result = DownloadState.disconnectedNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
+        verify(navigator).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -262,6 +272,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
+        verify(navigator).createPendingCollectionIntent(eq(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

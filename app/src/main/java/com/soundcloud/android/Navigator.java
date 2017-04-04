@@ -54,6 +54,7 @@ import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.search.topresults.TopResultsBucketActivity;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -371,7 +372,32 @@ public class Navigator {
     }
 
     public void openOfflineSettings(Context context) {
-        context.startActivity(new Intent(context, OfflineSettingsActivity.class));
+        context.startActivity(createOfflineSettingsIntent(context));
+    }
+
+    public PendingIntent createPendingOfflineSettings(Context context) {
+        return PendingIntent.getActivity(context, 0, createOfflineSettingsIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private Intent createOfflineSettingsIntent(Context context) {
+        return new Intent(context, OfflineSettingsActivity.class);
+    }
+
+    public PendingIntent createPendingChangeStorageLocation(Context context) {
+        final Intent intent = new Intent(context, ChangeStorageLocationActivity.class);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    public PendingIntent createPendingHomeIntent(Context context) {
+        Intent intent = createHomeIntent(context);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    public PendingIntent createPendingCollectionIntent(Context context) {
+        Intent intent = createCollectionIntent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public void openNotificationPreferences(Context context) {
@@ -402,11 +428,15 @@ public class Navigator {
 
     public void openCollectionAsRootScreen(Activity activity) {
         activity.finish();
-        activity.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
+        activity.startActivity(rootScreen(createCollectionIntent().setFlags(FLAGS_TOP)));
     }
 
     public void openCollection(Context context) {
-        context.startActivity(new Intent(Actions.COLLECTION));
+        context.startActivity(createCollectionIntent());
+    }
+
+    private Intent createCollectionIntent() {
+        return new Intent(Actions.COLLECTION);
     }
 
     public void openMore(Context context) {

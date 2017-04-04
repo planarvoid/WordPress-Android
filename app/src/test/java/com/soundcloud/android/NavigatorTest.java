@@ -57,6 +57,8 @@ import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
+import com.soundcloud.android.settings.ChangeStorageLocationActivity;
+import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -736,4 +738,45 @@ public class NavigatorTest extends AndroidUnitTest {
                                    .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
+    @Test
+    public void createsPendingOfflineSettings() throws PendingIntent.CanceledException {
+        PendingIntent pendingIntent = navigator.createPendingOfflineSettings(activityContext);
+
+        pendingIntent.send();
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(OfflineSettingsActivity.class);
+    }
+
+    @Test
+    public void createsPendingChangeStorageLocation() throws PendingIntent.CanceledException {
+        PendingIntent pendingIntent = navigator.createPendingChangeStorageLocation(activityContext);
+
+        pendingIntent.send();
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(ChangeStorageLocationActivity.class);
+    }
+
+    @Test
+    public void createsPendingHomeIntent() throws PendingIntent.CanceledException {
+        PendingIntent pendingIntent = navigator.createPendingHomeIntent(activityContext);
+
+        pendingIntent.send();
+
+        assertThat(activityContext).nextStartedIntent()
+                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                    .opensActivity(MainActivity.class);
+    }
+
+    @Test
+    public void createsPendingCollectionIntent() throws PendingIntent.CanceledException {
+        PendingIntent pendingIntent = navigator.createPendingCollectionIntent(activityContext);
+
+        pendingIntent.send();
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                   .containsAction(Actions.COLLECTION);
+    }
 }

@@ -1,11 +1,8 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.settings.ChangeStorageLocationActivity;
-import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.objects.MoreObjects;
@@ -15,7 +12,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.NotificationCompat;
@@ -33,7 +29,7 @@ class DownloadNotificationController {
     private final Resources resources;
     private final NotificationManager notificationManager;
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
-
+    private final Navigator navigator;
 
     private int totalDownloads;
     private long totalBytesToDownload;
@@ -46,11 +42,12 @@ class DownloadNotificationController {
     @Inject
     DownloadNotificationController(Context context, NotificationManager notificationManager,
                                    Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                   Resources resources) {
+                                   Resources resources, Navigator navigator) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
         this.notificationBuilderProvider = notificationBuilderProvider;
+        this.navigator = navigator;
     }
 
     Notification onPendingRequests(DownloadQueue pendingQueue) {
@@ -170,7 +167,7 @@ class DownloadNotificationController {
     private Notification completedWithInaccessibleStorageErrorNotification() {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
-        notification.setContentIntent(getChangeStorageLocationIntent());
+        notification.setContentIntent(navigator.createPendingChangeStorageLocation(context));
         notification.setContentTitle(resources.getString(R.string.sd_card_cannot_be_found));
         notification.setContentText(resources.getString(R.string.tap_here_to_change_storage_location));
         return notification.build();
@@ -179,7 +176,7 @@ class DownloadNotificationController {
     private Notification completedWithStorageErrorsNotification() {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
-        notification.setContentIntent(getSettingsIntent());
+        notification.setContentIntent(navigator.createPendingOfflineSettings(context));
         notification.setContentTitle(resources.getString(R.string.offline_update_storage_limit_reached_title));
         notification.setContentText(resources.getString(R.string.offline_update_storage_limit_reached_message));
         return notification.build();
@@ -247,25 +244,9 @@ class DownloadNotificationController {
     }
 
     private PendingIntent getPendingIntent(@Nullable DownloadRequest request) {
-        Intent intent;
-        if (request == null) {
-            intent = new Intent(context, MainActivity.class);
-        } else {
-            intent = new Intent(Actions.COLLECTION);
-        }
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    private PendingIntent getChangeStorageLocationIntent() {
-        final Intent intent = new Intent(context, ChangeStorageLocationActivity.class);
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    private PendingIntent getSettingsIntent() {
-        final Intent intent = new Intent(context, OfflineSettingsActivity.class);
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return request == null
+               ? navigator.createPendingHomeIntent(context)
+               : navigator.createPendingCollectionIntent(context);
     }
 
     private static class ProgressNotificationData {
