@@ -6,9 +6,11 @@ import rx.Observable;
 
 public class CastPlaybackStrategy implements PlaybackStrategy {
 
+    private final PlayQueueManager playQueueManager;
     private final CastPlayer castPlayer;
 
-    public CastPlaybackStrategy(CastPlayer castPlayer) {
+    public CastPlaybackStrategy(PlayQueueManager playQueueManager, CastPlayer castPlayer) {
+        this.playQueueManager = playQueueManager;
         this.castPlayer = castPlayer;
     }
 
@@ -34,8 +36,13 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
 
     @Override
     public Observable<Void> playCurrent() {
-        castPlayer.playCurrent();
-        return Observable.just(null);
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        if (currentPlayQueueItem.isPlayable()) {
+            castPlayer.playCurrent();
+            return Observable.just(null);
+        } else {
+            return Observable.empty();
+        }
     }
 
     @Override

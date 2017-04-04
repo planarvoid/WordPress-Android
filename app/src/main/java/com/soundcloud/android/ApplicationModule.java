@@ -238,7 +238,7 @@ public class ApplicationModule {
                                                     PlaySessionStateProvider playSessionStateProvider,
                                                     EventBus eventBus) {
         if (castConnectionHelper.isCasting()) {
-            return new CastPlaybackStrategy(castPlayer.get());
+            return new CastPlaybackStrategy(playQueueManager, castPlayer.get());
         } else {
             return new DefaultPlaybackStrategy(playQueueManager,
                                                serviceController,

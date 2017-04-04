@@ -1,30 +1,33 @@
 package com.soundcloud.android.playback;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CastPlaybackStrategyTest {
+public class CastPlaybackStrategyTest extends AndroidUnitTest {
 
     private CastPlaybackStrategy strategy;
 
+    @Mock private PlayQueueManager playQueueManager;
     @Mock private CastPlayer castPlayer;
 
     @Before
     public void setUp() {
-        strategy = new CastPlaybackStrategy(castPlayer);
+        strategy = new CastPlaybackStrategy(playQueueManager, castPlayer);
     }
 
     @Test
@@ -56,10 +59,40 @@ public class CastPlaybackStrategyTest {
     }
 
     @Test
-    public void playCurrentCallsPlayCurrentOnCastPlayer() {
+    public void playCurrentCallsPlayCurrentOnCastPlayerForTrack() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1234L)));
+
         strategy.playCurrent();
 
         verify(castPlayer).playCurrent();
+    }
+
+    @Test
+    public void playCurrentCallsPlayCurrentOnCastPlayerForPlaylist() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createPlaylist(Urn.forPlaylist(45678L)));
+
+        strategy.playCurrent();
+
+        verify(castPlayer).playCurrent();
+    }
+
+    @Test
+    public void playCurrentDoesNotPlayAdOnCast() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(audioAd));
+
+        strategy.playCurrent();
+
+        verify(castPlayer, never()).playCurrent();
+    }
+
+    @Test
+    public void playCurrentDoesNotPlayEmptyPlayQueueItemOnCast() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
+
+        strategy.playCurrent();
+
+        verify(castPlayer, never()).playCurrent();
     }
 
     @Test
