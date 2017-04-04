@@ -179,7 +179,6 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
             final PlayQueue playQueue = castQueueController.buildPlayQueue(PlaySessionSource.forCast(), Collections.emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forCast(), remotePosition);
         }
-        playCurrent();
     }
 
     @Override
