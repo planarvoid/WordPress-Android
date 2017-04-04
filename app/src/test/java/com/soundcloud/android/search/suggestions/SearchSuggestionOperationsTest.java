@@ -5,20 +5,15 @@ import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.WriteMixedRecordsCommand;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
@@ -38,7 +33,6 @@ import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,21 +43,17 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
 
     @Mock private ApiClientRx apiClientRx;
-    @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private SearchSuggestionStorage suggestionStorage;
-    @Mock private FeatureFlags featureFlags;
     @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
     private SearchSuggestionOperations operations;
     private TestSubscriber<List<SuggestionItem>> suggestionsResultSubscriber;
-    private ApiTrack track;
 
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(false);
         when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
@@ -71,54 +61,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
             }
         });
 
-        operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
-                                                    Schedulers.immediate(), suggestionStorage,
-                                                    featureFlags, searchSuggestionFiltering);
+        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.immediate(), suggestionStorage, searchSuggestionFiltering);
         suggestionsResultSubscriber = new TestSubscriber<>();
-
-        track = ModelFixtures.create(ApiTrack.class);
-    }
-
-    @Test
-    public void returnsLocalSuggestionsWhenEmptyRemote() {
-        List<SearchSuggestion> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
-                localSuggestions));
-
-        final List<ApiSearchSuggestion> apiSearchSuggestions = newArrayList();
-        setupLegacyRemoteSuggestions(apiSearchSuggestions);
-
-        operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
-
-        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
-        final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
-        final List<SuggestionItem> localSuggestionItems = newArrayList(suggestionItem, SuggestionItem.fromSearchSuggestion(localSuggestions.get(0), SEARCH_QUERY));
-
-
-        final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
-        assertThat(onNextEvents.get(0)).isEqualTo(searchQueryItem);
-        assertThat(onNextEvents.get(1)).isEqualTo(localSuggestionItems);
-    }
-
-    @Test
-    public void returnsRemoteSuggestionsWhenEmptyLocal() {
-        final List<ApiSearchSuggestion> apiSearchSuggestions = Collections.singletonList(getSuggestion(SEARCH_QUERY,
-                                                                                                       track,
-                                                                                                       null));
-        setupLegacyRemoteSuggestions(apiSearchSuggestions);
-
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.empty());
-
-        operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
-
-        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(SEARCH_QUERY);
-        final List<SuggestionItem> searchQueryItem = newArrayList(suggestionItem);
-        final List<SuggestionItem> remoteSuggestionItems = newArrayList(suggestionItem, SuggestionItem.fromSearchSuggestion(apiSearchSuggestions.get(0), SEARCH_QUERY));
-
-
-        final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
-        assertThat(onNextEvents.get(0)).isEqualTo(searchQueryItem);
-        assertThat(onNextEvents.get(1)).isEqualTo(remoteSuggestionItems);
     }
 
     @Test
@@ -126,7 +70,6 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
         when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
                 localSuggestions));
-        when(featureFlags.isEnabled(Flag.AUTOCOMPLETE)).thenReturn(true);
 
         final Autocompletion autocompletion = setupAutocompletionRemoteSuggestions();
 
@@ -152,18 +95,6 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private ApiSearchSuggestions setupLegacyRemoteSuggestions(final List<ApiSearchSuggestion> apiSearchSuggestions) {
-        final ApiSearchSuggestions suggestions = getApiSearchSuggestions(apiSearchSuggestions);
-        final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_SUGGESTIONS.path())
-                .withQueryParam("q", SEARCH_QUERY)
-                .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER));
-
-        when(apiClientRx.mappedResponse(argThat(requestMatcher), same(ApiSearchSuggestions.class)))
-                .thenReturn(Observable.just(suggestions));
-        return suggestions;
-    }
-
-    @NonNull
     private Autocompletion setupAutocompletionRemoteSuggestions() {
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ModelCollection<Autocompletion> autocompletions = new ModelCollection<>(newArrayList(autocompletion),
@@ -178,20 +109,5 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
 
         return autocompletion;
-    }
-
-    @NonNull
-    private ApiSearchSuggestions getApiSearchSuggestions(final List<ApiSearchSuggestion> suggestions) {
-        return new ApiSearchSuggestions(
-                suggestions, Urn.forPlaylist(1)
-        );
-    }
-
-    private ApiSearchSuggestion getSuggestion(String query, ApiTrack track, ApiUser user) {
-        return ApiSearchSuggestion.create(
-                query,
-                Collections.emptyList(),
-                track,
-                user);
     }
 }

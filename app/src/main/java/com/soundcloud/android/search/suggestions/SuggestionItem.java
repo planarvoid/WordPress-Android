@@ -14,10 +14,6 @@ public abstract class SuggestionItem {
 
     public abstract String userQuery();
 
-    static SuggestionItem forLegacySearch(String query) {
-        return new AutoValue_SuggestionItem_Default(Kind.SearchItem, query);
-    }
-
     static SuggestionItem fromSearchSuggestion(SearchSuggestion searchSuggestion, String query) {
         final Optional<String> imageUrlTemplate = searchSuggestion.getImageUrlTemplate();
         final String displayText = searchSuggestion.getQuery();

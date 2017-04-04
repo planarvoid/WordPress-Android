@@ -15,7 +15,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
     private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete2";
     private DiscoveryScreen discoveryScreen;
-    private FeatureFlagsHelper featureFlagsHelper;
 
     public SearchAutocompleteTest() {
         super(MainActivity.class);
@@ -34,9 +33,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
-        featureFlagsHelper.enable(Flag.AUTOCOMPLETE);
-
         super.setUp();
 
         // In order to guarantee the followers exist in the DB
@@ -45,12 +41,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
         solo.goBack();
 
         discoveryScreen = mainNavHelper.goToDiscovery();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        featureFlagsHelper.reset(Flag.AUTOCOMPLETE);
     }
 
     public void testAutocompleteResults() throws Exception {

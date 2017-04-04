@@ -75,12 +75,12 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void triggersSearchEventOnSearchItemClicked() {
-        final SuggestionItem suggestionItem = SuggestionItem.forLegacySearch(USER_QUERY);
+        final SuggestionItem suggestionItem = SuggestionItem.forAutocompletion(Autocompletion.create(API_QUERY, USER_QUERY), USER_QUERY, Optional.absent());
         when(adapter.getItem(CLICK_POSITION)).thenReturn(suggestionItem);
 
         presenter.onItemClicked(mock(View.class), CLICK_POSITION);
 
-        verify(suggestionListener).onSearchClicked(USER_QUERY, USER_QUERY);
+        verify(suggestionListener).onAutocompleteClicked(API_QUERY, USER_QUERY, USER_QUERY, Optional.absent(), CLICK_POSITION);
     }
 
     @Test
@@ -116,7 +116,8 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unsubscribeSuggestionListenerWhenViewDestroyed() {
-        when(adapter.getItem(anyInt())).thenReturn(SuggestionItem.forLegacySearch(API_QUERY));
+        final SuggestionItem suggestionItem = SuggestionItem.forAutocompletion(Autocompletion.create(API_QUERY, USER_QUERY), USER_QUERY, Optional.absent());
+        when(adapter.getItem(anyInt())).thenReturn(suggestionItem);
 
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
         presenter.onDestroy(fragmentRule.getFragment());

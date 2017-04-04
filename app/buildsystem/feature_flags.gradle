@@ -19,7 +19,6 @@ enum Feature {
   STREAM_HIGHLIGHTS,
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
-  AUTOCOMPLETE,
   SEARCH_TOP_RESULTS,
   CAST_V3,
   FLIPPER,
@@ -50,7 +49,6 @@ android {
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), UNDER_DEVELOPMENT
@@ -77,7 +75,6 @@ android {
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -96,7 +93,6 @@ android {
     beta {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -115,7 +111,6 @@ android {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
@@ -133,7 +128,6 @@ android {
 
     release {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), DEFAULT_SHOW
@@ -147,7 +141,6 @@ android {
 
     preRelease {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
@@ -161,7 +154,6 @@ android {
 
     releaseNonPlayStore {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.AUTOCOMPLETE.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.VIDEO_INLAYS.name(), DEFAULT_SHOW
