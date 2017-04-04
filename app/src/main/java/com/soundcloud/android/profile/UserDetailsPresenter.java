@@ -20,7 +20,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -69,8 +68,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setView(view);
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
-            public void onViewUri(Uri uri) {
-                fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            public void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem) {
+                Intent intent = socialMediaLinkItem.toIntent();
+                fragment.startActivity(intent);
             }
 
             @Override

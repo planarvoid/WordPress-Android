@@ -35,7 +35,6 @@ import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -67,7 +66,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Mock private EmptyView emptyView;
     @Mock private Intent intent;
     @Mock private Navigator navigator;
-    @Mock private Uri uri;
+    @Mock private SocialMediaLinkItem socialMediaLink;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
     @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
@@ -210,15 +209,18 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingSocialLinkNavigatesToWebView() {
+    public void clickingLinkStartsActivityForIntent() {
+        Intent socialMediaLinkIntent = new Intent();
+        when(socialMediaLink.toIntent()).thenReturn(socialMediaLinkIntent);
+
         presenter.onCreate(fragment, null);
         doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
         doNothing().when(fragment).startActivity(intentCaptor.capture());
         presenter.onViewCreated(fragment, view, null);
 
-        listenerCaptor.getValue().onViewUri(uri);
-        assertThat(intentCaptor.getValue().getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intentCaptor.getValue().getData()).isEqualTo(uri);
+        listenerCaptor.getValue().onLinkClicked(socialMediaLink);
+
+        assertThat(intentCaptor.getValue()).isEqualTo(socialMediaLinkIntent);
     }
 
     @Test

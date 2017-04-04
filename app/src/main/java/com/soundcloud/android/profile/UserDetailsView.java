@@ -11,7 +11,6 @@ import com.soundcloud.android.view.CustomFontTextView;
 import com.soundcloud.android.view.EmptyView;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,7 +82,7 @@ class UserDetailsView {
             linkText.setCompoundDrawablesWithIntrinsicBounds(socialMediaLink.icon(context), null, null, null);
             linkText.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onViewUri(socialMediaLink.uri());
+                    listener.onLinkClicked(socialMediaLink);
                 }
             });
             linksContainer.addView(link);
@@ -112,7 +111,7 @@ class UserDetailsView {
     }
 
     interface UserDetailsListener {
-        void onViewUri(Uri uri);
+        void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem);
 
         void onViewFollowersClicked();
 

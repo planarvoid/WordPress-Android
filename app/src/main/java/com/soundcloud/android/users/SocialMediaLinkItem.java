@@ -7,6 +7,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
@@ -39,7 +40,13 @@ public class SocialMediaLinkItem {
         return getDrawable(context, network.drawableId());
     }
 
-    public Uri uri() {
-        return Uri.parse(url);
+    public Intent toIntent() {
+        if (network.isEmail()) {
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:"));
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[] { url });
+            return intent;
+        }
+        return new Intent(Intent.ACTION_VIEW, Uri.parse(url));
     }
 }
