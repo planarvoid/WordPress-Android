@@ -67,7 +67,9 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
 
     private void updateSummaries() {
         storageRadioButton.setSummary(formatGigabytes(IOUtils.getExternalStorageFreeSpace(activity.getApplicationContext()), IOUtils.getExternalStorageTotalSpace(activity.getApplicationContext())));
-        sdCardRadioButton.setSummary(formatGigabytes(IOUtils.getSDCardStorageFreeSpace(activity.getApplicationContext()), IOUtils.getSDCardStorageTotalSpace(activity.getApplicationContext())));
+        sdCardRadioButton.setSummary(offlineSettingsStorage.isOfflineContentAccessible()
+                                     ? formatGigabytes(IOUtils.getSDCardStorageFreeSpace(activity.getApplicationContext()), IOUtils.getSDCardStorageTotalSpace(activity.getApplicationContext()))
+                                     : activity.getString(R.string.unavailable));
     }
 
     private String formatGigabytes(long free, long total) {

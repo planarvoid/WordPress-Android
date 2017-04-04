@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OfflineUsageTest {
@@ -25,7 +25,7 @@ public class OfflineUsageTest {
     public void setup() {
         when(fileStorage.getStorageCapacity()).thenReturn(10 * GB);
         when(fileStorage.getStorageAvailable()).thenReturn(4 * GB);
-        when(fileStorage.getStorageUsed()).thenReturn(1 * GB);
+        when(fileStorage.getStorageUsed()).thenReturn(GB);
 
         when(offlineSettings.hasStorageLimit()).thenReturn(true);
         when(offlineSettings.getStorageLimit()).thenReturn(7 * GB);
@@ -55,7 +55,7 @@ public class OfflineUsageTest {
 
     @Test
     public void returnsSpaceUsed() {
-        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(1 * GB);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(GB);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class OfflineUsageTest {
 
     @Test
     public void returnsUnusedSpace() {
-        assertThat(offlineUsage.getUnused()).isEqualTo(0 * GB);
+        assertThat(offlineUsage.getUnused()).isEqualTo(0L);
     }
 
     @Test
@@ -115,6 +115,24 @@ public class OfflineUsageTest {
 
         assertThat(offlineUsage.getOfflineLimitPercentage()).isEqualTo(100);
         assertThat(offlineUsage.isUnlimited()).isTrue();
+    }
+
+    @Test
+    public void returnsOfflineContentAccessibleFalseOnUpdate() {
+        when(offlineSettings.isOfflineContentAccessible()).thenReturn(false);
+
+        offlineUsage.update();
+
+        assertThat(offlineUsage.isOfflineContentAccessible()).isFalse();
+    }
+
+    @Test
+    public void returnsOfflineContentAccessibleTrueOnUpdate() {
+        when(offlineSettings.isOfflineContentAccessible()).thenReturn(true);
+
+        offlineUsage.update();
+
+        assertThat(offlineUsage.isOfflineContentAccessible()).isTrue();
     }
 
     @Test

@@ -17,7 +17,7 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -64,10 +64,10 @@ class AccountCleanupAction implements Action0 {
     private final GcmStorage gcmStorage;
     private final PersistentStorage featureFlagsStorage;
     private final CommentsStorage commentsStorage;
-    private final FeatureFlags featureFlags;
     private final DatabaseManager databaseManager;
     private final SuggestedCreatorsStorage suggestedCreatorsStorage;
     private final ShortcutController shortcutController;
+    private final SecureFileStorage secureFileStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -89,10 +89,10 @@ class AccountCleanupAction implements Action0 {
                          GcmStorage gcmStorage,
                          @Named(FEATURES_FLAGS) PersistentStorage featureFlagsStorage,
                          CommentsStorage commentsStorage,
-                         FeatureFlags featureFlags,
                          DatabaseManager databaseManager,
                          SuggestedCreatorsStorage suggestedCreatorsStorage,
-                         ShortcutController shortcutController) {
+                         ShortcutController shortcutController,
+                         SecureFileStorage secureFileStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -115,10 +115,10 @@ class AccountCleanupAction implements Action0 {
         this.gcmStorage = gcmStorage;
         this.featureFlagsStorage = featureFlagsStorage;
         this.commentsStorage = commentsStorage;
-        this.featureFlags = featureFlags;
         this.databaseManager = databaseManager;
         this.suggestedCreatorsStorage = suggestedCreatorsStorage;
         this.shortcutController = shortcutController;
+        this.secureFileStorage = secureFileStorage;
     }
 
     @Override
@@ -130,6 +130,7 @@ class AccountCleanupAction implements Action0 {
         userAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
+        secureFileStorage.reset();
         featureStorage.clear();
         syncCleanupAction.clear();
         planStorage.clear();

@@ -22,6 +22,7 @@ import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -42,6 +43,7 @@ import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
@@ -236,7 +238,9 @@ public class ApplicationModule {
                                                     Lazy<CastPlayer> castPlayer,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
-                                                    EventBus eventBus) {
+                                                    EventBus eventBus,
+                                                    OfflineSettingsStorage offlineSettingsStorage,
+                                                    FeedbackController feedbackController) {
         if (castConnectionHelper.isCasting()) {
             return new CastPlaybackStrategy(playQueueManager, castPlayer.get());
         } else {
@@ -245,7 +249,9 @@ public class ApplicationModule {
                                                trackItemRepository,
                                                offlinePlaybackOperations,
                                                playSessionStateProvider,
-                                               eventBus);
+                                               eventBus,
+                                               offlineSettingsStorage,
+                                               feedbackController);
         }
     }
 

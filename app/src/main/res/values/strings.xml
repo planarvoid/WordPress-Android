@@ -877,6 +877,8 @@
     <string name="pref_offline_change_storage_location">Change storage location</string>
     <string name="pref_offline_change_storage_location_description_device_storage">Offline content currently saves to your internal device storage.</string>
     <string name="pref_offline_change_storage_location_description_sd_card">Offline content currently saves to your SD card.</string>
+    <string name="sd_card_unavailable">SD card unavailable</string>
+    <string name="unavailable">Unavailable</string>
     <string name="pref_offline_storage_limit">Storage limit</string>
     <string name="pref_offline_storage_limit_description">This will define how much of your available storage can be used for offline listening.</string>
     <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>

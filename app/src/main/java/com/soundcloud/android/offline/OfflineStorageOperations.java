@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORAGE;
+import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
 
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.utils.IOUtils;
@@ -14,11 +15,15 @@ public class OfflineStorageOperations {
 
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final Context context;
 
     @Inject
-    OfflineStorageOperations(CryptoOperations cryptoOperations, OfflineSettingsStorage offlineSettingsStorage) {
+    OfflineStorageOperations(CryptoOperations cryptoOperations,
+                             OfflineSettingsStorage offlineSettingsStorage,
+                             Context context) {
         this.cryptoOperations = cryptoOperations;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.context = context;
     }
 
     public void checkForOfflineStorageConsistency(Context context) {
@@ -27,6 +32,12 @@ public class OfflineStorageOperations {
             if (sdCardDir != null) {
                 IOUtils.cleanDir(sdCardDir);
             }
+        }
+    }
+
+    void updateOfflineContentOnSdCard() {
+        if (SD_CARD == offlineSettingsStorage.getOfflineContentLocation()) {
+            OfflineContentService.start(context);
         }
     }
 

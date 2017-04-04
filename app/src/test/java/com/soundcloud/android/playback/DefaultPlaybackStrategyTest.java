@@ -9,14 +9,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceController;
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -25,6 +28,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +54,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private OfflineSettingsStorage offlineSettingsStorage;
+    @Mock private FeedbackController feedbackController;
     private TestEventBus eventBus = new TestEventBus();
 
     private final Urn trackUrn = Urn.forTrack(123L);
@@ -65,7 +71,9 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
                                                               trackItemRepository,
                                                               offlinePlaybackOperations,
                                                               playSessionStateProvider,
-                                                              eventBus);
+                                                              eventBus,
+                                                              offlineSettingsStorage,
+                                                              feedbackController);
     }
 
     @Test
@@ -163,6 +171,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
         when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
         when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -170,6 +179,22 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         playCurrentSubscriber.assertCompleted();
     }
 
+    @Test
+    public void playCurrentFallsBackToNormalTrackWhenOfflineContentIsNotAccessible() {
+        final TrackItem offlineTrack = offlineTrack();
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
+        when(playSessionStateProvider.getLastProgressForItem(trackUrn)).thenReturn(new PlaybackProgress(123L, 456L, trackUrn));
+        when(offlinePlaybackOperations.shouldPlayOffline(offlineTrack)).thenReturn(true);
+        when(trackItemRepository.track(trackUrn)).thenReturn(Observable.just(offlineTrack));
+        when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(false);
+
+        defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
+
+        verify(feedbackController).showFeedback(Feedback.create(R.string.sd_card_cannot_be_found));
+        verify(serviceInitiator).play(AudioPlaybackItem.create(offlineTrack.track(), 123L));
+        playCurrentSubscriber.assertCompleted();
+    }
+    
     @Test
     public void playCurrentPlaysSnippetTrackSuccessfully() {
         final TrackItem offlineTrack = onlineSnippedTrack();

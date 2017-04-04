@@ -145,4 +145,7 @@ public class SecureFileStorage {
         return offlineDir != null && (offlineDir.exists() || IOUtils.mkdirs(offlineDir));
     }
 
+    public void reset() {
+        updateOfflineDir();
+    }
 }

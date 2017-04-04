@@ -18,6 +18,7 @@ class OfflineUsage {
     private long offlineUsed;
 
     private boolean isUnlimited;
+    private boolean offlineContentAccessible;
 
     @Inject
     OfflineUsage(SecureFileStorage fileStorage, OfflineSettingsStorage offlineSettings) {
@@ -31,6 +32,7 @@ class OfflineUsage {
         this.offlineLimit = offlineSettings.getStorageLimit();
         this.offlineUsed = fileStorage.getStorageUsed();
         this.isUnlimited = !offlineSettings.hasStorageLimit();
+        this.offlineContentAccessible = offlineSettings.isOfflineContentAccessible();
     }
 
     long getUsableOfflineLimit() {
@@ -104,4 +106,7 @@ class OfflineUsage {
         return isUnlimited;
     }
 
+    boolean isOfflineContentAccessible() {
+        return offlineContentAccessible;
+    }
 }

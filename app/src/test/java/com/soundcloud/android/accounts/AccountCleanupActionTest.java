@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +22,7 @@ import com.soundcloud.android.discovery.DiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
 import com.soundcloud.android.stations.StationsOperations;
@@ -38,6 +39,7 @@ import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import android.content.Context;
@@ -74,10 +76,10 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private GcmStorage gcmStorage;
     @Mock private PersistentStorage featureFlagsStorage;
     @Mock private CommentsStorage commentsStorage;
-    @Mock private FeatureFlags featureFlags;
     @Mock private DatabaseManager databaseManager;
     @Mock private SuggestedCreatorsStorage suggestedCreatorsStorage;
     @Mock private ShortcutController shortcutController;
+    @Mock private SecureFileStorage secureFileStorage;
 
     @Before
     public void setup() {
@@ -103,10 +105,10 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           gcmStorage,
                                           featureFlagsStorage,
                                           commentsStorage,
-                                          featureFlags,
                                           databaseManager,
                                           suggestedCreatorsStorage,
-                                          shortcutController);
+                                          shortcutController,
+                                          secureFileStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -145,9 +147,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldClearOfflineSettingsStorage() {
+    public void shouldClearOfflineSettingsStorageAndResetSecureFileStorageInOrder() {
         action.call();
-        verify(offlineSettingsStorage).clear();
+
+        InOrder inOrder = inOrder(offlineSettingsStorage, secureFileStorage);
+        inOrder.verify(offlineSettingsStorage).clear();
+        inOrder.verify(secureFileStorage).reset();
     }
 
     @Test

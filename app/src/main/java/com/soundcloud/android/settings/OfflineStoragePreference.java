@@ -116,9 +116,13 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private String formatFreeGigabytes() {
+        return offlineUsage.isOfflineContentAccessible() ? getFreeGigabytes() : resources.getString(R.string.sd_card_unavailable);
+    }
+
+    private String getFreeGigabytes() {
         return String.format(resources.getString(R.string.pref_offline_storage_free_gb),
-                             bytesToGB(offlineUsage.getDeviceAvailable()),
-                             bytesToGB(offlineUsage.getDeviceTotal()));
+                      bytesToGB(offlineUsage.getDeviceAvailable()),
+                      bytesToGB(offlineUsage.getDeviceTotal()));
     }
 
     private String formatLimitGigabytes() {
