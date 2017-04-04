@@ -41,6 +41,7 @@ public class PlaylistRepository {
                 .flatMap(syncMissingPlaylists(requestedPlaylists))
                 .flatMap(o -> playlistStorage.loadPlaylists(requestedPlaylists))
                 .subscribeOn(scheduler)
+                .filter(list -> !list.isEmpty())
                 .map(playlistItems -> playlistItems.get(0));
     }
 

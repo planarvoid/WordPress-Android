@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Maps.asMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
@@ -38,6 +39,8 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         playlistRepository = new PlaylistRepository(playlistStorage, syncinitiator, Schedulers.immediate());
+        when(playlistStorage.loadPlaylists(anyList())).thenReturn(just(emptyList()));
+        when(playlistStorage.availablePlaylists(anyList())).thenReturn(just(emptyList()));
     }
 
     @Test
