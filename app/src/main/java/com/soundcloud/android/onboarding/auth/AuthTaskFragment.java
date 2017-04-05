@@ -78,7 +78,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
         setRetainInstance(true);
         setCancelable(false);
 
-        networkConnectionHelper = new NetworkConnectionHelper();
         task = createAuthTask();
         task.setTaskOwner(this);
         task.executeOnThreadPool(getArguments());

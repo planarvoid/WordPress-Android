@@ -2,10 +2,12 @@ package com.soundcloud.android.tests;
 
 import com.soundcloud.android.ApplicationComponent;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.di.TestApplicationModule;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 
@@ -24,6 +26,8 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     private TestApplicationComponent testApplicationComponent;
 
     @Inject FeatureFlags featureFlags;
+    @Inject EventBus eventBus;
+    @Inject AccountOperations accountOperations;
 
     @Override
     public void onCreate() {
@@ -72,5 +76,13 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     public FeatureFlags getFeatureFlags() {
         return featureFlags;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public AccountOperations getAccountOperations() {
+        return accountOperations;
     }
 }

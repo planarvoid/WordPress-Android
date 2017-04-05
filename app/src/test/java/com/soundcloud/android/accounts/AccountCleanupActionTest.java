@@ -57,7 +57,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private SoundCloudApplication soundCloudApplication;
     @Mock private UserAssociationStorage userAssociationStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
-    @Mock private AccountOperations accountOperations;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
@@ -113,7 +112,6 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
         when(context.getApplicationContext()).thenReturn(soundCloudApplication);
-        when(soundCloudApplication.getAccountOperations()).thenReturn(accountOperations);
     }
 
     @Test

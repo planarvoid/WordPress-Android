@@ -139,7 +139,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         playBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
         playBuffer = BufferUtils.allocateAudioBuffer(playBufferReadSize);
 
-        recordStream = new RecordStream(this.audioConfig);
+        recordStream = new RecordStream(this.audioConfig, context.getResources());
         reset();
     }
 
@@ -261,6 +261,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
             }
             this.recording = recording;
             recordStream = new RecordStream(audioConfig,
+                                            context.getResources(),
                                             recording.getRawFile(),
                                             shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
                                             this.recording.getAmplitudeFile());

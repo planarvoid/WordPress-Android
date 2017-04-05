@@ -65,10 +65,8 @@ import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.rx.eventbus.EventBus;
 import com.squareup.leakcanary.LeakCanary;
 import dagger.Lazy;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
@@ -87,10 +85,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     // Performance: we want to start timing when the class loader loads classes.
     private final PerformanceMetric appOnCreateMetric = PerformanceMetric.create(APP_ON_CREATE);
 
-    // Remove these fields when we've moved to a full DI solution
-    @Deprecated
-    @SuppressFBWarnings({"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
-    public static SoundCloudApplication instance;
+    private static SoundCloudApplication instance;
 
     // These are not injected because we need them before Dagger initializes
     private UncaughtExceptionHandlerController uncaughtExceptionHandlerController;
@@ -98,7 +93,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     private ApplicationProperties applicationProperties;
 
     @Inject MigrationEngine migrationEngine;
-    @Inject EventBus eventBus;
     @Inject NetworkConnectivityListener networkConnectivityListener;
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
@@ -186,7 +180,8 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     protected ApplicationComponent buildApplicationComponent() {
         return DaggerApplicationComponent.builder()
-                                         .applicationModule(new ApplicationModule(this)).build();
+                                         .applicationModule(new ApplicationModule(this))
+                                         .build();
     }
 
     protected void bootApplication() {
@@ -302,21 +297,6 @@ public class SoundCloudApplication extends MultiDexApplication {
             AndroidUtils.doOnce(this, "reset.c2dm.reg_id",
                                 () -> sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply());
         }
-    }
-
-    @Deprecated // use @Inject instead!
-    public EventBus getEventBus() {
-        return eventBus;
-    }
-
-    @Deprecated // use @Inject instead!
-    public ImageOperations getImageOperations() {
-        return imageOperations;
-    }
-
-    @Deprecated // use @Inject instead!
-    public AccountOperations getAccountOperations() {
-        return accountOperations;
     }
 
     @NotNull

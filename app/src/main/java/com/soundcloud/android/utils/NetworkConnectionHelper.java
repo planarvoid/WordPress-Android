@@ -1,9 +1,7 @@
 package com.soundcloud.android.utils;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.ConnectionType;
 
-import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
@@ -19,12 +17,6 @@ public class NetworkConnectionHelper {
     public NetworkConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager) {
         this.connectivityManager = connectivityManager;
         this.telephonyManager = telephonyManager;
-    }
-
-    @Deprecated
-    public NetworkConnectionHelper() {
-        this((ConnectivityManager) SoundCloudApplication.instance.getSystemService(Context.CONNECTIVITY_SERVICE),
-             (TelephonyManager) SoundCloudApplication.instance.getSystemService(Context.TELEPHONY_SERVICE));
     }
 
     public ConnectionType getCurrentConnectionType() {

@@ -1,6 +1,5 @@
 package com.soundcloud.android.creators.record;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
 import com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer;
 import com.soundcloud.android.creators.record.writer.EmptyWriter;
@@ -20,6 +19,7 @@ import java.nio.ByteBuffer;
 
 public class RecordStream {
     private @NotNull final AudioConfig config;
+    private final Resources resources;
     private @NotNull AudioWriter writer;
     private @NotNull AmplitudeData amplitudeData;
     private @NotNull final AmplitudeData preRecordAmplitudeData;
@@ -30,7 +30,8 @@ public class RecordStream {
     /**
      * @param cfg the audio config to use
      */
-    public RecordStream(AudioConfig cfg) {
+    public RecordStream(AudioConfig cfg, Resources resources) {
+        this.resources = resources;
         if (cfg == null) {
             throw new IllegalArgumentException("config is null");
         }
@@ -48,8 +49,8 @@ public class RecordStream {
      * @param encoded       the file to be encoded (pass in null to skip encoding)
      * @param amplitudeFile previous amplitude data
      */
-    public RecordStream(AudioConfig cfg, File raw, File encoded, File amplitudeFile) {
-        this(cfg);
+    public RecordStream(AudioConfig cfg, Resources resources, File raw, File encoded, File amplitudeFile) {
+        this(cfg, resources);
 
         setWriters(raw, encoded);
         try {
@@ -143,7 +144,7 @@ public class RecordStream {
     private void writeFadeOut(long msecs) throws IOException {
         double last = amplitudeAnalyzer.getLastValue();
         if (last != 0) {
-            final int bufferSize = getBufferSize(SoundCloudApplication.instance.getResources());
+            final int bufferSize = getBufferSize(resources);
             int bytesToWrite = (int) config.msToByte(msecs);
             ByteBuffer buffer = BufferUtils.allocateAudioBuffer(bytesToWrite + 2);
             ByteBuffer amplitudeBuffer = BufferUtils.allocateAudioBuffer(bufferSize);
