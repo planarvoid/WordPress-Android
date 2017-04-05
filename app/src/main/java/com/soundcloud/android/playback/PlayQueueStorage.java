@@ -195,17 +195,20 @@ public class PlayQueueStorage {
     }
 
     private String loadContextsQuery() {
-        return "SELECT " +
-                "    pq.context_urn as " + Tables.PlayQueue.CONTEXT_URN.name() + "," +
-                "    coalesce(stations.title, playlists.title, users.username, charts.display_name, tracks.title) as title" +
-                "  FROM " + Tables.PlayQueue.TABLE.name() + " as pq" +
-                "  left join stations on stations.station_urn = pq.context_urn " +
-                "  left join users on 'soundcloud:users:' || users._id = pq.context_urn" +
-                "  left join charts on charts.genre = pq.context_urn" +
-                "  left join sounds as playlists on 'soundcloud:playlists:' || playlists._id = pq.context_urn AND playlists._type = " + TYPE_PLAYLIST +
-                "  left join sounds as tracks on 'soundcloud:tracks:' || tracks._id = pq.context_urn AND tracks._type= " + TYPE_TRACK +
-                "  WHERE pq.context_urn IS NOT NULL" +
-                "  GROUP BY pq.context_urn";
+
+        final String contextUrnQuery = "(SELECT DISTINCT context_urn" +
+                " FROM " + Tables.PlayQueue.TABLE.name() +
+                " WHERE context_urn IS NOT NULL)";
+
+        return "SELECT station_urn AS context_urn, title FROM stations WHERE station_urn IN " + contextUrnQuery +
+                " UNION ALL " +
+                "SELECT 'soundcloud:users:' || _id  AS context_urn, username AS title FROM users WHERE context_urn  IN " + contextUrnQuery +
+                " UNION ALL " +
+                "SELECT genre AS context_urn, display_name AS title FROM charts WHERE genre IN " + contextUrnQuery +
+                " UNION ALL " +
+                "SELECT 'soundcloud:playlists:' || _id AS context_urn, title FROM sounds WHERE context_urn IN " + contextUrnQuery + " AND _type =" + TYPE_PLAYLIST +
+                " UNION ALL " +
+                "SELECT 'soundcloud:tracks:' || _id AS context_urn, title FROM sounds WHERE context_urn IN " + contextUrnQuery + " AND _type=" + TYPE_TRACK;
     }
 
     private Map<Urn, String> toMapOfUrnAndTitles(QueryResult cursorReaders) {
