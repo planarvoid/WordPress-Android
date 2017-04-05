@@ -85,7 +85,6 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         verify(appboy, never()).logCustomEvent(any(String.class), any(AppboyProperties.class));
     }
 
-
     @Test
     public void shouldTrackMarketablePlaySessionEvents() {
         eventHandler.handleEvent(MARKETABLE_PLAY_EVENT);
@@ -283,6 +282,52 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         expectCustomEvent("offline_content", disabled("all"));
+    }
+
+    @Test
+    public void shouldTrackSdCardAvailable() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.forSdCardAvailable(true);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("sd_card_available", enabled());
+    }
+
+    @Test
+    public void shouldTrackSdCardUnavailable() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.forSdCardAvailable(false);
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("sd_card_available", disabled());
+    }
+
+    @Test
+    public void shouldTrackOfflineContentOnSd() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.forOfflineStorageLocationSdCard();
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("sd_card_selected", enabled());
+    }
+
+    @Test
+    public void shouldTrackOfflineContentOnDevice() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.forOfflineStorageLocationDevice();
+
+        eventHandler.handleEvent(event);
+
+        expectCustomEvent("sd_card_selected", disabled());
+    }
+
+    private AppboyProperties enabled() {
+        return new AppboyProperties()
+                .addProperty("enabled", true);
+    }
+
+    private AppboyProperties disabled() {
+        return new AppboyProperties()
+                .addProperty("enabled", false);
     }
 
     private AppboyProperties enabled(String context) {

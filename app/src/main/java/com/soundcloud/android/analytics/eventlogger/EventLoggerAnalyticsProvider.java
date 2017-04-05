@@ -113,7 +113,9 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleOfflineInteractionEvent(OfflineInteractionEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineInteractionEvent(event));
+        if (event.sendToEventLogger()) {
+            trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForOfflineInteractionEvent(event));
+        }
     }
 
     private void handleOfflinePerformanceEvent(OfflinePerformanceEvent event) {

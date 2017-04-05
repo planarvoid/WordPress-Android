@@ -16,7 +16,7 @@ public class MediaMountedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
             SoundCloudApplication.getObjectGraph().inject(this);
-            offlineStorageOperations.checkForOfflineStorageConsistency(context);
+            offlineStorageOperations.init();
             offlineStorageOperations.updateOfflineContentOnSdCard();
         }
     }

@@ -4,7 +4,10 @@ import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORA
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
 
 import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 
@@ -13,20 +16,32 @@ import java.io.File;
 
 public class OfflineStorageOperations {
 
+    private final Context context;
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage offlineSettingsStorage;
-    private final Context context;
+    private final EventBus eventBus;
 
     @Inject
-    OfflineStorageOperations(CryptoOperations cryptoOperations,
-                             OfflineSettingsStorage offlineSettingsStorage,
-                             Context context) {
+    OfflineStorageOperations(Context context, CryptoOperations cryptoOperations, OfflineSettingsStorage offlineSettingsStorage, EventBus eventBus) {
+        this.context = context;
         this.cryptoOperations = cryptoOperations;
         this.offlineSettingsStorage = offlineSettingsStorage;
-        this.context = context;
+        this.eventBus = eventBus;
     }
 
-    public void checkForOfflineStorageConsistency(Context context) {
+    public void init() {
+        checkForOfflineStorageConsistency();
+        reportSdCardAvailability();
+    }
+
+    private void reportSdCardAvailability() {
+        if (!offlineSettingsStorage.hasReportedSdCardAvailability()) {
+            eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.forSdCardAvailable(IOUtils.isSDCardMounted(context)));
+            offlineSettingsStorage.setSdCardAvailabilityReported();
+        }
+    }
+
+    private void checkForOfflineStorageConsistency() {
         if (IOUtils.isSDCardMounted(context) && shouldDeleteOfflineDirOnSDCard()) {
             File sdCardDir = IOUtils.getSDCardDir(context);
             if (sdCardDir != null) {
@@ -44,4 +59,5 @@ public class OfflineStorageOperations {
     private boolean shouldDeleteOfflineDirOnSDCard() {
         return !cryptoOperations.containsDeviceKey() || DEVICE_STORAGE == offlineSettingsStorage.getOfflineContentLocation();
     }
+
 }

@@ -23,6 +23,7 @@ public class OfflineSettingsStorage {
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_CONTENT_LOCATION = "offline_content_location";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
+    private static final String OFFLINE_SD_AVAILABILITY_REPORTED = "offline_sd_availability_reported";
 
     private final SharedPreferences sharedPreferences;
     private final Context context;
@@ -77,6 +78,14 @@ public class OfflineSettingsStorage {
 
     void setOfflineSettingsOnboardingSeen() {
         sharedPreferences.edit().putBoolean(OFFLINE_SETTINGS_ONBOARDING, true).apply();
+    }
+
+    boolean hasReportedSdCardAvailability() {
+        return sharedPreferences.getBoolean(OFFLINE_SD_AVAILABILITY_REPORTED, false);
+    }
+
+    void setSdCardAvailabilityReported() {
+        sharedPreferences.edit().putBoolean(OFFLINE_SD_AVAILABILITY_REPORTED, true).apply();
     }
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {

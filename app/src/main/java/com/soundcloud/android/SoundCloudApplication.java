@@ -210,7 +210,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         setupCurrentUserAccount();
 
-        offlineStorageOperations.checkForOfflineStorageConsistency(this);
+        offlineStorageOperations.init();
         cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         networkConnectivityListener.startListening();
         widgetController.subscribe();

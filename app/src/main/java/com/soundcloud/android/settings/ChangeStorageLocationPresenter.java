@@ -12,7 +12,6 @@ import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -116,11 +115,13 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
                 .create()
                 .show();
 
-        trackEvent(ScreenEvent.create(Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM));
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM));
     }
 
     private void resetOfflineContent(OfflineContentLocation offlineContentLocation) {
-        trackEvent(OfflineInteractionEvent.forOfflineStorageLocationConfirm(offlineContentLocation, Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM.get()));
+        eventBus.publish(EventQueue.TRACKING, OfflineContentLocation.DEVICE_STORAGE == offlineContentLocation
+                                              ? OfflineInteractionEvent.forOfflineStorageLocationDevice()
+                                              : OfflineInteractionEvent.forOfflineStorageLocationSdCard());
         fireAndForget(offlineContentOperations.resetOfflineContent(offlineContentLocation));
         activity.finish();
     }
@@ -130,7 +131,4 @@ class ChangeStorageLocationPresenter extends DefaultActivityLightCycle<AppCompat
         updateRadioGroup();
     }
 
-    private void trackEvent(TrackingEvent event) {
-        eventBus.publish(EventQueue.TRACKING, event);
-    }
 }

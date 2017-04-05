@@ -86,4 +86,14 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
         assertTrue(storage.hasSeenOfflineSettingsOnboarding());
     }
+
+    @Test
+    public void savesSdSupportReported() {
+        assertFalse(storage.hasReportedSdCardAvailability());
+
+        storage.setSdCardAvailabilityReported();
+
+        assertTrue(storage.hasReportedSdCardAvailability());
+    }
+
 }

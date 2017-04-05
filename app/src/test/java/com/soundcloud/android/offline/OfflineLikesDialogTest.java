@@ -39,7 +39,7 @@ public class OfflineLikesDialogTest extends AndroidUnitTest {
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);
-        assertThat(trackingEvent.context().get()).isEqualTo(OfflineInteractionEvent.Context.LIKES_CONTEXT);
+        assertThat(trackingEvent.offlineContentContext().get()).isEqualTo(OfflineInteractionEvent.OfflineContentContext.LIKES_CONTEXT);
         assertThat(trackingEvent.isEnabled().get()).isEqualTo(true);
         assertThat(trackingEvent.clickName().get()).isEqualTo(OfflineInteractionEvent.Kind.KIND_OFFLINE_LIKES_ADD);
         assertThat(trackingEvent.pageName().get()).isEqualTo(PAGE_NAME);

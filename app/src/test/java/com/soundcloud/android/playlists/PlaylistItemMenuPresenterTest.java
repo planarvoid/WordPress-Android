@@ -261,7 +261,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);
-        assertThat(trackingEvent.context().get()).isEqualTo(OfflineInteractionEvent.Context.PLAYLIST_CONTEXT);
+        assertThat(trackingEvent.offlineContentContext().get()).isEqualTo(OfflineInteractionEvent.OfflineContentContext.PLAYLIST_CONTEXT);
         assertThat(trackingEvent.isEnabled().get()).isEqualTo(true);
         assertThat(trackingEvent.clickName().get()).isEqualTo(OfflineInteractionEvent.Kind.KIND_OFFLINE_PLAYLIST_ADD);
         assertThat(trackingEvent.clickObject().get()).isEqualTo(playlistItem.getUrn());
@@ -309,7 +309,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
         OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
                                                                      OfflineInteractionEvent.class);
-        assertThat(trackingEvent.context().get()).isEqualTo(OfflineInteractionEvent.Context.PLAYLIST_CONTEXT);
+        assertThat(trackingEvent.offlineContentContext().get()).isEqualTo(OfflineInteractionEvent.OfflineContentContext.PLAYLIST_CONTEXT);
         assertThat(trackingEvent.isEnabled().get()).isEqualTo(false);
         assertThat(trackingEvent.clickName().get()).isEqualTo(OfflineInteractionEvent.Kind.KIND_OFFLINE_PLAYLIST_REMOVE);
         assertThat(trackingEvent.clickObject().get()).isEqualTo(playlistItem.getUrn());

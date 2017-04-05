@@ -678,11 +678,17 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaylistToOfflineEvent() {
-        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("page_name",
-                                                                                       Urn.forPlaylist(123L),
-                                                                                       null);
-        assertThat(v1OfflineInteractionEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo(
-                "ForOfflinePlaylistEvent");
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
+        assertThat(v1OfflineInteractionEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
+    }
+
+    @Test
+    public void shouldNotTrackSdCardAvailabilityEvent() {
+        OfflineInteractionEvent event = OfflineInteractionEvent.forSdCardAvailable(true);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verifyZeroInteractions(eventTrackingManager);
     }
 
     @Test
