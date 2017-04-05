@@ -23,6 +23,7 @@ enum Network {
     PINTEREST("pinterest", Optional.of("Pinterest"), R.drawable.favicon_pinterest),
     RESIDENTADVISOR("residentadvisor", Optional.of("Resident Advisor"), R.drawable.favicon_residentadvisor),
     REVERBNATION("reverbnation", Optional.of("ReverbNation"), R.drawable.favicon_reverbnation),
+    SONGKICK("songkick", Optional.of("Songkick"), R.drawable.favicon_songkick),
     SOUNDCLOUD("soundcloud", Optional.of("SoundCloud"), R.drawable.favicon_sc),
     SNAPCHAT("snapchat", Optional.of("Snapchat"), R.drawable.favicon_snap),
     SPOTIFY("spotify", Optional.of("Spotify"), R.drawable.favicon_spotify),
