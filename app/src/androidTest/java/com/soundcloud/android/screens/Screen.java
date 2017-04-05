@@ -91,6 +91,10 @@ public abstract class Screen {
         return testDriver.scrollToItem(with);
     }
 
+    protected ViewElement scrollToItemInRecyclerView(final With... with) {
+        return testDriver.scrollToItemInRecyclerView(with);
+    }
+
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
         @Override
         public TrackItemElement apply(ViewElement viewElement) {

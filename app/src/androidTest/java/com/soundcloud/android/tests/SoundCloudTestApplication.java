@@ -1,10 +1,10 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.ApplicationComponent;
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
+import com.soundcloud.android.di.TestApplicationModule;
 import com.soundcloud.android.properties.FeatureFlags;
 
 import android.content.Context;
@@ -63,7 +63,7 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
         }
 
         testApplicationComponent = DaggerTestApplicationComponent.builder()
-                                                                 .applicationModule(new ApplicationModule(this))
+                                                                 .applicationModule(new TestApplicationModule(this))
                                                                  .apiModule(new TestApiModule())
                                                                  .analyticsModule(new TestAnalyticsModule())
                                                                  .build();

@@ -43,6 +43,7 @@ import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
@@ -337,4 +338,8 @@ public class ApplicationModule {
         return Consts.LIST_PAGE_SIZE;
     }
 
+    @Provides
+    public GooglePlayServicesWrapper provideGooglePlayServicesWrapper() {
+        return new GooglePlayServicesWrapper();
+    }
 }

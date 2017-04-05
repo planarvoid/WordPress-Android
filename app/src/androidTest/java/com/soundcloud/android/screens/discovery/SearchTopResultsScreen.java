@@ -42,23 +42,23 @@ public class SearchTopResultsScreen extends Screen {
     }
 
     public ViewElement playlistHeader() {
-        return scrollToItem(With.text(Bucket.PLAYLISTS.getHeaderTitleId()));
+        return scrollToItemInRecyclerView(With.text(Bucket.PLAYLISTS.getHeaderTitleId()));
     }
 
     public ViewElement peopleHeader() {
-        return scrollToItem(With.text(Bucket.PEOPLE.getHeaderTitleId()));
+        return scrollToItemInRecyclerView(With.text(Bucket.PEOPLE.getHeaderTitleId()));
     }
 
     public ViewElement albumHeader() {
-        return scrollToItem(With.text(Bucket.ALBUMS.getHeaderTitleId()));
+        return scrollToItemInRecyclerView(With.text(Bucket.ALBUMS.getHeaderTitleId()));
     }
 
     public ViewElement goTracksHeader() {
-        return scrollToItem(With.text(Bucket.GO_TRACKS.getHeaderTitleId()));
+        return scrollToItemInRecyclerView(With.text(Bucket.GO_TRACKS.getHeaderTitleId()));
     }
 
     public ViewElement tracksHeader() {
-        return scrollToItem(With.text(Bucket.TRACKS.getHeaderTitleId()));
+        return scrollToItemInRecyclerView(With.text(Bucket.TRACKS.getHeaderTitleId()));
     }
 
     public SearchTrackResultsScreen clickSeeAllGoTracksButton() {
@@ -67,7 +67,7 @@ public class SearchTopResultsScreen extends Screen {
     }
 
     private ViewElement seeAllGoTracksButton() {
-        return scrollToItem(With.textMatching(Pattern.compile("See all .+ Go[+] tracks", Pattern.CASE_INSENSITIVE)));
+        return scrollToItemInRecyclerView(With.textMatching(Pattern.compile("See all .+ Go[+] tracks", Pattern.CASE_INSENSITIVE)));
     }
 
     public SearchScreen clickSearch() {

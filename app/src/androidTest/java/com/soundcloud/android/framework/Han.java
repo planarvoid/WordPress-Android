@@ -113,6 +113,15 @@ public class Han {
         return viewElement;
     }
 
+    public ViewElement scrollToItemInRecyclerView(With... with) {
+        ViewElement viewElement = findOnScreenElement(with);
+        for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
+            scrollDownRecyclerView();
+            viewElement = findOnScreenElement(with);
+        }
+        return viewElement;
+    }
+
     public ViewElement swipeToItem(int direction, With... with) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
@@ -294,6 +303,10 @@ public class Han {
         solo.scrollToBottom();
     }
 
+    public void scrollDownRecyclerView() {
+        solo.scrollDownRecyclerView(0);
+    }
+
     public void scrollToPosition(final RecyclerView recyclerView, final int position) {
         instrumentation.runOnMainSync(
                 () -> recyclerView.scrollToPosition(position)
@@ -301,16 +314,17 @@ public class Han {
     }
 
     public ViewElement scrollToFirstItemUnderHeader(With headerIdentifier, final With itemIdentifier) {
-        final ViewElement header = scrollToItem(headerIdentifier);
+        final ViewElement header = scrollToItemInRecyclerView(headerIdentifier);
         return scrollToElementsBelow(itemIdentifier, header).get(0);
     }
 
     private List<ViewElement> scrollToElementsBelow(With itemIdentifier, final ViewElement topElement) {
         List<ViewElement> elementsBelow = getElementsBelow(itemIdentifier, topElement);
         int attempts = 1;
-        while (elementsBelow.size() == 0 && attempts++ < 2) {
-            scrollDown();
+        while (elementsBelow.size() == 0 && attempts < 2) {
+            scrollDownRecyclerView();
             elementsBelow = getElementsBelow(itemIdentifier, topElement);
+            attempts++;
         }
 
         checkState(elementsBelow.size() > 0, "No elements found after " + attempts + " attempts.");
