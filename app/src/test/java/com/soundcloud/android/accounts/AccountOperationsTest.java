@@ -202,7 +202,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
 
         final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
-        assertThat(event.getKind()).isSameAs(CurrentUserChangedEvent.USER_UPDATED);
+        assertThat(event.isUserUpdated()).isTrue();
     }
 
     @Test
@@ -363,7 +363,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations.purgeUserData().subscribe(observer);
 
         final CurrentUserChangedEvent event = eventBus.lastEventOn(EventQueue.CURRENT_USER_CHANGED);
-        assertThat(event.getKind()).isSameAs(CurrentUserChangedEvent.USER_REMOVED);
+        assertThat(event.isUserRemoved()).isTrue();
     }
 
     @Test

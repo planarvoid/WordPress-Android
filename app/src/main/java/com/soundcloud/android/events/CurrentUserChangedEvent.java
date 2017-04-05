@@ -1,36 +1,31 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import org.jetbrains.annotations.Nullable;
 
-public final class CurrentUserChangedEvent {
+@AutoValue
+public abstract class CurrentUserChangedEvent {
 
-    public static final int USER_UPDATED = 0;
-    public static final int USER_REMOVED = 1;
-
-    private final int kind;
-    @Nullable
-    private final Urn currentUserUrn;
+    private static final int USER_UPDATED = 0;
+    private static final int USER_REMOVED = 1;
 
     public static CurrentUserChangedEvent forLogout() {
-        return new CurrentUserChangedEvent(USER_REMOVED, Urn.NOT_SET);
+        return new AutoValue_CurrentUserChangedEvent(USER_REMOVED, Urn.NOT_SET);
     }
 
     public static CurrentUserChangedEvent forUserUpdated(final Urn currentUserUrn) {
-        return new CurrentUserChangedEvent(USER_UPDATED, currentUserUrn);
+        return new AutoValue_CurrentUserChangedEvent(USER_UPDATED, currentUserUrn);
     }
 
-    private CurrentUserChangedEvent(int kind, Urn currentUserUrn) {
-        this.kind = kind;
-        this.currentUserUrn = currentUserUrn;
+    abstract public int getKind();
+
+    abstract public Urn getCurrentUserUrn();
+
+    public boolean isUserRemoved() {
+        return getKind() == USER_REMOVED;
     }
 
-    public int getKind() {
-        return kind;
-    }
-
-    @Nullable
-    public Urn getCurrentUserUrn() {
-        return currentUserUrn;
+    public boolean isUserUpdated() {
+        return getKind() == USER_UPDATED;
     }
 }

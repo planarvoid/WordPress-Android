@@ -12,7 +12,7 @@ public class CurrentUserChangedEventTest extends AndroidUnitTest {
     public void testForLogout() throws Exception {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forLogout();
 
-        assertThat(event.getKind()).isEqualTo(CurrentUserChangedEvent.USER_REMOVED);
+        assertThat(event.isUserRemoved()).isTrue();
         assertThat(event.getCurrentUserUrn()).isEqualTo(Urn.NOT_SET);
     }
 
@@ -20,7 +20,7 @@ public class CurrentUserChangedEventTest extends AndroidUnitTest {
     public void testForUserUpdated() throws Exception {
         CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(Urn.forUser(123));
 
-        assertThat(event.getKind()).isEqualTo(CurrentUserChangedEvent.USER_UPDATED);
+        assertThat(event.isUserUpdated()).isTrue();
         assertThat(event.getCurrentUserUrn()).isEqualTo(Urn.forUser(123));
     }
 }

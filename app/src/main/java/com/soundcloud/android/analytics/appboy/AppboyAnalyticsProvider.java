@@ -38,8 +38,7 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Override
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-        int eventKind = event.getKind();
-        if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
+        if (event.isUserUpdated()) {
             changeUser(event.getCurrentUserUrn());
         }
     }

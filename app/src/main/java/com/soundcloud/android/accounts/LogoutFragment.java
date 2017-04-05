@@ -79,8 +79,7 @@ public class LogoutFragment extends Fragment {
         @Override
         public void onNext(CurrentUserChangedEvent currentUserChangedEvent) {
             final Activity activity = getActivity();
-            if (currentUserChangedEvent.getKind() == CurrentUserChangedEvent.USER_REMOVED
-                    && activity != null && !activity.isFinishing()) {
+            if (currentUserChangedEvent.isUserRemoved() && activity != null && !activity.isFinishing()) {
                 accountOperations.triggerLoginFlow(activity);
                 activity.finish();
             }

@@ -130,7 +130,7 @@ public class PlayerWidgetController {
     private final class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
         @Override
         public void onNext(CurrentUserChangedEvent event) {
-            if (event.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
+            if (event.isUserRemoved()) {
                 presenter.reset(context);
             }
         }

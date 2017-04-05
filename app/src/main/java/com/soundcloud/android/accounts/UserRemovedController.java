@@ -43,8 +43,8 @@ public class UserRemovedController extends DefaultActivityLightCycle<AppCompatAc
         }
 
         @Override
-        public void onNext(CurrentUserChangedEvent args) {
-            if (args.getKind() == CurrentUserChangedEvent.USER_REMOVED) {
+        public void onNext(CurrentUserChangedEvent event) {
+            if (event.isUserRemoved()) {
                 activity.finish();
             }
         }

@@ -1,14 +1,16 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
+import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -31,39 +33,50 @@ public class OfflinePropertiesProvider {
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final EventBus eventBus;
     private final Scheduler scheduler;
+    private final AccountOperations accountOperations;
     private final BehaviorSubject<OfflineProperties> subject = BehaviorSubject.create();
-    private OfflineProperties offlineProperties = OfflineProperties.empty();
 
     @Inject
     public OfflinePropertiesProvider(TrackDownloadsStorage trackDownloadsStorage,
                                      OfflineStateOperations offlineStateOperations,
                                      MyPlaylistsOperations myPlaylistsOperations,
                                      EventBus eventBus,
-                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                                     AccountOperations accountOperations) {
         this.trackDownloadsStorage = trackDownloadsStorage;
         this.offlineStateOperations = offlineStateOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
+        this.accountOperations = accountOperations;
     }
 
     public void subscribe() {
-        publishSnapshot();
+        fireAndForget(userSessionStart().switchMap(trigger -> notifyStateChanges()));
+    }
 
-        loadOfflineStates()
-                .subscribeOn(scheduler)
-                .doOnNext(offlineStates -> {
-                    store(offlineStates);
-                    publishSnapshot();
-                })
-                .subscribe(new DefaultSubscriber<>());
+    private Observable<Boolean> userSessionStart() {
+        return eventBus
+                .queue(EventQueue.CURRENT_USER_CHANGED).asObservable()
+                .map(CurrentUserChangedEvent::isUserUpdated)
+                .startWith(accountOperations.isUserLoggedIn())
+                .filter(isSessionStarted -> isSessionStarted);
+    }
 
-        listenToUpdates()
-                .doOnNext(event -> {
-                    update(event);
-                    publishSnapshot();
-                })
-                .subscribe(new DefaultSubscriber<>());
+    private Observable<OfflineProperties> notifyStateChanges() {
+        return loadOfflineStates()
+                .startWith(OfflineProperties.empty())
+                .switchMap(this::loadStateUpdates)
+                .doOnNext(this::publishSnapshot)
+                .subscribeOn(scheduler);
+    }
+
+    private Observable<OfflineProperties> loadStateUpdates(OfflineProperties initialProperties) {
+        return listenToUpdates().scan(initialProperties, this::reduce);
+    }
+
+    private OfflineProperties reduce(OfflineProperties properties, OfflineContentChangedEvent event) {
+        return OfflineProperties.from(updateEntitiesStates(properties, event), updateLikedStates(properties, event));
     }
 
     private Observable<OfflineProperties> loadOfflineStates() {
@@ -107,34 +120,24 @@ public class OfflinePropertiesProvider {
         return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED);
     }
 
-    private void store(OfflineProperties offlineProperties) {
-        this.offlineProperties = offlineProperties;
-    }
-
-    private void update(OfflineContentChangedEvent event) {
-        // Note : because it publishes immutable snapshots, we make a copy of the states before updating.
-        // Is this problem w.r.t memory management?
-        offlineProperties = OfflineProperties.from(updateEntitiesStates(event), updateLikedStates(event));
-    }
-
-    private HashMap<Urn, OfflineState> updateEntitiesStates(OfflineContentChangedEvent event) {
-        final HashMap<Urn, OfflineState> updatedEntitiesStates = new HashMap<>(offlineProperties.offlineEntitiesStates());
+    private HashMap<Urn, OfflineState> updateEntitiesStates(OfflineProperties properties, OfflineContentChangedEvent event) {
+        final HashMap<Urn, OfflineState> updatedEntitiesStates = new HashMap<>(properties.offlineEntitiesStates());
         for (Urn urn : event.entities) {
             updatedEntitiesStates.put(urn, event.state);
         }
         return updatedEntitiesStates;
     }
 
-    private OfflineState updateLikedStates(OfflineContentChangedEvent event) {
+    private OfflineState updateLikedStates(OfflineProperties properties, OfflineContentChangedEvent event) {
         if (event.isLikedTrackCollection) {
             return event.state;
         } else {
-            return offlineProperties.likedTracksState();
+            return properties.likedTracksState();
         }
     }
 
-    private void publishSnapshot() {
-        subject.onNext(offlineProperties);
+    private void publishSnapshot(OfflineProperties newOfflineProperties) {
+        subject.onNext(newOfflineProperties);
     }
 
     public Observable<OfflineProperties> states() {
