@@ -183,4 +183,65 @@ public class ErrorUtilsTest extends AndroidUnitTest {
         assertThat(ErrorUtils.removeTokenRetrievalException(exception)).isSameAs(exception);
     }
 
+    @Test
+    public void removesOnNextValueSimpleCause() {
+        final Throwable onNextValueCause = new OnErrorThrowable.OnNextValue("cause");
+        final Throwable throwable = new Throwable("exception", onNextValueCause);
+
+        final Throwable purgedThrowable = ErrorUtils.purgeOnNextValueCause(throwable);
+
+        assertThat(purgedThrowable.getCause()).isNull();
+    }
+
+    @Test
+    public void removesOnNextValueInChain() {
+        final Throwable onNextValueCause = new OnErrorThrowable.OnNextValue("cause");
+        final Throwable cause = new Throwable("exception2", onNextValueCause);
+        final Throwable throwable = new Throwable("exception1", cause);
+
+        final Throwable purgedThrowable = ErrorUtils.purgeOnNextValueCause(throwable);
+
+        assertThat(purgedThrowable.getCause().getCause()).isNull();
+    }
+
+    @Test
+    public void doesNotRemoveGenericException() {
+        final Throwable cause1 = new Throwable("cause1");
+        final Throwable throwable = new Throwable("exception1", cause1);
+
+        final Throwable purgedThrowable = ErrorUtils.purgeOnNextValueCause(throwable);
+
+        assertThat(purgedThrowable.getCause()).isNotNull();
+    }
+
+    @Test
+    public void breaksOnCycleInExceptions() {
+        final Throwable throwable = new Throwable("exception1");
+        final Throwable cause1 = new Throwable("cause1");
+        throwable.initCause(cause1);
+        final Throwable cause2 = new Throwable("cause2");
+        cause1.initCause(cause2);
+        cause2.initCause(throwable);
+
+        final Throwable purgedThrowable = ErrorUtils.purgeOnNextValueCause(throwable);
+
+        assertThat(purgedThrowable).isEqualTo(throwable);
+    }
+
+    @Test
+    public void breaksOnMoreThan25Exceptions() {
+        Throwable originalThrowable = new Throwable("exception");
+        Throwable throwable = originalThrowable;
+        for (int i = 0; i < 30; i++) {
+            final Throwable cause = new Throwable("cause"+i);
+            throwable.initCause(cause);
+            throwable = cause;
+        }
+        final Throwable onNextValueCause = new OnErrorThrowable.OnNextValue("cause");
+        throwable.initCause(onNextValueCause);
+
+        final Throwable purgedThrowable = ErrorUtils.purgeOnNextValueCause(originalThrowable);
+
+        assertThat(purgedThrowable).isEqualTo(originalThrowable);
+    }
 }

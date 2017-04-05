@@ -43,15 +43,18 @@ class UncaughtExceptionHandlerController {
     void setHandler() {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
         handler = (thread, e) -> {
+            //TODO evaluate this on alpha/beta and enable it on release later
+            final Throwable purged = BuildConfig.BUILD_TYPE.equals("release") ? e : ErrorUtils.purgeOnNextValueCause(e);
             if (ErrorUtils.isCausedByOutOfMemory(e)) {
                 memoryReporter.reportOomStats();
                 crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError(OOM_TREND_LABEL));
             } else if (e.getCause() instanceof OnErrorFailedException) {
                 // This is to remove clutter from exceptions that are caught and redirected on RxJava worker threads.
                 // See ScheduledAction.java. It should give us cleaner stack traces containing just the root cause.
-                crashlyticsHandler.uncaughtException(thread, ErrorUtils.findRootCause(e.getCause()));
+                final Throwable rootCause = ErrorUtils.findRootCause(purged.getCause());
+                crashlyticsHandler.uncaughtException(thread, rootCause);
             } else {
-                crashlyticsHandler.uncaughtException(thread, e);
+                crashlyticsHandler.uncaughtException(thread, purged);
             }
         };
         Thread.setDefaultUncaughtExceptionHandler(handler);

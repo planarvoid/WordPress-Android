@@ -15,6 +15,7 @@ import com.soundcloud.java.strings.Strings;
 import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.exceptions.OnErrorThrowable;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Map;
 
 public final class ErrorUtils {
@@ -61,7 +64,6 @@ public final class ErrorUtils {
      */
     public static synchronized void handleThrowable(Throwable t, String context) {
         Log.e(ERROR_CONTEXT_TAG, context);
-
         if (Fabric.isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
@@ -73,6 +75,41 @@ public final class ErrorUtils {
         } else {
             t.printStackTrace();
         }
+    }
+
+    /**
+     * Use this to remove {@link rx.exceptions.OnErrorThrowable.OnNextValue} as a cause in your exception.
+     * <p/>
+     * When a crash happens in Rx chain in onNext, a {@link rx.exceptions.OnErrorThrowable.OnNextValue}
+     * is created and added as a cause to our actual exception. Fabric groups crashes by the cause.
+     * This causes all our crashes in Rx chain being grouped and hides the actual crash.
+     * @param throwable     the Exception or Error that was raised
+     * @return              the Exception or Error without the fake cause
+     */
+    public static Throwable purgeOnNextValueCause(Throwable throwable) {
+        HashSet seenCauses = new HashSet();
+        int i = 0;
+        Throwable cause = throwable;
+        while (cause.getCause() != null) {
+            if (cause.getCause() instanceof OnErrorThrowable.OnNextValue) {
+                try {
+                    final Field field = Throwable.class.getDeclaredField("cause");
+                    field.setAccessible(true);
+                    field.set(cause, null);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    Log.e(ErrorUtils.class.getSimpleName(), e);
+                }
+                break;
+            }
+            if (i++ >= 25) {
+                break;
+            }
+            cause = cause.getCause();
+            if (!seenCauses.add(cause.getCause())) {
+                break;
+            }
+        }
+        return throwable;
     }
 
     private static boolean isFatalException(Throwable t) {
