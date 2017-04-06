@@ -13,12 +13,13 @@ import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
-public class FollowersActivity extends PlayerActivity {
+public class FollowersActivity extends PlayerActivity implements FollowersPresenter.FollowersView {
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject AccountOperations accountOperations;
+    @Inject FollowersPresenter followersPresenter;
 
     public FollowersActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -27,16 +28,18 @@ public class FollowersActivity extends PlayerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final Urn userUrn = getIntent().getParcelableExtra(EXTRA_USER_URN);
-        final SearchQuerySourceInfo searchQuerySourceInfo = getIntent().getParcelableExtra(EXTRA_SEARCH_QUERY_SOURCE_INFO);
 
         if (savedInstanceState == null) {
-            final Fragment fragment = isLoggedInUser() ?
-                                      UserFollowersFragment.createForCurrentUser(userUrn, getScreen(), searchQuerySourceInfo) :
-                                      UserFollowersFragment.create(userUrn, getScreen(), searchQuerySourceInfo);
-
-            getSupportFragmentManager().beginTransaction().add(getContentHolderViewId(), fragment).commit();
+            followersPresenter.visitFollowersScreen(this);
         }
+
+        followersPresenter.attachView(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        followersPresenter.detachView();
+        super.onDestroy();
     }
 
     @Override
@@ -46,10 +49,30 @@ public class FollowersActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return isLoggedInUser() ? Screen.YOUR_FOLLOWERS : Screen.USER_FOLLOWERS;
+        return Screen.UNKNOWN;
     }
 
-    private boolean isLoggedInUser() {
-        return accountOperations.isLoggedInUser(getIntent().getParcelableExtra(EXTRA_USER_URN));
+    @Override
+    public Urn getUserUrn() {
+        return getIntent().getParcelableExtra(EXTRA_USER_URN);
+    }
+
+    @Override
+    public void visitFollowersScreenForCurrentUser(Screen trackingScreen) {
+        createFragment(UserFollowersFragment.createForCurrentUser(getUserUrn(), trackingScreen, getSearchQuerySourceInfo()));
+    }
+
+    @Override
+    public void visitFollowersScreenForOtherUser(Screen trackingScreen) {
+        createFragment(UserFollowersFragment.create(getUserUrn(), trackingScreen, getSearchQuerySourceInfo()));
+
+    }
+
+    private void createFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction().add(getContentHolderViewId(), fragment).commit();
+    }
+
+    private SearchQuerySourceInfo getSearchQuerySourceInfo() {
+        return getIntent().getParcelableExtra(EXTRA_SEARCH_QUERY_SOURCE_INFO);
     }
 }

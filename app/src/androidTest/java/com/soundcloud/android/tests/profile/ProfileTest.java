@@ -10,6 +10,9 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
@@ -23,8 +26,8 @@ import org.hamcrest.core.Is;
 
 import android.content.Intent;
 
-public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
-    private static final String OTHER_PROFILE_PAGEVIEWS_SCENARIO = "other_profile_pageview_events";
+public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
+    private static final String PROFILE_PAGEVIEWS_SCENARIO = "profile_pageview_events";
     private static final String TEST_SCENARIO_TRACKS_BUCKET = "audio-events-v1-other-profile-tracks-bucket";
     private static final String TEST_SCENARIO_LIKES_BUCKET = "audio-events-v1-other-profile-likes-bucket";
     private static final String TEST_SCENARIO_REPOSTS_BUCKET = "audio-events-v1-other-profile-reposts-bucket";
@@ -37,6 +40,8 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     private static final String TEST_SCENARIO_REPOSTS_LIST = "audio-events-v1-other-profile-reposts-list";
     private static final String TEST_SCENARIO_PLAYLISTS_LIST = "other-profile-playlists-list";
 
+    private FeatureFlagsHelper featureFlagsHelper;
+
     // Have to do this because Java can't do import aliasing ;_;
     private static Matcher<Screen> isScreenVisible() {
         return Is.is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible());
@@ -48,7 +53,7 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
 
     private ProfileScreen profileScreen;
 
-    public OtherProfileTest() {
+    public ProfileTest() {
         super(ResolveActivity.class);
     }
 
@@ -59,10 +64,19 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
 
     @Override
     protected void setUp() throws Exception {
+        featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
+        featureFlagsHelper.enable(Flag.ALIGNED_USER_INFO);
+
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_USER_URI));
         super.setUp();
 
         profileScreen = new ProfileScreen(solo);
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        featureFlagsHelper.reset(Flag.ALIGNED_USER_INFO);
     }
 
     public void testPostsTrackClickStartsPlayer() {
@@ -79,9 +93,9 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testClickFollowingsLoadsProfile() {
-        profileScreen.touchFollowingsTab();
+        FollowingsScreen followingsScreen = profileScreen.touchInfoTab().clickFollowingsLink();
 
-        final UserItemElement expectedUser = profileScreen
+        final UserItemElement expectedUser = followingsScreen
                 .getUsers()
                 .get(0);
 
@@ -212,14 +226,17 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
         assertThat(playerElement, is(not(playing())));
     }
 
-    public void testPageViewEvents() {
+    public void testInfoTabEvents() {
         startEventTracking();
 
-        profileScreen.touchInfoTab();
-        profileScreen.touchSoundsTab();
-        profileScreen.touchFollowersTab();
-        profileScreen.touchFollowingsTab();
+        profileScreen
+                .touchInfoTab()
+                .clickFollowersLink()
+                .goBackToProfile()
+                .clickFollowingsLink()
+                .goBackToProfile()
+                .touchSoundsTab();
 
-        finishEventTracking(OTHER_PROFILE_PAGEVIEWS_SCENARIO);
+        finishEventTracking(PROFILE_PAGEVIEWS_SCENARIO);
     }
 }

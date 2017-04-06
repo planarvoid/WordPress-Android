@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.Tabs;
@@ -220,6 +221,16 @@ public class ProfileScreen extends Screen {
         final Tabs tabs = tabs();
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
         return this;
+    }
+
+    public FollowersScreen clickFollowersLink() {
+        testDriver.findOnScreenElement(With.id(R.id.view_followers)).click();
+        return new FollowersScreen(testDriver);
+    }
+
+    public FollowingsScreen clickFollowingsLink() {
+        testDriver.findOnScreenElement(With.id(R.id.view_following)).click();
+        return new FollowingsScreen(testDriver);
     }
 
     public ProfileScreen touchLegacyFollowersTab() {
