@@ -35,7 +35,7 @@ if [ "$CURRENT_BUILD_STATUS" = "SUCCESS" -a "$PREVIOUS_BUILD_STATUS" = "FAILED" 
 elif [ "$CURRENT_BUILD_STATUS" = "FAILED" -a "$PREVIOUS_BUILD_STATUS" = "SUCCESS" ]; then
     SUB_BUILD_INFO=$(getSubBuildData)
     echo Sending :red-build: message to ${TARGET_CHANNEL}
-    curl -X POST --data-urlencode payload="$(payload "${SUB_BUILD_INFO} See the build: ${BASE_URL}${CURRENT_BUILD}" ${FAIL_ICON} ${JOB_NAME})" ${URL}
+    curl -X POST --data-urlencode payload="$(payload "${SUB_BUILD_INFO} \n See the build: ${BASE_URL}${CURRENT_BUILD}" ${FAIL_ICON} ${JOB_NAME})" ${URL}
 else
     echo "No status to show, status unchanged at ${CURRENT_BUILD_STATUS}"
 fi
