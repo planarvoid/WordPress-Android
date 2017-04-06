@@ -18,8 +18,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -54,7 +52,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private InlayAdOperations inlayAdOperations;
     @Mock private InlayAdStateProvider stateProvider;
     @Mock private FeatureOperations featureOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;
     @Mock private InlayAdPlayer inlayAdPlayer;
@@ -75,7 +72,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
                                                  inlayAdHelperFactory,
                                                  stateProvider,
                                                  lazyOf(inlayAdPlayer),
-                                                 featureFlags,
                                                  featureOperations,
                                                  dateProvider,
                                                  eventBus));
@@ -86,7 +82,6 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(inlayAdOperations.subscribe(inlayAdHelper)).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelper.subscribe()).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
-        when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(true);
         when(featureOperations.adsEnabled()).thenReturn(Observable.just(Boolean.TRUE));
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
 
@@ -199,15 +194,14 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsAttemptsToInsertAdAfterFetch() {
-        when(featureFlags.isEnabled(Flag.VIDEO_INLAYS)).thenReturn(false);
         when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
         when(inlayAdHelper.insertAd(any(AdData.class), anyBoolean())).thenReturn(true);
 
         controller.insertAds();
         controller.insertAds();
 
+        verify(inlayAdHelper).insertAd(inlays.get(0), SCROLLING_DOWN);
         verify(inlayAdHelper).insertAd(inlays.get(1), SCROLLING_DOWN);
-        verify(inlayAdHelper).insertAd(inlays.get(2), SCROLLING_DOWN);
     }
 
     @Test

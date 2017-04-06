@@ -8,8 +8,6 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
@@ -48,7 +46,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final InlayAdHelperFactory inlayAdHelperFactory;
     private final InlayAdStateProvider stateProvider;
     private final Lazy<InlayAdPlayer> inlayAdPlayer;
-    private final FeatureFlags featureFlags;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
@@ -76,7 +73,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                InlayAdHelperFactory inlayAdHelperFactory,
                                InlayAdStateProvider inlayAdStateProvider,
                                Lazy<InlayAdPlayer> inlayAdPlayer,
-                               FeatureFlags featureFlags,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
                                EventBus eventBus) {
@@ -86,7 +82,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         this.inlayAdHelperFactory = inlayAdHelperFactory;
         this.stateProvider = inlayAdStateProvider;
         this.inlayAdPlayer = inlayAdPlayer;
-        this.featureFlags = featureFlags;
         this.featureOperations = featureOperations;
         this.dateProvider = dateProvider;
         this.eventBus = eventBus;
@@ -265,7 +260,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
             if (ads.isEmpty()) {
                 setLastEmptyResponseTime();
             } else {
-                availableAds = filterEnabledAds(ads);
+                availableAds = ads;
                 insertAds();
             }
         }
@@ -273,20 +268,6 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         @Override
         public void onError(Throwable e) {
             setLastEmptyResponseTime();
-        }
-
-        private List<AdData> filterEnabledAds(List<AdData> ads) {
-            if (featureFlags.isEnabled(Flag.VIDEO_INLAYS)) {
-                return ads;
-            } else {
-                final List<AdData> filteredAds = new ArrayList<>(ads.size());
-                for (AdData ad : ads) {
-                    if (ad instanceof AppInstallAd) {
-                       filteredAds.add(ad);
-                    }
-                }
-                return filteredAds;
-            }
         }
 
         private void setLastEmptyResponseTime() {
