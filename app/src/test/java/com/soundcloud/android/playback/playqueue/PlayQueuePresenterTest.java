@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricKey;
-import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -29,8 +28,9 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -42,9 +42,9 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
-import rx.subjects.Subject;
 
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     private final static int UI_ITEMS_SIZE = 4;
 
-    private final Subject<List<PlayQueueUIItem>, List<PlayQueueUIItem>> uiSubject = BehaviorSubject.create();
+    private final BehaviorSubject<PlayQueueUIItemsUpdate> uiSubject = BehaviorSubject.create();
     @Mock private PlayQueueView playQueueViewContract;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlayQueueDataProvider playQueueDataProvider;
@@ -70,6 +70,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     private PlayQueuePresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
+    private PlayQueueUIItemsUpdate loadQueueUpdate;
 
     @Before
     public void setUp() throws Exception {
@@ -84,6 +85,8 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                 eventBus,
                 playQueueUIItemMapper,
                 performanceMetricsEngine);
+
+        loadQueueUpdate = PlayQueueUIItemsUpdate.forQueueLoad();
         when(playQueueManager.getRepeatMode()).thenReturn(RepeatMode.REPEAT_NONE);
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
@@ -94,13 +97,17 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         presenter.attachView(playQueueViewContract);
     }
 
-    private OngoingStubbing<Observable<List<PlayQueueUIItem>>> setUIItems() {
-        List<PlayQueueUIItem> uiItems = Lists.newArrayList(headerPlayQueueUIItem(false),
-                                                           trackPlayQueueUIItemWithPlayState(PlayState.PLAYED),
-                                                           trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
-                                                           trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
-        uiSubject.onNext(uiItems);
-        return when(playQueueDataProvider.getPlayQueueUIItems()).thenReturn(uiSubject);
+    private OngoingStubbing<Observable<PlayQueueUIItemsUpdate>> setUIItems() {
+        uiSubject.onNext(loadQueueUpdate.withItems(createUIItems()));
+        return when(playQueueDataProvider.playQueueUIItemsUpdate()).thenReturn(uiSubject);
+    }
+
+    @NonNull
+    private List<PlayQueueUIItem> createUIItems() {
+        return Lists.newArrayList(headerPlayQueueUIItem(false),
+                                  trackPlayQueueUIItemWithPlayState(PlayState.PLAYED),
+                                  trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                  trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
     }
 
     @Test
@@ -137,7 +144,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         when(trackPlayQueueUIItem.isTrack()).thenReturn(true);
         when(trackPlayQueueUIItem.isGoTrack()).thenReturn(true);
         when(trackPlayQueueUIItem.getPlayState()).thenReturn(PlayState.COMING_UP);
-        uiSubject.onNext(Lists.newArrayList(trackPlayQueueUIItem));
+        uiSubject.onNext(loadQueueUpdate.withItems(Collections.singletonList(trackPlayQueueUIItem)));
 
         presenter.trackClicked(0);
 
@@ -184,7 +191,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
                                                            headerPlayQueueUIItem(true),
                                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
                                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
-        uiSubject.onNext(uiItems);
+        uiSubject.onNext(loadQueueUpdate.withItems(uiItems));
 
         presenter.trackClicked(1);
 
@@ -288,9 +295,10 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveATrack() {
-        uiSubject.onNext(Lists.newArrayList(trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP)));
+        List<PlayQueueUIItem> items = Lists.newArrayList(trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                                trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                                trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+        uiSubject.onNext(loadQueueUpdate.withItems(items));
         reset(playQueueViewContract);
 
         final int position = 1;
@@ -304,10 +312,11 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveSectionWhenHeaderRemoved() {
-        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
-                                            headerPlayQueueUIItem(true),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP)));
+        List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
+                                             trackPlayQueueUIItemWithPlayState(PlayState.PLAYING),
+                                             headerPlayQueueUIItem(true),
+                                             trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP));
+        uiSubject.onNext(loadQueueUpdate.withItems(items));
         presenter.trackClicked(1);
 
         reset(playQueueViewContract);
@@ -320,8 +329,9 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotRemoveAHeaderWhenSectionPlaying() {
-        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.PLAYING)));
+        List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
+                                             trackPlayQueueUIItemWithPlayState(PlayState.PLAYING));
+        uiSubject.onNext(loadQueueUpdate.withItems(items));
         presenter.trackClicked(1);
 
         reset(playQueueViewContract);
@@ -335,9 +345,10 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRemoveHeadersWhenOneTrackInSection() {
-        uiSubject.onNext(Lists.newArrayList(headerPlayQueueUIItem(false),
-                                            trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
-                                            headerPlayQueueUIItem(false)));
+        List<PlayQueueUIItem> items = Lists.newArrayList(headerPlayQueueUIItem(false),
+                                             trackPlayQueueUIItemWithPlayState(PlayState.COMING_UP),
+                                             headerPlayQueueUIItem(false));
+        uiSubject.onNext(loadQueueUpdate.withItems(items));
         reset(playQueueViewContract);
 
         final int position = 1;
@@ -426,6 +437,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         verify(playlistExploder).explodePlaylists(5, 5);
     }
 
+    @Test
     public void shouldAddTrackOnUndo() {
         presenter.remove(2);
         reset(playQueueViewContract);
@@ -473,10 +485,21 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         // Setup method already performed the initialization
         verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
 
-        PerformanceMetric performanceMetric = performanceMetricCaptor.getValue();
-        MetricParams params = performanceMetric.metricParams();
+        Assertions.assertThat(performanceMetricCaptor.getValue())
+                  .hasMetricType(MetricType.PLAY_QUEUE_LOAD)
+                  .containsMetricParam(MetricKey.PLAY_QUEUE_SIZE, UI_ITEMS_SIZE);
+    }
 
-        assertThat(params.toBundle().getLong(MetricKey.PLAY_QUEUE_SIZE.toString())).isEqualTo(UI_ITEMS_SIZE);
+    @Test
+    public void shouldEndMeasuringShuffleOnQueueShuffled() {
+        uiSubject.onNext(PlayQueueUIItemsUpdate.forQueueReorder().withItems(createUIItems()));
+
+        // It will be called twice, one ending the queue load and the other for the shuffle
+        verify(performanceMetricsEngine, times(2)).endMeasuring(performanceMetricCaptor.capture());
+
+        Assertions.assertThat(performanceMetricCaptor.getAllValues().get(1))
+                  .hasMetricType(MetricType.PLAY_QUEUE_SHUFFLE)
+                  .containsMetricParam(MetricKey.PLAY_QUEUE_SIZE, UI_ITEMS_SIZE);
     }
 
     private TrackPlayQueueUIItem trackPlayQueueUIItemWithPlayState(PlayState playState) {

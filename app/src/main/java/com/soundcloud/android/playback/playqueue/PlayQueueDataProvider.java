@@ -1,15 +1,13 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import rx.Observable;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
-import rx.subscriptions.CompositeSubscription;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 public class PlayQueueDataProvider {
@@ -17,8 +15,6 @@ public class PlayQueueDataProvider {
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueUIItemMapper playQueueUIItemMapper;
     private final EventBus eventBus;
-    private final CompositeSubscription subscriptions = new CompositeSubscription();
-    private final Subject<Boolean, Boolean> updateSubject = PublishSubject.create();
 
     @Inject
     public PlayQueueDataProvider(PlayQueueOperations playQueueOperations, PlayQueueUIItemMapper playQueueUIItemMapper, EventBus eventBus) {
@@ -27,37 +23,35 @@ public class PlayQueueDataProvider {
         this.eventBus = eventBus;
     }
 
-    public Observable<List<PlayQueueUIItem>> getPlayQueueUIItems() {
-        setUpTrackChangeStream();
-        setUpShuffleStream();
-        setUpItemAddedStream();
-        return updateSubject.flatMap(event -> Observable.zip(playQueueOperations.getTracks(), playQueueOperations.getContextTitles(), playQueueUIItemMapper))
-                            .startWith(playQueueOperations.getTracks().zipWith(playQueueOperations.getContextTitles(), playQueueUIItemMapper));
+    public Observable<PlayQueueUIItemsUpdate> playQueueUIItemsUpdate() {
+        return Observable.merge(trackChangedEvent(), queueShuffledEvent(), itemsAddedEvent())
+                         .startWith(PlayQueueUIItemsUpdate.forQueueLoad())
+                         .flatMap(event -> getTracksAndTitles().map(event::withItems));
     }
 
-    public void clearRemoveSubscriptions() {
-        subscriptions.clear();
+    @NonNull
+    private Observable<List<PlayQueueUIItem>> getTracksAndTitles() {
+        return Observable.zip(playQueueOperations.getTracks(),
+                              playQueueOperations.getContextTitles(),
+                              playQueueUIItemMapper);
     }
 
     //receives event when magic box is clicked
-    private void setUpTrackChangeStream() {
-        subscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                  .map(it -> true)
-                                  .subscribe(updateSubject));
+    private Observable<PlayQueueUIItemsUpdate> trackChangedEvent() {
+        return eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                       .map(it -> PlayQueueUIItemsUpdate.forTrackChanged());
     }
 
-    private void setUpShuffleStream() {
-        subscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                  .filter(playQueueEvent -> playQueueEvent.isQueueReorder())
-                                  .map(it -> true)
-                                  .subscribe(updateSubject));
+    private Observable<PlayQueueUIItemsUpdate> queueShuffledEvent() {
+        return eventBus.queue(EventQueue.PLAY_QUEUE)
+                       .filter(PlayQueueEvent::isQueueReorder)
+                       .map(it -> PlayQueueUIItemsUpdate.forQueueReorder());
     }
 
-    private void setUpItemAddedStream() {
-        subscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                  .filter(playQueueEvent -> playQueueEvent.itemAdded())
-                                  .map(it -> true)
-                                  .subscribe(updateSubject));
+    private Observable<PlayQueueUIItemsUpdate> itemsAddedEvent() {
+        return eventBus.queue(EventQueue.PLAY_QUEUE)
+                       .filter(PlayQueueEvent::itemAdded)
+                       .map(it -> PlayQueueUIItemsUpdate.forItemAdded());
     }
 
 }

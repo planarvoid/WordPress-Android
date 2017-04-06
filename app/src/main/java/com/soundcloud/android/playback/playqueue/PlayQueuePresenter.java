@@ -24,7 +24,6 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
@@ -32,7 +31,6 @@ import rx.subjects.Subject;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,21 +82,21 @@ class PlayQueuePresenter {
         playQueueView.setShuffledState(playQueueManager.isShuffled());
         setRepeatMode(playQueueManager.getRepeatMode());
 
-
         if (items.isEmpty()) {
             this.playQueueView.get().showLoadingIndicator();
         }
-        subscriptions.add(playQueueDataProvider.getPlayQueueUIItems()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(newItems -> items = newItems)
-                .subscribe(new PlayQueueSubscriber()));
+        subscriptions.add(playQueueDataProvider.playQueueUIItemsUpdate()
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .doOnNext(update -> items = update.items())
+                                               .doOnNext(this::endMeasureShuffleIfNecessary)
+                                               .map(PlayQueueUIItemsUpdate::items)
+                                               .subscribe(new PlayQueueSubscriber()));
         setUpPlaybackStream();
         setUpRebuildStream();
     }
 
     void detachContract() {
         playQueueView = Optional.absent();
-        playQueueDataProvider.clearRemoveSubscriptions();
         subscriptions.clear();
         resetUI = true;
     }
@@ -335,7 +333,7 @@ class PlayQueuePresenter {
         if (playQueueView.isPresent()) {
             rebuildSubject.onNext(true);
             playQueueManager.moveItem(getQueuePosition(fromAdapterPosition),
-                    getQueuePosition(toAdapterPosition));
+                                      getQueuePosition(toAdapterPosition));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayQueueReorder(Screen.PLAY_QUEUE));
         }
     }
@@ -406,18 +404,24 @@ class PlayQueuePresenter {
                     playQueueView.get().scrollTo(getScrollPosition());
                     playQueueView.get().removeLoadingIndicator();
                     resetUI = false;
-                    measurePlayQueueLoadTime(items.size());
+                    endMeasurePlayQueueOperation(MetricType.PLAY_QUEUE_LOAD, items.size());
                 }
             }
         }
     }
 
-    private void measurePlayQueueLoadTime(int items) {
-        MetricParams params = new MetricParams().putLong(MetricKey.PLAY_QUEUE_SIZE, items);
+    private void endMeasureShuffleIfNecessary(PlayQueueUIItemsUpdate update) {
+        if (update.isQueueReorder()) {
+            endMeasurePlayQueueOperation(MetricType.PLAY_QUEUE_SHUFFLE, update.items().size());
+        }
+    }
+
+    private void endMeasurePlayQueueOperation(MetricType metricType, int items) {
+        MetricParams params = MetricParams.of(MetricKey.PLAY_QUEUE_SIZE, items);
         performanceMetricsEngine.endMeasuring(PerformanceMetric.builder()
-                .metricType(MetricType.PLAY_QUEUE_LOAD)
-                .metricParams(params)
-                .build());
+                                                               .metricType(metricType)
+                                                               .metricParams(params)
+                                                               .build());
     }
 
     private void updateNowPlaying(int position, boolean isPlaying) {

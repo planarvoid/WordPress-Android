@@ -5,6 +5,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -30,6 +32,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     private final FeedbackController feedbackController;
     private final TopPaddingDecorator topPaddingDecorator;
     private final SmoothScrollLinearLayoutManager layoutManager;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @BindView(R.id.repeat_button) ImageView repeatView;
     @BindView(R.id.shuffle_button) ToggleButton shuffleView;
@@ -44,12 +47,14 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
                          PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                          FeedbackController feedbackController,
                          TopPaddingDecorator topPaddingDecorator,
-                         SmoothScrollLinearLayoutManager layoutManager) {
+                         SmoothScrollLinearLayoutManager layoutManager,
+                         PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueuePresenter = playQueuePresenter;
         this.playQueueAdapter = playQueueAdapter;
         this.feedbackController = feedbackController;
         this.topPaddingDecorator = topPaddingDecorator;
         this.layoutManager = layoutManager;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         swipeToRemoveCallback = swipeToRemoveCallbackFactory.create(playQueuePresenter);
     }
 
@@ -153,6 +158,7 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
+        performanceMetricsEngine.startMeasuring(MetricType.PLAY_QUEUE_SHUFFLE);
         playQueuePresenter.shuffleClicked(toggle.isChecked());
     }
 
