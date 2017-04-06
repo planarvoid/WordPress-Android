@@ -144,7 +144,7 @@ class PlayQueuePresenter {
 
     void onNextClick() {
         if (playQueueView.isPresent()) {
-            playQueueView.get().scrollTo(getScrollPosition());
+            playQueueView.get().scrollTo(getScrollPosition(), true);
         }
     }
 
@@ -401,7 +401,7 @@ class PlayQueuePresenter {
                 setNowPlaying();
                 playQueueView.get().setItems(items);
                 if (resetUI) {
-                    playQueueView.get().scrollTo(getScrollPosition());
+                    playQueueView.get().scrollTo(getScrollPosition(), false);
                     playQueueView.get().removeLoadingIndicator();
                     resetUI = false;
                     endMeasurePlayQueueOperation(MetricType.PLAY_QUEUE_LOAD, items.size());

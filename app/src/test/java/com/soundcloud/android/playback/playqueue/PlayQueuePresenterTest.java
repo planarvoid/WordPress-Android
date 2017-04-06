@@ -128,7 +128,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
         verify(playQueueViewContract).setItems(any());
         verify(playQueueViewContract).setShuffledState(false);
         verify(playQueueViewContract).setRepeatNone();
-        verify(playQueueViewContract).scrollTo(0);
+        verify(playQueueViewContract).scrollTo(0, false);
         verify(playQueueViewContract).removeLoadingIndicator();
     }
 
@@ -155,7 +155,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     public void shouldScrollToPositionOnNext() {
         presenter.onNextClick();
 
-        verify(playQueueViewContract, times(2)).scrollTo(0);
+        verify(playQueueViewContract).scrollTo(0, true);
     }
 
     @Test

@@ -112,8 +112,12 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         repeatView.setImageResource(R.drawable.ic_repeat_off);
     }
 
-    public void scrollTo(int position) {
-        recyclerView.smoothScrollToPosition(position);
+    public void scrollTo(int position, boolean animate) {
+        if (animate) {
+            recyclerView.smoothScrollToPosition(position);
+        } else {
+            recyclerView.scrollToPosition(position);
+        }
     }
 
     public void switchItems(int fromPosition, int toPosition) {
