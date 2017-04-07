@@ -1,9 +1,12 @@
 package com.soundcloud.android.offline;
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,12 +24,13 @@ public class DownloadStateRendererTest extends AndroidUnitTest {
 
     @Mock private Fragment fragment;
     @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private FeatureFlags featureFlags;
     private View view;
 
     @Before
     public void setUp() throws Exception {
         view = View.inflate(context(), R.layout.track_likes_header, null);
-        downloadStateRenderer = new DownloadStateRenderer(resources());
+        downloadStateRenderer = new DownloadStateRenderer(resources(), featureFlags);
     }
 
     @Ignore("Blocks on AnimUtils")
@@ -53,6 +57,16 @@ public class DownloadStateRendererTest extends AndroidUnitTest {
         downloadStateRenderer.show(OfflineState.NOT_OFFLINE, view);
 
         assertThat(getHeaderText()).hasText("Header test text");
+        assertThat(view.findViewById(R.id.header_download_state)).isGone();
+    }
+
+    @Test
+    public void setDownloadImageViewToGoneIfNewOfflineIconsFeatureFlagIsEnabled() {
+        when(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+
+        downloadStateRenderer.setHeaderText("Header test text", view);
+        downloadStateRenderer.show(OfflineState.NOT_OFFLINE, view);
+
         assertThat(view.findViewById(R.id.header_download_state)).isGone();
     }
 

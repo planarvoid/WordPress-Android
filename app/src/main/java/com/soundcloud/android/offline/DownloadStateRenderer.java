@@ -2,6 +2,8 @@ package com.soundcloud.android.offline;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -12,11 +14,14 @@ import javax.inject.Inject;
 public class DownloadStateRenderer {
 
     private final Resources resources;
+    private final FeatureFlags featureFlags;
+
     private String headerText;
 
     @Inject
-    public DownloadStateRenderer(Resources resources) {
+    public DownloadStateRenderer(Resources resources, FeatureFlags featureFlags) {
         this.resources = resources;
+        this.featureFlags = featureFlags;
     }
 
     public void setHeaderText(String text, View view) {
@@ -27,7 +32,12 @@ public class DownloadStateRenderer {
     }
 
     public void show(OfflineState offlineState, View view) {
-        getDownloadStateView(view).setState(offlineState);
+        DownloadImageView downloadStateView = getDownloadStateView(view);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            downloadStateView.setVisibility(View.GONE);
+        } else {
+            downloadStateView.setState(offlineState);
+        }
         updateHeaderText(offlineState, view);
     }
 

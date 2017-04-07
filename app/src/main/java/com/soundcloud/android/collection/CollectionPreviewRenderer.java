@@ -8,6 +8,8 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final Resources resources;
     private final FeatureOperations featureOperations;
     private final ImageOperations imageOperations;
+    private final FeatureFlags featureFlags;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
         @Override
@@ -46,14 +49,16 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     };
 
     @Inject
-    public CollectionPreviewRenderer(Navigator navigator,
+    CollectionPreviewRenderer(Navigator navigator,
                               Resources resources,
                               FeatureOperations featureOperations,
-                              ImageOperations imageOperations) {
+                              ImageOperations imageOperations,
+                              FeatureFlags featureFlags) {
         this.navigator = navigator;
         this.resources = resources;
         this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -123,12 +128,12 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
-
-        if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(likes.offlineState());
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            downloadProgressIcon.setVisibility(View.GONE);
         } else {
-            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
+            downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
+                                          ? likes.offlineState()
+                                          : OfflineState.NOT_OFFLINE);
         }
     }
-
 }
