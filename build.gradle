@@ -9,7 +9,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.0'
+    classpath 'com.android.tools.build:gradle:2.3.1'
     classpath 'com.google.gms:google-services:3.0.0'
   }
 }
