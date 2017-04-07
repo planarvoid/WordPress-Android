@@ -37,6 +37,7 @@ public class MainActivity extends PlayerActivity {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         redirectToResolverIfNecessary(getIntent());
         super.onCreate(savedInstanceState);
