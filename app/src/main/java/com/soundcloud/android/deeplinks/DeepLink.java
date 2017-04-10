@@ -67,6 +67,7 @@ public enum DeepLink {
             Pattern.compile("^/login/forgot$"),
             Pattern.compile("^/emails/[0-9a-f]+$"),
             Pattern.compile("^/pages/.*$"),
+            Pattern.compile("^/connect.*$"),
             Pattern.compile("^/terms-of-use$"),
             Pattern.compile("^/jobs(/.*)?$")
     };
