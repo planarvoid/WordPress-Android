@@ -4,6 +4,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
+import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
@@ -127,6 +128,8 @@ public class RecentlyPlayedStorage {
                 "    pv.pv_has_pending_download_request as " + RecentlyPlayedItemMapper.COLUMN_HAS_PENDING_DOWNLOAD_REQUEST + "," +
                 "    pv.pv_has_downloaded_tracks as " + RecentlyPlayedItemMapper.COLUMN_HAS_DOWNLOADED_TRACKS + "," +
                 "    pv.pv_has_unavailable_tracks as " + RecentlyPlayedItemMapper.COLUMN_HAS_UNAVAILABLE_TRACKS + "," +
+                "    pv.pv_is_user_like as " + RecentlyPlayedItemMapper.COLUMN_LIKED + ", " +
+                "    pv.pv_sharing = '" + Sharing.PRIVATE.value() + "' as " + RecentlyPlayedItemMapper.COLUMN_PRIVATE + ", " +
                 "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as " + RecentlyPlayedItemMapper.COLUMN_MAX_TIMESTAMP +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
                 "  INNER JOIN " + Tables.PlaylistView.TABLE.name() + " as pv ON pv.pv_id = rp.context_id" +
@@ -146,6 +149,8 @@ public class RecentlyPlayedStorage {
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_PENDING_DOWNLOAD_REQUEST + "," +
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_DOWNLOADED_TRACKS + "," +
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_UNAVAILABLE_TRACKS + "," +
+                "    0 as " + RecentlyPlayedItemMapper.COLUMN_LIKED + ", " +
+                "    0 as " + RecentlyPlayedItemMapper.COLUMN_PRIVATE + ", " +
                 "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as " + RecentlyPlayedItemMapper.COLUMN_MAX_TIMESTAMP +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
                 "  INNER JOIN " + Tables.Stations.TABLE.name() + " as st ON (rp.context_type = " + PlayHistoryRecord.CONTEXT_TRACK_STATION + " AND station_urn = '" + TRACK_STATIONS_URN_PREFIX + "' || rp.context_id) OR (rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST_STATION + " AND station_urn = '" + ARTIST_STATIONS_URN_PREFIX + "' || rp.context_id)" +
@@ -164,6 +169,8 @@ public class RecentlyPlayedStorage {
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_PENDING_DOWNLOAD_REQUEST + "," +
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_DOWNLOADED_TRACKS + "," +
                 "    0 as " + RecentlyPlayedItemMapper.COLUMN_HAS_UNAVAILABLE_TRACKS + "," +
+                "    0 as " + RecentlyPlayedItemMapper.COLUMN_LIKED + ", " +
+                "    0 as " + RecentlyPlayedItemMapper.COLUMN_PRIVATE + ", " +
                 "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as " + RecentlyPlayedItemMapper.COLUMN_MAX_TIMESTAMP +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
                 "  INNER JOIN " + Users.TABLE.name() + " as us ON _id = rp.context_id" +
@@ -224,6 +231,8 @@ public class RecentlyPlayedStorage {
         static final String COLUMN_HAS_DOWNLOADED_TRACKS = "has_downloaded_tracks";
         static final String COLUMN_HAS_UNAVAILABLE_TRACKS = "has_unavailable_tracks";
         static final String COLUMN_MAX_TIMESTAMP = "max_timestamp";
+        static final String COLUMN_PRIVATE = "is_private";
+        static final String COLUMN_LIKED = "is_liked";
 
         @Override
         public RecentlyPlayedPlayableItem map(CursorReader reader) {
@@ -238,6 +247,8 @@ public class RecentlyPlayedStorage {
                     reader.getInt(COLUMN_COLLECTION_COUNT),
                     reader.getBoolean(COLUMN_COLLECTION_ALBUM),
                     getOfflineState(reader),
+                    reader.getBoolean(COLUMN_LIKED),
+                    reader.getBoolean(COLUMN_PRIVATE),
                     reader.getLong(COLUMN_MAX_TIMESTAMP));
         }
 

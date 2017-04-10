@@ -80,9 +80,21 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
                       ? R.string.collections_recently_played_album
                       : R.string.collections_recently_played_playlist);
         setOfflineState(view, playlist.getOfflineState());
+        setPrivate(view, playlist.isPrivate());
+        setLiked(view, playlist.isLiked());
 
         view.setOnClickListener(goToPlaylist(playlist));
         setupOverFlow(view.findViewById(R.id.overflow_button), playlist);
+    }
+
+    private void setLiked(View view, boolean isLiked) {
+        ButterKnife.findById(view, R.id.like_indicator)
+                   .setVisibility(isLiked ? View.VISIBLE : View.GONE);
+    }
+
+    private void setPrivate(View view, boolean isPrivate) {
+        ButterKnife.findById(view, R.id.private_indicator)
+                   .setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
     private void setOfflineState(View view, Optional<OfflineState> offlineState) {

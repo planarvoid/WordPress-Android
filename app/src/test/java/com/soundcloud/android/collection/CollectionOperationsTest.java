@@ -72,6 +72,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                                            10,
                                            false,
                                            Optional.absent(),
+                                           false,
+                                           false,
                                            1000),
             new RecentlyPlayedPlayableItem(Urn.forTrackStation(234L),
                                            Optional.absent(),
@@ -79,6 +81,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                                            0,
                                            false,
                                            Optional.absent(),
+                                           false,
+                                           false,
                                            1000)
     );
 

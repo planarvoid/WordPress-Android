@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
+import java.util.Date;
 import java.util.List;
 
 public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
@@ -30,7 +31,7 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
         storage.loadContexts(1).subscribe(subscriber);
 
-        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.of(OfflineState.DOWNLOADED), 100)));
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.of(OfflineState.DOWNLOADED), 100, false)));
     }
 
     @Test
@@ -40,7 +41,19 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
         storage.loadContexts(1).subscribe(subscriber);
 
-        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 0L)));
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 0L, false)));
+
+    }
+
+    @Test
+    public void loadCorrectLikedPlaylist() {
+        final TestSubscriber<List<RecentlyPlayedPlayableItem>> subscriber = new TestSubscriber<>();
+        ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date());
+        testFixtures().insertRecentlyPlayed(100, apiPlaylist.getUrn());
+
+        storage.loadContexts(1).subscribe(subscriber);
+
+        subscriber.assertValue(singletonList(getRecentlyPlayedItem(apiPlaylist, Optional.absent(), 100L, true)));
 
     }
 
@@ -61,13 +74,16 @@ public class RecentlyPlayedStorageTest extends StorageIntegrationTest {
 
     private RecentlyPlayedPlayableItem getRecentlyPlayedItem(ApiPlaylist playlist,
                                                              Optional<OfflineState> offlineState,
-                                                             long timestamp) {
+                                                             long timestamp,
+                                                             boolean liked) {
         return new RecentlyPlayedPlayableItem(playlist.getUrn(),
                                               playlist.getImageUrlTemplate(),
                                               playlist.getTitle(),
                                               playlist.getTrackCount(),
                                               playlist.isAlbum(),
                                               offlineState,
+                                              liked,
+                                              !playlist.isPublic(),
                                               timestamp);
 
     }

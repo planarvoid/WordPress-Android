@@ -15,6 +15,8 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
     private final boolean isAlbum;
     private Optional<OfflineState> offlineState;
     private final long timestamp;
+    private final boolean isPrivate;
+    private final boolean isLiked;
 
     public RecentlyPlayedPlayableItem(Urn urn,
                                       Optional<String> imageUrl,
@@ -22,6 +24,8 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
                                       int trackCount,
                                       boolean isAlbum,
                                       Optional<OfflineState> offlineState,
+                                      boolean isLiked,
+                                      boolean isPrivate,
                                       long timestamp) {
 
         this.urn = urn;
@@ -31,6 +35,8 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
         this.isAlbum = isAlbum;
         this.offlineState = offlineState;
         this.timestamp = timestamp;
+        this.isLiked = isLiked;
+        this.isPrivate = isPrivate;
     }
 
     public String getTitle() {
@@ -65,6 +71,14 @@ public class RecentlyPlayedPlayableItem extends RecentlyPlayedItem implements Im
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
     }
 
     private static Kind kindFor(Urn urn) {
