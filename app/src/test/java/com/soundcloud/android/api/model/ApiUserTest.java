@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.optional.Optional;
@@ -13,7 +12,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class ApiUserTest extends AndroidUnitTest {
+public class ApiUserTest {
 
     @Test
     public void shouldDefineEqualityBasedOnUrn() {

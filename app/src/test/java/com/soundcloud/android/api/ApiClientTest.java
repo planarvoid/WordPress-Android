@@ -58,8 +58,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private LocaleFormatter localeFormatter;
 
-    @Captor private ArgumentCaptor<Request> apiRequestCaptor;
-    @Captor private ArgumentCaptor<okhttp3.Request> httpRequestCaptor;
+    @Captor private ArgumentCaptor<Request> httpRequestCaptor;
 
     @Before
     public void setUp() throws Exception {

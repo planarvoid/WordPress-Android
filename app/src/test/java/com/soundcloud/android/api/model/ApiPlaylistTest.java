@@ -3,12 +3,11 @@ package com.soundcloud.android.api.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
-public class ApiPlaylistTest extends AndroidUnitTest {
+public class ApiPlaylistTest {
 
     @Test
     public void shouldDefineEqualityBasedOnUrn() {

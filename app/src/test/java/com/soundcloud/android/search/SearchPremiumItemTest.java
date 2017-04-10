@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
@@ -17,7 +16,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-public class SearchPremiumItemTest extends AndroidUnitTest {
+public class SearchPremiumItemTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(2L);

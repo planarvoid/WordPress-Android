@@ -1,14 +1,12 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.TestDateProvider;
-
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PlayerFunctionsTest extends AndroidUnitTest {
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.TestDateProvider;
+import org.junit.Test;
+
+public class PlayerFunctionsTest {
 
     final Urn trackUrn = Urn.forTrack(123L);
 

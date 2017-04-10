@@ -1,13 +1,11 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class VideoAdTest extends AndroidUnitTest {
+import com.soundcloud.android.model.Urn;
+import org.junit.Test;
+
+public class VideoAdTest {
 
     @Test
     public void isVerticalVideoReturnsTrueIfHeightIsGreaterThanWidth() {

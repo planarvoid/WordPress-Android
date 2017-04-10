@@ -3,13 +3,12 @@ package com.soundcloud.android.playlists;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Test;
 
 import java.util.Collections;
 
-public class PlaylistDetailItemTest extends AndroidUnitTest {
+public class PlaylistDetailItemTest {
 
     @Test
     public void tracksWithDifferentUrnsAreNotTheSameItem() throws Exception {

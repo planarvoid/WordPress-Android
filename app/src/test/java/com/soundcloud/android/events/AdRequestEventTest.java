@@ -3,7 +3,6 @@ package com.soundcloud.android.events;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
@@ -11,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class AdRequestEventTest extends AndroidUnitTest {
+public class AdRequestEventTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(30L);
     private static final Urn VIDEO_AD_URN = Urn.forAd("dfp", "video");

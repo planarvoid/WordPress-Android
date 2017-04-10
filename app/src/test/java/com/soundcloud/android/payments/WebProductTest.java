@@ -2,7 +2,6 @@ package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,7 @@ import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
-public class WebProductTest extends AndroidUnitTest {
+public class WebProductTest {
 
     private Locale defaultLocale;
 

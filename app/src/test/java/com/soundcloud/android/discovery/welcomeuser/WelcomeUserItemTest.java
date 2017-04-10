@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery.welcomeuser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.java.optional.Optional;
@@ -11,7 +10,7 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class WelcomeUserItemTest extends AndroidUnitTest {
+public class WelcomeUserItemTest {
 
     private static final String FIRST_NAME = "FirstName";
     private final Date fiveHoursAgo = new Date(new Date().getTime() - TimeUnit.MILLISECONDS.convert(5, TimeUnit.HOURS));

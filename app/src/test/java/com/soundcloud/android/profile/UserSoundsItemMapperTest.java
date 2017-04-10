@@ -7,23 +7,23 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserSoundsItemMapperTest extends AndroidUnitTest {
+@RunWith(MockitoJUnitRunner.class)
+public class UserSoundsItemMapperTest {
 
     @Mock UserSoundsItemMapper.EntityHolderMapper entityHolderMapper;
     @Mock UserSoundsItem mockUserSoundsItem;
@@ -59,8 +59,6 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
         final PlaylistItem playlistPost = ModelFixtures.playlistItem();
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
-
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
@@ -86,8 +84,6 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
         final ModelCollection<PlayableItem> tracks = new ModelCollection<>(
                 singletonList(trackItem), links);
-
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
 
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 

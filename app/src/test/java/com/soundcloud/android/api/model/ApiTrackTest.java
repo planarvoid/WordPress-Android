@@ -2,12 +2,11 @@ package com.soundcloud.android.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Test;
 
-public class ApiTrackTest extends AndroidUnitTest {
+public class ApiTrackTest {
 
     @Test
     public void shouldDefineEqualityBasedOnUrn() {

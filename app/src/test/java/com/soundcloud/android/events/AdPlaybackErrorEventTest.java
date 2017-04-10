@@ -6,11 +6,10 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import org.junit.Test;
 
-public class AdPlaybackErrorEventTest extends AndroidUnitTest {
+public class AdPlaybackErrorEventTest {
 
     @Test
     public void shouldCreateEventForVideoAdBufferFailure() {

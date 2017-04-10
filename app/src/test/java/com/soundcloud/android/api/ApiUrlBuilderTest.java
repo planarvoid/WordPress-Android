@@ -13,13 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.res.Resources;
-
 public class ApiUrlBuilderTest extends AndroidUnitTest {
 
     private ApiUrlBuilder urlBuilder;
 
-    @Mock private Resources resources;
     @Mock private OAuth oAuth;
 
     private String publicApiBaseUrl;
