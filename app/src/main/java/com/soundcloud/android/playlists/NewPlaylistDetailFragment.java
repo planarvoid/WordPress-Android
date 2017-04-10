@@ -133,7 +133,8 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
+        itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
+        itemTouchHelper.attachToRecyclerView(recyclerView());
         collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
 
         View detailView = view.findViewById(R.id.playlist_details);
@@ -252,12 +253,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
         if (headerAnimator != null) {
             headerAnimator.setIsInEditMode(isInEditMode, recyclerView());
-        }
-
-        if (isInEditMode) {
-            itemTouchHelper.attachToRecyclerView(recyclerView());
-        } else {
-            itemTouchHelper.attachToRecyclerView(null);
         }
     }
 
