@@ -21,7 +21,6 @@ import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
-import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -33,8 +32,6 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -63,18 +60,15 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     @Inject PlaylistCoverRenderer playlistCoverRenderer;
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistEditionItemTouchCallbackFactory touchCallbackFactory;
-    @Inject PlaylistDetailToolbarViewFactory toolbarViewFactory;
     @Inject NewPlaylistDetailsAdapterFactory newPlaylistDetailsAdapterFactory;
     @Inject Navigator navigator;
-    @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject SharePresenter shareOperations;
     @Inject NewPlaylistDetailsHeaderRendererFactory playlistDetailsHeaderRendererFactory;
     @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
-
+    @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle NewPlaylistDetailHeaderScrollHelper headerScrollHelper;
 
     @Nullable private ItemTouchHelper itemTouchHelper;
-    @Nullable private PlaylistDetailToolbarView toolbarView;
     @Nullable private PlaylistDetailsHeaderAnimator headerAnimator;
 
     private NewPlaylistDetailsPresenter presenter;
@@ -141,8 +135,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
         this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
         collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
-        baseLayoutHelper.setupActionBar(((AppCompatActivity) getActivity()));
-        toolbarView = toolbarViewFactory.create(presenter, actionBar());
 
         View detailView = view.findViewById(R.id.playlist_details);
         boolean showInlineHeader = detailView == null;
@@ -211,11 +203,6 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         }
     }
 
-
-    private ActionBar actionBar() {
-        return ((AppCompatActivity) getActivity()).getSupportActionBar();
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.playlist_details_edit_actions, menu);
@@ -280,22 +267,22 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
 
     @Override
     public void onDestroyView() {
-        itemTouchHelper = null;
-        toolbarView = null;
+        subscription.unsubscribe();
         collectionRenderer.detach();
 
         if (headerAnimator != null) {
             headerAnimator.detatch(recyclerView(), adapter);
             headerAnimator = null;
         }
+        itemTouchHelper = null;
 
-        subscription.unsubscribe();
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
         presenter.disconnect();
+        toolbarView = null;
         super.onDestroy();
     }
 

@@ -1,30 +1,40 @@
 package com.soundcloud.android.playlists;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 
-import android.content.res.Resources;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.View;
 
-@AutoFactory
+import javax.inject.Inject;
+
 class PlaylistDetailToolbarView extends DefaultSupportFragmentLightCycle<Fragment> {
+    private final BaseLayoutHelper baseLayoutHelper;
 
-    private final Resources resources;
-    private final PlaylistDetailsInputs listener;
-    private ActionBar actionBar;
     private Optional<Menu> menu = Optional.absent();
     private Optional<PlaylistDetailsMetadata> metadata = Optional.absent();
 
-    PlaylistDetailToolbarView(@Provided Resources resources, PlaylistDetailsInputs listener, ActionBar actionBar) {
-        this.resources = resources;
-        this.listener = listener;
-        this.actionBar = actionBar;
+    private ActionBar actionBar;
+    private String titleEdit;
+
+    @Inject
+    PlaylistDetailToolbarView(BaseLayoutHelper baseLayoutHelper) {
+        this.baseLayoutHelper = baseLayoutHelper;
     }
+
+    @Override
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        baseLayoutHelper.setupActionBar(((AppCompatActivity) fragment.getActivity()));
+        titleEdit = fragment.getString(R.string.edit_playlist_title);
+        actionBar = ((AppCompatActivity) fragment.getActivity()).getSupportActionBar();
+    }
+
 
     public void setPlaylist(PlaylistDetailsMetadata metadata) {
         this.metadata = Optional.of(metadata);
@@ -46,17 +56,14 @@ class PlaylistDetailToolbarView extends DefaultSupportFragmentLightCycle<Fragmen
     }
 
     private void setTitle(PlaylistDetailsMetadata isInEditMode) {
-        final String title = isInEditMode.isInEditMode() ? titleEdit() : isInEditMode.label();
+        final String title = isInEditMode.isInEditMode() ? titleEdit : isInEditMode.label();
         actionBar.setTitle(title);
-    }
-
-    private String titleEdit() {
-        return resources.getString(R.string.edit_playlist_title);
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         actionBar = null;
+        titleEdit = null;
         menu = Optional.absent();
     }
 }
