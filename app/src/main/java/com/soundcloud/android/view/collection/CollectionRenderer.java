@@ -63,7 +63,6 @@ public class CollectionRenderer<ItemT, VH extends RecyclerView.ViewHolder> {
 
         configureRecyclerView(layoutmanager);
         this.emptyAdapter = new EmptyAdapter(emptyStateProvider, renderEmptyAtTop);
-        recyclerView.setAdapter(emptyAdapter);
 
         // handle swipe to refresh
         swipeRefreshLayout.setSwipeableChildren(recyclerView);
