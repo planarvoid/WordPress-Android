@@ -13,16 +13,18 @@ import static org.hamcrest.number.OrderingComparison.greaterThan;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
+public class ProfileErrorTest extends ActivityTest<LauncherActivity> {
 
     private ProfileScreen profileScreen;
     private StubMapping stubMapping;
+    private FollowingsScreen followingsScreen;
 
-    public OtherProfileErrorTest() {
+    public ProfileErrorTest() {
         super(LauncherActivity.class);
     }
 
@@ -35,15 +37,16 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        profileScreen = mainNavHelper.goToMyProfile()
-                                     .touchFollowingsTab();
+        followingsScreen = mainNavHelper.goToMyProfile()
+                .touchInfoTab()
+                .clickFollowingsLink();
 
-        UserItemElement userItemElement = profileScreen.getUsers().get(0);
+        UserItemElement userItemElement = followingsScreen.getUsers().get(0);
 
         stubMapping = stubFor(get(urlPathMatching("/users(.*)/profile/v2"))
-                        .willReturn(aResponse().withStatus(500)));
+                .willReturn(aResponse().withStatus(500)));
 
-        userItemElement.click();
+        profileScreen = userItemElement.click();
     }
 
     public void testConnectionErrorAndRetryInPosts() {

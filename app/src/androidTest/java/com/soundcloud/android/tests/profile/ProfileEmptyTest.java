@@ -10,11 +10,11 @@ import com.soundcloud.android.tests.ActivityTest;
 import android.content.Intent;
 import android.net.Uri;
 
-public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
+public class ProfileEmptyTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen screen;
 
-    public OtherProfileEmptyTest() {
+    public ProfileEmptyTest() {
         super(ResolveActivity.class);
     }
 
@@ -32,23 +32,8 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testEmptyProfile() {
-        assertEmptySounds();
-        assertEmptyInfo();
-        assertEmptyFollowings();
-    }
-
-    private void assertEmptyInfo() {
-        screen.touchInfoTab();
-        assertTrue(screen.showsEmptyInfoMessage());
-    }
-
-    private void assertEmptyFollowings() {
-        screen.touchFollowingsTab();
-        assertTrue(screen.showsEmptyFollowingsMessage());
-    }
-
-    private void assertEmptySounds() {
         assertTrue(screen.showsEmptySoundsMessage());
+        assertTrue(screen.touchInfoTab().clickFollowingsLink().showsEmptyMessage());
     }
 
 }

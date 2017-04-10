@@ -104,45 +104,8 @@ public class ProfileScreen extends Screen {
                 .clickOverflowButton();
     }
 
-    public PlaylistElement scrollToFirstPlaylist() {
-        return PlaylistElement.forListItem(testDriver, scrollToItem(
-                With.id(R.id.playlist_list_item)));
-    }
-
-    public ViewElement tracksHeader() {
-        return scrollToItem(With.text(R.string.user_profile_sounds_header_tracks));
-    }
-
-    public ProfileScreen clickViewAllTracks() {
-        scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
-        return this;
-    }
-
     public ViewElement albumsHeader() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_albums));
-    }
-
-    public ProfileScreen clickViewAllAlbums() {
-        scrollToItem(With.text(R.string.user_profile_sounds_view_all_albums)).click();
-        return this;
-    }
-
-    public ViewElement repostHeader() {
-        return scrollToItem(With.text(R.string.user_profile_sounds_header_reposts));
-    }
-
-    public ProfileScreen clickViewAllReposts() {
-        scrollToItem(With.text(R.string.user_profile_sounds_view_all_reposts)).click();
-        return this;
-    }
-
-    public ViewElement likesHeader() {
-        return scrollToItem(With.text(R.string.user_profile_sounds_header_likes));
-    }
-
-    public ProfileScreen clickViewAllLikes() {
-        scrollToItem(With.text(R.string.user_profile_sounds_view_all_likes)).click();
-        return this;
     }
 
     public List<PlaylistElement> scrollToPlaylists() {
@@ -180,20 +143,8 @@ public class ProfileScreen extends Screen {
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
 
-    public TextElement description() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.description)));
-    }
-
-    public TextElement website() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.website)));
-    }
-
-    public TextElement discogs() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.discogs_name)));
-    }
-
-    public TextElement myspace() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.myspace_name)));
+    public TextElement bio() {
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.bio_text)));
     }
 
     public ProfileScreen touchInfoTab() {
@@ -208,15 +159,7 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchLegacyFollowingsTab() {
-        final Tabs tabs = tabs();
-        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
-        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
-        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
+    @Deprecated
     public ProfileScreen touchFollowingsTab() {
         final Tabs tabs = tabs();
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
@@ -233,15 +176,7 @@ public class ProfileScreen extends Screen {
         return new FollowingsScreen(testDriver);
     }
 
-    public ProfileScreen touchLegacyFollowersTab() {
-        final Tabs tabs = tabs();
-        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
-        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
-        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
+    @Deprecated
     public ProfileScreen touchFollowersTab() {
         final Tabs tabs = tabs();
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
@@ -263,15 +198,6 @@ public class ProfileScreen extends Screen {
 
     private ViewElement followButton() {
         return testDriver.findOnScreenElement(With.id(R.id.toggle_btn_follow));
-    }
-
-    public ViewElement artistStationButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.btn_station));
-    }
-
-    public VisualPlayerElement clickArtistStationButton() {
-        artistStationButton().click();
-        return new VisualPlayerElement(testDriver);
     }
 
     private ViewElement userName() {
@@ -302,14 +228,6 @@ public class ProfileScreen extends Screen {
 
     public boolean showsEmptySoundsMessage() {
         return testDriver.findOnScreenElement(With.text(R.string.empty_user_sounds_message)).hasVisibility();
-    }
-
-    public boolean showsEmptyInfoMessage() {
-        return testDriver.findOnScreenElement(With.text(R.string.info_empty_other_message)).hasVisibility();
-    }
-
-    public boolean showsEmptyFollowingsMessage() {
-        return testDriver.findOnScreenElement(With.text(R.string.new_empty_user_followings_text)).hasVisibility();
     }
 
     public boolean areCurrentlyFollowing() {
@@ -384,5 +302,9 @@ public class ProfileScreen extends Screen {
         testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes))).click();
 
         return new UserLikesScreen(testDriver);
+    }
+
+    public String firstSocialLinkText() {
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.social_link))).getText();
     }
 }

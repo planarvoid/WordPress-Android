@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
@@ -35,10 +36,11 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        // In order to guarantee the followers exist in the DB
-        mainNavHelper.goToMyProfile().touchFollowingsTab().pullToRefresh();
+        // In order to guarantee the followings exist in the DB
+        FollowingsScreen followingsScreen = mainNavHelper.goToMyProfile().touchInfoTab().clickFollowingsLink();
+        followingsScreen.pullToRefresh();
 
-        solo.goBack();
+        followingsScreen.goBackToProfile().goBack();
 
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
