@@ -65,6 +65,24 @@ android {
   }
 
   buildTypes {
+    debug {
+      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
+    }
+
     alpha {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
@@ -106,49 +124,7 @@ android {
       buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
     }
 
-    debug {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-    }
-
     release {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-    }
-
-    preRelease {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.LAUNCHER_SHORTCUTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
-    }
-
-    releaseNonPlayStore {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
@@ -161,6 +137,7 @@ android {
     }
   }
 }
+
 //Excluded unrelated stuff
 def excludeConfigFields = ['RUN_ADS_TEST']
 
@@ -191,6 +168,16 @@ android.buildTypes.all { buildType ->
                 "Please remove it or turn its value to DEFAULT_SHOW or DEFAULT_HIDE.")
       }
   }
+}
+
+// This will copy over all buildConfigFields that handle feature flags from
+// release to preRelease and releaseNonPlayStore
+android.buildTypes.release { buildType ->
+  // Read all buildConfigFields and only take those that contain keys from the Feature Flag enum
+  def buildConfigFields = buildType.getBuildConfigFields().subMap(Feature.values()*.name())
+
+  android.buildTypes.preRelease.addBuildConfigFields(buildConfigFields)
+  android.buildTypes.releaseNonPlayStore.addBuildConfigFields(buildConfigFields)
 }
 
 def failBuild(message) {

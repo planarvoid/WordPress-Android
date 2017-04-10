@@ -40,31 +40,28 @@ android {
   }
 
   buildTypes {
-    preRelease {
-      versionNameSuffix '-preRelease'
+    release {
+      versionNameSuffix '-release'
       debuggable false
-      minifyEnabled false
+      minifyEnabled true
+      shrinkResources false
+      zipAlignEnabled true
       signingConfig signingConfigs.release
       multiDexEnabled true
+      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
       buildConfigField "String", "APP_ENVIRONMENT", "\"prod\""
     }
 
-    release.initWith(buildTypes.preRelease)
-    release {
-      versionNameSuffix '-release'
-      minifyEnabled true
-      shrinkResources false
-      zipAlignEnabled true
-      proguardFiles = ['buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg']
-      buildConfigField "boolean", "RUN_ADS_TEST", "false"
+    preRelease.initWith(buildTypes.release)
+    preRelease {
+      versionNameSuffix '-preRelease'
+      minifyEnabled false
     }
 
     releaseNonPlayStore.initWith(buildTypes.release)
     releaseNonPlayStore {
       versionNameSuffix '-release'
-      signingConfig signingConfigs.release
-      buildConfigField "boolean", "RUN_ADS_TEST", "false"
     }
 
     beta.initWith(buildTypes.release)
@@ -84,7 +81,6 @@ android {
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
       proguardFiles = ['buildsystem/proguard.cfg']
-      buildConfigField "boolean", "RUN_ADS_TEST", "false"
       buildConfigField "String", "APP_ENVIRONMENT", "\"alpha\""
     }
 
