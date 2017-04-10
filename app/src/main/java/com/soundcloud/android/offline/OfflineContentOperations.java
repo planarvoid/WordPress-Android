@@ -32,6 +32,7 @@ import java.util.List;
 public class OfflineContentOperations {
 
     private final StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
+    private final OfflineStatePublisher publisher;
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     private final LoadExpectedContentCommand loadExpectedContentCommand;
     private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
@@ -63,6 +64,7 @@ public class OfflineContentOperations {
 
     @Inject
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
+                             OfflineStatePublisher publisher,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
                              ClearTrackDownloadsCommand clearTrackDownloadsCommand,
                              ResetOfflineContentCommand resetOfflineContentCommand,
@@ -81,6 +83,7 @@ public class OfflineContentOperations {
                              LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
+        this.publisher = publisher;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
         this.resetOfflineContentCommand = resetOfflineContentCommand;
@@ -238,8 +241,22 @@ public class OfflineContentOperations {
         return tryToUpdatePolicies()
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
-                .doOnNext(storeDownloadUpdatesCommand.toAction1())
+                .doOnNext(this::storeAndPublishUpdates)
                 .subscribeOn(scheduler);
+    }
+
+    private void storeAndPublishUpdates(OfflineContentUpdates offlineContentUpdates) {
+        // Store and Publish must be atomic from an RX perspective.
+        // i.e. do not store without publishing upon unsubscribe
+        storeDownloadUpdatesCommand.toAction1().call(offlineContentUpdates);
+        publishUpdates(offlineContentUpdates);
+    }
+
+    private void publishUpdates(OfflineContentUpdates updates) {
+        publisher.publishEmptyCollections(updates.userExpectedOfflineContent());
+        publisher.publishRemoved(updates.tracksToRemove());
+        publisher.publishDownloaded(updates.tracksToRestore());
+        publisher.publishUnavailable(updates.unavailableTracks());
     }
 
     private Observable<?> tryToUpdatePolicies() {

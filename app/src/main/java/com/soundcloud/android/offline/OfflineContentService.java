@@ -275,11 +275,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         public void onNext(OfflineContentUpdates updates) {
             Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + updates);
 
-            publisher.publishEmptyCollections(updates.userExpectedOfflineContent());
-            publisher.publishRemoved(updates.tracksToRemove());
-            publisher.publishDownloaded(updates.tracksToRestore());
-            publisher.publishUnavailable(updates.unavailableTracks());
-
             final List<DownloadRequest> requests = newArrayList(updates.tracksToDownload());
             final boolean noContentRequested = updates.userExpectedOfflineContent().isEmpty();
 

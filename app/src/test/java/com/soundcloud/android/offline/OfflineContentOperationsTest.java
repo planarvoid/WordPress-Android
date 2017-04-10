@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.OfflineContentUpdates.builder;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +49,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     private static final Collection<Urn> LIKED_TRACKS = singletonList(TRACK_URN_1);
 
     @Mock private StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
+    @Mock private OfflineStatePublisher publisher;
     @Mock private LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     @Mock private OfflineContentStorage offlineContentStorage;
     @Mock private PolicyOperations policyOperations;
@@ -88,6 +90,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
 
         operations = new OfflineContentOperations(
                 storeDownloadUpdatesCommand,
+                publisher,
                 loadTracksWithStalePolicies,
                 clearTrackDownloadsCommand,
                 resetOfflineContentCommand,
@@ -133,12 +136,34 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
-                offlineContentUpdates));
+        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe();
 
         verify(storeDownloadUpdatesCommand).call(offlineContentUpdates);
+    }
+
+    @Test
+    public void loadOfflineContentStoresContentUpdatesPublishesContentUpdates() {
+        final ExpectedOfflineContent expectedContent= getExpectedOfflineContent();
+        final DownloadRequest downloadRequests = mock(DownloadRequest.class);
+        final OfflineContentUpdates updates = builder()
+                .tracksToRemove(singletonList(Urn.forTrack(1L)))
+                .tracksToRestore(singletonList(Urn.forTrack(2L)))
+                .unavailableTracks(singletonList(Urn.forTrack(3L)))
+                .tracksToDownload(singletonList(downloadRequests))
+                .build();
+
+        when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(expectedContent));
+        when(loadOfflineContentUpdatesCommand.toObservable(expectedContent)).thenReturn(Observable.just(updates));
+
+        operations.loadOfflineContentUpdates().subscribe();
+
+        verify(publisher).publishRemoved(updates.tracksToRemove());
+        verify(publisher).publishDownloaded(updates.tracksToRestore());
+        verify(publisher).publishUnavailable(updates.unavailableTracks());
     }
 
     @Test

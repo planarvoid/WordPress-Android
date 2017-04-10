@@ -104,24 +104,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesNotDownloadableStateChangesWhenStartingAService() {
-        final OfflineContentUpdates updates = builder()
-                .tracksToRemove(singletonList(Urn.forTrack(1L)))
-                .tracksToRestore(singletonList(Urn.forTrack(2L)))
-                .unavailableTracks(singletonList(Urn.forTrack(3L)))
-                .tracksToDownload(singletonList(downloadRequest1))
-                .build();
-
-        setUpOfflineContentUpdates(updates);
-
-        startService();
-
-        verify(publisher).publishRemoved(updates.tracksToRemove());
-        verify(publisher).publishDownloaded(updates.tracksToRestore());
-        verify(publisher).publishUnavailable(updates.unavailableTracks());
-    }
-
-    @Test
     public void publishTrackRequestedWhenStarting() {
         setUpOfflineContentUpdates(builder()
                                            .tracksToDownload(singletonList(downloadRequest1))
