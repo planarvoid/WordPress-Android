@@ -7,6 +7,8 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.NewForYouScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -28,6 +30,17 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
         super.setUp();
 
         discoveryScreen = mainNavHelper.goToDiscovery();
+    }
+
+    @Override
+    protected void beforeStartActivity() {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).enable(Flag.NEW_FOR_YOU_FIRST);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        FeatureFlagsHelper.create(getInstrumentation().getTargetContext()).reset(Flag.NEW_FOR_YOU_FIRST);
+        super.tearDown();
     }
 
     public void testNewForYouPlayback() {
