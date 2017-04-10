@@ -1,11 +1,11 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+
 import android.support.v7.app.AppCompatActivity;
 import android.view.TextureView;
 import android.view.View;
-
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,6 +69,16 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
             moatViewabilityController.onVideoUnmute(uuid);
         }
     }
+
+    void onScreenSizeChange(VideoAd ad, boolean isFullscreen, long currentPosition) {
+        final String uuid = ad.getUuid();
+        if (isFullscreen) {
+            moatViewabilityController.onVideoFullscreen(uuid, currentPosition);
+        } else {
+            moatViewabilityController.onVideoExitFullscreen(uuid, currentPosition);
+        }
+    }
+
 
     public void stopVideoTracking(String uuid) {
         moatViewabilityController.stopVideoTracking(uuid);

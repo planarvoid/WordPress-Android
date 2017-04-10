@@ -276,7 +276,10 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         player.toggleVolume();
         player.toggleVolume();
 
-        verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
+        final InOrder inOrder = Mockito.inOrder(adViewabilityController);
+        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
+        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, false);
+        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_MUTE");
     }
 
@@ -360,6 +363,26 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         final PlaybackProgress playbackProgress = requestData.getValue().getPlaybackProgress();
         assertThat(playbackProgress.getPosition()).isEqualTo(100);
         assertThat(playbackProgress.getDuration()).isEqualTo(200);
+    }
+
+    @Test
+    public void getLastProgressReturnsProgressEventIfForCurrentlyPlayingAd() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.onProgressEvent(100, 200);
+
+        final Optional<PlaybackProgress> playbackProgress = player.lastPosition(VIDEO_AD);
+        assertThat(playbackProgress.isPresent()).isTrue();
+        assertThat(playbackProgress.get().getUrn()).isEqualTo(VIDEO_AD.getAdUrn());
+        assertThat(playbackProgress.get().getPosition()).isEqualTo(100);
+        assertThat(playbackProgress.get().getDuration()).isEqualTo(200);
+    }
+
+    @Test
+    public void getLastProgressReturnsAbsentIfNotForCurrentlyPlayingAd() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+        player.onProgressEvent(100, 200);
+
+        assertThat(player.lastPosition(AdFixtures.getVideoAd(Urn.forAd("1", "2"), Urn.forTrack(123))).isPresent()).isFalse();
     }
 
     @Test

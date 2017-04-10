@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -38,6 +39,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Mock InlayAdStateProvider stateProvider;
     @Mock CurrentDateProvider dateProvider;
     @Mock StreamAdsController controller;
+    @Mock AdViewabilityController viewabilityController;
     @Mock Navigator navigator;
 
     @Mock AppCompatActivity activity;
@@ -48,7 +50,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        presenter = new FullScreenVideoPresenter(videoView, inlayAdPlayer, stateProvider, controller, dateProvider, navigator, eventBus);
+        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, inlayAdPlayer, eventBus, navigator);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
         intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.getAdUrn());
@@ -57,6 +59,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));
         when(stateProvider.get(VIDEO_AD.getUuid())).thenReturn(Optional.absent());
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
+        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.getAdUrn())));
     }
 
     @Test
@@ -76,6 +79,25 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         verify(navigator).openAdClickthrough(context(), clickThroughUrl);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
+    }
+
+    @Test
+    public void onCreateCallsOnScreenSizeChangeOnViewabilityController() {
+        presenter.onCreate(activity, null);
+
+        verify(viewabilityController).onScreenSizeChange(VIDEO_AD, true, 10);
+    }
+
+    @Test
+    public void onDestroyCallsOnScreenSizeChangeOnViewabilityController() {
+        final Optional<PlaybackProgress> progressOne = Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.getAdUrn()));
+        final Optional<PlaybackProgress> progressTwo = Optional.of(new PlaybackProgress(20, 20, VIDEO_AD.getAdUrn()));
+        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(progressOne, progressTwo);
+        presenter.onCreate(activity, null);
+        presenter.onDestroy(activity);
+
+        verify(viewabilityController).onScreenSizeChange(VIDEO_AD, true, 10);
+        verify(viewabilityController).onScreenSizeChange(VIDEO_AD, false, 20);
     }
 
     @Test

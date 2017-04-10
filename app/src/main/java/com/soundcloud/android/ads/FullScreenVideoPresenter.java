@@ -41,6 +41,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final Navigator navigator;
     private final TrackSourceInfo trackSourceInfo;
     private final StreamAdsController streamAdsController;
+    private final AdViewabilityController adViewabilityController;
 
     private Optional<VideoAd> ad = Optional.absent();
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -49,12 +50,13 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Inject
     FullScreenVideoPresenter(FullScreenVideoView view,
-                             InlayAdPlayer adPlayer,
+                             AdViewabilityController adViewabilityController,
                              InlayAdStateProvider stateProvider,
                              StreamAdsController streamAdsController,
                              CurrentDateProvider dateProvider,
-                             Navigator navigator,
-                             EventBus eventBus) {
+                             InlayAdPlayer adPlayer,
+                             EventBus eventBus,
+                             Navigator navigator) {
         view.setListener(this);
         this.view = view;
         this.adPlayer = adPlayer;
@@ -63,6 +65,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.streamAdsController = streamAdsController;
+        this.adViewabilityController = adViewabilityController;
         this.trackSourceInfo = new TrackSourceInfo(Screen.VIDEO_FULLSCREEN.get(), true);
     }
 
@@ -81,6 +84,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private void bindView(Urn urn, AppCompatActivity activity) {
         if (ad.isPresent() && ad.get().getAdUrn().equals(urn)) {
             final VideoAd video = ad.get();
+            onScreenSizeChange(video, true);
             view.setupContentView(activity, video);
             stateProvider.get(video.getUuid()).ifPresent(event -> onInlayStateTransition(activity, event));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdFullscreen(video, trackSourceInfo));
@@ -120,10 +124,15 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onDestroy(AppCompatActivity activity) {
         ad.ifPresent(video -> {
+            onScreenSizeChange(video, false);
             view.unbindVideoSurface(VideoSurfaceProvider.Origin.FULLSCREEN);
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdShrink(video, trackSourceInfo));
             ad = Optional.absent();
         });
+    }
+
+    private void onScreenSizeChange(VideoAd ad, boolean isFullscreen) {
+        adPlayer.lastPosition(ad).ifPresent(progress -> adViewabilityController.onScreenSizeChange(ad, isFullscreen, progress.getPosition()));
     }
 
     @Override

@@ -45,6 +45,7 @@ class InlayAdPlayer implements Player.PlayerListener {
     private boolean isPlayerMuted;
 
     private PlaybackStateTransition lastState = PlaybackStateTransition.DEFAULT;
+    private PlaybackProgress lastProgress = PlaybackProgress.empty();
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -75,18 +76,20 @@ class InlayAdPlayer implements Player.PlayerListener {
         return currentAd;
     }
 
-    void play(VideoAd videoAd, boolean isUserInitiated) {
-        final PlaybackItem playbackItem = VideoAdPlaybackItem.create(videoAd, 0L, 0.0f);
-        if (isCurrentAd(videoAd) && wasPaused(playbackItem.getUrn())) {
+    void play(VideoAd ad, boolean isUserInitiated) {
+        final PlaybackItem playbackItem = VideoAdPlaybackItem.create(ad, 0L, 0.0f);
+        if (isCurrentAd(ad) && wasPaused(playbackItem.getUrn())) {
             pausePlaySessionIfNeeded();
             setUserInitiated(isUserInitiated);
             currentPlayer.resume(playbackItem);
-        } else if (!isCurrentAd(videoAd)) {
+        } else if (!isCurrentAd(ad)) {
             isPlayerMuted = true; // Inlay ads begin muted
-            currentAd = Optional.of(videoAd);
+            currentAd = Optional.of(ad);
             setUserInitiated(isUserInitiated);
+
             currentPlayer.stopForTrackTransition();
             currentPlayer.play(playbackItem);
+            adViewabilityController.onVolumeToggle(ad, isPlayerMuted);
 
             subscription = eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlayStateSubscriber());
         }
@@ -173,6 +176,12 @@ class InlayAdPlayer implements Player.PlayerListener {
         return lastState.isPlayerPlaying();
     }
 
+    Optional<PlaybackProgress> lastPosition(VideoAd ad) {
+        return ad.getAdUrn().equals(lastProgress.getUrn())
+               ? Optional.of(lastProgress)
+               : Optional.absent();
+    }
+
     private boolean isPausedByUser(VideoAd videoAd) {
         return currentAd.isPresent()
                 && currentAd.get().equals(videoAd)
@@ -227,7 +236,8 @@ class InlayAdPlayer implements Player.PlayerListener {
         if (currentAd.isPresent()) {
             final VideoAd adData = currentAd.get();
             final Urn urn = adData.getAdUrn();
-            analyticsController.onProgressEvent(adData, PlaybackProgressEvent.create(new PlaybackProgress(progress, duration, urn), urn));
+            lastProgress = new PlaybackProgress(progress, duration, urn);
+            analyticsController.onProgressEvent(adData, PlaybackProgressEvent.create(lastProgress, urn));
         }
     }
 

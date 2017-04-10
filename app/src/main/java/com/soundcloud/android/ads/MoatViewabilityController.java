@@ -75,6 +75,14 @@ public class MoatViewabilityController {
         dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_PLAYING, currentPosition);
     }
 
+    void onVideoFullscreen(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_ENTER_FULLSCREEN, currentPosition);
+    }
+
+    void onVideoExitFullscreen(String uuid, long currentPosition) {
+        dispatchVideoEvent(uuid, MoatAdEventType.AD_EVT_EXIT_FULLSCREEN, currentPosition);
+    }
+
     void onVideoMute(String uuid) {
         trackerForAd(uuid).ifPresent(tracker -> tracker.setPlayerVolume(MoatAdEvent.VOLUME_MUTED));
     }

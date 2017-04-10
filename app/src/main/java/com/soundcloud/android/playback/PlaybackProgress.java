@@ -56,15 +56,15 @@ public class PlaybackProgress {
         return position;
     }
 
-    public boolean isPastFirstQuartile() {
+    boolean isPastFirstQuartile() {
         return isPastPercentile(0.25f);
     }
 
-    public boolean isPastSecondQuartile() {
+    boolean isPastSecondQuartile() {
         return isPastPercentile(0.50f);
     }
 
-    public boolean isPastThirdQuartile() {
+    boolean isPastThirdQuartile() {
         return isPastPercentile(0.75f);
     }
 
