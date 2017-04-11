@@ -9,10 +9,8 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.configuration.experiments.SuggestedStationsExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 
@@ -25,15 +23,12 @@ import java.util.Map;
 class StationsApi {
     private final ApiClientRx apiClientRx;
     private final ApiClient apiClient;
-    private final SuggestedStationsExperiment stationsExperiment;
 
     @Inject
     public StationsApi(ApiClientRx apiClientRx,
-                       ApiClient apiClient,
-                       SuggestedStationsExperiment stationsExperiment) {
+                       ApiClient apiClient) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
-        this.stationsExperiment = stationsExperiment;
     }
 
     ModelCollection<Urn> updateLikedStations(LikedStationsPostBody likedStationsPostBody) throws ApiRequestException, IOException, ApiMapperException {
@@ -51,12 +46,7 @@ class StationsApi {
     }
 
     ModelCollection<ApiStationMetadata> fetchStationRecommendations() throws ApiRequestException, IOException, ApiMapperException {
-        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION_RECOMMENDATIONS.path());
-        final Optional<String> variant = stationsExperiment.getVariantName();
-        if (variant.isPresent()) {
-            builder.addQueryParam("variant", variant.get());
-        }
-        final ApiRequest request = builder
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.STATION_RECOMMENDATIONS.path())
                 .forPrivateApi()
                 .build();
 
