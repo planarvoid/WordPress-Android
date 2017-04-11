@@ -31,7 +31,7 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
 
     @Test
     public void getAdsReturnsAdsFromAdsForStream() throws Exception {
-        final ApiAppInstallAd apiAppInstall = AdFixtures.getApiAppInstall();
+        final AppInstallAd.ApiModel apiAppInstall = AdFixtures.getApiAppInstall();
         final ApiAdsForStream adsForStream = new ApiAdsForStream(newArrayList(
                 ApiAdWrapper.create(apiAppInstall),
                 ApiAdWrapper.create(AdFixtures.getApiVideoAd())
@@ -40,7 +40,7 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
 
         final List<AdData> appInstalls = adsForStream.getAds(dateProvider);
         assertThat(appInstalls.size()).isEqualTo(2);
-        assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.getAdUrn());
+        assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.adUrn());
         assertThat(appInstalls.get(1).getAdUrn()).isEqualTo(videoAd.adUrn());
     }
 }

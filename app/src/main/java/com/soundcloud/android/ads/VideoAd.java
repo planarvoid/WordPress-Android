@@ -13,11 +13,11 @@ import java.util.UUID;
 @AutoValue
 public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
-    public static VideoAd create(ApiModel apiVideoAd, long createdAt, MonetizationType monetizationType) {
-        final ApiAdTracking videoTracking = apiVideoAd.videoTracking();
+    public static VideoAd create(ApiModel apiModel, long createdAt, MonetizationType monetizationType) {
+        final ApiAdTracking videoTracking = apiModel.videoTracking();
         return new AutoValue_VideoAd(
-                apiVideoAd.adUrn(),
-                apiVideoAd.callToActionButtonText(),
+                apiModel.adUrn(),
+                apiModel.callToActionButtonText(),
                 videoTracking.impressionUrls,
                 videoTracking.startUrls,
                 videoTracking.finishUrls,
@@ -29,15 +29,15 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 videoTracking.resumeUrls,
                 videoTracking.clickUrls,
                 monetizationType,
-                apiVideoAd.isSkippable(),
-                Optional.of(VisualAdDisplayProperties.create(apiVideoAd.displayProperties())),
-                apiVideoAd.uuid(),
-                apiVideoAd.title(),
+                apiModel.isSkippable(),
+                Optional.of(VisualAdDisplayProperties.create(apiModel.displayProperties())),
+                apiModel.uuid(),
+                apiModel.title(),
                 createdAt,
-                apiVideoAd.expiryInMins(),
-                apiVideoAd.duration(),
-                Lists.transform(apiVideoAd.videoSources(), VideoAdSource::create),
-                apiVideoAd.clickThroughUrl(),
+                apiModel.expiryInMins(),
+                apiModel.duration(),
+                Lists.transform(apiModel.videoSources(), VideoAdSource::create),
+                apiModel.clickThroughUrl(),
                 videoTracking.muteUrls,
                 videoTracking.unmuteUrls,
                 videoTracking.fullScreenUrls,
@@ -45,8 +45,8 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         );
     }
 
-    static VideoAd createWithMonetizableTrack(ApiModel apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
-        VideoAd videoAd = create(apiVideoAd, createdAt, MonetizationType.VIDEO);
+    static VideoAd createWithMonetizableTrack(ApiModel apiModel, long createdAt, Urn monetizableTrackUrn) {
+        VideoAd videoAd = create(apiModel, createdAt, MonetizationType.VIDEO);
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }

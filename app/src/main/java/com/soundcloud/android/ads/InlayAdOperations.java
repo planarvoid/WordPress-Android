@@ -103,7 +103,7 @@ class InlayAdOperations {
 
         @Override
         public Boolean whenOnScreen(OnScreen event) {
-            final Optional<Date> imageLoaded = getAppInstall(event).getImageLoadTime();
+            final Optional<Date> imageLoaded = getAppInstall(event).imageLoadTime();
             return imageLoaded.isPresent() && imageLoaded.get().before(event.getEventTime());
         }
 

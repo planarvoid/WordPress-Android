@@ -14,7 +14,7 @@ abstract class ApiAdWrapper {
     public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable ApiAudioAd audioAd,
                                       @JsonProperty("video") @Nullable VideoAd.ApiModel videoAd,
                                       @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial,
-                                      @JsonProperty("app_install") @Nullable ApiAppInstallAd appInstall) {
+                                      @JsonProperty("app_install") @Nullable AppInstallAd.ApiModel appInstall) {
         return new AutoValue_ApiAdWrapper(
                 Optional.fromNullable(audioAd),
                 Optional.fromNullable(videoAd),
@@ -38,7 +38,7 @@ abstract class ApiAdWrapper {
         return create(null, null, interstitial, null);
     }
 
-    public static ApiAdWrapper create(ApiAppInstallAd appInstall) {
+    public static ApiAdWrapper create(AppInstallAd.ApiModel appInstall) {
         return create(null, null, null, appInstall);
     }
 
@@ -48,5 +48,5 @@ abstract class ApiAdWrapper {
 
     public abstract Optional<ApiInterstitial> getInterstitial();
 
-    public abstract Optional<ApiAppInstallAd> getAppInstall();
+    public abstract Optional<AppInstallAd.ApiModel> getAppInstall();
 }

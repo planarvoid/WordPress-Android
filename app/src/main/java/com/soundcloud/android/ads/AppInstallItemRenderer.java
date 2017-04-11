@@ -59,17 +59,17 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         final Holder holder = getHolder(itemView);
 
         imageOperations.displayAppInstall(appInstall.getAdUrn(),
-                                          appInstall.getImageUrl(),
+                                          appInstall.imageUrl(),
                                           holder.image,
                                           new ImageLoadTimeListener(position, appInstall));
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_app)));
-        holder.appNameText.setText(appInstall.getName());
+        holder.appNameText.setText(appInstall.name());
         holder.ratingsCount.setText(resources.getQuantityString(R.plurals.ads_app_ratings,
-                                                       appInstall.getRatersCount(),
-                                                       numberFormatter.format(appInstall.getRatersCount())));
-        holder.callToAction.setText(appInstall.getCtaButtonText());
-        holder.ratingBar.setRating(appInstall.getRating());
+                                                       appInstall.ratersCount(),
+                                                       numberFormatter.format(appInstall.ratersCount())));
+        holder.callToAction.setText(appInstall.ctaButtonText());
+        holder.ratingBar.setRating(appInstall.rating());
 
         bindWhyAdsListener(holder.whyAds);
         bindClickThroughListener(appInstall, holder);

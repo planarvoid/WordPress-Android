@@ -357,8 +357,8 @@ public abstract class UIEvent extends TrackingEvent {
 
     public static UIEvent fromAppInstallAdClickThrough(AppInstallAd adData) {
         return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(adData)
-                                          .adTrackingUrls(Optional.of(adData.getClickUrls()))
-                                          .clickthroughsUrl(Optional.of(adData.getClickThroughUrl()))
+                                          .adTrackingUrls(Optional.of(adData.clickUrls()))
+                                          .clickthroughsUrl(Optional.of(adData.clickThroughUrl()))
                                           .clickthroughsKind(Optional.of("clickthrough::app_install"))
                                           .build();
     }

@@ -24,7 +24,7 @@ public abstract class InlayAdImpressionEvent extends TrackingEvent {
     public static InlayAdImpressionEvent create(AppInstallAd adData,
                                                 int position,
                                                 long timeStamp) {
-        return new AutoValue_InlayAdImpressionEvent(defaultId(), timeStamp, Optional.absent(), adData.getAdUrn(), position, adData.getImpressionUrls());
+        return new AutoValue_InlayAdImpressionEvent(defaultId(), timeStamp, Optional.absent(), adData.getAdUrn(), position, adData.impressionUrls());
     }
 
     @Override

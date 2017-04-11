@@ -592,7 +592,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(view.getContext(), appInstall);
 
-        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.getClickThroughUrl()));
+        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }

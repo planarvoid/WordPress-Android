@@ -383,7 +383,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onAdItemClicked(Context context, AdData adData) {
         final boolean isAppInstall = adData instanceof AppInstallAd;
-        final String clickthrough = isAppInstall ? ((AppInstallAd) adData).getClickThroughUrl()
+        final String clickthrough = isAppInstall ? ((AppInstallAd) adData).clickThroughUrl()
                                                  : ((VideoAd) adData).clickThroughUrl();
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));

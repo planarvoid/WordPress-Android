@@ -91,7 +91,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
 
         verify(imageOperations).displayAppInstall(
                 eq(ad.getAdUrn()),
-                eq(ad.getImageUrl()),
+                eq(ad.imageUrl()),
                 eq(imageView),
                 any(AppInstallItemRenderer.ImageLoadTimeListener.class));
     }
@@ -108,7 +108,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
             }
         }.run();
 
-        assertThat(ad.getImageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
+        assertThat(ad.imageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
         verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.ImageLoaded.create(42, ad, CURRENT_DATE));
     }
 

@@ -343,12 +343,12 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAppInstallAd getApiAppInstall() {
+    public static AppInstallAd.ApiModel getApiAppInstall() {
        return getApiAppInstall(forAd("dfp", "111"));
     }
 
-    private static ApiAppInstallAd getApiAppInstall(Urn urn) {
-        return ApiAppInstallAd.create(
+    private static AppInstallAd.ApiModel getApiAppInstall(Urn urn) {
+        return AppInstallAd.ApiModel.create(
                 urn,
                 60,
                 "App Name",

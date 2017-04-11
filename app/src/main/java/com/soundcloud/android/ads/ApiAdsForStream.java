@@ -63,10 +63,10 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         final List<Urn> videoAds = new ArrayList<>();
 
         for (ApiAdWrapper ad : getCollection()) {
-            final Optional<ApiAppInstallAd> appInstall = ad.getAppInstall();
+            final Optional<AppInstallAd.ApiModel> appInstall = ad.getAppInstall();
             final Optional<VideoAd.ApiModel> videoAd = ad.getVideoAd();
             if (appInstall.isPresent()) {
-                appInstalls.add(appInstall.get().getAdUrn());
+                appInstalls.add(appInstall.get().adUrn());
             } else if (videoAd.isPresent()) {
                 videoAds.add(videoAd.get().adUrn());
             }
