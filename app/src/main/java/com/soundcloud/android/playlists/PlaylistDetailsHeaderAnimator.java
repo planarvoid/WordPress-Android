@@ -132,33 +132,44 @@ class PlaylistDetailsHeaderAnimator {
         if (!isInEditMode) {
             LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
             if (isShowingHeader(layoutManager)) {
-                View headerView = recyclerView.findViewHolderForAdapterPosition(0).itemView;
-                View scrim = headerView.findViewById(R.id.scrim);
-                if (scrim != null) {
-
-                    int fullRange = scrim.getHeight();
-                    int verticalOffset = headerView.getTop();
-
-                    // configure all of our views based on the scroll position
-                    float rangeBasedAlpha = ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, SCRIM_ANIMATE_BOUNDS);
-                    scrim.setAlpha(rangeBasedAlpha);
-                    statusBarColorController.setStatusBarColor(ColorUtils.setAlphaComponent(Color.BLACK, (int) (SEVEN_PERCENT_OF_255 * rangeBasedAlpha)));
-
-                    toolbar.setTitleAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, TOOLBAR_ANIMATE_BOUNDS));
-                    topGradient.setAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, TOOLBAR_GRADIENT_ANIMATE_BOUNDS));
-                    configureSystemBars(Math.abs(verticalOffset) > scrim.getHeight() - toolbar.getBottom(), false);
-                    setToolbarStyle(verticalOffset > -(int) (fullRange - fullRange * TOOLBAR_ANIMATE_BOUNDS.second()));
-
-                    if (!configuredBottomPadding && lastItemIsOnScreen(recyclerView, layoutManager)) {
-                        configreExtraPaddingForFullScrolling(recyclerView, layoutManager, verticalOffset);
-                        configuredBottomPadding = true;
-                    }
-
-                }
-            } else if (!configuredBottomPadding) {
-                // if we aren't looking at the first item, then clearly there are enough items, so do not add padding
-                recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, 0);
+                configureToolbarWithHeader(recyclerView, layoutManager);
+            } else {
+                configureToolbarWithoutHeader(recyclerView);
             }
+        }
+    }
+
+    private void configureToolbarWithHeader(RecyclerView recyclerView, LinearLayoutManager layoutManager) {
+        View headerView = recyclerView.findViewHolderForAdapterPosition(0).itemView;
+        View scrim = headerView.findViewById(R.id.scrim);
+        if (scrim != null) {
+
+            int fullRange = scrim.getHeight();
+            int verticalOffset = headerView.getTop();
+
+            // configure all of our views based on the scroll position
+            float rangeBasedAlpha = ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, SCRIM_ANIMATE_BOUNDS);
+            scrim.setAlpha(rangeBasedAlpha);
+            statusBarColorController.setStatusBarColor(ColorUtils.setAlphaComponent(Color.BLACK, (int) (SEVEN_PERCENT_OF_255 * rangeBasedAlpha)));
+
+            toolbar.setTitleAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, TOOLBAR_ANIMATE_BOUNDS));
+            topGradient.setAlpha(ViewUtils.getRangeBasedAlpha(verticalOffset, fullRange, TOOLBAR_GRADIENT_ANIMATE_BOUNDS));
+            configureSystemBars(Math.abs(verticalOffset) > scrim.getHeight() - toolbar.getBottom(), false);
+            setToolbarStyle(verticalOffset > -(int) (fullRange - fullRange * TOOLBAR_ANIMATE_BOUNDS.second()));
+
+            if (!configuredBottomPadding && lastItemIsOnScreen(recyclerView, layoutManager)) {
+                configreExtraPaddingForFullScrolling(recyclerView, layoutManager, verticalOffset);
+                configuredBottomPadding = true;
+            }
+        }
+    }
+
+    private void configureToolbarWithoutHeader(RecyclerView recyclerView) {
+        configureSystemBars(true, false);
+        setToolbarStyle(false);
+        if (!configuredBottomPadding) {
+            // if we aren't looking at the first item, then clearly there are enough items, so do not add padding
+            recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, 0);
         }
     }
 
