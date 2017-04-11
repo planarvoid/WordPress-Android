@@ -146,7 +146,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private void reset() {
         for (AdData ad : insertedAds) {
             if (ad instanceof VideoAd) {
-                final String uuid = ((VideoAd) ad).getUuid();
+                final String uuid = ((VideoAd) ad).uuid();
                 stateProvider.remove(uuid);
                 adViewabilityController.stopVideoTracking(uuid);
             }
@@ -219,7 +219,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         return ad -> {
             if (ad instanceof ExpirableAd) {
                 final ExpirableAd expirableAd = (ExpirableAd) ad;
-                return expirableAd.getCreatedAt() + TimeUnit.MINUTES.toMillis(expirableAd.getExpiryInMins()) > dateProvider.getCurrentTime();
+                return expirableAd.createdAt() + TimeUnit.MINUTES.toMillis(expirableAd.expiryInMins()) > dateProvider.getCurrentTime();
             }
             return false;
         };

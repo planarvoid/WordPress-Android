@@ -48,7 +48,7 @@ class FullScreenVideoView {
     void setupContentView(AppCompatActivity activity, VideoAd videoAd) {
         ButterKnife.bind(this, activity.findViewById(android.R.id.content));
         AdUtils.setupCallToActionButton(videoAd, resources, ctaButton);
-        videoView.setAspectRatio(videoAd.getVideoProportion());
+        videoView.setAspectRatio(videoAd.videoProportion());
         setupClickListeners();
     }
 

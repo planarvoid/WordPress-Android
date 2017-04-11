@@ -320,19 +320,19 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.getFullScreenUrls())).build();
+        return event(Kind.VIDEO_AD_FULLSCREEN, ClickName.VIDEO_AD_FULLSCREEN).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.fullScreenUrls())).build();
     }
 
     public static UIEvent fromVideoAdShrink(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.getExitFullScreenUrls())).build();
+        return event(Kind.VIDEO_AD_SHRINK, ClickName.VIDEO_AD_SHRINK).playableAdAttributes(videoAd, trackSourceInfo).adTrackingUrls(Optional.of(videoAd.exitFullScreenUrls())).build();
     }
 
     public static UIEvent fromVideoMute(VideoAd videoAd, TrackSourceInfo sourceInfo) {
-        return event(Kind.VIDEO_AD_MUTE, ClickName.VIDEO_AD_MUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.getMuteUrls())).build();
+        return event(Kind.VIDEO_AD_MUTE, ClickName.VIDEO_AD_MUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.muteUrls())).build();
     }
 
     public static UIEvent fromVideoUnmute(VideoAd videoAd, TrackSourceInfo sourceInfo) {
-        return event(Kind.VIDEO_AD_UNMUTE, ClickName.VIDEO_AD_UNMUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.getUnmuteUrls())).build();
+        return event(Kind.VIDEO_AD_UNMUTE, ClickName.VIDEO_AD_UNMUTE).playableAdAttributes(videoAd, sourceInfo).adTrackingUrls(Optional.of(videoAd.unmuteUrls())).build();
     }
 
     public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
@@ -349,7 +349,7 @@ public abstract class UIEvent extends TrackingEvent {
             builder.clickthroughsUrl(audioAd.getClickThroughUrl());
             builder.adArtworkUrl(audioAd.getCompanionImageUrl());
         } else {
-            builder.clickthroughsUrl(Optional.of(((VideoAd) adData).getClickThroughUrl()));
+            builder.clickthroughsUrl(Optional.of(((VideoAd) adData).clickThroughUrl()));
         }
 
         return builder.build();

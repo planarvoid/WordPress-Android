@@ -160,7 +160,7 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Collections.singletonList(interstitialItem));
     }
 
-    private void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
+    private void insertVideoAd(TrackQueueItem monetizableItem, VideoAd.ApiModel apiVideoAd) {
         final VideoAd videoData = VideoAd.createWithMonetizableTrack(apiVideoAd, dateProvider.getCurrentTime(), monetizableItem.getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final VideoAdQueueItem videoItem = new VideoAdQueueItem(videoData);

@@ -78,7 +78,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(context());
 
-        verify(navigator).openAdClickthrough(context(), Uri.parse(videoAd.getClickThroughUrl()));
+        verify(navigator).openAdClickthrough(context(), Uri.parse(videoAd.clickThroughUrl()));
     }
 
     @Test

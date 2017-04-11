@@ -545,7 +545,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
-        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.uuid(), Origin.PLAYER, videoTextureView);
 
         assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
@@ -561,7 +561,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         ArgumentCaptor<VideoPlayerAd> captorVideoPlayerAd = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorVideoPlayerAd.capture());
-        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.uuid(), Origin.PLAYER, videoTextureView);
 
         assertThat(captorVideoPlayerAd.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorVideoPlayerAd.getValue().getPreviewTitle(resources())).isEqualTo(Strings.EMPTY);
@@ -661,7 +661,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(playerFragment);
 
-        verify(videoSurfaceProvider).setTextureView(ad.getUuid(), Origin.PLAYER, videoTextureView);
+        verify(videoSurfaceProvider).setTextureView(ad.uuid(), Origin.PLAYER, videoTextureView);
     }
 
     @Test

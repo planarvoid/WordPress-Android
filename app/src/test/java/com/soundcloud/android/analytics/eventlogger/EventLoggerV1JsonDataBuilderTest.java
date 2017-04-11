@@ -789,7 +789,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd,
                                                                              TestPlayerTransitions.buffering(),
-                                                                             videoAd.getFirstSource());
+                                                                             videoAd.firstVideoSource());
 
         jsonDataBuilder.buildForRichMediaErrorEvent(event);
 

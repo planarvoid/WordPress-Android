@@ -57,8 +57,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         renderer.setListener(listener);
         adView = renderer.createItemView(new FrameLayout(context()));
 
-        when(stateProvider.get(VIDEO_AD_1.getUuid())).thenReturn(Optional.absent());
-        when(stateProvider.get(VIDEO_AD_2.getUuid())).thenReturn(Optional.absent());
+        when(stateProvider.get(VIDEO_AD_1.uuid())).thenReturn(Optional.absent());
+        when(stateProvider.get(VIDEO_AD_2.uuid())).thenReturn(Optional.absent());
     }
 
     @Test
@@ -115,8 +115,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(1, adView, ITEMS);
 
         final TextView titleView = (TextView) adView.findViewById(R.id.title);
-        assertThat(VIDEO_AD_2.getTitle().isPresent()).isTrue();
-        assertThat(titleView.getText()).isEqualTo(VIDEO_AD_2.getTitle().get());
+        assertThat(VIDEO_AD_2.title().isPresent()).isTrue();
+        assertThat(titleView.getText()).isEqualTo(VIDEO_AD_2.title().get());
         assertThat(titleView).isVisible();
     }
 
@@ -135,7 +135,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, adView, ITEMS);
 
         final View titleContainerView = adView.findViewById(R.id.footer_with_title);
-        assertThat(VIDEO_AD_1.getTitle().isPresent()).isFalse();
+        assertThat(VIDEO_AD_1.title().isPresent()).isFalse();
         assertThat(titleContainerView).isNotVisible();
     }
 
@@ -284,7 +284,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Test
     public void setsPlayStateOnBindIfPreviousStateForAdExists() {
         final InlayPlayStateTransition transition = InlayPlayStateTransition.create(VIDEO_AD_1, TestPlayerTransitions.playing(), false, new Date(999));
-        when(stateProvider.get(VIDEO_AD_1.getUuid())).thenReturn(Optional.of(transition));
+        when(stateProvider.get(VIDEO_AD_1.uuid())).thenReturn(Optional.of(transition));
 
         renderer.bindItemView(0, adView, ITEMS);
 

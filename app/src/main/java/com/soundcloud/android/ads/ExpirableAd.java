@@ -2,8 +2,8 @@ package com.soundcloud.android.ads;
 
 interface ExpirableAd {
 
-    long getCreatedAt();
+    long createdAt();
 
-    int getExpiryInMins();
+    int expiryInMins();
 
 }

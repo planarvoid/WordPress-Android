@@ -260,11 +260,11 @@ public class AdFixtures {
         );
     }
 
-    static ApiVideoAd getApiVideoAd() {
+    static VideoAd.ApiModel getApiVideoAd() {
         return getApiVideoAd(SKIPPABLE);
     }
 
-    static ApiVideoAd getApiVideoAd(String title, String clickThroughText) {
+    static VideoAd.ApiModel getApiVideoAd(String title, String clickThroughText) {
         final Urn adUrn = Urn.forAd("dfp", "905");
         return getApiVideoAd(adUrn,
                              Collections.singletonList(getApiVideoSource(608, 1080)),
@@ -273,25 +273,25 @@ public class AdFixtures {
                              Optional.of(clickThroughText));
     }
 
-    private static ApiVideoAd getApiVideoAd(Urn adUrn) {
+    private static VideoAd.ApiModel getApiVideoAd(Urn adUrn) {
         return getApiVideoAd(adUrn, Collections.singletonList(getApiVideoSource(608, 1080)), NOT_SKIPPABLE, Optional.absent(), Optional.absent());
     }
 
-    private static ApiVideoAd getApiVideoAd(boolean skippable) {
+    private static VideoAd.ApiModel getApiVideoAd(boolean skippable) {
         return getApiVideoAd(getApiVideoSource(608, 1080), skippable);
     }
 
-    private static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
+    private static VideoAd.ApiModel getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
         final Urn adUrn = Urn.forAd("dfp", "905");
         return getApiVideoAd(adUrn, Collections.singletonList(apiVideoSource), skippable, Optional.absent(), Optional.absent());
     }
 
-    private static ApiVideoAd getApiVideoAd(Urn adUrn,
-                                            List<ApiVideoSource> apiVideoSources,
-                                            boolean skippable,
-                                            Optional<String> title,
-                                            Optional<String> clickthroughText) {
-        return ApiVideoAd.create(
+    private static VideoAd.ApiModel getApiVideoAd(Urn adUrn,
+                                                  List<ApiVideoSource> apiVideoSources,
+                                                  boolean skippable,
+                                                  Optional<String> title,
+                                                  Optional<String> clickthroughText) {
+        return VideoAd.ApiModel.create(
                 adUrn,
                 60,
                 30L,

@@ -444,7 +444,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void insertVideoAdShouldInsertVideoAd() throws Exception {
-        final ApiVideoAd videoAd = AdFixtures.getApiVideoAd();
+        final VideoAd.ApiModel videoAd = AdFixtures.getApiVideoAd();
         final ApiAdsForTrack ads = new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(videoAd)));
 
         adsOperations.applyAdToUpcomingTrack(ads);
@@ -493,7 +493,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));
     }
 
-    private void verifyVideoInserted(ApiVideoAd apiVideoAd) {
+    private void verifyVideoInserted(VideoAd.ApiModel apiVideoAd) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
         final VideoAd videoAd = VideoAd.createWithMonetizableTrack(apiVideoAd, CURRENT_DATE.getTime(), TRACK_URN);
         final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);

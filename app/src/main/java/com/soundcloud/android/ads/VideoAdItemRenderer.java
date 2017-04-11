@@ -56,7 +56,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         final Holder holder = getHolder(itemView);
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_video)));
-        holder.videoView.setAspectRatio(videoAd.getVideoProportion());
+        holder.videoView.setAspectRatio(videoAd.videoProportion());
         holder.videoView.setVisibility(View.INVISIBLE);
         holder.resetMuteState(holder);
 
@@ -69,7 +69,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         holder.fullscreenButton.setOnClickListener(view -> listener.ifPresent(callback -> callback.onVideoFullscreenClicked(view.getContext(), videoAd)));
 
         bindVideoSurface(itemView, videoAd);
-        lastStateProvider.get(videoAd.getUuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));
+        lastStateProvider.get(videoAd.uuid()).ifPresent(state -> setPlayState(itemView, state.stateTransition(), state.isMuted()));
     }
 
     void bindVideoSurface(View itemView, VideoAd videoAd) {
@@ -98,13 +98,13 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     private void bindFooter(VideoAd videoAd, Holder holder) {
         final String callToActionText = videoAd.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
-        final boolean titleIsPresent = videoAd.getTitle().isPresent();
+        final boolean titleIsPresent = videoAd.title().isPresent();
 
         holder.footerWithTitle.setVisibility(titleIsPresent ? View.VISIBLE : View.GONE);
         holder.callToActionWithoutTitle.setVisibility(titleIsPresent ? View.GONE : View.VISIBLE);
 
         if (titleIsPresent) {
-            holder.title.setText(videoAd.getTitle().get());
+            holder.title.setText(videoAd.title().get());
             bindCallToAction(videoAd, holder.callToActionWithTitle, callToActionText);
         } else {
             bindCallToAction(videoAd, holder.callToActionWithoutTitle, callToActionText);

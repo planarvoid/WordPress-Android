@@ -57,7 +57,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
         when(activity.getIntent()).thenReturn(intent);
         when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));
-        when(stateProvider.get(VIDEO_AD.getUuid())).thenReturn(Optional.absent());
+        when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.absent());
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
         when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.getAdUrn())));
     }
@@ -75,7 +75,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onLearnMoreClick(context());
 
-        final Uri clickThroughUrl = Uri.parse(VIDEO_AD.getClickThroughUrl());
+        final Uri clickThroughUrl = Uri.parse(VIDEO_AD.clickThroughUrl());
         verify(navigator).openAdClickthrough(context(), clickThroughUrl);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
@@ -125,7 +125,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(videoView).bindVideoSurface(VIDEO_AD.getUuid(), VideoSurfaceProvider.Origin.FULLSCREEN);
+        verify(videoView).bindVideoSurface(VIDEO_AD.uuid(), VideoSurfaceProvider.Origin.FULLSCREEN);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     public void onCreateForwardsLastStateIfPlaybackIsContinuingForVideoToView() {
         final PlaybackStateTransition transition = TestPlayerTransitions.playing();
         final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
-        when(stateProvider.get(VIDEO_AD.getUuid())).thenReturn(Optional.of(event));
+        when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.of(event));
 
         presenter.onCreate(activity, null);
 
@@ -194,7 +194,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     public void onCreateFinishesActivityIfLastStateForVideoIsError() {
         final PlaybackStateTransition transition = TestPlayerTransitions.error(PlayStateReason.ERROR_FAILED);
         final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
-        when(stateProvider.get(VIDEO_AD.getUuid())).thenReturn(Optional.of(event));
+        when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.of(event));
 
         presenter.onCreate(activity, null);
 

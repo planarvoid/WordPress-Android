@@ -1,20 +1,23 @@
 package com.soundcloud.android.ads;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 @AutoValue
 public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
-    public static VideoAd create(ApiVideoAd apiVideoAd, long createdAt, MonetizationType monetizationType) {
-        final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
+    public static VideoAd create(ApiModel apiVideoAd, long createdAt, MonetizationType monetizationType) {
+        final ApiAdTracking videoTracking = apiVideoAd.videoTracking();
         return new AutoValue_VideoAd(
-                apiVideoAd.getAdUrn(),
-                apiVideoAd.getCallToActionButtonText(),
+                apiVideoAd.adUrn(),
+                apiVideoAd.callToActionButtonText(),
                 videoTracking.impressionUrls,
                 videoTracking.startUrls,
                 videoTracking.finishUrls,
@@ -27,14 +30,14 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 videoTracking.clickUrls,
                 monetizationType,
                 apiVideoAd.isSkippable(),
-                Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
-                apiVideoAd.getUuid(),
-                apiVideoAd.getTitle(),
+                Optional.of(VisualAdDisplayProperties.create(apiVideoAd.displayProperties())),
+                apiVideoAd.uuid(),
+                apiVideoAd.title(),
                 createdAt,
-                apiVideoAd.getExpiryInMins(),
-                apiVideoAd.getDuration(),
-                Lists.transform(apiVideoAd.getVideoSources(), VideoAdSource::create),
-                apiVideoAd.getClickThroughUrl(),
+                apiVideoAd.expiryInMins(),
+                apiVideoAd.duration(),
+                Lists.transform(apiVideoAd.videoSources(), VideoAdSource::create),
+                apiVideoAd.clickThroughUrl(),
                 videoTracking.muteUrls,
                 videoTracking.unmuteUrls,
                 videoTracking.fullScreenUrls,
@@ -42,45 +45,85 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         );
     }
 
-    static VideoAd createWithMonetizableTrack(ApiVideoAd apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
+    static VideoAd createWithMonetizableTrack(ApiModel apiVideoAd, long createdAt, Urn monetizableTrackUrn) {
         VideoAd videoAd = create(apiVideoAd, createdAt, MonetizationType.VIDEO);
         videoAd.setMonetizableTrackUrn(monetizableTrackUrn);
         return videoAd;
     }
 
-    public abstract String getUuid();
+    public abstract String uuid();
 
-    public abstract Optional<String> getTitle();
+    public abstract Optional<String> title();
 
-    public abstract long getCreatedAt();
+    public abstract long createdAt();
 
-    public abstract int getExpiryInMins();
+    public abstract int expiryInMins();
 
-    public abstract long getDuration();
+    public abstract long duration();
 
-    public abstract List<VideoAdSource> getVideoSources();
+    public abstract List<VideoAdSource> videoSources();
 
-    public abstract String getClickThroughUrl();
+    public abstract String clickThroughUrl();
 
-    public abstract List<String> getMuteUrls();
+    public abstract List<String> muteUrls();
 
-    public abstract List<String> getUnmuteUrls();
+    public abstract List<String> unmuteUrls();
 
-    public abstract List<String> getFullScreenUrls();
+    public abstract List<String> fullScreenUrls();
 
-    public abstract List<String> getExitFullScreenUrls();
+    public abstract List<String> exitFullScreenUrls();
 
-    public VideoAdSource getFirstSource() {
-        return getVideoSources().get(0);
+    public VideoAdSource firstVideoSource() {
+        return videoSources().get(0);
     }
 
     public boolean isVerticalVideo() {
-        final VideoAdSource source = getFirstSource();
+        final VideoAdSource source = firstVideoSource();
         return source.getHeight() > source.getWidth();
     }
 
-    public float getVideoProportion() {
-        final VideoAdSource source = getFirstSource();
+    float videoProportion() {
+        final VideoAdSource source = firstVideoSource();
         return (float) source.getHeight() / (float) source.getWidth();
+    }
+
+    @AutoValue
+    abstract static class ApiModel {
+        @JsonCreator
+        public static ApiModel create(@JsonProperty("urn") Urn adUrn,
+                                      @JsonProperty("expiry_in_minutes") int expiryInMins,
+                                      @JsonProperty("duration") long duration,
+                                      @JsonProperty("title") Optional<String> title,
+                                      @JsonProperty("cta_button_text") Optional<String> ctaButtonText,
+                                      @JsonProperty("clickthrough_url") String clickthroughUrl,
+                                      @JsonProperty("display_properties") ApiDisplayProperties displayProperties,
+                                      @JsonProperty("video_sources") List<ApiVideoSource> videoSources,
+                                      @JsonProperty("video_tracking") ApiAdTracking videoTracking,
+                                      @JsonProperty("skippable") boolean skippable) {
+            return new AutoValue_VideoAd_ApiModel(adUrn, expiryInMins, duration, UUID.randomUUID().toString(), title, ctaButtonText,
+                                                  clickthroughUrl, displayProperties, videoSources, videoTracking, skippable);
+        }
+
+        public abstract Urn adUrn();
+
+        public abstract int expiryInMins();
+
+        public abstract long duration();
+
+        public abstract String uuid();
+
+        public abstract Optional<String> title();
+
+        public abstract Optional<String> callToActionButtonText();
+
+        public abstract String clickThroughUrl();
+
+        public abstract ApiDisplayProperties displayProperties();
+
+        public abstract List<ApiVideoSource> videoSources();
+
+        public abstract ApiAdTracking videoTracking();
+
+        public abstract boolean isSkippable();
     }
 }

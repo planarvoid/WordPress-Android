@@ -462,7 +462,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         if (playQueueItem.isVideoAd()) {
             final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
             final VideoAd ad = (VideoAd) playQueueItem.getAdData().get();
-            videoSurfaceProvider.setTextureView(ad.getUuid(), Origin.PLAYER, textureView);
+            videoSurfaceProvider.setTextureView(ad.uuid(), Origin.PLAYER, textureView);
         }
 
     }

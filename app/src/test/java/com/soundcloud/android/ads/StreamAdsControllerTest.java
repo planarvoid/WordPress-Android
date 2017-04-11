@@ -267,8 +267,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsWillNeverInsertAnExpiredAd() {
-        final long createdAtMs = ((ExpirableAd) inlays.get(1)).getCreatedAt();
-        final long expiryTimeMs = ((ExpirableAd) inlays.get(1)).getExpiryInMins() * 60 * 1000L;
+        final long createdAtMs = ((ExpirableAd) inlays.get(1)).createdAt();
+        final long expiryTimeMs = ((ExpirableAd) inlays.get(1)).expiryInMins() * 60 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + expiryTimeMs);
         when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
@@ -279,8 +279,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void insertAdsWillInsertAnAdIfNotExpired() {
-        final long createdAtMs = ((ExpirableAd) inlays.get(0)).getCreatedAt();
-        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).getExpiryInMins() * 59 * 1000L;
+        final long createdAtMs = ((ExpirableAd) inlays.get(0)).createdAt();
+        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).expiryInMins() * 59 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
         when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
 
@@ -291,8 +291,8 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onDestroyWillCleanUpStateForAnyVideoAdsInserted() {
-        final long createdAtMs = ((ExpirableAd) inlays.get(0)).getCreatedAt();
-        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).getExpiryInMins() * 59 * 1000L;
+        final long createdAtMs = ((ExpirableAd) inlays.get(0)).createdAt();
+        final long justBeforeExpiryMs = ((ExpirableAd) inlays.get(0)).expiryInMins() * 59 * 1000L;
         when(dateProvider.getCurrentTime()).thenReturn(createdAtMs + justBeforeExpiryMs);
         when(adsOperations.inlayAds(any(AdRequestData.class))).thenReturn(justInlays());
         when(inlayAdHelper.insertAd(inlays.get(0), SCROLLING_DOWN)).thenReturn(true);
@@ -300,7 +300,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.insertAds();
         controller.onDestroy();
 
-        final String uuid = ((VideoAd) inlays.get(0)).getUuid();
+        final String uuid = ((VideoAd) inlays.get(0)).uuid();
         verify(adViewabilityController).stopVideoTracking(uuid);
         verify(stateProvider).remove(uuid);
     }

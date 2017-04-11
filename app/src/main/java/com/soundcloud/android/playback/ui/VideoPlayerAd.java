@@ -21,7 +21,7 @@ class VideoPlayerAd extends PlayerAd {
     }
 
     VideoAdSource getFirstSource() {
-        return videoData.getFirstSource();
+        return videoData.firstVideoSource();
     }
 
     float getVideoProportion() {

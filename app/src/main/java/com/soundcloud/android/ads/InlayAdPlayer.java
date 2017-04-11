@@ -226,7 +226,7 @@ class InlayAdPlayer implements Player.PlayerListener {
             final PlayStateEvent playState = PlayStateEvent.create(stateTransition, stateTransition.getProgress().getDuration());
             final InlayPlayStateTransition stateEvent = InlayPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
             analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, ad, playState);
-            stateProvider.put(ad.getUuid(), stateEvent);
+            stateProvider.put(ad.uuid(), stateEvent);
             eventBus.publish(EventQueue.INLAY_AD, stateEvent);
         }
     }

@@ -626,7 +626,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void playStateChangedEventWhenBufferingAVideoAdAutoLogATrackingEvent() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoAdSource source = videoAd.getFirstSource();
+        final VideoAdSource source = videoAd.firstVideoSource();
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(videoAd));
         when(videoSourceProvider.getCurrentSource()).thenReturn(Optional.of(source));
@@ -650,7 +650,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void playStateChangedEventWhenBufferingAVideoAdStopsVideoTracking() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoAdSource source = videoAd.getFirstSource();
+        final VideoAdSource source = videoAd.firstVideoSource();
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.of(videoAd));
         when(videoSourceProvider.getCurrentSource()).thenReturn(Optional.of(source));

@@ -348,7 +348,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         this.player.play(VIDEO_AD, NOT_USER_INITIATED);
         this.player.onPlaystateChanged(playerTransition);
 
-        verify(stateProvider).put(eq(VIDEO_AD.getUuid()), inlayTransition.capture());
+        verify(stateProvider).put(eq(VIDEO_AD.uuid()), inlayTransition.capture());
         assertThat(inlayTransition.getValue().stateTransition()).isEqualTo(playerTransition);
     }
 

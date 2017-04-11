@@ -1,18 +1,18 @@
 package com.soundcloud.android.ads;
 
-import android.support.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 
+import android.support.annotation.Nullable;
+
 @AutoValue
 abstract class ApiAdWrapper {
     @JsonCreator
     public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable ApiAudioAd audioAd,
-                                      @JsonProperty("video") @Nullable ApiVideoAd videoAd,
+                                      @JsonProperty("video") @Nullable VideoAd.ApiModel videoAd,
                                       @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial,
                                       @JsonProperty("app_install") @Nullable ApiAppInstallAd appInstall) {
         return new AutoValue_ApiAdWrapper(
@@ -29,7 +29,7 @@ abstract class ApiAdWrapper {
     }
 
     @VisibleForTesting
-    public static ApiAdWrapper create(ApiVideoAd videoAd) {
+    public static ApiAdWrapper create(VideoAd.ApiModel videoAd) {
         return create(null, videoAd, null, null);
     }
 
@@ -44,7 +44,7 @@ abstract class ApiAdWrapper {
 
     public abstract Optional<ApiAudioAd> getAudioAd();
 
-    public abstract Optional<ApiVideoAd> getVideoAd();
+    public abstract Optional<VideoAd.ApiModel> getVideoAd();
 
     public abstract Optional<ApiInterstitial> getInterstitial();
 

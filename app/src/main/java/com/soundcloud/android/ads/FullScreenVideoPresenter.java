@@ -86,7 +86,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
             final VideoAd video = ad.get();
             onScreenSizeChange(video, true);
             view.setupContentView(activity, video);
-            stateProvider.get(video.getUuid()).ifPresent(event -> onInlayStateTransition(activity, event));
+            stateProvider.get(video.uuid()).ifPresent(event -> onInlayStateTransition(activity, event));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdFullscreen(video, trackSourceInfo));
         } else {
             activity.finish();
@@ -108,7 +108,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        ad.ifPresent(videoAd -> view.bindVideoSurface(videoAd.getUuid(), VideoSurfaceProvider.Origin.FULLSCREEN));
+        ad.ifPresent(videoAd -> view.bindVideoSurface(videoAd.uuid(), VideoSurfaceProvider.Origin.FULLSCREEN));
         subscription = eventBus.queue(EventQueue.INLAY_AD)
                                .filter(InlayAdEvent::forStateTransition)
                                .cast(InlayPlayStateTransition.class)
@@ -151,7 +151,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onLearnMoreClick(Context context) {
         ad.ifPresent(video -> {
-            navigator.openAdClickthrough(context, Uri.parse(video.getClickThroughUrl()));
+            navigator.openAdClickthrough(context, Uri.parse(video.clickThroughUrl()));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayableClickThrough(video, trackSourceInfo));
         });
     }

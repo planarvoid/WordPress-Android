@@ -461,7 +461,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd,
                                                                        TestPlayerTransitions.buffering(),
-                                                                       videoAd.getFirstSource());
+                                                                       videoAd.firstVideoSource());
         when(dataBuilderv1.buildForRichMediaErrorEvent(event)).thenReturn("AdPlaybackErrorEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

@@ -15,7 +15,7 @@ import static org.assertj.core.util.Lists.newArrayList;
 
 public class ApiAdsForStreamTest extends AndroidUnitTest {
     private static final Date CURRENT_DATE = new Date();
-    private ApiVideoAd videoAd;
+    private VideoAd.ApiModel videoAd;
     private TestDateProvider dateProvider = new TestDateProvider(CURRENT_DATE);
 
     @Before
@@ -41,6 +41,6 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
         final List<AdData> appInstalls = adsForStream.getAds(dateProvider);
         assertThat(appInstalls.size()).isEqualTo(2);
         assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.getAdUrn());
-        assertThat(appInstalls.get(1).getAdUrn()).isEqualTo(videoAd.getAdUrn());
+        assertThat(appInstalls.get(1).getAdUrn()).isEqualTo(videoAd.adUrn());
     }
 }

@@ -30,9 +30,9 @@ public abstract class AppInstallAd extends AdData implements ExpirableAd {
                                           apiAdTracking.clickUrls);
     }
 
-    public abstract long getCreatedAt();
+    public abstract long createdAt();
 
-    public abstract int getExpiryInMins();
+    public abstract int expiryInMins();
 
     public abstract String getName();
 

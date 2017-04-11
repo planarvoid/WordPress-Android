@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -16,8 +18,6 @@ import com.soundcloud.java.optional.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.soundcloud.java.collections.Lists.newArrayList;
 
 class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollection {
 
@@ -64,11 +64,11 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
 
         for (ApiAdWrapper ad : getCollection()) {
             final Optional<ApiAppInstallAd> appInstall = ad.getAppInstall();
-            final Optional<ApiVideoAd> videoAd = ad.getVideoAd();
+            final Optional<VideoAd.ApiModel> videoAd = ad.getVideoAd();
             if (appInstall.isPresent()) {
                 appInstalls.add(appInstall.get().getAdUrn());
             } else if (videoAd.isPresent()) {
-                videoAds.add(videoAd.get().getAdUrn());
+                videoAds.add(videoAd.get().adUrn());
             }
         }
 

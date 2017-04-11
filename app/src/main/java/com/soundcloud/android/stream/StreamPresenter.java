@@ -384,7 +384,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     public void onAdItemClicked(Context context, AdData adData) {
         final boolean isAppInstall = adData instanceof AppInstallAd;
         final String clickthrough = isAppInstall ? ((AppInstallAd) adData).getClickThroughUrl()
-                                                 : ((VideoAd) adData).getClickThroughUrl();
+                                                 : ((VideoAd) adData).clickThroughUrl();
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
         eventBus.publish(EventQueue.TRACKING, event);
@@ -399,7 +399,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoTextureBind(TextureView textureView, VideoAd videoAd) {
         if (!streamAdsController.isInFullscreen()) {
-            videoSurfaceProvider.setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+            videoSurfaceProvider.setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
         }
     }
 

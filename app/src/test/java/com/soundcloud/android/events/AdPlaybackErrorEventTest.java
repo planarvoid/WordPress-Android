@@ -14,7 +14,7 @@ public class AdPlaybackErrorEventTest {
     @Test
     public void shouldCreateEventForVideoAdBufferFailure() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoAdSource source = videoAd.getFirstSource();
+        final VideoAdSource source = videoAd.firstVideoSource();
         final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), source);
 
         assertThat(event.bitrate()).isEqualTo(source.getBitRateKbps());

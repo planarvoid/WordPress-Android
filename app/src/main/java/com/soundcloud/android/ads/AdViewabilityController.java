@@ -29,15 +29,15 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
     }
 
     public void onResume(VideoAd ad, long currentPosition)  {
-        moatViewabilityController.onVideoResume(ad.getUuid(), currentPosition);
+        moatViewabilityController.onVideoResume(ad.uuid(), currentPosition);
     }
 
     public void onPaused(VideoAd ad, long currentPosition)  {
-        moatViewabilityController.onVideoPause(ad.getUuid(), currentPosition);
+        moatViewabilityController.onVideoPause(ad.uuid(), currentPosition);
     }
 
     public void onProgressQuartileEvent(VideoAd ad, PlayableAdData.ReportingEvent event, long currentPosition) {
-        final String uuid = ad.getUuid();
+        final String uuid = ad.uuid();
         switch (event) {
             case START:
                 moatViewabilityController.onVideoStart(uuid, currentPosition);
@@ -62,7 +62,7 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
     }
 
     void onVolumeToggle(VideoAd ad, boolean isMuted) {
-        final String uuid = ad.getUuid();
+        final String uuid = ad.uuid();
         if (isMuted) {
             moatViewabilityController.onVideoMute(uuid);
         } else {
@@ -71,7 +71,7 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
     }
 
     void onScreenSizeChange(VideoAd ad, boolean isFullscreen, long currentPosition) {
-        final String uuid = ad.getUuid();
+        final String uuid = ad.uuid();
         if (isFullscreen) {
             moatViewabilityController.onVideoFullscreen(uuid, currentPosition);
         } else {

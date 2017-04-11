@@ -606,7 +606,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(view.getContext(), videoAd);
 
-        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.getClickThroughUrl()));
+        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -662,7 +662,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onVideoTextureBind(textureView, videoAd);
 
-        verify(videoSurfaceProvider).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+        verify(videoSurfaceProvider).setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
     }
 
     @Test
@@ -672,7 +672,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onVideoTextureBind(textureView, videoAd);
 
-        verify(videoSurfaceProvider, never()).setTextureView(videoAd.getUuid(), Origin.STREAM, textureView);
+        verify(videoSurfaceProvider, never()).setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
     }
 
     @Test
