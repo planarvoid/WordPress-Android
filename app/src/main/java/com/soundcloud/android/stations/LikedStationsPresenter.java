@@ -1,6 +1,13 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
@@ -12,6 +19,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -53,6 +61,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     private final Resources resources;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @LightCycle final StationsNowPlayingController stationsNowPlayingController;
 
@@ -64,7 +73,9 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
                                   StationsAdapter adapter,
                                   Resources resources,
                                   PlayQueueManager playQueueManager,
-                                  EventBus eventBus, StationsNowPlayingController stationsNowPlayingController) {
+                                  EventBus eventBus,
+                                  StationsNowPlayingController stationsNowPlayingController,
+                                  PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.defaults());
         this.operations = operations;
         this.adapter = adapter;
@@ -72,6 +83,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.stationsNowPlayingController = stationsNowPlayingController;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.stationsNowPlayingController.setAdapter(adapter);
     }
 
@@ -86,7 +98,17 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         return CollectionBinding
                 .from(stationsSource())
                 .withAdapter(adapter)
+                .addObserver(onNext(this::endMeasureLoadingTime))
                 .build();
+    }
+
+    private void endMeasureLoadingTime(Iterable<StationViewModel> stations) {
+        MetricParams params = MetricParams.of(MetricKey.STATIONS_COUNT, Iterables.size(stations));
+        PerformanceMetric performanceMetric = PerformanceMetric.builder()
+                                                               .metricType(MetricType.LIKED_STATIONS_LOAD)
+                                                               .metricParams(params)
+                                                               .build();
+        performanceMetricsEngine.endMeasuring(performanceMetric);
     }
 
     @Override

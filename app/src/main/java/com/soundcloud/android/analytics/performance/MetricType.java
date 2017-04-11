@@ -19,8 +19,9 @@ public enum MetricType {
     RECENTLY_PLAYED_LOAD("recently_played_load"),
     LOGIN("login"),
     LOAD_STATION("load_station"),
+    PLAY_QUEUE_SHUFFLE("play_queue_shuffle"),
     REFRESH_HOME("refresh_home"),
-    PLAY_QUEUE_SHUFFLE("play_queue_shuffle");
+    LIKED_STATIONS_LOAD("liked_stations_load");
 
     private final String metricType;
 

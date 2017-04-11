@@ -2,6 +2,8 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -26,18 +28,12 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final FeatureOperations featureOperations;
     private final ImageOperations imageOperations;
     private final FeatureFlags featureFlags;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             navigator.openTrackLikes(v.getContext());
-        }
-    };
-
-    private final View.OnClickListener goToStationsListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            navigator.openLikedStations(v.getContext());
         }
     };
 
@@ -49,15 +45,17 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     };
 
     @Inject
-    CollectionPreviewRenderer(Navigator navigator,
-                              Resources resources,
-                              FeatureOperations featureOperations,
-                              ImageOperations imageOperations,
-                              FeatureFlags featureFlags) {
+    public CollectionPreviewRenderer(Navigator navigator,
+                                     Resources resources,
+                                     FeatureOperations featureOperations,
+                                     ImageOperations imageOperations,
+                                     PerformanceMetricsEngine performanceMetricsEngine,
+                                     FeatureFlags featureFlags) {
         this.navigator = navigator;
         this.resources = resources;
         this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.featureFlags = featureFlags;
     }
 
@@ -72,7 +70,12 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private void setupStationsView(CollectionPreviewView stationsView) {
         stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
         stationsView.setVisibility(View.VISIBLE);
-        stationsView.setOnClickListener(goToStationsListener);
+        stationsView.setOnClickListener(this::onGoToStationsClick);
+    }
+
+    void onGoToStationsClick(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
+        navigator.openLikedStations(v.getContext());
     }
 
     private void setupPlaylistsView(CollectionPreviewView playlistsView, View divider) {

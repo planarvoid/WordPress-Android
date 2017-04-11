@@ -16,7 +16,8 @@ public enum MetricKey {
     RECENTLY_PLAYED_SIZE("recently_played_size"),
     LOGIN_PROVIDER("login_provider"),
     HOME_SCREEN("home_screen"),
-    TRACKS_COUNT("tracks_count");
+    TRACKS_COUNT("tracks_count"),
+    STATIONS_COUNT("stations_count");
 
     private final String metricKey;
 
