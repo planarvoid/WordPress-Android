@@ -643,8 +643,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AdPlaybackErrorEvent event = (AdPlaybackErrorEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.bitrate()).isEqualTo(source.getBitRateKbps());
-        assertThat(event.host()).isEqualTo(source.getUrl());
+        assertThat(event.bitrate()).isEqualTo(source.bitRateKbps());
+        assertThat(event.host()).isEqualTo(source.url());
     }
 
     @Test

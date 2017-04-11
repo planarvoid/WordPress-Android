@@ -34,9 +34,9 @@ public abstract class AdPlaybackErrorEvent extends TrackingEvent {
     public static AdPlaybackErrorEvent failToBuffer(AdData adData,
                                                     PlaybackStateTransition stateTransition,
                                                     VideoAdSource videoSource) {
-        final String format = getRichMediaFormatName(videoSource.getType());
-        final int bitrate = videoSource.getBitRateKbps();
-        final String host = videoSource.getUrl();
+        final String format = getRichMediaFormatName(videoSource.type());
+        final int bitrate = videoSource.bitRateKbps();
+        final String host = videoSource.url();
         final String mediaType = adData instanceof VideoAd ? VIDEO_MEDIA_TYPE : AUDIO_MEDIA_TYPE;
         final Optional<String> protocol = protocolForStateTransition(stateTransition);
         final Optional<String> playerType = playerTypeForStateTransition(stateTransition);

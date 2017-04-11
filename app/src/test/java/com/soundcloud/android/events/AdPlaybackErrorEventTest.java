@@ -17,8 +17,8 @@ public class AdPlaybackErrorEventTest {
         final VideoAdSource source = videoAd.firstVideoSource();
         final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), source);
 
-        assertThat(event.bitrate()).isEqualTo(source.getBitRateKbps());
-        assertThat(event.host()).isEqualTo(source.getUrl());
+        assertThat(event.bitrate()).isEqualTo(source.bitRateKbps());
+        assertThat(event.host()).isEqualTo(source.url());
     }
     
 }

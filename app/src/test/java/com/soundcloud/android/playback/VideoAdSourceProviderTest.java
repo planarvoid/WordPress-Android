@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.ApiVideoSource;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.model.Urn;
@@ -27,16 +26,16 @@ import java.util.List;
 
 public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
-    private static ApiVideoSource SOURCE_HLS = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_HLS, 0);
-    private static ApiVideoSource SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);
-    private static ApiVideoSource SOURCE_480P = createApiVideoSource(858, 480, PlaybackConstants.MIME_TYPE_MP4, 1000);
-    private static ApiVideoSource SOURCE_720P = createApiVideoSource(1920, 720, PlaybackConstants.MIME_TYPE_MP4, 2128);
-    private static ApiVideoSource SOURCE_1080P = createApiVideoSource(1280, 1080, PlaybackConstants.MIME_TYPE_MP4, 3628);
-    private static final List<ApiVideoSource> VALID_SOURCES = Arrays.asList(SOURCE_HLS,
-                                                                            SOURCE_480P,
-                                                                            SOURCE_720P,
-                                                                            SOURCE_1080P,
-                                                                            SOURCE_360P);
+    private static VideoAdSource.ApiModel SOURCE_HLS = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_HLS, 0);
+    private static VideoAdSource.ApiModel SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);
+    private static VideoAdSource.ApiModel SOURCE_480P = createApiVideoSource(858, 480, PlaybackConstants.MIME_TYPE_MP4, 1000);
+    private static VideoAdSource.ApiModel SOURCE_720P = createApiVideoSource(1920, 720, PlaybackConstants.MIME_TYPE_MP4, 2128);
+    private static VideoAdSource.ApiModel SOURCE_1080P = createApiVideoSource(1280, 1080, PlaybackConstants.MIME_TYPE_MP4, 3628);
+    private static final List<VideoAdSource.ApiModel> VALID_SOURCES = Arrays.asList(SOURCE_HLS,
+                                                                                    SOURCE_480P,
+                                                                                    SOURCE_720P,
+                                                                                    SOURCE_1080P,
+                                                                                    SOURCE_360P);
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private DeviceHelper deviceHelper;
@@ -60,7 +59,7 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void failsIfNoValidFormatsProvided() throws IllegalArgumentException {
-        final ApiVideoSource invalidSource = createApiVideoSource(100, 200, "video/invalid", 12);
+        final VideoAdSource.ApiModel invalidSource = createApiVideoSource(100, 200, "video/invalid", 12);
         videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), invalidSource), 0L);
 
         try {
@@ -166,7 +165,7 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
     @Test
     public void videoSourceProviderRecognizes1080x1920as1080p() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
-        final ApiVideoSource VERTICAL_1080P = createApiVideoSource(1080, 1920, PlaybackConstants.MIME_TYPE_MP4, 12);
+        final VideoAdSource.ApiModel VERTICAL_1080P = createApiVideoSource(1080, 1920, PlaybackConstants.MIME_TYPE_MP4, 12);
         videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L),
                                                                              Collections.singletonList(VERTICAL_1080P)),
                                                        0L);
@@ -189,14 +188,14 @@ public class VideoAdSourceProviderTest extends AndroidUnitTest {
         assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.of(videoSource));
     }
 
-    private void assertVideoSource(VideoAdSource videoSource, ApiVideoSource apiVideoSource) {
-        assertThat(videoSource.getBitRateKbps()).isEqualTo(apiVideoSource.getBitRate());
-        assertThat(videoSource.getWidth()).isEqualTo(apiVideoSource.getWidth());
-        assertThat(videoSource.getHeight()).isEqualTo(apiVideoSource.getHeight());
-        assertThat(videoSource.getType()).isEqualTo(apiVideoSource.getType());
+    private void assertVideoSource(VideoAdSource videoSource, VideoAdSource.ApiModel apiVideoSource) {
+        assertThat(videoSource.bitRateKbps()).isEqualTo(apiVideoSource.bitRate());
+        assertThat(videoSource.width()).isEqualTo(apiVideoSource.width());
+        assertThat(videoSource.height()).isEqualTo(apiVideoSource.height());
+        assertThat(videoSource.type()).isEqualTo(apiVideoSource.type());
     }
 
-    private static ApiVideoSource createApiVideoSource(int width, int height, String type, int bitRate) {
+    private static VideoAdSource.ApiModel createApiVideoSource(int width, int height, String type, int bitRate) {
         return AdFixtures.getApiVideoSource(width, height, type, bitRate);
     }
 }

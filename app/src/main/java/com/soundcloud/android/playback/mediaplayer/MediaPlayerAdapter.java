@@ -178,7 +178,7 @@ public class MediaPlayerAdapter implements
     private void setStreamUrl(PlaybackItem playbackItem) {
         if (playbackItem.getPlaybackType() == VIDEO_AD) {
             currentVideoSource = Optional.of(videoSourceProvider.selectOptimalSource((VideoAdPlaybackItem) playbackItem));
-            currentStreamUrl = currentVideoSource.get().getUrl();
+            currentStreamUrl = currentVideoSource.get().url();
         } else {
             currentVideoSource = Optional.absent();
             currentStreamUrl = getAudioStreamUrl(playbackItem);
@@ -467,7 +467,7 @@ public class MediaPlayerAdapter implements
 
     String getCurrentFormat() {
         if (currentVideoSource.isPresent()) {
-            return currentVideoSource.get().getType();
+            return currentVideoSource.get().type();
         } else if (currentItem != null && currentItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
             return PlaybackConstants.MediaType.AUDIO_AD;
         } else {
@@ -476,7 +476,7 @@ public class MediaPlayerAdapter implements
     }
 
     int getCurrentBitrate() {
-        return currentVideoSource.isPresent() ? currentVideoSource.get().getBitRateKbps() * 1000 : 0;
+        return currentVideoSource.isPresent() ? currentVideoSource.get().bitRateKbps() * 1000 : 0;
     }
 
     boolean isInErrorState() {

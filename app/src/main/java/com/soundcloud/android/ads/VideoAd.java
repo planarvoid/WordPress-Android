@@ -79,12 +79,12 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
     public boolean isVerticalVideo() {
         final VideoAdSource source = firstVideoSource();
-        return source.getHeight() > source.getWidth();
+        return source.height() > source.width();
     }
 
     float videoProportion() {
         final VideoAdSource source = firstVideoSource();
-        return (float) source.getHeight() / (float) source.getWidth();
+        return (float) source.height() / (float) source.width();
     }
 
     @AutoValue
@@ -97,7 +97,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                                       @JsonProperty("cta_button_text") Optional<String> ctaButtonText,
                                       @JsonProperty("clickthrough_url") String clickthroughUrl,
                                       @JsonProperty("display_properties") ApiDisplayProperties displayProperties,
-                                      @JsonProperty("video_sources") List<ApiVideoSource> videoSources,
+                                      @JsonProperty("video_sources") List<VideoAdSource.ApiModel> videoSources,
                                       @JsonProperty("video_tracking") ApiAdTracking videoTracking,
                                       @JsonProperty("skippable") boolean skippable) {
             return new AutoValue_VideoAd_ApiModel(adUrn, expiryInMins, duration, UUID.randomUUID().toString(), title, ctaButtonText,
@@ -120,7 +120,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
 
         public abstract ApiDisplayProperties displayProperties();
 
-        public abstract List<ApiVideoSource> videoSources();
+        public abstract List<VideoAdSource.ApiModel> videoSources();
 
         public abstract ApiAdTracking videoTracking();
 

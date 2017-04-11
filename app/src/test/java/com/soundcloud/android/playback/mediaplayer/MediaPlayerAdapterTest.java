@@ -452,7 +452,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
         mediaPlayerAdapter.play(videoItem);
 
-        verify(mediaPlayer).setDataSource(videoSource.getUrl());
+        verify(mediaPlayer).setDataSource(videoSource.url());
     }
 
     @Test

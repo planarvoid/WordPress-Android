@@ -11,8 +11,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.ApiVideoSource;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -388,7 +388,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         final int width = isVertical ? VERTICAL_VIDEO_WIDTH : LETTERBOX_VIDEO_WIDTH;
         final int height = isVertical ? VERTICAL_VIDEO_HEIGHT : LETTERBOX_VIDEO_HEIGHT;
         final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L),
-                                                 ApiVideoSource.create("codec", "url", 1000, width, height));
+                                                 VideoAdSource.ApiModel.create("codec", "url", 1000, width, height));
         ad.setMonetizableCreator("Artist");
         ad.setMonetizableTitle("Title");
         return ad;

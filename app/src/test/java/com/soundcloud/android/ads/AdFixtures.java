@@ -76,11 +76,11 @@ public class AdFixtures {
         return VideoAd.createWithMonetizableTrack(getApiVideoAd(), 0, monetizableUrn);
     }
 
-    public static VideoAd getVideoAd(Urn monetizableUrn, ApiVideoSource videoSource) {
+    public static VideoAd getVideoAd(Urn monetizableUrn, VideoAdSource.ApiModel videoSource) {
         return VideoAd.createWithMonetizableTrack(getApiVideoAd(videoSource, SKIPPABLE), 0, monetizableUrn);
     }
 
-    public static VideoAd getVideoAd(Urn monetizableUrn, List<ApiVideoSource> videoSources) {
+    public static VideoAd getVideoAd(Urn monetizableUrn, List<VideoAdSource.ApiModel> videoSources) {
         final Urn adUrn = Urn.forAd("dfp", "905");
         return VideoAd.createWithMonetizableTrack(getApiVideoAd(adUrn, videoSources, SKIPPABLE, Optional.absent(), Optional.absent()), 0, monetizableUrn);
     }
@@ -208,12 +208,12 @@ public class AdFixtures {
                              ApiAudioAdSource.create("application/x-mpegurl", "http://audiourl.com/audio.m3u", true));
     }
 
-    public static ApiVideoSource getApiVideoSource(int width, int height) {
+    public static VideoAdSource.ApiModel getApiVideoSource(int width, int height) {
         return getApiVideoSource(width, height, "video/mp4", VIDEO_BIT_RATE);
     }
 
-    public static ApiVideoSource getApiVideoSource(int width, int height, String type, int bitRate) {
-        return ApiVideoSource.create(
+    public static VideoAdSource.ApiModel getApiVideoSource(int width, int height, String type, int bitRate) {
+        return VideoAdSource.ApiModel.create(
                 type,
                 "http://videourl.com/video.mp4",
                 bitRate,
@@ -281,13 +281,13 @@ public class AdFixtures {
         return getApiVideoAd(getApiVideoSource(608, 1080), skippable);
     }
 
-    private static VideoAd.ApiModel getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
+    private static VideoAd.ApiModel getApiVideoAd(VideoAdSource.ApiModel apiVideoSource, boolean skippable) {
         final Urn adUrn = Urn.forAd("dfp", "905");
         return getApiVideoAd(adUrn, Collections.singletonList(apiVideoSource), skippable, Optional.absent(), Optional.absent());
     }
 
     private static VideoAd.ApiModel getApiVideoAd(Urn adUrn,
-                                                  List<ApiVideoSource> apiVideoSources,
+                                                  List<VideoAdSource.ApiModel> apiVideoSources,
                                                   boolean skippable,
                                                   Optional<String> title,
                                                   Optional<String> clickthroughText) {

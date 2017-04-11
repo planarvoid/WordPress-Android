@@ -77,14 +77,14 @@ public class VideoSourceProvider {
     private Collection<VideoAdSource> getSupportedResolutions(Collection<VideoAdSource> sources) {
         final Predicate<VideoAdSource> resolutionPredicate = source -> {
             // Resolution refers to the smaller dimension. (e.g. 1080x1920 & 1920x1080 -> 1080p)
-            final int resolution = Math.min(source.getHeight(), source.getWidth());
+            final int resolution = Math.min(source.height(), source.width());
             return resolution <= maxResolutionForDevice();
         };
         return MoreCollections.filter(sources, resolutionPredicate);
     }
 
     private VideoAdSource getBestBitrate(Collection<VideoAdSource> sources) {
-        final Predicate<VideoAdSource> bitratePredicate = source -> source.getBitRateKbps() <= maxBitrateForConnection();
+        final Predicate<VideoAdSource> bitratePredicate = source -> source.bitRateKbps() <= maxBitrateForConnection();
         final Collection<VideoAdSource> validSources = MoreCollections.filter(sources, bitratePredicate);
         // Fallback to lowest of available bit rates
         return validSources.isEmpty() ? Iterables.getFirst(sources, null)

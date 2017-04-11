@@ -147,8 +147,8 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         final LayoutParams layoutParams = holder.videoTextureView.getLayoutParams();
 
         if (playerAd.isVerticalVideo()) { // Vertical video view should scale like ImageView's CENTER_CROP
-            final int sourceWidth = playerAd.getFirstSource().getWidth();
-            final int sourceHeight = playerAd.getFirstSource().getHeight();
+            final int sourceWidth = playerAd.getFirstSource().width();
+            final int sourceHeight = playerAd.getFirstSource().height();
             final float scaleFactor = centerCropScaleFactor(holder.videoContainer, sourceWidth, sourceHeight);
             layoutParams.width = (int) ((float) sourceWidth * scaleFactor);
             layoutParams.height = (int) ((float) sourceHeight * scaleFactor);
