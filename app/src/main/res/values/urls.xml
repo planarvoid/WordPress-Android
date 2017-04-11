@@ -10,4 +10,6 @@
     <string name="url_privacy">https://pages.soundcloud.com/legal/privacy-policy.html?format=android</string>
     <string name="url_forgot_email_help">http://help.soundcloud.com/customer/portal/articles/2105342</string>
 
+    <!-- Please remember to add the appropriate language URLS to the other language urls.xml files -->
+
 </resources>
