@@ -189,7 +189,7 @@ public class MediaPlayerAdapter implements
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_AD:
                 final AudioAdSource source = Iterables.find(((AudioAdPlaybackItem) playbackItem).getSources(), IS_MP3);
-                return source.requiresAuth() ? urlBuilder.buildAdUrlWithAuth(source) : source.getUrl();
+                return source.requiresAuth() ? urlBuilder.buildAdUrlWithAuth(source) : source.url();
             default:
                 return urlBuilder.buildHttpsStreamUrl(playbackItem.getUrn());
         }

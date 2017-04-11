@@ -13,7 +13,7 @@ import java.util.List;
 class ApiAudioAd {
 
     private final Urn urn;
-    private final List<ApiAudioAdSource> audioSources;
+    private final List<AudioAdSource.ApiModel> audioSources;
     private final boolean skippable;
 
     private final ApiCompanionAd visualAd;
@@ -25,7 +25,7 @@ class ApiAudioAd {
     public ApiAudioAd(@JsonProperty("urn") Urn urn,
                       @JsonProperty("skippable") boolean skippable,
                       @JsonProperty("_embedded") RelatedResources relatedResources,
-                      @JsonProperty("audio_sources") List<ApiAudioAdSource> audioSources,
+                      @JsonProperty("audio_sources") List<AudioAdSource.ApiModel> audioSources,
                       @JsonProperty("audio_tracking") ApiAdTracking apiAdTracking) {
         this.urn = urn;
         this.audioSources = audioSources;
@@ -39,7 +39,7 @@ class ApiAudioAd {
         return urn;
     }
 
-    public List<ApiAudioAdSource> getAudioSources() {
+    public List<AudioAdSource.ApiModel> getAudioSources() {
         return audioSources;
     }
 

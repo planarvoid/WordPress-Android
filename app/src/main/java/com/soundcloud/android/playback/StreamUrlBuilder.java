@@ -42,7 +42,7 @@ public class StreamUrlBuilder {
     }
 
     public String buildAdUrlWithAuth(AudioAdSource source) {
-        Uri.Builder builder = Uri.parse(source.getUrl()).buildUpon();
+        Uri.Builder builder = Uri.parse(source.url()).buildUpon();
 
         Token token = accountOperations.getSoundCloudToken();
         if (token.valid()) {

@@ -203,9 +203,9 @@ public class AdFixtures {
         );
     }
 
-    private static List<ApiAudioAdSource> getApiAudioAdSources() {
-        return Arrays.asList(ApiAudioAdSource.create("audio/mpeg", "http://audiourl.com/audio.mp3", false),
-                             ApiAudioAdSource.create("application/x-mpegurl", "http://audiourl.com/audio.m3u", true));
+    private static List<AudioAdSource.ApiModel> getApiAudioAdSources() {
+        return Arrays.asList(AudioAdSource.ApiModel.create("audio/mpeg", "http://audiourl.com/audio.mp3", false),
+                             AudioAdSource.ApiModel.create("application/x-mpegurl", "http://audiourl.com/audio.m3u", true));
     }
 
     public static VideoAdSource.ApiModel getApiVideoSource(int width, int height) {

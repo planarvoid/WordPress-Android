@@ -218,11 +218,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
         final AudioAdSource source = Iterables.find(adPlaybackItem.getSources(), IS_HLS);
-        return source.requiresAuth() ? buildAdHlsUrlWithAuth(source) : source.getUrl();
+        return source.requiresAuth() ? buildAdHlsUrlWithAuth(source) : source.url();
     }
 
     private String buildAdHlsUrlWithAuth(AudioAdSource source) {
-        Uri.Builder builder = Uri.parse(source.getUrl()).buildUpon();
+        Uri.Builder builder = Uri.parse(source.url()).buildUpon();
 
         Token token = accountOperations.getSoundCloudToken();
         if (token.valid()) {

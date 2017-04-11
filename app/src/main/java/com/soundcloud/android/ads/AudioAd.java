@@ -36,7 +36,7 @@ public abstract class AudioAd extends PlayableAdData {
                 apiAudioAd.hasCompanion() ? Optional.of(Uri.parse(apiAudioAd.getCompanion().imageUrl)): Optional.absent(),
                 extractClickThrough(apiAudioAd),
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingImpressionUrls : Collections.emptyList(),
-                Lists.transform(apiAudioAd.getAudioSources(), ApiAudioAdSource.toAudioAdSource));
+                Lists.transform(apiAudioAd.getAudioSources(), AudioAdSource::create));
     }
 
     public static AudioAd create(ApiAudioAd apiAudioAd, Urn monetizableUrn) {
