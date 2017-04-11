@@ -3,14 +3,12 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cast.DefaultCastSessionController;
-import com.soundcloud.android.cast.legacy.LegacyCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.lightcycle.LightCycle;
 import dagger.Lazy;
 
@@ -24,7 +22,6 @@ public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
     @Inject Lazy<DefaultCastSessionController> castSessionController;
-    @Inject Lazy<LegacyCastSessionController> legacyCastSessionController;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
     @Inject ShortcutController shortcutController;
@@ -44,9 +41,6 @@ public class MainActivity extends PlayerActivity {
 
         if (savedInstanceState == null) {
             playSessionController.reloadQueueAndShowPlayerIfEmpty();
-        }
-        if (featureFlags.isDisabled(Flag.CAST_V3)) {
-            legacyCastSessionController.get().reconnectSessionIfPossible();
         }
     }
 
@@ -114,16 +108,12 @@ public class MainActivity extends PlayerActivity {
     @Override
     public void onCastUnavailable() {
         super.onCastUnavailable();
-        if (featureFlags.isEnabled(Flag.CAST_V3)) {
-            mainPresenter.hideToolbar();
-        }
+        mainPresenter.hideToolbar();
     }
 
     @Override
     public void onCastAvailable() {
-        if (featureFlags.isEnabled(Flag.CAST_V3)) {
-            mainPresenter.showToolbar();
-        }
+        mainPresenter.showToolbar();
         super.onCastAvailable();
     }
 }

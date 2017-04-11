@@ -20,7 +20,6 @@ enum Feature {
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
   SEARCH_TOP_RESULTS,
-  CAST_V3,
   FLIPPER,
   FLIPPER_PRELOAD,
   WELCOME_USER,
@@ -48,7 +47,6 @@ android {
     buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.CAST_V3.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), UNDER_DEVELOPMENT
@@ -68,7 +66,6 @@ android {
     debug {
       buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
@@ -91,7 +88,6 @@ android {
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER_PRELOAD.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
@@ -121,7 +117,6 @@ android {
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
@@ -138,7 +133,6 @@ android {
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.CAST_V3.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW

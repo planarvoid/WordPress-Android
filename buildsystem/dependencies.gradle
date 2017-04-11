@@ -78,7 +78,6 @@ ext {
           facebookAndroidSdk           : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                  : "com.jakewharton:butterknife:8.4.0",
           butterKnifeCompiler          : "com.jakewharton:butterknife-compiler:8.4.0",
-          castCompanionLibrary         : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           tapTargetView                : "com.getkeepsafe.taptargetview:taptargetview:1.9.1",
 
           // Android libraries
@@ -92,7 +91,6 @@ ext {
           androidDesign                : "com.android.support:design:$androidSupportVersion",
           androidPlayServicesBase      : "com.google.android.gms:play-services-base:$googleServicesVersion",
           androidPlayServicesAuth      : "com.google.android.gms:play-services-auth:$googleServicesVersion",
-          androidPlayServicesCastLegacy: "com.google.android.gms:play-services-cast:$googleServicesVersion",
           androidPlayServicesCast      : "com.google.android.gms:play-services-cast-framework:$googleServicesVersion",
           firebaseCore                 : "com.google.firebase:firebase-core:$googleServicesVersion",
           firebaseConfig               : "com.google.firebase:firebase-config:$googleServicesVersion",

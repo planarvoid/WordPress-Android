@@ -20,7 +20,7 @@ public class CastConfigStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        castConfigStorage = new CastConfigStorage(context(), sharedPreferences(), appProperties, featureFlags);
+        castConfigStorage = new CastConfigStorage(context(), sharedPreferences(), appProperties);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class CastConfigStorageTest extends AndroidUnitTest {
     }
 
     private String getDefaultReceiverID() {
-        return resources().getString(R.string.cast_receiver_app_id);
+        return resources().getString(R.string.cast_v3_receiver_app_id);
     }
 
 }

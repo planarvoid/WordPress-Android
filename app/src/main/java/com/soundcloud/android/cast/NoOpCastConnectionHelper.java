@@ -33,17 +33,7 @@ class NoOpCastConnectionHelper extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
-    public void removeMediaRouterButton(Context context, MenuItem castMenu) {
-        // no-op
-    }
-
-    @Override
     public void addMediaRouterButton(android.support.v7.app.MediaRouteButton mediaRouteButton) {
-        // no-op
-    }
-
-    @Override
-    public void removeMediaRouterButton(android.support.v7.app.MediaRouteButton mediaRouteButton) {
         // no-op
     }
 

@@ -23,7 +23,6 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.associations.FollowingStateProvider;
 import com.soundcloud.android.associations.RepostsStateProvider;
 import com.soundcloud.android.cast.DefaultCastSessionController;
-import com.soundcloud.android.cast.legacy.LegacyCastSessionController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
@@ -112,7 +111,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
-    @Inject Lazy<LegacyCastSessionController> legacyCastControllerProvider;
     @Inject Lazy<DefaultCastSessionController> castControllerProvider;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
@@ -222,7 +220,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         applicationStartupMeterFactory.create(this).subscribe();
         playbackMeter.subscribe();
 
-        configureCast();
+        if (googlePlayServicesWrapper.isPlayServiceAvailable(this)) {
+            castControllerProvider.get().startListening();
+        }
 
         trackOfflineStateProvider.subscribe();
         playQueueExtender.subscribe();
@@ -254,14 +254,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         configurationManager.checkForForcedApplicationUpdate();
 
         miniplayerStorage.clear();
-    }
-
-    private void configureCast() {
-        if (featureFlags.isDisabled(Flag.CAST_V3)) {
-            legacyCastControllerProvider.get().startListening();
-        } else if (googlePlayServicesWrapper.isPlayServiceAvailable(this)) {
-            castControllerProvider.get().startListening();
-        }
     }
 
     private void initializePreInjectionObjects() {

@@ -72,18 +72,8 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     }
 
     @Override
-    public void removeMediaRouterButton(Context context, MenuItem castMenu) {
-        // no-op
-    }
-
-    @Override
     public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
         castButtonInstaller.addMediaRouterButton(mediaRouteButton);
-    }
-
-    @Override
-    public void removeMediaRouterButton(MediaRouteButton mediaRouteButton) {
-        // no-op
     }
 
     @Override

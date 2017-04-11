@@ -67,10 +67,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
 
     @Override
     protected void onPause() {
-        if (castMenu.isPresent()) {
-            castConnectionHelper.removeMediaRouterButton(this, castMenu.get());
-            castMenu = Optional.absent();
-        }
+        castMenu = Optional.absent();
         castConnectionHelper.removeOnConnectionChangeListener(this);
         super.onPause();
     }

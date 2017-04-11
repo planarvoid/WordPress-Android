@@ -450,7 +450,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void onBackground(View trackPage) {
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onBackground();
-        castConnectionHelper.removeMediaRouterButton(viewHolder.mediaRouteButton);
         viewHolder.castPlayerStripController.unsubscribeFromEvents();
     }
 
@@ -735,7 +734,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.hideViews(holder.hideOnAdViews);
-                    castConnectionHelper.removeMediaRouterButton(holder.mediaRouteButton);
                     holder.shareButton.setVisibility(View.GONE);
                 }
             }
