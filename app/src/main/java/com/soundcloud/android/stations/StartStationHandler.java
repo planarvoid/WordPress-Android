@@ -3,6 +3,8 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -20,22 +22,26 @@ public class StartStationHandler {
 
     private final Navigator navigator;
     private final EventBus eventBus;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @Inject
-    public StartStationHandler(Navigator navigator, EventBus eventBus) {
+    public StartStationHandler(Navigator navigator, EventBus eventBus, PerformanceMetricsEngine performanceMetricsEngine) {
         this.navigator = navigator;
         this.eventBus = eventBus;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
+        startMeasuringStationLoad();
         navigator.legacyOpenStationInfo(context, stationUrn, discoverySource);
     }
 
     public void startStation(Context context, Urn stationUrn) {
-        navigator.legacyOpenStationInfo(context, stationUrn, STATIONS);
+        startStation(context, stationUrn, STATIONS);
     }
 
     public void openStationWithSeedTrack(Context context, Urn seedTrack, UIEvent navigationEvent) {
+        startMeasuringStationLoad();
         navigator.openStationInfo(context,
                                   Urn.forTrackStation(seedTrack.getNumericId()),
                                   seedTrack,
@@ -55,6 +61,10 @@ public class StartStationHandler {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerAutomatically());
     }
 
+    private void startMeasuringStationLoad() {
+        performanceMetricsEngine.startMeasuring(MetricType.LOAD_STATION);
+    }
+
     private class StartStationPageSubscriber extends DefaultSubscriber<PlayerUIEvent> {
         private final Context context;
         private final Urn trackUrn;
@@ -69,6 +79,8 @@ public class StartStationHandler {
         @Override
         public void onNext(PlayerUIEvent args) {
             final Urn stationUrn = Urn.forTrackStation(trackUrn.getNumericId());
+
+            startMeasuringStationLoad();
 
             if (trackBlocked) {
                 navigator.legacyOpenStationInfo(context, stationUrn, trackUrn, STATIONS);

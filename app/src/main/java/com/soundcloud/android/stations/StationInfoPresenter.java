@@ -94,14 +94,14 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
 
         return CollectionBinding.from(getStation(stationUrn))
                                 .withAdapter(adapter)
-                                .addObserver(onNext(this::endMeasureLoadTrackStation))
+                                .addObserver(onNext(this::endMeasureLoadStation))
                                 .build();
     }
 
-    private void endMeasureLoadTrackStation(Iterable<StationInfoItem> items) {
+    private void endMeasureLoadStation(Iterable<StationInfoItem> items) {
         MetricParams metricParams = MetricParams.of(MetricKey.TRACKS_COUNT, findTracksCount(items));
         PerformanceMetric performanceMetric = PerformanceMetric.builder()
-                                                               .metricType(MetricType.LOAD_TRACK_STATION)
+                                                               .metricType(MetricType.LOAD_STATION)
                                                                .metricParams(metricParams)
                                                                .build();
 

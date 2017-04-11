@@ -18,7 +18,7 @@ public enum MetricType {
     LISTENING_HISTORY_LOAD("listening_history_load"),
     RECENTLY_PLAYED_LOAD("recently_played_load"),
     LOGIN("login"),
-    LOAD_TRACK_STATION("load_track_station"),
+    LOAD_STATION("load_station"),
     REFRESH_HOME("refresh_home"),
     PLAY_QUEUE_SHUFFLE("play_queue_shuffle");
 

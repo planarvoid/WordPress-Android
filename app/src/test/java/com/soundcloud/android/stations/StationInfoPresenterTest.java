@@ -161,7 +161,7 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
         verify(performanceMetricsEngine).endMeasuring(performanceMetricCaptor.capture());
 
         Assertions.assertThat(performanceMetricCaptor.getValue())
-                  .hasMetricType(MetricType.LOAD_TRACK_STATION)
+                  .hasMetricType(MetricType.LOAD_STATION)
                   .containsMetricParam(MetricKey.TRACKS_COUNT, 1);
     }
 

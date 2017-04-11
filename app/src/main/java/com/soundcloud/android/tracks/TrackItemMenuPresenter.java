@@ -7,8 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.performance.MetricType;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -62,7 +60,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final EventTracker eventTracker;
-    private PerformanceMetricsEngine performanceMetricsEngine;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -102,8 +99,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
                            PlaybackFeedbackHelper playbackFeedbackHelper,
-                           EventTracker eventTracker,
-                           PerformanceMetricsEngine performanceMetricsEngine) {
+                           EventTracker eventTracker) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -119,7 +115,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.playbackInitiator = playbackInitiator;
         this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.eventTracker = eventTracker;
-        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -258,7 +253,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleStation(Context context) {
-        performanceMetricsEngine.startMeasuring(MetricType.LOAD_TRACK_STATION);
         stationHandler.openStationWithSeedTrack(context,
                                                 track.getUrn(),
                                                 UIEvent.fromNavigation(track.getUrn(), eventContextMetadata));

@@ -14,8 +14,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.performance.MetricType;
-import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -70,7 +68,6 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PopupMenuWrapper popupMenuWrapper;
     @Mock MenuItem menuItem;
     @Mock View view;
-    @Mock PerformanceMetricsEngine performanceMetricsEngine;
 
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -104,8 +101,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                playQueueManager,
                                                playbackInitiator,
                                                playbackFeedbackHelper,
-                                               tracker,
-                                               performanceMetricsEngine);
+                                               tracker);
     }
 
     @Test
@@ -222,15 +218,5 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         assertThat(event.kind()).isEqualTo(UIEvent.Kind.PLAY_NEXT);
         assertThat(event.clickObjectUrn().get()).isEqualTo(trackItem.getUrn());
         assertThat(event.originScreen().get()).isEqualTo(SCREEN);
-    }
-
-    @Test
-    public void clickOnStartStationStartsMeasuringTimeToLoadTrackStation() {
-        when(menuItem.getItemId()).thenReturn(R.id.start_station);
-
-        presenter.show(activity, view, trackItem, 0);
-        presenter.onMenuItemClick(menuItem, context);
-
-        verify(performanceMetricsEngine).startMeasuring(MetricType.LOAD_TRACK_STATION);
     }
 }
