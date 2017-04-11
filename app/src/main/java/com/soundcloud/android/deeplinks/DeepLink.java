@@ -19,6 +19,7 @@ public enum DeepLink {
     WEB_VIEW,
     ENTITY,
     SOUNDCLOUD_GO_PLUS_UPSELL,
+    SOUNDCLOUD_GO_BUY,
     SOUNDCLOUD_GO_PLUS_BUY,
     SOUNDCLOUD_GO_CHOICE,
     SOUNDCLOUD_GO_PLUS_CHOICE,
@@ -46,6 +47,7 @@ public enum DeepLink {
                        PLAYLIST_ENTITY,
                        USER_ENTITY,
                        SOUNDCLOUD_GO_PLUS_UPSELL,
+                       SOUNDCLOUD_GO_BUY,
                        SOUNDCLOUD_GO_PLUS_BUY,
                        SOUNDCLOUD_GO_CHOICE,
                        SOUNDCLOUD_GO_PLUS_CHOICE,
@@ -161,6 +163,9 @@ public enum DeepLink {
                         return SOUNDCLOUD_GO_PLUS_UPSELL;
                 }
             case "buysoundcloudgo":
+            case "buy_mt":
+                return SOUNDCLOUD_GO_BUY;
+            case "buysoundcloudgoplus":
             case "buy_ht":
                 return SOUNDCLOUD_GO_PLUS_BUY;
             case "settings":
@@ -244,7 +249,9 @@ public enum DeepLink {
             case "/soundcloudgo/soundcloudgoplus":
             case "/go/soundcloudgoplus":
                 return SOUNDCLOUD_GO_PLUS_CHOICE;
-            case "/buy_ht":
+            case "/go/buy/go":
+                return SOUNDCLOUD_GO_BUY;
+            case "/go/buy/go-plus":
                 return SOUNDCLOUD_GO_PLUS_BUY;
             case "/notification_preferences":
             case "/settings/notifications":

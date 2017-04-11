@@ -405,14 +405,115 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchCheckoutForSoundCloudScheme() {
-        when(featureOperations.upsellHighTier()).thenReturn(true);
+    public void shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        setupIntentForUrl("soundcloud://buysoundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        setupIntentForUrl("soundcloud://buysoundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void shouldLaunchMidTierCheckoutForFreeUserWithSoundCloudScheme() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellBothTiers()).thenReturn(true);
         setupIntentForUrl("soundcloud://buysoundcloudgo");
 
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER, Screen.CHECKOUT);
-        verify(navigator).openDirectCheckout(context);
+        verify(navigator).openDirectCheckout(context, Plan.MID_TIER);
+    }
+
+    @Test
+    public void shouldNotLaunchMidTierCheckout() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellBothTiers()).thenReturn(false);
+        setupIntentForUrl("soundcloud://buysoundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        setupIntentForUrl("soundcloud://buysoundcloudgoplus");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
+    }
+
+    @Test
+    public void shouldLaunchHighTierCheckoutForMidTierUserWithSoundCloudScheme() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        setupIntentForUrl("soundcloud://buysoundcloudgoplus");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CHECKOUT);
+        verify(navigator).openDirectCheckout(context, Plan.HIGH_TIER);
+    }
+
+    @Test
+    public void shouldLaunchHighTierCheckoutForFreeUserWithSoundCloudScheme() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        setupIntentForUrl("soundcloud://buysoundcloudgoplus");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CHECKOUT);
+        verify(navigator).openDirectCheckout(context, Plan.HIGH_TIER);
+    }
+
+    @Test
+    public void shouldNotLaunchHighTierCheckout() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        setupIntentForUrl("soundcloud://buysoundcloudgoplus");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+        assertThat(ShadowToast.getTextOfLatestToast())
+                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -440,16 +541,15 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+    public void shouldNotLaunchProductChoice() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(featureOperations.upsellBothTiers()).thenReturn(false);
         setupIntentForUrl("soundcloud://soundcloudgo/soundcloudgo");
 
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
         verify(navigator).openStream(context, Screen.DEEPLINK);
-        assertThat(ShadowToast.getTextOfLatestToast())
-                .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
 
     @Test
@@ -467,17 +567,6 @@ public class IntentResolverTest extends AndroidUnitTest {
     public void shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         setupIntentForUrl("soundcloud://settings_offlinelistening");
-
-        resolver.handleIntent(intent, context);
-
-        verifyTrackingEvent(Referrer.OTHER);
-        verify(navigator).openStream(context, Screen.DEEPLINK);
-    }
-
-    @Test
-    public void shouldNotLaunchCheckoutWhenUpsellFeatureIsDisabled() {
-        when(featureOperations.upsellHighTier()).thenReturn(false);
-        setupIntentForUrl("soundcloud://buysoundcloudgo");
 
         resolver.handleIntent(intent, context);
 

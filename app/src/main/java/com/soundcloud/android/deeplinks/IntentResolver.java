@@ -115,8 +115,11 @@ public class IntentResolver {
             case SOUNDCLOUD_GO_PLUS_UPSELL:
                 showUpgradeScreen(context, referrer);
                 break;
+            case SOUNDCLOUD_GO_BUY:
+                showMidTierCheckoutScreen(context, referrer);
+                break;
             case SOUNDCLOUD_GO_PLUS_BUY:
-                showDirectCheckoutScreen(context, referrer);
+                showHighTierCheckoutScreen(context, referrer);
                 break;
             case SOUNDCLOUD_GO_CHOICE:
                 showProductChoiceScreen(context, referrer, Plan.MID_TIER);
@@ -266,10 +269,25 @@ public class IntentResolver {
         }
     }
 
-    private void showDirectCheckoutScreen(Context context, String referrer) {
-        if (featureOperations.upsellHighTier()) {
+    private void showMidTierCheckoutScreen(Context context, String referrer) {
+        if (featureOperations.getCurrentPlan().isGoPlan()) {
+            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
+            openFallback(context, referrer);
+        } else if (featureOperations.upsellBothTiers()) {
             trackForegroundEvent(referrer, Screen.CHECKOUT);
-            navigator.openDirectCheckout(context);
+            navigator.openDirectCheckout(context, Plan.MID_TIER);
+        } else {
+            openFallback(context, referrer);
+        }
+    }
+
+    private void showHighTierCheckoutScreen(Context context, String referrer) {
+        if (Plan.HIGH_TIER == featureOperations.getCurrentPlan()) {
+            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
+            openFallback(context, referrer);
+        } else if (featureOperations.upsellHighTier()) {
+            trackForegroundEvent(referrer, Screen.CHECKOUT);
+            navigator.openDirectCheckout(context, Plan.HIGH_TIER);
         } else {
             openFallback(context, referrer);
         }

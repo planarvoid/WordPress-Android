@@ -1,5 +1,7 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.Navigator.EXTRA_CHECKOUT_PLAN;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -104,13 +106,13 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
         final WebProduct product = getProductFromIntent();
         if (product == null) {
-            fetchHighTierProduct();
+            fetchProducts();
         } else {
             launchWebForm(product);
         }
     }
 
-    private void fetchHighTierProduct() {
+    private void fetchProducts() {
         subscription = paymentOperations.get()
                                         .products()
                                         .observeOn(AndroidSchedulers.mainThread())
@@ -250,9 +252,11 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public void onNext(AvailableWebProducts products) {
             Optional<WebProduct> highTier = products.highTier();
-            if (highTier.isPresent()) {
-                saveProduct(highTier.get());
-                launchWebForm(highTier.get());
+            Optional<WebProduct> midTier = products.midTier();
+            if (shouldLaunchWebFormForProduct(highTier)) {
+                refreshWebForm(highTier.get());
+            } else if (shouldLaunchWebFormForProduct(midTier)) {
+                refreshWebForm(midTier.get());
             } else {
                 setRetryState();
             }
@@ -262,6 +266,22 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         public void onError(Throwable e) {
             setRetryState();
         }
+    }
+
+    private boolean shouldLaunchWebFormForProduct(Optional<WebProduct> product) {
+        return product.isPresent() && Plan.fromId(product.get().getPlanId()) == getIntentCheckoutPlan();
+    }
+
+    private Plan getIntentCheckoutPlan() {
+        if (activity.getIntent().hasExtra(EXTRA_CHECKOUT_PLAN)) {
+            return (Plan) activity.getIntent().getSerializableExtra(EXTRA_CHECKOUT_PLAN);
+        }
+        return Plan.UNDEFINED;
+    }
+
+    private void refreshWebForm(WebProduct product) {
+        saveProduct(product);
+        launchWebForm(product);
     }
 
     private void saveProduct(WebProduct product) {

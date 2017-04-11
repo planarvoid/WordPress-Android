@@ -93,6 +93,7 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_PRODUCT_CHOICE_PLAN = "product_choice_plan";
+    public static final String EXTRA_CHECKOUT_PLAN = "checkout_plan";
 
     protected final EventTracker eventTracker;
     protected final FeatureFlags featureFlags;
@@ -158,8 +159,10 @@ public class Navigator {
                         .startActivities();
     }
 
-    public void openDirectCheckout(Context context) {
-        context.startActivity((new Intent(context, WebCheckoutActivity.class)));
+    public void openDirectCheckout(Context context, Plan plan) {
+        Intent intent = new Intent(context, WebCheckoutActivity.class);
+        intent.putExtra(EXTRA_CHECKOUT_PLAN, plan);
+        context.startActivity(intent);
     }
 
     public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {

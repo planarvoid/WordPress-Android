@@ -206,9 +206,10 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openDirectCheckout() {
-        navigator.openDirectCheckout(activityContext);
+        navigator.openDirectCheckout(activityContext, Plan.HIGH_TIER);
         assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(WebCheckoutActivity.class);
+                                   .opensActivity(WebCheckoutActivity.class)
+                                   .containsExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
     }
 
     @Test

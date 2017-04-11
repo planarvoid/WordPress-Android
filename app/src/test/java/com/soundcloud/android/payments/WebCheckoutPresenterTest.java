@@ -44,6 +44,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Mock private AppCompatActivity activity;
 
     private static final AvailableWebProducts HIGH_TIER = AvailableWebProducts.single(TestProduct.highTier());
+    private static final AvailableWebProducts MID_TIER = AvailableWebProducts.single(TestProduct.midTier());
 
     private TestEventBus eventBus;
     private WebCheckoutPresenter presenter;
@@ -77,8 +78,10 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadProductIfNotPassedInIntent() {
-        when(activity.getIntent()).thenReturn(new Intent());
+    public void loadHighTierProductIfNotPassedInIntent() {
+        Intent intent = new Intent();
+        intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
+        when(activity.getIntent()).thenReturn(intent);
         when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
@@ -87,7 +90,29 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadingProductCanBeRetried() {
+    public void loadMidTierProductIfNotPassedInIntent() {
+        Intent intent = new Intent();
+        intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.MID_TIER);
+        when(activity.getIntent()).thenReturn(intent);
+        when(paymentOperations.products()).thenReturn(Observable.just(MID_TIER));
+
+        presenter.onCreate(activity, null);
+
+        verify(view).loadUrl(any(String.class));
+    }
+
+    @Test
+    public void loadingProductCanBeRetriedOnNoExtraCheckoutPlan() {
+        when(activity.getIntent()).thenReturn(new Intent());
+        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setRetry();
+    }
+
+    @Test
+    public void loadingProductCanBeRetriedOnIOException() {
         when(activity.getIntent()).thenReturn(new Intent());
         when(paymentOperations.products()).thenReturn(Observable.error(new IOException()));
 
@@ -97,8 +122,9 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void loadedProductIsSavedInIntent() {
+    public void loadedHighTierProductIsSavedInIntent() {
         Intent intent = new Intent();
+        intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
         when(activity.getIntent()).thenReturn(intent);
         when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
 
