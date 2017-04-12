@@ -109,7 +109,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         AdRichMediaSessionEvent richMediaSessionEvent = (AdRichMediaSessionEvent) trackingEvents.get(trackingEvents.size() - 1);
         assertCommonEventData(playEvent, richMediaSessionEvent);
         assertThat(playbackSessionEvent.eventKind()).isNotEqualTo(AdPlaybackSessionEvent.EventKind.FINISH);
-        assertThat(playbackSessionEvent.adUrn()).isEqualTo(audioAd.getAdUrn());
+        assertThat(playbackSessionEvent.adUrn()).isEqualTo(audioAd.adUrn());
         assertThat(playbackSessionEvent.monetizableTrackUrn()).isEqualTo(Optional.of(audioAd.getMonetizableTrackUrn()));
     }
 
@@ -152,7 +152,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         AdRichMediaSessionEvent richEvent = (AdRichMediaSessionEvent) trackingEvents.get(3);
 
         assertCommonEventData(stateTransitionFinished, richEvent);
-        assertThat(event.adUrn()).isEqualTo(audioAd.getAdUrn());
+        assertThat(event.adUrn()).isEqualTo(audioAd.adUrn());
         assertThat(event.monetizableTrackUrn()).isEqualTo(Optional.of(audioAd.getMonetizableTrackUrn()));
     }
 
@@ -167,9 +167,9 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(3);
         assertThat(((AdPlaybackSessionEvent) events.get(0)).eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.START);
-        assertThat(((AdPlaybackSessionEvent) events.get(0)).adUrn()).isEqualTo(audioAd.getAdUrn());
+        assertThat(((AdPlaybackSessionEvent) events.get(0)).adUrn()).isEqualTo(audioAd.adUrn());
         assertThat(((AdRichMediaSessionEvent) events.get(2)).action()).isEqualTo(AdRichMediaSessionEvent.Action.AUDIO_ACTION_PAUSE);
-        assertThat(((AdRichMediaSessionEvent) events.get(2)).adUrn()).isEqualTo(audioAd.getAdUrn());
+        assertThat(((AdRichMediaSessionEvent) events.get(2)).adUrn()).isEqualTo(audioAd.adUrn());
     }
 
     @Test
@@ -243,7 +243,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_TRACK_FINISHED);
 
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        final Urn urn = videoAd.getAdUrn();
+        final Urn urn = videoAd.adUrn();
 
         dispatcher.setAdMetadata(videoAd, trackSourceInfo);
         dispatcher.onPlayTransition(TestPlayStates.playing(urn, 0, 100), false);
@@ -265,7 +265,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_PAUSE);
 
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
-        final Urn urn = videoAd.getAdUrn();
+        final Urn urn = videoAd.adUrn();
 
         dispatcher.setAdMetadata(videoAd, trackSourceInfo);
         dispatcher.onPlayTransition(TestPlayStates.playing(urn, 0, 100), false);

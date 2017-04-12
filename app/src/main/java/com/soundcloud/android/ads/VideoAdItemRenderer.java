@@ -97,7 +97,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
     }
 
     private void bindFooter(VideoAd videoAd, Holder holder) {
-        final String callToActionText = videoAd.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
+        final String callToActionText = videoAd.callToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
         final boolean titleIsPresent = videoAd.title().isPresent();
 
         holder.footerWithTitle.setVisibility(titleIsPresent ? View.VISIBLE : View.GONE);

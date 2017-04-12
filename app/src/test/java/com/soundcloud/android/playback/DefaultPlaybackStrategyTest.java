@@ -128,9 +128,9 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
-        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(new PlaybackProgress(123L,
-                                                                                                                  456L,
-                                                                                                                  videoAd.getAdUrn()));
+        when(playSessionStateProvider.getLastProgressForItem(videoAd.adUrn())).thenReturn(new PlaybackProgress(123L,
+                                                                                                               456L,
+                                                                                                               videoAd.adUrn()));
 
         defaultPlaybackStrategy.resume();
 
@@ -213,7 +213,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysAudioAdSuccessfully() {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(audioAd));
-        when(playSessionStateProvider.getLastProgressForItem(audioAd.getAdUrn())).thenReturn(PlaybackProgress.empty());
+        when(playSessionStateProvider.getLastProgressForItem(audioAd.adUrn())).thenReturn(PlaybackProgress.empty());
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
@@ -240,7 +240,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playCurrentPlaysVideoAdSuccessfully() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK1);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
-        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(PlaybackProgress.empty());
+        when(playSessionStateProvider.getLastProgressForItem(videoAd.adUrn())).thenReturn(PlaybackProgress.empty());
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 

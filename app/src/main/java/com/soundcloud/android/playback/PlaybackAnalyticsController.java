@@ -101,7 +101,7 @@ class PlaybackAnalyticsController {
     }
 
     private void updateAdDispatcherMetaData(PlaybackItem currentItem, Optional<AdData> adData) {
-        if (adData.isPresent() && adData.get().getAdUrn().equals(currentItem.getUrn())) {
+        if (adData.isPresent() && adData.get().adUrn().equals(currentItem.getUrn())) {
             adAnalyticsDispatcher.setAdMetadata((PlayableAdData) adData.get(), playQueueManager.getCurrentTrackSourceInfo());
         } else {
             ErrorUtils.handleSilentException("PlaybackAnalyticsController: Could not set ad data for AdAnalyticsDispatcher", new IllegalStateException());

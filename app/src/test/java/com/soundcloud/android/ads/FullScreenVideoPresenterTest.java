@@ -53,13 +53,13 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, inlayAdPlayer, eventBus, navigator);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
-        intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.getAdUrn());
+        intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
 
         when(activity.getIntent()).thenReturn(intent);
         when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));
         when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.absent());
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
-        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.getAdUrn())));
+        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.adUrn())));
     }
 
     @Test
@@ -90,8 +90,8 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onDestroyCallsOnScreenSizeChangeOnViewabilityController() {
-        final Optional<PlaybackProgress> progressOne = Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.getAdUrn()));
-        final Optional<PlaybackProgress> progressTwo = Optional.of(new PlaybackProgress(20, 20, VIDEO_AD.getAdUrn()));
+        final Optional<PlaybackProgress> progressOne = Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.adUrn()));
+        final Optional<PlaybackProgress> progressTwo = Optional.of(new PlaybackProgress(20, 20, VIDEO_AD.adUrn()));
         when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(progressOne, progressTwo);
         presenter.onCreate(activity, null);
         presenter.onDestroy(activity);

@@ -579,7 +579,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             final Urn itemAdUrn = ((PlayerAd) item).getAdUrn();
             return pagesInPlayer.containsKey(pageView)
                     && pagesInPlayer.get(pageView).isAd()
-                    && pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
+                    && pagesInPlayer.get(pageView).getAdData().get().adUrn().equals(itemAdUrn);
         } else {
             return isTrackViewRelatedToChange(pageView, item.getTrackUrn());
         }

@@ -186,7 +186,7 @@ public class AdsOperations {
     private void insertAudioAdWithLeaveBehind(ApiLeaveBehind apiLeaveBehind,
                                               AudioAd audioAdData,
                                               TrackQueueItem monetizableItem) {
-        final LeaveBehindAd leaveBehind = LeaveBehindAd.create(apiLeaveBehind, audioAdData.getAdUrn());
+        final LeaveBehindAd leaveBehind = LeaveBehindAd.create(apiLeaveBehind, audioAdData.adUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(leaveBehind).build();
         final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);

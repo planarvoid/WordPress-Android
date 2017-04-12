@@ -58,7 +58,7 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         final AppInstallAd appInstall = ((AppInstall) items.get(position)).appInstall();
         final Holder holder = getHolder(itemView);
 
-        imageOperations.displayAppInstall(appInstall.getAdUrn(),
+        imageOperations.displayAppInstall(appInstall.adUrn(),
                                           appInstall.imageUrl(),
                                           holder.image,
                                           new ImageLoadTimeListener(position, appInstall));

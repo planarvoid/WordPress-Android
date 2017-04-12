@@ -76,7 +76,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ImageLoaded.create(42, ad, new Date(999)));
 
         InlayAdImpressionEvent impressionEvent = (InlayAdImpressionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(impressionEvent.ad()).isEqualTo(ad.getAdUrn());
+        assertThat(impressionEvent.ad()).isEqualTo(ad.adUrn());
         assertThat(impressionEvent.contextPosition()).isEqualTo(42);
         assertThat(impressionEvent.getTimestamp()).isEqualTo(999);
     }

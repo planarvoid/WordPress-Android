@@ -336,13 +336,13 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromSkipAdClick(PlayableAdData adData, @Nullable TrackSourceInfo trackSourceInfo) {
-        return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playableAdAttributes(adData, trackSourceInfo).adTrackingUrls(Optional.of(adData.getSkipUrls())).build();
+        return event(Kind.SKIP_AD_CLICK, ClickName.SKIP_AD_CLICK).playableAdAttributes(adData, trackSourceInfo).adTrackingUrls(Optional.of(adData.skipUrls())).build();
     }
 
     public static UIEvent fromPlayableClickThrough(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        final String clickthroughKind = "clickthrough::" + adData.getMonetizationType().key();
+        final String clickthroughKind = "clickthrough::" + adData.monetizationType().key();
         final Builder builder = event(Kind.AD_CLICKTHROUGH).playableAdAttributes(adData, trackSourceInfo)
-                                                           .adTrackingUrls(Optional.of(adData.getClickUrls()))
+                                                           .adTrackingUrls(Optional.of(adData.clickUrls()))
                                                            .clickthroughsKind(Optional.of(clickthroughKind));
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
@@ -635,8 +635,8 @@ public abstract class UIEvent extends TrackingEvent {
         }
 
         Builder basicAdAttributes(AdData adData) {
-            adUrn(Optional.of(adData.getAdUrn().toString()));
-            monetizationType(Optional.of(adData.getMonetizationType()));
+            adUrn(Optional.of(adData.adUrn().toString()));
+            monetizationType(Optional.of(adData.monetizationType()));
             return this;
         }
 

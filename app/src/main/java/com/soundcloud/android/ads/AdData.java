@@ -28,9 +28,9 @@ public abstract class AdData {
     private String monetizableTitle = Strings.EMPTY;
     private String monetizableCreator = Strings.EMPTY;
 
-    public abstract Urn getAdUrn();
+    public abstract Urn adUrn();
 
-    public abstract MonetizationType getMonetizationType();
+    public abstract MonetizationType monetizationType();
 
     public Urn getMonetizableTrackUrn() {
         return monetizableTrackUrn;

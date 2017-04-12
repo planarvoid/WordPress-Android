@@ -125,8 +125,8 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(1, adView, ITEMS);
 
         final TextView clickThroughButton = (TextView) adView.findViewById(R.id.call_to_action_with_title);
-        assertThat(VIDEO_AD_2.getCallToActionButtonText().isPresent()).isTrue();
-        assertThat(clickThroughButton.getText()).isEqualTo(VIDEO_AD_2.getCallToActionButtonText().get());
+        assertThat(VIDEO_AD_2.callToActionButtonText().isPresent()).isTrue();
+        assertThat(clickThroughButton.getText()).isEqualTo(VIDEO_AD_2.callToActionButtonText().get());
         assertThat(clickThroughButton).isVisible();
     }
 

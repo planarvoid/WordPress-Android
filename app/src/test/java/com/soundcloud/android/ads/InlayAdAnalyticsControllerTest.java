@@ -37,7 +37,7 @@ public class InlayAdAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onStateChangeForwardsEventToAdDispatcherAndSetsAdMetaData() {
-        final PlayStateEvent event = TestPlayStates.playing(VIDEO_AD.getAdUrn());
+        final PlayStateEvent event = TestPlayStates.playing(VIDEO_AD.adUrn());
         final ArgumentCaptor<TrackSourceInfo> trackSourceInfo = ArgumentCaptor.forClass(TrackSourceInfo.class);
         analyticsController.onStateTransition(Screen.STREAM, false, VIDEO_AD, event);
 
@@ -49,7 +49,7 @@ public class InlayAdAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onStateChangeSetsAdMetaDataEvenIfNotNewItem() {
-        final PlayStateEvent event = TestPlayStates.playing(VIDEO_AD.getAdUrn());
+        final PlayStateEvent event = TestPlayStates.playing(VIDEO_AD.adUrn());
 
         analyticsController.onStateTransition(Screen.STREAM, false, VIDEO_AD, event);
         analyticsController.onStateTransition(Screen.STREAM, false, VIDEO_AD, event);
@@ -59,7 +59,7 @@ public class InlayAdAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressEventWontForwardEventToAdDispatcherIfStateEventForItWasNeverSent() {
-        final PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(12, 30, VIDEO_AD.getAdUrn()), VIDEO_AD.getAdUrn());
+        final PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(12, 30, VIDEO_AD.adUrn()), VIDEO_AD.adUrn());
         analyticsController.onProgressEvent(VIDEO_AD, event);
 
         verify(adDispatcher, never()).onProgressEvent(event);

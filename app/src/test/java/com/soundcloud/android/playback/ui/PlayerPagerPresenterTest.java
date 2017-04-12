@@ -275,7 +275,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
         final View currentVideoView = getVideoAdPageView();
 
-        PlayStateEvent stateEvent = TestPlayStates.playing(videoAd.getAdUrn(), 0, 100);
+        PlayStateEvent stateEvent = TestPlayStates.playing(videoAd.adUrn(), 0, 100);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateEvent);
 
@@ -311,7 +311,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, videoAd.getAdUrn()), videoAd.getAdUrn());
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L, videoAd.adUrn()), videoAd.adUrn());
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 

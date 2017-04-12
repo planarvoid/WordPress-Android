@@ -115,7 +115,7 @@ public class MoatViewabilityController {
 
     void startOverlayTracking(View imageView, OverlayAdData adData) {
         if (adData instanceof InterstitialAd) {
-            final HashMap<String, String> moatSlicers = getMoatSlicers(adData.getAdUrn(), adData.getMonetizationType().key());
+            final HashMap<String, String> moatSlicers = getMoatSlicers(adData.adUrn(), adData.monetizationType().key());
             final NativeDisplayTracker tracker = getMoatFactory().get().createNativeDisplayTracker(imageView, moatSlicers);
             tracker.startTracking();
             displayTracker = Optional.of(tracker);

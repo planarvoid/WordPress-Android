@@ -959,7 +959,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromVideoAdFullscreen(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_FULLSCREEN);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_FULLSCREEN);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
         assertThat(uiEvent.adTrackingUrls().get()).contains("video_fullscreen1", "video_fullscreen2");
@@ -972,7 +972,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromVideoAdShrink(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_SHRINK);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_SHRINK);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
         assertThat(uiEvent.adTrackingUrls().get()).contains("video_exit_full1", "video_exit_full2");
@@ -985,7 +985,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromVideoMute(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_MUTE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_MUTE);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().isPresent()).isFalse();
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.INLAY);
         assertThat(uiEvent.adTrackingUrls().get()).contains("video_mute1", "video_mute2");
@@ -998,7 +998,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromVideoUnmute(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.VIDEO_AD_UNMUTE);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.VIDEO_AD_UNMUTE);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().isPresent()).isFalse();
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.INLAY);
         assertThat(uiEvent.adTrackingUrls().get()).contains("video_unmute1", "video_unmute2");
@@ -1010,7 +1010,7 @@ public class UIEventTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromPlayableClickThrough(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.videoad.com");
@@ -1024,7 +1024,7 @@ public class UIEventTest extends AndroidUnitTest {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromPlayableClickThrough(audioAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.AUDIO);
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.visualad.com");
@@ -1038,7 +1038,7 @@ public class UIEventTest extends AndroidUnitTest {
         AppInstallAd appInstall = AppInstallAd.create(AdFixtures.getApiAppInstall());
         UIEvent uiEvent = UIEvent.fromAppInstallAdClickThrough(appInstall);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(appInstall.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(appInstall.adUrn().toString());
         assertThat(uiEvent.monetizationType().get().key()).isEqualTo("mobile_inlay");
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::app_install");
@@ -1051,7 +1051,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromSkipAdClick(videoAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SKIP_AD_CLICK);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(videoAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.VIDEO);
         assertThat(uiEvent.adTrackingUrls().get()).contains("video_skip1", "video_skip2");
@@ -1064,7 +1064,7 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromSkipAdClick(audioAd, trackSourceInfo);
         assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.SKIP_AD_CLICK);
         assertThat(uiEvent.clickName().get()).isEqualTo(UIEvent.ClickName.SKIP_AD_CLICK);
-        assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(uiEvent.adUrn().get()).isEqualTo(audioAd.adUrn().toString());
         assertThat(uiEvent.monetizableTrackUrn().get()).isEqualTo(Urn.forTrack(321));
         assertThat(uiEvent.monetizationType().get()).isEqualTo(MonetizationType.AUDIO);
         assertThat(uiEvent.adTrackingUrls().get()).contains("audio_skip1", "audio_skip2");

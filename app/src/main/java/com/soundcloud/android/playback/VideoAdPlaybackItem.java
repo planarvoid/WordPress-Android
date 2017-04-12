@@ -23,13 +23,13 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition, float initialVolume) {
         final boolean firstPlay = !adData.hasReportedEvent(PlayableAdData.ReportingEvent.START);
-        return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
+        return new AutoParcel_VideoAdPlaybackItem(adData.adUrn(),
                                                   adData.videoSources(),
                                                   startPosition,
                                                   initialVolume,
                                                   firstPlay,
                                                   adData.uuid(),
-                                                  adData.getMonetizationType().key(),
+                                                  adData.monetizationType().key(),
                                                   PlaybackType.VIDEO_AD,
                                                   adData.duration());
     }

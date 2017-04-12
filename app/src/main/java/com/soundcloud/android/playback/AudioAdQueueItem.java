@@ -12,7 +12,7 @@ public class AudioAdQueueItem extends PlayQueueItem {
 
     @Override
     public Urn getUrn() {
-        return getAdData().get().getAdUrn();
+        return getAdData().get().adUrn();
     }
 
     @Override

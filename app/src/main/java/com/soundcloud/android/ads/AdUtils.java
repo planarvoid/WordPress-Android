@@ -40,8 +40,8 @@ public final class AdUtils {
 
     static void setupCallToActionButton(PlayableAdData adData, Resources resources, RoundedColorButton button) {
         final String defaultText = resources.getString(R.string.ads_call_to_action);
-        button.setText(adData.getCallToActionButtonText().or(defaultText));
-        adData.getDisplayProperties().ifPresent(properties ->  {
+        button.setText(adData.callToActionButtonText().or(defaultText));
+        adData.displayProperties().ifPresent(properties ->  {
             button.setTextColor(getColorStates(
                     properties.getFocusedTextColor(),
                     properties.getPressedTextColor(),

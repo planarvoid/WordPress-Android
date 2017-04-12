@@ -409,7 +409,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final AudioAd audioAdData = AudioAd.create(allAds.audioAd().get(), trackQueueItem.getUrn());
         final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(trackQueueItem)
-                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().leaveBehind().get(), audioAdData.getAdUrn())).build();
+                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().leaveBehind().get(), audioAdData.adUrn())).build();
 
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, newMonetizableItem));
     }
@@ -488,7 +488,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         TrackQueueItem.Builder builder = new TrackQueueItem.Builder(trackQueueItem);
         if (adsForTrack.audioAd().get().leaveBehind().isPresent()) {
             builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().leaveBehind().get(),
-                                                              audioAdData.getAdUrn()));
+                                                              audioAdData.adUrn()));
         }
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));
     }

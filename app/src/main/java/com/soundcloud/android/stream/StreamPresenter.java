@@ -406,6 +406,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
-        navigator.openFullscreenVideoAd(context, videoAd.getAdUrn());
+        navigator.openFullscreenVideoAd(context, videoAd.adUrn());
     }
 }

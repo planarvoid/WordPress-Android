@@ -682,6 +682,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoFullscreenClicked(context(), videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigator).openFullscreenVideoAd(context(), videoAd.getAdUrn());
+        verify(navigator).openFullscreenVideoAd(context(), videoAd.adUrn());
     }
 }

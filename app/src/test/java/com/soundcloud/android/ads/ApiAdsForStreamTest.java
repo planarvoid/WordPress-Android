@@ -40,7 +40,7 @@ public class ApiAdsForStreamTest extends AndroidUnitTest {
 
         final List<AdData> appInstalls = adsForStream.getAds(dateProvider);
         assertThat(appInstalls.size()).isEqualTo(2);
-        assertThat(appInstalls.get(0).getAdUrn()).isEqualTo(apiAppInstall.adUrn());
-        assertThat(appInstalls.get(1).getAdUrn()).isEqualTo(videoAd.adUrn());
+        assertThat(appInstalls.get(0).adUrn()).isEqualTo(apiAppInstall.adUrn());
+        assertThat(appInstalls.get(1).adUrn()).isEqualTo(videoAd.adUrn());
     }
 }

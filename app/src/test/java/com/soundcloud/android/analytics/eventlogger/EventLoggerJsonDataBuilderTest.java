@@ -82,7 +82,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                                    trackSourceInfo));
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
-                                               .adUrn(leaveBehindAd.getAdUrn().toString())
+                                               .adUrn(leaveBehindAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("leave_behind")
                                                .impressionObject(leaveBehindAd.getAudioAdUrn().toString())
@@ -103,7 +103,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", TIMESTAMP)
-                                               .adUrn(interstitialAd.getAdUrn().toString())
+                                               .adUrn(interstitialAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("interstitial")
                                                .impressionObject(monetizedTrack.toString())
@@ -125,7 +125,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                                               .adUrn(leaveBehindAd.getAdUrn().toString())
+                                               .adUrn(leaveBehindAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::leave_behind")
                                                .clickObject(leaveBehindAd.getAudioAdUrn().toString())
@@ -148,7 +148,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                                               .adUrn(interstitialAd.getAdUrn().toString())
+                                               .adUrn(interstitialAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::interstitial")
                                                .clickTarget(interstitialAd.getClickthroughUrl().toString())

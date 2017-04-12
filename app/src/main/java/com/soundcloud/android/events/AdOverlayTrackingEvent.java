@@ -105,7 +105,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
                                                              .monetizableTrack(monetizableTrack)
                                                              .adArtworkUrl(adData.getImageUrl())
                                                              .originScreen(screen)
-                                                             .adUrn(adData.getAdUrn())
+                                                             .adUrn(adData.adUrn())
                                                              .monetizationType(monetizationType)
                                                              .clickName(Optional.absent())
                                                              .clickTarget(Optional.absent())

@@ -98,15 +98,15 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
     public abstract boolean shouldReportStartWithPlay();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return createQuartileEvent(adData, trackSourceInfo, adData.getFirstQuartileUrls(), ClickName.FIRST_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.firstQuartileUrls(), ClickName.FIRST_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forSecondQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return createQuartileEvent(adData, trackSourceInfo, adData.getSecondQuartileUrls(), ClickName.SECOND_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.secondQuartileUrls(), ClickName.SECOND_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forThirdQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
-        return createQuartileEvent(adData, trackSourceInfo, adData.getThirdQuartileUrls(), ClickName.THIRD_QUARTILE_TYPE);
+        return createQuartileEvent(adData, trackSourceInfo, adData.thirdQuartileUrls(), ClickName.THIRD_QUARTILE_TYPE);
     }
 
     private static AdPlaybackSessionEvent createQuartileEvent(PlayableAdData adData,
@@ -129,13 +129,13 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     public static AdPlaybackSessionEvent forResume(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return AdPlaybackSessionEvent.create(EventKind.RESUME, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
-                .trackingUrls(Optional.of(adData.getResumeUrls()))
+                .trackingUrls(Optional.of(adData.resumeUrls()))
                 .build();
     }
 
     public static AdPlaybackSessionEvent forPause(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return AdPlaybackSessionEvent.create(EventKind.PAUSE, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
-                .trackingUrls(Optional.of(adData.getPauseUrls()))
+                .trackingUrls(Optional.of(adData.pauseUrls()))
                 .build();
     }
 
@@ -143,7 +143,7 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
         return AdPlaybackSessionEvent.create(EventKind.FINISH, adData, eventArgs.getTrackSourceInfo().getOriginScreen())
                 .eventName(Optional.of(EventName.CLICK_EVENT))
                 .clickName(Optional.of(ClickName.AD_FINISH))
-                .trackingUrls(Optional.of(adData.getFinishUrls()))
+                .trackingUrls(Optional.of(adData.finishUrls()))
                 .build();
     }
 
@@ -154,9 +154,9 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
                .referringEvent(Optional.absent())
                .eventKind(kind)
                .eventName(Optional.absent())
-               .adUrn(adData.getAdUrn())
+               .adUrn(adData.adUrn())
                .monetizableTrackUrn(Optional.fromNullable(adData.getMonetizableTrackUrn()))
-               .monetizationType(adData.getMonetizationType())
+               .monetizationType(adData.monetizationType())
                .trackingUrls(Optional.absent())
                .shouldReportStartWithPlay(!adData.hasReportedEvent(ReportingEvent.START))
                .pageName(pageName)
@@ -167,8 +167,8 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     private static List<String> getStartTracking(PlayableAdData adData) {
         List<String> trackingUrls = new ArrayList<>();
-        trackingUrls.addAll(adData.getImpressionUrls());
-        trackingUrls.addAll(adData.getStartUrls());
+        trackingUrls.addAll(adData.impressionUrls());
+        trackingUrls.addAll(adData.startUrls());
         return trackingUrls;
     }
 

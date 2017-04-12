@@ -93,7 +93,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void autoplayWhenUserDidNotInitiatePauseWillResumeAd() {
         player.play(VIDEO_AD, false);
-        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.getAdUrn(), -1, -1, PlayStateReason.NONE));
+        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.adUrn(), -1, -1, PlayStateReason.NONE));
 
         player.autoplay(VIDEO_AD);
 
@@ -287,9 +287,9 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     public void togglePlayWillPauseAndResumeVideoIfAlreadyPlaying() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
 
-        player.onPlaystateChanged(TestPlayerTransitions.playing(VIDEO_AD.getAdUrn()));
+        player.onPlaystateChanged(TestPlayerTransitions.playing(VIDEO_AD.adUrn()));
         player.togglePlayback(VIDEO_AD);
-        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.getAdUrn()));
+        player.onPlaystateChanged(TestPlayerTransitions.idle(VIDEO_AD.adUrn()));
         player.togglePlayback(VIDEO_AD);
 
         final InOrder inOrder = Mockito.inOrder(adapter);
@@ -308,7 +308,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void togglePlaybackWillRestartFinishedAd() {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
-        player.onPlaystateChanged(TestPlayerTransitions.complete(VIDEO_AD.getAdUrn()));
+        player.onPlaystateChanged(TestPlayerTransitions.complete(VIDEO_AD.adUrn()));
         player.togglePlayback(VIDEO_AD);
 
         final InOrder inOrder = Mockito.inOrder(adapter);
@@ -319,7 +319,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void userInitiatedStateChangesAreForwardedToAnalyticsController() {
         ArgumentCaptor<PlayStateEvent> requestData = ArgumentCaptor.forClass(PlayStateEvent.class);
-        final PlaybackStateTransition transition = TestPlayerTransitions.playing(VIDEO_AD.getAdUrn());
+        final PlaybackStateTransition transition = TestPlayerTransitions.playing(VIDEO_AD.adUrn());
 
         player.play(VIDEO_AD, USER_INITIATED);
         player.onPlaystateChanged(transition);
@@ -331,7 +331,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void automaticStateChangesAreForwardedToAnalyticsController() {
         ArgumentCaptor<PlayStateEvent> requestData = ArgumentCaptor.forClass(PlayStateEvent.class);
-        final PlaybackStateTransition transition = TestPlayerTransitions.playing(VIDEO_AD.getAdUrn());
+        final PlaybackStateTransition transition = TestPlayerTransitions.playing(VIDEO_AD.adUrn());
 
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.onPlaystateChanged(transition);
@@ -343,7 +343,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Test
     public void stateChangesAreForwardedToInlayStateProviderController() {
         final ArgumentCaptor<InlayPlayStateTransition> inlayTransition = ArgumentCaptor.forClass(InlayPlayStateTransition.class);
-        final PlaybackStateTransition playerTransition = TestPlayerTransitions.playing(VIDEO_AD.getAdUrn());
+        final PlaybackStateTransition playerTransition = TestPlayerTransitions.playing(VIDEO_AD.adUrn());
 
         this.player.play(VIDEO_AD, NOT_USER_INITIATED);
         this.player.onPlaystateChanged(playerTransition);
@@ -372,7 +372,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
 
         final Optional<PlaybackProgress> playbackProgress = player.lastPosition(VIDEO_AD);
         assertThat(playbackProgress.isPresent()).isTrue();
-        assertThat(playbackProgress.get().getUrn()).isEqualTo(VIDEO_AD.getAdUrn());
+        assertThat(playbackProgress.get().getUrn()).isEqualTo(VIDEO_AD.adUrn());
         assertThat(playbackProgress.get().getPosition()).isEqualTo(100);
         assertThat(playbackProgress.get().getDuration()).isEqualTo(200);
     }

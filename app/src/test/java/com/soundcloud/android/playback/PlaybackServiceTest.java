@@ -220,7 +220,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
                                                                                     PlayStateReason.NONE,
-                                                                                    videoAd.getAdUrn(),
+                                                                                    videoAd.adUrn(),
                                                                                     0,
                                                                                     123,
                                                                                     dateProvider);

@@ -26,33 +26,33 @@ public abstract class AudioAd extends PlayableAdData {
     }
 
     private static AudioAd.Builder createWithCompanion(Builder builder, ApiCompanionAd companion) {
-        return builder.getCallToActionButtonText(companion.ctaButtonText)
-                      .getDisplayProperties(Optional.of(VisualAdDisplayProperties.create(companion.displayProperties)))
+        return builder.callToActionButtonText(companion.ctaButtonText)
+                      .displayProperties(Optional.of(VisualAdDisplayProperties.create(companion.displayProperties)))
                       .companionAdUrn(Optional.of(companion.urn))
                       .companionImageUrl(Optional.of(Uri.parse(companion.imageUrl)))
                       .clickThroughUrl(extractClickThrough(companion))
-                      .getClickUrls(companion.trackingClickUrls)
+                      .clickUrls(companion.trackingClickUrls)
                       .companionImpressionUrls(companion.trackingImpressionUrls);
     }
 
     private static AudioAd.Builder create(ApiModel apiModel) {
         final AutoValue_AudioAd.Builder builder = new AutoValue_AudioAd.Builder();
         final ApiAdTracking tracking = apiModel.adTracking();
-        return builder.getAdUrn(apiModel.urn())
-                      .getMonetizationType(MonetizationType.AUDIO)
-                      .getImpressionUrls(tracking.impressionUrls)
-                      .getStartUrls(tracking.startUrls)
-                      .getFinishUrls(tracking.finishUrls)
-                      .getSkipUrls(tracking.skipUrls)
-                      .getFirstQuartileUrls(tracking.firstQuartileUrls)
-                      .getSecondQuartileUrls(tracking.secondQuartileUrls)
-                      .getThirdQuartileUrls(tracking.thirdQuartileUrls)
-                      .getPauseUrls(tracking.pauseUrls)
-                      .getResumeUrls(tracking.resumeUrls)
+        return builder.adUrn(apiModel.urn())
+                      .monetizationType(MonetizationType.AUDIO)
+                      .impressionUrls(tracking.impressionUrls)
+                      .startUrls(tracking.startUrls)
+                      .finishUrls(tracking.finishUrls)
+                      .skipUrls(tracking.skipUrls)
+                      .firstQuartileUrls(tracking.firstQuartileUrls)
+                      .secondQuartileUrls(tracking.secondQuartileUrls)
+                      .thirdQuartileUrls(tracking.thirdQuartileUrls)
+                      .pauseUrls(tracking.pauseUrls)
+                      .resumeUrls(tracking.resumeUrls)
                       .isSkippable(apiModel.isSkippable())
-                      .getCallToActionButtonText(Optional.absent())
-                      .getDisplayProperties(Optional.absent())
-                      .getClickUrls(Collections.emptyList())
+                      .callToActionButtonText(Optional.absent())
+                      .displayProperties(Optional.absent())
+                      .clickUrls(Collections.emptyList())
                       .companionAdUrn(Optional.absent())
                       .companionImageUrl(Optional.absent())
                       .clickThroughUrl(Optional.absent())
@@ -81,22 +81,22 @@ public abstract class AudioAd extends PlayableAdData {
 
     @AutoValue.Builder
     abstract static class Builder {
-        abstract Builder getAdUrn(Urn getAdUrn);
-        abstract Builder getMonetizationType(MonetizationType getMonetizationType);
+        abstract Builder adUrn(Urn getAdUrn);
+        abstract Builder monetizationType(MonetizationType getMonetizationType);
 
-        abstract Builder getCallToActionButtonText(Optional<String> getCallToActionButtonText);
-        abstract Builder getImpressionUrls(List<String> getImpressionUrls);
-        abstract Builder getStartUrls(List<String> getStartUrls);
-        abstract Builder getFinishUrls(List<String> getFinishUrls);
-        abstract Builder getSkipUrls(List<String> getSkipUrls);
-        abstract Builder getFirstQuartileUrls(List<String> getFirstQuartileUrls);
-        abstract Builder getSecondQuartileUrls(List<String> getSecondQuartileUrls);
-        abstract Builder getThirdQuartileUrls(List<String> getThirdQuartileUrls);
-        abstract Builder getPauseUrls(List<String> getPauseUrls);
-        abstract Builder getResumeUrls(List<String> getResumeUrls);
-        abstract Builder getClickUrls(List<String> getClickUrls);
+        abstract Builder callToActionButtonText(Optional<String> getCallToActionButtonText);
+        abstract Builder impressionUrls(List<String> getImpressionUrls);
+        abstract Builder startUrls(List<String> getStartUrls);
+        abstract Builder finishUrls(List<String> getFinishUrls);
+        abstract Builder skipUrls(List<String> getSkipUrls);
+        abstract Builder firstQuartileUrls(List<String> getFirstQuartileUrls);
+        abstract Builder secondQuartileUrls(List<String> getSecondQuartileUrls);
+        abstract Builder thirdQuartileUrls(List<String> getThirdQuartileUrls);
+        abstract Builder pauseUrls(List<String> getPauseUrls);
+        abstract Builder resumeUrls(List<String> getResumeUrls);
+        abstract Builder clickUrls(List<String> getClickUrls);
         abstract Builder isSkippable(boolean isSkippable);
-        abstract Builder getDisplayProperties(Optional<VisualAdDisplayProperties> getDisplayProperties);
+        abstract Builder displayProperties(Optional<VisualAdDisplayProperties> getDisplayProperties);
 
         abstract Builder companionAdUrn(Optional<Urn> companionAdUrn);
         abstract Builder companionImageUrl(Optional<Uri> companionImageUrl);

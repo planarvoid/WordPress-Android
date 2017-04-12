@@ -946,7 +946,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         playQueueManager.setPosition(1, true);
-        assertThat(playQueueManager.isCurrentItem(videoAd.getAdUrn())).isTrue();
+        assertThat(playQueueManager.isCurrentItem(videoAd.adUrn())).isTrue();
     }
 
     @Test

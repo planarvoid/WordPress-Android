@@ -133,7 +133,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     private Observable<Void> playCurrentAd(PlayQueueItem currentPlayQueueItem) {
         final AdData adData = currentPlayQueueItem.getAdData().get();
-        final long position = getPosition(adData.getAdUrn());
+        final long position = getPosition(adData.adUrn());
         final PlaybackItem playbackItem = currentPlayQueueItem.isVideoAd()
                                           ? VideoAdPlaybackItem.create((VideoAd) adData, position)
                                           : AudioAdPlaybackItem.create((AudioAd) adData);

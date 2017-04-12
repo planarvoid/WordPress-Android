@@ -99,7 +99,7 @@ class InlayAdPlayer implements Player.PlayerListener {
         if (isPlaying()) {
             pause();
         } else {
-            if (wasPlaybackComplete(videoAd.getAdUrn())) {
+            if (wasPlaybackComplete(videoAd.adUrn())) {
                 currentAd = Optional.absent();
             }
             play(videoAd, true);
@@ -177,7 +177,7 @@ class InlayAdPlayer implements Player.PlayerListener {
     }
 
     Optional<PlaybackProgress> lastPosition(VideoAd ad) {
-        return ad.getAdUrn().equals(lastProgress.getUrn())
+        return ad.adUrn().equals(lastProgress.getUrn())
                ? Optional.of(lastProgress)
                : Optional.absent();
     }
@@ -235,7 +235,7 @@ class InlayAdPlayer implements Player.PlayerListener {
     public void onProgressEvent(long progress, long duration) {
         if (currentAd.isPresent()) {
             final VideoAd adData = currentAd.get();
-            final Urn urn = adData.getAdUrn();
+            final Urn urn = adData.adUrn();
             lastProgress = new PlaybackProgress(progress, duration, urn);
             analyticsController.onProgressEvent(adData, PlaybackProgressEvent.create(lastProgress, urn));
         }

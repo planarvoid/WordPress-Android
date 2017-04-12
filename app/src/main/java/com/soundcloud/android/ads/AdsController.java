@@ -224,7 +224,7 @@ public class AdsController {
         final Urn monetizableUrn = getUpcomingMonetizableUrn();
         if (!monetizableUrn.equals(Urn.NOT_SET) && adsForNextTrack.isPresent() && adRequestIds.containsKey(monetizableUrn)) {
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
-            final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
+            final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().adUrn() : Urn.NOT_SET;
             eventBus.publish(EventQueue.TRACKING,
                              AdDeliveryEvent.adDelivered(Optional.of(monetizableUrn),
                                                          selectedAdUrn,

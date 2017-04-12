@@ -23,11 +23,11 @@ abstract class PlayerAd extends PlayerItem {
     }
 
     String getCallToActionButtonText(Resources resources) {
-        return adData.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
+        return adData.callToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
     }
 
     Urn getAdUrn() {
-        return adData.getAdUrn();
+        return adData.adUrn();
     }
 
     String getPreviewTitle(Resources resources) {
@@ -45,31 +45,31 @@ abstract class PlayerAd extends PlayerItem {
     }
 
     boolean hasVisualAdProperties() {
-        return adData.getDisplayProperties().isPresent();
+        return adData.displayProperties().isPresent();
     }
 
     int getDefaultTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getDefaultTextColor());
+        return Color.parseColor(adData.displayProperties().get().getDefaultTextColor());
     }
 
     int getDefaultBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getDefaultBackgroundColor());
+        return Color.parseColor(adData.displayProperties().get().getDefaultBackgroundColor());
     }
 
     int getPressedTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getPressedTextColor());
+        return Color.parseColor(adData.displayProperties().get().getPressedTextColor());
     }
 
     int getPressedBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getPressedBackgroundColor());
+        return Color.parseColor(adData.displayProperties().get().getPressedBackgroundColor());
     }
 
     int getFocusedTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getFocusedTextColor());
+        return Color.parseColor(adData.displayProperties().get().getFocusedTextColor());
     }
 
     int getFocusedBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().get().getFocusedBackgroundColor());
+        return Color.parseColor(adData.displayProperties().get().getFocusedBackgroundColor());
     }
 
     PlayableAdData getAdData() {

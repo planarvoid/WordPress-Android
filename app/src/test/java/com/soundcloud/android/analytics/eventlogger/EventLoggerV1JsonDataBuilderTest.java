@@ -831,7 +831,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clientEventId(CLIENT_EVENT_ID)
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
-                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .adUrn(audioAd.adUrn().toString())
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .monetizationType("audio_ad"));
     }
@@ -861,7 +861,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clientEventId(CLIENT_EVENT_ID)
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
-                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .adUrn(audioAd.adUrn().toString())
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .monetizationType("audio_ad"));
     }
@@ -896,7 +896,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("player")
                                                .clientEventId(CLIENT_EVENT_ID)
-                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .adUrn(audioAd.adUrn().toString())
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .monetizationType("audio_ad"));
     }

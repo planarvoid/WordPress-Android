@@ -17,7 +17,7 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
 
     public static AudioAdPlaybackItem create(AudioAd audioAd) {
         return new AutoParcel_AudioAdPlaybackItem(
-                audioAd.getAdUrn(),
+                audioAd.adUrn(),
                 audioAd.audioSources(),
                 POSITION_START,
                 PlaybackType.AUDIO_AD,

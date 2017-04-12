@@ -36,7 +36,7 @@ public class InlayAdAnalyticsController {
 
 
     public void onProgressEvent(PlayableAdData adData, PlaybackProgressEvent playbackProgress) {
-        if (playStateEvent.getPlayingItemUrn().equals(adData.getAdUrn())) {
+        if (playStateEvent.getPlayingItemUrn().equals(adData.adUrn())) {
             final PlaybackProgress currentProgress = playbackProgress.getPlaybackProgress();
             final long earliestPositionForCheckpoint = lastProgressCheckpoint.getPosition() + AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
 

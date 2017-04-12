@@ -188,7 +188,7 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void getUrnReturnsAdUrnForPositionWithVideo() throws Exception {
-        assertThat(playQueue.getUrn(2)).isEqualTo(VIDEO_QUEUE_ITEM.getAdData().get().getAdUrn());
+        assertThat(playQueue.getUrn(2)).isEqualTo(VIDEO_QUEUE_ITEM.getAdData().get().adUrn());
     }
 
     @Test

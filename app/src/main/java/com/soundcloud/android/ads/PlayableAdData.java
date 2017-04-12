@@ -24,31 +24,20 @@ public abstract class PlayableAdData extends AdData {
         eventsReported[event.ordinal()] = true;
     }
 
-    public abstract Optional<String> getCallToActionButtonText();
+    public abstract Optional<String> callToActionButtonText();
 
-    public abstract List<String> getImpressionUrls();
-
-    public abstract List<String> getStartUrls();
-
-    public abstract List<String> getFinishUrls();
-
-    public abstract List<String> getSkipUrls();
-
-    public abstract List<String> getFirstQuartileUrls();
-
-    public abstract List<String> getSecondQuartileUrls();
-
-    public abstract List<String> getThirdQuartileUrls();
-
-    public abstract List<String> getPauseUrls();
-
-    public abstract List<String> getResumeUrls();
-
-    public abstract List<String> getClickUrls();
+    public abstract List<String> impressionUrls();
+    public abstract List<String> startUrls();
+    public abstract List<String> finishUrls();
+    public abstract List<String> skipUrls();
+    public abstract List<String> firstQuartileUrls();
+    public abstract List<String> secondQuartileUrls();
+    public abstract List<String> thirdQuartileUrls();
+    public abstract List<String> pauseUrls();
+    public abstract List<String> resumeUrls();
+    public abstract List<String> clickUrls();
 
     public abstract boolean isSkippable();
 
-    public abstract Optional<VisualAdDisplayProperties> getDisplayProperties();
-
-
+    public abstract Optional<VisualAdDisplayProperties> displayProperties();
 }

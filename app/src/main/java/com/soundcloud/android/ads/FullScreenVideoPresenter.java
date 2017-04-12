@@ -82,7 +82,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     private void bindView(Urn urn, AppCompatActivity activity) {
-        if (ad.isPresent() && ad.get().getAdUrn().equals(urn)) {
+        if (ad.isPresent() && ad.get().adUrn().equals(urn)) {
             final VideoAd video = ad.get();
             onScreenSizeChange(video, true);
             view.setupContentView(activity, video);

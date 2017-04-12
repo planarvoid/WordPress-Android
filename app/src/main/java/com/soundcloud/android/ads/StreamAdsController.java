@@ -240,7 +240,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                 insertedAds.add(ad);
                 availableAds.remove(ad);
                 eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adDelivered(Optional.absent(),
-                                                                                  ad.getAdUrn(),
+                                                                                  ad.adUrn(),
                                                                                   lastRequestId,
                                                                                   false, true));
             }
