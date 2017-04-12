@@ -30,6 +30,8 @@ public abstract class AdData {
 
     public abstract Urn getAdUrn();
 
+    public abstract MonetizationType getMonetizationType();
+
     public Urn getMonetizableTrackUrn() {
         return monetizableTrackUrn;
     }
@@ -57,6 +59,4 @@ public abstract class AdData {
     protected void setMonetizableTrackUrn(Urn trackUrn) {
         monetizableTrackUrn = trackUrn;
     }
-
-    public abstract MonetizationType getMonetizationType();
 }

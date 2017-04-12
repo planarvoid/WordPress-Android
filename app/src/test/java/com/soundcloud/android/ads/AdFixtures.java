@@ -3,7 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
+import com.soundcloud.android.ads.AudioAd.ApiModel.RelatedResources;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
@@ -149,15 +149,15 @@ public class AdFixtures {
         );
     }
 
-    static ApiAudioAd getApiAudioAd() {
+    static AudioAd.ApiModel getApiAudioAd() {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
     }
 
-    private static ApiAudioAd getApiAudioAd(boolean skippable) {
+    private static AudioAd.ApiModel getApiAudioAd(boolean skippable) {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), skippable);
     }
 
-    private static ApiAudioAd getNonClickableApiAudioAd() {
+    private static AudioAd.ApiModel getNonClickableApiAudioAd() {
         final ApiCompanionAd nonClickableCompanion = new ApiCompanionAd(
                 forAd("dfp", "companion"),
                 "imageurl",
@@ -170,37 +170,31 @@ public class AdFixtures {
         return getApiAudioAdWithCompanion(nonClickableCompanion, SKIPPABLE);
     }
 
-    private static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
-        RelatedResources relatedResources = new RelatedResources(companion, getApiLeaveBehind());
-        return new ApiAudioAd(
-                forAd("dfp", "869"),
-                skippable,
-                relatedResources,
-                getApiAudioAdSources(),
-                getApiAudioAdTracking()
-        );
+    private static AudioAd.ApiModel getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
+        RelatedResources relatedResources = RelatedResources.create(Optional.of(companion), Optional.of(getApiLeaveBehind()));
+        return AudioAd.ApiModel.create(forAd("dfp", "869"),
+                                       skippable,
+                                       relatedResources,
+                                       getApiAudioAdSources(),
+                                       getApiAudioAdTracking());
     }
 
-    private static ApiAudioAd getCompanionlessAudioAd() {
-        RelatedResources relatedResources = new RelatedResources(null, getApiLeaveBehind());
-        return new ApiAudioAd(
-                forAd("dfp", "869"),
-                true,
-                relatedResources,
-                getApiAudioAdSources(),
-                getApiAudioAdTracking()
-        );
+    private static AudioAd.ApiModel getCompanionlessAudioAd() {
+        RelatedResources relatedResources = RelatedResources.create(Optional.absent(), Optional.of(getApiLeaveBehind()));
+        return AudioAd.ApiModel.create(forAd("dfp", "869"),
+                                       true,
+                                       relatedResources,
+                                       getApiAudioAdSources(),
+                                       getApiAudioAdTracking());
     }
 
-    static ApiAudioAd getApiAudioAdWithoutLeaveBehind() {
-        RelatedResources relatedResources = new RelatedResources(getApiCompanionAd(), null);
-        return new ApiAudioAd(
-                forAd("dfp", "869"),
-                SKIPPABLE,
-                relatedResources,
-                getApiAudioAdSources(),
-                getApiAudioAdTracking()
-        );
+    static AudioAd.ApiModel getApiAudioAdWithoutLeaveBehind() {
+        RelatedResources relatedResources = RelatedResources.create(Optional.of(getApiCompanionAd()), Optional.absent());
+        return AudioAd.ApiModel.create(forAd("dfp", "869"),
+                                       SKIPPABLE,
+                                       relatedResources,
+                                       getApiAudioAdSources(),
+                                       getApiAudioAdTracking());
     }
 
     private static List<AudioAdSource.ApiModel> getApiAudioAdSources() {

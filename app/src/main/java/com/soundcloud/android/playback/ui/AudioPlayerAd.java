@@ -15,11 +15,11 @@ class AudioPlayerAd extends PlayerAd {
     }
 
     Optional<Uri> getImage() {
-        return audioData.getCompanionImageUrl();
+        return audioData.companionImageUrl();
     }
 
     Optional<String> getClickThroughUrl() {
-        return audioData.getClickThroughUrl();
+        return audioData.clickThroughUrl();
     }
 
     boolean hasCompanion() {

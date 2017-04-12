@@ -34,12 +34,10 @@ public class AdIdHelper {
 
     public void init() {
         if (adIdWrapper.isPlayServicesAvailable()) {
-
-            Observable
-                    .fromCallable(adIdWrapper::getAdInfo)
-                    .subscribeOn(scheduler)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new AdInfoSubscriber());
+            Observable.fromCallable(adIdWrapper::getAdInfo)
+                      .subscribeOn(scheduler)
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribe(new AdInfoSubscriber());
         }
     }
 

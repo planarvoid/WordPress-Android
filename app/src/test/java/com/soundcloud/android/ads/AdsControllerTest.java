@@ -298,7 +298,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(AudioAd.ApiModel.class));
     }
 
     @Test
@@ -310,7 +310,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations).insertAudioAd(any(TrackQueueItem.class), any(AudioAd.ApiModel.class));
     }
 
     @Test
@@ -324,7 +324,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(AudioAd.ApiModel.class));
     }
 
     @Test
@@ -335,7 +335,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(ApiAudioAd.class));
+        verify(adsOperations, never()).insertAudioAd(any(TrackQueueItem.class), any(AudioAd.ApiModel.class));
     }
 
     @Test

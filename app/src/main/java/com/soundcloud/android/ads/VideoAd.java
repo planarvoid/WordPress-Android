@@ -17,6 +17,7 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         final ApiAdTracking videoTracking = apiModel.videoTracking();
         return new AutoValue_VideoAd(
                 apiModel.adUrn(),
+                monetizationType,
                 apiModel.callToActionButtonText(),
                 videoTracking.impressionUrls,
                 videoTracking.startUrls,
@@ -28,7 +29,6 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 videoTracking.pauseUrls,
                 videoTracking.resumeUrls,
                 videoTracking.clickUrls,
-                monetizationType,
                 apiModel.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiModel.displayProperties())),
                 apiModel.uuid(),

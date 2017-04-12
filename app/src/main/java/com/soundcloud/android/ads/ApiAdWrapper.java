@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 @AutoValue
 abstract class ApiAdWrapper {
     @JsonCreator
-    public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable ApiAudioAd audioAd,
+    public static ApiAdWrapper create(@JsonProperty("audio_ad") @Nullable AudioAd.ApiModel audioAd,
                                       @JsonProperty("video") @Nullable VideoAd.ApiModel videoAd,
                                       @JsonProperty("interstitial") @Nullable ApiInterstitial interstitial,
                                       @JsonProperty("app_install") @Nullable AppInstallAd.ApiModel appInstall) {
@@ -24,7 +24,7 @@ abstract class ApiAdWrapper {
     }
 
     @VisibleForTesting
-    public static ApiAdWrapper create(ApiAudioAd audioAd) {
+    public static ApiAdWrapper create(AudioAd.ApiModel audioAd) {
         return create(audioAd, null, null, null);
     }
 
@@ -42,7 +42,7 @@ abstract class ApiAdWrapper {
         return create(null, null, null, appInstall);
     }
 
-    public abstract Optional<ApiAudioAd> getAudioAd();
+    public abstract Optional<AudioAd.ApiModel> getAudioAd();
 
     public abstract Optional<VideoAd.ApiModel> getVideoAd();
 

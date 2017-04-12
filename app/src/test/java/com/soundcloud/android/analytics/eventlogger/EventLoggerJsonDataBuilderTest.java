@@ -167,12 +167,12 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", event.timestamp())
-                                               .adUrn(audioAd.getCompanionAdUrn().get().toString())
+                                               .adUrn(audioAd.companionAdUrn().get().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("companion_display")
                                                .monetizationType("audio_ad")
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                                               .externalMedia(audioAd.getCompanionImageUrl().get().toString()));
+                                               .externalMedia(audioAd.companionImageUrl().get().toString()));
     }
 
     @Test

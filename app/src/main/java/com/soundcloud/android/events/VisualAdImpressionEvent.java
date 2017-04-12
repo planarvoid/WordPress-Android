@@ -36,9 +36,9 @@ public abstract class VisualAdImpressionEvent extends TrackingEvent {
                                                      userUrn.toString(),
                                                      adData.getMonetizableTrackUrn().toString(),
                                                      sessionSource.getOriginScreen(),
-                                                     adData.getCompanionAdUrn(),
-                                                     adData.getCompanionImageUrl(),
-                                                     adData.getCompanionImpressionUrls(),
+                                                     adData.companionAdUrn(),
+                                                     adData.companionImageUrl(),
+                                                     adData.companionImpressionUrls(),
                                                      ImpressionName.COMPANION_DISPLAY,
                                                      AdData.MonetizationType.AUDIO);
     }

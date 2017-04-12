@@ -83,7 +83,7 @@ class AdPageListener extends PageListener {
 
     private void adClickThrough(Context activityContext, PlayableAdData adData) {
         final Uri clickThrough = Uri.parse(adData instanceof AudioAd
-                                     ? ((AudioAd) adData).getClickThroughUrl().get()
+                                     ? ((AudioAd) adData).clickThroughUrl().get()
                                      : ((VideoAd) adData).clickThroughUrl());
         final DeepLink deepLink = DeepLink.fromUri(clickThrough);
 

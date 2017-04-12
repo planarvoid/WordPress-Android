@@ -388,7 +388,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void applyAdInsertsAudioAdWithNoLeaveBehindWhenNoOtherAdIsAvailable() throws Exception {
-        final ApiAudioAd apiAudioAd = AdFixtures.getApiAudioAdWithoutLeaveBehind();
+        final AudioAd.ApiModel apiAudioAd = AdFixtures.getApiAudioAdWithoutLeaveBehind();
         final ApiAdsForTrack ads = new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(apiAudioAd)));
 
         adsOperations.applyAdToUpcomingTrack(ads);
@@ -409,7 +409,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final AudioAd audioAdData = AudioAd.create(allAds.audioAd().get(), trackQueueItem.getUrn());
         final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(trackQueueItem)
-                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().getLeaveBehind(), audioAdData.getAdUrn())).build();
+                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().leaveBehind().get(), audioAdData.getAdUrn())).build();
 
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, newMonetizableItem));
     }
@@ -486,8 +486,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
 
         TrackQueueItem.Builder builder = new TrackQueueItem.Builder(trackQueueItem);
-        if (adsForTrack.audioAd().get().getLeaveBehind() != null) {
-            builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().getLeaveBehind(),
+        if (adsForTrack.audioAd().get().leaveBehind().isPresent()) {
+            builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().leaveBehind().get(),
                                                               audioAdData.getAdUrn()));
         }
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));

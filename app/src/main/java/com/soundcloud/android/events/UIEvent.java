@@ -346,8 +346,8 @@ public abstract class UIEvent extends TrackingEvent {
                                                            .clickthroughsKind(Optional.of(clickthroughKind));
         if (adData instanceof AudioAd) {
             final AudioAd audioAd = (AudioAd) adData;
-            builder.clickthroughsUrl(audioAd.getClickThroughUrl());
-            builder.adArtworkUrl(audioAd.getCompanionImageUrl());
+            builder.clickthroughsUrl(audioAd.clickThroughUrl());
+            builder.adArtworkUrl(audioAd.companionImageUrl());
         } else {
             builder.clickthroughsUrl(Optional.of(((VideoAd) adData).clickThroughUrl()));
         }

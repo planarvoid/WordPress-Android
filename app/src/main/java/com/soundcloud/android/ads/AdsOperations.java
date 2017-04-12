@@ -61,10 +61,8 @@ public class AdsOperations {
     }
 
     Observable<Optional<String>> kruxSegments() {
-        if (featureOperations.shouldUseKruxForAdTargeting()) {
-            return Observable.just(kruxSegmentProvider.get().getSegments());
-        }
-        return Observable.just(Optional.<String>absent());
+        return featureOperations.shouldUseKruxForAdTargeting() ? Observable.just(kruxSegmentProvider.get().getSegments())
+                                                               : Observable.just(Optional.absent());
     }
 
     public Observable<ApiAdsForTrack> ads(AdRequestData requestData, boolean playerVisible, boolean inForeground) {
@@ -167,11 +165,11 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Arrays.asList(videoItem, newMonetizableItem));
     }
 
-    void insertAudioAd(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd) {
+    void insertAudioAd(TrackQueueItem monetizableItem, AudioAd.ApiModel apiAudioAd) {
         final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableItem.getUrn());
 
-        if (apiAudioAd.hasApiLeaveBehind()) {
-            insertAudioAdWithLeaveBehind(apiAudioAd.getLeaveBehind(), audioAdData, monetizableItem);
+        if (apiAudioAd.leaveBehind().isPresent()) {
+            insertAudioAdWithLeaveBehind(apiAudioAd.leaveBehind().get(), audioAdData, monetizableItem);
         } else {
             insertAudioAdWithoutLeaveBehind(monetizableItem, audioAdData);
         }
@@ -188,9 +186,9 @@ public class AdsOperations {
     private void insertAudioAdWithLeaveBehind(ApiLeaveBehind apiLeaveBehind,
                                               AudioAd audioAdData,
                                               TrackQueueItem monetizableItem) {
-        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiLeaveBehind, audioAdData.getAdUrn());
+        final LeaveBehindAd leaveBehind = LeaveBehindAd.create(apiLeaveBehind, audioAdData.getAdUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem)
-                .withAdData(leaveBehindAd).build();
+                .withAdData(leaveBehind).build();
         final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
 
         playQueueManager.replace(monetizableItem, Arrays.asList(audioAdItem, newMonetizableItem));

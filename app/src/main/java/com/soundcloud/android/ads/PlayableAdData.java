@@ -46,8 +46,6 @@ public abstract class PlayableAdData extends AdData {
 
     public abstract List<String> getClickUrls();
 
-    public abstract MonetizationType getMonetizationType();
-
     public abstract boolean isSkippable();
 
     public abstract Optional<VisualAdDisplayProperties> getDisplayProperties();
