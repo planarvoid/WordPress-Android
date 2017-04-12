@@ -62,7 +62,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
 
     @Override
     public void onSessionStarted(CastSession castSession, String sessionId) {
-        Log.d(TAG, "DefaultCastSessionController::onSessionStarted() for id " + sessionId);
+        super.onSessionStarted(castSession, sessionId);
         wasPlayingBeforeServiceStopped = playSessionStateProvider.isPlaying();
         serviceController.stopPlaybackService();
         adsOperations.clearAllAdsFromQueue();
@@ -72,7 +72,7 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
 
     @Override
     public void onSessionResumed(CastSession castSession, boolean wasSuspended) {
-        Log.d(TAG, "DefaultCastSessionController::onSessionResumed() called with: castSession = [" + castSession + "], wasSuspended = [" + wasSuspended + "]");
+        super.onSessionResumed(castSession, wasSuspended);
 
         onSessionUpdated(castSession);
     }
@@ -85,11 +85,13 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
 
     @Override
     public void onSessionStartFailed(CastSession castSession, int error) {
+        super.onSessionStartFailed(castSession, error);
         onApplicationDisconnected();
     }
 
     @Override
     public void onSessionEnded(CastSession castSession, int error) {
+        super.onSessionEnded(castSession, error);
         onApplicationDisconnected();
     }
 
