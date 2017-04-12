@@ -25,8 +25,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -133,12 +131,11 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
-        itemTouchHelper.attachToRecyclerView(recyclerView());
+        this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
         collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
 
-        View detailView = view.findViewById(R.id.playlist_details);
-        boolean showInlineHeader = detailView == null;
+        final View detailView = view.findViewById(R.id.playlist_details);
+        final boolean showInlineHeader = detailView == null;
 
         subscription = new CompositeSubscription();
         subscription.addAll(
@@ -146,9 +143,10 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
                 presenter.viewModel()
                          .observeOn(AndroidSchedulers.mainThread())
                          .filter(ignored -> !skipModelUpdates)
-                         .doOnNext(bindViews(detailView))
-                         .map(new LegacyModelConverter(showInlineHeader))
-                         .subscribe(collectionRenderer::render),
+                         .subscribe(data -> {
+                             bindViews(detailView, data);
+                             bindItems(showInlineHeader, data);
+                         }),
 
                 collectionRenderer.onRefresh()
                                   .observeOn(AndroidSchedulers.mainThread())
@@ -228,27 +226,39 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
         return ButterKnife.findById(getActivity(), R.id.ak_recycler_view);
     }
 
-    private Action1<AsyncViewModel<PlaylistDetailsViewModel>> bindViews(@Nullable View detailView) {
-        return asyncViewModel -> {
-            if (asyncViewModel.data().isPresent()) {
-                PlaylistDetailsViewModel data = asyncViewModel.data().get();
-                bindToolBar(data);
-                bindEditMode(data.metadata().isInEditMode());
-
-                if (detailView != null) {
-                    // landscape tablet with side by side details
-                    playlistEngagementsRenderer.bind(detailView, presenter, data.metadata());
-                    playlistCoverRenderer.bind(detailView,
-                                               data.metadata(),
-                                               presenter::onHeaderPlayButtonClicked,
-                                               presenter::onCreatorClicked);
-                }
-
-            }
-        };
+    private void bindItems(boolean showInlineHeader, AsyncViewModel<PlaylistDetailsViewModel> data) {
+        collectionRenderer.render(LegacyModelConverter.convert(showInlineHeader, data));
+        bindItemsGestures(data);
     }
 
-    private void bindEditMode(boolean isInEditMode) {
+    private void bindItemsGestures(AsyncViewModel<PlaylistDetailsViewModel> syncModel) {
+        final Optional<PlaylistDetailsViewModel> data = syncModel.data();
+        if (data.isPresent() && data.get().metadata().isInEditMode()) {
+            itemTouchHelper.attachToRecyclerView(recyclerView());
+        } else {
+            itemTouchHelper.attachToRecyclerView(null);
+        }
+    }
+
+    private void bindViews(@Nullable View detailView, AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
+        if (asyncViewModel.data().isPresent()) {
+            PlaylistDetailsViewModel data = asyncViewModel.data().get();
+            bindToolBar(data);
+            bindHeader(data.metadata().isInEditMode());
+
+            if (detailView != null) {
+                // landscape tablet with side by side details
+                playlistEngagementsRenderer.bind(detailView, presenter, data.metadata());
+                playlistCoverRenderer.bind(detailView,
+                                           data.metadata(),
+                                           presenter::onHeaderPlayButtonClicked,
+                                           presenter::onCreatorClicked);
+            }
+
+        }
+    }
+
+    private void bindHeader(boolean isInEditMode) {
         headerScrollHelper.setIsEditing(isInEditMode);
 
         if (headerAnimator != null) {
@@ -358,21 +368,20 @@ public class NewPlaylistDetailFragment extends LightCycleSupportFragment<NewPlay
     /***
      * This is logic that could easily be moved into the Presenter to get rid of the legacy model, and properly tested. That is the next step
      */
-    static class LegacyModelConverter implements Func1<AsyncViewModel<PlaylistDetailsViewModel>, CollectionRendererState<PlaylistDetailItem>> {
+    static class LegacyModelConverter {
 
-        private final boolean useInlineHeader;
-
-        LegacyModelConverter(boolean useInlineHeader) {
-            this.useInlineHeader = useInlineHeader;
+        static CollectionRendererState<PlaylistDetailItem> convert(boolean useInlineHeader, AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
+            final CollectionLoadingState loadingState = CollectionLoadingState
+                    .builder()
+                    .nextPageError(asyncViewModel.error())
+                    .isRefreshing(asyncViewModel.isRefreshing())
+                    .hasMorePages(false)
+                    .build();
+            final List<PlaylistDetailItem> items = toLegacyModelItems(asyncViewModel, useInlineHeader);
+            return CollectionRendererState.create(loadingState, items);
         }
 
-        @Override
-        public CollectionRendererState<PlaylistDetailItem> call(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel) {
-            final CollectionLoadingState builder = CollectionLoadingState.builder().nextPageError(asyncViewModel.error()).isRefreshing(asyncViewModel.isRefreshing()).hasMorePages(false).build();
-            return CollectionRendererState.create(builder, getPlaylistDetailItems(asyncViewModel, useInlineHeader));
-        }
-
-        private List<PlaylistDetailItem> getPlaylistDetailItems(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel, boolean inlineHeader) {
+        private static List<PlaylistDetailItem> toLegacyModelItems(AsyncViewModel<PlaylistDetailsViewModel> asyncViewModel, boolean inlineHeader) {
             Optional<PlaylistDetailsViewModel> viewModelOpt = asyncViewModel.data();
             if (viewModelOpt.isPresent()) {
                 PlaylistDetailsViewModel viewModel = viewModelOpt.get();
