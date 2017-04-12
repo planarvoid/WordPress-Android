@@ -55,7 +55,7 @@
         [
           {
             "unit_tests": {
-              "cmd": "./gradlew runUnitTests",
+              "cmd": "./gradlew clean runUnitTests",
               "test-reports": "**/build/test-results/**/*.xml",
               "no-clean": true,
               "plugins": {
