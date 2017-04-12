@@ -20,11 +20,15 @@ task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${proj
 // *********************************************************************************************************************
 
 task assembleDebugWrapper(dependsOn: 'assembleProdDebug')
+assembleDebugWrapper.mustRunAfter('versionizeDebug')
 
 task buildDebug(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
-assembleDebugWrapper.mustRunAfter('versionizeDebug')
+
+task assembleDebugApk(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper']) {
+  description = 'Assembles Debug build.'
+}
 
 // *********************************************************************************************************************
 // ALPHA BUILDS

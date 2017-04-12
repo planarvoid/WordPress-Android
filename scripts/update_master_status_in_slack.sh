@@ -31,11 +31,11 @@ PREVIOUS_BUILD_STATUS=$(getBuildStatus ${PREVIOUS_BUILD})
 echo "Determining if build status needs to be updated in Slack"
 if [ "$CURRENT_BUILD_STATUS" = "SUCCESS" -a "$PREVIOUS_BUILD_STATUS" = "FAILED" ]; then
     echo Sending :green-build: message to ${TARGET_CHANNEL}
-    curl -X POST --data-urlencode payload="$(payload "\`${JOB_NAME}\` is :green_build: again." ${PASS_ICON})" ${URL}
+    curl -X POST --data-urlencode payload="$(payload "This build is fine again. Thanks for fixing it!" ${PASS_ICON} ${JOB_NAME})" ${URL}
 elif [ "$CURRENT_BUILD_STATUS" = "FAILED" -a "$PREVIOUS_BUILD_STATUS" = "SUCCESS" ]; then
     SUB_BUILD_INFO=$(getSubBuildData)
     echo Sending :red-build: message to ${TARGET_CHANNEL}
-    curl -X POST --data-urlencode payload="$(payload "${SUB_BUILD_INFO} \n See the build: ${BASE_URL}${CURRENT_BUILD}" ${FAIL_ICON} ${JOB_NAME})" ${URL}
+    curl -X POST --data-urlencode payload="$(payload "${SUB_BUILD_INFO} \n See the build: ${JOB_URL}${CURRENT_BUILD}" ${FAIL_ICON} ${JOB_NAME})" ${URL}
 else
     echo "No status to show, status unchanged at ${CURRENT_BUILD_STATUS}"
 fi
