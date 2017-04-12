@@ -11,6 +11,8 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
@@ -30,18 +32,21 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public PlaylistCollectionItemRenderer(ImageOperations imageOperations,
-                                          Resources resources,
-                                          Navigator navigator,
-                                          FeatureOperations featureOperations,
-                                          PlaylistItemMenuPresenter playlistItemMenuPresenter) {
+    PlaylistCollectionItemRenderer(ImageOperations imageOperations,
+                                   Resources resources,
+                                   Navigator navigator,
+                                   FeatureOperations featureOperations,
+                                   PlaylistItemMenuPresenter playlistItemMenuPresenter,
+                                   FeatureFlags featureFlags) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -85,11 +90,11 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
-
+        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
         if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(playlistItem.getDownloadState());
+            downloadProgressIcon.setState(playlistItem.getDownloadState(), useNewIcons);
         } else {
-            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE, useNewIcons);
         }
     }
 

@@ -17,6 +17,8 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -42,6 +44,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     private final EventBus eventBus;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final boolean fixedWidth;
+    private final FeatureFlags featureFlags;
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
@@ -49,7 +52,8 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
                                    @Provided Navigator navigator,
                                    @Provided ScreenProvider screenProvider,
                                    @Provided EventBus eventBus,
-                                   @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter) {
+                                   @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter,
+                                   @Provided FeatureFlags featureFlags) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -57,6 +61,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -99,8 +104,9 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private void setOfflineState(View view, Optional<OfflineState> offlineState) {
         final DownloadImageView downloadImageView = ButterKnife.findById(view, R.id.item_download_state);
+        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
         if (offlineState.isPresent()) {
-            downloadImageView.setState(offlineState.get());
+            downloadImageView.setState(offlineState.get(), useNewIcons);
             downloadImageView.setVisibility(View.VISIBLE);
         } else {
             downloadImageView.setVisibility(View.GONE);

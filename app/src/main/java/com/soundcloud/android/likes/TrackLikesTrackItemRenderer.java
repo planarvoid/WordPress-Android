@@ -26,7 +26,7 @@ class TrackLikesTrackItemRenderer implements CellRenderer<TrackLikesTrackItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<TrackLikesTrackItem> items) {
-        trackItemRenderer.bindTrackView(items.get(position).getTrackItem(),
+        trackItemRenderer.bindOfflineTrackView(items.get(position).getTrackItem(),
                                         itemView,
                                         position,
                                         Optional.absent(),

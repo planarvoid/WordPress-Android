@@ -36,8 +36,7 @@ class PlayHistoryTrackRenderer implements CellRenderer<PlayHistoryItemTrack> {
     @Override
     public void bindItemView(int position, View itemView, List<PlayHistoryItemTrack> items) {
         PlayHistoryItemTrack track = items.get(position);
-        renderer.bindTrackView(track.trackItem(), itemView, position, getTrackSourceInfo(),
-                               Optional.absent());
+        renderer.bindOfflineTrackView(track.trackItem(), itemView, position, getTrackSourceInfo(), Optional.absent());
     }
 
     @NonNull

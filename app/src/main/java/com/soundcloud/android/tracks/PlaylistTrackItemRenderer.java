@@ -13,8 +13,11 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -30,24 +33,29 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn ownerUrn = Urn.NOT_SET;
 
-    public PlaylistTrackItemRenderer(RemoveTrackListener removeTrackListener,
-                                     @Provided ImageOperations imageOperations,
-                                     @Provided CondensedNumberFormatter numberFormatter,
-                                     @Provided TrackItemMenuPresenter trackItemMenuPresenter,
-                                     @Provided EventBus eventBus,
-                                     @Provided FeatureOperations featureOperations,
-                                     @Provided ScreenProvider screenProvider,
-                                     @Provided Navigator navigator,
-                                     @Provided TrackItemView.Factory trackItemViewFactory) {
-        super(Optional.of(Module.PLAYLIST),
-              imageOperations,
+    PlaylistTrackItemRenderer(RemoveTrackListener removeTrackListener,
+                              @Provided ImageOperations imageOperations,
+                              @Provided CondensedNumberFormatter numberFormatter,
+                              @Provided TrackItemMenuPresenter trackItemMenuPresenter,
+                              @Provided EventBus eventBus,
+                              @Provided FeatureOperations featureOperations,
+                              @Provided ScreenProvider screenProvider,
+                              @Provided Navigator navigator,
+                              @Provided TrackItemView.Factory trackItemViewFactory,
+                              @Provided FeatureFlags featureFlags,
+                              @Provided OfflineSettingsOperations offlineSettingsOperations,
+                              @Provided NetworkConnectionHelper connectionHelper) {
+        super(imageOperations,
               numberFormatter,
               trackItemMenuPresenter,
               eventBus,
               featureOperations,
               screenProvider,
               navigator,
-              trackItemViewFactory);
+              trackItemViewFactory,
+              featureFlags,
+              offlineSettingsOperations,
+              connectionHelper);
         this.removeTrackListener = removeTrackListener;
     }
 
@@ -90,10 +98,20 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
         return builder;
     }
 
+    // Defers to bindOfflineTrackView so that we can show the offline state footer
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
-        super.bindItemView(position, itemView, trackItems);
-        disableBlockedTrackClicks(itemView, trackItems.get(position));
+        bindTrackView(position, itemView, trackItems.get(position));
+    }
+
+    @Override
+    public void bindTrackView(int position, View itemView, TrackItem track) {
+        super.bindOfflineTrackView(track, itemView, position, Optional.absent(), createModule(position));
+        disableBlockedTrackClicks(itemView, track);
+    }
+
+    private Optional<Module> createModule(int position) {
+        return Optional.of(Module.create(Module.PLAYLIST, position));
     }
 
     private void disableBlockedTrackClicks(View itemView, TrackItem trackItem) {

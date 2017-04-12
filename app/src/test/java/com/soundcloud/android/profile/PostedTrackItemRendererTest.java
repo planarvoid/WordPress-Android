@@ -10,6 +10,8 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.RepostedProperties;
 import com.soundcloud.android.stream.StreamEntity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -18,6 +20,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +69,10 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                mock(ScreenProvider.class),
                                                mock(Navigator.class),
                                                mock(FeatureOperations.class),
-                                               mock(TrackItemView.Factory.class));
+                                               mock(TrackItemView.Factory.class),
+                                               mock(FeatureFlags.class),
+                                               mock(OfflineSettingsOperations.class),
+                                               mock(NetworkConnectionHelper.class));
     }
 
     @Test

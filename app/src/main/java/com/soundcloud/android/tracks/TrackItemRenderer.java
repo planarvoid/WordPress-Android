@@ -16,9 +16,14 @@ import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -41,22 +46,23 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private enum ActiveFooter {
         POSTED,
-        PLAYS_AND_POSTED
+        PLAYS_AND_POSTED,
+        OFFLINE_STATE
     }
 
+    protected final TrackItemMenuPresenter trackItemMenuPresenter;
+    protected final ScreenProvider screenProvider;
+    protected final FeatureOperations featureOperations;
+    protected final FeatureFlags featureFlags;
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
-    protected final ScreenProvider screenProvider;
     private final Navigator navigator;
-    protected final FeatureOperations featureOperations;
     private final TrackItemView.Factory trackItemViewFactory;
-
-    protected final TrackItemMenuPresenter trackItemMenuPresenter;
-    private Optional<String> moduleName = Optional.absent();
+    private final OfflineSettingsOperations offlineSettingsOperations;
+    private final NetworkConnectionHelper connectionHelper;
 
     private Listener listener = null;
-    private Optional<ActiveFooter> activeFooter = Optional.absent();
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations,
@@ -66,28 +72,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              ScreenProvider screenProvider,
                              Navigator navigator,
                              FeatureOperations featureOperations,
-                             TrackItemView.Factory trackItemViewFactory) {
-        this(Optional.absent(),
-             imageOperations,
-             numberFormatter,
-             trackItemMenuPresenter,
-             eventBus,
-             screenProvider,
-             navigator,
-             featureOperations,
-             trackItemViewFactory);
-    }
-
-    protected TrackItemRenderer(Optional<String> moduleName,
-                                ImageOperations imageOperations,
-                                CondensedNumberFormatter numberFormatter,
-                                TrackItemMenuPresenter trackItemMenuPresenter,
-                                EventBus eventBus,
-                                ScreenProvider screenProvider,
-                                Navigator navigator,
-                                FeatureOperations featureOperations,
-                                TrackItemView.Factory trackItemViewFactory) {
-        this.moduleName = moduleName;
+                             TrackItemView.Factory trackItemViewFactory,
+                             FeatureFlags featureFlags,
+                             OfflineSettingsOperations offlineSettingsOperations,
+                             NetworkConnectionHelper connectionHelper) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -96,6 +84,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.trackItemViewFactory = trackItemViewFactory;
+        this.featureFlags = featureFlags;
+        this.offlineSettingsOperations = offlineSettingsOperations;
+        this.connectionHelper = connectionHelper;
     }
 
     public TrackItemView.Factory trackItemViewFactory() {
@@ -117,7 +108,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       itemView,
                       position,
                       Optional.absent(),
-                      createModule(position));
+                      Optional.absent());
     }
 
     public void bindTrackView(final TrackItem track,
@@ -154,6 +145,19 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       Optional.of(ActiveFooter.PLAYS_AND_POSTED));
     }
 
+    public void bindOfflineTrackView(final TrackItem trackItem,
+                                     View itemView,
+                                     final int position,
+                                     Optional<TrackSourceInfo> trackSourceInfo,
+                                     Optional<Module> module) {
+        bindTrackView(trackItem,
+                      itemView,
+                      position,
+                      trackSourceInfo,
+                      module,
+                      Optional.of(ActiveFooter.OFFLINE_STATE));
+    }
+
     private void bindTrackView(final TrackItem trackItem,
                                View itemView,
                                final int position,
@@ -169,17 +173,14 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.setOnClickListener(v -> listener.trackItemClicked(trackItem.getUrn(), position));
         }
 
-        this.activeFooter = activeFooter;
-
         itemView.setClickable(!trackItem.isBlocked());
 
         bindExtraInfoRight(trackItem, trackItemView);
-        bindExtraInfoBottom(trackItemView, trackItem);
+        bindExtraInfoBottom(trackItemView, trackItem, activeFooter);
 
         bindArtwork(trackItemView, trackItem);
         bindOverFlow(trackItemView, trackItem, position, trackSourceInfo, module);
     }
-
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
         trackItemView.hideInfoViewsRight();
@@ -193,16 +194,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    public void bindOverFlow(final TrackItemView itemView,
-                             final TrackItem track,
-                             final int position,
-                             final Optional<TrackSourceInfo> trackSourceInfo,
-                             final Optional<Module> module) {
+    private void bindOverFlow(final TrackItemView itemView,
+                              final TrackItem track,
+                              final int position,
+                              final Optional<TrackSourceInfo> trackSourceInfo,
+                              final Optional<Module> module) {
         itemView.showOverflow(overflowButton -> showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module));
-    }
-
-    private Optional<Module> createModule(int position) {
-        return moduleName.transform(input -> Module.create(input, position));
     }
 
     protected void showTrackItemMenu(View button,
@@ -246,7 +243,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track) {
+    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, Optional<ActiveFooter> activeFooter) {
         itemView.hideInfosViewsBottom();
         if (track.isPromoted()) {
             showPromoted(itemView, track);
@@ -255,13 +252,47 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         } else if (track.isPlaying()) {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
-            itemView.showNotAvailableOffline();
-        } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.POSTED)) {
+            itemView.showNotAvailableOffline(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS));
+        } else if (ActiveFooter.OFFLINE_STATE == activeFooter.orNull() && shouldShowOfflineState(track.offlineState())) {
+            showOfflineState(itemView, track.offlineState());
+        } else if (ActiveFooter.POSTED == activeFooter.orNull()) {
             itemView.showPostedTime(track.createdAt());
-        } else if (activeFooter.isPresent() && activeFooter.get().equals(ActiveFooter.PLAYS_AND_POSTED)) {
+        } else if (ActiveFooter.PLAYS_AND_POSTED == activeFooter.orNull()) {
             showPlaysAndPostedTime(itemView, track.createdAt(), track.playCount());
         } else {
             showPlayCount(itemView, track.playCount());
+        }
+    }
+
+    private boolean shouldShowOfflineState(OfflineState offlineState) {
+        return featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)
+                && featureOperations.isOfflineContentEnabled()
+                && isActiveOfflineState(offlineState);
+    }
+
+    private boolean isActiveOfflineState(OfflineState offlineState) {
+        return OfflineState.REQUESTED == offlineState
+                || OfflineState.DOWNLOADING == offlineState
+                || OfflineState.DOWNLOADED == offlineState;
+    }
+
+    private void showOfflineState(TrackItemView itemView, OfflineState offlineState) {
+        if (OfflineState.REQUESTED == offlineState) {
+            handleRequestedOfflineState(itemView);
+        } else if (OfflineState.DOWNLOADING == offlineState) {
+            itemView.showDownloading();
+        } else if (OfflineState.DOWNLOADED == offlineState) {
+            itemView.showDownloaded();
+        }
+    }
+
+    private void handleRequestedOfflineState(TrackItemView itemView) {
+        if (offlineSettingsOperations.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected()) {
+            itemView.showNoWifi();
+        } else if (!connectionHelper.isNetworkConnected()) {
+            itemView.showNoConnection();
+        } else {
+            itemView.showRequested();
         }
     }
 
@@ -287,7 +318,6 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private void showPlaysAndPostedTime(TrackItemView itemView, Date createdAt, int playCount) {
-
         if (hasPlayCount(playCount)) {
             itemView.showPlaysAndPostedTime(numberFormatter.format(playCount), createdAt);
         } else {

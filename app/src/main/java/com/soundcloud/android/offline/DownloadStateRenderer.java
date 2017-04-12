@@ -36,7 +36,7 @@ public class DownloadStateRenderer {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
             downloadStateView.setVisibility(View.GONE);
         } else {
-            downloadStateView.setState(offlineState);
+            downloadStateView.setState(offlineState, false);
         }
         updateHeaderText(offlineState, view);
     }

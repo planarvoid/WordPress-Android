@@ -4,11 +4,14 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -25,9 +28,10 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                             TrackItemMenuPresenter trackItemMenuPresenter,
                             EventBus eventBus, ScreenProvider screenProvider,
                             Navigator navigator, FeatureOperations featureOperations,
-                            TrackItemView.Factory trackItemViewFactory) {
+                            TrackItemView.Factory trackItemViewFactory, FeatureFlags featureFlags,
+                            OfflineSettingsOperations offlineSettingsOperations, NetworkConnectionHelper connectionHelper) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
-              screenProvider, navigator, featureOperations, trackItemViewFactory);
+              screenProvider, navigator, featureOperations, trackItemViewFactory, featureFlags, offlineSettingsOperations, connectionHelper);
     }
 
     @Override

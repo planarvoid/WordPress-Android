@@ -63,8 +63,9 @@ public class DownloadImageView extends AppCompatImageView {
         setImageDrawable(drawable);
     }
 
-    public void setState(OfflineState state) {
+    public void setState(OfflineState state, boolean selected) {
         offlineState = state;
+        setSelected(selected);
         switch (state) {
             case NOT_OFFLINE:
                 setNoOfflineState();

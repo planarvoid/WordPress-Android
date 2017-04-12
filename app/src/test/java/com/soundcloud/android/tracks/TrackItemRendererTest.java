@@ -21,13 +21,16 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -61,6 +64,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private TrackItemView trackItemView;
     @Mock private TrackItemView.Factory trackItemViewFactory;
     @Mock private FeatureFlags flags;
+    @Mock private OfflineSettingsOperations offlineSettingsOperations;
+    @Mock private NetworkConnectionHelper connectionHelper;
 
     private TrackItem trackItem;
 
@@ -70,7 +75,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
-                                         screenProvider, navigator, featureOperations, trackItemViewFactory);
+                                         screenProvider, navigator, featureOperations, trackItemViewFactory, flags, offlineSettingsOperations, connectionHelper);
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
                                            .urn(Urn.forTrack(123))
@@ -172,6 +177,80 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(trackItem));
 
         verify(trackItemView).showNowPlaying();
+    }
+
+    @Test
+    public void shouldShowNotAvailableOffline() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.UNAVAILABLE).build());
+
+        renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
+
+        verify(trackItemView).showNotAvailableOffline(true);
+    }
+
+    @Test
+    public void shouldShowNoWifiForRequestedTrack() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(false);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+
+        renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(trackItemView).showNoWifi();
+    }
+
+    @Test
+    public void shouldShowNoConnectionForRequestedTrack() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+
+        renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(trackItemView).showNoConnection();
+    }
+
+    @Test
+    public void shouldShowRequestedTrack() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
+
+        renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(trackItemView).showRequested();
+    }
+
+    @Test
+    public void shouldShowDownloadingTrack() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADING).build());
+
+        renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(trackItemView).showDownloading();
+    }
+
+    @Test
+    public void shouldShowDownloadedTrack() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+        TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADED).build());
+
+        renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(trackItemView).showDownloaded();
     }
 
     @Test

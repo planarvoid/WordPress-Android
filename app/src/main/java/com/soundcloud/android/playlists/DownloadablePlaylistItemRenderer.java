@@ -7,6 +7,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -17,19 +19,21 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
+class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
 
     private final FeatureOperations featureOperations;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public DownloadablePlaylistItemRenderer(Resources resources,
-                                            ImageOperations imageOperations,
-                                            CondensedNumberFormatter numberFormatter,
-                                            PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                            FeatureOperations featureOperations,
-                                            EventBus eventBus,
-                                            ScreenProvider screenProvider,
-                                            Navigator navigator) {
+    DownloadablePlaylistItemRenderer(Resources resources,
+                                     ImageOperations imageOperations,
+                                     CondensedNumberFormatter numberFormatter,
+                                     PlaylistItemMenuPresenter playlistItemMenuPresenter,
+                                     FeatureOperations featureOperations,
+                                     EventBus eventBus,
+                                     ScreenProvider screenProvider,
+                                     Navigator navigator,
+                                     FeatureFlags featureFlags) {
 
         super(resources,
               imageOperations,
@@ -39,6 +43,7 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
               screenProvider,
               navigator);
         this.featureOperations = featureOperations;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -51,11 +56,11 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
-
+        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
         if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(playlistItem.getDownloadState());
+            downloadProgressIcon.setState(playlistItem.getDownloadState(), useNewIcons);
         } else {
-            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE);
+            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE, useNewIcons);
         }
     }
 }

@@ -2,7 +2,11 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.utils.ScTextUtils.formatTimeElapsedSince;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.Context;
@@ -20,44 +24,30 @@ import java.util.Date;
 
 public class TrackItemView {
 
-    private final ImageView image;
-    private final TextView creator;
-    private final TextView title;
-    private final TextView duration;
-    private final TextView playCount;
-    private final TextView reposter;
-    private final View nowPlaying;
-    private final View privateIndicator;
-    private final TextView promoted;
-    private final TextView postedTime;
-    private final TextView playsAndPostedTime;
-    private final TextView notAvailableOffline;
-    private final View previewIndicator;
-    private final View goIndicator;
-    private final TextView geoBlocked;
-    private final View leftSpacer;
-    private final TextView position;
-    private final View overflowButton;
+    @BindView(R.id.image) ImageView image;
+    @BindView(R.id.list_item_header) TextView creator;
+    @BindView(R.id.list_item_subheader) TextView title;
+    @BindView(R.id.list_item_right_info) TextView duration;
+    @BindView(R.id.list_item_counter) TextView playCount;
+    @BindView(R.id.reposter) TextView reposter;
+    @BindView(R.id.now_playing) View nowPlaying;
+    @BindView(R.id.private_indicator) View privateIndicator;
+    @BindView(R.id.promoted_track) TextView promoted;
+    @BindView(R.id.posted_time) TextView postedTime;
+    @BindView(R.id.plays_and_posted_time) TextView playsAndPostedTime;
+    @BindView(R.id.not_available_offline) TextView notAvailableOffline;
+    @BindView(R.id.preview_indicator) View previewIndicator;
+    @BindView(R.id.go_indicator) View goIndicator;
+    @BindView(R.id.track_list_item_geo_blocked_text) TextView geoBlocked;
+    @BindView(R.id.left_spacer) View leftSpacer;
+    @BindView(R.id.position) TextView position;
+    @BindView(R.id.overflow_button) View overflowButton;
+    @BindView(R.id.track_list_item_offline_state_image_view) DownloadImageView offlineStateImage;
+    @BindView(R.id.track_list_item_offline_state_text) TextView offlineStateText;
+    @BindView(R.id.track_list_item_no_network_text) TextView noNetwork;
 
     public TrackItemView(View view) {
-        creator = (TextView) view.findViewById(R.id.list_item_header);
-        title = (TextView) view.findViewById(R.id.list_item_subheader);
-        image = (ImageView) view.findViewById(R.id.image);
-        duration = (TextView) view.findViewById(R.id.list_item_right_info);
-        playCount = (TextView) view.findViewById(R.id.list_item_counter);
-        reposter = (TextView) view.findViewById(R.id.reposter);
-        nowPlaying = view.findViewById(R.id.now_playing);
-        privateIndicator = view.findViewById(R.id.private_indicator);
-        promoted = (TextView) view.findViewById(R.id.promoted_track);
-        postedTime = (TextView) view.findViewById(R.id.posted_time);
-        playsAndPostedTime = (TextView) view.findViewById(R.id.plays_and_posted_time);
-        notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
-        previewIndicator = view.findViewById(R.id.preview_indicator);
-        goIndicator = view.findViewById(R.id.go_indicator);
-        geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
-        leftSpacer = view.findViewById(R.id.left_spacer);
-        position = (TextView) view.findViewById(R.id.position);
-        overflowButton = view.findViewById(R.id.overflow_button);
+        ButterKnife.bind(this, view);
     }
 
     void showOverflow(OverflowListener overflowListener) {
@@ -157,6 +147,9 @@ public class TrackItemView {
         playsAndPostedTime.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
         geoBlocked.setVisibility(View.GONE);
+        offlineStateImage.setState(OfflineState.NOT_OFFLINE, true);
+        offlineStateText.setVisibility(View.GONE);
+        noNetwork.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
     }
 
@@ -186,8 +179,40 @@ public class TrackItemView {
         return title.getResources();
     }
 
-    void showNotAvailableOffline() {
-        notAvailableOffline.setVisibility(View.VISIBLE);
+    void showNoWifi() {
+        noNetwork.setText(getResources().getString(R.string.offline_no_wifi));
+        noNetwork.setVisibility(View.VISIBLE);
+    }
+
+    void showNoConnection() {
+        noNetwork.setText(getResources().getString(R.string.offline_no_connection));
+        noNetwork.setVisibility(View.VISIBLE);
+    }
+
+    void showNotAvailableOffline(boolean flagEnabled) {
+        if (flagEnabled) {
+            showOfflineState(OfflineState.UNAVAILABLE, R.string.offline_not_available_offline);
+        } else {
+            notAvailableOffline.setVisibility(View.VISIBLE);
+        }
+    }
+
+    void showRequested() {
+        showOfflineState(OfflineState.REQUESTED, R.string.offline_update_requested);
+    }
+
+    void showDownloading() {
+        showOfflineState(OfflineState.DOWNLOADING, R.string.offline_update_in_progress);
+    }
+
+    void showDownloaded() {
+        showOfflineState(OfflineState.DOWNLOADED, R.string.offline_update_completed);
+    }
+
+    private void showOfflineState(OfflineState offlineState, int resId) {
+        offlineStateImage.setState(offlineState, true);
+        offlineStateText.setText(getResources().getString(resId));
+        offlineStateText.setVisibility(View.VISIBLE);
     }
 
     interface OverflowListener {

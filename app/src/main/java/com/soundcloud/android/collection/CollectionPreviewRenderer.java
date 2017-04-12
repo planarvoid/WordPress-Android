@@ -136,7 +136,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         } else {
             downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
                                           ? likes.offlineState()
-                                          : OfflineState.NOT_OFFLINE);
+                                          : OfflineState.NOT_OFFLINE, false);
         }
     }
 }
