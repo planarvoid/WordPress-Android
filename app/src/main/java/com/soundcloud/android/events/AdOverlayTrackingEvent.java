@@ -181,14 +181,14 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
 
     private static Optional<Urn> getClickObject(OverlayAdData adData) {
         if (adData instanceof LeaveBehindAd) {
-            return Optional.of(((LeaveBehindAd) adData).audioAdUrn());
+            return Optional.of(((LeaveBehindAd) adData).getAudioAdUrn());
         }
         return Optional.absent();
     }
 
     private static Optional<Urn> getImpressionObject(OverlayAdData adData, Urn monetizableTrack) {
         if (adData instanceof LeaveBehindAd) {
-            final Urn audioAdUrn = ((LeaveBehindAd) adData).audioAdUrn();
+            final Urn audioAdUrn = ((LeaveBehindAd) adData).getAudioAdUrn();
             return Optional.of(audioAdUrn);
         } else if (adData instanceof InterstitialAd) {
             return Optional.of(monetizableTrack);

@@ -618,7 +618,7 @@ public interface Tables {
         public static final Comments TABLE = new Comments();
 
         public static final Column _ID = Column.create(TABLE, BaseColumns._ID, Long.class);
-        public static final Column URN = Column.create(TABLE, "adUrn", String.class);
+        public static final Column URN = Column.create(TABLE, "urn", String.class);
         public static final Column USER_ID = Column.create(TABLE, "user_id", Long.class);
         public static final Column TRACK_ID = Column.create(TABLE, "track_id", Long.class);
         public static final Column TIMESTAMP = Column.create(TABLE, "timestamp", Long.class);
@@ -627,7 +627,7 @@ public interface Tables {
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Comments (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "adUrn TEXT UNIQUE," +
+                "urn TEXT UNIQUE," +
                 "user_id INTEGER," +
                 "track_id INTEGER," +
                 "timestamp INTEGER," +

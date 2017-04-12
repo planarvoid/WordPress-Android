@@ -83,7 +83,7 @@ class SyncRequestFactory {
     @NonNull
     private SyncRequest createPlaylistSyncRequest(Intent intent) {
         final List<Urn> requestEntities = SyncIntentHelper.getSyncEntities(intent);
-        checkArgument(requestEntities.size() == 1, "Expected 1 playlist adUrn to sync, received " + requestEntities.size());
+        checkArgument(requestEntities.size() == 1, "Expected 1 playlist urn to sync, received " + requestEntities.size());
 
         final Urn playlistUrn = requestEntities.get(0);
         return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),

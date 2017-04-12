@@ -26,19 +26,19 @@ public abstract class AudioAd extends PlayableAdData {
     }
 
     private static AudioAd.Builder createWithCompanion(Builder builder, ApiCompanionAd companion) {
-        return builder.callToActionButtonText(companion.ctaButtonText())
-                      .displayProperties(Optional.of(VisualAdDisplayProperties.create(companion.displayProperties())))
-                      .companionAdUrn(Optional.of(companion.adUrn()))
-                      .companionImageUrl(Optional.of(Uri.parse(companion.imageUrl())))
+        return builder.callToActionButtonText(companion.ctaButtonText)
+                      .displayProperties(Optional.of(VisualAdDisplayProperties.create(companion.displayProperties)))
+                      .companionAdUrn(Optional.of(companion.urn))
+                      .companionImageUrl(Optional.of(Uri.parse(companion.imageUrl)))
                       .clickThroughUrl(extractClickThrough(companion))
-                      .clickUrls(companion.trackingClickUrls())
-                      .companionImpressionUrls(companion.trackingImpressionUrls());
+                      .clickUrls(companion.trackingClickUrls)
+                      .companionImpressionUrls(companion.trackingImpressionUrls);
     }
 
     private static AudioAd.Builder create(ApiModel apiModel) {
         final AutoValue_AudioAd.Builder builder = new AutoValue_AudioAd.Builder();
         final ApiAdTracking tracking = apiModel.adTracking();
-        return builder.adUrn(apiModel.adUrn())
+        return builder.adUrn(apiModel.urn())
                       .monetizationType(MonetizationType.AUDIO)
                       .impressionUrls(tracking.impressionUrls)
                       .startUrls(tracking.startUrls)
@@ -61,8 +61,8 @@ public abstract class AudioAd extends PlayableAdData {
     }
 
     private static Optional<String> extractClickThrough(ApiCompanionAd companion) {
-        return Strings.isBlank(companion.clickthroughUrl()) ? Optional.absent()
-                                                            : Optional.of(companion.clickthroughUrl());
+        return Strings.isBlank(companion.clickthroughUrl) ? Optional.absent()
+                                                          : Optional.of(companion.clickthroughUrl);
     }
 
     public boolean hasCompanion() {
@@ -118,23 +118,23 @@ public abstract class AudioAd extends PlayableAdData {
             return new AutoValue_AudioAd_ApiModel(urn, audioSources, skippable, apiAdTracking, relatedResources.leaveBehind(), relatedResources.companion());
         }
 
-        public abstract Urn adUrn();
+        public abstract Urn urn();
         public abstract List<AudioAdSource.ApiModel> audioSources();
         public abstract boolean isSkippable();
         public abstract ApiAdTracking adTracking();
-        public abstract Optional<LeaveBehindAd.ApiModel> leaveBehind();
+        public abstract Optional<ApiLeaveBehind> leaveBehind();
         public abstract Optional<ApiCompanionAd> companion();
 
         @AutoValue
         abstract static class RelatedResources {
             @JsonCreator
             public static RelatedResources create(@JsonProperty("visual_ad") Optional<ApiCompanionAd> companion,
-                                                  @JsonProperty("leave_behind") Optional<LeaveBehindAd.ApiModel> leaveBehind) {
+                                                  @JsonProperty("leave_behind") Optional<ApiLeaveBehind> leaveBehind) {
                 return new AutoValue_AudioAd_ApiModel_RelatedResources(companion, leaveBehind);
             }
 
             public abstract Optional<ApiCompanionAd> companion();
-            public abstract Optional<LeaveBehindAd.ApiModel> leaveBehind();
+            public abstract Optional<ApiLeaveBehind> leaveBehind();
         }
     }
 }

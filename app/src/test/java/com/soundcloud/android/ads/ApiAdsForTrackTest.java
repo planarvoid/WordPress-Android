@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApiAdsForTrackTest extends AndroidUnitTest {
     private AudioAd.ApiModel audioAd;
     private VideoAd.ApiModel videoAd;
-    private InterstitialAd.ApiModel interstitial;
+    private ApiInterstitial interstitial;
 
     @Before
     public void setUp() {
@@ -26,13 +26,13 @@ public class ApiAdsForTrackTest extends AndroidUnitTest {
     @Test
     public void getInterstitialReturnsAbsentOnEmptyAdsForTrack() throws Exception {
         final ApiAdsForTrack adsForTrack = new ApiAdsForTrack(Arrays.asList());
-        assertThat(adsForTrack.interstitialAd()).isEqualTo(Optional.<InterstitialAd.ApiModel>absent());
+        assertThat(adsForTrack.interstitialAd()).isEqualTo(Optional.<ApiInterstitial>absent());
     }
 
     @Test
     public void getInterstitialReturnsAbsentWhenNoInterstitialAdsForTrack() throws Exception {
         final ApiAdsForTrack adsForTrack = AdFixtures.audioAdsForTrack();
-        assertThat(adsForTrack.interstitialAd()).isEqualTo(Optional.<InterstitialAd.ApiModel>absent());
+        assertThat(adsForTrack.interstitialAd()).isEqualTo(Optional.<ApiInterstitial>absent());
     }
 
     @Test

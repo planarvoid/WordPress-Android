@@ -151,7 +151,7 @@ public class AdsOperations {
         }
     }
 
-    private void applyInterstitialAd(InterstitialAd.ApiModel apiInterstitial, TrackQueueItem monetizableItem) {
+    private void applyInterstitialAd(ApiInterstitial apiInterstitial, TrackQueueItem monetizableItem) {
         final InterstitialAd interstitialData = InterstitialAd.create(apiInterstitial, monetizableItem.getUrn());
         final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(interstitialData).build();
@@ -183,7 +183,7 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Arrays.asList(audioAdItem, newMonetizableItem));
     }
 
-    private void insertAudioAdWithLeaveBehind(LeaveBehindAd.ApiModel apiLeaveBehind,
+    private void insertAudioAdWithLeaveBehind(ApiLeaveBehind apiLeaveBehind,
                                               AudioAd audioAdData,
                                               TrackQueueItem monetizableItem) {
         final LeaveBehindAd leaveBehind = LeaveBehindAd.create(apiLeaveBehind, audioAdData.adUrn());
