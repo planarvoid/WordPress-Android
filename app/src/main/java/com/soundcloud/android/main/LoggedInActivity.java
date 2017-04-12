@@ -56,7 +56,13 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     }
 
     private void updateCastMenuItemVisibility() {
-        castMenu.ifPresent(menuItem -> menuItem.setVisible(castConnectionHelper.isCastAvailable()));
+        castMenu.ifPresent(menuItem -> {
+            final boolean castButtonVisible = castConnectionHelper.isCastAvailable();
+            menuItem.setVisible(castButtonVisible);
+            if (castButtonVisible) {
+                castIntroductoryOverlayPresenter.showIntroductoryOverlayForCastIfNeeded();
+            }
+        });
     }
 
     @Override
@@ -129,7 +135,6 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Override
     public void onCastAvailable() {
         updateCastMenuItemVisibility();
-        castIntroductoryOverlayPresenter.showIntroductoryOverlayForCastIfNeeded();
     }
 
     @Override
