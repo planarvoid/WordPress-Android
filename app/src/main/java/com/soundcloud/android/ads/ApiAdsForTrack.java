@@ -25,7 +25,7 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollect
         super(collection);
     }
 
-    public Optional<ApiInterstitial> interstitialAd() {
+    public Optional<InterstitialAd.ApiModel> interstitialAd() {
         for (ApiAdWrapper adWrapper : this) {
             if (adWrapper.getInterstitial().isPresent()) {
                 return adWrapper.getInterstitial();
@@ -56,19 +56,17 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollect
     public AdsReceived toAdsReceived() {
         final Optional<AudioAd.ApiModel> audioAd = audioAd();
         final Optional<VideoAd.ApiModel> videoAd = videoAd();
-        final Optional<ApiInterstitial> interstitial = interstitialAd();
-        return AdsReceived.forPlayerAd(
-                videoAd.isPresent() ? videoAd.get().adUrn() : Urn.NOT_SET,
-                audioAd.isPresent() ? audioAd.get().urn() : Urn.NOT_SET,
-                interstitial.isPresent() ? interstitial.get().urn : Urn.NOT_SET
-        );
+        final Optional<InterstitialAd.ApiModel> interstitial = interstitialAd();
+        return AdsReceived.forPlayerAd(videoAd.isPresent() ? videoAd.get().adUrn() : Urn.NOT_SET,
+                                       audioAd.isPresent() ? audioAd.get().adUrn() : Urn.NOT_SET,
+                                       interstitial.isPresent() ? interstitial.get().adUrn() : Urn.NOT_SET);
     }
 
     public String contentString() {
         final StringBuilder msg = new StringBuilder(100);
         final Optional<AudioAd.ApiModel> audioAd = audioAd();
         final Optional<VideoAd.ApiModel> videoAd = videoAd();
-        final Optional<ApiInterstitial> interstitial = interstitialAd();
+        final Optional<InterstitialAd.ApiModel> interstitial = interstitialAd();
 
         if (audioAd.isPresent()) {
             msg.append("audio ad, ");

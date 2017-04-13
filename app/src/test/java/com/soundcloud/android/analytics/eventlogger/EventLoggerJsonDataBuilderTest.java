@@ -85,7 +85,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn(leaveBehindAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("leave_behind")
-                                               .impressionObject(leaveBehindAd.getAudioAdUrn().toString())
+                                               .impressionObject(leaveBehindAd.audioAdUrn().toString())
                                                .externalMedia(leaveBehindAd.getImageUrl())
                                                .monetizedObject(monetizedTrack.toString())
                                                .monetizationType("audio_ad"));
@@ -128,7 +128,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn(leaveBehindAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::leave_behind")
-                                               .clickObject(leaveBehindAd.getAudioAdUrn().toString())
+                                               .clickObject(leaveBehindAd.audioAdUrn().toString())
                                                .clickTarget(leaveBehindAd.getClickthroughUrl().toString())
                                                .externalMedia(leaveBehindAd.getImageUrl())
                                                .monetizedObject(monetizedTrack.toString())

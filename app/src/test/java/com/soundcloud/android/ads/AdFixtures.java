@@ -40,7 +40,7 @@ public class AdFixtures {
 
     public static AudioAd getAudioAdWithCustomCTA(String ctaText, Urn monetizableUrn) {
         return AudioAd.create(
-                getApiAudioAdWithCompanion(getApiCompanionAdWithCustomCTA(ctaText), SKIPPABLE),
+                getApiAudioAdWithCompanion(getApiCompanionAdWithCustomCTA(Optional.of(ctaText)), SKIPPABLE),
                 monetizableUrn
         );
     }
@@ -101,52 +101,43 @@ public class AdFixtures {
     }
 
     private static ApiCompanionAd getApiCompanionAd() {
-        final String ctaText = null;
-        return getApiCompanionAdWithCustomCTA(ctaText);
+        return getApiCompanionAdWithCustomCTA(Optional.absent());
     }
 
     private static ApiCompanionAd getApiCompanionAdWithCustomClickthrough(String clickthrough) {
-        return new ApiCompanionAd(
-                forAd("dfp", "746"),
-                "http://image.visualad.com",
-                clickthrough,
-                Arrays.asList("comp_impression1", "comp_impression2"),
-                Arrays.asList("comp_click1", "comp_click2"),
-                "LEARN MORE",
-                getApiDisplayProperties()
-        );
+        return ApiCompanionAd.create(forAd("dfp", "746"),
+                                     "http://image.visualad.com",
+                                     clickthrough,
+                                     Arrays.asList("comp_impression1", "comp_impression2"),
+                                     Arrays.asList("comp_click1", "comp_click2"),
+                                     Optional.of("LEARN MORE"),
+                                     getApiDisplayProperties());
     }
 
-    private static ApiCompanionAd getApiCompanionAdWithCustomCTA(String ctaText) {
-        return new ApiCompanionAd(
-                forAd("dfp", "746"),
-                "http://image.visualad.com",
-                "http://clickthrough.visualad.com",
-                Arrays.asList("comp_impression1", "comp_impression2"),
-                Arrays.asList("comp_click1", "comp_click2"),
-                ctaText,
-                getApiDisplayProperties()
-        );
+    private static ApiCompanionAd getApiCompanionAdWithCustomCTA(Optional<String> ctaText) {
+        return ApiCompanionAd.create(forAd("dfp", "746"),
+                                     "http://image.visualad.com",
+                                     "http://clickthrough.visualad.com",
+                                     Arrays.asList("comp_impression1", "comp_impression2"),
+                                     Arrays.asList("comp_click1", "comp_click2"),
+                                     ctaText,
+                                     getApiDisplayProperties());
     }
 
-    static ApiInterstitial getApiInterstitial() {
-        return new ApiInterstitial(
-                forAd("dfp", "35"),
-                "http://image.visualad.com",
-                "http://clickthrough.visualad.com",
-                Arrays.asList("interstitial_impression1", "intersitial_impression2"),
-                Arrays.asList("interstitial_click1", "interstitial_click2")
-        );
+    static InterstitialAd.ApiModel getApiInterstitial() {
+        return InterstitialAd.ApiModel.create(forAd("dfp", "35"),
+                                              "http://image.visualad.com",
+                                              "http://clickthrough.visualad.com",
+                                              Arrays.asList("interstitial_impression1", "intersitial_impression2"),
+                                              Arrays.asList("interstitial_click1", "interstitial_click2"));
     }
 
-    private static ApiLeaveBehind getApiLeaveBehind() {
-        return new ApiLeaveBehind(
-                forAd("dfp", "35"),
-                "http://image.visualad.com",
-                "http://clickthrough.visualad.com",
-                Arrays.asList("leave_impression1", "leave_impression2"),
-                Arrays.asList("leave_click1", "leave_click2")
-        );
+    private static LeaveBehindAd.ApiModel getApiLeaveBehind() {
+        return LeaveBehindAd.ApiModel.create(forAd("dfp", "35"),
+                                             "http://image.visualad.com",
+                                             "http://clickthrough.visualad.com",
+                                             Arrays.asList("leave_impression1", "leave_impression2"),
+                                             Arrays.asList("leave_click1", "leave_click2"));
     }
 
     static AudioAd.ApiModel getApiAudioAd() {
@@ -158,15 +149,13 @@ public class AdFixtures {
     }
 
     private static AudioAd.ApiModel getNonClickableApiAudioAd() {
-        final ApiCompanionAd nonClickableCompanion = new ApiCompanionAd(
-                forAd("dfp", "companion"),
-                "imageurl",
-                "",
-                Collections.emptyList(),
-                Collections.emptyList(),
-                null,
-                getApiDisplayProperties()
-        );
+        final ApiCompanionAd nonClickableCompanion = ApiCompanionAd.create(forAd("dfp", "companion"),
+                                                                           "imageurl",
+                                                                           "",
+                                                                           Collections.emptyList(),
+                                                                           Collections.emptyList(),
+                                                                           Optional.absent(),
+                                                                           getApiDisplayProperties());
         return getApiAudioAdWithCompanion(nonClickableCompanion, SKIPPABLE);
     }
 
@@ -207,13 +196,11 @@ public class AdFixtures {
     }
 
     public static VideoAdSource.ApiModel getApiVideoSource(int width, int height, String type, int bitRate) {
-        return VideoAdSource.ApiModel.create(
-                type,
-                "http://videourl.com/video.mp4",
-                bitRate,
-                width,
-                height
-        );
+        return VideoAdSource.ApiModel.create(type,
+                                             "http://videourl.com/video.mp4",
+                                             bitRate,
+                                             width,
+                                             height);
     }
 
     private static ApiAdTracking getApiAudioAdTracking() {
@@ -285,18 +272,16 @@ public class AdFixtures {
                                                   boolean skippable,
                                                   Optional<String> title,
                                                   Optional<String> clickthroughText) {
-        return VideoAd.ApiModel.create(
-                adUrn,
-                60,
-                30L,
-                title,
-                clickthroughText,
-                "http://clickthrough.videoad.com",
-                getApiDisplayProperties(),
-                apiVideoSources,
-                getApiVideoAdTracking(),
-                skippable
-        );
+        return VideoAd.ApiModel.create(adUrn,
+                                       60,
+                                       30L,
+                                       title,
+                                       clickthroughText,
+                                       "http://clickthrough.videoad.com",
+                                       getApiDisplayProperties(),
+                                       apiVideoSources,
+                                       getApiVideoAdTracking(),
+                                       skippable);
     }
 
     static List<AdData> getInlays() {
@@ -319,22 +304,20 @@ public class AdFixtures {
     }
 
     private static ApiAdTracking getApiAppInstallTracking() {
-        return new ApiAdTracking(
-                Arrays.asList("app_click1", "app_click2"),
-                Arrays.asList("app_impression1", "app_impression2"),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList()
-        );
+        return new ApiAdTracking(Arrays.asList("app_click1", "app_click2"),
+                                 Arrays.asList("app_impression1", "app_impression2"),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList());
     }
 
     public static AppInstallAd.ApiModel getApiAppInstall() {
@@ -342,43 +325,28 @@ public class AdFixtures {
     }
 
     private static AppInstallAd.ApiModel getApiAppInstall(Urn urn) {
-        return AppInstallAd.ApiModel.create(
-                urn,
-                60,
-                "App Name",
-                "Download",
-                "http://clickthrough.com",
-                "http://imageurl.com/image.png",
-                3.1f,
-                4411,
-                getApiAppInstallTracking()
-        );
+        return AppInstallAd.ApiModel.create(urn, 60, "App Name", "Download",
+                                            "http://clickthrough.com",
+                                            "http://imageurl.com/image.png",
+                                            3.1f, 4411, getApiAppInstallTracking());
     }
 
     static ApiAdsForTrack interstitialAdsForTrack() {
-        return new ApiAdsForTrack(newArrayList(
-                ApiAdWrapper.create(getApiInterstitial()))
-        );
+        return new ApiAdsForTrack(newArrayList(ApiAdWrapper.create(getApiInterstitial())));
     }
 
     static ApiAdsForTrack audioAdsForTrack() {
-        return new ApiAdsForTrack(newArrayList(
-                ApiAdWrapper.create(getApiAudioAd()))
-        );
+        return new ApiAdsForTrack(newArrayList(ApiAdWrapper.create(getApiAudioAd())));
     }
 
     static ApiAdsForTrack fullAdsForTrack() {
-        return new ApiAdsForTrack(newArrayList(
-                ApiAdWrapper.create(getApiAudioAd()),
-                ApiAdWrapper.create(getApiVideoAd()),
-                ApiAdWrapper.create(getApiInterstitial()))
-        );
+        return new ApiAdsForTrack(newArrayList(ApiAdWrapper.create(getApiAudioAd()),
+                                               ApiAdWrapper.create(getApiVideoAd()),
+                                               ApiAdWrapper.create(getApiInterstitial())));
     }
 
     static ApiAdsForStream fullAdsForStream() {
-        return new ApiAdsForStream(newArrayList(
-                ApiAdWrapper.create(getApiAppInstall()),
-                ApiAdWrapper.create(getApiVideoAd())
-        ));
+        return new ApiAdsForStream(newArrayList(ApiAdWrapper.create(getApiAppInstall()),
+                                                ApiAdWrapper.create(getApiVideoAd())));
     }
 }

@@ -501,7 +501,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                   Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
-    private void verifyInterstitialInserted(ApiInterstitial apiInterstitial) {
+    private void verifyInterstitialInserted(InterstitialAd.ApiModel apiInterstitial) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
         final InterstitialAd interstitialAd = InterstitialAd.create(apiInterstitial, TRACK_URN);
         final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem).withAdData(interstitialAd)
