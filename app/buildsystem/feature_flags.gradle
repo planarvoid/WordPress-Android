@@ -9,7 +9,6 @@ def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
   FILTER_COLLECTIONS,
-  NEW_PLAYLIST_SCREEN,
   HOLISTIC_TRACKING,
   SUGGESTED_CREATORS,
   FORCE_SUGGESTED_CREATORS_FOR_ALL,
@@ -37,7 +36,6 @@ enum Feature {
 android {
   defaultConfig {
     buildConfigField FLAG, Feature.FILTER_COLLECTIONS.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), UNDER_DEVELOPMENT
@@ -64,7 +62,6 @@ android {
 
   buildTypes {
     debug {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_HIDE
@@ -82,7 +79,6 @@ android {
     }
 
     alpha {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -107,7 +103,6 @@ android {
     }
 
     beta {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
@@ -125,7 +120,6 @@ android {
     }
 
     release {
-      buildConfigField FLAG, Feature.NEW_PLAYLIST_SCREEN.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE

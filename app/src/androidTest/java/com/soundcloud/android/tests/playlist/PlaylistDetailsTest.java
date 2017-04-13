@@ -9,12 +9,9 @@ import static org.hamcrest.Matchers.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
-import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> {
@@ -66,18 +63,4 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
         finishEventTracking(TEST_PLAYLIST_SHUFFLE);
     }
 
-    // TODO remove this test when the new playlist screen is out
-    // This feature changed and this behavior is actually covered in integration test.
-    public void disabled_testRemovingAndAddingTrackFromPlaylist() throws Exception {
-        setRequiredDisabledFeatures(Flag.NEW_PLAYLIST_SCREEN);
-        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.scrollToAndClickPlaylistWithTitle("whatever");
-        int initialTrackCount = playlistDetailsScreen.getTrackCount();
-
-        TrackItemMenuElement menu = playlistDetailsScreen.findAndClickFirstTrackOverflowButton();
-
-        networkManagerClient.switchWifiOff(); // cheap way to not commit change to api
-        menu.clickRemoveFromPlaylist();
-
-        assertThat(playlistDetailsScreen.getTrackCount(), is(initialTrackCount - 1));
-    }
 }

@@ -10,7 +10,6 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.view.IconToggleButton;
@@ -102,12 +101,10 @@ class PlaylistEngagementsRenderer {
             menu.show();
         });
 
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN)) {
-            if (accountOperations.isLoggedInUser(item.creatorUrn())) {
-                introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
-                                                          overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
-                                                          resources.getString(R.string.edit_playlists_introductory_overlay_description));
-            }
+        if (accountOperations.isLoggedInUser(item.creatorUrn())) {
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
+                                                      overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
+                                                      resources.getString(R.string.edit_playlists_introductory_overlay_description));
         }
     }
 
@@ -136,7 +133,7 @@ class PlaylistEngagementsRenderer {
 
     private void configureMyOptions(PlaylistDetailsMetadata item, PopupMenuWrapper menu) {
         if (item.isOwner()) {
-            menu.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN));
+            menu.setItemVisible(R.id.edit_playlist, true);
             menu.setItemVisible(R.id.delete_playlist, true);
         } else {
             menu.setItemVisible(R.id.edit_playlist, false);

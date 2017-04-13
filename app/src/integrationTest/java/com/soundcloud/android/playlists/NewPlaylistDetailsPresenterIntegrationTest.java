@@ -17,7 +17,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.hamcrest.TestAsyncState;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.Supplier;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.ViewError;
@@ -37,7 +36,7 @@ import java.util.List;
 public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
 
     public NewPlaylistDetailsPresenterIntegrationTest() {
-        super(TestUser.playlistUser, Flag.NEW_PLAYLIST_SCREEN);
+        super(TestUser.playlistUser);
     }
 
     @Test

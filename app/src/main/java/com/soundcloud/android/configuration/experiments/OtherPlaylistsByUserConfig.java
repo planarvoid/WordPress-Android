@@ -31,11 +31,7 @@ public class OtherPlaylistsByUserConfig {
     }
 
     public boolean isEnabled() {
-        return isNewPlaylistScreenEnabled() && isFeatureFlagEnabled() && isExperimentEnabled();
-    }
-
-    private boolean isNewPlaylistScreenEnabled() {
-        return featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN);
+        return isFeatureFlagEnabled() && isExperimentEnabled();
     }
 
     private boolean isFeatureFlagEnabled() {

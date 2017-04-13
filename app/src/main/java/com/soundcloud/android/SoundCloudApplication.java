@@ -48,7 +48,6 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -241,12 +240,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         likesStateProvider.subscribe();
         followingStateProvider.subscribe();
 
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN)) {
-            repostsStateProvider.subscribe();
-            offlinePropertiesProvider.subscribe();
-        } else if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            offlinePropertiesProvider.subscribe();
-        }
+        repostsStateProvider.subscribe();
+        offlinePropertiesProvider.subscribe();
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         uncaughtExceptionHandlerController.assertHandlerIsSet();

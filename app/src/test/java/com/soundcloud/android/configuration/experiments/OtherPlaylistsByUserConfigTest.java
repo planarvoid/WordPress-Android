@@ -2,7 +2,6 @@ package com.soundcloud.android.configuration.experiments;
 
 import static com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig.CONFIGURATION;
 import static com.soundcloud.android.configuration.experiments.OtherPlaylistsByUserConfig.CONTROL;
-import static com.soundcloud.android.properties.Flag.NEW_PLAYLIST_SCREEN;
 import static com.soundcloud.android.properties.Flag.OTHER_PLAYLISTS_BY_CREATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -21,7 +20,6 @@ public class OtherPlaylistsByUserConfigTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(NEW_PLAYLIST_SCREEN)).thenReturn(true);
         when(featureFlags.isEnabled(OTHER_PLAYLISTS_BY_CREATOR)).thenReturn(true);
         whenVariant(CONTROL);
 
@@ -36,13 +34,6 @@ public class OtherPlaylistsByUserConfigTest extends AndroidUnitTest {
     @Test
     public void disabledWhenFeatureFlagDisabled() throws Exception {
         when(featureFlags.isEnabled(OTHER_PLAYLISTS_BY_CREATOR)).thenReturn(false);
-
-        assertThat(config.isEnabled()).isFalse();
-    }
-
-    @Test
-    public void disabledWhenNewPlaylistScreenDisabled() throws Exception {
-        when(featureFlags.isEnabled(NEW_PLAYLIST_SCREEN)).thenReturn(false);
 
         assertThat(config.isEnabled()).isFalse();
     }

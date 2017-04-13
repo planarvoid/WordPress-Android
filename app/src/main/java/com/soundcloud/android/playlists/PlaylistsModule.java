@@ -24,8 +24,8 @@ public class PlaylistsModule {
 
     @Named(FULLSCREEN_PLAYLIST_DETAILS)
     @Provides
-    boolean showFullscreenPlaylistDetails(FeatureFlags featureFlags, Resources resources) {
-        return featureFlags.isEnabled(Flag.NEW_PLAYLIST_SCREEN) && resources.getBoolean(R.bool.show_fullscreen_playlist_details);
+    boolean showFullscreenPlaylistDetails(Resources resources) {
+        return resources.getBoolean(R.bool.show_fullscreen_playlist_details);
     }
 
     @Provides
