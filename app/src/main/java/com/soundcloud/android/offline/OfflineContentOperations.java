@@ -36,7 +36,7 @@ public class OfflineContentOperations {
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     private final LoadExpectedContentCommand loadExpectedContentCommand;
     private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
-    private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    private final ClearOfflineContentCommand clearOfflineContentCommand;
     private final LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     private final ResetOfflineContentCommand resetOfflineContentCommand;
     private final OfflineServiceInitiator serviceInitiator;
@@ -66,7 +66,7 @@ public class OfflineContentOperations {
     OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                              OfflineStatePublisher publisher,
                              LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
-                             ClearTrackDownloadsCommand clearTrackDownloadsCommand,
+                             ClearOfflineContentCommand clearOfflineContentCommand,
                              ResetOfflineContentCommand resetOfflineContentCommand,
                              EventBus eventBus,
                              OfflineContentStorage offlineContentStorage,
@@ -85,7 +85,7 @@ public class OfflineContentOperations {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.publisher = publisher;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
-        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.clearOfflineContentCommand = clearOfflineContentCommand;
         this.resetOfflineContentCommand = resetOfflineContentCommand;
         this.eventBus = eventBus;
         this.offlineContentStorage = offlineContentStorage;
@@ -205,7 +205,7 @@ public class OfflineContentOperations {
 
     public Observable<Void> clearOfflineContent() {
         return notifyOfflineContentRemoved()
-                .flatMap(ignored -> clearTrackDownloadsCommand.toObservable(null))
+                .flatMap(ignored -> clearOfflineContentCommand.toObservable(null))
                 .doOnNext(serviceInitiator.startFromUserAction())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);

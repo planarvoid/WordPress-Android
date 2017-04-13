@@ -12,9 +12,9 @@ import org.mockito.Mock;
 
 import java.util.List;
 
-public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
+public class ClearOfflineContentCommandTest extends StorageIntegrationTest {
 
-    private ClearTrackDownloadsCommand command;
+    private ClearOfflineContentCommand command;
 
     @Mock SecureFileStorage secureFileStorage;
     @Mock OfflineContentStorage offlineContentStorage;
@@ -22,7 +22,7 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new ClearTrackDownloadsCommand(propeller(),
+        command = new ClearOfflineContentCommand(propeller(),
                                                  secureFileStorage,
                                                  offlineContentStorage,
                                                  trackOfflineStateProvider);
@@ -35,7 +35,6 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
 
         List<Urn> removed = command.call(null);
 
-        databaseAssertions().assertNotDownloaded(track);
         assertThat(removed).containsExactly(track);
     }
 

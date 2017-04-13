@@ -17,7 +17,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
+import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
@@ -63,7 +63,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountCleanupAction accountCleanupAction;
-    @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private ClearOfflineContentCommand clearOfflineContentCommand;
     @Mock private LoginManager facebookLoginManager;
     @Mock private PlaySessionStateStorage playSessionStateStorage;
 
@@ -76,7 +76,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
                                                   playSessionStateStorage,
                                                   InjectionSupport.lazyOf(configurationOperations),
                                                   InjectionSupport.lazyOf(accountCleanupAction),
-                                                  InjectionSupport.lazyOf(clearTrackDownloadsCommand),
+                                                  InjectionSupport.lazyOf(clearOfflineContentCommand),
                                                   InjectionSupport.lazyOf(facebookLoginManager),
                                                   Schedulers.immediate());
 
@@ -379,7 +379,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void purgeUserDataShouldRemoveOfflineContent() {
         accountOperations.purgeUserData().subscribe(observer);
 
-        verify(clearTrackDownloadsCommand).call(null);
+        verify(clearOfflineContentCommand).call(null);
     }
 
     private void mockSoundCloudAccount() {
