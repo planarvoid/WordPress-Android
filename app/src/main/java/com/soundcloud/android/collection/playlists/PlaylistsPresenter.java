@@ -87,7 +87,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               OfflinePropertiesProvider offlinePropertiesProvider,
                               FeatureFlags featureFlags,
                               EntityItemCreator entityItemCreator) {
-        super(swipeRefreshAttacher);
+        super(swipeRefreshAttacher, new Options.Builder()
+                .useDividers(Options.DividerMode.NONE)
+                .build());
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.collectionOptionsStorage = collectionOptionsStorage;
