@@ -14,7 +14,7 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
+import com.soundcloud.android.offline.ClearOfflineContentCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
@@ -60,7 +60,7 @@ public class AccountOperations {
     private final PlaySessionStateStorage playSessionStateStorage;
     private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
-    private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
+    private final Lazy<ClearOfflineContentCommand> clearOfflineContentCommand;
     private final Lazy<LoginManager> facebookLoginManager;
 
     private volatile Urn loggedInUserUrn;
@@ -90,7 +90,7 @@ public class AccountOperations {
                       PlaySessionStateStorage playSessionStateStorage,
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
-                      Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
+                      Lazy<ClearOfflineContentCommand> clearOfflineContentCommand,
                       Lazy<LoginManager> facebookLoginManager,
                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
@@ -100,7 +100,7 @@ public class AccountOperations {
         this.playSessionStateStorage = playSessionStateStorage;
         this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
-        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
+        this.clearOfflineContentCommand = clearOfflineContentCommand;
         this.facebookLoginManager = facebookLoginManager;
         this.scheduler = scheduler;
     }
@@ -222,7 +222,7 @@ public class AccountOperations {
 
     public Observable<Void> purgeUserData() {
         return Observable.<Void>create(subscriber -> {
-            clearTrackDownloadsCommand.get().call(null);
+            clearOfflineContentCommand.get().call(null);
             accountCleanupAction.get().call();
             tokenOperations.resetToken();
             clearFacebookStorage();

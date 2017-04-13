@@ -47,9 +47,21 @@ public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> 
         setTitle(view, playlist.title());
         setTrackCount(view, playlist);
         setCreator(view, playlist.creatorName());
+        setPrivate(view, playlist.isPrivate());
+        setLiked(view, playlist.isUserLike());
 
         view.setOnClickListener(goToPlaylist(playlist, position));
         findById(view, R.id.overflow_button).setVisibility(View.GONE);
+    }
+
+    private void setLiked(View view, boolean isLiked) {
+        ButterKnife.findById(view, R.id.like_indicator)
+                   .setVisibility(isLiked ? View.VISIBLE : View.GONE);
+    }
+
+    private void setPrivate(View view, boolean isPrivate) {
+        ButterKnife.findById(view, R.id.private_indicator)
+                   .setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
     private void setTitle(View view, String title) {

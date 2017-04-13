@@ -8,8 +8,8 @@ import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
+public class ClearOfflineContentCommand extends Command<Void, List<Urn>> {
 
     private final PropellerDatabase propeller;
     private final SecureFileStorage secureFileStorage;
@@ -26,7 +26,7 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     private final TrackOfflineStateProvider trackOfflineStateProvider;
 
     @Inject
-    ClearTrackDownloadsCommand(PropellerDatabase propeller,
+    ClearOfflineContentCommand(PropellerDatabase propeller,
                                SecureFileStorage secureFileStorage,
                                OfflineContentStorage offlineContentStorage,
                                TrackOfflineStateProvider trackOfflineStateProvider) {
@@ -40,15 +40,7 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
     public List<Urn> call(Void input) {
         final List<Urn> removedEntities = queryEntitiesToRemove(propeller);
 
-        final TxnResult txnResult = propeller.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(Tables.OfflineContent.TABLE));
-                step(propeller.delete(Tables.TrackDownloads.TABLE));
-            }
-        });
-
-        if (txnResult.success()) {
+        if (removeContentMarkedForOffline().success()) {
             trackOfflineStateProvider.clear();
             // Free space right now
             secureFileStorage.deleteAllTracks();
@@ -57,6 +49,10 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
         }
 
         return Collections.emptyList();
+    }
+
+    private ChangeResult removeContentMarkedForOffline() {
+        return propeller.delete(OfflineContent.TABLE);
     }
 
     private List<Urn> queryEntitiesToRemove(PropellerDatabase propeller) {

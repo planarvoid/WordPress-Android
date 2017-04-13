@@ -61,7 +61,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private TxnResult txnResult;
     @Mock private ChangeResult changeResult;
-    @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private ClearOfflineContentCommand clearOfflineContentCommand;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private SyncInitiator syncInitiator;
     @Mock private Action1<Object> startServiceAction;
@@ -92,7 +92,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 storeDownloadUpdatesCommand,
                 publisher,
                 loadTracksWithStalePolicies,
-                clearTrackDownloadsCommand,
+                clearOfflineContentCommand,
                 resetOfflineContentCommand,
                 eventBus,
                 offlineContentStorage,
@@ -301,7 +301,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void clearOfflineContentStartsService() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
+        when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
 
         operations.clearOfflineContent().subscribe();
@@ -324,7 +324,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void resetOfflineFeature() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
+        when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
 
         operations.disableOfflineFeature().subscribe();
