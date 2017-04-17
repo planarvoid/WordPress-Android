@@ -100,28 +100,28 @@ public class AdFixtures {
         );
     }
 
-    private static ApiCompanionAd getApiCompanionAd() {
+    private static AudioAd.ApiModel.Companion getApiCompanionAd() {
         return getApiCompanionAdWithCustomCTA(Optional.absent());
     }
 
-    private static ApiCompanionAd getApiCompanionAdWithCustomClickthrough(String clickthrough) {
-        return ApiCompanionAd.create(forAd("dfp", "746"),
-                                     "http://image.visualad.com",
-                                     clickthrough,
-                                     Arrays.asList("comp_impression1", "comp_impression2"),
-                                     Arrays.asList("comp_click1", "comp_click2"),
-                                     Optional.of("LEARN MORE"),
-                                     getApiDisplayProperties());
+    private static AudioAd.ApiModel.Companion getApiCompanionAdWithCustomClickthrough(String clickthrough) {
+        return AudioAd.ApiModel.Companion.create(forAd("dfp", "746"),
+                                                 "http://image.visualad.com",
+                                                 clickthrough,
+                                                 Arrays.asList("comp_impression1", "comp_impression2"),
+                                                 Arrays.asList("comp_click1", "comp_click2"),
+                                                 Optional.of("LEARN MORE"),
+                                                 getApiDisplayProperties());
     }
 
-    private static ApiCompanionAd getApiCompanionAdWithCustomCTA(Optional<String> ctaText) {
-        return ApiCompanionAd.create(forAd("dfp", "746"),
-                                     "http://image.visualad.com",
-                                     "http://clickthrough.visualad.com",
-                                     Arrays.asList("comp_impression1", "comp_impression2"),
-                                     Arrays.asList("comp_click1", "comp_click2"),
-                                     ctaText,
-                                     getApiDisplayProperties());
+    private static AudioAd.ApiModel.Companion getApiCompanionAdWithCustomCTA(Optional<String> ctaText) {
+        return AudioAd.ApiModel.Companion.create(forAd("dfp", "746"),
+                                                 "http://image.visualad.com",
+                                                 "http://clickthrough.visualad.com",
+                                                 Arrays.asList("comp_impression1", "comp_impression2"),
+                                                 Arrays.asList("comp_click1", "comp_click2"),
+                                                 ctaText,
+                                                 getApiDisplayProperties());
     }
 
     static InterstitialAd.ApiModel getApiInterstitial() {
@@ -149,17 +149,17 @@ public class AdFixtures {
     }
 
     private static AudioAd.ApiModel getNonClickableApiAudioAd() {
-        final ApiCompanionAd nonClickableCompanion = ApiCompanionAd.create(forAd("dfp", "companion"),
-                                                                           "imageurl",
-                                                                           "",
-                                                                           Collections.emptyList(),
-                                                                           Collections.emptyList(),
-                                                                           Optional.absent(),
-                                                                           getApiDisplayProperties());
+        final AudioAd.ApiModel.Companion nonClickableCompanion = AudioAd.ApiModel.Companion.create(forAd("dfp", "companion"),
+                                                                                                   "imageurl",
+                                                                                                   "",
+                                                                                                   Collections.emptyList(),
+                                                                                                   Collections.emptyList(),
+                                                                                                   Optional.absent(),
+                                                                                                   getApiDisplayProperties());
         return getApiAudioAdWithCompanion(nonClickableCompanion, SKIPPABLE);
     }
 
-    private static AudioAd.ApiModel getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
+    private static AudioAd.ApiModel getApiAudioAdWithCompanion(AudioAd.ApiModel.Companion companion, boolean skippable) {
         RelatedResources relatedResources = RelatedResources.create(Optional.of(companion), Optional.of(getApiLeaveBehind()));
         return AudioAd.ApiModel.create(forAd("dfp", "869"),
                                        skippable,

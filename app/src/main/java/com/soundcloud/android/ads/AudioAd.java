@@ -18,14 +18,14 @@ public abstract class AudioAd extends PlayableAdData {
 
     public static AudioAd create(ApiModel apiModel, Urn monetizableUrn) {
         final Builder builder = create(apiModel);
-        final Optional<ApiCompanionAd> companion = apiModel.companion();
+        final Optional<ApiModel.Companion> companion = apiModel.companion();
         final AudioAd audioAd = companion.isPresent() ? createWithCompanion(builder, companion.get()).build()
                                                       : builder.build();
         audioAd.setMonetizableTrackUrn(monetizableUrn);
         return audioAd;
     }
 
-    private static AudioAd.Builder createWithCompanion(Builder builder, ApiCompanionAd companion) {
+    private static AudioAd.Builder createWithCompanion(Builder builder, ApiModel.Companion companion) {
         return builder.callToActionButtonText(companion.ctaButtonText())
                       .displayProperties(Optional.of(VisualAdDisplayProperties.create(companion.displayProperties())))
                       .companionAdUrn(Optional.of(companion.adUrn()))
@@ -60,7 +60,7 @@ public abstract class AudioAd extends PlayableAdData {
                       .audioSources(Lists.transform(apiModel.audioSources(), AudioAdSource::create));
     }
 
-    private static Optional<String> extractClickThrough(ApiCompanionAd companion) {
+    private static Optional<String> extractClickThrough(ApiModel.Companion companion) {
         return Strings.isBlank(companion.clickthroughUrl()) ? Optional.absent()
                                                             : Optional.of(companion.clickthroughUrl());
     }
@@ -123,18 +123,36 @@ public abstract class AudioAd extends PlayableAdData {
         public abstract boolean isSkippable();
         public abstract ApiAdTracking adTracking();
         public abstract Optional<LeaveBehindAd.ApiModel> leaveBehind();
-        public abstract Optional<ApiCompanionAd> companion();
+        public abstract Optional<Companion> companion();
 
         @AutoValue
         abstract static class RelatedResources {
             @JsonCreator
-            public static RelatedResources create(@JsonProperty("visual_ad") Optional<ApiCompanionAd> companion,
+            public static RelatedResources create(@JsonProperty("visual_ad") Optional<Companion> companion,
                                                   @JsonProperty("leave_behind") Optional<LeaveBehindAd.ApiModel> leaveBehind) {
                 return new AutoValue_AudioAd_ApiModel_RelatedResources(companion, leaveBehind);
             }
 
-            public abstract Optional<ApiCompanionAd> companion();
+            public abstract Optional<Companion> companion();
             public abstract Optional<LeaveBehindAd.ApiModel> leaveBehind();
+        }
+
+        @AutoValue
+        abstract static class Companion extends ApiBaseAdVisual {
+            @JsonCreator
+            static Companion create(@JsonProperty("urn") Urn urn,
+                                    @JsonProperty("image_url") String imageUrl,
+                                    @JsonProperty("clickthrough_url") String clickthroughUrl,
+                                    @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
+                                    @JsonProperty("tracking_click_urls") List<String> trackingClickUrls,
+                                    @JsonProperty("cta_button_text") Optional<String> ctaButtonText,
+                                    @JsonProperty("display_properties") ApiDisplayProperties displayProperties) {
+               return new AutoValue_AudioAd_ApiModel_Companion(urn, imageUrl, clickthroughUrl, trackingImpressionUrls,
+                                                   trackingClickUrls, displayProperties, ctaButtonText);
+            }
+
+            abstract ApiDisplayProperties displayProperties();
+            abstract Optional<String> ctaButtonText();
         }
     }
 }
