@@ -2,13 +2,11 @@ package com.soundcloud.android.analytics.appboy;
 
 import com.appboy.Appboy;
 import com.appboy.AppboyUser;
-import com.appboy.IAppboyEndpointProvider;
 import com.appboy.models.outgoing.AppboyProperties;
 import com.appboy.models.outgoing.AttributionData;
 import com.appboy.ui.inappmessage.AppboyInAppMessageManager;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.util.Base64;
 
 public class RealAppboyWrapper implements AppboyWrapper {
@@ -24,18 +22,8 @@ public class RealAppboyWrapper implements AppboyWrapper {
     }
 
     public void setAppboyEndpointProvider(final String authority) {
-        Appboy.setAppboyEndpointProvider(new IAppboyEndpointProvider() {
-            @Override
-            public Uri getApiEndpoint(Uri appboyEndpoint) {
-                return appboyEndpoint.buildUpon()
-                                     .authority(authority).build();
-            }
-
-            @Override
-            public Uri getResourceEndpoint(Uri appboyEndpoint) {
-                return appboyEndpoint;
-            }
-        });
+        Appboy.setAppboyEndpointProvider(appboyEndpoint -> appboyEndpoint.buildUpon()
+                                                                 .authority(authority).build());
     }
 
     public void setAttribution(String network, String campaign, String adGroup, String creative) {
