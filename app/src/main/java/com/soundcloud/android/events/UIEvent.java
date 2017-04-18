@@ -165,7 +165,8 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public enum Action {
-        SHARE("share::prompt"),
+        SHARE_REQUEST("share::request"),
+        SHARE_PROMPT("share::prompt"),
         REPOST_ADD("repost::add"),
         REPOST_REMOVE("repost::remove"),
         LIKE_ADD("like::add"),
@@ -429,35 +430,36 @@ public abstract class UIEvent extends TrackingEvent {
     }
 
     public static UIEvent fromShareRequest(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
-        return shareEvent(ClickName.SHARE_REQUEST, resourceUrn, contextMetadata, promotedSourceInfo, playable).build();
+        return shareEvent(ClickName.SHARE_REQUEST, resourceUrn, contextMetadata, promotedSourceInfo, playable, Action.SHARE_REQUEST).build();
     }
 
     public static UIEvent fromSharePromptWithFirebaseLink(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
-        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable)
+        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable, Action.SHARE_PROMPT)
                 .shareLinkType(Optional.of(ShareLinkType.FIREBASE))
                 .build();
     }
 
     public static UIEvent fromSharePromptWithSoundCloudLink(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
-        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable)
+        return shareEvent(ClickName.SHARE_PROMPT, resourceUrn, contextMetadata, promotedSourceInfo, playable, Action.SHARE_PROMPT)
                 .shareLinkType(Optional.of(ShareLinkType.SOUNDCLOUD))
                 .build();
     }
 
     public static UIEvent fromShareCancel(Urn resourceUrn, EventContextMetadata contextMetadata, @Nullable PromotedSourceInfo promotedSourceInfo, EntityMetadata playable) {
-        return shareEvent(ClickName.SHARE_CANCEL, resourceUrn, contextMetadata, promotedSourceInfo, playable).build();
+        return shareEvent(ClickName.SHARE_CANCEL, resourceUrn, contextMetadata, promotedSourceInfo, playable, Action.SHARE_PROMPT).build();
     }
 
     private static UIEvent.Builder shareEvent(ClickName clickName,
                                               Urn resourceUrn,
                                               EventContextMetadata contextMetadata,
                                               @Nullable PromotedSourceInfo promotedSourceInfo,
-                                              EntityMetadata playable) {
+                                              EntityMetadata playable,
+                                              Action action) {
         final Builder builder = event(Kind.SHARE, clickName).clickObjectUrn(Optional.of(resourceUrn))
                                                             .clickCategory(Optional.of(ClickCategory.ENGAGEMENT))
                                                             .eventContextMetadata(contextMetadata)
                                                             .entityMetadata(playable)
-                                                            .action(Optional.of(Action.SHARE));
+                                                            .action(Optional.of(action));
         if (promotedSourceInfo != null) {
             builder.promotedSourceInfo(promotedSourceInfo);
         }
