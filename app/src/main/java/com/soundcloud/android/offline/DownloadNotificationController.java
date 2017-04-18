@@ -3,6 +3,8 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.objects.MoreObjects;
@@ -13,6 +15,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.NotificationCompat;
 
@@ -30,6 +33,7 @@ class DownloadNotificationController {
     private final NotificationManager notificationManager;
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
 
     private int totalDownloads;
     private long totalBytesToDownload;
@@ -42,12 +46,14 @@ class DownloadNotificationController {
     @Inject
     DownloadNotificationController(Context context, NotificationManager notificationManager,
                                    Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                   Resources resources, Navigator navigator) {
+                                   Resources resources, Navigator navigator,
+                                   FeatureFlags featureFlags) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
         this.notificationBuilderProvider = notificationBuilderProvider;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
     }
 
     Notification onPendingRequests(DownloadQueue pendingQueue) {
@@ -149,7 +155,7 @@ class DownloadNotificationController {
 
     void onConnectionError(DownloadState lastDownload, boolean showResult) {
         if (showResult) {
-            final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+            final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_cloud);
 
             notification.setContentIntent(getPendingIntent(lastDownload.request));
             notification.setContentTitle(resources.getString(R.string.offline_update_paused));
@@ -165,7 +171,7 @@ class DownloadNotificationController {
     }
 
     private Notification completedWithInaccessibleStorageErrorNotification() {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+        final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_cloud);
 
         notification.setContentIntent(navigator.createPendingChangeStorageLocation(context));
         notification.setContentTitle(resources.getString(R.string.sd_card_cannot_be_found));
@@ -174,7 +180,7 @@ class DownloadNotificationController {
     }
 
     private Notification completedWithStorageErrorsNotification() {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+        final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_cloud);
 
         notification.setContentIntent(navigator.createPendingOfflineSettings(context));
         notification.setContentTitle(resources.getString(R.string.offline_update_storage_limit_reached_title));
@@ -183,7 +189,9 @@ class DownloadNotificationController {
     }
 
     private Notification completedNotification(DownloadRequest request) {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification();
+        final NotificationCompat.Builder notification = buildBaseCompletedNotification(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)
+                                                                                       ? R.drawable.ic_notification_download_completed
+                                                                                       : R.drawable.ic_notification_cloud);
 
         notification.setContentIntent(getPendingIntent(request));
         notification.setContentTitle(resources.getString(R.string.offline_update_completed_title));
@@ -232,10 +240,10 @@ class DownloadNotificationController {
         return progressNotification.build();
     }
 
-    private NotificationCompat.Builder buildBaseCompletedNotification() {
+    private NotificationCompat.Builder buildBaseCompletedNotification(@DrawableRes int icon) {
         final NotificationCompat.Builder builder = notificationBuilderProvider.get();
 
-        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setSmallIcon(icon);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setOngoing(false);
         builder.setAutoCancel(true);

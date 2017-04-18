@@ -12,6 +12,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -46,6 +48,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
     @Mock private Navigator navigator;
+    @Mock private FeatureFlags featureFlags;
 
     private DownloadNotificationController notificationController;
     private Provider<NotificationCompat.Builder> notificationBuilderProvider = new Provider<NotificationCompat.Builder>() {
@@ -63,7 +66,8 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
                 notificationManager,
                 notificationBuilderProvider,
                 resources(),
-                navigator);
+                navigator,
+                featureFlags);
     }
 
     @Test
@@ -74,12 +78,30 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
         verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_cloud);
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
+    @Test
+    public void onDownloadsFinishedDisplayCompletedNotificationWithNewIcon() {
+        when(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
+
+        notificationController.onPendingRequests(createQueue(20));
+
+        reset(notificationBuilder);
+        notificationController.onDownloadsFinished(successfulDownloadState, true);
+
+        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_download_completed);
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
+        verify(notificationBuilder).setOngoing(false);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+    
     @Test
     public void onDownloadsFinishedCancelsNotification() {
         notificationController.onPendingRequests(createQueue(20));
