@@ -24,7 +24,11 @@
         android:visibility="gone"
         tools:visibility="visible"/>
 
-    <View style="@style/Divider.Item" android:id="@+id/recommendations_header_divider" />
+    <View
+        android:id="@+id/recommendations_header_divider"
+        style="@style/Divider.Item"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/reason"
@@ -48,7 +52,10 @@
         android:paddingLeft="16dp"
         tools:listItem="@layout/recommendation_item" />
 
-    <View style="@style/Divider.Item" android:id="@+id/recommendations_view_all_divider" />
+    <View
+        android:id="@+id/recommendations_view_all_divider"
+        style="@style/Divider.Item"
+        android:visibility="gone" />
 
     <FrameLayout
         android:id="@+id/recommendations_view_all"
