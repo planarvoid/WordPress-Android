@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observer;
 
+import java.io.IOException;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ApiClientRxTest {
 
@@ -95,5 +97,15 @@ public class ApiClientRxTest {
         InOrder inOrder = inOrder(stringObserver);
         inOrder.verify(stringObserver).onError(isA(ApiMapperException.class));
         inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void shouldHandleThrowingClient() throws Exception {
+        when(client.fetchResponse(request)).thenThrow(IOException.class);
+
+        apiClientRx.response(request).test()
+                   .assertError(IOException.class)
+                   .assertNoValues()
+                   .assertNotCompleted();
     }
 }
