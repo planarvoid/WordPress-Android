@@ -36,7 +36,7 @@ public class LikedStationsTest extends ActivityTest<MainActivity> {
 
         final String title = stationsBucketElement.getFirstStation().getTitle();
         StationHomeScreen stationHome = stationsBucketElement.getFirstStation().open();
-        assertThat(stationHome.stationTitle(), containsString(title));
+        assertThat(stationHome.stationTitle(), containsString(title.substring(0, Math.min(20, title.length()))));
 
         boolean liked = stationHome.isStationLiked();
         if (!liked) {
