@@ -43,8 +43,7 @@ class UncaughtExceptionHandlerController {
     void setHandler() {
         final Thread.UncaughtExceptionHandler crashlyticsHandler = Thread.getDefaultUncaughtExceptionHandler();
         handler = (thread, e) -> {
-            //TODO evaluate this on alpha/beta and enable it on release later
-            final Throwable purged = BuildConfig.BUILD_TYPE.equals("release") ? e : ErrorUtils.purgeOnNextValueCause(e);
+            final Throwable purged = ErrorUtils.purgeOnNextValueCause(e);
             if (ErrorUtils.isCausedByOutOfMemory(e)) {
                 memoryReporter.reportOomStats();
                 crashlyticsHandler.uncaughtException(thread, new OutOfMemoryError(OOM_TREND_LABEL));
