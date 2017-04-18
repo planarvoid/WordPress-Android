@@ -29,8 +29,8 @@ public abstract class AppInstallAd extends AdData implements ExpirableAd {
                                           apiModel.imageUrl(),
                                           apiModel.rating(),
                                           apiModel.ratersCount(),
-                                          adTracking.impressionUrls,
-                                          adTracking.clickUrls);
+                                          adTracking.impressionUrls(),
+                                          adTracking.clickUrls());
     }
 
     public abstract long createdAt();

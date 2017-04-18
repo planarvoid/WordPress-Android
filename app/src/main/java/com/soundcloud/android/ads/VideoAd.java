@@ -19,16 +19,16 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 apiModel.adUrn(),
                 monetizationType,
                 apiModel.callToActionButtonText(),
-                videoTracking.impressionUrls,
-                videoTracking.startUrls,
-                videoTracking.finishUrls,
-                videoTracking.skipUrls,
-                videoTracking.firstQuartileUrls,
-                videoTracking.secondQuartileUrls,
-                videoTracking.thirdQuartileUrls,
-                videoTracking.pauseUrls,
-                videoTracking.resumeUrls,
-                videoTracking.clickUrls,
+                videoTracking.impressionUrls(),
+                videoTracking.startUrls(),
+                videoTracking.finishUrls(),
+                videoTracking.skipUrls(),
+                videoTracking.firstQuartileUrls(),
+                videoTracking.secondQuartileUrls(),
+                videoTracking.thirdQuartileUrls(),
+                videoTracking.pauseUrls(),
+                videoTracking.resumeUrls(),
+                videoTracking.clickUrls(),
                 apiModel.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiModel.displayProperties())),
                 apiModel.uuid(),
@@ -38,11 +38,10 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
                 apiModel.duration(),
                 Lists.transform(apiModel.videoSources(), VideoAdSource::create),
                 apiModel.clickThroughUrl(),
-                videoTracking.muteUrls,
-                videoTracking.unmuteUrls,
-                videoTracking.fullScreenUrls,
-                videoTracking.exitFullScreenUrls
-        );
+                videoTracking.muteUrls(),
+                videoTracking.unmuteUrls(),
+                videoTracking.fullScreenUrls(),
+                videoTracking.exitFullScreenUrls());
     }
 
     static VideoAd createWithMonetizableTrack(ApiModel apiModel, long createdAt, Urn monetizableTrackUrn) {
@@ -105,25 +104,15 @@ public abstract class VideoAd extends PlayableAdData implements ExpirableAd {
         }
 
         public abstract Urn adUrn();
-
         public abstract int expiryInMins();
-
         public abstract long duration();
-
         public abstract String uuid();
-
         public abstract Optional<String> title();
-
         public abstract Optional<String> callToActionButtonText();
-
         public abstract String clickThroughUrl();
-
         public abstract ApiDisplayProperties displayProperties();
-
         public abstract List<VideoAdSource.ApiModel> videoSources();
-
         public abstract ApiAdTracking videoTracking();
-
         public abstract boolean isSkippable();
     }
 }

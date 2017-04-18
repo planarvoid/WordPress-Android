@@ -204,7 +204,7 @@ public class AdFixtures {
     }
 
     private static ApiAdTracking getApiAudioAdTracking() {
-        return new ApiAdTracking(
+        return ApiAdTracking.create(
                 Collections.emptyList(),
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_skip1", "audio_skip2"),
@@ -223,22 +223,20 @@ public class AdFixtures {
     }
 
     private static ApiAdTracking getApiVideoAdTracking() {
-        return new ApiAdTracking(
-                Arrays.asList("video_click1", "video_click2"),
-                Arrays.asList("video_impression1", "video_impression2"),
-                Arrays.asList("video_skip1", "video_skip2"),
-                Arrays.asList("video_start1", "video_start2"),
-                Arrays.asList("video_quartile1_1", "video_quartile1_2"),
-                Arrays.asList("video_quartile2_1", "video_quartile2_2"),
-                Arrays.asList("video_quartile3_1", "video_quartile3_2"),
-                Arrays.asList("video_finish1", "video_finish2"),
-                Arrays.asList("video_pause1", "video_pause2"),
-                Arrays.asList("video_resume1", "video_resume2"),
-                Arrays.asList("video_mute1", "video_mute2"),
-                Arrays.asList("video_unmute1", "video_unmute2"),
-                Arrays.asList("video_fullscreen1", "video_fullscreen2"),
-                Arrays.asList("video_exit_full1", "video_exit_full2")
-        );
+        return ApiAdTracking.create(Arrays.asList("video_click1", "video_click2"),
+                                    Arrays.asList("video_impression1", "video_impression2"),
+                                    Arrays.asList("video_skip1", "video_skip2"),
+                                    Arrays.asList("video_start1", "video_start2"),
+                                    Arrays.asList("video_quartile1_1", "video_quartile1_2"),
+                                    Arrays.asList("video_quartile2_1", "video_quartile2_2"),
+                                    Arrays.asList("video_quartile3_1", "video_quartile3_2"),
+                                    Arrays.asList("video_finish1", "video_finish2"),
+                                    Arrays.asList("video_pause1", "video_pause2"),
+                                    Arrays.asList("video_resume1", "video_resume2"),
+                                    Arrays.asList("video_mute1", "video_mute2"),
+                                    Arrays.asList("video_unmute1", "video_unmute2"),
+                                    Arrays.asList("video_fullscreen1", "video_fullscreen2"),
+                                    Arrays.asList("video_exit_full1", "video_exit_full2"));
     }
 
     static VideoAd.ApiModel getApiVideoAd() {
@@ -304,20 +302,20 @@ public class AdFixtures {
     }
 
     private static ApiAdTracking getApiAppInstallTracking() {
-        return new ApiAdTracking(Arrays.asList("app_click1", "app_click2"),
-                                 Arrays.asList("app_impression1", "app_impression2"),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList(),
-                                 Collections.emptyList());
+        return ApiAdTracking.create(Arrays.asList("app_click1", "app_click2"),
+                                    Arrays.asList("app_impression1", "app_impression2"),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList(),
+                                    Collections.emptyList());
     }
 
     public static AppInstallAd.ApiModel getApiAppInstall() {
