@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -228,6 +229,42 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
         assertThat(searchEventCaptor.getValue().pageName().get()).isEqualTo(Screen.SEARCH_EVERYTHING.get());
         assertThat(searchEventCaptor.getValue().clickName().get()).isEqualTo(SearchEvent.ClickName.ITEM_NAVIGATION);
         assertThat(searchEventCaptor.getValue().clickObject().get()).isEqualTo(clickedTrack.itemUrn().get());
+
+    }
+
+    // TODO remove this once https://soundcloud.atlassian.net/browse/DROID-1292 is resolved
+    @Test
+    public void playsTrackButDoesntTrackWhenViewModelEmpty() throws Exception {
+        final ApiUniversalSearchItem track1 = searchTrackItem(ModelFixtures.apiTrack());
+        final SearchItem.Track searchTrack1 = SearchItem.Track.create(ModelFixtures.trackItem(track1.track().get()), BUCKET_POSITION, getTrackSourceInfo(TRACKS_BUCKET));
+
+        final TopResults.Bucket apiTopResultsBucket = TopResultsFixtures.trackResultsBucket(track1);
+        doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctPosition(anyInt());
+        doAnswer(invocation -> invocation.getArguments()[0]).when(playQueueFilter).correctQueue(anyList(), anyInt());
+
+
+        List<Urn> expectedQueue = asList(searchTrack1.itemUrn().get());
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(searchParams.queryUrn().get(),
+                                                                                      0,
+                                                                                      searchTrack1.trackItem().getUrn(),
+                                                                                      searchParams.apiQuery());
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+        this.playbackResultSubject = PublishSubject.create();
+        when(playbackInitiator.playPosts(anyList(), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(playbackResultSubject);
+
+        initTopResultsSearch();
+        presenter.searchItemClicked().onNext(searchTrack1);
+
+        assertThat(playbackResultSubject.hasObservers()).isTrue();
+        verify(playbackInitiator).playPosts(expectedQueue, searchTrack1.itemUrn().get(), 0, playSessionSource);
+
+        playbackResultSubject.onNext(PlaybackResult.success());
+
+        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND)).isEqualTo(PlayerUICommand.expandPlayer());
+
+        verify(eventTracker, never()).trackSearch(any());
 
     }
 
