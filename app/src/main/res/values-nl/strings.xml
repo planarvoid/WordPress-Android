@@ -766,6 +766,8 @@
   <string name="offline_not_available_offline">Niet offline beschikbaar</string>
   <string name="offline_no_wifi">Geen wifi</string>
   <string name="offline_no_connection">Geen verbinding</string>
+  <string name="sd_card_cannot_be_found">SD-kaart is niet gevonden</string>
+  <string name="tap_here_to_change_storage_location">Tik hier om de opslaglocatie te wijzigen</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Welkom bij SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Welkom bij SoundCloud Go!</string>
@@ -801,6 +803,8 @@
   <string name="pref_offline_change_storage_location">Opslaglocatie wijzigen</string>
   <string name="pref_offline_change_storage_location_description_device_storage">Offline content wordt momenteel opgeslagen in je interne apparaatopslag.</string>
   <string name="pref_offline_change_storage_location_description_sd_card">Offline content wordt momenteel opgeslagen op je SD-kaart.</string>
+  <string name="sd_card_unavailable">SD-kaart niet beschikbaar</string>
+  <string name="unavailable">Niet beschikbaar</string>
   <string name="pref_offline_storage_limit">Opslaglimiet</string>
   <string name="pref_offline_storage_limit_description">Hoeveel van je beschikbare opslag gebruikt mag worden voor offline luisteren.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB van %2$.1f GB beschikbaar</string>
@@ -831,6 +835,9 @@
   <string name="confirm_change_storage_location_dialog_title">Opslaglocatie wijzigen?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Alle huidige en toekomstige offline content wordt op je interne apparaatopslag gedownload en van je SD-kaart verwijderd.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Alle huidige en toekomstige offline content wordt op je SD-kaart gedownload en uit je interne apparaatopslag verwijderd.</string>
+  <string name="offline_storage_error_dialog_title">SD-kaart is niet gevonden</string>
+  <string name="offline_storage_error_dialog_message">Plaats je SD-kaart opnieuw of wijzig je opslaglocatie om door te gaan met het beheer van je offline content.</string>
+  <string name="go_to_settings">Ga naar Instellingen</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d track</item>
     <item quantity="other">%1$d van %2$d tracks</item>
@@ -967,6 +974,7 @@
   <!--__PLAY QUEUE-->
   <string name="play_next">Toevoegen aan Volgende</string>
   <string name="track_removed">Track verwijderd</string>
+  <string name="tracks_removed">Tracks verwijderd</string>
   <string name="play_queue_header_search">Vanuit zoekresultaten voor %1$s</string>
   <string name="play_queue_header_stream">Vanuit je stream</string>
   <string name="play_queue_header_link">Vanuit een link</string>

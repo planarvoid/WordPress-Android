@@ -125,13 +125,14 @@ public class TopResultsPresenter {
 
     private Observable<PlaybackResult> playTrack(SearchItem clickedItem, String searchQuery, TopResultsViewModel viewModel) {
         final List<TopResultsBucketViewModel> buckets = viewModel.buckets().items();
+        // TODO this should always be present, see https://soundcloud.atlassian.net/browse/DROID-1292
+        final Optional<TopResultsBucketViewModel> currentBucket = buckets.isEmpty() ? Optional.absent() : Optional.of(buckets.get(clickedItem.bucketPosition()));
         final SearchItem.Track trackSearchItem = (SearchItem.Track) clickedItem;
-        final TopResultsBucketViewModel currentBucket = buckets.get(clickedItem.bucketPosition());
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET),
-                                                                                      getPosition(clickedItem, currentBucket, buckets),
+                                                                                      currentBucket.isPresent() ? getPosition(clickedItem, currentBucket.get(), buckets) : 0,
                                                                                       trackSearchItem.trackItem().getUrn(),
                                                                                       searchQuery);
-        final List<PlayableItem> playableItems = filterPlayableItems(viewModel.buckets().items());
+        final List<PlayableItem> playableItems = buckets.isEmpty() ? Lists.newArrayList(trackSearchItem.trackItem()) : filterPlayableItems(viewModel.buckets().items());
         final int position = playableItems.indexOf(trackSearchItem.trackItem());
 
         List<PlayableItem> adjustedQueue = playQueueFilter.correctQueue(playableItems, position);
@@ -143,7 +144,11 @@ public class TopResultsPresenter {
 
         List<Urn> transform = transform(adjustedQueue, Entity::getUrn);
         return playbackInitiator.playPosts(transform, trackSearchItem.itemUrn().get(), adjustedPosition, playSessionSource)
-                                .doOnNext(args -> eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, currentBucket.kind().toClickSource())));
+                                .doOnNext(args -> {
+                                    if (currentBucket.isPresent()) {
+                                        eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, currentBucket.get().kind().toClickSource()));
+                                    }
+                                });
     }
 
     Observable<GoToItemArgs> onGoToPlaylist() {
@@ -215,6 +220,7 @@ public class TopResultsPresenter {
             Urn nowPlayingUrn) {
 
         Optional<Urn> queryUrn = Optional.absent();
+
         final List<TopResultsBucketViewModel> viewModelItems = Lists.newArrayList();
         if (collectionLoaderState.data().isPresent()) {
             final TopResults topResults = collectionLoaderState.data().get();

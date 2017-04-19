@@ -326,9 +326,15 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
         return models()
                 .compose(Transformers.takePairWhen(trigger))
                 .withLatestFrom(playSessionSource(), (modelWithItem, playSessionSource) -> {
-                    final List<PlaylistDetailTrackItem> tracks = modelWithItem.first.tracks();
-                    final int position = tracks.indexOf(modelWithItem.second);
-                    return playTracksFromPosition(position, playSessionSource, transform(tracks, PlaylistDetailTrackItem::getUrn));
+                    final Urn trackToPlay = modelWithItem.second.getUrn();
+                    final List<Urn> tracksList = transform(modelWithItem.first.tracks(), PlaylistDetailTrackItem::getUrn);
+                    final int position = tracksList.indexOf(trackToPlay);
+                    // Here for investigation
+                    if (position == -1) {
+                        throw new IllegalStateException(String.format("Could not find track %s in %s", trackToPlay, tracksList));
+                    }
+                    //
+                    return playTracksFromPosition(position, playSessionSource, tracksList);
                 })
                 .flatMap(x -> x)
                 .doOnNext(this::sendErrorIfUnsuccessful)

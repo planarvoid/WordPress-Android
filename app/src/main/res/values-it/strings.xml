@@ -766,6 +766,8 @@
   <string name="offline_not_available_offline">Non disponibile offline</string>
   <string name="offline_no_wifi">Nessuna connessione Wi-Fi</string>
   <string name="offline_no_connection">Nessuna connessione</string>
+  <string name="sd_card_cannot_be_found">Impossibile trovare la scheda SD</string>
+  <string name="tap_here_to_change_storage_location">Tocca qui per modificare il percorso di archiviazione</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Benvenuto in SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Benvenuto in SoundCloud Go!</string>
@@ -802,7 +804,9 @@ Riavvia l\'applicazione.</string>
   <string name="pref_offline_wifi_only_description">Attiva questa opzione per salvare le tracce offline solamente con connessione Wi-Fi.</string>
   <string name="pref_offline_change_storage_location">Modifica percorso di archiviazione</string>
   <string name="pref_offline_change_storage_location_description_device_storage">Attualmente i contenuti offline vengono salvati nella memoria interna del dispositivo.</string>
-  <string name="pref_offline_change_storage_location_description_sd_card">Attualmente i contenuti offline vengono salvati nella memoria della scheda SD.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">Attualmente i contenuti offline vengono salvati sulla scheda SD.</string>
+  <string name="sd_card_unavailable">Scheda SD non disponibile</string>
+  <string name="unavailable">Non disponibile</string>
   <string name="pref_offline_storage_limit">Limite di archiviazione</string>
   <string name="pref_offline_storage_limit_description">Indica lo spazio libero assegnato all\'ascolto offline.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB liberi su %2$.1f GB</string>
@@ -833,6 +837,9 @@ Riavvia l\'applicazione.</string>
   <string name="confirm_change_storage_location_dialog_title">Modificare il percorso di archiviazione?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Tutti i contenuti offline presenti e futuri verranno scaricati nella memoria interna del dispositivo e rimossi dalla scheda SD.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Tutti i contenuti offline presenti e futuri verranno scaricati nella scheda SD e rimossi dalla memoria interna del dispositivo.</string>
+  <string name="offline_storage_error_dialog_title">Impossibile trovare la scheda SD</string>
+  <string name="offline_storage_error_dialog_message">Reinserisci la scheda SD o modifica il percorso di archiviazione per continuare a gestire i contenuti offline.</string>
+  <string name="go_to_settings">Accedi alle impostazioni</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d traccia</item>
     <item quantity="other">%1$d di %2$d tracce</item>
@@ -969,6 +976,7 @@ Riavvia l\'applicazione.</string>
   <!--__PLAY QUEUE-->
   <string name="play_next">Aggiungi a A seguire</string>
   <string name="track_removed">Traccia rimossa</string>
+  <string name="tracks_removed">Tracce rimosse</string>
   <string name="play_queue_header_search">Dai risultati di ricerca per %1$s</string>
   <string name="play_queue_header_stream">Dal tuo stream</string>
   <string name="play_queue_header_link">Da un link</string>
