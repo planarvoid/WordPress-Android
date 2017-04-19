@@ -768,6 +768,8 @@ vão aparecer aqui.</string>
   <string name="offline_not_available_offline">Não disponível off-line</string>
   <string name="offline_no_wifi">Sem Wi-Fi</string>
   <string name="offline_no_connection">Sem conexão</string>
+  <string name="sd_card_cannot_be_found">Não foi possível encontrar o cartão SD</string>
+  <string name="tap_here_to_change_storage_location">Toque aqui para alterar o local de armazenamento</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bem-vindo ao SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Bem-vindo ao SoundCloud Go!</string>
@@ -802,7 +804,9 @@ vão aparecer aqui.</string>
   <string name="pref_offline_wifi_only_description">Quando ele for ligado, somente salvaremos as faixas offline com uma conexão Wi-Fi.</string>
   <string name="pref_offline_change_storage_location">Alterar local de armazenamento</string>
   <string name="pref_offline_change_storage_location_description_device_storage">No momento, o conteúdo offline é salvo no armazenamento do seu dispositivo interno.</string>
-  <string name="pref_offline_change_storage_location_description_sd_card">No momento, o conteúdo offline é salvo no armazenamento do seu cartão SD.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">No momento, o conteúdo offline é salvo no seu cartão SD.</string>
+  <string name="sd_card_unavailable">Cartão SD indisponível</string>
+  <string name="unavailable">Indisponível</string>
   <string name="pref_offline_storage_limit">Limite de armazenamento</string>
   <string name="pref_offline_storage_limit_description">Isso definirá a quantidade de armazenamento disponível que poder ser usada para a escuta offline.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB livres de %2$.1f GB</string>
@@ -833,6 +837,9 @@ vão aparecer aqui.</string>
   <string name="confirm_change_storage_location_dialog_title">Alterar local de armazenamento?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Todo o conteúdo offline atual e futuro será baixado para o armazenamento do seu dispositivo interno e removido do cartão SD.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Todo o conteúdo offline atual e futuro será baixado para o cartão SD e removido do armazenamento do seu dispositivo interno.</string>
+  <string name="offline_storage_error_dialog_title">Não foi possível encontrar o cartão SD</string>
+  <string name="offline_storage_error_dialog_message">Insira novamente seu cartão SD ou altere o local de armazenamento para continuar gerenciando seu conteúdo offline.</string>
+  <string name="go_to_settings">Ir para configurações</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d faixa</item>
     <item quantity="other">%1$d de %2$d faixas</item>
@@ -969,6 +976,7 @@ vão aparecer aqui.</string>
   <!--__PLAY QUEUE-->
   <string name="play_next">Adicionar a Next up</string>
   <string name="track_removed">Faixa removida</string>
+  <string name="tracks_removed">Faixas removidas</string>
   <string name="play_queue_header_search">De resultados de pesquisa para %1$s</string>
   <string name="play_queue_header_stream">De seu stream</string>
   <string name="play_queue_header_link">De um link</string>

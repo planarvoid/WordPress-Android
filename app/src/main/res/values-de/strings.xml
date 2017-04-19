@@ -766,6 +766,8 @@
   <string name="offline_not_available_offline">Offline nicht verfügbar</string>
   <string name="offline_no_wifi">Kein WLAN</string>
   <string name="offline_no_connection">Keine Verbindung</string>
+  <string name="sd_card_cannot_be_found">SD-Karte kann nicht gefunden werden</string>
+  <string name="tap_here_to_change_storage_location">Tippe hier, um den Speicherort zu ändern.</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Willkommen bei SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Willkommen bei SoundCloud Go!</string>
@@ -801,6 +803,8 @@
   <string name="pref_offline_change_storage_location">Speicherort ändern</string>
   <string name="pref_offline_change_storage_location_description_device_storage">Offline-Inhalte werden derzeit in deinem internen Gerätespeicher gespeichert.</string>
   <string name="pref_offline_change_storage_location_description_sd_card">Offline-Inhalte werden derzeit auf deiner SD-Karte gespeichert.</string>
+  <string name="sd_card_unavailable">SD-Karte nicht verfügbar</string>
+  <string name="unavailable">Nicht verfügbar</string>
   <string name="pref_offline_storage_limit">Speicherbegrenzung</string>
   <string name="pref_offline_storage_limit_description">Hiermit legst du fest, wie viel des verfügbaren Speicherplatzes für die Offline-Wiedergabe verwendet werden soll.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB von %2$.1f GB frei</string>
@@ -831,6 +835,9 @@
   <string name="confirm_change_storage_location_dialog_title">Speicherort ändern?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Alle aktuellen und zukünftigen Offline-Inhalte werden in deinen internen Gerätespeicher heruntergeladen und von deiner SD-Karte entfernt.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Alle aktuellen und zukünftigen Offline-Inhalte werden auf deine SD-Karte heruntergeladen und aus deinem internen Gerätespeicher entfernt.</string>
+  <string name="offline_storage_error_dialog_title">SD-Karte kann nicht gefunden werden</string>
+  <string name="offline_storage_error_dialog_message">Setze die SD-Karte erneut ein oder ändere den Speicherort, um weiterhin deine Offline-Inhalte zu verwalten.</string>
+  <string name="go_to_settings">Zu Einstellungen wechseln</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d Track</item>
     <item quantity="other">%1$d von %2$d Tracks</item>
@@ -967,6 +974,7 @@
   <!--__PLAY QUEUE-->
   <string name="play_next">Als nächstes einreihen</string>
   <string name="track_removed">Track wurde entfernt</string>
+  <string name="tracks_removed">Tracks entfernt</string>
   <string name="play_queue_header_search">Aus den Suchergebnissen für „%1$s“</string>
   <string name="play_queue_header_stream">Aus deinem Stream</string>
   <string name="play_queue_header_link">Aus einem Link</string>

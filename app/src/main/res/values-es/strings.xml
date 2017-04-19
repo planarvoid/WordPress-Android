@@ -766,6 +766,8 @@
   <string name="offline_not_available_offline">No está disponible sin conexión a Internet</string>
   <string name="offline_no_wifi">Sin conexión wifi</string>
   <string name="offline_no_connection">Sin conexión</string>
+  <string name="sd_card_cannot_be_found">No se encuentra la tarjeta SD</string>
+  <string name="tap_here_to_change_storage_location">Toca aquí para cambiar la ubicación de almacenamiento</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenido a SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">¡Bienvenido a SoundCloud Go!</string>
@@ -800,7 +802,9 @@
   <string name="pref_offline_wifi_only_description">Cuando esta opción está activada, solo sincronizamos las pistas en modo sin conexión con una conexión wifi.</string>
   <string name="pref_offline_change_storage_location">Cambiar ubicación de almacenamiento</string>
   <string name="pref_offline_change_storage_location_description_device_storage">Actualmente, el contenido sin conexión se guarda en el almacenamiento interno de tu dispositivo.</string>
-  <string name="pref_offline_change_storage_location_description_sd_card">Actualmente, el contenido sin conexión se guarda en el almacenamiento de tu tarjeta SD.</string>
+  <string name="pref_offline_change_storage_location_description_sd_card">El contenido sin conexión se guarda actualmente en tu tarjeta SD.</string>
+  <string name="sd_card_unavailable">Tarjeta SD no disponible</string>
+  <string name="unavailable">No disponible</string>
   <string name="pref_offline_storage_limit">Límite de almacenamiento</string>
   <string name="pref_offline_storage_limit_description">Esto determinará cuánto del almacenamiento que tienes disponible se utiliza para escuchar sin conexión.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f GB libres de %2$.1f GB</string>
@@ -831,6 +835,9 @@
   <string name="confirm_change_storage_location_dialog_title">¿Cambiar ubicación de almacenamiento?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Todo el contenido sin conexión actual y futuro se descargará en el almacenamiento interno de tu dispositivo y se eliminará de tu tarjeta SD.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Todo el contenido sin conexión actual y futuro se descargará en tu tarjeta SD y se eliminará del almacenamiento interno de tu dispositivo.</string>
+  <string name="offline_storage_error_dialog_title">No se encuentra la tarjeta SD</string>
+  <string name="offline_storage_error_dialog_message">Vuelve a insertar tu tarjeta SD o cambia tu ubicación de almacenamiento para continuar gestionando tu contenido sin conexión.</string>
+  <string name="go_to_settings">Ir a configuración</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d pista</item>
     <item quantity="other">%1$d de %2$d pistas</item>
@@ -967,6 +974,7 @@
   <!--__PLAY QUEUE-->
   <string name="play_next">Añadir a continuación</string>
   <string name="track_removed">Pista eliminada</string>
+  <string name="tracks_removed">Pistas eliminadas</string>
   <string name="play_queue_header_search">De los resultados de búsqueda de %1$s</string>
   <string name="play_queue_header_stream">De tu stream</string>
   <string name="play_queue_header_link">De un enlace</string>
