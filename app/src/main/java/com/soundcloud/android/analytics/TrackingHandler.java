@@ -1,8 +1,8 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
 
@@ -23,16 +23,16 @@ class TrackingHandler extends Handler {
     static final int FLUSH_TOKEN = 1;
     static final int FINISH_TOKEN = 0xDEADBEEF;
 
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final TrackingStorage storage;
     private final TrackingApiFactory apiFactory;
 
     TrackingHandler(Looper looper,
-                    NetworkConnectionHelper networkConnectionHelper,
+                    ConnectionHelper connectionHelper,
                     TrackingStorage storage,
                     TrackingApiFactory apiFactory) {
         super(looper);
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.storage = storage;
         this.apiFactory = apiFactory;
     }
@@ -80,7 +80,7 @@ class TrackingHandler extends Handler {
     private void flushTrackingEvents(Message flushMessage) {
         final String backend = (String) flushMessage.obj;
 
-        if (networkConnectionHelper.isNetworkConnected()) {
+        if (connectionHelper.isNetworkConnected()) {
             Log.d(EventTrackingManager.TAG, "flushing tracking events (backend = " + backend + ")");
             List<TrackingRecord> events = backend == null ?
                                           storage.getPendingEvents() :

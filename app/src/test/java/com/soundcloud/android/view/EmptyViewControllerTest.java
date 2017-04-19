@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,11 +31,11 @@ public class EmptyViewControllerTest extends AndroidUnitTest {
 
     @Mock private View layout;
     @Mock private EmptyView emptyView;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
 
     @Before
     public void setup() {
-        controller = new EmptyViewController(networkConnectionHelper);
+        controller = new EmptyViewController(connectionHelper);
         fragment.setArguments(fragmentArgs);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         subject = PublishSubject.create();
@@ -78,7 +78,7 @@ public class EmptyViewControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedExceptionWithConnection() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         controller.onViewCreated(fragment, layout, null);
         controller.connect(Observable.error(mock(SyncFailedException.class)));
         verify(emptyView).setStatus(EmptyView.Status.SERVER_ERROR);

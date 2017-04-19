@@ -37,7 +37,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private AdsController adsController;
     @Mock private CastConnectionHelper castConnectionHelper;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private PlaybackStrategy playbackStrategy;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private AccountOperations accountOperations;

@@ -19,7 +19,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
     @Mock private AdsController adsController;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
@@ -47,7 +47,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         advancer = new PlayQueueAdvancer(
                 playQueueManager,
-                networkConnectionHelper,
+                connectionHelper,
                 playSessionController,
                 adsController, serviceInitiator, castConnectionHelper);
         trackUrn = TestPlayStates.URN;
@@ -85,7 +85,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionToAdvanceItemIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           false));
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
 
         assertThat(advancer.onPlayStateChanged(TestPlayStates.error(PlayStateReason.ERROR_NOT_FOUND)))
@@ -116,7 +116,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionToAdvanceItemIfTrackEndedWithForbiddenErrorAndNotUserTriggeredWithConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           false));
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
         assertThat(advancer.onPlayStateChanged(TestPlayStates.error(PlayStateReason.ERROR_NOT_FOUND)))
                 .isSameAs(PlayQueueAdvancer.Result.ADVANCED);

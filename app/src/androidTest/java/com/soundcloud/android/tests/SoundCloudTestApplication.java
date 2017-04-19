@@ -1,12 +1,17 @@
 package com.soundcloud.android.tests;
 
+import com.facebook.login.LoginManager;
 import com.soundcloud.android.ApplicationComponent;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.di.TestAnalyticsModule;
 import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.di.TestApplicationModule;
+import com.soundcloud.android.di.testimplementations.TestFacebookModule;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.utils.ConnectionHelper;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
+import com.soundcloud.android.utils.TestConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -28,6 +33,9 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
     @Inject FeatureFlags featureFlags;
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
+    @Inject ConnectionHelper connectionHelper;
+    @Inject LoginManager loginManager;
+    @Inject GooglePlayServicesWrapper playServicesWrapper;
 
     @Override
     public void onCreate() {
@@ -70,6 +78,7 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
                                                                  .applicationModule(new TestApplicationModule(this))
                                                                  .apiModule(new TestApiModule())
                                                                  .analyticsModule(new TestAnalyticsModule())
+                                                                 .facebookModule(new TestFacebookModule())
                                                                  .build();
         return testApplicationComponent;
     }
@@ -84,5 +93,17 @@ public class SoundCloudTestApplication extends SoundCloudApplication {
 
     public AccountOperations getAccountOperations() {
         return accountOperations;
+    }
+
+    public TestConnectionHelper getConnectionHelper() {
+        return (TestConnectionHelper) connectionHelper;
+    }
+
+    public LoginManager getLoginManager() {
+        return loginManager;
+    }
+
+    public GooglePlayServicesWrapper getPlayServicesWrapper() {
+        return playServicesWrapper;
     }
 }

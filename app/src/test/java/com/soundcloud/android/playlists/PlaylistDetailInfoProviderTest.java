@@ -7,7 +7,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistEngagementsRenderer.PlaylistDetailInfoProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,7 +18,7 @@ public class PlaylistDetailInfoProviderTest extends AndroidUnitTest {
 
     private PlaylistDetailInfoProvider infoProvider;
     @Mock private OfflineSettingsOperations offlineSettings;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
 
     @Before
     public void setUp() throws Exception {

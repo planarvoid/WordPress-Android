@@ -74,7 +74,7 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
         //
         // This can happen because while the creation is synced, the deletion
         // may not be synced (it the test runner kill the app before)
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setWifiConnected(false);
 
         createPlaylistScreen
                 .clickDoneAndReturnToPlayer()

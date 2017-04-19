@@ -11,9 +11,7 @@ import static com.soundcloud.android.utils.ErrorUtils.log;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -58,6 +56,7 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
@@ -198,6 +197,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject Navigator navigator;
     @Inject OAuth oauth;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
+    @Inject GooglePlayServicesWrapper playServicesWrapper;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -455,20 +455,19 @@ public class OnboardActivity extends FragmentActivity
     public void onGooglePlusAuth() {
         log(INFO, ONBOARDING_TAG, "on Google+ auth");
 
-        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        int result = playServicesWrapper.getPlayServicesAvailableStatus(this);
         if (result == ConnectionResult.SUCCESS) {
             showGoogleAccountPicker();
         } else {
-            final boolean isNotResolvable = !googleAPI.isUserResolvableError(result);
-            if (isNotResolvable || !tryToShowResolveDialog(googleAPI, result)) {
+            final boolean isNotResolvable = !playServicesWrapper.isUserRecoverableError(result);
+            if (isNotResolvable || !tryToShowResolveDialog(result)) {
                 showGooglePlayServicesInstallError();
             }
         }
     }
 
-    private boolean tryToShowResolveDialog(GoogleApiAvailability googleAPI, int result) {
-        return googleAPI.showErrorDialogFragment(this, result, RequestCodes.PLAY_SERVICES_INSTALLED);
+    private boolean tryToShowResolveDialog(int result) {
+        return playServicesWrapper.showErrorDialogFragment(this, result, RequestCodes.PLAY_SERVICES_INSTALLED);
     }
 
     private void showGooglePlayServicesInstallError() {
@@ -482,8 +481,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void showGoogleAccountPicker() {
-        Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
-                                                             false, null, null, null, null);
+        Intent intent = playServicesWrapper.getAccountPickerIntent();
         startActivityForResult(intent, RequestCodes.PICK_GOOGLE_ACCOUNT);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.googleAuthEvent());
     }

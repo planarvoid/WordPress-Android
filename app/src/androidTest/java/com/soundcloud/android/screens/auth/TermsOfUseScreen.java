@@ -9,6 +9,8 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 
+import android.app.Activity;
+
 public class TermsOfUseScreen extends Screen {
 
     public TermsOfUseScreen(Han solo) {
@@ -60,6 +62,13 @@ public class TermsOfUseScreen extends Screen {
 
     public LoginErrorScreen failToLogin() {
         continueButton().click();
+        waiter.waitForTextToDisappear("Logging you in");
+        return new LoginErrorScreen(testDriver);
+    }
+
+    public LoginErrorScreen failToLoginWithResult() {
+        continueButton().click();
+        testDriver.getCurrentActivity().setResult(Activity.RESULT_OK);
         waiter.waitForTextToDisappear("Logging you in");
         return new LoginErrorScreen(testDriver);
     }

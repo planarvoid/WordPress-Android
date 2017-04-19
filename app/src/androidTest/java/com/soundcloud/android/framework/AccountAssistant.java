@@ -16,7 +16,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tests.SoundCloudTestApplication;
-import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -47,22 +46,6 @@ public final class AccountAssistant {
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
 
-    public static boolean loginWith(Context context, TestUser testUser, NetworkManagerClient networkManagerClient) {
-        int tryCount = 0;
-        boolean accountAdded = false;
-        do {
-            try {
-                tryCount++;
-                PublicApiUser loggedInUser = AccountAssistant.getLoggedInUser(testUser.token.getAccessToken());
-                accountAdded = AccountAssistant.addAccountAndEnableSync(context, testUser.token, loggedInUser.toApiMobileUser());
-            } catch (IOException e) {
-                Log.e(TAG, "Error fetching account data", e);
-                cycleWifi(networkManagerClient);
-            }
-        } while (!accountAdded && tryCount <= MAX_RETRIES);
-        return accountAdded;
-    }
-
     public static boolean loginWith(Context context, TestUser testUser) {
         int tryCount = 0;
         boolean accountAdded = false;
@@ -76,16 +59,6 @@ public final class AccountAssistant {
             }
         } while (!accountAdded && tryCount <= MAX_RETRIES);
         return accountAdded;
-    }
-
-    private static void cycleWifi(NetworkManagerClient networkManagerClient) {
-        networkManagerClient.switchWifiOff();
-        networkManagerClient.switchWifiOn();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     static boolean addAccountAndEnableSync(Context context, Token token, ApiUser user) {

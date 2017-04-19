@@ -29,7 +29,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -254,14 +254,14 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     static final class UpdateHeaderViewSubscriber extends DefaultSubscriber<HeaderViewUpdate> {
 
         private final OfflineSettingsOperations offlineSettings;
-        private final NetworkConnectionHelper connectionHelper;
+        private final ConnectionHelper connectionHelper;
         private final EventBus eventBus;
 
         private Optional<HeaderViewUpdate> previousUpdate = Optional.absent();
 
         @Inject
         UpdateHeaderViewSubscriber(OfflineSettingsOperations offlineSettings,
-                                   NetworkConnectionHelper connectionHelper,
+                                   ConnectionHelper connectionHelper,
                                    EventBus eventBus) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;

@@ -3,7 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 public class PlayQueueAdvancer {
 
     private final PlayQueueManager playQueueManager;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final PlaySessionController playSessionController;
     private final AdsController adsController;
     private final PlaybackServiceController serviceController;
@@ -24,7 +24,7 @@ public class PlayQueueAdvancer {
 
     @Inject
     public PlayQueueAdvancer(PlayQueueManager playQueueManager,
-                             NetworkConnectionHelper connectionHelper,
+                             ConnectionHelper connectionHelper,
                              PlaySessionController playSessionController,
                              AdsController adsController,
                              PlaybackServiceController serviceController,

@@ -14,7 +14,7 @@ import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_72
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
@@ -30,7 +30,7 @@ public class VideoSourceProvider {
 
     private final DeviceHelper deviceHelper;
     private final MediaCodecInfoProvider mediaCodecInfoProvider;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final ApplicationProperties applicationProperties;
 
     private Optional<VideoAdSource> currentSource = Optional.absent();
@@ -38,10 +38,11 @@ public class VideoSourceProvider {
     @Inject
     public VideoSourceProvider(DeviceHelper deviceHelper,
                                MediaCodecInfoProvider mediaCodecInfoProvider,
-                               NetworkConnectionHelper networkConnectionHelper, ApplicationProperties applicationProperties) {
+                               ConnectionHelper connectionHelper,
+                               ApplicationProperties applicationProperties) {
         this.deviceHelper = deviceHelper;
         this.mediaCodecInfoProvider = mediaCodecInfoProvider;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.applicationProperties = applicationProperties;
     }
 
@@ -104,7 +105,7 @@ public class VideoSourceProvider {
     }
 
     private int maxBitrateForConnection() {
-        switch (networkConnectionHelper.getCurrentConnectionType()) {
+        switch (connectionHelper.getCurrentConnectionType()) {
             case WIFI:
                 return MAX_BITRATE_KBPS_WIFI;
             case FOUR_G:

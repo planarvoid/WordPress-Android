@@ -19,6 +19,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +58,7 @@ public class AccountOperations {
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
+    private final GooglePlayServicesWrapper googlePlayServicesWrapper;
     private final PlaySessionStateStorage playSessionStateStorage;
     private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
@@ -92,6 +94,7 @@ public class AccountOperations {
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearOfflineContentCommand> clearOfflineContentCommand,
                       Lazy<LoginManager> facebookLoginManager,
+                      GooglePlayServicesWrapper googlePlayServicesWrapper,
                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.accountManager = accountManager;
@@ -102,6 +105,7 @@ public class AccountOperations {
         this.accountCleanupAction = accountCleanupAction;
         this.clearOfflineContentCommand = clearOfflineContentCommand;
         this.facebookLoginManager = facebookLoginManager;
+        this.googlePlayServicesWrapper = googlePlayServicesWrapper;
         this.scheduler = scheduler;
     }
 
@@ -132,7 +136,7 @@ public class AccountOperations {
     public String getGoogleAccountToken(String accountName,
                                         String scope,
                                         Bundle bundle) throws GoogleAuthException, IOException {
-        return GoogleAuthUtil.getToken(context, accountName, scope, bundle);
+        return googlePlayServicesWrapper.getAuthToken(context, accountName, scope, bundle);
     }
 
     public void invalidateGoogleAccountToken(String token) {

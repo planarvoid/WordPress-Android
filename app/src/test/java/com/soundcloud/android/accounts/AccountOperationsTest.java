@@ -26,6 +26,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -66,6 +67,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private ClearOfflineContentCommand clearOfflineContentCommand;
     @Mock private LoginManager facebookLoginManager;
     @Mock private PlaySessionStateStorage playSessionStateStorage;
+    @Mock private GooglePlayServicesWrapper googlePlayServicesWrapper;
 
     private ApiUser user;
 
@@ -78,6 +80,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
                                                   InjectionSupport.lazyOf(accountCleanupAction),
                                                   InjectionSupport.lazyOf(clearOfflineContentCommand),
                                                   InjectionSupport.lazyOf(facebookLoginManager),
+                                                  googlePlayServicesWrapper,
                                                   Schedulers.immediate());
 
         user = ModelFixtures.create(ApiUser.class);

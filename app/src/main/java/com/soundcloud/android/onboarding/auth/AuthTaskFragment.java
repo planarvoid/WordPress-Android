@@ -15,8 +15,8 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -35,7 +35,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private AuthTaskResult result;
     private WeakReference<OnAuthResultListener> listenerRef;
 
-    @Inject NetworkConnectionHelper networkConnectionHelper;
+    @Inject ConnectionHelper connectionHelper;
     @Inject AccountOperations accountOperations;
     @Inject ApiClient apiClient;
     @Inject StoreUsersCommand storeUsersCommand;
@@ -145,7 +145,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Throwable rootException = ErrorUtils.removeTokenRetrievalException(result.getException());
-        final boolean isNetworkUnavailable = !networkConnectionHelper.isNetworkConnected();
+        final boolean isNetworkUnavailable = !connectionHelper.isNetworkConnected();
         
         if (result.wasServerError()) {
             return activity.getString(R.string.error_server_problems_message);
@@ -191,6 +191,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     private boolean shouldAllowFeedback(AuthTaskResult result) {
-        return networkConnectionHelper.isNetworkConnected() && result.wasUnexpectedError();
+        return connectionHelper.isNetworkConnected() && result.wasUnexpectedError();
     }
 }

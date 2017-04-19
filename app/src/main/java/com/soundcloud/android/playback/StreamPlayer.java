@@ -10,9 +10,9 @@ import com.soundcloud.android.playback.Player.PlayerListener;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -37,7 +37,7 @@ class StreamPlayer implements PlayerListener {
     private final Player audioAdPlayer;
     private final Player defaultPlayer;
 
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final EventBus eventBus;
 
     private Player currentPlayer;
@@ -51,11 +51,11 @@ class StreamPlayer implements PlayerListener {
     StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
                  Provider<SkippyAdapter> skippyAdapterProvider,
                  Provider<FlipperAdapter> flipperAdapterProvider,
-                 NetworkConnectionHelper networkConnectionHelper,
+                 ConnectionHelper connectionHelper,
                  EventBus eventBus,
                  FlipperConfiguration flipperConfiguration) {
 
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.eventBus = eventBus;
 
         this.mediaPlayerDelegate = mediaPlayerAdapter;
@@ -206,7 +206,7 @@ class StreamPlayer implements PlayerListener {
 
     private boolean shouldFallbackToMediaPlayer(PlaybackStateTransition stateTransition) {
         return isNotUsingMediaPlayer()
-                && stateTransition.wasGeneralFailure() && networkConnectionHelper.isNetworkConnected()
+                && stateTransition.wasGeneralFailure() && connectionHelper.isNetworkConnected()
                 && lastItemPlayed.getPlaybackType() != PlaybackType.AUDIO_OFFLINE;
     }
 

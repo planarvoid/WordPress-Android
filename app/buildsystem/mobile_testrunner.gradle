@@ -40,7 +40,7 @@ def testPackage() {
 }
 
 def toolsPackages() {
-  [new Package(project.androidNetworkManagerApplicationId, project.networkManagerApkPath)] as Package[]
+  [] as Package[]
 }
 
 def testRunner() {

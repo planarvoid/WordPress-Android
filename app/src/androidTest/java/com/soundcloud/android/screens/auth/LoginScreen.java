@@ -51,6 +51,10 @@ public class LoginScreen extends Screen {
         return this;
     }
 
+    public TermsOfUseScreen assertTermsOfUseScreen() {
+        return new TermsOfUseScreen(testDriver);
+    }
+
     public RecoverPasswordScreen clickForgotPassword() {
         forgotPasswordButton().click();
         return new RecoverPasswordScreen(testDriver);

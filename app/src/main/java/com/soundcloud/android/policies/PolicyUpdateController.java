@@ -7,10 +7,10 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -31,7 +31,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
     private final PolicySettingsStorage policySettingsStorage;
     private final DateProvider dateProvider;
     private final GoBackOnlineDialogPresenter goBackOnlineDialogPresenter;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -42,7 +42,7 @@ public class PolicyUpdateController extends DefaultActivityLightCycle<AppCompatA
                                   PolicySettingsStorage policySettingsStorage,
                                   CurrentDateProvider dateProvider,
                                   GoBackOnlineDialogPresenter goBackOnlineDialogPresenter,
-                                  NetworkConnectionHelper connectionHelper) {
+                                  ConnectionHelper connectionHelper) {
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.policyOperations = policyOperations;

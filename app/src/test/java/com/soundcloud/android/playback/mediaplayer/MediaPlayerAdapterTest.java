@@ -43,7 +43,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Mock private MediaPlayerManager mediaPlayerManager;
     @Mock private MediaPlayerAdapter.PlayerHandler playerHandler;
     @Mock private Player.PlayerListener listener;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private StreamUrlBuilder urlBuilder;
@@ -104,7 +104,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(accountOperations.getSoundCloudToken()).thenReturn(TOKEN);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
         when(urlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(STREAM_URL);
         when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(VideoAdSource.create(AdFixtures.getApiVideoSource(
@@ -116,7 +116,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
                                                     mediaPlayerManager,
                                                     playerHandler,
                                                     eventBus,
-                                                    networkConnectionHelper,
+                                                    connectionHelper,
                                                     accountOperations,
                                                     bufferUnderrunListener,
                                                     videoSourceProvider,
@@ -206,7 +206,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void preparedListenerShouldReportTimeToPlay() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
 
         mediaPlayerAdapter.play(TestPlaybackItem.audio(trackUrn));
@@ -224,7 +224,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void preparedListenerShouldReportTimeToPlayOnVideoPlayback() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
 
         mediaPlayerAdapter.play(videoItem);

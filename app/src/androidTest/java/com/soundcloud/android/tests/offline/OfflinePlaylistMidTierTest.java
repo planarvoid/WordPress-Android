@@ -72,7 +72,7 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
 
         playlistDetailsScreen.scrollToBottom();
         playlistDetailsScreen.waitForDownloadToFinish();
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setWifiConnected(false);
 
         assertThat("Playlist should be downloaded", playlistDetailsScreen.headerDownloadElement().isDownloaded());
         return playlistDetailsScreen;

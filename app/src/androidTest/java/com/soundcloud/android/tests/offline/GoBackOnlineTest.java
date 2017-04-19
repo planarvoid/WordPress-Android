@@ -54,16 +54,16 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
                      .clickDownloadToggle()
                      .goBackToPlaylists()
                      .goBackToCollections();
+        mainNavHelper.goToBasicSettings();
 
-        final BasicSettingsScreen basicSettingsScreen = mainNavHelper.goToBasicSettings();
-
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setNetworkConnected(false);
         resetPolicyCheckTime(context);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(context, getPreviousDate(30, TimeUnit.DAYS).getTime());
 
-        final GoBackOnlineDialogElement goBackOnlineDialog = basicSettingsScreen.goBackAndDisplayGoBackOnlineDialog();
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
         assertThat("Go back online dialog should be visible", goBackOnlineDialog, is(visible()));
         goBackOnlineDialog.clickContinue();
+        solo.goBack();
 
         DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
                                                                 .clickPlaylistsPreview()
@@ -75,14 +75,14 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
     public void testDisplaysGoBackOnline() {
         enableOfflineContent(context);
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
+        mainNavHelper.goToBasicSettings();
 
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
                 context, getPreviousDate(27, TimeUnit.DAYS).getTime());
         resetPolicyCheckTime(context);
 
-        final GoBackOnlineDialogElement goBackOnlineDialog = settingsScreen.goBackAndDisplayGoBackOnlineDialog();
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
         assertThat("Go back online dialog should be visible", goBackOnlineDialog, is(visible()));
 
         goBackOnlineDialog.clickContinue();
@@ -91,37 +91,40 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
 
     public void testDisplaysGoBackOnlineOnlyOnceADay() {
         enableOfflineContent(context);
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
+        mainNavHelper.goToBasicSettings();
 
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
                 context, getPreviousDate(27, TimeUnit.DAYS).getTime());
         setPolicyCheckTime(context, System.currentTimeMillis());
 
-        assertThat(settingsScreen.goBackAndDisplayGoBackOnlineDialog(), not(visible()));
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
+        assertThat("Go back online dialog should not be visible", goBackOnlineDialog, not(visible()));
     }
 
     public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() {
         enableOfflineContent(context);
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
+        mainNavHelper.goToBasicSettings();
 
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
                 context, getPreviousDate(27, TimeUnit.DAYS).getTime());
         resetPolicyCheckTime(context);
 
-        assertThat(settingsScreen.goBackAndDisplayGoBackOnlineDialog(), not(visible()));
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
+        assertThat("Go back online dialog should not be visible", goBackOnlineDialog, not(visible()));
     }
 
     public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() {
         enableOfflineContent(context);
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
+        mainNavHelper.goToBasicSettings();
 
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
                 context, getPreviousDate(26, TimeUnit.DAYS).getTime());
         resetPolicyCheckTime(context);
 
-        assertThat(settingsScreen.goBackAndDisplayGoBackOnlineDialog(), not(visible()));
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
+        assertThat("Go back online dialog should not be visible", goBackOnlineDialog, not(visible()));
     }
 
     private Date getPreviousDate(int time, TimeUnit timeUnit) {

@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 public class PlayQueueItemVerifierTest {
 
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private TrackOfflineStateProvider trackOfflineStateProvider;
 
 
@@ -26,12 +26,12 @@ public class PlayQueueItemVerifierTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        playQueueItemVerifier = new PlayQueueItemVerifier(networkConnectionHelper, trackOfflineStateProvider);
+        playQueueItemVerifier = new PlayQueueItemVerifier(connectionHelper, trackOfflineStateProvider);
     }
 
     @Test
     public void shouldReturnTrueIfTrack() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.NOT_SET);
 
@@ -54,7 +54,7 @@ public class PlayQueueItemVerifierTest {
 
     @Test
     public void shouldReturnTrueIfVideoAd() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         PlayQueueItem playQueueItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.NOT_SET));
 
@@ -63,7 +63,7 @@ public class PlayQueueItemVerifierTest {
 
     @Test
     public void shouldReturnTrueIfOfflineAndDownloaded() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(trackOfflineStateProvider.getOfflineState(any())).thenReturn(OfflineState.DOWNLOADED);
 
         PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.NOT_SET);
@@ -73,7 +73,7 @@ public class PlayQueueItemVerifierTest {
 
     @Test
     public void shouldReturnFalseIfOfflineAndNotDownloaded() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(trackOfflineStateProvider.getOfflineState(any())).thenReturn(OfflineState.NOT_OFFLINE);
 
         PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.NOT_SET);

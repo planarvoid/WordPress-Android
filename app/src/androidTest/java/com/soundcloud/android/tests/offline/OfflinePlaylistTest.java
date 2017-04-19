@@ -155,7 +155,7 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     public void testPlaylistIsRequestedWhenNetworkIsOff() {
         final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
         playlistsScreen.scrollToPlaylistWithTitle(OFFLINE_PLAYLIST);
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setWifiConnected(false);
         final PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
                 .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
                 .clickDownloadToggle();

@@ -42,7 +42,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private OfflineLikesDialog offlineLikesDialog;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private Navigator navigator;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;

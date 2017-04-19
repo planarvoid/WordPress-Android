@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.settings.SettingsActivity;
 
 public class BasicSettingsScreen extends Screen {
@@ -10,11 +9,6 @@ public class BasicSettingsScreen extends Screen {
 
     public BasicSettingsScreen(Han solo) {
         super(solo);
-    }
-
-    public GoBackOnlineDialogElement goBackAndDisplayGoBackOnlineDialog() {
-        testDriver.goBack();
-        return new GoBackOnlineDialogElement(testDriver);
     }
 
     @Override

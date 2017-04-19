@@ -54,8 +54,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
 import com.soundcloud.android.tracks.Track;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.LockUtil;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -97,7 +97,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private ApiUrlBuilder snippetApiUrlBuilder;
     @Mock private Message message;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
     @Mock private Skippy.Configuration preloadConfiguration;
     @Mock private LockUtil lockUtil;

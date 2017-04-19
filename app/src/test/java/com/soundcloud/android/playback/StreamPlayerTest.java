@@ -24,7 +24,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.Track;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private SkippyAdapter skippyAdapter;
     @Mock private FlipperAdapter flipperAdapter;
     @Mock private Player.PlayerListener playerListener;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private FlipperConfiguration flipperConfiguration;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -62,7 +62,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), networkConnectionHelper, eventBus, flipperConfiguration);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), connectionHelper, eventBus, flipperConfiguration);
         streamPlayerWrapper.setListener(playerListener);
     }
 
@@ -431,7 +431,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(idleTransition(PlayStateReason.ERROR_FAILED, trackUrn));
         verify(mediaPlayerAdapter).play(audioPlaybackItem);
@@ -444,7 +444,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(idleTransition(PlayStateReason.ERROR_FORBIDDEN, trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
@@ -457,7 +457,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         startPlaybackOnSkippy();
 
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
 
         streamPlayerWrapper.onPlaystateChanged(idleTransition(PlayStateReason.ERROR_NOT_FOUND, trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
@@ -536,7 +536,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         instantiateStreamPlaya();
 
         streamPlayerWrapper.play(audioAdPlaybackItem);
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         streamPlayerWrapper.onPlaystateChanged(idleTransition(PlayStateReason.ERROR_FAILED, trackUrn));
 
         verify(mediaPlayerAdapter).play(audioAdPlaybackItem);
@@ -556,7 +556,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = idleTransition(PlayStateReason.ERROR_FAILED, trackUrn);
 
         startPlaybackOnSkippy();
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
 
         return stateTransition;
@@ -566,7 +566,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = idleTransition(PlayStateReason.ERROR_FAILED, audioPlaybackItem.getUrn());
 
         startPlaybackOnSkippy(audioPlaybackItem);
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
 
         return stateTransition;

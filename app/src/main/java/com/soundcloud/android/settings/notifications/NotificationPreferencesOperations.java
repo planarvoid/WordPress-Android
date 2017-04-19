@@ -5,7 +5,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -22,13 +22,13 @@ class NotificationPreferencesOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final NotificationPreferencesStorage storage;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
 
     @Inject
     NotificationPreferencesOperations(ApiClientRx apiClientRx,
                                       @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                       NotificationPreferencesStorage storage,
-                                      NetworkConnectionHelper connectionHelper) {
+                                      ConnectionHelper connectionHelper) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.storage = storage;

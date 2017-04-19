@@ -32,7 +32,6 @@ ext {
   outputsDir            = "$project.buildDir/outputs/apk"
   apkPath               = "$outputsDir/soundcloud-android-$versionName-${pipelineVersion}.apk" // only used by renameApk task (for CI)
   testApkPath           = "$outputsDir/app-$buildFlavor-$buildType-androidTest.apk"
-  networkManagerApkPath = "$outputsDir/androidnetworkmanager-${rootProject.('networkManager')}.apk"
 
   buildSrcDir = 'buildsystem'
 }
@@ -65,7 +64,6 @@ apply from: "${buildSrcDir}/apublisher.gradle"
 apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
 apply from: "${buildSrcDir}/ci.gradle"
-apply from: "${buildSrcDir}/networkmanager.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner.gradle"
 apply from: "${buildSrcDir}/system_utilities.gradle"
 
@@ -271,9 +269,10 @@ dependencies {
   androidTestCompile (acceptanceTestLibraries.androidTestRules) {
     exclude group: 'com.android.support', module: 'support-annotations'
   }
+  androidTestCompile acceptanceTestLibraries.mockito
+  androidTestCompile acceptanceTestLibraries.mockitoAndroid
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
-  androidTestCompile acceptanceTestLibraries.networkManagerClient
   androidTestCompile(acceptanceTestLibraries.wiremock) {
     exclude group: 'asm', module: 'asm'
     exclude group: 'org.ow2.asm'

@@ -28,8 +28,8 @@ import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -73,7 +73,7 @@ public class MediaPlayerAdapter implements
     private final MediaPlayerManager mediaPlayerManager;
     private final PlayerHandler playerHandler;
     private final EventBus eventBus;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final VideoSourceProvider videoSourceProvider;
@@ -104,7 +104,7 @@ public class MediaPlayerAdapter implements
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
                               PlayerHandler playerHandler, EventBus eventBus,
-                              NetworkConnectionHelper networkConnectionHelper,
+                              ConnectionHelper connectionHelper,
                               AccountOperations accountOperations,
                               BufferUnderrunListener bufferUnderrunListener,
                               VideoSourceProvider videoSourceProvider,
@@ -120,7 +120,7 @@ public class MediaPlayerAdapter implements
         this.playerHandler = playerHandler;
         this.eventBus = eventBus;
         this.playerHandler.setMediaPlayerAdapter(this);
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.videoSourceProvider = videoSourceProvider;
         this.videoSurfaceProvider = videoSurfaceProvider;
@@ -243,7 +243,7 @@ public class MediaPlayerAdapter implements
                                                                  .metricValue(timeToPlay)
                                                                  .protocol(getPlaybackProtocol())
                                                                  .playerType(PlayerType.MEDIA_PLAYER)
-                                                                 .connectionType(networkConnectionHelper.getCurrentConnectionType())
+                                                                 .connectionType(connectionHelper.getCurrentConnectionType())
                                                                  .cdnHost(streamUrl)
                                                                  .format(getCurrentFormat())
                                                                  .bitrate(getCurrentBitrate())
@@ -454,13 +454,13 @@ public class MediaPlayerAdapter implements
                                               PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
-                                              networkConnectionHelper.getCurrentConnectionType().getValue());
+                                              connectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(currentItem,
                                                       stateTransition,
                                                       getPlaybackProtocol(),
                                                       PlayerType.MEDIA_PLAYER,
-                                                      networkConnectionHelper.getCurrentConnectionType()
+                                                      connectionHelper.getCurrentConnectionType()
             );
         }
     }
@@ -617,7 +617,7 @@ public class MediaPlayerAdapter implements
     private PlayStateReason getTranslatedReason() {
         switch (internalState) {
             case ERROR:
-                return networkConnectionHelper.isNetworkConnected() ?
+                return connectionHelper.isNetworkConnected() ?
                        PlayStateReason.ERROR_NOT_FOUND :
                        PlayStateReason.ERROR_FAILED;
             case COMPLETED:

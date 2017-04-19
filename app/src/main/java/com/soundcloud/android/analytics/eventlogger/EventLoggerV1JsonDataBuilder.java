@@ -35,8 +35,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -58,7 +58,7 @@ class EventLoggerV1JsonDataBuilder {
 
     private final int appId;
     private final DeviceHelper deviceHelper;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final AccountOperations accountOperations;
     private final FeatureOperations featureOperations;
     private final ExperimentOperations experimentOperations;
@@ -67,7 +67,7 @@ class EventLoggerV1JsonDataBuilder {
 
     @Inject
     EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
-                                 NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
+                                 ConnectionHelper connectionHelper, AccountOperations accountOperations,
                                  JsonTransformer jsonTransformer, FeatureOperations featureOperations,
                                  ExperimentOperations experimentOperations,
                                  FeatureFlags featureFlags) {

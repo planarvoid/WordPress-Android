@@ -21,15 +21,15 @@ public class NetworkConnectivityListener {
 
     private final Context context;
     private final ConnectivityBroadcastReceiver receiver;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final EventBus eventBus;
 
     @Inject
     public NetworkConnectivityListener(Context context,
-                                       NetworkConnectionHelper networkConnectionHelper,
+                                       ConnectionHelper connectionHelper,
                                        EventBus eventBus) {
         this.context = context;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.eventBus = eventBus;
         receiver = new ConnectivityBroadcastReceiver();
     }
@@ -47,7 +47,7 @@ public class NetworkConnectivityListener {
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final ConnectionType currentConnectionType = networkConnectionHelper.getCurrentConnectionType();
+            final ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
             Log.d(TAG, "Connectivity change detected, current connection : " + currentConnectionType);
             eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, currentConnectionType);
         }

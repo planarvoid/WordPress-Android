@@ -13,6 +13,7 @@ import com.soundcloud.android.framework.matcher.element.IsVisible;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.BasicSettingsScreen;
+import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.IsNot;
 
@@ -65,14 +66,15 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() {
         final Context context = getInstrumentation().getTargetContext();
-        final BasicSettingsScreen settingsScreen = mainNavHelper.goToBasicSettings();
+        mainNavHelper.goToBasicSettings();
 
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setNetworkConnected(false);
         offlineContentHelper.updateOfflineTracksPolicyUpdateTime(
                 context, getPreviousDate(27, TimeUnit.DAYS).getTime());
         resetPolicyCheckTime(context);
 
-        assertThat(settingsScreen.goBackAndDisplayGoBackOnlineDialog(), IsNot.not(IsVisible.visible()));
+        final GoBackOnlineDialogElement goBackOnlineDialog = new GoBackOnlineDialogElement(solo);
+        assertThat("Go back online dialog should not be visible", goBackOnlineDialog, IsNot.not(IsVisible.visible()));
     }
 
     private Date getPreviousDate(int time, TimeUnit timeUnit) {

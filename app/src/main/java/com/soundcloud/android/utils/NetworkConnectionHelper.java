@@ -8,7 +8,7 @@ import android.telephony.TelephonyManager;
 
 import javax.inject.Inject;
 
-public class NetworkConnectionHelper {
+public class NetworkConnectionHelper implements ConnectionHelper {
 
     private final ConnectivityManager connectivityManager;
     private final TelephonyManager telephonyManager;
@@ -19,16 +19,19 @@ public class NetworkConnectionHelper {
         this.telephonyManager = telephonyManager;
     }
 
+    @Override
     public ConnectionType getCurrentConnectionType() {
         return ConnectionType.fromNetworkInfo(connectivityManager.getActiveNetworkInfo(),
                                               telephonyManager.getNetworkType());
     }
 
+    @Override
     public boolean isNetworkConnected() {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
+    @Override
     public boolean isWifiConnected() {
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         return info != null

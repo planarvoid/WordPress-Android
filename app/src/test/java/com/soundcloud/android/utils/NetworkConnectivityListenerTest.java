@@ -17,21 +17,21 @@ import android.net.ConnectivityManager;
 
 public class NetworkConnectivityListenerTest extends AndroidUnitTest {
 
-    @Mock NetworkConnectionHelper networkConnectionHelper;
+    @Mock ConnectionHelper connectionHelper;
     private TestEventBus eventBus = new TestEventBus();
 
     private NetworkConnectivityListener listener;
 
     @Before
     public void before() {
-        listener = new NetworkConnectivityListener(context(), networkConnectionHelper, eventBus);
+        listener = new NetworkConnectivityListener(context(), connectionHelper, eventBus);
         listener.startListening();
     }
 
     @Test
     public void shouldReactToConnectivityBroadcasts() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
-                                                                            ConnectionType.TWO_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
+                                                                     ConnectionType.TWO_G);
 
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -49,8 +49,8 @@ public class NetworkConnectivityListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotReactToConnectivityBroadcastsAfterStopListening() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
-                                                                            ConnectionType.TWO_G);
+        when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
+                                                                     ConnectionType.TWO_G);
 
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 

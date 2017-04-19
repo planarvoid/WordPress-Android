@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ public class StateChangeHandlerTest {
     @Mock private Player.PlayerListener listener;
     @Mock private Message msg;
     @Mock private StateChangeHandler.StateChangeMessage stateChangeMessage;
-    @Mock NetworkConnectionHelper connectionHelper;
+    @Mock ConnectionHelper connectionHelper;
 
     @Before
     public void setUp() {

@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DownloadConnexionHelperTest {
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private OfflineSettingsStorage offlineSettings;
 
     private DownloadConnectionHelper helper;

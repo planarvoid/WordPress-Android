@@ -13,7 +13,7 @@ import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
+import com.soundcloud.android.utils.TestConnectionHelper;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -38,7 +38,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected MainNavigationHelper mainNavHelper;
     protected Waiter waiter;
     protected ToastObserver toastObserver;
-    protected NetworkManagerClient networkManagerClient;
+    protected TestConnectionHelper connectionHelper;
     private WireMockServer wireMockServer;
 
     public ActivityTest(Class<T> activityClass) {
@@ -58,18 +58,17 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         // Wait for SoundCloudApplication.onCreate() to run so that we can be sure it has been injected.
         // Otherwise there is a race where we might use it before injection, resulting in an NPE.
-        SoundCloudTestApplication.fromContext(getInstrumentation().getTargetContext()).awaitOnCreate(10, TimeUnit.SECONDS);
+        final SoundCloudTestApplication application = SoundCloudTestApplication.fromContext(getInstrumentation().getTargetContext());
+        application.awaitOnCreate(10, TimeUnit.SECONDS);
+        connectionHelper = application.getConnectionHelper();
+        connectionHelper.setWifiConnected(true);
+        connectionHelper.setNetworkConnected(true);
 
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
-
-        networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
         LogCollector.startCollecting(getInstrumentation().getTargetContext(), testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
-
-        networkManagerClient.bind();
-        networkManagerClient.switchWifiOn();
 
         // the introductory overlay blocks interaction with the player, so disable it
         ConfigurationHelper.disableIntroductoryOverlays(getInstrumentation().getTargetContext());
@@ -132,8 +131,9 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
-        networkManagerClient.switchWifiOn();
-        networkManagerClient.unbind();
+        connectionHelper.setWifiConnected(true);
+        connectionHelper.setNetworkConnected(true);
+
         stopWiremock();
         solo = null;
         Log.d("TESTEND:", String.format("%s", testCaseName));
@@ -210,7 +210,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     private void logIn() {
         TestUser testUser = getUserForLogin();
         if (testUser != null) {
-            AccountAssistant.loginWith(getInstrumentation().getTargetContext(), testUser, networkManagerClient);
+            AccountAssistant.loginWith(getInstrumentation().getTargetContext(), testUser);
         }
     }
 

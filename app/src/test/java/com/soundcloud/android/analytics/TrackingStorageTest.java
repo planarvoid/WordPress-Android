@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropellerWriteException;
@@ -34,14 +34,14 @@ public class TrackingStorageTest extends StorageIntegrationTest {
 
     private TrackingStorage trackingStorage;
 
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private TrackingApi trackingApi;
     @Mock private TrackingRecord trackingRecord;
 
     @Before
     public void setUp() throws Exception {
-        trackingStorage = new TrackingStorage(propeller(), networkConnectionHelper);
+        trackingStorage = new TrackingStorage(propeller(), connectionHelper);
         database().execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE.name());
         database().execSQL(TrackingDbHelper.DATABASE_CREATE_EVENTS_TABLE);
     }
@@ -73,7 +73,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldQueryDatabaseForAllPendingEventsWhenOnWifi() throws UnsupportedEncodingException {
         insertEvents(TrackingStorage.FIXED_BATCH_SIZE + 1);
-        when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
 
         final List<TrackingRecord> pendingEvents = trackingStorage.getPendingEvents();
 
@@ -123,7 +123,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
     }
 
     private void assertBatchDelete(int batchSize) throws UnsupportedEncodingException {
-        when(networkConnectionHelper.isWifiConnected()).thenReturn(true); // allows > fixed batch size events
+        when(connectionHelper.isWifiConnected()).thenReturn(true); // allows > fixed batch size events
         insertEvents(batchSize);
         List<TrackingRecord> events = trackingStorage.getPendingEvents();
         assertThat(events).hasSize(batchSize);
@@ -140,9 +140,9 @@ public class TrackingStorageTest extends StorageIntegrationTest {
         when(propeller.delete(same(EVENTS_TABLE),
                               any(Where.class))).thenReturn(new ChangeResult(TrackingStorage.FIXED_BATCH_SIZE),
                                                             failResult);
-        when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
 
-        trackingStorage = new TrackingStorage(propeller, networkConnectionHelper);
+        trackingStorage = new TrackingStorage(propeller, connectionHelper);
         List<TrackingRecord> events = createEvents(batchSize);
 
         final ChangeResult changeResult = trackingStorage.deleteEvents(events);

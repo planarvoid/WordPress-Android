@@ -2,25 +2,25 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 
 import javax.inject.Inject;
 
 public class PlayQueueItemVerifier {
 
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final TrackOfflineStateProvider offlineStateProvider;
 
     @Inject
-    public PlayQueueItemVerifier(NetworkConnectionHelper networkConnectionHelper,
+    public PlayQueueItemVerifier(ConnectionHelper connectionHelper,
                                  TrackOfflineStateProvider offlineStateProvider) {
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.offlineStateProvider = offlineStateProvider;
     }
 
     public boolean isItemPlayable(PlayQueueItem playQueueItem) {
         return isNotBlockedTrackOrAd(playQueueItem) &&
-                (networkConnectionHelper.isNetworkConnected() || isOfflineAvailable(playQueueItem));
+                (connectionHelper.isNetworkConnected() || isOfflineAvailable(playQueueItem));
     }
 
 

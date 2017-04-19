@@ -33,7 +33,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.flippernative.api.ErrorReason;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.audio_performance;
@@ -67,7 +67,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private final SecureFileStorage secureFileStorage;
     private final ApiUrlBuilder urlBuilder;
     private final CurrentDateProvider dateProvider;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final LockUtil lockUtil;
     private final CryptoOperations cryptoOperations;
 
@@ -84,7 +84,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     @Inject
     FlipperAdapter(AccountOperations accountOperations,
-                   NetworkConnectionHelper connectionHelper,
+                   ConnectionHelper connectionHelper,
                    LockUtil lockUtil,
                    StateChangeHandler stateChangeHandler,
                    SecureFileStorage secureFileStorage,

@@ -60,7 +60,7 @@ import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -98,7 +98,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private SharePresenter sharePresenter;
     @Mock private PlaylistCoverRenderer playlistCoverRenderer;

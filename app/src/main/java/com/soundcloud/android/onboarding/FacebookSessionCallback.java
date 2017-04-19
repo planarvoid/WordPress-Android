@@ -77,7 +77,7 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
     }
 
     private static boolean isConnectionError(FacebookException e) {
-        return e instanceof FacebookAuthorizationException && e.getMessage().equals("CONNECTION_FAILURE: CONNECTION_FAILURE");
+        return e instanceof FacebookAuthorizationException && (e.getMessage().equals("CONNECTION_FAILURE: CONNECTION_FAILURE") || e.getMessage().equals("net::ERR_INTERNET_DISCONNECTED"));
     }
 
     interface FacebookLoginCallbacks {

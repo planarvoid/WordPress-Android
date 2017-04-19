@@ -69,7 +69,7 @@ import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -113,7 +113,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureOperations featureOperations;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private FeatureFlags featureFlags;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;

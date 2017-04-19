@@ -11,7 +11,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -324,11 +324,11 @@ class PlaylistEngagementsRenderer {
     static class PlaylistDetailInfoProvider {
 
         private final OfflineSettingsOperations offlineSettings;
-        private final NetworkConnectionHelper connectionHelper;
+        private final ConnectionHelper connectionHelper;
         private final Resources resources;
 
         @Inject
-        PlaylistDetailInfoProvider(OfflineSettingsOperations offlineSettings, NetworkConnectionHelper connectionHelper, Resources resources) {
+        PlaylistDetailInfoProvider(OfflineSettingsOperations offlineSettings, ConnectionHelper connectionHelper, Resources resources) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;
             this.resources = resources;

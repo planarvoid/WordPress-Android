@@ -1,16 +1,16 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 
 import javax.inject.Inject;
 
 class DownloadConnectionHelper {
 
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
 
     @Inject
-    DownloadConnectionHelper(NetworkConnectionHelper connectionHelper, OfflineSettingsStorage offlineSettings) {
+    DownloadConnectionHelper(ConnectionHelper connectionHelper, OfflineSettingsStorage offlineSettings) {
         this.connectionHelper = connectionHelper;
         this.offlineSettings = offlineSettings;
     }

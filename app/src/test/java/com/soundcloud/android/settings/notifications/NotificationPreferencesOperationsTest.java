@@ -15,7 +15,7 @@ import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -33,7 +33,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private NotificationPreferencesStorage storage;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
 
     NotificationPreferencesOperations operations;
 

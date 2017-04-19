@@ -3,7 +3,7 @@ package com.soundcloud.android.analytics;
 import static com.soundcloud.android.analytics.TrackingDbHelper.EVENTS_TABLE;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
@@ -30,13 +30,13 @@ class TrackingStorage {
     static final int FIXED_BATCH_SIZE = 30;
 
     private final PropellerDatabase propeller;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
 
     @Inject
     TrackingStorage(@Named(AnalyticsModule.TRACKING_DB) PropellerDatabase propeller,
-                    NetworkConnectionHelper networkConnectionHelper) {
+                    ConnectionHelper connectionHelper) {
         this.propeller = propeller;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
     }
 
     InsertResult insertEvent(TrackingRecord eventObject) throws UnsupportedEncodingException {
@@ -56,7 +56,7 @@ class TrackingStorage {
         if (backend != null) {
             query.whereEq(TrackingDbHelper.TrackingColumns.BACKEND, backend);
         }
-        if (!networkConnectionHelper.isWifiConnected()) {
+        if (!connectionHelper.isWifiConnected()) {
             query.limit(FIXED_BATCH_SIZE);
         }
 

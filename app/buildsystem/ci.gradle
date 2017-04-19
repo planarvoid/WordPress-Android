@@ -143,12 +143,21 @@ task uploadTrackingScenario() << {
   }
 }
 
+task downloadNetworkManagerApkCI() {
+  description 'No-op implementation to be backwards compatible.'
+  // TODO: Remove once DROID-1253 is done.
+}
+
 // *********************************************************************************************************************
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
 task assembleAcceptanceTest(dependsOn: ["assembleProd${project.('buildType').capitalize()}AndroidTest"]) {
   description = 'Assembles the Test application.'
+}
+
+task runAcceptanceTests(dependsOn: ['assembleAcceptanceTest', 'connectedAndroidTest']) {
+  description 'Installs and runs the tests for Debug build on connected devices.'
 }
 
 // *********************************************************************************************************************

@@ -8,7 +8,7 @@ import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -27,7 +27,7 @@ public class FacebookInvitesOperations {
 
     private final FacebookInvitesStorage facebookInvitesStorage;
     private final FacebookApiHelper facebookApiHelper;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final DateProvider dateProvider;
     private final MyProfileOperations myProfileOperations;
 
@@ -44,12 +44,12 @@ public class FacebookInvitesOperations {
     @Inject
     public FacebookInvitesOperations(FacebookInvitesStorage facebookInvitesStorage,
                                      FacebookApiHelper facebookApiHelper,
-                                     NetworkConnectionHelper networkConnectionHelper,
+                                     ConnectionHelper connectionHelper,
                                      CurrentDateProvider dateProvider,
                                      MyProfileOperations myProfileOperations) {
         this.facebookInvitesStorage = facebookInvitesStorage;
         this.facebookApiHelper = facebookApiHelper;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.dateProvider = dateProvider;
         this.myProfileOperations = myProfileOperations;
     }
@@ -72,7 +72,7 @@ public class FacebookInvitesOperations {
         return Observable.fromCallable(() -> canShowAfterLastClick()
                 && canShowCreatorsAfterLastCreatorDismiss()
                 && facebookApiHelper.canShowAppInviteDialog()
-                && networkConnectionHelper.isNetworkConnected());
+                && connectionHelper.isNetworkConnected());
     }
 
     Observable<Boolean> canShowForListeners() {
@@ -80,7 +80,7 @@ public class FacebookInvitesOperations {
                 && canShowAfterLastOpen()
                 && canShowAfterLastDismisses()
                 && facebookApiHelper.canShowAppInviteDialog()
-                && networkConnectionHelper.isNetworkConnected());
+                && connectionHelper.isNetworkConnected());
     }
 
     private boolean canShowAfterLastOpen() {

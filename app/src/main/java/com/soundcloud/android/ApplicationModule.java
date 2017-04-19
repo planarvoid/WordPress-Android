@@ -41,9 +41,11 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
@@ -167,6 +169,13 @@ public class ApplicationModule {
     @Provides
     public ConnectivityManager provideConnectivityManager() {
         return (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    // EventBus is just required for the test implementation
+    @Provides
+    @Singleton
+    public ConnectionHelper provideConnectionHelper(ConnectivityManager connectivityManager, TelephonyManager telephonyManager, EventBus eventBus) {
+        return new NetworkConnectionHelper(connectivityManager, telephonyManager);
     }
 
     @Provides
@@ -338,6 +347,7 @@ public class ApplicationModule {
         return Consts.LIST_PAGE_SIZE;
     }
 
+    @Singleton
     @Provides
     public GooglePlayServicesWrapper provideGooglePlayServicesWrapper() {
         return new GooglePlayServicesWrapper();

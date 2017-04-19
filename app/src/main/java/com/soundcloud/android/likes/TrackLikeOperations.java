@@ -14,7 +14,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -42,13 +42,13 @@ public class TrackLikeOperations {
     private final SyncInitiator syncInitiator;
     private final SyncInitiatorBridge syncInitiatorBridge;
     private final EventBus eventBus;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final TrackItemRepository trackRepo;
 
     private final Action1<List<Like>> requestTracksSyncAction = new Action1<List<Like>>() {
         @Override
         public void call(List<Like> likes) {
-            if (networkConnectionHelper.isWifiConnected() && !likes.isEmpty()) {
+            if (connectionHelper.isWifiConnected() && !likes.isEmpty()) {
                 syncInitiator.batchSyncTracks(transform(likes, Like::urn));
             }
         }
@@ -60,14 +60,14 @@ public class TrackLikeOperations {
                                SyncInitiatorBridge syncInitiatorBridge,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                               NetworkConnectionHelper networkConnectionHelper,
+                               ConnectionHelper connectionHelper,
                                TrackItemRepository trackItemRepository) {
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.syncInitiatorBridge = syncInitiatorBridge;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.connectionHelper = connectionHelper;
         this.trackRepo = trackItemRepository;
     }
 

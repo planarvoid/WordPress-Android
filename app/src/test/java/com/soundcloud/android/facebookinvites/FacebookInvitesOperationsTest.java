@@ -16,7 +16,7 @@ import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     @Mock private FacebookInvitesStorage storage;
     @Mock private FacebookApi facebookApi;
     @Mock private FacebookApiHelper facebookApiHelper;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
     @Mock private MyProfileOperations myProfileOperations;
 
     private TestDateProvider dateProvider = new TestDateProvider();
@@ -42,7 +42,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         operations = new FacebookInvitesOperations(storage,
                                                    facebookApiHelper,
-                                                   networkConnectionHelper,
+                                                   connectionHelper,
                                                    dateProvider,
                                                    myProfileOperations);
         dateProvider.setTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
@@ -53,7 +53,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesListenerDismissed()).thenReturn(0);
         when(storage.getMillisSinceLastCreatorDismiss()).thenReturn(CREATOR_DISMISS_INTERVAL_MS);
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(true);
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotShowForListenersWhenConnectionNotAvailable() throws Exception {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
 
         assertThat(shouldShowForListeners()).isFalse();
     }

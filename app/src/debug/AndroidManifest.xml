@@ -33,5 +33,7 @@
             </intent-filter>
         </service>
 
+        <activity android:name="com.soundcloud.android.utils.TestGplusRegistrationActivity" />
+
     </application>
 </manifest>

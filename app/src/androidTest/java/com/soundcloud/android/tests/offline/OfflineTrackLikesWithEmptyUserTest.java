@@ -58,7 +58,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
 
-        networkManagerClient.switchWifiOff();
+        connectionHelper.setWifiConnected(false);
 
         final DownloadImageViewElement downloadElement = likesScreen
                 .toggleOfflineEnabled()
@@ -70,7 +70,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         // we tried to download but it failed with connection error so its back to requested
         assertTrue("Track should be requested", downloadElement.isRequested());
 
-        networkManagerClient.switchWifiOn();
+        connectionHelper.setWifiConnected(true);
 
         likesScreen.waitForLikesToStartDownloading();
         assertTrue("Track should be downloading", downloadElement.isDownloading() || downloadElement.isDownloaded());

@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class PolicyUpdateControllerTest extends AndroidUnitTest {
     @Mock private PolicyOperations policyOperations;
     @Mock private PolicySettingsStorage policySettingsStorage;
     @Mock private GoBackOnlineDialogPresenter goOnlinePresenter;
-    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private ConnectionHelper connectionHelper;
 
     private long yesterday;
     private long now;

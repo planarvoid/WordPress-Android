@@ -36,12 +36,12 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
@@ -82,7 +82,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final AccountOperations accountOperations;
     private final StateChangeHandler stateHandler;
     private final ApiUrlBuilder urlBuilder;
-    private final NetworkConnectionHelper connectionHelper;
+    private final ConnectionHelper connectionHelper;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final SharedPreferences sharedPreferences;
     private final SecureFileStorage secureFileStorage;
@@ -101,7 +101,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                   ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler,
                   EventBus eventBus,
-                  NetworkConnectionHelper connectionHelper,
+                  ConnectionHelper connectionHelper,
                   LockUtil lockUtil,
                   BufferUnderrunListener bufferUnderrunListener,
                   SharedPreferences sharedPreferences,
@@ -600,11 +600,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         @Nullable private PlayerListener playerListener;
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
-        private final NetworkConnectionHelper connectionHelper;
+        private final ConnectionHelper connectionHelper;
 
         @Inject
         StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper,
-                           NetworkConnectionHelper connectionHelper) {
+                           ConnectionHelper connectionHelper) {
             super(looper);
             this.connectionHelper = connectionHelper;
         }

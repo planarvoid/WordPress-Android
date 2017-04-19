@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.ConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -26,7 +26,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
 
     private TrackingHandler trackingHandler;
 
-    @Mock NetworkConnectionHelper networkConnectionHelper;
+    @Mock ConnectionHelper connectionHelper;
     @Mock TrackingApiFactory apiFactory;
     @Mock TrackingApi api;
     @Mock TrackingStorage storage;
@@ -34,9 +34,9 @@ public class TrackingHandlerTest extends AndroidUnitTest {
 
     @Before
     public void before() {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
         when(apiFactory.create(or(isNull(), anyString()))).thenReturn(api);
-        trackingHandler = new TrackingHandler(context().getMainLooper(), networkConnectionHelper, storage, apiFactory);
+        trackingHandler = new TrackingHandler(context().getMainLooper(), connectionHelper, storage, apiFactory);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoConnection() throws Exception {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verifyZeroInteractions(storage);
     }

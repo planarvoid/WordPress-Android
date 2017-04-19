@@ -5,6 +5,8 @@ import com.facebook.login.LoginManager;
 import dagger.Module;
 import dagger.Provides;
 
+import javax.inject.Singleton;
+
 @Module
 public class FacebookModule {
     @Provides
@@ -12,6 +14,7 @@ public class FacebookModule {
         return CallbackManager.Factory.create();
     }
 
+    @Singleton
     @Provides
     public LoginManager providesFacebookLoginManager() {
         return LoginManager.getInstance();
