@@ -82,8 +82,9 @@ public class PlaylistDetailsScreen extends Screen {
 
     public boolean containsTrackWithTitle(String title) {
         return !(scrollToItem(
-                With.id(R.id.track_list_item),
-                TrackItemElement.WithTitle(testDriver, title)
+                With.and(
+                        With.id(R.id.track_list_item),
+                        TrackItemElement.WithTitle(testDriver, title))
         ) instanceof EmptyViewElement);
     }
 

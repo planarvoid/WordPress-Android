@@ -90,19 +90,11 @@ public class Han {
         return viewFetcher.findOnScreenElements(with);
     }
 
-    public ViewElement findOnScreenElement(With... with) {
-        return viewFetcher.findOnScreenElement(with);
-    }
-
-    public List<ViewElement> findOnScreenElements(With... with) {
-        return viewFetcher.findOnScreenElements(with);
-    }
-
     public  ViewElement findOnScreenElementWithPopulatedText(With id) {
-        return viewFetcher.findOnScreenElement(new With.WithPopulatedText(), id);
+        return viewFetcher.findOnScreenElement(With.and(new With.WithPopulatedText(), id));
     }
 
-    public ViewElement scrollToItem(With... with) {
+    public ViewElement scrollToItem(With with) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
             scrollDown();
@@ -113,7 +105,7 @@ public class Han {
         return viewElement;
     }
 
-    public ViewElement scrollToItemInRecyclerView(With... with) {
+    public ViewElement scrollToItemInRecyclerView(With with) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
             scrollDownRecyclerView();
@@ -122,7 +114,7 @@ public class Han {
         return viewElement;
     }
 
-    public ViewElement swipeToItem(int direction, With... with) {
+    public ViewElement swipeToItem(int direction, With with) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
             swipeHorizontal(direction);

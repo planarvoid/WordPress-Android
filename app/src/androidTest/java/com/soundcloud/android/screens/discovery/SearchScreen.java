@@ -59,7 +59,7 @@ public class SearchScreen extends Screen {
 
     public SearchResultsScreen clickOnAutocompleteSuggestion(String target) {
         testDriver
-                .findOnScreenElement(AutocompleteSuggestion(), With.text(target))
+                .findOnScreenElement(With.and(AutocompleteSuggestion(), With.text(target)))
                 .click();
 
         return new SearchResultsScreen(testDriver);

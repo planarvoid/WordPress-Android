@@ -44,9 +44,9 @@ public class StreamScreen extends Screen {
 
     public StreamCardElement scrollToFirstNotPromotedPlaylist() {
         return new StreamCardElement(testDriver, scrollToItem(
-                With.id(R.id.playlist_list_item),
-                PlaylistElement.NotPromoted(testDriver)
-        ));
+                With.and(
+                        With.id(R.id.playlist_list_item),
+                        PlaylistElement.NotPromoted(testDriver))));
     }
 
     public PlaylistDetailsScreen clickFirstNotPromotedPlaylistCard() {
@@ -59,8 +59,8 @@ public class StreamScreen extends Screen {
 
     public StreamCardElement scrollToFirstSnippedTrack() {
         return new StreamCardElement(testDriver,
-                                     scrollToItem(With.id(R.id.track_list_item),
-                                                  StreamCardElement.WithGoIndicator(testDriver)));
+                                     scrollToItem(With.and(With.id(R.id.track_list_item),
+                                                           StreamCardElement.WithGoIndicator(testDriver))));
     }
 
     public StreamUpsellCardElement scrollToUpsell() {
@@ -78,9 +78,9 @@ public class StreamScreen extends Screen {
 
     public StreamCardElement scrollToFirstNotPromotedTrackCard() {
         return new StreamCardElement(testDriver, scrollToItem(
-                With.id(R.id.track_list_item),
-                TrackItemElement.NotPromoted(testDriver)
-        ));
+                With.and(
+                        With.id(R.id.track_list_item),
+                        TrackItemElement.NotPromoted(testDriver))));
     }
 
     public StreamCardElement scrollToFirstPlaylistTrackCard() {
@@ -89,9 +89,9 @@ public class StreamScreen extends Screen {
 
     public StreamCardElement scrollToFirstRepostedTrack() {
         return new StreamCardElement(testDriver, scrollToItem(
-                With.id(R.id.track_list_item),
-                TrackItemElement.WithReposter(testDriver)
-        ));
+                With.and(
+                        With.id(R.id.track_list_item),
+                        TrackItemElement.WithReposter(testDriver))));
     }
 
     public VisualPlayerElement clickFirstRepostedTrack() {

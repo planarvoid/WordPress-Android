@@ -50,22 +50,12 @@ public class DefaultViewElement extends ViewElement {
 
     @Override
     public ViewElement findOnScreenElementWithPopulatedText(With with) {
-        return viewFetcher.findOnScreenElement(with, new WithPopulatedText());
+        return viewFetcher.findOnScreenElement(With.and(with, new WithPopulatedText()));
     }
 
     @Override
     public List<ViewElement> findOnScreenElements(With with) {
         return viewFetcher.findOnScreenElements(with);
-    }
-
-    @Override
-    public ViewElement findOnScreenElement(final With... withs) {
-        return viewFetcher.findOnScreenElement(withs);
-    }
-
-    @Override
-    public List<ViewElement> findOnScreenElements(final With... withs) {
-        return viewFetcher.findOnScreenElements(withs);
     }
 
     @Override

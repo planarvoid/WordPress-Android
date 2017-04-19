@@ -32,11 +32,11 @@ public class PlaylistElement {
     }
 
     public String getTitle() {
-        return getText(wrapped.findOnScreenElement(With.id(titleId)));
+        return getText(wrapped.findElement(With.id(titleId)));
     }
 
     public String getTrackCount() {
-        return getText(wrapped.findOnScreenElement(With.id(R.id.list_item_right_info)));
+        return getText(wrapped.findElement(With.id(R.id.list_item_right_info)));
     }
 
     private boolean isPromotedCardItem() {

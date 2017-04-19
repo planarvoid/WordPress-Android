@@ -87,11 +87,11 @@ public abstract class Screen {
         );
     }
 
-    protected ViewElement scrollToItem(final With... with) {
+    protected ViewElement scrollToItem(final With with) {
         return testDriver.scrollToItem(with);
     }
 
-    protected ViewElement scrollToItemInRecyclerView(final With... with) {
+    protected ViewElement scrollToItemInRecyclerView(final With with) {
         return testDriver.scrollToItemInRecyclerView(with);
     }
 

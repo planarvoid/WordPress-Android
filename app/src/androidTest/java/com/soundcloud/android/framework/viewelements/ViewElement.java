@@ -26,10 +26,6 @@ public abstract class ViewElement {
 
     public abstract List<ViewElement> findOnScreenElements(With with);
 
-    public abstract ViewElement findOnScreenElement(final With... withs);
-
-    public abstract List<ViewElement> findOnScreenElements(final With... withs);
-
     public abstract ViewElement findElement(With with);
 
     public abstract ViewElement findAncestor(ViewElement root, With with);

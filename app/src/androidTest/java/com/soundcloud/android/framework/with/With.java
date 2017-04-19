@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.support.annotation.StringRes;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -63,8 +64,8 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithEither(first, second);
     }
 
-    public static With and(With first, With second) {
-        return new WithAnd(first, second);
+    public static With and(With first, With second, With... others) {
+        return new WithAnd(first, second, others);
     }
 
     @Override
@@ -268,22 +269,30 @@ public abstract class With implements Predicate<ViewElement> {
     }
 
     private static class WithAnd extends With {
-        private final With first;
-        private final With second;
+        private final List<With> withs;
 
-        public WithAnd(With first, With second) {
-            this.first = first;
-            this.second = second;
+        WithAnd(With first, With second, With... others) {
+            withs = new ArrayList<>();
+            withs.add(first);
+            withs.add(second);
+            for (With with : others) {
+                withs.add(with);
+            }
         }
 
         @Override
         public String getSelector() {
-            return String.format("With: [%s] and [%s]", first.getSelector(), second.getSelector());
+            return String.format("With: ", withs);
         }
 
         @Override
         public boolean apply(@Nullable ViewElement viewElement) {
-            return first.apply(viewElement) && second.apply(viewElement);
+            for (With with : withs) {
+                if (!with.apply(viewElement)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

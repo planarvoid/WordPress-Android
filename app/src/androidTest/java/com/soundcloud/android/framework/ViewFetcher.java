@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -68,59 +67,6 @@ public class ViewFetcher {
             return elementWaiter.waitForOnScreenElements(with);
         }
         return viewElements;
-    }
-
-    public ViewElement findOnScreenElement(final With... withs) {
-        List<ViewElement> elements = findOnScreenElements(withs);
-        return elements.isEmpty() ? new EmptyViewElement(failedToFindElementsMessage(withs)) : elements.get(0);
-    }
-
-    public List<ViewElement> findOnScreenElements(final With... withs) {
-        if (withs.length == 0) {
-            return new ArrayList<>();
-        }
-
-        if (withs.length == 1) {
-            return findOnScreenElements(withs[0]);
-        }
-
-        return findOnScreenElements(withs[0], Arrays.copyOfRange(withs, 1, withs.length));
-    }
-
-    private List<ViewElement> findOnScreenElements(With with, final With... withs) {
-        if (withs.length == 0) {
-            return new ArrayList<>();
-        }
-
-        List<ViewElement> results = Lists.newArrayList(filter(
-                getOnScreenElements(with),
-                viewElement -> {
-                    for (With with1 : withs) {
-                        try {
-                            if (!with1.apply(viewElement)) {
-                                return false;
-                            }
-                        } catch (Exception e) {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                }
-        ));
-
-        if (results.size() == 0) {
-            return new ArrayList<>();
-        }
-        return results;
-    }
-
-    private String failedToFindElementsMessage(With... withs) {
-        String result = "Unable to find elements with: ";
-        for (With with : withs) {
-            result += with.getSelector() + ", ";
-        }
-        return result;
     }
 
     public ViewElement findAncestor(View root, With with) {

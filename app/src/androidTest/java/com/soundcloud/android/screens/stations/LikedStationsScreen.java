@@ -28,9 +28,9 @@ public class LikedStationsScreen extends Screen {
 
     private ViewElement stationWithTitle(String title) {
         return scrollToItem(
-                With.id(R.id.station_item),
-                StationElement.WithTitle(testDriver, title)
-        );
+                With.and(
+                        With.id(R.id.station_item),
+                        StationElement.WithTitle(testDriver, title)));
     }
 
 }

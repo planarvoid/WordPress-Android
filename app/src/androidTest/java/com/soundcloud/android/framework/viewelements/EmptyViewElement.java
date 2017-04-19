@@ -37,16 +37,6 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public ViewElement findOnScreenElement(final With... withs) {
-        throw new ViewNotFoundException(selector);
-    }
-
-    @Override
-    public List<ViewElement> findOnScreenElements(final With... withs) {
-        throw new ViewNotFoundException(selector);
-    }
-
-    @Override
     public ViewElement findElement(With with) {
         throw new ViewNotFoundException(selector);
     }
