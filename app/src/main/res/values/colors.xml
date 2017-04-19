@@ -3,8 +3,8 @@
 
     <color name="play_button_dark">#2b2b2b</color>
 
-    <color name="ak_sc_dark_orange_solid">#e36711</color>
-    <color name="ak_sc_dark_orange">#cce36711</color>
+    <color name="sc_dark_orange_solid">#e36711</color>
+    <color name="sc_dark_orange">#cce36711</color>
 
     <color name="white_80">#ccffffff</color>
     <color name="white_70">#b3ffffff</color>

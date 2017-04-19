@@ -10,9 +10,12 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ConnectionHelper;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.view.IconToggleButton;
+import com.soundcloud.android.view.OfflineStateButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
@@ -23,7 +26,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Checkable;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -69,20 +71,23 @@ class PlaylistEngagementsRenderer {
     private void bindEngagementBar(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
         configureLikeButton(view, metadata, onEngagementListener);
         configureOverflow(view, metadata, onEngagementListener);
-        configureDownloadToggle(view, onEngagementListener, metadata);
-        downloadStateRenderer.show(metadata.offlineState(), view);
+        configureDownloadButton(view, onEngagementListener, metadata);
+
+        if (featureFlags.isDisabled(Flag.NEW_OFFLINE_ICONS)) {
+            downloadStateRenderer.show(metadata.offlineState(), view);
+        }
     }
 
     private void configureLikeButton(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         ToggleButton likeToggle = ButterKnife.findById(view, R.id.toggle_like);
         likeToggle.setOnClickListener(v -> onEngagementListener.onToggleLike(likeToggle.isChecked()));
 
-        updateToggleButton(likeToggle,
-                           R.string.accessibility_like_action,
-                           R.plurals.accessibility_stats_likes,
-                           Optional.of(item.likesCount()),
-                           item.isLikedByUser(),
-                           R.string.accessibility_stats_user_liked);
+        updateLikeToggleButton(likeToggle,
+                               R.string.accessibility_like_action,
+                               R.plurals.accessibility_stats_likes,
+                               Optional.of(item.likesCount()),
+                               item.isLikedByUser(),
+                               R.string.accessibility_stats_user_liked);
     }
 
     private void configureOverflow(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
@@ -108,17 +113,16 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void configureDownloadToggle(View view, PlaylistDetailsInputs listener, PlaylistDetailsMetadata metadata) {
-        final IconToggleButton downloadToggle = ButterKnife.findById(view, R.id.toggle_download);
+    private void configureDownloadButton(View barView, PlaylistDetailsInputs listener, PlaylistDetailsMetadata metadata) {
         switch (metadata.offlineOptions()) {
             case AVAILABLE:
-                showOfflineOptions(metadata.isMarkedForOffline(), downloadToggle, listener);
+                showOfflineOptions(barView, metadata, listener);
                 break;
             case UPSELL:
-                showUpsell(downloadToggle, listener);
+                showUpsell(barView, listener);
                 break;
             case NONE:
-                hideOfflineOptions(downloadToggle);
+                hideOfflineOptions(barView);
                 break;
         }
     }
@@ -160,20 +164,36 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void showOfflineOptions(final boolean isAvailable, IconToggleButton downloadToggle, PlaylistDetailsInputs listener) {
-        downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(isAvailable);
+    private void showOfflineOptions(View barView, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButton stateButton = ButterKnife.findById(barView, R.id.offline_state_button);
+            stateButton.setVisibility(View.VISIBLE);
+            stateButton.setState(item.offlineState());
+            stateButton.setOnClickListener(v -> toggleOffline(v.getContext(), item, listener));
+        } else {
+            showLegacyOfflineToggle(barView, item, listener);
+        }
+    }
+
+    private void showLegacyOfflineToggle(View barView, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {
+        IconToggleButton toggle = ButterKnife.findById(barView, R.id.toggle_download);
+        toggle.setVisibility(View.VISIBLE);
+        toggle.setChecked(item.isMarkedForOffline());
 
         // do not use setOnCheckedChangeListener or all hell will break loose
-        downloadToggle.setOnClickListener(v -> {
-            boolean changedState = ((Checkable) v).isChecked();
-            downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-            if (isAvailable) {
-                listener.onMakeOfflineUnavailable();
-            } else {
-                listener.onMakeOfflineAvailable(v.getContext());
-            }
+        toggle.setOnClickListener(v -> {
+            boolean changedState = toggle.isChecked();
+            toggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
+            toggleOffline(v.getContext(), item, listener);
         });
+    }
+
+    private void toggleOffline(Context context, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {
+        if (item.isMarkedForOffline()) {
+            listener.onMakeOfflineUnavailable();
+        } else {
+            listener.onMakeOfflineAvailable(context);
+        }
     }
 
     private void configureOfflineAvailability(PlaylistDetailsMetadata item, PopupMenuWrapper menu, PlaylistDetailsInputs onEngagementListener) {
@@ -195,17 +215,31 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void showUpsell(IconToggleButton downloadToggle, PlaylistDetailsInputs listener) {
-        downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(false);
-        downloadToggle.setOnClickListener(v -> {
+    private void showUpsell(View barView, PlaylistDetailsInputs listener) {
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButton stateButton = ButterKnife.findById(barView, R.id.offline_state_button);
+            stateButton.setVisibility(View.VISIBLE);
+            stateButton.setOnClickListener(v -> listener.onMakeOfflineUpsell());
+        } else {
+            showLegacyUpsell(barView, listener);
+        }
+    }
+
+    private void showLegacyUpsell(View barView, PlaylistDetailsInputs listener) {
+        IconToggleButton toggle = ButterKnife.findById(barView, R.id.toggle_download);
+        toggle.setVisibility(View.VISIBLE);
+        toggle.setChecked(false);
+        toggle.setOnClickListener(v -> {
             listener.onMakeOfflineUpsell();
-            downloadToggle.setChecked(false);
+            toggle.setChecked(false);
         });
     }
 
-    private void hideOfflineOptions(IconToggleButton downloadToggle) {
-        downloadToggle.setVisibility(View.GONE);
+    private void hideOfflineOptions(View barView) {
+        View button = ButterKnife.findById(barView, featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)
+                                                 ? R.id.offline_state_button
+                                                 : R.id.toggle_download);
+        button.setVisibility(View.GONE);
     }
 
     private void showMenuUpsell(PopupMenuWrapper menu ) {
@@ -292,8 +326,8 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
-                                    Optional<Integer> count, boolean checked, int checkedStringId) {
+    private void updateLikeToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
+                                        Optional<Integer> count, boolean checked, int checkedStringId) {
         if (button != null) {
             if (count.isPresent()) {
                 likeButtonPresenter.setLikeCount(button, count.get(), R.drawable.ic_liked, R.drawable.ic_like);
@@ -326,16 +360,21 @@ class PlaylistEngagementsRenderer {
         private final OfflineSettingsOperations offlineSettings;
         private final ConnectionHelper connectionHelper;
         private final Resources resources;
+        private final FeatureFlags featureFlags;
 
         @Inject
-        PlaylistDetailInfoProvider(OfflineSettingsOperations offlineSettings, ConnectionHelper connectionHelper, Resources resources) {
+        PlaylistDetailInfoProvider(OfflineSettingsOperations offlineSettings,
+                                   ConnectionHelper connectionHelper,
+                                   Resources resources,
+                                   FeatureFlags featureFlags) {
             this.offlineSettings = offlineSettings;
             this.connectionHelper = connectionHelper;
             this.resources = resources;
+            this.featureFlags = featureFlags;
         }
 
         String getPlaylistInfoLabel(OfflineState offlineState, String defaultInfoText) {
-            if (offlineState == OfflineState.REQUESTED) {
+            if (featureFlags.isDisabled(Flag.NEW_OFFLINE_ICONS) && offlineState == OfflineState.REQUESTED) {
                 if (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected()) {
                     return resources.getString(R.string.offline_no_wifi);
                 } else if (!connectionHelper.isNetworkConnected()) {

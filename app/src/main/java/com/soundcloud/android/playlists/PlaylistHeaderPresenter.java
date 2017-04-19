@@ -92,7 +92,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private PlaylistDetailsViewModel viewModel;
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
     private Optional<View> headerView = Optional.absent();
-    private String screen;
 
     @Inject
     PlaylistHeaderPresenter(EventBus eventBus,
@@ -203,10 +202,6 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     void setPlaylistHeaderPresenterListener(PlaylistHeaderPresenterListener playlistHeaderPresenterListener) {
         this.playlistHeaderPresenterListener = playlistHeaderPresenterListener;
-    }
-
-    void setScreen(final String screen) {
-        this.screen = screen;
     }
 
     void setPlaylist(PlaylistDetailsViewModel model, PlaySessionSource playSessionSource) {

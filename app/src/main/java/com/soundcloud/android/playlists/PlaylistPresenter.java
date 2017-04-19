@@ -298,7 +298,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistDetailsViewModel, 
 
     void setScreen(String screen) {
         this.screen = screen;
-        headerPresenter.setScreen(screen);
     }
 
     private void reloadPlaylist() {

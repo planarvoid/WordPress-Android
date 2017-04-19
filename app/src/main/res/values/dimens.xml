@@ -35,7 +35,7 @@
 
     <dimen name="btn_text_size">13sp</dimen>
     <dimen name="btn_min_height">48dp</dimen>
-    <dimen name="btn_padding">15dp</dimen>
+    <dimen name="btn_padding">14dp</dimen>
     <dimen name="profile_btn_height">36dp</dimen>
     <dimen name="profile_banner_gradient_height">80dp</dimen>
 
@@ -48,7 +48,6 @@
 
     <dimen name="playlist_header_height">120dp</dimen>
     <dimen name="playlist_header_padding">16dp</dimen>
-    <dimen name="playlist_overflow_button_margin_left">8dp</dimen>
     <dimen name="playlist_action_bar_padding">8dp</dimen>
 
     <dimen name="collections_playlist_track_size">44dp</dimen>

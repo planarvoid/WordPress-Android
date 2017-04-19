@@ -3,6 +3,6 @@
      <item android:state_pressed="true"
            android:color="@color/soundcloud_orange" /> <!-- pressed -->
      <item android:state_focused="true"
-           android:color="@color/ak_sc_dark_orange" /> <!-- focused -->
+           android:color="@color/sc_dark_orange" /> <!-- focused -->
      <item android:color="@color/cornflower" /> <!-- default -->
  </selector>

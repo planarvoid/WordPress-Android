@@ -22,12 +22,15 @@
         android:id="@+id/toggle_download"
         style="@style/EngagementAction.ToggleButton.Download" />
 
+    <com.soundcloud.android.view.OfflineStateButton
+        android:id="@+id/offline_state_button"
+        style="@style/EngagementAction.OfflineState" />
+
     <com.soundcloud.android.view.OverflowAnchorImageView
         android:id="@+id/playlist_details_overflow_button"
         style="@style/EngagementAction.Overflow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|end"
-        android:layout_marginLeft="@dimen/playlist_overflow_button_margin_left" />
+        android:layout_gravity="center|end" />
 
 </LinearLayout>

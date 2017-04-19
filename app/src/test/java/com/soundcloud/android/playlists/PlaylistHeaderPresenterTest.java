@@ -85,7 +85,6 @@ import java.util.List;
 public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
-    private static final Screen SCREEN = Screen.SEARCH_MAIN;
 
     @Mock private Navigator navigator;
     @Mock private PlaylistHeaderScrollHelper profileHeaderScrollHelper;
@@ -543,7 +542,6 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onAttach(fragmentRule.getFragment(), fragmentRule.getActivity());
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onResume(fragmentRule.getFragment());
-        presenter.setScreen(SCREEN.get());
         presenter.setPlaylist(viewModel, playSessionSource);
     }
 
