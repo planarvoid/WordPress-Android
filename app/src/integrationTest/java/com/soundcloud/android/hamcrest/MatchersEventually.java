@@ -1,6 +1,5 @@
 package com.soundcloud.android.hamcrest;
 
-import com.soundcloud.android.playlists.NewPlaylistDetailsPresenterIntegrationTest;
 import com.soundcloud.java.collections.Iterables;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

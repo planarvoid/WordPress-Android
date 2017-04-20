@@ -5,7 +5,6 @@ import static com.soundcloud.java.collections.Iterables.getLast;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.playlists.NewPlaylistDetailsPresenterIntegrationTest;
 import com.soundcloud.android.utils.Function;
 import com.soundcloud.android.utils.Supplier;
 import org.hamcrest.Matcher;

@@ -12,15 +12,15 @@ import android.view.ViewGroup;
 import java.util.List;
 
 @AutoFactory
-public class NewPlaylistDetailsHeaderRenderer implements CellRenderer<PlaylistDetailsHeaderItem> {
+public class PlaylistDetailsHeaderRenderer implements CellRenderer<PlaylistDetailsHeaderItem> {
 
     private final PlaylistCoverRenderer playlistCoverRenderer;
     private final PlaylistEngagementsRenderer playlistEngagementsRenderer;
     private final PlaylistDetailsInputs playlistDetailsInputs;
 
-    public NewPlaylistDetailsHeaderRenderer(@Provided PlaylistCoverRenderer playlistCoverRenderer,
-                                            @Provided PlaylistEngagementsRenderer playlistEngagementsRenderer,
-                                            PlaylistDetailsInputs playlistDetailsInputs) {
+    public PlaylistDetailsHeaderRenderer(@Provided PlaylistCoverRenderer playlistCoverRenderer,
+                                         @Provided PlaylistEngagementsRenderer playlistEngagementsRenderer,
+                                         PlaylistDetailsInputs playlistDetailsInputs) {
         this.playlistCoverRenderer = playlistCoverRenderer;
         this.playlistEngagementsRenderer = playlistEngagementsRenderer;
         this.playlistDetailsInputs = playlistDetailsInputs;

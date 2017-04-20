@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 @AutoFactory
-class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
+class PlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, RecyclerView.ViewHolder> {
 
     private final PlaylistDetailView playlistDetailView;
 
@@ -34,12 +34,12 @@ class NewPlaylistDetailsAdapter extends RecyclerItemAdapter<PlaylistDetailItem, 
         void onUpsellItemPresented();
     }
 
-    NewPlaylistDetailsAdapter(PlaylistDetailView playlistDetailView,
-                              NewPlaylistDetailsHeaderRenderer playlistDetailsHeaderRenderer,
-                              @Provided PlaylistDetailsEmptyItemRenderer emptyItemRenderer,
-                              @Provided PlaylistDetailTrackViewRenderer playlistDetailTrackViewRenderer,
-                              @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
-                              @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
+    PlaylistDetailsAdapter(PlaylistDetailView playlistDetailView,
+                           PlaylistDetailsHeaderRenderer playlistDetailsHeaderRenderer,
+                           @Provided PlaylistDetailsEmptyItemRenderer emptyItemRenderer,
+                           @Provided PlaylistDetailTrackViewRenderer playlistDetailTrackViewRenderer,
+                           @Provided PlaylistUpsellItemRenderer upsellItemRenderer,
+                           @Provided PlaylistDetailOtherPlaylistsItemRenderer recommendationsItemRenderer) {
         super(new CellRendererBinding<>(PlaylistDetailItem.Kind.HeaderItem.ordinal(), playlistDetailsHeaderRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.TrackItem.ordinal(), playlistDetailTrackViewRenderer),
               new CellRendererBinding<>(PlaylistDetailItem.Kind.UpsellItem.ordinal(), upsellItemRenderer),

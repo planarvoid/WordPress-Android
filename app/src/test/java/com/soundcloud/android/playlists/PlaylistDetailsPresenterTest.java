@@ -89,7 +89,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
+public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     @Mock private PlaylistOperations playlistOperations;
     @Mock private LikesStateProvider likesStateProvider;
@@ -150,7 +150,7 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
 
-    private NewPlaylistDetailsPresenter newPlaylistPresenter;
+    private PlaylistDetailsPresenter newPlaylistPresenter;
 
 
     @Before
@@ -171,30 +171,30 @@ public class NewPlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
-        newPlaylistPresenter = new NewPlaylistDetailsPresenter(playlistUrn,
-                                                               screen,
-                                                               searchQuerySourceInfo,
-                                                               promotedSourceInfo,
-                                                               playlistUpsellOperations,
-                                                               playbackInitiator,
-                                                               playlistOperations,
-                                                               likesStateProvider,
-                                                               repostsStateProvider,
-                                                               playQueueHelper,
-                                                               offlinePropertiesProvider,
-                                                               eventBus,
-                                                               offlineContentOperations,
-                                                               eventTracker,
-                                                               likeOperations,
-                                                               viewModelCreator,
-                                                               dataSourceProviderFactory,
-                                                               repostOperations,
-                                                               feedbackController,
-                                                               accountOperations,
-                                                               expandPlayerSubscriberProvider,
-                                                               ModelFixtures.entityItemCreator(),
-                                                               featureOperations,
-                                                               offlineSettingsStorage);
+        newPlaylistPresenter = new PlaylistDetailsPresenter(playlistUrn,
+                                                            screen,
+                                                            searchQuerySourceInfo,
+                                                            promotedSourceInfo,
+                                                            playlistUpsellOperations,
+                                                            playbackInitiator,
+                                                            playlistOperations,
+                                                            likesStateProvider,
+                                                            repostsStateProvider,
+                                                            playQueueHelper,
+                                                            offlinePropertiesProvider,
+                                                            eventBus,
+                                                            offlineContentOperations,
+                                                            eventTracker,
+                                                            likeOperations,
+                                                            viewModelCreator,
+                                                            dataSourceProviderFactory,
+                                                            repostOperations,
+                                                            feedbackController,
+                                                            accountOperations,
+                                                            expandPlayerSubscriberProvider,
+                                                            ModelFixtures.entityItemCreator(),
+                                                            featureOperations,
+                                                            offlineSettingsStorage);
     }
 
     private void connect() {

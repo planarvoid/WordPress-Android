@@ -33,9 +33,9 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
+public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
 
-    public NewPlaylistDetailsPresenterIntegrationTest() {
+    public PlaylistDetailsPresenterIntegrationTest() {
         super(TestUser.playlistUser);
     }
 
@@ -43,7 +43,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     public void presenterDoesNotEmitWhenNotConnected() {
         noNetwork();
 
-        final NewPlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
         final Screen screen = new Screen(presenter);
 
         screen.assertState(empty());
@@ -53,7 +53,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     public void presenterStartsWithEmptyModel() {
         unrespondingNetwork();
 
-        final NewPlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
         final Screen screen = new Screen(presenter);
 
         presenter.connect();
@@ -65,7 +65,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     public void showNetworkError() throws InterruptedException {
         noNetwork();
 
-        final NewPlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
         final Screen screen = new Screen(presenter);
 
         presenter.connect();
@@ -77,7 +77,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     @Test
     public void showPlaylistWithTracks() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final NewPlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
+        final PlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
         final Screen screen = new Screen(presenter);
 
         presenter.connect();
@@ -90,7 +90,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
     @Test
     public void editTrackList() {
         final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);
-        final NewPlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
+        final PlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
         final Screen screen = new Screen(presenter);
 
         presenter.connect();
@@ -110,7 +110,7 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
 
         final List<AsyncViewModel<PlaylistDetailsViewModel>> models = new ArrayList<>();
 
-        Screen(NewPlaylistDetailsPresenter presenter) {
+        Screen(PlaylistDetailsPresenter presenter) {
             presenter.viewModel().subscribe(this::updateModel);
         }
 
@@ -140,12 +140,12 @@ public class NewPlaylistDetailsPresenterIntegrationTest extends BaseIntegrationT
         }
     }
 
-    private NewPlaylistDetailsPresenter createPresenter(Urn playlistUrn) {
+    private PlaylistDetailsPresenter createPresenter(Urn playlistUrn) {
         final String screen = "fake-screen";
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("query"), "query");
         final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("add urn", new Urn("promoted item"), Optional.absent(), emptyList());
 
-        NewPlaylistDetailsPresenterFactory presenterFactory = SoundCloudApplication.getObjectGraph().newPlaylistDetailsPresenterFactory();
+        PlaylistDetailsPresenterFactory presenterFactory = SoundCloudApplication.getObjectGraph().PlaylistDetailsPresenterFactory();
         return presenterFactory.create(playlistUrn, screen, searchQuerySourceInfo, promotedSourceInfo);
     }
 

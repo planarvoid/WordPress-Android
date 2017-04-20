@@ -124,7 +124,6 @@
     <color name="page_background">@color/mist</color>
 
     <color name="following_text">@color/soundcloud_orange</color>
-    <color name="follow_text">@color/charcoal</color>
     <color name="tab_bar_divider">@color/mist</color>
     <color name="gray_background">@color/mist</color>
     <color name="usage_bar_border">@color/ash</color>

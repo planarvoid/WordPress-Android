@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <bool name="split_screen_details_pages">false</bool>
     <bool name="allow_interstitials">true</bool>
     <bool name="light_status_bar">false</bool>
     <bool name="is_tablet">false</bool>

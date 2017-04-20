@@ -77,7 +77,7 @@ import java.util.Collections;
 import java.util.List;
 
 @AutoFactory
-public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
+public class PlaylistDetailsPresenter implements PlaylistDetailsInputs {
 
     private final PlaylistOperations playlistOperations;
     private final PlaylistUpsellOperations playlistUpsellOperations;
@@ -142,30 +142,30 @@ public class NewPlaylistDetailsPresenter implements PlaylistDetailsInputs {
     private final DataSourceProvider dataSourceProvider;
     private final FeatureOperations featureOperations;
 
-    NewPlaylistDetailsPresenter(Urn playlistUrn,
-                                String screen,
-                                @Nullable SearchQuerySourceInfo searchQuerySourceInfo,
-                                @Nullable PromotedSourceInfo promotedSourceInfo,
-                                @Provided PlaylistUpsellOperations playlistUpsellOperations,
-                                @Provided PlaybackInitiator playbackInitiator,
-                                @Provided PlaylistOperations playlistOperations,
-                                @Provided LikesStateProvider likesStateProvider,
-                                @Provided RepostsStateProvider repostsStateProvider,
-                                @Provided PlayQueueHelper playQueueHelper,
-                                @Provided OfflinePropertiesProvider offlinePropertiesProvider,
-                                @Provided EventBus eventBus,
-                                @Provided OfflineContentOperations offlineContentOperations,
-                                @Provided EventTracker eventTracker,
-                                @Provided LikeOperations likeOperations,
-                                @Provided PlaylistDetailsViewModelCreator viewModelCreator,
-                                @Provided DataSourceProviderFactory dataSourceProviderFactory,
-                                @Provided RepostOperations repostOperations,
-                                @Provided FeedbackController feedbackController,
-                                @Provided AccountOperations accountOperations,
-                                @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                @Provided EntityItemCreator entityItemCreator,
-                                @Provided FeatureOperations featureOperations,
-                                @Provided OfflineSettingsStorage offlineSettingsStorage) {
+    PlaylistDetailsPresenter(Urn playlistUrn,
+                             String screen,
+                             @Nullable SearchQuerySourceInfo searchQuerySourceInfo,
+                             @Nullable PromotedSourceInfo promotedSourceInfo,
+                             @Provided PlaylistUpsellOperations playlistUpsellOperations,
+                             @Provided PlaybackInitiator playbackInitiator,
+                             @Provided PlaylistOperations playlistOperations,
+                             @Provided LikesStateProvider likesStateProvider,
+                             @Provided RepostsStateProvider repostsStateProvider,
+                             @Provided PlayQueueHelper playQueueHelper,
+                             @Provided OfflinePropertiesProvider offlinePropertiesProvider,
+                             @Provided EventBus eventBus,
+                             @Provided OfflineContentOperations offlineContentOperations,
+                             @Provided EventTracker eventTracker,
+                             @Provided LikeOperations likeOperations,
+                             @Provided PlaylistDetailsViewModelCreator viewModelCreator,
+                             @Provided DataSourceProviderFactory dataSourceProviderFactory,
+                             @Provided RepostOperations repostOperations,
+                             @Provided FeedbackController feedbackController,
+                             @Provided AccountOperations accountOperations,
+                             @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                             @Provided EntityItemCreator entityItemCreator,
+                             @Provided FeatureOperations featureOperations,
+                             @Provided OfflineSettingsStorage offlineSettingsStorage) {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
         this.promotedSourceInfo = promotedSourceInfo;
         this.screen = screen;

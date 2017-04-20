@@ -3,7 +3,6 @@ package com.soundcloud.android.hamcrest;
 import static com.soundcloud.android.hamcrest.MatchersEventually.retry;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.playlists.NewPlaylistDetailsPresenterIntegrationTest;
 import com.soundcloud.android.utils.Sleeper;
 import com.soundcloud.android.utils.Supplier;
 import org.hamcrest.Matcher;

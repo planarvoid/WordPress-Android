@@ -13,7 +13,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class NewPlaylistDetailHeaderScrollHelper extends DefaultSupportFragmentLightCycle<Fragment> implements AppBarLayout.OnOffsetChangedListener {
+class PlaylistDetailHeaderScrollHelper extends DefaultSupportFragmentLightCycle<Fragment> implements AppBarLayout.OnOffsetChangedListener {
 
     @BindView(R.id.str_layout) MultiSwipeRefreshLayout swipeRefreshLayout;
 
@@ -21,7 +21,7 @@ class NewPlaylistDetailHeaderScrollHelper extends DefaultSupportFragmentLightCyc
     private boolean isEditing;
 
     @Inject
-    NewPlaylistDetailHeaderScrollHelper() {
+    PlaylistDetailHeaderScrollHelper() {
     }
 
     @Override

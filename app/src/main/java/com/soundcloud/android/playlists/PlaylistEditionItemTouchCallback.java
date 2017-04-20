@@ -22,10 +22,10 @@ class PlaylistEditionItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     private final Rect textBounds;
     private final SwipeToRemoveStyleAttributes styleAttributes;
 
-    private final NewPlaylistDetailFragment view;
+    private final PlaylistDetailFragment view;
     private boolean isDragging;
 
-    PlaylistEditionItemTouchCallback(@Provided Context context, NewPlaylistDetailFragment view) {
+    PlaylistEditionItemTouchCallback(@Provided Context context, PlaylistDetailFragment view) {
         super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
 
         this.styleAttributes = SwipeToRemoveStyleAttributes.from(context);
