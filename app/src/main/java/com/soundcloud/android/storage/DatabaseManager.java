@@ -29,7 +29,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 109;
+    public static final int DATABASE_VERSION = 110;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -365,6 +365,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 109:
                             success = upgradeTo109(db, oldVersion);
+                            break;
+                        case 110:
+                            success = upgradeTo110(db, oldVersion);
                             break;
                         default:
                             break;
@@ -949,7 +952,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         try {
             SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
-            db.execSQL(Tables.SearchSuggestions.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 75);
@@ -1388,6 +1390,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Remove SearchSuggestions view.
+     */
+    private boolean upgradeTo110(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropView("SearchSuggestions", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 109);
+        }
+        return false;
+    }
+
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
@@ -1484,7 +1499,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private List<SCBaseTable> allViews() {
         return asList(
-                Tables.SearchSuggestions.TABLE,
                 Tables.OfflinePlaylistTracks.TABLE,
                 Tables.PlaylistView.TABLE,
                 Tables.UsersView.TABLE,

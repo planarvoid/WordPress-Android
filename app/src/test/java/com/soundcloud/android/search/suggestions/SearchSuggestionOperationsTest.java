@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -41,10 +42,12 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     private static final String SEARCH_QUERY = "query";
     private static final int MAX_RESULTS_NUMBER = 9;
     private static final Urn QUERY_URN = new Urn("soundcloud:autocomplete:123");
+    private static final Urn USER_URN = Urn.forUser(123);
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private SearchSuggestionStorage suggestionStorage;
     @Mock private SearchSuggestionFiltering searchSuggestionFiltering;
+    @Mock private AccountOperations accountOperations;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
     @Captor private ArgumentCaptor<List<SuggestionItem>> suggestionItemsCaptor;
 
@@ -54,22 +57,16 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(new Answer<List<SuggestionItem>>() {
-            @Override
-            public List<SuggestionItem> answer(InvocationOnMock invocation) throws Throwable {
-                return (List<SuggestionItem>) invocation.getArguments()[0];
-            }
-        });
-
-        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.immediate(), suggestionStorage, searchSuggestionFiltering);
+        when(searchSuggestionFiltering.filtered(anyListOf(SuggestionItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+        operations = new SearchSuggestionOperations(apiClientRx, Schedulers.immediate(), suggestionStorage, accountOperations, searchSuggestionFiltering);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         suggestionsResultSubscriber = new TestSubscriber<>();
     }
 
     @Test
     public void returnsCorrectOrderWithAutocompleteEnabled() {
         List<SearchSuggestion> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
-                localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
 
         final Autocompletion autocompletion = setupAutocompletionRemoteSuggestions();
 

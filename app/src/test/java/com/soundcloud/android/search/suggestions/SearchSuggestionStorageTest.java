@@ -2,9 +2,11 @@ package com.soundcloud.android.search.suggestions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -27,8 +29,9 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     private ApiPlaylist apiPlaylist;
     private SearchSuggestion playlistSearchSuggestion;
     private ApiUser apiUser;
+    private ApiUser loggedInUser;
     private SearchSuggestion userSearchSuggestion;
-
+    private SearchSuggestion loggedInUserSearchSuggestion;
 
     @Before
     public void setUp() throws Exception {
@@ -40,14 +43,15 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
         apiPlaylist = testFixtures().insertLikedPlaylist(new Date());
         playlistSearchSuggestion = buildSearchSuggestionFromApiPlaylist(apiPlaylist);
         apiUser = testFixtures().insertUser();
+        loggedInUser = testFixtures().insertUser();
         userSearchSuggestion = buildSearchSuggestionFromApiUser(apiUser);
+        loggedInUserSearchSuggestion = buildSearchSuggestionFromApiUser(loggedInUser);
         testFixtures().insertFollowing(apiUser.getUrn());
     }
 
     @Test
     public void returnsTrackLikeFromStorageMatchedOnFirstWord() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiTrack.getTitle()
-                                                                                                   .substring(0, 3), 1);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiTrack.getTitle().substring(0, 3), loggedInUser.getUrn(), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(trackSearchSuggestion));
@@ -57,9 +61,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     public void returnsMatchedTrackLikeFromStorageMatchedOnSecondWord() {
         final String title = apiTrack.getTitle();
         final int startIndex = title.indexOf(" ");
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(title.substring(startIndex + 1,
-                                                                                                           startIndex + 3),
-                                                                                           1);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(title.substring(startIndex + 1, startIndex + 3), loggedInUser.getUrn(), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(trackSearchSuggestion));
@@ -67,9 +69,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsMatchedPlaylistLikeFromStorage() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiPlaylist.getTitle()
-                                                                                                      .substring(0, 3),
-                                                                                           1);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiPlaylist.getTitle().substring(0, 3), loggedInUser.getUrn(), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(playlistSearchSuggestion));
@@ -77,8 +77,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsMatchedFollowingFromStorage() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername()
-                                                                                                  .substring(0, 3), 1);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername().substring(0, 3), loggedInUser.getUrn(), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
@@ -86,7 +85,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsAllTypesFromStorage() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", 3);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", loggedInUser.getUrn(), 4);
         suggestions.subscribe(subscriber);
 
         final List<SearchSuggestion> emmittedElements = subscriber.getOnNextEvents().get(0);
@@ -97,7 +96,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsLimitedItemsFromStorage() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", 1);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions("", loggedInUser.getUrn(), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
@@ -105,10 +104,18 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsOnlyMatchedItemFromStorage() {
-        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername(), 3);
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername(), loggedInUser.getUrn(), 3);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(Lists.newArrayList(userSearchSuggestion));
+    }
+
+    @Test
+    public void returnsLoggedInItemFromStorage() {
+        final Observable<List<SearchSuggestion>> suggestions = suggestionStorage.getSuggestions(loggedInUser.getUsername(), loggedInUser.getUrn(), 3);
+        suggestions.subscribe(subscriber);
+
+        subscriber.assertValue(Lists.newArrayList(loggedInUserSearchSuggestion));
     }
 
     @NonNull

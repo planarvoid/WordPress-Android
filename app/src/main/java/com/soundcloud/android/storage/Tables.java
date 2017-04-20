@@ -796,44 +796,6 @@ public interface Tables {
 
     // Views
 
-    class SearchSuggestions extends SCBaseTable {
-
-        public static final SearchSuggestions TABLE = new SearchSuggestions();
-
-        public static final Column KIND = Column.create(TABLE, "kind", String.class);
-        public static final Column _ID = Column.create(TABLE, "_id", Long.class);
-        public static final Column _TYPE = Column.create(TABLE, "_type", Long.class);
-        public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text", String.class);
-        public static final Column IMAGE_URL = Column.create(TABLE, "image_url", String.class);
-
-        public static final String KIND_LIKE = "like";
-        public static final String KIND_FOLLOWING = "following";
-
-        static final String SQL = "CREATE VIEW IF NOT EXISTS SearchSuggestions AS SELECT '" +
-                KIND_LIKE + "' AS kind, " +
-                "Sounds._id AS _id, " +
-                "Sounds._type AS _type, " +
-                "title AS display_text, " +
-                "artwork_url AS image_url " +
-                "FROM Likes INNER JOIN Sounds ON Likes._id = Sounds._id " +
-                "AND Likes._type = Sounds._type" +
-                " UNION" +
-                " SELECT '" + KIND_FOLLOWING + "' AS kind, " +
-                "Users._id, 0 AS _type, " +
-                "username AS text, " +
-                "avatar_url AS image_url " +
-                "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
-
-        SearchSuggestions() {
-            super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
-        }
-
-        @Override
-        String getCreateSQL() {
-            return SQL;
-        }
-    }
-
     class OfflinePlaylistTracks extends SCBaseTable {
 
         public static final OfflinePlaylistTracks TABLE = new OfflinePlaylistTracks();

@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -23,6 +24,7 @@ class SearchSuggestionOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final SearchSuggestionStorage suggestionStorage;
+    private final AccountOperations accountOperations;
     private final SearchSuggestionFiltering searchSuggestionFiltering;
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
@@ -31,10 +33,12 @@ class SearchSuggestionOperations {
     SearchSuggestionOperations(ApiClientRx apiClientRx,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
+                               AccountOperations accountOperations,
                                SearchSuggestionFiltering searchSuggestionFiltering) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
+        this.accountOperations = accountOperations;
         this.searchSuggestionFiltering = searchSuggestionFiltering;
     }
 
@@ -44,7 +48,7 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> localCollectionSuggestions(final String query) {
-        return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
+        return suggestionStorage.getSuggestions(query, accountOperations.getLoggedInUserUrn(), MAX_SUGGESTIONS_NUMBER)
                                 .flatMap(Observable::from)
                                 .map(propertySet -> fromSearchSuggestion(propertySet, query))
                                 .toList()
