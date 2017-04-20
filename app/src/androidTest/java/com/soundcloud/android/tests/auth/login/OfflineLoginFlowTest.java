@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.tests.SoundCloudTestApplication;
@@ -83,6 +84,7 @@ public class OfflineLoginFlowTest extends LoginTest {
                    is(solo.getString(R.string.authentication_error_no_connection_message)));
     }
 
+    @Ignore // TestGplusRegistrationActivity only defined in debug, this breaks preRelease tests
     public void testLoginWithGooglePlusAccountWithoutNetworkConnection() throws IOException, GoogleAuthException {
         final Context context = getInstrumentation().getTargetContext();
         when(googleApi.getAccountPickerIntent()).thenReturn(new Intent(context, TestGplusRegistrationActivity.class).setAction("com.google.android.gms.common.account.CHOOSE_ACCOUNT"));
