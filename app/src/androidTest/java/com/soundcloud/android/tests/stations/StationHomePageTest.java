@@ -12,11 +12,6 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
 
-/**
- * This test tests exactly the same functionality as LegacyStationTest, the only difference is that it takes
- * into account the station home page. LegacyStationTest should be replaces by LikeStationsTest after StationHome
- * (StationInfoPage) is released
- */
 public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> {
 
     private static final String START_STATION_FROM_TRACK_ITEM = "audio-events-v1-open_station_from_playlist";

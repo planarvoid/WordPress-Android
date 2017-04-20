@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.DiscoveryChartsTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.AllGenresScreen;
@@ -15,9 +14,8 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 import java.util.Locale;
 
-@DiscoveryChartsTest
 public class ChartsTest extends TrackingActivityTest<MainActivity> {
-    public static final String CHARTS_TRACKING_SCENARIO = "charts-tracking";
+    private static final String CHARTS_TRACKING_SCENARIO = "charts-tracking";
     private DiscoveryScreen discoveryScreen;
 
     public ChartsTest() {

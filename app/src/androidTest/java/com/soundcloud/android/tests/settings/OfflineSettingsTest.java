@@ -8,13 +8,12 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.OfflineSyncTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.OfflineSettingsOnboardingScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
-import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -49,7 +48,6 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         moreScreen = mainNavHelper.goToMore();
     }
 
-    @OfflineSyncTest
     public void testDisableSyncCollectionIsCancellable() {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
@@ -60,7 +58,6 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(screen.isOfflineCollectionChecked(), is(true));
     }
 
-    @OfflineSyncTest
     public void testEnableSyncCollectionTriggersSync() {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());
@@ -77,7 +74,6 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertThat(downloadElement.isVisible(), is(true));
     }
 
-    @OfflineSyncTest
     public void testRemoveOfflineContentDisablesOfflineCollection() {
         offlineSettingsScreen = moreScreen.clickOfflineSettingsLink();
         assertTrue(offlineSettingsScreen.isVisible());

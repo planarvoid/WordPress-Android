@@ -6,12 +6,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-import com.soundcloud.android.framework.annotation.ReleaseOnly;
+import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
-@ReleaseOnly
+@AdsTest
 public class AdTrackDeeplinkTest extends AdBaseTest {
 
     @Override
