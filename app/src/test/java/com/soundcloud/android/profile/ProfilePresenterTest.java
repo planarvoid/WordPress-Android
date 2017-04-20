@@ -10,19 +10,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UserChangedEvent;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.main.ScreenStateProvider;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
@@ -52,8 +47,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
     private ProfilePresenter profilePresenter;
 
-    @Mock private ImageOperations imageOperations;
-    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private RootActivity activity;
     @Mock private TabLayout tabLayout;
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
@@ -65,14 +58,11 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private ProfileScrollHelper profileScrollHelper;
     @Mock private AccountOperations accountOperations;
-    @Mock private TrackingStateProvider trackingStateProvider;
     @Mock private EventTracker eventTracker;
-    @Mock private ScreenStateProvider screenStateProvider;
     @Mock private Optional<ReferringEvent> referringEvent;
     @Mock private EnterScreenDispatcher enterScreenDispatcher;
     @Mock private ScreenProvider screenProvider;
-    @Mock private FeatureFlags featureFlags;
-    @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
+    @Mock private ProfileConfig profileConfig;
     @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -100,13 +90,13 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
         profilePresenter = new ProfilePresenter(profileScrollHelper,
+                                                profileConfig,
                                                 profileHeaderPresenter,
                                                 profileOperations,
                                                 eventBus,
                                                 accountOperations,
                                                 eventTracker,
-                                                enterScreenDispatcher,
-                                                featureFlags
+                                                enterScreenDispatcher
         );
     }
 
@@ -123,6 +113,25 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         profilePresenter.onCreate(activity, null);
 
         verify(profileHeaderPresenter).setUserDetails(profileUser);
+    }
+
+    @Test
+    public void setTitleIfProfileBanner() throws Exception {
+        when(profileConfig.showProfileBanner()).thenReturn(true);
+
+        profilePresenter.onCreate(activity, null);
+
+        verify(activity).setTitle(R.string.side_menu_profile);
+        verify(activity).setTitle(profileUser.username());
+    }
+
+    @Test
+    public void keepTitleIfNotProfileBanner() throws Exception {
+        when(profileConfig.showProfileBanner()).thenReturn(false);
+
+        profilePresenter.onCreate(activity, null);
+
+        verify(activity).setTitle(R.string.side_menu_profile);
     }
 
     @Test

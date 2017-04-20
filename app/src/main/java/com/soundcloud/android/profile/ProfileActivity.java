@@ -22,10 +22,8 @@ public class ProfileActivity extends FullscreenablePlayerActivity {
     public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
 
     @Inject @LightCycle ProfilePresenter profilePresenter;
-    @Inject @Named(ProfileModule.SHOW_PROFILE_BANNER) boolean showProfileBanner;
-
+    @Inject ProfileConfig profileConfig;
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject FeatureFlags featureFlags;
 
     public ProfileActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -40,7 +38,7 @@ public class ProfileActivity extends FullscreenablePlayerActivity {
     @Override
     protected void setActivityContentView() {
         super.setActivityContentView();
-        if (showProfileBanner) {
+        if (profileConfig.showProfileBanner()) {
             baseLayoutHelper.createActionBarLayout(this, R.layout.profile);
         } else {
             baseLayoutHelper.createActionBarLayout(this, R.layout.profile_no_banner);
@@ -49,7 +47,7 @@ public class ProfileActivity extends FullscreenablePlayerActivity {
 
     @Override
     protected boolean shouldBeFullscreen() {
-        return showProfileBanner;
+        return profileConfig.showProfileBanner();
     }
 
 

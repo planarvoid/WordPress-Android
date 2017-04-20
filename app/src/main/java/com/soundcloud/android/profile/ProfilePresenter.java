@@ -10,11 +10,10 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.main.EnterScreenDispatcher;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.User;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -36,29 +35,31 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     final @LightCycle ProfileScrollHelper scrollHelper;
     final @LightCycle EnterScreenDispatcher enterScreenDispatcher;
     final @LightCycle ProfileHeaderPresenter headerPresenter;
+    private final ProfileConfig profileConfig;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
     private final EventTracker eventTracker;
-    private final FeatureFlags featureFlags;
 
     private ViewPager pager;
     private UserProfilePagerAdapter adapter;
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private Subscription userUpdatedSubscription = RxUtils.invalidSubscription();
+    private Optional<RootActivity> rootActivity = Optional.absent();
 
     private Urn user;
 
     @Inject
     ProfilePresenter(@Named(PROFILE_SCROLL_HELPER) ProfileScrollHelper scrollHelper,
+                     ProfileConfig profileConfig,
                      ProfileHeaderPresenter profileHeaderPresenter,
                      UserProfileOperations profileOperations,
                      EventBus eventBus,
                      AccountOperations accountOperations,
                      EventTracker eventTracker,
-                     EnterScreenDispatcher enterScreenDispatcher,
-                     FeatureFlags featureFlags) {
+                     EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
+        this.profileConfig = profileConfig;
         this.headerPresenter = profileHeaderPresenter;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
@@ -66,12 +67,12 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.eventTracker = eventTracker;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.enterScreenDispatcher.setListener(this);
-        this.featureFlags = featureFlags;
     }
 
     @Override
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
+        rootActivity = Optional.of(activity);
 
         user = ProfileActivity.getUserUrnFromIntent(activity.getIntent());
 
@@ -79,9 +80,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
-        boolean alignedProfile = featureFlags.isEnabled(Flag.ALIGNED_USER_INFO);
-
-        if (alignedProfile) {
+        if (profileConfig.hasAlignedUserInfo()) {
             adapter = new ProfilePagerAdapter(activity,
                                               user,
                                               accountOperations.isLoggedInUser(user),
@@ -104,7 +103,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabLayout = (TabLayout) activity.findViewById(alignedProfile ? R.id.tab_indicator_fixed : R.id.tab_indicator_scrollable);
+        TabLayout tabLayout = (TabLayout) activity.findViewById(profileConfig.hasAlignedUserInfo() ? R.id.tab_indicator_fixed : R.id.tab_indicator_scrollable);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(pager);
 
@@ -139,6 +138,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
     @Override
     public void onDestroy(RootActivity activity) {
+        rootActivity = Optional.absent();
         pager = null;
         userUpdatedSubscription.unsubscribe();
         userSubscription.unsubscribe();
@@ -149,6 +149,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         @Override
         public void onNext(User profileUser) {
             headerPresenter.setUserDetails(profileUser);
+            if (!accountOperations.isLoggedInUser(user) && profileConfig.showProfileBanner()) {
+                rootActivity.ifPresent(activity -> activity.setTitle(profileUser.username()));
+            }
         }
     }
 
