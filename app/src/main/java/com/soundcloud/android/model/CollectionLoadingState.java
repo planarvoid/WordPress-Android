@@ -33,6 +33,7 @@ public abstract class CollectionLoadingState {
     public CollectionLoadingState toNextPageLoaded(boolean hasMorePages) {
         return toBuilder().nextPageError(Optional.absent())
                           .isLoadingNextPage(false)
+                          .isRefreshing(false)
                           .hasMorePages(hasMorePages)
                           .build();
     }

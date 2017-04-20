@@ -89,10 +89,10 @@ public class CollectionLoader<ItemType, ParamsType> {
                         Observable.just(partialState), // initial state
                         refreshStateSubject, // refresh state
                         loadNextPageIntent() // next page state
-                ).scan(
-                        CollectionLoaderState.loadingNextPage(),
-                        updateLatestState()
                 )
+        ).scan(
+                CollectionLoaderState.loadingNextPage(),
+                updateLatestState()
         ).distinctUntilChanged()
                                    .cache();
     }

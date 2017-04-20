@@ -140,7 +140,6 @@ public abstract class CollectionLoaderState<ItemType> {
             public CollectionLoaderState<ItemType> newState(CollectionLoaderState<ItemType> oldState) {
                 return oldState.toBuilder()
                                .collectionLoadingState(oldState.collectionLoadingState().toRefreshStarted())
-                               .data(oldState.data())
                                .build();
             }
         }

@@ -119,7 +119,6 @@ public class CollectionLoaderTest extends AndroidUnitTest {
         subscriber.assertValues(
                 CollectionLoaderState.loadingNextPage(),
                 CollectionLoaderState.<List<Integer>>builder().collectionLoadingState(CollectionLoadingState.builder().nextPageError(of(ViewError.from(networkError))).build()).build(),
-                CollectionLoaderState.loadingNextPage(),
                 CollectionLoaderState.<List<Integer>>builder().data(firstPageData).build()
         );
     }
@@ -290,7 +289,6 @@ public class CollectionLoaderTest extends AndroidUnitTest {
                 CollectionLoaderState.<List<Integer>>builder().data(firstPageData)
                                                               .collectionLoadingState(CollectionLoadingState.builder().isRefreshing(true).nextPageError(of(ViewError.from(networkError))).build())
                                                               .build(),
-                CollectionLoaderState.loadingNextPage(),
                 CollectionLoaderState.<List<Integer>>builder().data(secondPageData)
                                                               .collectionLoadingState(CollectionLoadingState.builder().isRefreshing(false).build())
                                                               .build()
