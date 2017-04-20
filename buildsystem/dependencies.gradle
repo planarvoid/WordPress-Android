@@ -99,7 +99,11 @@ ext {
 
           // Annotation Processor libraries
           autoService                  : 'com.google.auto.service:auto-service:1.0-rc3',
-          javaPoet                     : 'com.squareup:javapoet:1.8.0'
+          javaPoet                     : 'com.squareup:javapoet:1.8.0',
+
+          // static analysis
+          checkstyle                   : "com.puppycrawl.tools:checkstyle:7.6.1",
+          checkstyleSevntu             : "com.github.sevntu.checkstyle:sevntu-checks:1.23.1"
   ]
 
   devLibraries = [
