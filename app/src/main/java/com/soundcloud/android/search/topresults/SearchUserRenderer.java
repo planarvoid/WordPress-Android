@@ -10,18 +10,16 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
 class SearchUserRenderer implements CellRenderer<SearchItem.User> {
     private final FollowableUserItemRenderer userItemRenderer;
-    private final PublishSubject<SearchItem> searchItemClicked;
+    private final PublishSubject<SearchItem.User> userClick;
 
-    @Inject
-    SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
+    SearchUserRenderer(@Provided FollowableUserItemRenderer userItemRenderer, PublishSubject<SearchItem.User> userClick) {
         this.userItemRenderer = userItemRenderer;
-        this.searchItemClicked = searchItemClicked;
+        this.userClick = userClick;
     }
 
     @Override
@@ -32,7 +30,7 @@ class SearchUserRenderer implements CellRenderer<SearchItem.User> {
     @Override
     public void bindItemView(int position, View itemView, List<SearchItem.User> items) {
         final SearchItem.User user = items.get(position);
-        itemView.setOnClickListener(view -> searchItemClicked.onNext(user));
+        itemView.setOnClickListener(view -> userClick.onNext(user));
         userItemRenderer.bindItemView(position, itemView, user.userItem(), Optional.of(user.source().key));
     }
 

@@ -8,9 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
-import com.soundcloud.android.search.topresults.TopResults.Bucket;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.java.optional.Optional;
 import rx.subjects.PublishSubject;
 
 import android.content.Context;
@@ -24,32 +22,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
 class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
-    private final PublishSubject<SearchItem> searchItemClicked;
-    private final PublishSubject<TopResultsViewAllArgs> viewAllClicked;
-    private final PublishSubject<Void> helpClicked;
     private final SearchItemAdapterFactory searchItemAdapterFactory;
     private final CondensedNumberFormatter numberFormatter;
     private final FeatureOperations featureOperations;
+    private final PublishSubject<SearchItem.Track> trackClick;
+    private final PublishSubject<SearchItem.Playlist> playlistClick;
+    private final PublishSubject<SearchItem.User> userClick;
+    private final PublishSubject<TopResults.Bucket.Kind> viewAllClick;
+    private final PublishSubject<Void> helpClick;
 
-    @Inject
-    BucketRenderer(PublishSubject<SearchItem> searchItemClicked,
-                   PublishSubject<TopResultsViewAllArgs> viewAllClicked,
-                   PublishSubject<Void> helpClicked,
-                   @Provided SearchItemAdapterFactory searchItemAdapterFactory,
+    BucketRenderer(@Provided SearchItemAdapterFactory searchItemAdapterFactory,
                    @Provided CondensedNumberFormatter numberFormatter,
-                   @Provided FeatureOperations featureOperations) {
-        this.searchItemClicked = searchItemClicked;
-        this.viewAllClicked = viewAllClicked;
-        this.helpClicked = helpClicked;
+                   @Provided FeatureOperations featureOperations,
+                   PublishSubject<SearchItem.Track> trackClick,
+                   PublishSubject<SearchItem.Playlist> playlistClick,
+                   PublishSubject<SearchItem.User> userClick,
+                   PublishSubject<TopResults.Bucket.Kind> viewAllClick,
+                   PublishSubject<Void> helpClick) {
         this.searchItemAdapterFactory = searchItemAdapterFactory;
         this.numberFormatter = numberFormatter;
         this.featureOperations = featureOperations;
+        this.trackClick = trackClick;
+        this.playlistClick = playlistClick;
+        this.userClick = userClick;
+        this.viewAllClick = viewAllClick;
+        this.helpClick = helpClick;
     }
 
     @Override
@@ -62,7 +64,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
 
     private void initCarousel(View bucketView, final RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
-        final SearchItemAdapter adapter = searchItemAdapterFactory.create(searchItemClicked);
+        final SearchItemAdapter adapter = searchItemAdapterFactory.create(trackClick, playlistClick, userClick);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
@@ -78,20 +80,20 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
         final String titleText = resources.getString(viewModel.titleResourceId());
         bindTitle(itemView, titleText);
         bindResultList(itemView, resources, viewModel.items());
-        bindViewAll(itemView, resources, viewModel.viewAllResourceId(), viewModel.shouldShowViewAll(), viewModel.totalResults(), viewModel.kind());
+        bindViewAll(itemView, resources, viewModel);
         final boolean lastItem = items.size() - 1 == position;
         itemView.findViewById(R.id.bucket_bottom_padding).setVisibility(lastItem ? View.VISIBLE : View.GONE);
-        bindHighTierHelpItem(itemView, viewModel.kind());
+        bindHighTierHelpItem(itemView, viewModel);
     }
 
-    private void bindViewAll(View itemView, Resources resources, Optional<Integer> viewAllResource, boolean shouldShowViewAll, int totalResults, Bucket.Kind kind) {
+    private void bindViewAll(View itemView, Resources resources, TopResultsBucketViewModel bucket) {
         final View viewAllButton = itemView.findViewById(R.id.bucket_view_all);
-        viewAllButton.setVisibility(shouldShowViewAll ? View.VISIBLE : View.GONE);
-        if (shouldShowViewAll && viewAllResource.isPresent()) {
-            String resultsCountString = numberFormatter.format(totalResults);
-            final String viewAllText = resources.getString(viewAllResource.get(), resultsCountString);
+        viewAllButton.setVisibility(bucket.shouldShowViewAll() ? View.VISIBLE : View.GONE);
+        if (bucket.shouldShowViewAll() && bucket.viewAllResourceId().isPresent()) {
+            String resultsCountString = numberFormatter.format(bucket.totalResults());
+            final String viewAllText = resources.getString(bucket.viewAllResourceId().get(), resultsCountString);
             ((TextView) itemView.findViewById(R.id.bucket_view_all_text)).setText(viewAllText);
-            viewAllButton.setOnClickListener(view -> viewAllClicked.onNext(TopResultsViewAllArgs.create(kind)));
+            viewAllButton.setOnClickListener(view -> viewAllClick.onNext(bucket.kind()));
         }
     }
 
@@ -105,11 +107,11 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     }
 
 
-    private void bindHighTierHelpItem(View itemView, Bucket.Kind kind) {
+    private void bindHighTierHelpItem(View itemView, TopResultsBucketViewModel bucket) {
         final View helpItemView = itemView.findViewById(R.id.help);
-        if (featureOperations.upsellHighTier() && kind == GO_TRACKS) {
+        if (featureOperations.upsellHighTier() && bucket.kind() == GO_TRACKS) {
             helpItemView.setVisibility(View.VISIBLE);
-            helpItemView.setOnClickListener(ignored -> helpClicked.onNext(null));
+            helpItemView.setOnClickListener(view -> helpClick.onNext(null));
         } else {
             helpItemView.setVisibility(View.GONE);
         }

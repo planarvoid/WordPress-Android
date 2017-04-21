@@ -10,18 +10,16 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
 class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist> {
     private final PlaylistItemRenderer playlistItemRenderer;
-    private final PublishSubject<SearchItem> searchItemClicked;
+    private final PublishSubject<SearchItem.Playlist> playlistClick;
 
-    @Inject
-    SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
+    SearchPlaylistRenderer(@Provided PlaylistItemRenderer playlistItemRenderer, PublishSubject<SearchItem.Playlist> playlistClick) {
         this.playlistItemRenderer = playlistItemRenderer;
-        this.searchItemClicked = searchItemClicked;
+        this.playlistClick = playlistClick;
     }
 
     @Override
@@ -32,7 +30,7 @@ class SearchPlaylistRenderer implements CellRenderer<SearchItem.Playlist> {
     @Override
     public void bindItemView(int position, View itemView, List<SearchItem.Playlist> items) {
         final SearchItem.Playlist playlist = items.get(position);
-        itemView.setOnClickListener(view -> searchItemClicked.onNext(playlist));
+        itemView.setOnClickListener(view -> playlistClick.onNext(playlist));
         playlistItemRenderer.bindPlaylistView(playlist.playlistItem(), itemView, Optional.absent(), Optional.of(playlist.source().key));
     }
 

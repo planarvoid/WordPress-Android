@@ -13,14 +13,8 @@ abstract class TopResultsViewAllArgs {
 
     abstract Optional<Urn> queryUrn();
 
-    abstract Optional<String> query();
-
-    public static TopResultsViewAllArgs create(Bucket.Kind kind) {
+    public static TopResultsViewAllArgs create(Bucket.Kind kind, Optional<Urn> queryUrn) {
         final boolean isPremium = kind == Bucket.Kind.GO_TRACKS;
-        return new AutoValue_TopResultsViewAllArgs(kind, isPremium, Optional.absent(), Optional.absent());
-    }
-
-    TopResultsViewAllArgs copyWithSearchQuery(String searchQuery, Optional<Urn> queryUrn) {
-        return new AutoValue_TopResultsViewAllArgs(kind(), isPremium(), queryUrn, Optional.of(searchQuery));
+        return new AutoValue_TopResultsViewAllArgs(kind, isPremium, queryUrn);
     }
 }

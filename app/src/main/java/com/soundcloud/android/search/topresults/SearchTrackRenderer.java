@@ -10,18 +10,16 @@ import rx.subjects.PublishSubject;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @AutoFactory
 public class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
     private final TrackItemRenderer trackItemRenderer;
-    private final PublishSubject<SearchItem> searchItemClicked;
+    private final PublishSubject<SearchItem.Track> trackClick;
 
-    @Inject
-    public SearchTrackRenderer(@Provided TrackItemRenderer trackItemRenderer, PublishSubject<SearchItem> searchItemClicked) {
+    SearchTrackRenderer(@Provided TrackItemRenderer trackItemRenderer, PublishSubject<SearchItem.Track> trackClick) {
         this.trackItemRenderer = trackItemRenderer;
-        this.searchItemClicked = searchItemClicked;
+        this.trackClick = trackClick;
     }
 
     @Override
@@ -32,7 +30,7 @@ public class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
     @Override
     public void bindItemView(int position, View itemView, List<SearchItem.Track> items) {
         final SearchItem.Track track = items.get(position);
-        itemView.setOnClickListener(view -> searchItemClicked.onNext(track));
+        itemView.setOnClickListener(view -> trackClick.onNext(track));
         trackItemRenderer.bindTrackView(track.trackItem(), itemView, position, Optional.of(track.trackSourceInfo()), Optional.absent());
     }
 }
