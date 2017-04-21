@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.DownloadButtonImageView;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 
@@ -14,7 +15,7 @@ import android.widget.TextView;
 
 public class OfflineStateButton extends LinearLayout {
 
-    private DownloadImageView icon;
+    private DownloadButtonImageView icon;
     private TextView label;
 
     public OfflineStateButton(Context context, @Nullable AttributeSet attrs) {
@@ -29,19 +30,16 @@ public class OfflineStateButton extends LinearLayout {
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.offline_state_button, this);
-        icon = (DownloadImageView) findViewById(R.id.icon);
+        icon = (DownloadButtonImageView) findViewById(R.id.icon);
         label = (TextView) findViewById(R.id.label);
         setClickable(true);
-        icon.setState(OfflineState.REQUESTED, true); // Default icon for upsell
     }
 
     public void setState(OfflineState state) {
         label.setVisibility(shouldShowText(state)
                             ? View.VISIBLE
                             : View.GONE);
-        icon.setState(OfflineState.NOT_OFFLINE != state
-                      ? state
-                      : OfflineState.REQUESTED, true);
+        icon.setState(state);
     }
 
     public DownloadImageView getIcon() {

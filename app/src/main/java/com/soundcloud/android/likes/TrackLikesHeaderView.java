@@ -8,7 +8,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.IconToggleButton;
+import com.soundcloud.android.view.OfflineStateButton;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
@@ -21,9 +24,11 @@ class TrackLikesHeaderView {
 
     private Resources resources;
     private DownloadStateRenderer downloadStateRenderer;
+    private FeatureFlags featureFlags;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
     @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
+    @BindView(R.id.offline_state_button) OfflineStateButton offlineStateButton;
 
     private final View headerView;
 
@@ -40,10 +45,12 @@ class TrackLikesHeaderView {
 
     TrackLikesHeaderView(@Provided Resources resources,
                          @Provided DownloadStateRenderer downloadStateRenderer,
+                         @Provided FeatureFlags featureFlags,
                          View view,
                          Listener listener) {
         this.resources = resources;
         this.downloadStateRenderer = downloadStateRenderer;
+        this.featureFlags = featureFlags;
         this.listener = listener;
         this.headerView = view.findViewById(R.id.track_likes_header);
 
@@ -60,21 +67,42 @@ class TrackLikesHeaderView {
     }
 
     public void show(OfflineState state) {
-        downloadStateRenderer.show(state, headerView);
-        if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
-            updateTrackCount(trackCount);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            offlineStateButton.setState(state);
+        } else {
+            downloadStateRenderer.show(state, headerView);
+            if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
+                updateTrackCount(trackCount);
+            }
         }
     }
 
     void showNoWifi() {
-        downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_wifi), headerView);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            offlineStateButton.setState(OfflineState.UNAVAILABLE);
+        } else {
+            downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_wifi), headerView);
+        }
     }
 
     void showNoConnection() {
-        downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_connection), headerView);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            offlineStateButton.setState(OfflineState.UNAVAILABLE);
+        } else {
+            downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_connection), headerView);
+        }
     }
 
     void setDownloadedButtonState(final boolean isOffline) {
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            offlineStateButton.setVisibility(View.VISIBLE);
+            offlineStateButton.setOnClickListener(v -> listener.onMakeAvailableOffline(!isOffline));
+        } else {
+            showLegacyDownloadToggle(isOffline);
+        }
+    }
+
+    private void showLegacyDownloadToggle(boolean isOffline) {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(isOffline);
         downloadToggle.setOnClickListener(v -> {
@@ -85,6 +113,15 @@ class TrackLikesHeaderView {
     }
 
     void showUpsell() {
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            offlineStateButton.setVisibility(View.VISIBLE);
+            offlineStateButton.setOnClickListener(v -> listener.onUpsell());
+        } else {
+            showLegacyUpsell();
+        }
+    }
+
+    private void showLegacyUpsell() {
         downloadToggle.setVisibility(View.VISIBLE);
         downloadToggle.setChecked(false);
         downloadToggle.setOnClickListener(v -> {

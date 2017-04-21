@@ -32,6 +32,7 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
                                                         new DownloadStateRenderer(resources(), featureFlags),
+                                                        featureFlags,
                                                         view,
                                                         listener);
     }

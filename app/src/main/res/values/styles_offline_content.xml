@@ -9,6 +9,13 @@
         <item name="unavailable">@drawable/ic_download_item_unavailable_states</item>
     </style>
 
+    <style name="DownloadButtonItem">
+        <item name="queued">@drawable/button_download_queued</item>
+        <item name="downloaded">@drawable/button_download_downloaded</item>
+        <item name="downloading">@drawable/button_download_downloading</item>
+        <item name="unavailable">@drawable/button_download_unavailable</item>
+    </style>
+
     <style name="SummaryRadioButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

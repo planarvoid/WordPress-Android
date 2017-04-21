@@ -13,7 +13,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.OfflineStateButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -41,6 +40,8 @@ class PlaylistEngagementsRenderer {
     private final PlaylistDetailInfoProvider infoProvider;
     private final AccountOperations accountOperations;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
+    private final OfflineSettingsOperations offlineSettings;
+    private final ConnectionHelper connectionHelper;
 
     @Inject
     PlaylistEngagementsRenderer(Context context,
@@ -50,7 +51,9 @@ class PlaylistEngagementsRenderer {
                                 LikeButtonPresenter likeButtonPresenter,
                                 PlaylistDetailInfoProvider infoProvider,
                                 AccountOperations accountOperations,
-                                IntroductoryOverlayPresenter introductoryOverlayPresenter) {
+                                IntroductoryOverlayPresenter introductoryOverlayPresenter,
+                                OfflineSettingsOperations offlineSettings,
+                                ConnectionHelper connectionHelper) {
         this.context = context;
         this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
@@ -60,6 +63,8 @@ class PlaylistEngagementsRenderer {
         this.infoProvider = infoProvider;
         this.accountOperations = accountOperations;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
+        this.offlineSettings = offlineSettings;
+        this.connectionHelper = connectionHelper;
     }
 
     void bind(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
@@ -168,11 +173,18 @@ class PlaylistEngagementsRenderer {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
             OfflineStateButton stateButton = ButterKnife.findById(barView, R.id.offline_state_button);
             stateButton.setVisibility(View.VISIBLE);
-            stateButton.setState(item.offlineState());
+            stateButton.setState(OfflineState.REQUESTED == item.offlineState() && isDownloadUnavailable()
+                                 ? OfflineState.UNAVAILABLE
+                                 : item.offlineState());
             stateButton.setOnClickListener(v -> toggleOffline(v.getContext(), item, listener));
         } else {
             showLegacyOfflineToggle(barView, item, listener);
         }
+    }
+
+    private boolean isDownloadUnavailable() {
+        return (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected())
+                || !connectionHelper.isNetworkConnected();
     }
 
     private void showLegacyOfflineToggle(View barView, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {

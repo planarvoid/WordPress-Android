@@ -12,12 +12,12 @@ import android.view.View;
 
 public class DownloadImageView extends AppCompatImageView {
 
-    private final Drawable queued;
-    private final Drawable downloading;
-    private final Drawable downloaded;
-    private final Drawable unavailable;
+    protected final Drawable queued;
+    protected final Drawable downloading;
+    protected final Drawable downloaded;
+    protected final Drawable unavailable;
 
-    private OfflineState offlineState;
+    protected OfflineState offlineState;
 
     public DownloadImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -46,26 +46,30 @@ public class DownloadImageView extends AppCompatImageView {
         return offlineState == OfflineState.DOWNLOADED;
     }
 
-    private void setNoOfflineState() {
+    protected void setNoOfflineState() {
         clearAnimation();
         setVisibility(View.GONE);
         setImageDrawable(null);
     }
 
-    private void animateDownloadingState() {
+    protected void animateDownloadingState() {
         setDownloadStateResource(downloading);
         AnimUtils.runSpinClockwiseAnimationOn(this);
     }
 
-    private void setDownloadStateResource(Drawable drawable) {
+    protected void setDownloadStateResource(Drawable drawable) {
         clearAnimation();
         setVisibility(View.VISIBLE);
         setImageDrawable(drawable);
     }
 
     public void setState(OfflineState state, boolean selected) {
-        offlineState = state;
         setSelected(selected);
+        setState(state);
+    }
+
+    public void setState(OfflineState state) {
+        offlineState = state;
         switch (state) {
             case NOT_OFFLINE:
                 setNoOfflineState();
@@ -86,4 +90,5 @@ public class DownloadImageView extends AppCompatImageView {
                 throw new IllegalArgumentException("Unknown state : " + state);
         }
     }
+
 }

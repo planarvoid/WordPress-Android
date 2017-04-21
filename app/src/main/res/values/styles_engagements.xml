@@ -50,6 +50,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAppearance">@null</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:gravity">center</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
