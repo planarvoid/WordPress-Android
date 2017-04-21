@@ -10,7 +10,7 @@ import android.net.Uri;
 import java.util.List;
 
 @AutoValue
-public abstract class InterstitialAd extends OverlayAdData {
+public abstract class InterstitialAd extends VisualAdData {
 
     private static InterstitialAd create(ApiModel apiModel) {
         return new AutoValue_InterstitialAd(apiModel.adUrn(),

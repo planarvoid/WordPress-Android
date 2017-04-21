@@ -26,7 +26,7 @@ public class LeaveBehindPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public boolean shouldDisplayOverlay(OverlayAdData data,
+    public boolean shouldDisplayOverlay(VisualAdData data,
                                         boolean isExpanded,
                                         boolean isPortrait,
                                         boolean isForeground) {

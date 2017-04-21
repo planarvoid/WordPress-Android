@@ -247,8 +247,8 @@ public class AdsController {
     public void onPlayStateChanged(PlayStateEvent playStateEvent) {
         if (adsOperations.isCurrentItemAudioAd() && playStateEvent.playbackEnded()) {
             final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
-            if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
-                ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
+            if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof VisualAdData) {
+                ((VisualAdData) monetizableAdData.get()).setMetaAdCompleted();
             }
         }
     }

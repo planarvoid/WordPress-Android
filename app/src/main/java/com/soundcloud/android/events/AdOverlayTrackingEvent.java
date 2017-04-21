@@ -8,7 +8,7 @@ import static com.soundcloud.android.events.AdOverlayTrackingEvent.Type.TYPE_LEA
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
@@ -84,7 +84,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
 
     private static AdOverlayTrackingEvent.Builder create(long timeStamp,
                                                          EventName eventName,
-                                                         OverlayAdData adData,
+                                                         VisualAdData adData,
                                                          Urn monetizableTrack,
                                                          Urn user,
                                                          List<String> trackingUrls,
@@ -121,17 +121,17 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
         return Optional.absent();
     }
 
-    public static AdOverlayTrackingEvent forClick(OverlayAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forClick(VisualAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
         return forClick(defaultTimestamp(), adData, track, user, sourceInfo);
     }
 
-    public static AdOverlayTrackingEvent forImpression(OverlayAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forImpression(VisualAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
         return forImpression(defaultTimestamp(), adData, track, user, sourceInfo);
     }
 
     @VisibleForTesting
     public static AdOverlayTrackingEvent forImpression(long timeStamp,
-                                                       OverlayAdData adData,
+                                                       VisualAdData adData,
                                                        Urn track,
                                                        Urn user,
                                                        TrackSourceInfo sourceInfo) {
@@ -144,7 +144,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
 
     @VisibleForTesting
     public static AdOverlayTrackingEvent forClick(long timestamp,
-                                                  OverlayAdData adData,
+                                                  VisualAdData adData,
                                                   Urn track,
                                                   Urn user,
                                                   TrackSourceInfo sourceInfo) {
@@ -161,7 +161,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
         return null;
     }
 
-    private static Optional<String> getClickName(OverlayAdData adData) {
+    private static Optional<String> getClickName(VisualAdData adData) {
         if (adData instanceof LeaveBehindAd) {
             return Optional.of(String.format(CLICKTHROUGH_FORMAT, TYPE_LEAVE_BEHIND.key()));
         } else if (adData instanceof InterstitialAd) {
@@ -170,7 +170,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
         return Optional.absent();
     }
 
-    private static Optional<Type> getImpressionName(OverlayAdData adData) {
+    private static Optional<Type> getImpressionName(VisualAdData adData) {
         if (adData instanceof LeaveBehindAd) {
             return Optional.of(TYPE_LEAVE_BEHIND);
         } else if (adData instanceof InterstitialAd) {
@@ -179,14 +179,14 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
         return Optional.absent();
     }
 
-    private static Optional<Urn> getClickObject(OverlayAdData adData) {
+    private static Optional<Urn> getClickObject(VisualAdData adData) {
         if (adData instanceof LeaveBehindAd) {
             return Optional.of(((LeaveBehindAd) adData).audioAdUrn());
         }
         return Optional.absent();
     }
 
-    private static Optional<Urn> getImpressionObject(OverlayAdData adData, Urn monetizableTrack) {
+    private static Optional<Urn> getImpressionObject(VisualAdData adData, Urn monetizableTrack) {
         if (adData instanceof LeaveBehindAd) {
             final Urn audioAdUrn = ((LeaveBehindAd) adData).audioAdUrn();
             return Optional.of(audioAdUrn);

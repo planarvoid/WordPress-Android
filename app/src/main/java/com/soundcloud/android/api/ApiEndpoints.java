@@ -63,6 +63,7 @@ public enum ApiEndpoints {
 
     // ads + monetization
     ADS("/tracks/%s/ads"),
+    PRESTITIALS("/ads/prestitials"),
     INLAY_ADS("/stream/ads"),
     POLICIES("/policies/tracks"),
 

@@ -5,7 +5,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.WhyAdsDialogPresenter;
@@ -76,8 +76,8 @@ class AdPageListener extends PageListener {
         }
 
         final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
-        if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
-            ((OverlayAdData) monetizableAdData.get()).setMetaAdClicked();
+        if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof VisualAdData) {
+            ((VisualAdData) monetizableAdData.get()).setMetaAdClicked();
         }
     }
 

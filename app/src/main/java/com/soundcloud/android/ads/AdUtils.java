@@ -27,7 +27,7 @@ public final class AdUtils {
 
     public static boolean hasAdOverlay(PlayQueueItem playQueueItem) {
         return playQueueItem.getAdData().isPresent()
-                && playQueueItem.getAdData().get() instanceof OverlayAdData;
+                && playQueueItem.getAdData().get() instanceof VisualAdData;
     }
 
     private static ColorStateList getColorStates(String focusedColor, String pressedColor, String defaultColor) {

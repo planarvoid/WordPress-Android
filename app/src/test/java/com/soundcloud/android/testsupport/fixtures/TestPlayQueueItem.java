@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -39,7 +39,7 @@ public class TestPlayQueueItem {
         return builder(itemUrn).blocked(true).build();
     }
 
-    public static TrackQueueItem createTrack(Urn itemUrn, OverlayAdData adData) {
+    public static TrackQueueItem createTrack(Urn itemUrn, VisualAdData adData) {
         return builder(itemUrn).withAdData(adData).build();
     }
 

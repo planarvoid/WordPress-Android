@@ -8,7 +8,7 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
@@ -346,7 +346,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         alphaAnimator.start();
     }
 
-    void setAdOverlay(View view, OverlayAdData adData) {
+    void setAdOverlay(View view, VisualAdData adData) {
         getViewHolder(view).adOverlayController.initialize(adData);
     }
 

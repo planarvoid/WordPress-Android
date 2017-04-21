@@ -95,11 +95,11 @@ class AdOverlayImpressionOperations {
         private final boolean isAppInForeground;
         private final boolean playerIsExpanding;
         private final Urn currentPlayingUrn;
-        private final OverlayAdData adData;
+        private final VisualAdData adData;
         private final TrackSourceInfo trackSourceInfo;
 
         public VisualImpressionState(boolean adOverlayIsVisible, boolean isAppInForeground, boolean playerIsExpanding,
-                                     Urn currentPlayingUrn, OverlayAdData adData, TrackSourceInfo trackSourceInfo) {
+                                     Urn currentPlayingUrn, VisualAdData adData, TrackSourceInfo trackSourceInfo) {
             this.isAppInForeground = isAppInForeground;
             this.adOverlayIsVisible = adOverlayIsVisible;
             this.playerIsExpanding = playerIsExpanding;

@@ -84,7 +84,7 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
         moatViewabilityController.stopVideoTracking(uuid);
     }
 
-    void startOverlayTracking(View imageView, OverlayAdData overlayAdData) {
+    void startOverlayTracking(View imageView, VisualAdData overlayAdData) {
         moatViewabilityController.startOverlayTracking(imageView, overlayAdData);
     }
 

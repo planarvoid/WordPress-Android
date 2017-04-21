@@ -30,10 +30,10 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
 
         @Override
         public AdData apply(ApiAdWrapper input) {
-            if (input.getAppInstall().isPresent()) {
-                return AppInstallAd.create(input.getAppInstall().get(), dateProvider.getCurrentTime());
+            if (input.appInstall().isPresent()) {
+                return AppInstallAd.create(input.appInstall().get(), dateProvider.getCurrentTime());
             } else {
-                return VideoAd.create(input.getVideoAd().get(), dateProvider.getCurrentTime(), AdData.MonetizationType.INLAY);
+                return VideoAd.create(input.videoAd().get(), dateProvider.getCurrentTime(), AdData.MonetizationType.INLAY);
             }
         }
     }
@@ -54,7 +54,7 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
     }
 
     private Predicate<ApiAdWrapper> supportedInlayAds() {
-        return ad -> ad.getAppInstall().isPresent() || ad.getVideoAd().isPresent();
+        return ad -> ad.appInstall().isPresent() || ad.videoAd().isPresent();
     }
 
     @Override
@@ -63,8 +63,8 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
         final List<Urn> videoAds = new ArrayList<>();
 
         for (ApiAdWrapper ad : getCollection()) {
-            final Optional<AppInstallAd.ApiModel> appInstall = ad.getAppInstall();
-            final Optional<VideoAd.ApiModel> videoAd = ad.getVideoAd();
+            final Optional<AppInstallAd.ApiModel> appInstall = ad.appInstall();
+            final Optional<VideoAd.ApiModel> videoAd = ad.videoAd();
             if (appInstall.isPresent()) {
                 appInstalls.add(appInstall.get().adUrn());
             } else if (videoAd.isPresent()) {
@@ -77,6 +77,6 @@ class ApiAdsForStream extends ModelCollection<ApiAdWrapper> implements AdsCollec
 
     @Override
     public String contentString() {
-        return getCollection().size() + " ads";
+        return getCollection().size() + " inlay ads";
     }
 }

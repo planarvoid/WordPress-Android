@@ -41,12 +41,12 @@ public abstract class AdOverlayPresenter {
         }
     };
 
-    public abstract boolean shouldDisplayOverlay(OverlayAdData data,
+    public abstract boolean shouldDisplayOverlay(VisualAdData data,
                                                  boolean isExpanded,
                                                  boolean isPortrait,
                                                  boolean isForeground);
 
-    public void onAdVisible(PlayQueueItem playQueueItem, OverlayAdData data, TrackSourceInfo trackSourceInfo) {
+    public void onAdVisible(PlayQueueItem playQueueItem, VisualAdData data, TrackSourceInfo trackSourceInfo) {
         overlay.setClickable(true);
         adImage.setVisibility(View.VISIBLE);
         leaveBehindHeader.setVisibility(View.VISIBLE);
@@ -71,7 +71,7 @@ public abstract class AdOverlayPresenter {
 
     public abstract boolean isFullScreen();
 
-    public void bind(OverlayAdData data) {
+    public void bind(VisualAdData data) {
         imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), getImageView(), imageListener);
     }
 

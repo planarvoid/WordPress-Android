@@ -11,7 +11,8 @@ public abstract class AdData {
         LEAVE_BEHIND("leave_behind"),
         AUDIO("audio_ad"),
         VIDEO("video_ad"),
-        INLAY("mobile_inlay");
+        INLAY("mobile_inlay"),
+        PRESTITIAL("prestitial");
 
         private final String key;
 

@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricParams;
@@ -519,7 +519,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
 
     private Observable<TrackItem> getTrackObservable(Urn urn, final Optional<AdData> adOverlayData) {
         return getTrackObservable(urn).doOnNext(track -> {
-            if (adOverlayData.isPresent() && adOverlayData.get() instanceof OverlayAdData) {
+            if (adOverlayData.isPresent() && adOverlayData.get() instanceof VisualAdData) {
                 adOverlayData.get().setMonetizableTitle(track.title());
                 adOverlayData.get().setMonetizableCreator(track.creatorName());
             }
@@ -554,7 +554,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         trackPagePresenter.updateCastData(view, false);
         trackPagePresenter.updatePlayQueueButton(view);
         if (hasAdOverlay(playQueueItem)) {
-            final OverlayAdData overlayData = (OverlayAdData) playQueueItem.getAdData().get();
+            final VisualAdData overlayData = (VisualAdData) playQueueItem.getAdData().get();
             trackPagePresenter.setAdOverlay(view, overlayData);
         } else {
             trackPagePresenter.clearAdOverlay(view);

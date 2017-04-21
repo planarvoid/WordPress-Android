@@ -27,8 +27,8 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollect
 
     public Optional<InterstitialAd.ApiModel> interstitialAd() {
         for (ApiAdWrapper adWrapper : this) {
-            if (adWrapper.getInterstitial().isPresent()) {
-                return adWrapper.getInterstitial();
+            if (adWrapper.interstitial().isPresent()) {
+                return adWrapper.interstitial();
             }
         }
         return Optional.absent();
@@ -36,8 +36,8 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollect
 
     public Optional<AudioAd.ApiModel> audioAd() {
         for (ApiAdWrapper adWrapper : this) {
-            if (adWrapper.getAudioAd().isPresent()) {
-                return adWrapper.getAudioAd();
+            if (adWrapper.audioAd().isPresent()) {
+                return adWrapper.audioAd();
             }
         }
         return Optional.absent();
@@ -45,8 +45,8 @@ class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> implements AdsCollect
 
     public Optional<VideoAd.ApiModel> videoAd() {
         for (ApiAdWrapper adWrapper : this) {
-            if (adWrapper.getVideoAd().isPresent()) {
-                return adWrapper.getVideoAd();
+            if (adWrapper.videoAd().isPresent()) {
+                return adWrapper.videoAd();
             }
         }
         return Optional.absent();

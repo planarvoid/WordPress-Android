@@ -128,7 +128,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         captureLeaveBehindListener().onAdImageLoaded();
 
         verify(leaveBehindPresenter, never()).onAdVisible(any(TrackQueueItem.class),
-                                                          any(OverlayAdData.class),
+                                                          any(VisualAdData.class),
                                                           any(TrackSourceInfo.class));
     }
 
@@ -149,7 +149,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
         initializeLeaveBehindAndShow();
 
-        verify(leaveBehindPresenter, Mockito.never()).bind(any(OverlayAdData.class));
+        verify(leaveBehindPresenter, Mockito.never()).bind(any(VisualAdData.class));
     }
 
     @Test
@@ -249,7 +249,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.onAdImageLoaded();
 
         verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class),
-                                                           any(OverlayAdData.class),
+                                                           any(VisualAdData.class),
                                                            any(TrackSourceInfo.class));
     }
 
@@ -260,7 +260,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.onAdImageLoaded();
 
         verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class),
-                                                           any(OverlayAdData.class),
+                                                           any(VisualAdData.class),
                                                            any(TrackSourceInfo.class));
     }
 

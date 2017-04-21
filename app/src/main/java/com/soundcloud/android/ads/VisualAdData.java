@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import java.util.List;
 
-public abstract class OverlayAdData extends AdData {
+public abstract class VisualAdData extends AdData {
     private boolean metaAdDismissed;
     private boolean metaAdClicked;
     private boolean metaAdCompleted;

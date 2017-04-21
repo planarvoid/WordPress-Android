@@ -140,6 +140,14 @@ public class AdFixtures {
                                              Arrays.asList("leave_click1", "leave_click2"));
     }
 
+    static VisualPrestitialAd.ApiModel getApiVisualPrestitial() {
+        return VisualPrestitialAd.ApiModel.create(Urn.forAd("ads", "123"),
+                                                  "http://image-url.com",
+                                                  "http://clickthrough.com",
+                                                  Arrays.asList("visual_impression1", "visual_impression2"),
+                                                  Arrays.asList("visual_click1", "visual_click2"));
+    }
+
     static AudioAd.ApiModel getApiAudioAd() {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
     }
@@ -346,5 +354,9 @@ public class AdFixtures {
     static ApiAdsForStream fullAdsForStream() {
         return new ApiAdsForStream(newArrayList(ApiAdWrapper.create(getApiAppInstall()),
                                                 ApiAdWrapper.create(getApiVideoAd())));
+    }
+
+    static ApiPrestitialAd apiPrestitialAd() {
+        return new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiVisualPrestitial())));
     }
 }

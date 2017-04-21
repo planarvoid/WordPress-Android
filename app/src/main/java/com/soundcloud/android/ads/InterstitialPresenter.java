@@ -47,7 +47,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public boolean shouldDisplayOverlay(OverlayAdData data,
+    public boolean shouldDisplayOverlay(VisualAdData data,
                                         boolean isExpanded,
                                         boolean isPortrait,
                                         boolean isForeground) {
@@ -60,7 +60,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void onAdVisible(PlayQueueItem playQueueItem, OverlayAdData data, TrackSourceInfo trackSourceInfo) {
+    public void onAdVisible(PlayQueueItem playQueueItem, VisualAdData data, TrackSourceInfo trackSourceInfo) {
         super.onAdVisible(playQueueItem, data, trackSourceInfo);
         interstitialImageHolder.setVisibility(View.VISIBLE);
         previewContainer.setVisibility(View.VISIBLE);
@@ -75,7 +75,7 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public void bind(OverlayAdData data) {
+    public void bind(VisualAdData data) {
         super.bind(data);
         final ApiImageSize listItemImageSize = ApiImageSize.getListItemImageSize(previewImage.getResources());
         imageOperations.displayWithPlaceholder(data.getMonetizableTrackUrn(), listItemImageSize, previewImage);

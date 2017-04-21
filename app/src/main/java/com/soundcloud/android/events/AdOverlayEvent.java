@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.ads.OverlayAdData;
+import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
@@ -15,10 +15,10 @@ public class AdOverlayEvent {
 
     private final int kind;
     private final Urn currentPlayingUrn;
-    private final OverlayAdData adData;
+    private final VisualAdData adData;
     private final TrackSourceInfo trackSourceInfo;
 
-    public static AdOverlayEvent shown(Urn playingUrn, OverlayAdData adData, TrackSourceInfo trackSourceInfo) {
+    public static AdOverlayEvent shown(Urn playingUrn, VisualAdData adData, TrackSourceInfo trackSourceInfo) {
         return new AdOverlayEvent(SHOWN, playingUrn, adData, trackSourceInfo);
     }
 
@@ -26,7 +26,7 @@ public class AdOverlayEvent {
         return HIDDEN_EVENT;
     }
 
-    public AdOverlayEvent(int kind, Urn playingUrn, OverlayAdData adData, TrackSourceInfo trackSourceInfo) {
+    public AdOverlayEvent(int kind, Urn playingUrn, VisualAdData adData, TrackSourceInfo trackSourceInfo) {
         this.kind = kind;
         this.currentPlayingUrn = playingUrn;
         this.adData = adData;
@@ -43,7 +43,7 @@ public class AdOverlayEvent {
     }
 
     @Nullable
-    public OverlayAdData getAdData() {
+    public VisualAdData getAdData() {
         return adData;
     }
 

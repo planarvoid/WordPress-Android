@@ -32,7 +32,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final AdOverlayListener listener;
     private final AdViewabilityController adViewabilityController;
 
-    private Optional<OverlayAdData> overlayData = Optional.absent();
+    private Optional<VisualAdData> overlayData = Optional.absent();
 
     private AdOverlayPresenter presenter;
     private boolean isExpanded;
@@ -107,7 +107,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         eventBus.publish(EventQueue.TRACKING, event);
     }
 
-    public void initialize(OverlayAdData data) {
+    public void initialize(VisualAdData data) {
         this.overlayData = Optional.of(data);
 
         if (isInterstitial(data)) {
@@ -118,7 +118,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         setAdNotVisible();
     }
 
-    private static boolean isInterstitial(OverlayAdData data) {
+    private static boolean isInterstitial(VisualAdData data) {
         return data instanceof InterstitialAd;
     }
 
@@ -128,7 +128,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     public void show(boolean isForeground) {
         if (overlayData.isPresent() && shouldDisplayAdOverlay(isForeground)) {
-            OverlayAdData adData = overlayData.get();
+            VisualAdData adData = overlayData.get();
             adViewabilityController.startOverlayTracking(presenter.getImageView(), adData);
             presenter.bind(adData);
             resetMetaData();

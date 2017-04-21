@@ -20,6 +20,8 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -46,11 +48,13 @@ public class AdsOperations {
     private final Scheduler scheduler;
     private final EventBus eventBus;
     private final CurrentDateProvider dateProvider;
+    private final FeatureFlags featureFlags;
 
     @Inject
     AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider, CurrentDateProvider dateProvider) {
+                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider, CurrentDateProvider dateProvider,
+                  FeatureFlags featureFlags) {
         this.playQueueManager = playQueueManager;
         this.featureOperations = featureOperations;
         this.apiClientRx = apiClientRx;
@@ -58,6 +62,7 @@ public class AdsOperations {
         this.eventBus = eventBus;
         this.kruxSegmentProvider = kruxSegmentProvider;
         this.dateProvider = dateProvider;
+        this.featureFlags = featureFlags;
     }
 
     Observable<Optional<String>> kruxSegments() {
@@ -82,6 +87,22 @@ public class AdsOperations {
                 .doOnError(onRequestFailure(requestData, endpoint, false, true))
                 .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
                 .map(adsForStream -> adsForStream.getAds(dateProvider));
+    }
+
+    Observable<AdData> prestitialAd(AdRequestData requestData) {
+        if (featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)) {
+            final String endpoint = ApiEndpoints.PRESTITIALS.path();
+            return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiPrestitialAd.class)
+                              .subscribeOn(scheduler)
+                              .doOnError(onRequestFailure(requestData, endpoint, false, true))
+                              .doOnNext(onRequestSuccess(requestData, endpoint, false, true))
+                              .flatMap(apiPrestitial -> {
+                                  final Optional<AdData> adData = apiPrestitial.toAdData();
+                                  return adData.isPresent() ? Observable.just(adData.get()) : Observable.empty();
+                              });
+        } else {
+            return Observable.empty();
+        }
     }
 
     private ApiRequest buildApiRequest(String endpoint, AdRequestData requestData) {
@@ -252,7 +273,7 @@ public class AdsOperations {
             return create(Optional.of(monetizableTrackUrn), kruxSegments);
         }
 
-        static AdRequestData forStreamAds(Optional<String> kruxSegments) {
+        static AdRequestData forPageAds(Optional<String> kruxSegments) {
             return create(Optional.absent(), kruxSegments);
         }
 
