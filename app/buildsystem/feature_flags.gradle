@@ -101,6 +101,7 @@ android {
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
     }
 
     beta {
