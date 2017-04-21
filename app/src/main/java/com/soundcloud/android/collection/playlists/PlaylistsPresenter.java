@@ -4,8 +4,14 @@ import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricParams;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.CollectionItemDecoration;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.events.CollectionEvent;
@@ -34,6 +40,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -48,6 +55,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -72,6 +80,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private final FeatureFlags featureFlags;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final EntityItemCreator entityItemCreator;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private PlaylistsOptions currentOptions;
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
@@ -86,7 +95,8 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
                               EventBus eventBus,
                               OfflinePropertiesProvider offlinePropertiesProvider,
                               FeatureFlags featureFlags,
-                              EntityItemCreator entityItemCreator) {
+                              EntityItemCreator entityItemCreator,
+                              PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, new Options.Builder()
                 .useDividers(Options.DividerMode.NONE)
                 .build());
@@ -100,6 +110,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.entityItemCreator = entityItemCreator;
+        this.performanceMetricsEngine = performanceMetricsEngine;
 
         adapter.setHasStableIds(true);
         adapter.setListener(this);
@@ -148,20 +159,32 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
     @Override
     protected CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> onBuildBinding(Bundle bundle) {
-        return buildBinding(playlists());
+        return CollectionBinding.from(setupSourceObservable(playlists()))
+                                .withAdapter(adapter)
+                                .addObserver(onNext(this::endMeasuringPlaylistsLoading))
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> onRefreshBinding() {
-        return buildBinding(updatedPlaylists());
-    }
-
-    private CollectionBinding<List<PlaylistCollectionItem>, PlaylistCollectionItem> buildBinding(Observable<List<PlaylistItem>> source) {
-        return CollectionBinding.from(source.map(this::playlistCollectionItems)
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .doOnNext(new OnCollectionLoadedAction()))
+        return CollectionBinding.from(setupSourceObservable(updatedPlaylists()))
                                 .withAdapter(adapter)
                                 .build();
+    }
+
+    @NonNull
+    private Observable<List<PlaylistCollectionItem>> setupSourceObservable(Observable<List<PlaylistItem>> source) {
+        return source.map(this::playlistCollectionItems)
+                     .observeOn(AndroidSchedulers.mainThread())
+                     .doOnNext(new OnCollectionLoadedAction());
+    }
+
+    private void endMeasuringPlaylistsLoading(Iterable<PlaylistCollectionItem> items) {
+        int itemsCount = Iterables.size(items);
+        PerformanceMetric performanceMetric = PerformanceMetric.builder().metricType(MetricType.PLAYLISTS_LOAD)
+                                                               .metricParams(MetricParams.of(MetricKey.PLAYLISTS_COUNT, itemsCount))
+                                                               .build();
+        performanceMetricsEngine.endMeasuring(performanceMetric);
     }
 
     private Observable<List<PlaylistItem>> playlists() {
@@ -232,7 +255,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private void refreshCollections() {
-        retryWith(buildBinding(playlists()));
+        retryWith(onBuildBinding(null));
     }
 
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {

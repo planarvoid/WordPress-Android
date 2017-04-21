@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.presentation.EntityItemCreator;
@@ -32,7 +33,8 @@ public class NewPlaylistsPresenter extends PlaylistsPresenter {
                                  EventBus eventBus,
                                  OfflinePropertiesProvider offlinePropertiesProvider,
                                  FeatureFlags featureFlags,
-                                 EntityItemCreator entityItemCreator) {
+                                 EntityItemCreator entityItemCreator,
+                                 PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher,
               myPlaylistsOperations,
               collectionOptionsStorage,
@@ -42,7 +44,8 @@ public class NewPlaylistsPresenter extends PlaylistsPresenter {
               eventBus,
               offlinePropertiesProvider,
               featureFlags,
-              entityItemCreator);
+              entityItemCreator,
+              performanceMetricsEngine);
 
         this.scrollHelper = scrollHelper;
         this.filterHeaderPresenter = fileHeaderPresenterFactory.create(this, R.string.search_playlists);

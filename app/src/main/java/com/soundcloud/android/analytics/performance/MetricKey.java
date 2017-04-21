@@ -17,7 +17,8 @@ public enum MetricKey {
     LOGIN_PROVIDER("login_provider"),
     HOME_SCREEN("home_screen"),
     TRACKS_COUNT("tracks_count"),
-    STATIONS_COUNT("stations_count");
+    STATIONS_COUNT("stations_count"),
+    PLAYLISTS_COUNT("playlists_count");
 
     private final String metricKey;
 

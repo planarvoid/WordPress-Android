@@ -37,13 +37,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         }
     };
 
-    private final View.OnClickListener goToPlaylistsListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            navigator.openPlaylistsCollection(v.getContext());
-        }
-    };
-
     @Inject
     public CollectionPreviewRenderer(Navigator navigator,
                                      Resources resources,
@@ -78,10 +71,15 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         navigator.openLikedStations(v.getContext());
     }
 
+    void onGoToPlayListsClick(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
+        navigator.openPlaylistsCollection(v.getContext());
+    }
+
     private void setupPlaylistsView(CollectionPreviewView playlistsView, View divider) {
         divider.setVisibility(View.VISIBLE);
         playlistsView.setVisibility(View.VISIBLE);
-        playlistsView.setOnClickListener(goToPlaylistsListener);
+        playlistsView.setOnClickListener(this::onGoToPlayListsClick);
     }
 
     private CollectionPreviewView getPlaylistsPreviewView(View view) {

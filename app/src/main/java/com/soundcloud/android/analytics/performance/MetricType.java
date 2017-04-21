@@ -21,7 +21,8 @@ public enum MetricType {
     LOAD_STATION("load_station"),
     PLAY_QUEUE_SHUFFLE("play_queue_shuffle"),
     REFRESH_HOME("refresh_home"),
-    LIKED_STATIONS_LOAD("liked_stations_load");
+    LIKED_STATIONS_LOAD("liked_stations_load"),
+    PLAYLISTS_LOAD("playlists_load");
 
     private final String metricType;
 

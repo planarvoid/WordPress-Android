@@ -8,6 +8,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricKey;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetric;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.playlists.Playlist;
@@ -15,13 +19,15 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -54,10 +60,12 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistOptionsPresenter optionsPresenter;
     @Mock private PlaylistsAdapter adapter;
     @Mock private Fragment fragment;
-    @Mock private CollapsingScrollHelper scrollHelper;
     @Mock private FilterHeaderPresenter myPlaylistHeaderPresenter;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+
+    @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private PlaylistsOptions options;
@@ -79,7 +87,8 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
                 eventBus,
                 offlinePropertiesProvider,
                 featureFlags,
-                ModelFixtures.entityItemCreator());
+                ModelFixtures.entityItemCreator(),
+                performanceMetricsEngine);
 
         when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.just(PLAYLISTS));
     }
@@ -182,5 +191,17 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
                 PlaylistCollectionHeaderItem.create(ZERO_PLAYLIST_COUNT),
                 PlaylistCollectionEmptyPlaylistItem.create()
         );
+    }
+
+    @Test
+    public void shouldEndMeasuringPlaylistLoading() {
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
+
+        Assertions.assertThat(performanceMetricArgumentCaptor.getValue())
+                  .hasMetricType(MetricType.PLAYLISTS_LOAD)
+                  .containsMetricParam(MetricKey.PLAYLISTS_COUNT, PLAYLISTS.size() + 1); //+1 for the header
     }
 }
