@@ -60,8 +60,7 @@ task checkstyleChanged(type: Checkstyle) {
   }
 }
 
-task findbugs(type: FindBugs) {
-  description 'Uses static analysis to look for bugs in Java code.'
+tasks.withType(FindBugs) {
   ignoreFailures true
   effort = 'max'
   reportLevel = 'high'
@@ -69,12 +68,32 @@ task findbugs(type: FindBugs) {
   classes = files("$project.buildDir/intermediates/classes/")
 
   source sourceSetMain
-  include includeSrcPatternApplication
-  include includeSrcPatternApi
   exclude excludeSrcPatternRClass
   exclude excludeSrcPatternGeneratedFiles
 
   classpath = files()
+
+  reports {
+    xml.enabled = true
+    xml.destination = file("$reportDir/findbugs/findbugs.xml")
+    html.enabled = false
+  }
+}
+
+task findbugs(type: FindBugs) {
+  description 'Uses static analysis to look for bugs in Java code.'
+
+  include includeSrcPatternApplication
+  include includeSrcPatternApi
+}
+
+task findbugsChanged(type: FindBugs) {
+  description 'Uses static analysis to look for bugs in changed Java code.' +
+          'The target branch to compare with can optionally be specified with build parameter \'branch\'.'
+
+  doFirst {
+    include getChangedFiles()
+  }
 }
 
 tasks.withType(Pmd) {
@@ -134,7 +153,7 @@ def getChangedFiles() {
   }
   def sourceBranch = ghprbSourceBranch ? "origin/${ghprbSourceBranch}" : ""
 
-  println "Note: Checkstyle on diff \'$sourceBranch\' to \'$targetBranch\'"
+  println "Note: diff \'$sourceBranch\' to \'$targetBranch\'"
 
   // Get list of all changed files including status
   def systemOutStream = new ByteArrayOutputStream()
