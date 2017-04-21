@@ -66,6 +66,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                          featureFlags);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
+        when(experimentOperations.getSerializedActiveVariants()).thenReturn(Optional.absent());
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(false);
     }

@@ -16,12 +16,10 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 
 public class EventLoggerJsonDataBuilder {
 
@@ -186,10 +184,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private void addExperiments(EventLoggerEventData eventData) {
-        ArrayList<Integer> activeVariants = experimentOperations.getActiveVariants();
-        if (activeVariants.size() > 0) {
-            eventData.experiment(EXPERIMENT_VARIANTS_KEY, Strings.joinOn(",").join(activeVariants));
-        }
+        experimentOperations.getSerializedActiveVariants().ifPresent(s -> eventData.experiment(EXPERIMENT_VARIANTS_KEY, s));
     }
 
     private String getAnonymousId() {

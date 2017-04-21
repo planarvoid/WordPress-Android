@@ -23,6 +23,7 @@ public enum Syncable {
     CHART_GENRES,
     SUGGESTED_CREATORS,
     NEW_FOR_YOU,
+    HOME,
 
     /**
      * Used from Operations class

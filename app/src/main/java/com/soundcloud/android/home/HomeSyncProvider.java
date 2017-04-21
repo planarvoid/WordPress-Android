@@ -1,4 +1,4 @@
-package com.soundcloud.android.discovery.newforyou;
+package com.soundcloud.android.home;
 
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
@@ -10,19 +10,19 @@ import javax.inject.Provider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class NewForYouSyncProvider extends SyncerRegistry.SyncProvider {
+public class HomeSyncProvider extends SyncerRegistry.SyncProvider {
 
-    private final Provider<NewForYouSyncer> newForYouSyncerProvider;
+    private final Provider<HomeSyncer> homeSyncerProvider;
 
     @Inject
-    NewForYouSyncProvider(Provider<NewForYouSyncer> newForYouSyncerProvider) {
-        super(Syncable.NEW_FOR_YOU);
-        this.newForYouSyncerProvider = newForYouSyncerProvider;
+    HomeSyncProvider(Provider<HomeSyncer> homeSyncerProvider) {
+        super(Syncable.HOME);
+        this.homeSyncerProvider = homeSyncerProvider;
     }
 
     @Override
     public Callable<Boolean> syncer(@Nullable String action, boolean isUiRequest) {
-        return newForYouSyncerProvider.get();
+        return homeSyncerProvider.get();
     }
 
     @Override

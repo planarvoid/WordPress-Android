@@ -68,9 +68,8 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.java.collections.Lists;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -137,6 +136,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(deviceHelper.getAppVersionCode()).thenReturn(APP_VERSION_CODE);
         when(featureOperations.getCurrentPlan()).thenReturn(CONSUMER_SUBS_PLAN);
+        when(experimentOperations.getSerializedActiveVariants()).thenReturn(Optional.absent());
     }
 
     @Test
@@ -1360,7 +1360,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void addsCurrentExperimentJsonOmitsEmptyVariants() throws ApiMapperException {
 
-        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{}));
+        when(experimentOperations.getSerializedActiveVariants()).thenReturn(Optional.absent());
 
         final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
@@ -1381,7 +1381,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void addsCurrentExperimentJsonAddsSingleVariant() throws ApiMapperException {
 
-        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(1234));
+        when(experimentOperations.getSerializedActiveVariants()).thenReturn(Optional.of("1234"));
 
         final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
@@ -1404,7 +1404,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void addsCurrentExperimentJson() throws ApiMapperException {
 
-        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(2345, 3456));
+        when(experimentOperations.getSerializedActiveVariants()).thenReturn(Optional.of("2345,3456"));
 
         final UIEvent event = UIEvent.fromShareRequest(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);

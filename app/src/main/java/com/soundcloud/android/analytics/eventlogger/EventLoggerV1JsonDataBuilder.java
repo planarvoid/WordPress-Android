@@ -21,7 +21,6 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -29,6 +28,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
@@ -38,12 +38,10 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 class EventLoggerV1JsonDataBuilder {
@@ -705,10 +703,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private void addExperiments(EventLoggerEventData eventData) {
-        ArrayList<Integer> activeVariants = experimentOperations.getActiveVariants();
-        if (activeVariants.size() > 0) {
-            eventData.experiment(EXPERIMENT_VARIANTS_KEY, Strings.joinOn(",").join(activeVariants));
-        }
+        experimentOperations.getSerializedActiveVariants().ifPresent(activeVariants -> eventData.experiment(EXPERIMENT_VARIANTS_KEY, activeVariants));
     }
 
     private String getAnonymousId() {

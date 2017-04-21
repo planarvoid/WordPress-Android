@@ -58,6 +58,9 @@ public enum ApiEndpoints {
     SUGGESTED_CREATORS("/you/suggested-creators"),
     NEW_FOR_YOU("/you/new-for-you"),
 
+    // Home card selection
+    HOME("/home/cards"),
+
     // ads + monetization
     ADS("/tracks/%s/ads"),
     INLAY_ADS("/stream/ads"),

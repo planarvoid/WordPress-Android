@@ -1,7 +1,6 @@
 package com.soundcloud.android.configuration.experiments;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.experiments.ActiveExperiments;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.groupie.ExperimentConfiguration;
@@ -66,21 +65,26 @@ public class ExperimentOperations {
         return Optional.absent();
     }
 
-    public ArrayList<Integer> getActiveVariants() {
-
-        ArrayList<Integer> activeVariants = new ArrayList<>();
-
+    /**
+     * @return active experiments separated by commas, absent if no experiments are active
+     */
+    public Optional<String> getSerializedActiveVariants() {
+        final List<Integer> activeVariants = new ArrayList<>();
         for (Layer layer : assignment.getLayers()) {
             if (isActive(layer)) {
                 activeVariants.add(layer.getVariantId());
             }
         }
-        return activeVariants;
+        if (activeVariants.isEmpty()) {
+            return Optional.absent();
+        } else {
+            return Optional.of(Strings.joinOn(",").join(activeVariants));
+        }
     }
 
     private boolean isActive(Layer layer) {
         if (!applicationProperties.isDevelopmentMode()) {
-            for (ExperimentConfiguration experiment : ActiveExperiments.ACTIVE_EXPERIMENTS) {
+            for (ExperimentConfiguration experiment : experimentStorage.getActiveExperiments()) {
                 if (matches(experiment, layer)) {
                     return true;
                 }

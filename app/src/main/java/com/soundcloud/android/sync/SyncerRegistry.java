@@ -1,7 +1,5 @@
 package com.soundcloud.android.sync;
 
-import android.support.annotation.Nullable;
-
 import com.soundcloud.android.activities.ActivitiesSyncProvider;
 import com.soundcloud.android.associations.MyFollowingsSyncProvider;
 import com.soundcloud.android.collection.playhistory.PlayHistorySyncProvider;
@@ -11,6 +9,7 @@ import com.soundcloud.android.discovery.charts.ChartsSyncProvider;
 import com.soundcloud.android.discovery.newforyou.NewForYouSyncProvider;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksSyncProvider;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
+import com.soundcloud.android.home.HomeSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
@@ -21,11 +20,12 @@ import com.soundcloud.android.sync.me.MeSyncerProvider;
 import com.soundcloud.android.sync.playlists.MyPlaylistsSyncProvider;
 import com.soundcloud.android.sync.posts.TrackPostsSyncProvider;
 
+import android.support.annotation.Nullable;
+
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import javax.inject.Inject;
 
 public class SyncerRegistry {
 
@@ -49,7 +49,8 @@ public class SyncerRegistry {
                           RecentlyPlayedSyncProvider recentlyPlayedSyncProvider,
                           SuggestedCreatorsSyncProvider suggestedCreatorsSyncProvider,
                           RecommendedPlaylistsSyncProvider recommendedPlaylistsSyncProvider,
-                          NewForYouSyncProvider newForYouSyncProvider) {
+                          NewForYouSyncProvider newForYouSyncProvider,
+                          HomeSyncProvider homeSyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(soundStreamSyncProvider);
@@ -70,6 +71,7 @@ public class SyncerRegistry {
         registerSyncer(suggestedCreatorsSyncProvider);
         registerSyncer(recommendedPlaylistsSyncProvider);
         registerSyncer(newForYouSyncProvider);
+        registerSyncer(homeSyncProvider);
     }
 
     @Nullable
