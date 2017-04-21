@@ -1,9 +1,8 @@
-package com.soundcloud.android.home;
+package com.soundcloud.android.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.home.DiscoverBackendConfiguration;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.home;
+package com.soundcloud.android.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

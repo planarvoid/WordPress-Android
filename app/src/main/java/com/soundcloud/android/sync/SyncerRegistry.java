@@ -9,7 +9,7 @@ import com.soundcloud.android.olddiscovery.charts.ChartsSyncProvider;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
-import com.soundcloud.android.home.DiscoveryCardSyncProvider;
+import com.soundcloud.android.discovery.DiscoveryCardSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;

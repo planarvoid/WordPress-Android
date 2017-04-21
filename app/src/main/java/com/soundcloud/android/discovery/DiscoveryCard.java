@@ -1,4 +1,4 @@
-package com.soundcloud.android.home;
+package com.soundcloud.android.discovery;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;

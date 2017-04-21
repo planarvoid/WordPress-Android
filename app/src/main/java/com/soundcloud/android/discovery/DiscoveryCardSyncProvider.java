@@ -1,4 +1,4 @@
-package com.soundcloud.android.home;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
