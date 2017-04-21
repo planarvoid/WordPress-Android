@@ -8,7 +8,6 @@ class DiscoveryCardMapper {
         if (apiDiscoveryCard.selectionCard().isPresent()) {
             final ApiSelectionCard apiSelectionCard = apiDiscoveryCard.selectionCard().get();
             return DiscoveryCard.SelectionCard.create(apiSelectionCard.selectionUrn(),
-                                                 apiSelectionCard.queryUrn(),
                                                  apiSelectionCard.style(),
                                                  apiSelectionCard.title(),
                                                  apiSelectionCard.description(),

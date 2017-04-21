@@ -14,8 +14,6 @@ abstract class ApiSelectionCard {
 
     abstract Urn selectionUrn();
 
-    abstract Optional<Urn> queryUrn();
-
     abstract Optional<String> style();
 
     abstract Optional<String> title();
@@ -26,13 +24,11 @@ abstract class ApiSelectionCard {
 
     @JsonCreator
     static ApiSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
-                                   @JsonProperty("query_urn") @Nullable Urn queryUrn,
                                    @JsonProperty("style") @Nullable String style,
                                    @JsonProperty("title") @Nullable String title,
                                    @JsonProperty("description") @Nullable String description,
                                    @JsonProperty("selection_playlists") @Nullable ModelCollection<ApiSelectionPlaylist> selectionPlaylists) {
         return new AutoValue_ApiSelectionCard(selectionUrn,
-                                              Optional.fromNullable(queryUrn),
                                               Optional.fromNullable(style),
                                               Optional.fromNullable(title),
                                               Optional.fromNullable(description),

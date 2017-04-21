@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Collections;
+
 @RunWith(JUnit4.class)
 public class ApiSelectionCardTest {
 
@@ -21,14 +23,12 @@ public class ApiSelectionCardTest {
     private static final String TITLE = "Playlists for Chilling";
     private static final String DESCRIPTION = "Some \uD83D\uDEC0\uD83C\uDF34\uD83C\uDF0A marketing copy goes here.";
     static final ApiSelectionCard EXPECTED_SELECTION_CARD = ApiSelectionCard.create(new Urn(SELECTION_URN),
-                                                                            new Urn(QUERY_URN),
                                                                             STYLE,
                                                                             TITLE,
                                                                             DESCRIPTION,
-                                                                            new ModelCollection<>(Lists.newArrayList(ApiSelectionPlaylistTest.EXPECTED_PLAYLIST)));
+                                                                            new ModelCollection<>(Lists.newArrayList(ApiSelectionPlaylistTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
     static final String JSON = "{\n" +
             "  \"selection_urn\": \"" + SELECTION_URN + "\",\n" +
-            "  \"query_urn\": \"" + QUERY_URN + "\",\n" +
             "  \"style\": \"" + STYLE + "\",\n" +
             "  \"title\": \"" + TITLE + "\",\n" +
             "  \"description\": \"" + DESCRIPTION + "\",\n" +
@@ -36,7 +36,8 @@ public class ApiSelectionCardTest {
             "    \"collection\": [\n" +
            ApiSelectionPlaylistTest.JSON +
             "    ],\n" +
-            "    \"_links\": {}\n" +
+            "    \"_links\": {},\n" +
+            "    \"query_urn\": \"" + QUERY_URN + "\"\n" +
             "  }\n" +
             "}";
     private final JsonTransformer jsonTransformer = new JacksonJsonTransformer();

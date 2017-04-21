@@ -16,8 +16,6 @@ abstract class DiscoveryCard {
 
     abstract Urn selectionUrn();
 
-    abstract Optional<Urn> queryUrn();
-
     abstract Optional<String> style();
 
     abstract Optional<String> title();
@@ -29,17 +27,18 @@ abstract class DiscoveryCard {
         abstract Optional<List<SelectionPlaylist>> selectionPlaylists();
 
         static SelectionCard create(Urn selectionUrn,
-                                    Optional<Urn> queryUrn,
                                     Optional<String> style,
                                     Optional<String> title,
                                     Optional<String> description,
                                     Optional<List<SelectionPlaylist>> selectionPlaylists) {
-            return new AutoValue_DiscoveryCard_SelectionCard(Kind.SELECTION_CARD, selectionUrn, queryUrn, style, title, description, selectionPlaylists);
+            return new AutoValue_DiscoveryCard_SelectionCard(Kind.SELECTION_CARD, selectionUrn, style, title, description, selectionPlaylists);
         }
     }
 
     @AutoValue
     static abstract class SingletonSelectionCard extends DiscoveryCard {
+
+        abstract Optional<Urn> queryUrn();
 
         abstract SelectionPlaylist selectionPlaylist();
 
@@ -57,10 +56,10 @@ abstract class DiscoveryCard {
                                              Optional<List<String>> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingletonSelectionCard(Kind.SINGLETON_SELECTION_CARD,
                                                                  selectionUrn,
-                                                                 queryUrn,
                                                                  style,
                                                                  title,
                                                                  description,
+                                                                 queryUrn,
                                                                  selectionPlaylist,
                                                                  socialProof,
                                                                  socialProofAvatarUrlTemplates);
