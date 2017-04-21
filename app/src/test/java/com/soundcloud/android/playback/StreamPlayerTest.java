@@ -13,13 +13,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.configuration.experiments.FlipperConfiguration;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -39,7 +40,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Mock private FlipperAdapter flipperAdapter;
     @Mock private Player.PlayerListener playerListener;
     @Mock private ConnectionHelper connectionHelper;
-    @Mock private FlipperConfiguration flipperConfiguration;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -53,7 +54,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(skippyAdapter.init()).thenReturn(true);
-        when(flipperConfiguration.isEnabled()).thenReturn(false);
     }
 
     @After
@@ -62,7 +62,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), connectionHelper, eventBus, flipperConfiguration);
+        streamPlayerWrapper = new StreamPlayer(mediaPlayerAdapter, providerOf(skippyAdapter), providerOf(flipperAdapter), connectionHelper, eventBus, featureFlags);
         streamPlayerWrapper.setListener(playerListener);
     }
 
@@ -122,7 +122,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playWithAudioAdPlaybackItemCallsDoesNotPlayOnFlipper() {
-        when(flipperConfiguration.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
 
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
         final AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(audioAd);
@@ -155,7 +155,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
     @Test
     public void playOfflineCallsPlayOfflineOnFlipperWhenFlipperEnabled() {
-        when(flipperConfiguration.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.FLIPPER)).thenReturn(true);
 
         instantiateStreamPlaya();
 
