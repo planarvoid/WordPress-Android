@@ -1,7 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.SuppressLint;

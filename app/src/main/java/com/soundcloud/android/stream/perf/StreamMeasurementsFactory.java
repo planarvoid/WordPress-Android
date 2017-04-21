@@ -1,7 +1,7 @@
 package com.soundcloud.android.stream.perf;
 
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
+import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 
 import javax.inject.Inject;
 

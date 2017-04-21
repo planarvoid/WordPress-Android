@@ -1,7 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.collection.CollectionNavigationTarget;
-import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
+import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.stream.StreamNavigationTarget;

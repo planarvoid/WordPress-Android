@@ -6,7 +6,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;

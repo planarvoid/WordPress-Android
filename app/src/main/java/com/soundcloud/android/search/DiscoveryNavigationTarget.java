@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.discovery.OldDiscoveryFragment;
+import com.soundcloud.android.olddiscovery.OldDiscoveryFragment;
 import com.soundcloud.android.main.BaseNavigationTarget;
 
 import android.support.v4.app.Fragment;

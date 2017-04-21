@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
+import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.with.With;

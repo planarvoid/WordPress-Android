@@ -4,7 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.discovery.recommendedplaylists.CarouselPlaylistItemRenderer;
+import com.soundcloud.android.olddiscovery.recommendedplaylists.CarouselPlaylistItemRenderer;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;

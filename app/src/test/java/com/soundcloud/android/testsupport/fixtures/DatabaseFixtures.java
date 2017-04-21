@@ -1,6 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import static com.soundcloud.android.discovery.charts.ChartsFixtures.createChartWithImageResources;
+import static com.soundcloud.android.olddiscovery.charts.ChartsFixtures.createChartWithImageResources;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activities.ActivityKind;
@@ -13,9 +13,9 @@ import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.ApiComment;
-import com.soundcloud.android.discovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
-import com.soundcloud.android.discovery.charts.Chart;
-import com.soundcloud.android.discovery.charts.ChartBucketType;
+import com.soundcloud.android.olddiscovery.recommendedplaylists.ApiRecommendedPlaylistBucket;
+import com.soundcloud.android.olddiscovery.charts.Chart;
+import com.soundcloud.android.olddiscovery.charts.ChartBucketType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;

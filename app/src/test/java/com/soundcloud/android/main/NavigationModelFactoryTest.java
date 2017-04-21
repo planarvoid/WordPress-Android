@@ -3,7 +3,7 @@ package com.soundcloud.android.main;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.DefaultHomeScreenConfiguration;
+import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

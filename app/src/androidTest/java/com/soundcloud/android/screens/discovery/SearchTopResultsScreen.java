@@ -1,8 +1,8 @@
 package com.soundcloud.android.screens.discovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.discovery.SearchPresenter;
+import com.soundcloud.android.olddiscovery.SearchActivity;
+import com.soundcloud.android.olddiscovery.SearchPresenter;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;

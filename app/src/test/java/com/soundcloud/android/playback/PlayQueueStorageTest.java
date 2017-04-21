@@ -26,7 +26,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.discovery.charts.Chart;
+import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackQueueItem.Builder;
 import com.soundcloud.android.stations.ApiStation;

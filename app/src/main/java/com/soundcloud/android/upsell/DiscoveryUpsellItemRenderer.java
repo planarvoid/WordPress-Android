@@ -3,7 +3,7 @@ package com.soundcloud.android.upsell;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 
 import android.content.Context;
 import android.view.LayoutInflater;

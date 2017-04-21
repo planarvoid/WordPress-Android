@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.discovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayableViewItem;

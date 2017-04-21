@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 

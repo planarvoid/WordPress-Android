@@ -6,7 +6,7 @@ import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.discovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;

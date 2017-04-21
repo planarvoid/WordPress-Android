@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.discovery.recommendations.QuerySourceInfo;
+import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;

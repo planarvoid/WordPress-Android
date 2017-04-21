@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.OldDiscoveryItem;
+import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
