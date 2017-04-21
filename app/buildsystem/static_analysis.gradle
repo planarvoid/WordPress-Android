@@ -77,20 +77,34 @@ task findbugs(type: FindBugs) {
   classpath = files()
 }
 
-task pmd(type: Pmd) {
-  description 'Finds common programming flaws throw static analysis of code.'
+tasks.withType(Pmd) {
   ignoreFailures true
   ruleSetFiles = files("${staticAnalysisDirPath}/pmd.xml")
 
   source sourceSetMain
-  include includeSrcPatternApplication
-  include includeSrcPatternApi
   exclude excludeSrcPatternRClass
   exclude excludeSrcPatternGeneratedFiles
 
   reports {
     xml.enabled = true
     html.enabled = false
+  }
+}
+
+
+task pmd(type: Pmd) {
+  description 'Finds common programming flaws through static analysis of code.'
+
+  include includeSrcPatternApplication
+  include includeSrcPatternApi
+}
+
+task pmdChanged(type: Pmd) {
+  description 'Finds common programming flaws through static analysis of changed code.' +
+          'The target branch to compare with can optionally be specified with build parameter \'branch\'.'
+
+  doFirst {
+    include getChangedFiles()
   }
 }
 
