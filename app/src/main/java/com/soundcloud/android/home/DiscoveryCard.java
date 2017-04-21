@@ -6,7 +6,7 @@ import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
-abstract class HomeCard {
+abstract class DiscoveryCard {
     enum Kind {
         SELECTION_CARD,
         SINGLETON_SELECTION_CARD
@@ -25,7 +25,7 @@ abstract class HomeCard {
     abstract Optional<String> description();
 
     @AutoValue
-    static abstract class SelectionCard extends HomeCard {
+    static abstract class SelectionCard extends DiscoveryCard {
         abstract Optional<List<SelectionPlaylist>> selectionPlaylists();
 
         static SelectionCard create(Urn selectionUrn,
@@ -34,12 +34,12 @@ abstract class HomeCard {
                                     Optional<String> title,
                                     Optional<String> description,
                                     Optional<List<SelectionPlaylist>> selectionPlaylists) {
-            return new AutoValue_HomeCard_SelectionCard(Kind.SELECTION_CARD, selectionUrn, queryUrn, style, title, description, selectionPlaylists);
+            return new AutoValue_DiscoveryCard_SelectionCard(Kind.SELECTION_CARD, selectionUrn, queryUrn, style, title, description, selectionPlaylists);
         }
     }
 
     @AutoValue
-    static abstract class SingletonSelectionCard extends HomeCard {
+    static abstract class SingletonSelectionCard extends DiscoveryCard {
 
         abstract SelectionPlaylist selectionPlaylist();
 
@@ -55,7 +55,7 @@ abstract class HomeCard {
                                              SelectionPlaylist selectionPlaylist,
                                              Optional<String> socialProof,
                                              Optional<List<String>> socialProofAvatarUrlTemplates) {
-            return new AutoValue_HomeCard_SingletonSelectionCard(Kind.SINGLETON_SELECTION_CARD,
+            return new AutoValue_DiscoveryCard_SingletonSelectionCard(Kind.SINGLETON_SELECTION_CARD,
                                                                  selectionUrn,
                                                                  queryUrn,
                                                                  style,

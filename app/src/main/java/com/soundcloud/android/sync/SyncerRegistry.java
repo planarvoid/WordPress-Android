@@ -9,7 +9,7 @@ import com.soundcloud.android.discovery.charts.ChartsSyncProvider;
 import com.soundcloud.android.discovery.newforyou.NewForYouSyncProvider;
 import com.soundcloud.android.discovery.recommendations.RecommendedTracksSyncProvider;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
-import com.soundcloud.android.home.HomeSyncProvider;
+import com.soundcloud.android.home.DiscoveryCardSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
@@ -50,7 +50,7 @@ public class SyncerRegistry {
                           SuggestedCreatorsSyncProvider suggestedCreatorsSyncProvider,
                           RecommendedPlaylistsSyncProvider recommendedPlaylistsSyncProvider,
                           NewForYouSyncProvider newForYouSyncProvider,
-                          HomeSyncProvider homeSyncProvider) {
+                          DiscoveryCardSyncProvider discoveryCardSyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(soundStreamSyncProvider);
@@ -71,7 +71,7 @@ public class SyncerRegistry {
         registerSyncer(suggestedCreatorsSyncProvider);
         registerSyncer(recommendedPlaylistsSyncProvider);
         registerSyncer(newForYouSyncProvider);
-        registerSyncer(homeSyncProvider);
+        registerSyncer(discoveryCardSyncProvider);
     }
 
     @Nullable

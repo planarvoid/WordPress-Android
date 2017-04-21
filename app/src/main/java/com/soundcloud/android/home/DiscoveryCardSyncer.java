@@ -11,33 +11,33 @@ import com.soundcloud.java.reflect.TypeToken;
 import javax.inject.Inject;
 import java.util.concurrent.Callable;
 
-class HomeSyncer implements Callable<Boolean> {
+class DiscoveryCardSyncer implements Callable<Boolean> {
 
     private static final String PARAM_LOCALE = "locale";
     private static final String PARAM_EXPERIMENT = "experiment_variant";
     private final LocaleFormatter localeFormatter;
     private final ExperimentOperations experimentOperations;
     private final ApiClient apiClient;
-    private final HomeStorage homeStorage;
+    private final DiscoveryStorage discoveryStorage;
 
     @Inject
-    HomeSyncer(ApiClient apiClient,
-                      HomeStorage homeStorage,
-                      LocaleFormatter localeFormatter,
-                      ExperimentOperations experimentOperations) {
+    DiscoveryCardSyncer(ApiClient apiClient,
+                        DiscoveryStorage discoveryStorage,
+                        LocaleFormatter localeFormatter,
+                        ExperimentOperations experimentOperations) {
         this.apiClient = apiClient;
-        this.homeStorage = homeStorage;
+        this.discoveryStorage = discoveryStorage;
         this.localeFormatter = localeFormatter;
         this.experimentOperations = experimentOperations;
     }
 
     @Override
     public Boolean call() throws Exception {
-        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.HOME.path());
+        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.DISCOVERY_CARDS.path());
         localeFormatter.getLocale().ifPresent(locale -> builder.addQueryParam(PARAM_LOCALE, locale));
         experimentOperations.getSerializedActiveVariants().ifPresent(activeVariants -> builder.addQueryParam(PARAM_EXPERIMENT, activeVariants));
         final ApiRequest apiRequest = builder.forPrivateApi().build();
-        final ModelCollection<ApiHomeCard> apiHome = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiHomeCard>>() {});
-        return homeStorage.store(apiHome);
+        final ModelCollection<ApiDiscoveryCard> apiDiscoveryCards = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiDiscoveryCard>>() {});
+        return discoveryStorage.store(apiDiscoveryCards);
     }
 }

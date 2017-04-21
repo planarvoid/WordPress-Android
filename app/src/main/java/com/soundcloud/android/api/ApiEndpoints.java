@@ -59,7 +59,7 @@ public enum ApiEndpoints {
     NEW_FOR_YOU("/you/new-for-you"),
 
     // Home card selection
-    HOME("/home/cards"),
+    DISCOVERY_CARDS("/discovery/cards"),
 
     // ads + monetization
     ADS("/tracks/%s/ads"),

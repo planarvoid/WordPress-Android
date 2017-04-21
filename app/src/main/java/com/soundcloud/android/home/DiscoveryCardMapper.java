@@ -2,20 +2,20 @@ package com.soundcloud.android.home;
 
 import com.soundcloud.java.collections.Lists;
 
-class HomeMapper {
+class DiscoveryCardMapper {
 
-    static HomeCard map(ApiHomeCard apiHomeCard) {
-        if (apiHomeCard.selectionCard().isPresent()) {
-            final ApiSelectionCard apiSelectionCard = apiHomeCard.selectionCard().get();
-            return HomeCard.SelectionCard.create(apiSelectionCard.selectionUrn(),
+    static DiscoveryCard map(ApiDiscoveryCard apiDiscoveryCard) {
+        if (apiDiscoveryCard.selectionCard().isPresent()) {
+            final ApiSelectionCard apiSelectionCard = apiDiscoveryCard.selectionCard().get();
+            return DiscoveryCard.SelectionCard.create(apiSelectionCard.selectionUrn(),
                                                  apiSelectionCard.queryUrn(),
                                                  apiSelectionCard.style(),
                                                  apiSelectionCard.title(),
                                                  apiSelectionCard.description(),
-                                                 apiSelectionCard.selectionPlaylists().transform(apiSelectionPlaylists -> Lists.transform(apiSelectionPlaylists.getCollection(), HomeMapper::map)));
-        } else if (apiHomeCard.singletonSelectionCard().isPresent()) {
-            final ApiSingletonSelectionCard apiSingletonSelectionCard = apiHomeCard.singletonSelectionCard().get();
-            return HomeCard.SingletonSelectionCard.create(apiSingletonSelectionCard.selectionUrn(),
+                                                 apiSelectionCard.selectionPlaylists().transform(apiSelectionPlaylists -> Lists.transform(apiSelectionPlaylists.getCollection(), DiscoveryCardMapper::map)));
+        } else if (apiDiscoveryCard.singletonSelectionCard().isPresent()) {
+            final ApiSingletonSelectionCard apiSingletonSelectionCard = apiDiscoveryCard.singletonSelectionCard().get();
+            return DiscoveryCard.SingletonSelectionCard.create(apiSingletonSelectionCard.selectionUrn(),
                                                           apiSingletonSelectionCard.queryUrn(),
                                                           apiSingletonSelectionCard.style(),
                                                           apiSingletonSelectionCard.title(),

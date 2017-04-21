@@ -10,13 +10,13 @@ import javax.inject.Provider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class HomeSyncProvider extends SyncerRegistry.SyncProvider {
+public class DiscoveryCardSyncProvider extends SyncerRegistry.SyncProvider {
 
-    private final Provider<HomeSyncer> homeSyncerProvider;
+    private final Provider<DiscoveryCardSyncer> homeSyncerProvider;
 
     @Inject
-    HomeSyncProvider(Provider<HomeSyncer> homeSyncerProvider) {
-        super(Syncable.HOME);
+    DiscoveryCardSyncProvider(Provider<DiscoveryCardSyncer> homeSyncerProvider) {
+        super(Syncable.DISCOVERY_CARDS);
         this.homeSyncerProvider = homeSyncerProvider;
     }
 
