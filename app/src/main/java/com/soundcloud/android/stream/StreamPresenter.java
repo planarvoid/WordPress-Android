@@ -35,8 +35,6 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
-import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.stream.perf.StreamMeasurements;
@@ -73,7 +71,6 @@ import java.util.List;
 
 class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
-        StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
         AdItemRenderer.Listener,
@@ -93,7 +90,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final FollowingOperations followingOperations;
     private final StreamMeasurements streamMeasurements;
-    private final StationsOperations stationsOperations;
     private final Navigator navigator;
     private final NewItemsIndicator newItemsIndicator;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
@@ -106,7 +102,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Inject
     StreamPresenter(StreamOperations streamOperations,
                     StreamAdapter adapter,
-                    StationsOperations stationsOperations,
                     ImagePauseOnScrollListener imagePauseOnScrollListener,
                     StreamAdsController streamAdsController,
                     StreamDepthPublisherFactory streamDepthPublisherFactory,
@@ -125,7 +120,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
               newItemsIndicator, streamOperations, adapter);
         this.streamOperations = streamOperations;
         this.adapter = adapter;
-        this.stationsOperations = stationsOperations;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.streamAdsController = streamAdsController;
         this.streamDepthPublisherFactory = streamDepthPublisherFactory;
@@ -142,7 +136,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.streamMeasurements = streamMeasurementsFactory.create();
         adapter.setOnFacebookInvitesClickListener(this);
         adapter.setOnFacebookCreatorInvitesClickListener(this);
-        adapter.setOnStationsOnboardingStreamClickListener(this);
         adapter.setOnUpsellClickListener(this);
         adapter.setOnAppInstallClickListener(this);
         adapter.setOnVideoAdClickListener(this);
@@ -336,12 +329,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
             trackInvitesEvent(forCreatorDismiss());
             removeItem(position);
         }
-    }
-
-    @Override
-    public void onStationOnboardingItemClosed(int position) {
-        stationsOperations.disableOnboardingStreamItem();
-        removeItem(position);
     }
 
     @Override

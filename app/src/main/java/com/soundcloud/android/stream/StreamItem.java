@@ -20,7 +20,6 @@ public abstract class StreamItem {
         TRACK,
         PLAYLIST,
         FACEBOOK_LISTENER_INVITES,
-        STATIONS_ONBOARDING,
         FACEBOOK_CREATORS,
         STREAM_UPSELL,
         SUGGESTED_CREATORS,
@@ -47,10 +46,6 @@ public abstract class StreamItem {
 
     public static FacebookListenerInvites forFacebookListenerInvites(final List<String> friendPictureUrls) {
         return FacebookListenerInvites.create(Optional.of(friendPictureUrls));
-    }
-
-    public static StreamItem forStationOnboarding() {
-        return new AutoValue_StreamItem_Default(Kind.STATIONS_ONBOARDING);
     }
 
     public static StreamItem forAppInstall(AppInstallAd ad) {

@@ -500,16 +500,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Stations</string>
   <string name="liked_stations_empty_view_message">Vous n\'avez aimé aucune station pour l\'instant</string>
-  <string name="liked_stations_onboarding_dialog_title">Nous avons ajouté la possibilité d\'aimer des stations</string>
-  <string name="liked_stations_onboarding_dialog_message">Vous pouvez désormais \"ne plus aimer\" des stations pour les supprimer de votre collection.</string>
-  <string name="liked_stations_onboarding_dialog_button">J\'ai compris</string>
   <string name="stations_start_track_station">Démarrer la station</string>
   <string name="stations_start_user_station">Lancer la station</string>
   <string name="stations_open_station">Station</string>
   <string name="stations_unable_to_start_station">Nous ne parvenons pas à démarrer cette station. Réessayez dans quelques minutes.</string>
   <string name="stations_loading_station">Chargement de la station. Veuillez patienter.</string>
-  <string name="stations_onboarding_stream_title">Pour écouter une série de titres similaires, démarrez une station.</string>
-  <string name="stations_onboarding_stream_description">Appuyez sur les trois points à côté d\'un titre pour commencer.</string>
   <string name="stations_collection_title_station_page">Station</string>
   <string name="stations_tracks_in_this_station">Titres de cette station</string>
   <string name="stations_see_all_tracks">Voir tous les titres</string>

@@ -495,16 +495,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Zenders</string>
   <string name="liked_stations_empty_view_message">Je hebt nog geen zenders geliket</string>
-  <string name="liked_stations_onboarding_dialog_title">We hebben het liken van zenders geïntroduceerd</string>
-  <string name="liked_stations_onboarding_dialog_message">Nu kun je zenders unliken om ze uit je collectie te verwijderen.</string>
-  <string name="liked_stations_onboarding_dialog_button">Begrepen</string>
   <string name="stations_start_track_station">Trackzender starten</string>
   <string name="stations_start_user_station">Zender starten</string>
   <string name="stations_open_station">Zender</string>
   <string name="stations_unable_to_start_station">We kunnen deze zender niet starten. Probeer het over enkele minuten opnieuw.</string>
   <string name="stations_loading_station">Zender laden... Een ogenblik geduld.</string>
-  <string name="stations_onboarding_stream_title">Start een zender om een reeks soortgelijke tracks te horen, net als op de radio.</string>
-  <string name="stations_onboarding_stream_description">Tik gewoon op de drie puntjes naast een track om aan de slag te gaan.</string>
   <string name="stations_collection_title_station_page">Zender</string>
   <string name="stations_tracks_in_this_station">Tracks op deze zender</string>
   <string name="stations_see_all_tracks">Alle tracks weergeven</string>

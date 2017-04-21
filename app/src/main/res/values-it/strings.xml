@@ -495,16 +495,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Stazioni</string>
   <string name="liked_stations_empty_view_message">Non hai ancora messo Mi piace a nessuna stazione</string>
-  <string name="liked_stations_onboarding_dialog_title">Abbiamo introdotto la funzione Mi piace per le stazioni</string>
-  <string name="liked_stations_onboarding_dialog_message">Ora puoi rimuovere il Mi piace dalle stazioni per eliminarle dalla tua libreria.</string>
-  <string name="liked_stations_onboarding_dialog_button">Ho capito</string>
   <string name="stations_start_track_station">Avvia stazione traccia</string>
   <string name="stations_start_user_station">Avvia stazione</string>
   <string name="stations_open_station">Stazione</string>
   <string name="stations_unable_to_start_station">Non è stato possibile avviare la stazione. Riprovare più tardi.</string>
   <string name="stations_loading_station">Stazione in caricamento. Resta sintonizzato.</string>
-  <string name="stations_onboarding_stream_title">Avvia una stazione per ascoltare una serie di tracce simili, come alla radio.</string>
-  <string name="stations_onboarding_stream_description">Tocca i tre punti accanto a qualsiasi traccia per iniziare.</string>
   <string name="stations_collection_title_station_page">Stazione</string>
   <string name="stations_tracks_in_this_station">Tracce in questa stazione</string>
   <string name="stations_see_all_tracks">Visualizza tutte le tracce</string>

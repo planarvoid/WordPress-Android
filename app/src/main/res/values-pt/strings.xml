@@ -495,16 +495,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Estações</string>
   <string name="liked_stations_empty_view_message">Você ainda não curtiu nenhuma estação</string>
-  <string name="liked_stations_onboarding_dialog_title">Agora você poderá curtir as estações</string>
-  <string name="liked_stations_onboarding_dialog_message">Agora você pode descurtir as estações para removê-las de sua Coleção.</string>
-  <string name="liked_stations_onboarding_dialog_button">Consegui</string>
   <string name="stations_start_track_station">Iniciar estação de faixa</string>
   <string name="stations_start_user_station">Iniciar estação</string>
   <string name="stations_open_station">Estação</string>
   <string name="stations_unable_to_start_station">Não conseguimos iniciar esta estação. Tente novamente em alguns minutos.</string>
   <string name="stations_loading_station">Carregando estação. Fique ligado.</string>
-  <string name="stations_onboarding_stream_title">Inicie uma estação para ouvir uma série de faixas semelhantes. É como se fosse rádio.</string>
-  <string name="stations_onboarding_stream_description">Basta tocar nos três pontos perto de qualquer faixa para começar.</string>
   <string name="stations_collection_title_station_page">Estação</string>
   <string name="stations_tracks_in_this_station">Faixas nesta estação</string>
   <string name="stations_see_all_tracks">Ver todas as faixas</string>

@@ -495,16 +495,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Emisoras</string>
   <string name="liked_stations_empty_view_message">Todavía no te ha gustado ninguna emisora</string>
-  <string name="liked_stations_onboarding_dialog_title">Guarda las emisoras que te gustan</string>
-  <string name="liked_stations_onboarding_dialog_message">Ahora puedes indicar que ya no te gusta una emisora para eliminarla de tu colección.</string>
-  <string name="liked_stations_onboarding_dialog_button">Entendido</string>
   <string name="stations_start_track_station">Iniciar emisora de pista</string>
   <string name="stations_start_user_station">Iniciar emisora</string>
   <string name="stations_open_station">Emisora</string>
   <string name="stations_unable_to_start_station">No podemos iniciar esta emisora. Inténtalo de nuevo dentro de unos minutos.</string>
   <string name="stations_loading_station">Cargando emisora. Permanece atento.</string>
-  <string name="stations_onboarding_stream_title">Inicia una emisora para escuchar una serie de pistas similares. Como en la radio.</string>
-  <string name="stations_onboarding_stream_description">Toca los puntos suspensivos que hay al lado de cualquier pista para empezar.</string>
   <string name="stations_collection_title_station_page">Emisora</string>
   <string name="stations_tracks_in_this_station">Pistas en esta emisora</string>
   <string name="stations_see_all_tracks">Ver todas las pistas</string>

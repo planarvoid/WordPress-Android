@@ -45,7 +45,6 @@ import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.perf.StreamMeasurements;
 import com.soundcloud.android.stream.perf.StreamMeasurementsFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -105,7 +104,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener itemClickListener;
     @Mock private Navigator navigator;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
-    @Mock private StationsOperations stationsOperations;
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
     @Mock private FollowingOperations followingOperations;
@@ -137,7 +135,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter = new StreamPresenter(
                 streamOperations,
                 adapter,
-                stationsOperations,
                 imagePauseOnScrollListener,
                 streamAdsController,
                 streamDepthPublisherFactory,
@@ -336,13 +333,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
         verify(facebookInvitesDialogPresenter, never()).showForListeners(fragmentRule.getActivity());
-    }
-
-    @Test
-    public void onStationOnboardingItemClosedDisableOnboarding() {
-        presenter.onStationOnboardingItemClosed(0);
-
-        verify(stationsOperations).disableOnboardingStreamItem();
     }
 
     @Test

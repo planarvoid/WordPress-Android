@@ -124,7 +124,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         return suggestedCreatorsOperations.suggestedCreators()
                                           .switchIfEmpty(facebookInvites.creatorInvites())
                                           .switchIfEmpty(facebookInvites.listenerInvites())
-                                          .switchIfEmpty(stationsOperations.onboardingStreamItem())
                                           .map(Optional::of)
                                           .switchIfEmpty(Observable.just(Optional.absent()));
     }

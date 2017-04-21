@@ -2,7 +2,6 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.stream.StreamItem.forFacebookCreatorInvites;
 import static com.soundcloud.android.stream.StreamItem.forFacebookListenerInvites;
-import static com.soundcloud.android.stream.StreamItem.forStationOnboarding;
 import static com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithChange;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -84,7 +83,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(just(Collections.emptyList()));
         when(facebookInvitesOperations.creatorInvites()).thenReturn(empty());
         when(facebookInvitesOperations.listenerInvites()).thenReturn(empty());
-        when(stationsOperations.onboardingStreamItem()).thenReturn(empty());
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(empty());
         when(streamHighlightsOperations.highlights()).thenReturn(empty());
         when(streamEntityToItemTransformer.call(eq(emptyList()))).thenReturn(Observable.just(emptyList()));
@@ -160,7 +158,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         initSuggestedCreatorsItem();
         initFacebookCreatorsItem();
         initFacebookListenersItem();
-        initOnboardingStationsItem();
 
         assertInitialStreamFirstItemKind(Kind.SUGGESTED_CREATORS);
     }
@@ -272,47 +269,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
 
         assertInitialStreamFirstItemKind(Kind.FACEBOOK_LISTENER_INVITES);
-    }
-
-    @Test
-    public void showStationsOnboardingAsFirstItem() {
-        final List<StreamEntity> items = createItems(PAGE_SIZE, 123L);
-        initWithStorageModel(items);
-        initOnboardingStationsItem();
-
-        assertInitialStreamFirstItemKind(Kind.STATIONS_ONBOARDING);
-    }
-
-    @Test
-    public void shouldNotShowStationsOnboardingOnEmptyStream() {
-        initOnboardingStationsItem();
-        when(streamStorage.timelineItems(PAGE_SIZE))
-                .thenReturn(Observable.empty())
-                .thenReturn(Observable.empty());
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
-
-        assertInitialStreamEmpty();
-    }
-
-    @Test
-    public void shouldNotShowStationsOnboardingOnPromotedOnlyStream() {
-        initOnboardingStationsItem();
-        initWithTrack();
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
-
-        assertInitialStreamEmpty();
-    }
-
-    @Test
-    public void shouldShowStationsOnboardingAbovePromotedItems() {
-        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
-        itemsWithPromoted.add(0, promotedStreamTrack);
-
-        initOnboardingStationsItem();
-        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted);
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(just(successWithChange()));
-
-        assertInitialStreamFirstItemKind(Kind.STATIONS_ONBOARDING);
     }
 
     @Test
@@ -528,10 +484,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     private void initFacebookCreatorsItem() {
         final StreamItem streamItem = forFacebookCreatorInvites(Urn.forTrack(1L), "url123");
         when(facebookInvitesOperations.creatorInvites()).thenReturn(just(streamItem));
-    }
-
-    private void initOnboardingStationsItem() {
-        when(stationsOperations.onboardingStreamItem()).thenReturn(just(forStationOnboarding()));
     }
 
     private StreamEntity fromPromotedTrackItem(Date createdAt, TrackItem promotedTrackItem) {

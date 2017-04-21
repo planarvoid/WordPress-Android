@@ -495,16 +495,11 @@
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Sender</string>
   <string name="liked_stations_empty_view_message">Du hast noch keinen Sender mit „Gefällt mir“ markiert</string>
-  <string name="liked_stations_onboarding_dialog_title">Jetzt neu: Markiere Sender mit „Gefällt mir“</string>
-  <string name="liked_stations_onboarding_dialog_message">Du kannst Sender jetzt mit „Gefällt mir nicht mehr“ markieren, um sie aus deiner Sammlung zu entfernen.</string>
-  <string name="liked_stations_onboarding_dialog_button">Verstanden</string>
   <string name="stations_start_track_station">Track-Sender einschalten</string>
   <string name="stations_start_user_station">Sender einschalten</string>
   <string name="stations_open_station">Sender</string>
   <string name="stations_unable_to_start_station">Der Sender kann nicht eingeschaltet werden. Versuche es später noch einmal.</string>
   <string name="stations_loading_station">Sender wird geladen. Hab ein wenig Geduld.</string>
-  <string name="stations_onboarding_stream_title">Schalte einen Sender ein, um dir ähnliche Tracks anzuhören. So wie im Radio.</string>
-  <string name="stations_onboarding_stream_description">Tippe dazu einfach auf die drei Punkte neben dem jeweiligen Track.</string>
   <string name="stations_collection_title_station_page">Sender</string>
   <string name="stations_tracks_in_this_station">Tracks dieses Senders</string>
   <string name="stations_see_all_tracks">Alle Tracks anzeigen</string>

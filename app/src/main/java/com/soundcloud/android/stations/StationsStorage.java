@@ -44,8 +44,6 @@ import java.util.concurrent.TimeUnit;
 class StationsStorage {
 
     private static final String STATION_LIKE = "STATION_LIKE";
-    private static final String ONBOARDING_LIKED_STATIONS_DISABLED = "ONBOARDING_LIKED_STATIONS_DISABLED";
-    private static final String ONBOARDING_STREAM_ITEM_DISABLED = "ONBOARDING_STREAM_ITEM_DISABLED";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
 
     void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
@@ -295,22 +293,6 @@ class StationsStorage {
             ));
         }
         return builder.build();
-    }
-
-    boolean isOnboardingStreamItemDisabled() {
-        return sharedPreferences.getBoolean(ONBOARDING_STREAM_ITEM_DISABLED, false);
-    }
-
-    void disableOnboardingStreamItem() {
-        sharedPreferences.edit().putBoolean(ONBOARDING_STREAM_ITEM_DISABLED, true).apply();
-    }
-
-    boolean isOnboardingForLikedStationsDisabled() {
-        return sharedPreferences.getBoolean(ONBOARDING_LIKED_STATIONS_DISABLED, false);
-    }
-
-    void disableLikedStationsOnboarding() {
-        sharedPreferences.edit().putBoolean(ONBOARDING_LIKED_STATIONS_DISABLED, true).apply();
     }
 
     private final class StationTrackUrnMapper extends RxResultMapper<Urn> {

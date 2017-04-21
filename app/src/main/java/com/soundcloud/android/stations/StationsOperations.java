@@ -3,7 +3,6 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
 import static com.soundcloud.android.events.UrnStateChangedEvent.fromStationsUpdated;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
-import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -11,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -193,27 +191,5 @@ public class StationsOperations {
 
     public void clearData() {
         stationsStorage.clear();
-    }
-
-    public Observable<StreamItem> onboardingStreamItem() {
-        return shouldShowOnboardingStreamItem()
-                .filter(IS_TRUE)
-                .flatMap(o -> Observable.just(StreamItem.forStationOnboarding()));
-    }
-
-    private Observable<Boolean> shouldShowOnboardingStreamItem() {
-        return Observable.fromCallable(() -> !stationsStorage.isOnboardingStreamItemDisabled());
-    }
-
-    public void disableOnboardingStreamItem() {
-        stationsStorage.disableOnboardingStreamItem();
-    }
-
-    boolean shouldShowLikedStationsOnboarding() {
-        return !stationsStorage.isOnboardingForLikedStationsDisabled();
-    }
-
-    void disableLikedStationsOnboarding() {
-        stationsStorage.disableLikedStationsOnboarding();
     }
 }
