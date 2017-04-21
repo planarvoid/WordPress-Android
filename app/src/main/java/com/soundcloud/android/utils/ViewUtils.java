@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.soundcloud.java.collections.Pair;
+import com.soundcloud.java.functions.Consumer;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -174,20 +175,20 @@ public final class ViewUtils {
     }
 
     public static void setGone(Iterable<View> views) {
-        for (View v : views) {
-            v.clearAnimation();
-            v.setVisibility(View.GONE);
-        }
+        forEach(views, view -> {
+            view.clearAnimation();
+            view.setVisibility(View.GONE);
+        });
     }
 
     public static void setVisible(Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(View.VISIBLE);
-            v.setAlpha(1f);
-        }
+        forEach(views, view -> {
+            view.setVisibility(View.VISIBLE);
+            view.setAlpha(1f);
+        });
     }
 
-    public static float getRangeBasedAlpha(int verticalOffset, float fullRange, Pair<Float,Float> bounds) {
+    public static float getRangeBasedAlpha(int verticalOffset, float fullRange, Pair<Float, Float> bounds) {
         final float currentPosition = (fullRange + verticalOffset);
         final float startPosition = (bounds.first() * fullRange);
         final float range = (bounds.second() - bounds.first()) * fullRange;
@@ -196,7 +197,12 @@ public final class ViewUtils {
                                        Math.min(endPosition, Math.max(currentPosition, startPosition)) :
                                        Math.max(endPosition, Math.min(currentPosition, startPosition));
         return 1 - Math.abs(adjustedPosition - startPosition) / Math.abs(range);
+    }
 
+    public static void forEach(Iterable<View> views, Consumer<View> consumer) {
+        for (View view : views) {
+            consumer.accept(view);
+        }
     }
 
     private ViewUtils() {

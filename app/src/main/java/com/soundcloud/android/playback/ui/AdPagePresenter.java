@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.utils.ViewUtils.forEach;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -95,34 +97,26 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     }
 
     void setClickListener(View.OnClickListener listener, Iterable<View> views) {
-        for (View v : views) {
-            v.setOnClickListener(listener);
-        }
+        forEach(views, view -> view.setOnClickListener(listener));
     }
 
     void setEnabled(boolean enabled, Iterable<View> views) {
-        for (View v : views) {
-            v.setEnabled(enabled);
-        }
+        forEach(views, v -> v.setEnabled(enabled));
     }
 
     void setVisibility(boolean visible, Iterable<View> views) {
-        for (View v : views) {
-            v.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
-        }
+        forEach(views, v -> v.setVisibility(visible ? View.VISIBLE : View.INVISIBLE));
     }
 
     void setAnimation(Iterable<View> views, Animation animation) {
-        for (View v : views) {
-            v.startAnimation(animation);
-            v.setVisibility(View.INVISIBLE);
-        }
+        forEach(views, view -> {
+            view.startAnimation(animation);
+            view.setVisibility(View.INVISIBLE);
+        });
     }
 
     void clearAnimation(Iterable<View> views) {
-        for (View v : views) {
-            v.clearAnimation();
-        }
+        forEach(views, View::clearAnimation);
     }
 
     private ColorStateList getColorStates(int focusedColor, int pressedColor, int defaultColor) {

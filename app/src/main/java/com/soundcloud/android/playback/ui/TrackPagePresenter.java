@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.utils.ViewUtils.forEach;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.R;
@@ -603,9 +604,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     private void setClickListener(View.OnClickListener listener, Iterable<View> views) {
-        for (View v : views) {
-            v.setOnClickListener(listener);
-        }
+        forEach(views, v -> v.setOnClickListener(listener));
     }
 
     private boolean isLiked(View toggleLike) {

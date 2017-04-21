@@ -1,11 +1,14 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.utils.ViewUtils.forEach;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.AspectRatioTextureView;
 import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.optional.Optional;
@@ -115,11 +118,5 @@ class FullScreenVideoView {
             view.clearAnimation();
             view.setVisibility(View.VISIBLE);
         });
-    }
-
-    private void forEach(Iterable<View> views, Consumer<View> consumer) {
-        for (View v: views) {
-            consumer.accept(v);
-        }
     }
 }

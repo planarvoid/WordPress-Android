@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback.ui;
 
-import android.util.Pair;
-import android.view.View;
+import static com.soundcloud.android.utils.ViewUtils.forEach;
 
 import com.soundcloud.android.cast.CastPlayerStripController;
+
+import android.util.Pair;
+import android.view.View;
 
 class SlideAnimationHelper {
 
@@ -37,15 +39,15 @@ class SlideAnimationHelper {
                                          PlayerOverlayController... overlayControllers) {
         for (PlayerOverlayController overlayController : overlayControllers) {
             overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset,
-                    SLIDE_TRANSITION_BOUNDS_ARTWORK));
+                                                                        SLIDE_TRANSITION_BOUNDS_ARTWORK));
         }
         setAlpha(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
     }
 
     private void setAlpha(float alpha, Iterable<View> fullscreenViews) {
-        for (View v : fullscreenViews) {
+        forEach(fullscreenViews, v -> {
             setAlpha(alpha, v);
-        }
+        });
     }
 
     private void setAlpha(float alpha, View view) {
@@ -54,13 +56,13 @@ class SlideAnimationHelper {
     }
 
     private void setVisibility(boolean shouldHide, Iterable<View> fullyHideOnCollapseViews) {
-        for (View v : fullyHideOnCollapseViews) {
+        forEach(fullyHideOnCollapseViews, v -> {
             if (shouldHide) {
                 v.setVisibility(View.INVISIBLE);
             } else {
                 v.setVisibility(View.VISIBLE);
             }
-        }
+        });
     }
 
     private float getSlideAnimateValue(float slideOffset, Pair<Float, Float> bounds) {
