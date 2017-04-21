@@ -51,7 +51,7 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
         KIND_OFFLINE_LIKES_REMOVE("automatic_likes_sync::disable"),
         KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD("offline_storage_location::confirm_sd"),
         KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE("offline_storage_location::confirm_device"),
-        KIND_OFFLINE_SD_AVAILABLE("offline_storage_location::sd_card_availability");
+        KIND_OFFLINE_SD_AVAILABLE("offline_storage_location::has_sd_card");
 
         private final String key;
 
@@ -130,14 +130,12 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
     public static OfflineInteractionEvent forOfflineStorageLocationSdCard() {
         return clickEventBuilder(Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD)
                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM.get()))
-                .isEnabled(Optional.of(true))
                 .build();
     }
 
     public static OfflineInteractionEvent forOfflineStorageLocationDevice() {
         return clickEventBuilder(Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE)
                 .pageName(Optional.of(Screen.SETTINGS_OFFLINE_STORAGE_LOCATION_CONFIRM.get()))
-                .isEnabled(Optional.of(false))
                 .build();
     }
 

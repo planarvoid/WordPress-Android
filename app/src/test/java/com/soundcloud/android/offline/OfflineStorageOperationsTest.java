@@ -2,7 +2,6 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORAGE;
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
-import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -53,23 +52,12 @@ public class OfflineStorageOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksSdCardAvailabilityIfNeverRecordedBefore() {
-        when(settingsStorage.hasReportedSdCardAvailability()).thenReturn(false);
-
+    public void shouldReportSdCardAvailability() {
         operations.init();
 
         final OfflineInteractionEvent event = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
         assertThat(event.impressionName().get()).isEqualTo(OfflineInteractionEvent.Kind.KIND_OFFLINE_SD_AVAILABLE);
         assertThat(event.isEnabled().get()).isFalse();
     }
-
-    @Test
-    public void doesNotTrackSdCardAvailabilityIfAlreadyRecorded() {
-        when(settingsStorage.hasReportedSdCardAvailability()).thenReturn(true);
-
-        operations.init();
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-    }
-
+    
 }

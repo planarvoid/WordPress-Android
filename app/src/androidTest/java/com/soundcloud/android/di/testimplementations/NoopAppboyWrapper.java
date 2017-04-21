@@ -25,6 +25,11 @@ public class NoopAppboyWrapper implements AppboyWrapper {
     }
 
     @Override
+    public void setUserAttribute(String key, boolean value) {
+
+    }
+
+    @Override
     public boolean openSession(Activity activity) {
         return false;
     }

@@ -9,6 +9,7 @@ public interface AppboyWrapper {
     void handleRegistration(String token);
     void setAppboyEndpointProvider(final String authority);
     void setAttribution(String network, String campaign, String adGroup, String creative);
+    void setUserAttribute(String key, boolean value);
     boolean openSession(Activity activity);
     void registerInAppMessageManager(Activity activity);
     boolean closeSession(Activity activity);

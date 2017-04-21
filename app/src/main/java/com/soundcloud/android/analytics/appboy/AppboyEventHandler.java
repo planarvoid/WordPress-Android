@@ -20,8 +20,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.strings.Strings;
 
-import android.support.annotation.NonNull;
-
 import javax.inject.Inject;
 
 class AppboyEventHandler {
@@ -70,25 +68,18 @@ class AppboyEventHandler {
     void handleEvent(OfflineInteractionEvent event) {
         if (isOfflineContentContextEvent(event)) {
             tagEvent(AppboyEvents.OFFLINE_CONTENT, buildOfflineContextProperties(event.offlineContentContext().get().key(), event.isEnabled().get()));
-        } else if (isSdCardAvailabilityEvent(event)) {
-            tagEvent(AppboyEvents.SD_CARD_AVAILABLE, toEnabledProperty(event));
-        } else if (isOfflineLocationSelectionEvent(event)) {
-            tagEvent(AppboyEvents.SD_CARD_SELECTED, toEnabledProperty(event));
+        } else if (isSdCardAvailableEvent(event)) {
+            appboy.setUserAttribute(AppboyUserAttributes.HAS_SD_CARD, event.isEnabled().get());
+        } else if (isOfflineSdCardSelectedEvent(event)) {
+            tagEvent(AppboyEvents.USED_SD_CARD);
         }
     }
 
-    @NonNull
-    private AppboyProperties toEnabledProperty(OfflineInteractionEvent event) {
-        return new AppboyProperties().addProperty(ENABLED_PROPERTY, event.isEnabled().get());
+    private boolean isOfflineSdCardSelectedEvent(OfflineInteractionEvent event) {
+        return event.clickName().isPresent() && event.clickName().get().equals(OfflineInteractionEvent.Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD);
     }
 
-    private boolean isOfflineLocationSelectionEvent(OfflineInteractionEvent event) {
-        return event.clickName().isPresent()
-                && (event.clickName().get().equals(OfflineInteractionEvent.Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_DEVICE)
-                || event.clickName().get().equals(OfflineInteractionEvent.Kind.KIND_OFFLINE_STORAGE_LOCATION_CONFIRM_SD));
-    }
-
-    private boolean isSdCardAvailabilityEvent(OfflineInteractionEvent event) {
+    private boolean isSdCardAvailableEvent(OfflineInteractionEvent event) {
         return event.impressionName().isPresent() && event.impressionName().get().equals(OfflineInteractionEvent.Kind.KIND_OFFLINE_SD_AVAILABLE);
     }
 

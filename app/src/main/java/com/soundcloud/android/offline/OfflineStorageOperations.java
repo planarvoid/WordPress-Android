@@ -31,14 +31,7 @@ public class OfflineStorageOperations {
 
     public void init() {
         checkForOfflineStorageConsistency();
-        reportSdCardAvailability();
-    }
-
-    private void reportSdCardAvailability() {
-        if (!offlineSettingsStorage.hasReportedSdCardAvailability()) {
-            eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.forSdCardAvailable(IOUtils.isSDCardMounted(context)));
-            offlineSettingsStorage.setSdCardAvailabilityReported();
-        }
+        eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.forSdCardAvailable(IOUtils.isSDCardMounted(context)));
     }
 
     private void checkForOfflineStorageConsistency() {

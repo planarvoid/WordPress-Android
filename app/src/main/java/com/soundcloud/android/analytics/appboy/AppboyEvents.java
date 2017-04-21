@@ -12,6 +12,5 @@ abstract class AppboyEvents {
     static final String CREATE_PLAYLIST = "create_playlist";
     static final String START_STATION = "start_station";
     static final String OFFLINE_CONTENT = "offline_content";
-    static final String SD_CARD_AVAILABLE = "sd_card_available";
-    static final String SD_CARD_SELECTED = "sd_card_selected";
+    static final String USED_SD_CARD = "used_offline_sd_card";
 }

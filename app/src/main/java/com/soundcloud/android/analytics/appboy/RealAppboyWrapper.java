@@ -31,6 +31,10 @@ public class RealAppboyWrapper implements AppboyWrapper {
         appboy.getCurrentUser().setAttributionData(attributionData);
     }
 
+    public void setUserAttribute(String key, boolean value) {
+        appboy.getCurrentUser().setCustomUserAttribute(key, value);
+    }
+
     public boolean openSession(Activity activity) {
         return appboy.openSession(activity);
     }
