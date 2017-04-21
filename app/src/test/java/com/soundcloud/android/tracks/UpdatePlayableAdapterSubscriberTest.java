@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -24,7 +24,7 @@ public class UpdatePlayableAdapterSubscriberTest extends AndroidUnitTest {
     @Mock private RecyclerItemAdapter adapter;
     @Mock private PlayableViewItem<PlayableViewItem> playableViewItem;
     @Mock private Object differentItem;
-    @Mock private CellRenderer<DiscoveryItem> cellRenderer;
+    @Mock private CellRenderer<OldDiscoveryItem> cellRenderer;
     @Mock private CurrentPlayQueueItemEvent eventWithTrackAndCollection;
     @Mock private PlayableViewItem<CurrentPlayQueueItemEvent> updatedPlayableViewItem;
 

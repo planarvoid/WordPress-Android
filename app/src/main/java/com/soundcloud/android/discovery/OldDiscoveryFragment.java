@@ -17,12 +17,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragment>
+public class OldDiscoveryFragment extends LightCycleSupportFragment<OldDiscoveryFragment>
         implements RefreshableScreen, MainPagerAdapter.ScrollContent {
 
-    @Inject @LightCycle DiscoveryPresenter presenter;
+    @Inject @LightCycle OldDiscoveryPresenter presenter;
 
-    public DiscoveryFragment() {
+    public OldDiscoveryFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

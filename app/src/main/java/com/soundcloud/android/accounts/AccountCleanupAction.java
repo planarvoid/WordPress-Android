@@ -13,7 +13,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.deeplinks.ShortcutController;
-import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.discovery.OldDiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -51,7 +51,7 @@ class AccountCleanupAction implements Action0 {
     private final SyncCleanupAction syncCleanupAction;
     private final PlanStorage planStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
-    private final DiscoveryOperations discoveryOperations;
+    private final OldDiscoveryOperations oldDiscoveryOperations;
     private final ClearTableCommand clearTableCommand;
     private final StationsOperations stationsOperations;
     private final CollectionOperations collectionOperations;
@@ -76,7 +76,7 @@ class AccountCleanupAction implements Action0 {
                          OfflineSettingsStorage offlineSettingsStorage,
                          SyncCleanupAction syncCleanupAction,
                          PlanStorage planStorage, RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand,
-                         DiscoveryOperations discoveryOperations,
+                         OldDiscoveryOperations oldDiscoveryOperations,
                          ClearTableCommand clearTableCommand,
                          StationsOperations stationsOperations,
                          CollectionOperations collectionOperations,
@@ -102,7 +102,7 @@ class AccountCleanupAction implements Action0 {
         this.syncCleanupAction = syncCleanupAction;
         this.planStorage = planStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
-        this.discoveryOperations = discoveryOperations;
+        this.oldDiscoveryOperations = oldDiscoveryOperations;
         this.clearTableCommand = clearTableCommand;
         this.stationsOperations = stationsOperations;
         this.collectionOperations = collectionOperations;
@@ -136,7 +136,7 @@ class AccountCleanupAction implements Action0 {
         planStorage.clear();
         soundRecorder.reset();
         stationsOperations.clearData();
-        discoveryOperations.clearData();
+        oldDiscoveryOperations.clearData();
         collectionOperations.clearData();
         streamOperations.clearData();
         suggestedCreatorsStorage.clear();

@@ -36,7 +36,7 @@ import com.soundcloud.android.creators.upload.UploadMonitorFragment;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.creators.upload.Uploader;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.DiscoveryFragment;
+import com.soundcloud.android.discovery.OldDiscoveryFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.charts.AllGenresActivity;
@@ -337,7 +337,7 @@ public interface ApplicationComponent {
     void inject(LikedStationsFragment likedStationsFragment);
 
     //DiscoveryModule
-    void inject(DiscoveryFragment discoveryFragment);
+    void inject(OldDiscoveryFragment oldDiscoveryFragment);
     void inject(ViewAllRecommendedTracksActivity viewAllRecommendedTracksActivity);
     void inject(ViewAllRecommendedTracksFragment viewAllRecommendedTracksFragment);
     void inject(SearchActivity searchActivity);

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -51,7 +51,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Mock private TrackItemRepository trackRepository;
 
     private RecommendedTracksOperations operations;
-    private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
+    private TestSubscriber<OldDiscoveryItem> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -111,7 +111,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
-        final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
+        final List<OldDiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(1);
 
         assertRecommendedTrackItem(onNextEvents.get(0));
@@ -191,13 +191,13 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.recommendedTracksForSeed(seedId)).thenReturn(Observable.just(recommendedTracksUrns));
         when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
 
-        DiscoveryItem discoveryItem = operations.allBuckets().test()
-                                                .assertValueCount(1)
-                                                .assertCompleted()
-                                                .getOnNextEvents().get(0);
+        OldDiscoveryItem oldDiscoveryItem = operations.allBuckets().test()
+                                                      .assertValueCount(1)
+                                                      .assertCompleted()
+                                                      .getOnNextEvents().get(0);
 
-        assertThat(((RecommendedTracksBucketItem) discoveryItem).seedTrackQueryPosition()).isEqualTo(0);
-        assertThat(((RecommendedTracksBucketItem) discoveryItem).seedTrackUrn()).isEqualTo(seedTrackUrn);
+        assertThat(((RecommendedTracksBucketItem) oldDiscoveryItem).seedTrackQueryPosition()).isEqualTo(0);
+        assertThat(((RecommendedTracksBucketItem) oldDiscoveryItem).seedTrackUrn()).isEqualTo(seedTrackUrn);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(trackRepository.trackListFromUrns(recommendedTracksUrns)).thenReturn(Observable.just(recommendedTracks));
 
 
-        TestSubscriber<DiscoveryItem> testSubscriber = TestSubscriber.create();
+        TestSubscriber<OldDiscoveryItem> testSubscriber = TestSubscriber.create();
         operations.allBuckets().subscribe(testSubscriber);
 
         secondStorageSubject.onNext(2);
@@ -233,15 +233,15 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertValueCount(2);
 
-        List<DiscoveryItem> items = testSubscriber.getOnNextEvents();
+        List<OldDiscoveryItem> items = testSubscriber.getOnNextEvents();
         assertThat(((RecommendedTracksBucketItem) items.get(0)).seedTrackQueryPosition()).isEqualTo(0);
         assertThat(((RecommendedTracksBucketItem) items.get(1)).seedTrackQueryPosition()).isEqualTo(1);
     }
 
-    private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
-        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.RecommendedTracksItem);
+    private void assertRecommendedTrackItem(OldDiscoveryItem oldDiscoveryItem) {
+        assertThat(oldDiscoveryItem.getKind()).isEqualTo(OldDiscoveryItem.Kind.RecommendedTracksItem);
 
-        final RecommendedTracksBucketItem recommendationBucket = (RecommendedTracksBucketItem) discoveryItem;
+        final RecommendedTracksBucketItem recommendationBucket = (RecommendedTracksBucketItem) oldDiscoveryItem;
         assertThat(recommendationBucket.seedTrackLocalId()).isEqualTo(SEED_ID);
         assertThat(recommendationBucket.seedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
         assertThat(recommendationBucket.seedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());

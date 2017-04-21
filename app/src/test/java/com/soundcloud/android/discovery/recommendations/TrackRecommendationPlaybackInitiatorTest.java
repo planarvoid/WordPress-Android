@@ -8,7 +8,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.discovery.EmptyViewItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.main.Screen;
@@ -48,7 +48,7 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
     private static final Recommendation RECOMMENDATION_3 = createRecommendation(
             SEED_3, RECOMMENDATION_URN_3, THIRD_QUERY_POSITION);
 
-    private static final DiscoveryItem EMPTY = EmptyViewItem.fromThrowable(new RuntimeException("expected"));
+    private static final OldDiscoveryItem EMPTY = EmptyViewItem.fromThrowable(new RuntimeException("expected"));
     private static final RecommendedTracksBucketItem FIRST_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
             createSeed(SEED_1, FIRST_QUERY_POSITION), singletonList(RECOMMENDATION_1));
     private static final RecommendedTracksBucketItem SECOND_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
@@ -57,9 +57,9 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
             createSeed(SEED_3, THIRD_QUERY_POSITION), singletonList(RECOMMENDATION_3));
     private static final PlaylistTagsItem PLAYLIST_TAGS = PlaylistTagsItem.create(
             Collections.emptyList(), Collections.emptyList());
-    private static final DiscoveryItem FOOTER = DiscoveryItem.forRecommendedTracksFooter();
+    private static final OldDiscoveryItem FOOTER = OldDiscoveryItem.forRecommendedTracksFooter();
 
-    private static final List<DiscoveryItem> DISCOVERY_ITEMS =
+    private static final List<OldDiscoveryItem> DISCOVERY_ITEMS =
             newArrayList(EMPTY, FIRST_RECOMMENDATIONS, SECOND_RECOMMENDATIONS, THIRD_RECOMMENDATIONS, PLAYLIST_TAGS,
                          FOOTER);
 

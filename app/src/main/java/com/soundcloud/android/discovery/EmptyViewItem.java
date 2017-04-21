@@ -3,9 +3,9 @@ package com.soundcloud.android.discovery;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class EmptyViewItem extends DiscoveryItem {
+public abstract class EmptyViewItem extends OldDiscoveryItem {
 
-    public static DiscoveryItem fromThrowable(Throwable throwable) {
+    public static OldDiscoveryItem fromThrowable(Throwable throwable) {
         return new AutoValue_EmptyViewItem(Kind.Empty, throwable);
     }
 

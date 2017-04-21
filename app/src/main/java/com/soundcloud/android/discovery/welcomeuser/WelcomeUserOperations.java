@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery.welcomeuser;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -30,7 +30,7 @@ public class WelcomeUserOperations {
         this.featureFlags = featureFlags;
     }
 
-    public Observable<DiscoveryItem> welcome() {
+    public Observable<OldDiscoveryItem> welcome() {
         Urn userUrn = accountOperations.getLoggedInUserUrn();
         return userRepository.userInfo(userUrn)
                          .flatMap(user -> {

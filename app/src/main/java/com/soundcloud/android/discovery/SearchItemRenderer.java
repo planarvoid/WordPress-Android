@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class SearchItemRenderer implements CellRenderer<DiscoveryItem> {
+class SearchItemRenderer implements CellRenderer<OldDiscoveryItem> {
 
     interface SearchListener {
         void onSearchClicked(Context context);
@@ -33,7 +33,7 @@ class SearchItemRenderer implements CellRenderer<DiscoveryItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<DiscoveryItem> list) {
+    public void bindItemView(int position, View itemView, List<OldDiscoveryItem> list) {
         ButterKnife.bind(this, itemView);
     }
 

@@ -4,7 +4,7 @@ import static com.soundcloud.android.sync.SyncOperations.emptyResult;
 import static com.soundcloud.android.sync.Syncable.RECOMMENDED_TRACKS;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -51,15 +51,15 @@ public class RecommendedTracksOperations {
                                      .flatMap(trackRepository::trackListFromUrns);
     }
 
-    public Observable<DiscoveryItem> recommendedTracks() {
+    public Observable<OldDiscoveryItem> recommendedTracks() {
         return loadFirstBucket(syncOperations.lazySyncIfStale(RECOMMENDED_TRACKS));
     }
 
-    public Observable<DiscoveryItem> refreshRecommendedTracks() {
+    public Observable<OldDiscoveryItem> refreshRecommendedTracks() {
         return loadFirstBucket(syncOperations.failSafeSync(RECOMMENDED_TRACKS));
     }
 
-    Observable<DiscoveryItem> allBuckets() {
+    Observable<OldDiscoveryItem> allBuckets() {
         return syncOperations
                 .lazySyncIfStale(RECOMMENDED_TRACKS)
                 .flatMap(result -> loadAllBuckets().switchIfEmpty(emptyResult(result)));
@@ -89,23 +89,23 @@ public class RecommendedTracksOperations {
         return recommendations;
     }
 
-    private Observable<DiscoveryItem> loadRecommendedTracks(SyncOperations.Result result) {
+    private Observable<OldDiscoveryItem> loadRecommendedTracks(SyncOperations.Result result) {
         return recommendationsStorage.firstSeed()
                                      .subscribeOn(scheduler)
                                      .flatMap(this::loadDiscoveryItem)
                                      .switchIfEmpty(emptyResult(result));
     }
 
-    private Observable<DiscoveryItem> loadFirstBucket(Observable<SyncOperations.Result> source) {
+    private Observable<OldDiscoveryItem> loadFirstBucket(Observable<SyncOperations.Result> source) {
         return source.flatMap(this::loadRecommendedTracks);
     }
 
-    private Observable<DiscoveryItem> loadAllBuckets() {
+    private Observable<OldDiscoveryItem> loadAllBuckets() {
         return recommendationsStorage.allSeeds().concatMapEager(this::loadDiscoveryItem).subscribeOn(scheduler);
 
     }
 
-    private Observable<DiscoveryItem> loadDiscoveryItem(RecommendationSeed seed) {
+    private Observable<OldDiscoveryItem> loadDiscoveryItem(RecommendationSeed seed) {
         return tracksForSeed(seed.seedTrackLocalId())
                 .map(trackItems -> RecommendedTracksBucketItem.create(seed, toRecommendations(seed, trackItems)));
     }

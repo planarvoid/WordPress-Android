@@ -9,9 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.discovery.DiscoveryAdapter;
-import com.soundcloud.android.discovery.DiscoveryAdapterFactory;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryAdapter;
+import com.soundcloud.android.discovery.OldDiscoveryAdapterFactory;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.Screen;
@@ -49,12 +49,12 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
-    @Mock private DiscoveryAdapterFactory adapterFactory;
-    @Mock private DiscoveryAdapter adapter;
+    @Mock private OldDiscoveryAdapterFactory adapterFactory;
+    @Mock private OldDiscoveryAdapter adapter;
     @Mock private SimpleItemAnimator itemAnimator;
     @Mock private Bundle bundle;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
-    @Mock private List<DiscoveryItem> discoveryItems;
+    @Mock private List<OldDiscoveryItem> oldDiscoveryItems;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
@@ -65,7 +65,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(recyclerView.getAdapter()).thenReturn(adapter);
         when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
-        when(adapter.getItems()).thenReturn(discoveryItems);
+        when(adapter.getItems()).thenReturn(oldDiscoveryItems);
         when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.empty());
         when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.empty());
         when(recommendationBucketRendererFactory.create(eq(false),
@@ -118,7 +118,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onReasonClicked(SEED_URN);
         verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN,
                                                                     Screen.RECOMMENDATIONS_MAIN,
-                                                                    discoveryItems);
+                                                                    oldDiscoveryItems);
     }
 
     @Test
@@ -127,6 +127,6 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN,
                                                                             TRACK_URN,
                                                                             Screen.RECOMMENDATIONS_MAIN,
-                                                                            discoveryItems);
+                                                                            oldDiscoveryItems);
     }
 }

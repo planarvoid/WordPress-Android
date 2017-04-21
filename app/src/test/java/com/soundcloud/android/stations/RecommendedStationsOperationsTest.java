@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;
@@ -52,7 +52,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     private RecommendedStationsOperations operations;
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
+    private TestSubscriber<OldDiscoveryItem> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -161,8 +161,8 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     }
 
     private List<StationViewModel> getEmittedStations() {
-        DiscoveryItem discoveryItem = subscriber.getOnNextEvents().get(0);
-        return ((RecommendedStationsBucketItem) discoveryItem).getStations();
+        OldDiscoveryItem oldDiscoveryItem = subscriber.getOnNextEvents().get(0);
+        return ((RecommendedStationsBucketItem) oldDiscoveryItem).getStations();
     }
 
     private static StationViewModel viewModelFrom(StationRecord record, boolean isPlaying) {

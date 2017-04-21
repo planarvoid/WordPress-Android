@@ -3,7 +3,7 @@ package com.soundcloud.android.upsell;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class DiscoveryUpsellItemRenderer extends UpsellItemRenderer<DiscoveryItem> {
+public class DiscoveryUpsellItemRenderer extends UpsellItemRenderer<OldDiscoveryItem> {
 
     @Inject
     DiscoveryUpsellItemRenderer(FeatureOperations featureOperations) {

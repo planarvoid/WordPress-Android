@@ -6,7 +6,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.Syncable;
@@ -34,10 +34,10 @@ public class ChartsOperations {
         return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
     };
 
-    private final Function<NewSyncOperations.Result, Observable<DiscoveryItem>> loadCharts =
-            new Function<NewSyncOperations.Result, Observable<DiscoveryItem>>() {
+    private final Function<NewSyncOperations.Result, Observable<OldDiscoveryItem>> loadCharts =
+            new Function<NewSyncOperations.Result, Observable<OldDiscoveryItem>>() {
                 @Override
-                public Observable<DiscoveryItem> apply(@NonNull NewSyncOperations.Result result) throws Exception {
+                public Observable<OldDiscoveryItem> apply(@NonNull NewSyncOperations.Result result) throws Exception {
                     //TODO: Refactor chartsStorage to return RxJava2 observables.
                     final Observable<ChartBucket> chartBucketObservable = RxJava.toV2Observable(chartsStorage.featuredCharts());
                     return chartBucketObservable
@@ -81,7 +81,7 @@ public class ChartsOperations {
         return chart -> chart.type() == type;
     }
 
-    private Observable<DiscoveryItem> load(Observable<NewSyncOperations.Result> source) {
+    private Observable<OldDiscoveryItem> load(Observable<NewSyncOperations.Result> source) {
         return source.flatMap(loadCharts);
     }
 
@@ -97,11 +97,11 @@ public class ChartsOperations {
         };
     }
 
-    public Observable<DiscoveryItem> featuredCharts() {
+    public Observable<OldDiscoveryItem> featuredCharts() {
         return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
     }
 
-    public Observable<DiscoveryItem> refreshFeaturedCharts() {
+    public Observable<OldDiscoveryItem> refreshFeaturedCharts() {
         return load(syncOperations.failSafeSync(Syncable.CHARTS));
     }
 

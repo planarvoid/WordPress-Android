@@ -4,13 +4,13 @@ import com.soundcloud.android.upsell.InlineUpsellOperations;
 
 import javax.inject.Inject;
 
-public class DiscoveryOperations {
+public class OldDiscoveryOperations {
 
 
     private final InlineUpsellOperations inlineUpsellOperations;
 
     @Inject
-    DiscoveryOperations(InlineUpsellOperations inlineUpsellOperations) {
+    OldDiscoveryOperations(InlineUpsellOperations inlineUpsellOperations) {
         this.inlineUpsellOperations = inlineUpsellOperations;
     }
 

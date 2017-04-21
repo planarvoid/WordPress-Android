@@ -5,7 +5,7 @@ import com.google.auto.value.AutoValue;
 import java.util.List;
 
 @AutoValue
-public abstract class PlaylistTagsItem extends DiscoveryItem {
+public abstract class PlaylistTagsItem extends OldDiscoveryItem {
 
 
     public static PlaylistTagsItem create(List<String> popularTags,

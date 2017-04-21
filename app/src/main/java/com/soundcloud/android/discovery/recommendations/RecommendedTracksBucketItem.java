@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery.recommendations;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoValue
-public abstract class RecommendedTracksBucketItem extends DiscoveryItem implements PlayableViewItem {
+public abstract class RecommendedTracksBucketItem extends OldDiscoveryItem implements PlayableViewItem {
 
-    static Function<DiscoveryItem, List<Recommendation>> TO_RECOMMENDATIONS = input -> ((RecommendedTracksBucketItem) input).recommendations();
+    static Function<OldDiscoveryItem, List<Recommendation>> TO_RECOMMENDATIONS = input -> ((RecommendedTracksBucketItem) input).recommendations();
 
     @Override
     public abstract Kind getKind();

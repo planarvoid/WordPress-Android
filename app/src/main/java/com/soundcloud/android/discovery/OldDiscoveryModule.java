@@ -6,7 +6,7 @@ import dagger.Provides;
 import java.util.Random;
 
 @Module
-public class DiscoveryModule {
+public class OldDiscoveryModule {
 
     @Provides
     public Random provideRandom() {

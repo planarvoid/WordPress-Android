@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery.charts;
 
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.ChartItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,7 +9,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.NewSyncOperations.Result;
@@ -38,7 +38,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
 
     private final PublishSubject<Result> syncSubject = PublishSubject.create();
 
-    private final TestObserver<DiscoveryItem> discoveryItemsObserver = new TestObserver<>();
+    private final TestObserver<OldDiscoveryItem> discoveryItemsObserver = new TestObserver<>();
     private final TestObserver<ApiChart<ApiTrack>> chartTrackObserver = new TestObserver<>();
     private final TestObserver<List<Chart>> genresObserver = new TestObserver<>();
 
@@ -81,9 +81,9 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         syncSubject.onNext(Result.SYNCING);
 
         discoveryItemsObserver.assertValueCount(1);
-        final DiscoveryItem discoveryItem = discoveryItemsObserver.values().get(0);
+        final OldDiscoveryItem oldDiscoveryItem = discoveryItemsObserver.values().get(0);
 
-        assertThat(discoveryItem.getKind()).isEqualTo(ChartItem);
+        assertThat(oldDiscoveryItem.getKind()).isEqualTo(ChartItem);
     }
 
     @Test

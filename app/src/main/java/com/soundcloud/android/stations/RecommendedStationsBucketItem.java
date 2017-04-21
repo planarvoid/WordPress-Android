@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayableViewItem;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AutoValue
-public abstract class RecommendedStationsBucketItem extends DiscoveryItem implements PlayableViewItem {
+public abstract class RecommendedStationsBucketItem extends OldDiscoveryItem implements PlayableViewItem {
 
 
     public static RecommendedStationsBucketItem create(List<StationViewModel> stations) {

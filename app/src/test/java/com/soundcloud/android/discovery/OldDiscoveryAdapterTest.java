@@ -1,12 +1,12 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.UpsellItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedStationsItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedTracksItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.UpsellItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.WelcomeUserItem;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
+import com.soundcloud.android.discovery.OldDiscoveryAdapter.DiscoveryItemListenerBucket;
 import com.soundcloud.android.discovery.charts.ChartsBucketItem;
 import com.soundcloud.android.discovery.charts.ChartsBucketItemRenderer;
 import com.soundcloud.android.discovery.newforyou.NewForYouBucketRenderer;
@@ -34,7 +34,7 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
-public class DiscoveryAdapterTest extends AndroidUnitTest {
+public class OldDiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
@@ -43,7 +43,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer;
     @Mock private ChartsBucketItemRenderer chartsBucketItemRenderer;
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
-    @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
+    @Mock private EmptyOldDiscoveryItemRenderer emptyOldDiscoveryItemRenderer;
     @Mock private WelcomeUserItemRenderer welcomeUserItemRenderer;
     @Mock private NewForYouBucketRenderer newForYouBucketRenderer;
     @Mock private RecommendedStationsBucketItem stationsBucketItem;
@@ -54,9 +54,9 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer;
 
 
-    private DiscoveryItem upsellItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.UpsellItem);
-    private DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
-    private DiscoveryAdapter adapter;
+    private OldDiscoveryItem upsellItem = OldDiscoveryItem.Default.create(OldDiscoveryItem.Kind.UpsellItem);
+    private OldDiscoveryItem searchItem = OldDiscoveryItem.forSearchItem();
+    private OldDiscoveryAdapter adapter;
 
 
     @Before
@@ -68,17 +68,17 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         when(welcomeUserItem.getKind()).thenReturn(WelcomeUserItem);
 
 
-        adapter = new DiscoveryAdapter(recommendationBucketRenderer,
-                                       playlistTagRenderer,
-                                       searchItemRenderer,
-                                       recommendedStationsBucketRenderer,
-                                       recommendedPlaylistsBucketRenderer,
-                                       chartsBucketItemRenderer,
-                                       recommendationsFooterRenderer,
-                                       welcomeUserItemRenderer,
-                                       emptyDiscoveryItemRenderer,
-                                       newForYouBucketRenderer,
-                                       discoveryUpsellItemRenderer);
+        adapter = new OldDiscoveryAdapter(recommendationBucketRenderer,
+                                          playlistTagRenderer,
+                                          searchItemRenderer,
+                                          recommendedStationsBucketRenderer,
+                                          recommendedPlaylistsBucketRenderer,
+                                          chartsBucketItemRenderer,
+                                          recommendationsFooterRenderer,
+                                          welcomeUserItemRenderer,
+                                          emptyOldDiscoveryItemRenderer,
+                                          newForYouBucketRenderer,
+                                          discoveryUpsellItemRenderer);
     }
 
     @Test
@@ -115,8 +115,8 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Test
     public void setItemWhenItemIsAlreadyPresent() {
-        final DiscoveryItem initialItem = DiscoveryItem.forSearchItem();
-        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
+        final OldDiscoveryItem initialItem = OldDiscoveryItem.forSearchItem();
+        final OldDiscoveryItem updatedItem = OldDiscoveryItem.forSearchItem();
         adapter.onNext(singletonList(initialItem));
 
         adapter.setItem(0, updatedItem);
@@ -126,7 +126,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Test
     public void setItemWhenItemIsAbsent() {
-        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
+        final OldDiscoveryItem updatedItem = OldDiscoveryItem.forSearchItem();
         adapter.onNext(Collections.emptyList());
 
         adapter.setItem(0, updatedItem);

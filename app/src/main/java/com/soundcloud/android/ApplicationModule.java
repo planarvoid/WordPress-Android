@@ -13,7 +13,7 @@ import com.soundcloud.android.cast.CastModule;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.discovery.DiscoveryModule;
+import com.soundcloud.android.discovery.OldDiscoveryModule;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -90,7 +90,7 @@ import java.util.concurrent.Executors;
                 ProfileModule.class,
                 CommentsModule.class,
                 OfflineModule.class,
-                DiscoveryModule.class,
+                OldDiscoveryModule.class,
                 CastModule.class,
                 PlayQueueModule.class,
                 FirebaseModule.class

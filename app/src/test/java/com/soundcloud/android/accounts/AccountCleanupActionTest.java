@@ -18,7 +18,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.deeplinks.ShortcutController;
-import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.discovery.OldDiscoveryOperations;
 import com.soundcloud.android.discovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -60,7 +60,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
-    @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private OldDiscoveryOperations oldDiscoveryOperations;
     @Mock private ClearTableCommand clearTableCommand;
     @Mock private SyncCleanupAction syncCleanupAction;
     @Mock private PlanStorage planStorage;
@@ -91,7 +91,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           syncCleanupAction,
                                           planStorage,
                                           removeLocalPlaylistsCommand,
-                                          discoveryOperations,
+                                          oldDiscoveryOperations,
                                           clearTableCommand,
                                           stationsOperations,
                                           collectionOperations,
@@ -235,7 +235,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveRecommendations() throws PropellerWriteException {
         action.call();
-        verify(discoveryOperations).clearData();
+        verify(oldDiscoveryOperations).clearData();
     }
 
     @Test

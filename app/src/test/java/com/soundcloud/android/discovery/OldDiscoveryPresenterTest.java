@@ -53,7 +53,7 @@ import android.view.View;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscoveryPresenterTest extends AndroidUnitTest {
+public class OldDiscoveryPresenterTest extends AndroidUnitTest {
 
     @Rule public final FragmentRule fragmentRule = new RefreshableFragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -63,18 +63,18 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Mock private Fragment fragment;
     @Mock private Bundle bundle;
-    @Mock private DiscoveryModulesProvider discoveryModulesProvider;
-    @Mock private DiscoveryAdapterFactory adapterFactory;
-    @Mock private DiscoveryAdapter adapter;
+    @Mock private OldDiscoveryModulesProvider oldDiscoveryModulesProvider;
+    @Mock private OldDiscoveryAdapterFactory adapterFactory;
+    @Mock private OldDiscoveryAdapter adapter;
     @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Navigator navigator;
     @Mock private StartStationHandler startStationHandler;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
-    @Mock private List<DiscoveryItem> discoveryItems;
+    @Mock private List<OldDiscoveryItem> oldDiscoveryItems;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
-    @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private OldDiscoveryOperations oldDiscoveryOperations;
     @Mock private DiscoveryMeasurementsFactory discoveryMeasurementsFactory;
     @Mock private DiscoveryMeasurements discoveryMeasurements;
 
@@ -82,21 +82,21 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private TestEventBus eventBus = new TestEventBus();
-    private DiscoveryPresenter presenter;
+    private OldDiscoveryPresenter presenter;
 
     @Before
     public void setUp() {
         when(adapterFactory.create(recommendationBucketRenderer)).thenReturn(adapter);
-        when(adapter.getItems()).thenReturn(discoveryItems);
-        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.empty());
+        when(adapter.getItems()).thenReturn(oldDiscoveryItems);
+        when(oldDiscoveryModulesProvider.discoveryItems()).thenReturn(Observable.empty());
         when(recommendationBucketRendererFactory
-                     .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
+                     .create(eq(true), any(OldDiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
         updatePlayableAdapterSubscriber = spy(new UpdatePlayableAdapterSubscriber(adapter));
         when(updatePlayableAdapterSubscriberFactory.create(adapter)).thenReturn(updatePlayableAdapterSubscriber);
         when(discoveryMeasurementsFactory.create()).thenReturn(discoveryMeasurements);
 
-        this.presenter = new DiscoveryPresenter(
-                discoveryModulesProvider,
+        this.presenter = new OldDiscoveryPresenter(
+                oldDiscoveryModulesProvider,
                 swipeRefreshAttacher,
                 adapterFactory,
                 recommendationBucketRendererFactory,
@@ -106,7 +106,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
                 updatePlayableAdapterSubscriberFactory,
-                discoveryOperations,
+                oldDiscoveryOperations,
                 discoveryMeasurementsFactory);
 
         presenter.onCreate(fragment, bundle);
@@ -161,7 +161,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Test
     public void propagatesOnReasonClickedToRecommendationPlaybackInitiator() {
         presenter.onReasonClicked(SEED_URN);
-        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN, Screen.SEARCH_MAIN, discoveryItems);
+        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN, Screen.SEARCH_MAIN, oldDiscoveryItems);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN,
                                                                             TRACK_URN,
                                                                             Screen.SEARCH_MAIN,
-                                                                            discoveryItems);
+                                                                            oldDiscoveryItems);
     }
 
     @Test
@@ -186,7 +186,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void dismissesUpsellItem() {
         presenter.onUpsellItemDismissed(0);
 
-        verify(discoveryOperations).disableUpsell();
+        verify(oldDiscoveryOperations).disableUpsell();
         verify(adapter).removeItem(0);
         verify(adapter).notifyItemRemoved(0);
     }
@@ -208,8 +208,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldEndMeasuringLoginPerformanceWhenDiscoveryIsHome() {
-        List<DiscoveryItem> items = Collections.singletonList(DiscoveryItem.forSearchItem());
-        when(discoveryModulesProvider.discoveryItems()).thenReturn(Observable.just(items));
+        List<OldDiscoveryItem> items = Collections.singletonList(OldDiscoveryItem.forSearchItem());
+        when(oldDiscoveryModulesProvider.discoveryItems()).thenReturn(Observable.just(items));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -218,8 +218,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldInvokeDiscoveryMeasurementsOnRefresh() {
-        List<DiscoveryItem> items = Collections.singletonList(DiscoveryItem.forSearchItem());
-        when(discoveryModulesProvider.refreshItems()).thenReturn(Observable.just(items));
+        List<OldDiscoveryItem> items = Collections.singletonList(OldDiscoveryItem.forSearchItem());
+        when(oldDiscoveryModulesProvider.refreshItems()).thenReturn(Observable.just(items));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);

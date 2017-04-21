@@ -15,10 +15,10 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class EmptyDiscoveryItemRenderer implements CellRenderer<DiscoveryItem> {
+class EmptyOldDiscoveryItemRenderer implements CellRenderer<OldDiscoveryItem> {
 
     @Inject
-    public EmptyDiscoveryItemRenderer() {
+    public EmptyOldDiscoveryItemRenderer() {
     }
 
     @Override
@@ -32,7 +32,7 @@ class EmptyDiscoveryItemRenderer implements CellRenderer<DiscoveryItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<DiscoveryItem> items) {
+    public void bindItemView(int position, View itemView, List<OldDiscoveryItem> items) {
         final EmptyViewItem emptyViewItem = (EmptyViewItem) items.get(position);
 
         final EmptyView.Status status = emptyViewStatusFromError(emptyViewItem.getThrowable());

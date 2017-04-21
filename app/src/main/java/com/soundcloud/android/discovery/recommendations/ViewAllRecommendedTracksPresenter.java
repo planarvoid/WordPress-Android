@@ -2,9 +2,9 @@ package com.soundcloud.android.discovery.recommendations;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 
-import com.soundcloud.android.discovery.DiscoveryAdapter;
-import com.soundcloud.android.discovery.DiscoveryAdapterFactory;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryAdapter;
+import com.soundcloud.android.discovery.OldDiscoveryAdapterFactory;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -25,11 +25,11 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
+class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>, OldDiscoveryItem>
         implements TrackRecommendationListener {
     private final RecommendedTracksOperations operations;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
-    private final DiscoveryAdapter adapter;
+    private final OldDiscoveryAdapter adapter;
     private final EventBus eventBus;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private Subscription subscription;
@@ -39,7 +39,7 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
     ViewAllRecommendedTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                       RecommendedTracksOperations operations,
                                       RecommendationBucketRendererFactory recommendationBucketRendererFactory,
-                                      DiscoveryAdapterFactory adapterFactory,
+                                      OldDiscoveryAdapterFactory adapterFactory,
                                       EventBus eventBus,
                                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
                                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
@@ -84,12 +84,12 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onBuildBinding(Bundle bundle) {
         return createCollectionBinding();
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onRefreshBinding() {
+    protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onRefreshBinding() {
         return createCollectionBinding();
     }
 
@@ -98,16 +98,16 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private CollectionBinding<List<DiscoveryItem>, DiscoveryItem> createCollectionBinding() {
+    private CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> createCollectionBinding() {
         return CollectionBinding
                 .from(getSource())
                 .withAdapter(adapter)
                 .build();
     }
 
-    private Observable<List<DiscoveryItem>> getSource() {
+    private Observable<List<OldDiscoveryItem>> getSource() {
         return operations.allBuckets()
-                         .concatWith(Observable.just(DiscoveryItem.forRecommendedTracksFooter()))
+                         .concatWith(Observable.just(OldDiscoveryItem.forRecommendedTracksFooter()))
                          .toList();
     }
 }

@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class DiscoveryModulesProvider {
+class OldDiscoveryModulesProvider {
 
     private static final int MAX_NEW_FOR_YOU_TRACKS = 5;
     private final PlaylistDiscoveryConfig playlistDiscoveryConfig;
@@ -39,17 +39,17 @@ class DiscoveryModulesProvider {
     private final InlineUpsellOperations inlineUpsellOperations;
 
     @Inject
-    DiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
-                             FeatureFlags featureFlags,
-                             RecommendedTracksOperations recommendedTracksOperations,
-                             RecommendedStationsOperations recommendedStationsOperations,
-                             RecommendedPlaylistsOperations recommendedPlaylistsOperations,
-                             ChartsOperations chartsOperations,
-                             PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                             WelcomeUserOperations welcomeUserOperations,
-                             NewForYouOperations newForYouOperations,
-                             NewForYouConfig newForYouConfig,
-                             InlineUpsellOperations inlineUpsellOperations) {
+    OldDiscoveryModulesProvider(PlaylistDiscoveryConfig playlistDiscoveryConfig,
+                                FeatureFlags featureFlags,
+                                RecommendedTracksOperations recommendedTracksOperations,
+                                RecommendedStationsOperations recommendedStationsOperations,
+                                RecommendedPlaylistsOperations recommendedPlaylistsOperations,
+                                ChartsOperations chartsOperations,
+                                PlaylistDiscoveryOperations playlistDiscoveryOperations,
+                                WelcomeUserOperations welcomeUserOperations,
+                                NewForYouOperations newForYouOperations,
+                                NewForYouConfig newForYouConfig,
+                                InlineUpsellOperations inlineUpsellOperations) {
         this.playlistDiscoveryConfig = playlistDiscoveryConfig;
         this.featureFlags = featureFlags;
         this.recommendedTracksOperations = recommendedTracksOperations;
@@ -63,15 +63,15 @@ class DiscoveryModulesProvider {
         this.inlineUpsellOperations = inlineUpsellOperations;
     }
 
-    Observable<List<DiscoveryItem>> discoveryItems() {
+    Observable<List<OldDiscoveryItem>> discoveryItems() {
         return items(getItems(false));
     }
 
-    Observable<List<DiscoveryItem>> refreshItems() {
+    Observable<List<OldDiscoveryItem>> refreshItems() {
         return items(getItems(true));
     }
 
-    private List<Observable<DiscoveryItem>> getItems(boolean isRefresh) {
+    private List<Observable<OldDiscoveryItem>> getItems(boolean isRefresh) {
         if (playlistDiscoveryConfig.isEnabled()) {
             return itemsForPlaylistDiscoveryExperiment(isRefresh);
 
@@ -81,7 +81,7 @@ class DiscoveryModulesProvider {
         }
     }
 
-    private List<Observable<DiscoveryItem>> itemsForPlaylistDiscoveryExperiment(boolean isRefresh) {
+    private List<Observable<OldDiscoveryItem>> itemsForPlaylistDiscoveryExperiment(boolean isRefresh) {
         if (playlistDiscoveryConfig.isPlaylistDiscoveryFirst()) {
             return Arrays.asList(
                     userWelcome(isRefresh),
@@ -106,7 +106,7 @@ class DiscoveryModulesProvider {
         );
     }
 
-    private List<Observable<DiscoveryItem>> itemsForDefault(boolean isRefresh) {
+    private List<Observable<OldDiscoveryItem>> itemsForDefault(boolean isRefresh) {
         return Arrays.asList(
                 userWelcome(isRefresh),
                 newForYouFirst(isRefresh),
@@ -120,38 +120,38 @@ class DiscoveryModulesProvider {
         );
     }
 
-    private Observable<DiscoveryItem> upsell() {
+    private Observable<OldDiscoveryItem> upsell() {
         if (inlineUpsellOperations.shouldDisplayInDiscovery()) {
-            return Observable.just(DiscoveryItem.Default.create(DiscoveryItem.Kind.UpsellItem));
+            return Observable.just(OldDiscoveryItem.Default.create(OldDiscoveryItem.Kind.UpsellItem));
         }
         return Observable.empty();
     }
 
-    private Observable<DiscoveryItem> userWelcome(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> userWelcome(boolean isRefresh) {
         return !isRefresh && featureFlags.isEnabled(Flag.WELCOME_USER) ?
                welcomeUserOperations.welcome() :
                Observable.empty();
     }
 
-    private Observable<DiscoveryItem> recommendedTracks(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> recommendedTracks(boolean isRefresh) {
         return isRefresh ?
                recommendedTracksOperations.refreshRecommendedTracks() :
                recommendedTracksOperations.recommendedTracks();
     }
 
-    private Observable<DiscoveryItem> recommendedStations(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> recommendedStations(boolean isRefresh) {
         return isRefresh ?
                recommendedStationsOperations.refreshRecommendedStations() :
                recommendedStationsOperations.recommendedStations();
     }
 
-    private Observable<DiscoveryItem> charts(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> charts(boolean isRefresh) {
         return isRefresh ?
                 RxJava.toV1Observable(chartsOperations.refreshFeaturedCharts()) :
                 RxJava.toV1Observable(chartsOperations.featuredCharts());
     }
 
-    private Observable<DiscoveryItem> newForYouFirst(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> newForYouFirst(boolean isRefresh) {
         if (!newForYouConfig.isTopPositionEnabled()) {
             return Observable.empty();
         }
@@ -159,7 +159,7 @@ class DiscoveryModulesProvider {
         return newForYouItem(isRefresh);
     }
 
-    private Observable<DiscoveryItem> newForYouSecond(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> newForYouSecond(boolean isRefresh) {
         if (!newForYouConfig.isSecondPositionEnabled()) {
             return Observable.empty();
         }
@@ -167,7 +167,7 @@ class DiscoveryModulesProvider {
         return newForYouItem(isRefresh);
     }
 
-    private Observable<DiscoveryItem> newForYouItem(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> newForYouItem(boolean isRefresh) {
         final Observable<NewForYou> newForYouObservable = isRefresh ?
                                                           newForYouOperations.refreshNewForYou() :
                                                           newForYouOperations.newForYou();
@@ -179,7 +179,7 @@ class DiscoveryModulesProvider {
                                                            newForYou.tracks().subList(0, Math.min(newForYou.tracks().size(), MAX_NEW_FOR_YOU_TRACKS)))));
     }
 
-    private Observable<DiscoveryItem> recommendedPlaylists(boolean isRefresh) {
+    private Observable<OldDiscoveryItem> recommendedPlaylists(boolean isRefresh) {
         if (featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS) || playlistDiscoveryConfig.isEnabled()) {
             return isRefresh ?
                    recommendedPlaylistsOperations.refreshRecommendedPlaylists() :
@@ -188,19 +188,19 @@ class DiscoveryModulesProvider {
         return Observable.empty();
     }
 
-    private Observable<DiscoveryItem> playlistTags() {
+    private Observable<OldDiscoveryItem> playlistTags() {
         if (featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)) {
             return Observable.empty();
         }
         return playlistDiscoveryOperations.playlistTags();
     }
 
-    private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
+    private Observable<List<OldDiscoveryItem>> items(List<Observable<OldDiscoveryItem>> discoveryItems) {
         return Observable.just(discoveryItems)
                          .compose(RxUtils.concatEagerIgnorePartialErrors())
                          .defaultIfEmpty(EmptyViewItem.fromThrowable(new EmptyThrowable()))
                          .onErrorReturn(EmptyViewItem::fromThrowable)
-                         .startWith(DiscoveryItem.forSearchItem())
+                         .startWith(OldDiscoveryItem.forSearchItem())
                          .toList();
     }
 }

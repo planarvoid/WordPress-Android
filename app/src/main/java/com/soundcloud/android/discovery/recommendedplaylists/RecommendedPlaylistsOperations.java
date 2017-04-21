@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery.recommendedplaylists;
 
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -36,12 +36,12 @@ public class RecommendedPlaylistsOperations {
         this.entityItemCreator = entityItemCreator;
     }
 
-    public Observable<DiscoveryItem> recommendedPlaylists() {
+    public Observable<OldDiscoveryItem> recommendedPlaylists() {
         return syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)
                              .flatMap(o -> readRecommendedPlaylistsFromStorage());
     }
 
-    public Observable<DiscoveryItem> refreshRecommendedPlaylists() {
+    public Observable<OldDiscoveryItem> refreshRecommendedPlaylists() {
         return syncOperations.failSafeSync(Syncable.RECOMMENDED_PLAYLISTS)
                              .flatMap(o -> readRecommendedPlaylistsFromStorage());
     }
@@ -76,7 +76,7 @@ public class RecommendedPlaylistsOperations {
         };
     }
 
-    private Observable<? extends DiscoveryItem> readRecommendedPlaylistsFromStorage() {
+    private Observable<? extends OldDiscoveryItem> readRecommendedPlaylistsFromStorage() {
         return storage.recommendedPlaylists()
                       .flatMap(new Func1<List<RecommendedPlaylistsEntity>, Observable<RecommendedPlaylistsBucketItem>>() {
                           @Override

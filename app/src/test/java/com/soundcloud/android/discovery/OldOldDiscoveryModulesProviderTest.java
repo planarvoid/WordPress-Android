@@ -41,12 +41,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class DiscoveryModulesProviderTest extends AndroidUnitTest {
+public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
 
-    private static final Function<DiscoveryItem, DiscoveryItem.Kind> TO_KIND = DiscoveryItem::getKind;
-    private final TestSubscriber<List<DiscoveryItem>> subscriber = new TestSubscriber<>();
+    private static final Function<OldDiscoveryItem, OldDiscoveryItem.Kind> TO_KIND = OldDiscoveryItem::getKind;
+    private final TestSubscriber<List<OldDiscoveryItem>> subscriber = new TestSubscriber<>();
 
-    private DiscoveryModulesProvider discoveryModulesProvider;
+    private OldDiscoveryModulesProvider oldDiscoveryModulesProvider;
 
     @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
@@ -62,17 +62,17 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        discoveryModulesProvider = new DiscoveryModulesProvider(playlistDiscoveryConfig,
-                                                                featureFlags,
-                                                                recommendedTracksOperations,
-                                                                recommendedStationsOperations,
-                                                                recommendedPlaylistsOperations,
-                                                                chartsOperations,
-                                                                playlistDiscoveryOperations,
-                                                                welcomeUserOperations,
-                                                                newForYouOperations,
-                                                                newForYouConfig,
-                                                                inlineUpsellOperations);
+        oldDiscoveryModulesProvider = new OldDiscoveryModulesProvider(playlistDiscoveryConfig,
+                                                                      featureFlags,
+                                                                      recommendedTracksOperations,
+                                                                      recommendedStationsOperations,
+                                                                      recommendedPlaylistsOperations,
+                                                                      chartsOperations,
+                                                                      playlistDiscoveryOperations,
+                                                                      welcomeUserOperations,
+                                                                      newForYouOperations,
+                                                                      newForYouConfig,
+                                                                      inlineUpsellOperations);
 
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(false);
         when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(false);
@@ -83,11 +83,11 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final ChartsBucketItem chartsItem = ChartsBucketItem.from(ChartBucket.create(Collections.emptyList(),
                                                                                      Collections.emptyList()));
         final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.emptyList());
-        final DiscoveryItem tracksItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedTracksItem);
-        final DiscoveryItem playlistsItem = DiscoveryItem.Default.create(DiscoveryItem.Kind.RecommendedPlaylistsItem);
+        final OldDiscoveryItem tracksItem = OldDiscoveryItem.Default.create(OldDiscoveryItem.Kind.RecommendedTracksItem);
+        final OldDiscoveryItem playlistsItem = OldDiscoveryItem.Default.create(OldDiscoveryItem.Kind.RecommendedPlaylistsItem);
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
                                                                           Collections.emptyList());
-        final DiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.user());
+        final OldDiscoveryItem welcomeUserItem = WelcomeUserItem.create(ModelFixtures.user());
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.singletonList(Track.from(ModelFixtures.create(ApiTrack.class))));
 
         when(chartsOperations.featuredCharts()).thenReturn(io.reactivex.Observable.just(chartsItem));
@@ -102,73 +102,73 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadsAllItemsInOrderSearchStationsTracksTags() {
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsAllItemsIncludingWelcomeWhenEnabled() {
         when(featureFlags.isEnabled(Flag.WELCOME_USER)).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.WelcomeUserItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.WelcomeUserItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsAllItemsIncludingCharts() {
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsAllItemsExceptPlaylistDiscoveryWhenNewHomeIsEnabled() {
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.RecommendedPlaylistsItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.ChartItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.RecommendedPlaylistsItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.ChartItem
         );
     }
 
@@ -176,74 +176,74 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
     public void loadsAllItemsExceptPlaylistDiscoveryWhenPlaylistDiscoverySwitchIsEnabled() {
         when(playlistDiscoveryConfig.isEnabled()).thenReturn(true);
         when(playlistDiscoveryConfig.isPlaylistDiscoveryFirst()).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.RecommendedPlaylistsItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.RecommendedPlaylistsItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem
         );
     }
 
     @Test
     public void loadsAllItemsWithNewForYouOnTopWhenConfigEnabled() {
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.NewForYouItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.NewForYouItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsAllItemsWithNewForYouInSecondPositionWhenConfigEnabled() {
         when(newForYouConfig.isSecondPositionEnabled()).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.NewForYouItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.NewForYouItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
     @Test
     public void loadsRecommendedPlaylistItemsWhenFeatureFlagEnabled() {
         when(featureFlags.isEnabled(Flag.RECOMMENDED_PLAYLISTS)).thenReturn(true);
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.RecommendedPlaylistsItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.RecommendedPlaylistsItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem
         );
     }
 
@@ -252,18 +252,18 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.emptyList());
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.RecommendedTracksItem,
-                DiscoveryItem.Kind.UpsellItem,
-                DiscoveryItem.Kind.RecommendedStationsItem,
-                DiscoveryItem.Kind.ChartItem,
-                DiscoveryItem.Kind.PlaylistTagsItem
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.RecommendedTracksItem,
+                OldDiscoveryItem.Kind.UpsellItem,
+                OldDiscoveryItem.Kind.RecommendedStationsItem,
+                OldDiscoveryItem.Kind.ChartItem,
+                OldDiscoveryItem.Kind.PlaylistTagsItem
         );
     }
 
@@ -279,14 +279,14 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
         NewForYouDiscoveryItem discoveryItem = null;
-        for (DiscoveryItem item : discoveryItems) {
-            if (item.getKind() == DiscoveryItem.Kind.NewForYouItem) {
+        for (OldDiscoveryItem item : oldDiscoveryItems) {
+            if (item.getKind() == OldDiscoveryItem.Kind.NewForYouItem) {
                 discoveryItem = (NewForYouDiscoveryItem) item;
                 break;
             }
@@ -304,14 +304,14 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
         when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
         NewForYouDiscoveryItem discoveryItem = null;
-        for (DiscoveryItem item : discoveryItems) {
-            if (item.getKind() == DiscoveryItem.Kind.NewForYouItem) {
+        for (OldDiscoveryItem item : oldDiscoveryItems) {
+            if (item.getKind() == OldDiscoveryItem.Kind.NewForYouItem) {
                 discoveryItem = (NewForYouDiscoveryItem) item;
                 break;
             }
@@ -327,14 +327,14 @@ public class DiscoveryModulesProviderTest extends AndroidUnitTest {
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException("whoops"))));
         when(inlineUpsellOperations.shouldDisplayInDiscovery()).thenReturn(false);
 
-        discoveryModulesProvider.discoveryItems().subscribe(subscriber);
+        oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
-        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+        final List<OldDiscoveryItem> oldDiscoveryItems = subscriber.getOnNextEvents().get(0);
 
-        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
-                DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.Empty
+        assertThat(Lists.transform(oldDiscoveryItems, TO_KIND)).containsExactly(
+                OldDiscoveryItem.Kind.SearchItem,
+                OldDiscoveryItem.Kind.Empty
         );
     }
 }

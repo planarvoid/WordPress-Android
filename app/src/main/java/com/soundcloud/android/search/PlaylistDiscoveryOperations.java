@@ -11,7 +11,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
@@ -48,7 +48,7 @@ public class PlaylistDiscoveryOperations {
     private final EntityItemCreator entityItemCreator;
     private final Scheduler scheduler;
 
-    private static final Func1<DiscoveryItem, Boolean> IS_NOT_EMPTY = playlistDiscoveryItem -> !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
+    private static final Func1<OldDiscoveryItem, Boolean> IS_NOT_EMPTY = playlistDiscoveryItem -> !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
 
     private final Action1<ModelCollection<String>> cachePopularTags = new Action1<ModelCollection<String>>() {
         @Override
@@ -74,9 +74,9 @@ public class PlaylistDiscoveryOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<DiscoveryItem> playlistTags() {
+    public Observable<OldDiscoveryItem> playlistTags() {
         return popularPlaylistTags()
-                .zipWith(recentPlaylistTags(), (Func2<List<String>, List<String>, DiscoveryItem>) PlaylistTagsItem::create)
+                .zipWith(recentPlaylistTags(), (Func2<List<String>, List<String>, OldDiscoveryItem>) PlaylistTagsItem::create)
                 .filter(IS_NOT_EMPTY);
     }
 

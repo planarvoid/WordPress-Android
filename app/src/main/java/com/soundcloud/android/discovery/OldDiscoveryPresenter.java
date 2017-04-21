@@ -38,15 +38,15 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
-        implements DiscoveryAdapter.DiscoveryItemListenerBucket,
+class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>, OldDiscoveryItem>
+        implements OldDiscoveryAdapter.DiscoveryItemListenerBucket,
         TrackRecommendationListener, DiscoveryUpsellItemRenderer.Listener {
 
-    private final DiscoveryModulesProvider discoveryModulesProvider;
+    private final OldDiscoveryModulesProvider oldDiscoveryModulesProvider;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
-    private final DiscoveryOperations discoveryOperations;
+    private final OldDiscoveryOperations oldDiscoveryOperations;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
-    private final DiscoveryAdapter adapter;
+    private final OldDiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Navigator navigator;
     private final EventBus eventBus;
@@ -56,22 +56,22 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    DiscoveryPresenter(DiscoveryModulesProvider discoveryModulesProvider,
-                       SwipeRefreshAttacher swipeRefreshAttacher,
-                       DiscoveryAdapterFactory adapterFactory,
-                       RecommendationBucketRendererFactory recommendationBucketRendererFactory,
-                       ImagePauseOnScrollListener imagePauseOnScrollListener,
-                       Navigator navigator,
-                       EventBus eventBus,
-                       StartStationHandler startStationPresenter,
-                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
-                       UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
-                       DiscoveryOperations discoveryOperations,
-                       DiscoveryMeasurementsFactory discoveryMeasurementsFactory) {
+    OldDiscoveryPresenter(OldDiscoveryModulesProvider oldDiscoveryModulesProvider,
+                          SwipeRefreshAttacher swipeRefreshAttacher,
+                          OldDiscoveryAdapterFactory adapterFactory,
+                          RecommendationBucketRendererFactory recommendationBucketRendererFactory,
+                          ImagePauseOnScrollListener imagePauseOnScrollListener,
+                          Navigator navigator,
+                          EventBus eventBus,
+                          StartStationHandler startStationPresenter,
+                          TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
+                          UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
+                          OldDiscoveryOperations oldDiscoveryOperations,
+                          DiscoveryMeasurementsFactory discoveryMeasurementsFactory) {
         super(swipeRefreshAttacher, Options.defaults());
-        this.discoveryModulesProvider = discoveryModulesProvider;
+        this.oldDiscoveryModulesProvider = oldDiscoveryModulesProvider;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
-        this.discoveryOperations = discoveryOperations;
+        this.oldDiscoveryOperations = oldDiscoveryOperations;
         this.discoveryMeasurements = discoveryMeasurementsFactory.create();
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
@@ -89,7 +89,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     @Override
     public void onUpsellItemDismissed(int position) {
-        discoveryOperations.disableUpsell();
+        oldDiscoveryOperations.disableUpsell();
         removeItem(position);
     }
 
@@ -156,10 +156,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setDiscoveryListener(this);
         adapter.setUpsellItemListener(this);
-        final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
+        final Observable<List<OldDiscoveryItem>> source = oldDiscoveryModulesProvider
                 .discoveryItems()
                 .doOnCompleted(this::subscribeToUpdates);
 
@@ -171,10 +171,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     }
 
     @Override
-    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onRefreshBinding() {
+    protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onRefreshBinding() {
         discoveryMeasurements.startRefreshing();
         adapter.setDiscoveryListener(this);
-        final Observable<List<DiscoveryItem>> source = discoveryModulesProvider
+        final Observable<List<OldDiscoveryItem>> source = oldDiscoveryModulesProvider
                 .refreshItems()
                 .doOnCompleted(this::subscribeToUpdates);
 

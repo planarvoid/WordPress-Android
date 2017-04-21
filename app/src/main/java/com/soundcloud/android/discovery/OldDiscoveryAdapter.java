@@ -1,16 +1,16 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.Empty;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.NewForYouItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedPlaylistsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.UpsellItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.WelcomeUserItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.Empty;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.NewForYouItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedPlaylistsItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedStationsItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedTracksFooterItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.RecommendedTracksItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.UpsellItem;
+import static com.soundcloud.android.discovery.OldDiscoveryItem.Kind.WelcomeUserItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -33,7 +33,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, RecyclerView.ViewHolder>
+public class OldDiscoveryAdapter extends RecyclerItemAdapter<OldDiscoveryItem, RecyclerView.ViewHolder>
         implements RecommendedPlaylistsAdapter.QueryPositionProvider {
 
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -58,17 +58,17 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     }
 
     @SuppressWarnings("unchecked")
-    DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
-                     @Provided PlaylistTagRenderer playlistTagRenderer,
-                     @Provided SearchItemRenderer searchItemRenderer,
-                     @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
-                     @Provided RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer,
-                     @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
-                     @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
-                     @Provided WelcomeUserItemRenderer welcomeUserItemRenderer,
-                     @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer,
-                     @Provided NewForYouBucketRenderer newForYouBucketRenderer,
-                     @Provided DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer) {
+    OldDiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
+                        @Provided PlaylistTagRenderer playlistTagRenderer,
+                        @Provided SearchItemRenderer searchItemRenderer,
+                        @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
+                        @Provided RecommendedPlaylistsBucketRenderer recommendedPlaylistsBucketRenderer,
+                        @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
+                        @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
+                        @Provided WelcomeUserItemRenderer welcomeUserItemRenderer,
+                        @Provided EmptyOldDiscoveryItemRenderer emptyOldDiscoveryItemRenderer,
+                        @Provided NewForYouBucketRenderer newForYouBucketRenderer,
+                        @Provided DiscoveryUpsellItemRenderer discoveryUpsellItemRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
               new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
@@ -77,7 +77,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
               new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
               new CellRendererBinding<>(WelcomeUserItem.ordinal(), welcomeUserItemRenderer),
-              new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer),
+              new CellRendererBinding<>(Empty.ordinal(), emptyOldDiscoveryItemRenderer),
               new CellRendererBinding<>(NewForYouItem.ordinal(), newForYouBucketRenderer),
               new CellRendererBinding<>(UpsellItem.ordinal(), discoveryUpsellItemRenderer)
         );
@@ -102,9 +102,9 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
     @Override
     public int queryPosition(String bucketKey, int bucketPosition) {
         int queryPosition = bucketPosition;
-        for (DiscoveryItem discoveryItem : getItems()) {
-            if (discoveryItem.getKind() == RecommendedPlaylistsItem) {
-                final RecommendedPlaylistsBucketItem playlistsBucketItem = (RecommendedPlaylistsBucketItem) discoveryItem;
+        for (OldDiscoveryItem oldDiscoveryItem : getItems()) {
+            if (oldDiscoveryItem.getKind() == RecommendedPlaylistsItem) {
+                final RecommendedPlaylistsBucketItem playlistsBucketItem = (RecommendedPlaylistsBucketItem) oldDiscoveryItem;
                 if (!playlistsBucketItem.key().equals(bucketKey)) {
                     queryPosition += playlistsBucketItem.playlists().size();
                 }
@@ -120,7 +120,7 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         welcomeUserItemRenderer.setListener(itemListener);
     }
 
-    void setItem(int position, DiscoveryItem item) {
+    void setItem(int position, OldDiscoveryItem item) {
         if (containsItem(item)) {
             items.set(position, item);
             notifyItemChanged(position);
@@ -130,11 +130,11 @@ public class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, Recycle
         }
     }
 
-    private boolean containsItem(DiscoveryItem item) {
+    private boolean containsItem(OldDiscoveryItem item) {
         return findItemIndex(item.getKind()) >= 0;
     }
 
-    private int findItemIndex(final DiscoveryItem.Kind kind) {
+    private int findItemIndex(final OldDiscoveryItem.Kind kind) {
         return Iterables.indexOf(getItems(), input -> input.getKind() == kind);
     }
 

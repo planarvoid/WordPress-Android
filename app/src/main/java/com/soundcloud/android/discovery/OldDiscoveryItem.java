@@ -3,17 +3,17 @@ package com.soundcloud.android.discovery;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.java.functions.Predicate;
 
-public abstract class DiscoveryItem {
+public abstract class OldDiscoveryItem {
 
-    public static Predicate<DiscoveryItem> byKind(final Kind kind) {
+    public static Predicate<OldDiscoveryItem> byKind(final Kind kind) {
         return input -> input.getKind() == kind;
     }
 
-    public static DiscoveryItem forRecommendedTracksFooter() {
+    public static OldDiscoveryItem forRecommendedTracksFooter() {
         return Default.create(Kind.RecommendedTracksFooterItem);
     }
 
-    static DiscoveryItem forSearchItem() {
+    static OldDiscoveryItem forSearchItem() {
         return Default.create(Kind.SearchItem);
     }
 
@@ -35,9 +35,9 @@ public abstract class DiscoveryItem {
     public abstract Kind getKind();
 
     @AutoValue
-    abstract static class Default extends DiscoveryItem {
-        public static DiscoveryItem create(Kind kind) {
-            return new AutoValue_DiscoveryItem_Default(kind);
+    abstract static class Default extends OldDiscoveryItem {
+        public static OldDiscoveryItem create(Kind kind) {
+            return new AutoValue_OldDiscoveryItem_Default(kind);
         }
     }
 }

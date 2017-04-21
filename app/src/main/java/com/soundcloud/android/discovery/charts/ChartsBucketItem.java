@@ -6,7 +6,7 @@ import static com.soundcloud.java.collections.Iterables.tryFind;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.OldDiscoveryItem;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -14,7 +14,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-public abstract class ChartsBucketItem extends DiscoveryItem {
+public abstract class ChartsBucketItem extends OldDiscoveryItem {
     private static final Function<Chart, ChartListItem> TO_PRESENTATION_MODEL = chart -> new ChartListItem(chart.trackArtworks(),
                                                                                                    chart.genre(),
                                                                                                    chart.displayName(),
