@@ -2,19 +2,20 @@ package com.soundcloud.android.olddiscovery.recommendations;
 
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,12 +40,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                                                                                QUERY_POSITION,
                                                                                Urn.NOT_SET);
 
-    @Mock private ImageOperations imageOperations;
-    @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
     @Mock private Navigator navigator;
     @Mock private RecommendationRendererFactory recommendationRendererFactory;
     @Mock private TrackRecommendationListener listener;
     @Mock private RecommendationRenderer recommendationRenderer;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Before
     public void setUp() {
@@ -123,18 +123,28 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         assertThat(ButterKnife.<View>findById(itemView, R.id.recommendations_view_all)).isGone();
     }
 
+    @Test
+    public void onSeeAllButtonClickShouldStartLoadingMeasurement() {
+        final RecommendationBucketRenderer renderer = createDefaultRenderer();
+        renderer.onViewAllButtonClick(mock(View.class));
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.SUGGESTED_TRACKS_LOAD);
+    }
+
     private RecommendationBucketRenderer createViewAllRenderer() {
         return new RecommendationBucketRenderer(true,
                                                 listener,
                                                 recommendationRendererFactory,
-                                                navigator);
+                                                navigator,
+                                                performanceMetricsEngine);
     }
 
     private RecommendationBucketRenderer createDefaultRenderer() {
         return new RecommendationBucketRenderer(false,
                                                 listener,
                                                 recommendationRendererFactory,
-                                                navigator);
+                                                navigator,
+                                                performanceMetricsEngine);
     }
 
     private View createItemView(RecommendationBucketRenderer renderer) {

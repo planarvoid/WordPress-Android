@@ -5,6 +5,8 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -30,6 +32,7 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
 
     private final boolean isViewAllBucket;
     private final RecommendationRendererFactory rendererFactory;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
 
     private final TrackRecommendationListener listener;
@@ -39,11 +42,13 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
             boolean isViewAllBucket,
             TrackRecommendationListener listener,
             @Provided RecommendationRendererFactory rendererFactory,
-            @Provided Navigator navigator) {
+            @Provided Navigator navigator,
+            @Provided PerformanceMetricsEngine performanceMetricsEngine) {
         this.isViewAllBucket = isViewAllBucket;
         this.listener = listener;
         this.navigator = navigator;
         this.rendererFactory = rendererFactory;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -84,8 +89,13 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
         viewAllButton.setVisibility(visibility);
 
         if (isViewAllBucket) {
-            viewAllButton.setOnClickListener(v -> navigator.openViewAllRecommendations(v.getContext()));
+            viewAllButton.setOnClickListener(this::onViewAllButtonClick);
         }
+    }
+
+    void onViewAllButtonClick(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.SUGGESTED_TRACKS_LOAD);
+        navigator.openViewAllRecommendations(v.getContext());
     }
 
     private void bindReasonView(View bucketView, final RecommendedTracksBucketItem bucket) {

@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.olddiscovery.OldDiscoveryAdapter;
 import com.soundcloud.android.olddiscovery.OldDiscoveryAdapterFactory;
 import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
@@ -38,9 +40,11 @@ import android.view.View;
 import java.util.List;
 
 public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
+
     private static final Urn SEED_URN = new Urn("soundcloud:tracks:seed");
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final TrackQueueItem TRACK_QUEUE_ITEM = TestPlayQueueItem.createTrack(TRACK_URN);
+
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private View view;
     @Mock private Fragment fragment;
@@ -56,6 +60,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<OldDiscoveryItem> oldDiscoveryItems;
     @Mock private UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     private UpdatePlayableAdapterSubscriber updatePlayableAdapterSubscriber;
     private ViewAllRecommendedTracksPresenter presenter;
@@ -83,7 +88,8 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
                                                                adapterFactory,
                                                                eventBus,
                                                                trackRecommendationPlaybackInitiator,
-                                                               updatePlayableAdapterSubscriberFactory);
+                                                               updatePlayableAdapterSubscriberFactory,
+                                                               performanceMetricsEngine);
     }
 
     @Test
@@ -128,5 +134,12 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
                                                                             TRACK_URN,
                                                                             Screen.RECOMMENDATIONS_MAIN,
                                                                             oldDiscoveryItems);
+    }
+
+    @Test
+    public void shouldEndMeasuringLoadingTime() {
+        presenter.onCreate(fragment, null);
+
+        verify(performanceMetricsEngine).endMeasuring(MetricType.SUGGESTED_TRACKS_LOAD);
     }
 }

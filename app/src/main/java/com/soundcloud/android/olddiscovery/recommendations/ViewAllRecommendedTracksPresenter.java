@@ -1,12 +1,15 @@
 package com.soundcloud.android.olddiscovery.recommendations;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.OldDiscoveryAdapter;
 import com.soundcloud.android.olddiscovery.OldDiscoveryAdapterFactory;
 import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -30,6 +33,7 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<OldDi
     private final RecommendedTracksOperations operations;
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final OldDiscoveryAdapter adapter;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final EventBus eventBus;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private Subscription subscription;
@@ -42,10 +46,12 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<OldDi
                                       OldDiscoveryAdapterFactory adapterFactory,
                                       EventBus eventBus,
                                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
-                                      UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory) {
+                                      UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory,
+                                      PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, Options.custom().build());
         this.operations = operations;
         this.updatePlayableAdapterSubscriberFactory = updatePlayableAdapterSubscriberFactory;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(false, this));
         this.eventBus = eventBus;
         this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
@@ -85,12 +91,19 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<OldDi
 
     @Override
     protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onBuildBinding(Bundle bundle) {
-        return createCollectionBinding();
+        return collectionBindingBuilder()
+                .addObserver(onNext(o -> endMeasuringLoadingPerformance()))
+                .build();
+    }
+
+    private void endMeasuringLoadingPerformance() {
+        performanceMetricsEngine.endMeasuring(MetricType.SUGGESTED_TRACKS_LOAD);
     }
 
     @Override
     protected CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> onRefreshBinding() {
-        return createCollectionBinding();
+        return collectionBindingBuilder()
+                .build();
     }
 
     @Override
@@ -98,12 +111,12 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<OldDi
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private CollectionBinding<List<OldDiscoveryItem>, OldDiscoveryItem> createCollectionBinding() {
+    private CollectionBinding.Builder<List<OldDiscoveryItem>, OldDiscoveryItem, List<OldDiscoveryItem>> collectionBindingBuilder() {
         return CollectionBinding
                 .from(getSource())
-                .withAdapter(adapter)
-                .build();
+                .withAdapter(adapter);
     }
+
 
     private Observable<List<OldDiscoveryItem>> getSource() {
         return operations.allBuckets()
