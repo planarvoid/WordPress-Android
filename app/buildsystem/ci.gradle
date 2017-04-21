@@ -1,3 +1,17 @@
+import se.bjurr.violations.comments.github.plugin.gradle.ViolationCommentsToGitHubGradlePlugin
+import se.bjurr.violations.comments.github.plugin.gradle.ViolationCommentsToGitHubTask
+import se.bjurr.violations.lib.model.SEVERITY
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+  dependencies {
+    classpath 'se.bjurr.violations:violation-comments-to-github-gradle-plugin:1.26'
+  }
+}
+
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
@@ -13,6 +27,29 @@ subprojects {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${project.('buildType').capitalize()}",
                                 "assembleProd${project.('buildType').capitalize()}"]) {
   description = 'Performs static analysis of code.'
+}
+
+if (System.env.containsKey('JENKINS_URL')) {
+  apply plugin: ViolationCommentsToGitHubGradlePlugin
+  task violationCommentsToGitHub(type: ViolationCommentsToGitHubTask) {
+    description "Finds report files from static code analysis and comment pull requests in GitHub with them."
+
+    repositoryOwner = "soundcloud"
+    repositoryName = "android-listeners"
+
+    pullRequestId = System.getenv('ghprbPullId')
+    oAuth2Token = System.getenv('GITHUB_ACCESS_TOKEN')
+    gitHubUrl = "https://api.github.com/"
+
+    minSeverity = SEVERITY.INFO //ERROR, INFO, WARN
+    violations = [
+            ["FINDBUGS",    "app/build/reports", ".*/findbugs/.*\\.xml\$"],
+            ["PMD",         "app/build/reports", ".*/pmd/.*\\.xml\$"],
+            ["CHECKSTYLE",  "app/build/reports", ".*/checkstyle/.*\\.xml\$"],
+            ["ANDROIDLINT", "app/build/reports", ".*/lint-.*\\.xml\$"]
+    ]
+  }
+  violationCommentsToGitHub.mustRunAfter('staticAnalysis')
 }
 
 // *********************************************************************************************************************
