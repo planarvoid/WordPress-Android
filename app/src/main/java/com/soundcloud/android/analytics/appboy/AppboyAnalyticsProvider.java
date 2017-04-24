@@ -11,6 +11,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 
 import android.content.Context;
@@ -62,6 +63,8 @@ public class AppboyAnalyticsProvider extends DefaultAnalyticsProvider {
             eventHandler.handleEvent((AttributionEvent) event);
         } else if (event instanceof OfflineInteractionEvent) {
             eventHandler.handleEvent((OfflineInteractionEvent) event);
+        } else if (event instanceof UpgradeFunnelEvent) {
+            eventHandler.handleEvent((UpgradeFunnelEvent) event);
         }
     }
 

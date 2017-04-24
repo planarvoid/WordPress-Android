@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider;
@@ -300,6 +301,33 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         eventHandler.handleEvent(event);
 
         verify(appboy).logCustomEvent("used_offline_sd_card");
+    }
+
+    @Test
+    public void shouldTrackSubscriptionModal() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forConversionPromoImpression();
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("subscription_modal_view");
+    }
+
+    @Test
+    public void shouldTrackMidTierPlanPicker() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forChooserBuyMidTierImpression();
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("subscription_plan_picker_mid_tier");
+    }
+
+    @Test
+    public void shouldTrackHighTierPlanPicker() {
+        UpgradeFunnelEvent event = UpgradeFunnelEvent.forChooserBuyHighTierImpression();
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("subscription_plan_picker_high_tier");
     }
 
     private AppboyProperties enabled(String context) {

@@ -17,6 +17,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.java.strings.Strings;
 
@@ -85,6 +86,33 @@ class AppboyEventHandler {
 
     private boolean isOfflineContentContextEvent(OfflineInteractionEvent event) {
         return event.offlineContentContext().isPresent() && event.isEnabled().isPresent();
+    }
+
+    void handleEvent(UpgradeFunnelEvent event) {
+        if (isConversionEvent(event)) {
+            tagEvent(AppboyEvents.SUBSCRIPTION_MODAL_VIEW);
+        } else if (isChooserBuyMidTierEvent(event)) {
+            tagEvent(AppboyEvents.SUBSCRIPTION_PLAN_PICKER_MID_TIER);
+        } else if (isChooserBuyHighTierEvent(event)) {
+            tagEvent(AppboyEvents.SUBSCRIPTION_PLAN_PICKER_HIGH_TIER);
+        }
+    }
+
+    private boolean isConversionEvent(UpgradeFunnelEvent event) {
+        return UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION == event.kind()
+                && isTCode(event, UpgradeFunnelEvent.TCode.CONVERSION_PROMO) || isTCode(event, UpgradeFunnelEvent.TCode.CONVERSION_BUY);
+    }
+
+    private boolean isTCode(UpgradeFunnelEvent event, UpgradeFunnelEvent.TCode tCode) {
+        return event.impressionObject().isPresent() && tCode.code().equals(event.impressionObject().get());
+    }
+
+    private boolean isChooserBuyMidTierEvent(UpgradeFunnelEvent event) {
+        return UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION == event.kind() && isTCode(event, UpgradeFunnelEvent.TCode.CHOOSER_BUY_MID_TIER);
+    }
+
+    private boolean isChooserBuyHighTierEvent(UpgradeFunnelEvent event) {
+        return UpgradeFunnelEvent.Kind.UPSELL_IMPRESSION == event.kind() && isTCode(event, UpgradeFunnelEvent.TCode.CHOOSER_BUY_HIGH_TIER);
     }
 
     void handleEvent(AttributionEvent event) {
