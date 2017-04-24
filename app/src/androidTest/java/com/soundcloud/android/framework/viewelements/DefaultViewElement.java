@@ -266,6 +266,11 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public AppBarLayoutElement toAppBarLayout() {
+        return new AppBarLayoutElement(view, testDriver);
+    }
+
+    @Override
     public Tabs toTabs() {
         return new Tabs(testDriver);
     }

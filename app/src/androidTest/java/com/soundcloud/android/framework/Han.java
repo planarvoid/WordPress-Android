@@ -18,6 +18,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
@@ -308,6 +309,12 @@ public class Han {
     public ViewElement scrollToFirstItemUnderHeader(With headerIdentifier, final With itemIdentifier) {
         final ViewElement header = scrollToItemInRecyclerView(headerIdentifier);
         return scrollToElementsBelow(itemIdentifier, header).get(0);
+    }
+
+    public void collapseAppBarLayout(final AppBarLayout appBarLayout) {
+        instrumentation.runOnMainSync(
+                () -> appBarLayout.setExpanded(false, false)
+        );
     }
 
     private List<ViewElement> scrollToElementsBelow(With itemIdentifier, final ViewElement topElement) {

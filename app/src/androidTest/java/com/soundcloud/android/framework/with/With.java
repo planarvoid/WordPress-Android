@@ -1,5 +1,6 @@
 package com.soundcloud.android.framework.with;
 
+import com.soundcloud.android.framework.viewelements.DefaultViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.java.functions.Predicate;

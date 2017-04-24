@@ -131,6 +131,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public AppBarLayoutElement toAppBarLayout() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public Tabs toTabs() {
         throw new ViewNotFoundException(selector);
     }

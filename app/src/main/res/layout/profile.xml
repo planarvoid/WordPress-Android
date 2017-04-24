@@ -9,6 +9,7 @@
     app:umanoPanelHeight="@dimen/player_footer">
 
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/profile_coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">

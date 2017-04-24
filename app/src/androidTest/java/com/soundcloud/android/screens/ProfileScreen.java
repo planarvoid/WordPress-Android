@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.Tabs;
@@ -22,6 +21,7 @@ import com.soundcloud.android.screens.profile.UserRepostsScreen;
 import com.soundcloud.android.screens.profile.UserTracksScreen;
 import com.soundcloud.java.functions.Function;
 
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.List;
@@ -86,7 +86,7 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement playTrackWithTitle(final String title) {
-        ViewElement viewElement = scrollToItem(
+        ViewElement viewElement = scrollToItemInProfile(
                 With.and(
                         With.id(R.id.track_list_item),
                         TrackItemElement.WithTitle(testDriver, title)));
@@ -105,12 +105,12 @@ public class ProfileScreen extends Screen {
     }
 
     public ViewElement albumsHeader() {
-        return scrollToItem(With.text(R.string.user_profile_sounds_header_albums));
+        return scrollToItemInProfile(With.text(R.string.user_profile_sounds_header_albums));
     }
 
     public List<PlaylistElement> scrollToPlaylists() {
         // need to scroll to the playlist header first
-        scrollToItem(With.text(R.string.user_profile_sounds_header_playlists));
+        scrollToItemInProfile(With.text(R.string.user_profile_sounds_header_playlists));
         return playlists(com.soundcloud.android.R.id.playlist_list_item);
     }
 
@@ -256,7 +256,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen scrollToViewAllTracks() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks)));
+        scrollToItemInProfile(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks)));
 
         return this;
     }
@@ -268,7 +268,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen scrollToViewAllPlaylists() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)));
+        scrollToItemInProfile(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)));
 
         return this;
     }
@@ -281,7 +281,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen scrollToViewAllReposts() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts)));
+        scrollToItemInProfile(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts)));
 
         return this;
     }
@@ -293,7 +293,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen scrollToViewAllLikes() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes)));
+        scrollToItemInProfile(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes)));
 
         return this;
     }
@@ -306,5 +306,11 @@ public class ProfileScreen extends Screen {
 
     public String firstSocialLinkText() {
         return new TextElement(testDriver.findOnScreenElement(With.id(R.id.social_link))).getText();
+    }
+
+    private ViewElement scrollToItemInProfile(With with) {
+        ViewElement profileCoordinator = testDriver.findOnScreenElement(With.id(R.id.profile_coordinator));
+        profileCoordinator.findElement(With.className(AppBarLayout.class)).toAppBarLayout().collapse();
+        return testDriver.scrollToItemInRecyclerView(with);
     }
 }

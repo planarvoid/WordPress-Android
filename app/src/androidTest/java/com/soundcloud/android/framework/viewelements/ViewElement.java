@@ -70,6 +70,8 @@ public abstract class ViewElement {
 
     public abstract RecyclerViewElement toRecyclerView();
 
+    public abstract AppBarLayoutElement toAppBarLayout();
+
     public abstract Tabs toTabs();
 
     public abstract ViewParent getParent();
