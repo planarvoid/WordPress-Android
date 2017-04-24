@@ -8,8 +8,12 @@ try {
     node('chaos-slave') {
       checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'WipeWorkspace']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android.git']]]
 
-      def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
-      env.PIPELINE_VERSION=BUILD_NUMBER+'-'+gitCommit
+      def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+      env.GIT_SHA=gitCommit
+
+      def shortCommit = gitCommit.substring(0, 7)
+      env.PIPELINE_VERSION=BUILD_NUMBER+'-'+shortCommit
+
       currentBuild.displayName=env.PIPELINE_VERSION
       stash name: 'repository'
     }
@@ -59,8 +63,6 @@ try {
 } finally {
   stage('Reporting') {
     node('chaos-slave') {
-      deleteDir()
-      unstash 'repository'
       def status
       def emailSubject = "$JOB_NAME - Build # $BUILD_NUMBER - "
       if (success) {
@@ -74,7 +76,7 @@ try {
       emailext body: '<p>${SCRIPT, template="random-gif.template"}</p>See this build on Jenkins: $JOB_URL', mimeType: 'text/html', replyTo: '$DEFAULT_REPLYTO', subject: emailSubject, to: 'marvin.ramin@soundcloud.com'
 
       if (success) {
-        sh 'git push origin HEAD:green_master || echo "Not updating green_master. Already ahead."'
+        sh "./scripts/update_green_master.sh $GIT_SHA"
       } else {
         // to mark build as failed
         throw exc
