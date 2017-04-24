@@ -144,7 +144,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
         trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
 
-        final Track propertySet = Track.builder(track).description(Optional.of(DESCRIPTION)).build();
+        final Track propertySet = track.toBuilder().description(Optional.of(DESCRIPTION)).build();
         assertThat(propSubscriber.getOnNextEvents()).containsExactly(propertySet, propertySet);
         verify(trackStorage, times(2)).loadTrack(trackUrn);
     }

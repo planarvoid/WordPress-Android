@@ -36,6 +36,8 @@ public abstract class DatabaseMigrationEvent extends TrackingEvent implements Me
 
     abstract Optional<String> failureReason();
 
+    abstract Builder toBuilder();
+
     public static DatabaseMigrationEvent forSuccessfulMigration(long duration) {
         return builder(Kind.SUCCESS, duration).build();
     }
@@ -47,7 +49,7 @@ public abstract class DatabaseMigrationEvent extends TrackingEvent implements Me
 
     @Override
     public DatabaseMigrationEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_DatabaseMigrationEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @Override

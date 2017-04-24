@@ -108,12 +108,12 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
     }
 
     private Track expectedHighTierMonetizableTrackFor(ApiTrack track) {
-        return Track.builder(Track.from(track)).subMidTier(false).subHighTier(true).build();
+        return Track.from(track).toBuilder().subMidTier(false).subHighTier(true).build();
 
     }
 
     private Track fromApiTrack(ApiTrack apiTrack, OfflineState offlineState) {
-        return Track.builder(Track.from(apiTrack)).offlineState(offlineState).build();
+        return Track.from(apiTrack).toBuilder().offlineState(offlineState).build();
     }
 
     private ApiPlaylist insertPostedPlaylist() {

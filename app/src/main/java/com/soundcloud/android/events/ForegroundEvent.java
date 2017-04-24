@@ -23,6 +23,8 @@ public abstract class ForegroundEvent extends TrackingEvent {
 
     public abstract String referrer();
 
+    public abstract Builder toBuilder();
+
     public static ForegroundEvent open(Screen screen, Referrer referrer) {
         return open(screen, referrer.value());
     }
@@ -43,7 +45,7 @@ public abstract class ForegroundEvent extends TrackingEvent {
 
     @Override
     public ForegroundEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_ForegroundEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

@@ -107,6 +107,8 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
 
     public abstract boolean sendToEventLogger();
 
+    abstract Builder toBuilder();
+
     public static OfflineInteractionEvent fromOnboardingStart() {
         return clickEventBuilder(Kind.KIND_ONBOARDING_START).build();
     }
@@ -193,7 +195,7 @@ public abstract class OfflineInteractionEvent extends TrackingEvent {
 
     @Override
     public OfflineInteractionEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_OfflineInteractionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     private static OfflineInteractionEvent.Builder clickEventBuilder(Kind kind) {

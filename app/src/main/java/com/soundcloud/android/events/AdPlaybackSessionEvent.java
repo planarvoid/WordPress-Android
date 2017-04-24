@@ -97,6 +97,8 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     public abstract boolean shouldReportStartWithPlay();
 
+    abstract Builder toBuilder();
+
     public static AdPlaybackSessionEvent forFirstQuartile(PlayableAdData adData, TrackSourceInfo trackSourceInfo) {
         return createQuartileEvent(adData, trackSourceInfo, adData.firstQuartileUrls(), ClickName.FIRST_QUARTILE_TYPE);
     }
@@ -205,6 +207,6 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
 
     @Override
     public AdPlaybackSessionEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_AdPlaybackSessionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 }

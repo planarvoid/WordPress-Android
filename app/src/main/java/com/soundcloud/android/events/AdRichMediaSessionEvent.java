@@ -84,6 +84,7 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
     public abstract Optional<Urn> sourceUrn();
 
+    public abstract Builder toBuilder();
 
     public static AdRichMediaSessionEvent forPlay(PlayableAdData adData, AdSessionEventArgs eventArgs) {
         return create(Action.AUDIO_ACTION_PLAY, adData, eventArgs).build();
@@ -124,7 +125,7 @@ public abstract class AdRichMediaSessionEvent extends TrackingEvent {
 
     @Override
     public AdRichMediaSessionEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_AdRichMediaSessionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

@@ -542,7 +542,7 @@ public class ModelFixtures {
     }
 
     public static Track.Builder trackBuilder() {
-        return Track.builder(Track.from(create(ApiTrack.class)));
+        return Track.from(create(ApiTrack.class)).toBuilder();
     }
 
     public static Track.Builder baseTrackBuilder() {
@@ -559,7 +559,7 @@ public class ModelFixtures {
     }
 
     public static Track.Builder trackBuilder(ApiTrack apiTrack) {
-        return Track.builder(Track.from(apiTrack));
+        return Track.from(apiTrack).toBuilder();
     }
 
     public static Track trackWithUrnAndMonetizable(Urn currentTrackUrn, boolean monetizable) {

@@ -39,6 +39,8 @@ public abstract class ScrollDepthEvent extends TrackingEvent {
 
     public abstract List<ItemDetails> latestItems();
 
+    abstract Builder toBuilder();
+
     public ItemDetails earliestItem() {
         return Collections.min(earliestItems(), itemDetailsComparator());
     }
@@ -68,7 +70,7 @@ public abstract class ScrollDepthEvent extends TrackingEvent {
 
     @Override
     public ScrollDepthEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_ScrollDepthEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue

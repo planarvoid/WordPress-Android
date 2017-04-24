@@ -46,7 +46,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final Track.Builder expected = Track.builder(Track.from(apiTrack));
+        final Track.Builder expected = Track.from(apiTrack).toBuilder();
         expected.offlineState(OfflineState.DOWNLOADED);
         assertThat(track.get()).isEqualTo(expected.build());
     }
@@ -58,7 +58,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         Optional<Track> track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
-        final Track.Builder expected = Track.builder(Track.from(apiTrack));
+        final Track.Builder expected = Track.from(apiTrack).toBuilder();
         expected.offlineState(OfflineState.NOT_OFFLINE);
         assertThat(track.get()).isEqualTo(expected.build());
     }

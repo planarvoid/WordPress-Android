@@ -89,6 +89,8 @@ public abstract class PlaybackSessionEvent extends TrackingEvent {
 
     public abstract Optional<List<String>> promotedPlayUrls();
 
+    public abstract Builder toBuilder();
+
     public static PlaybackSessionEvent forPlayStart(PlaybackSessionEventArgs args) {
         return PlaybackSessionEvent.create(EVENT_KIND_PLAY_START, args).build();
     }
@@ -143,7 +145,7 @@ public abstract class PlaybackSessionEvent extends TrackingEvent {
 
     // Promoted track
     public static PlaybackSessionEvent copyWithPromotedTrack(PlaybackSessionEvent playbackSessionEvent, PromotedSourceInfo promotedSource) {
-        final AutoValue_PlaybackSessionEvent.Builder builder = new AutoValue_PlaybackSessionEvent.Builder(playbackSessionEvent);
+        final Builder builder = playbackSessionEvent.toBuilder();
         builder.adUrn(Optional.of(promotedSource.getAdUrn()));
         builder.monetizationType(Optional.of(MONETIZATION_PROMOTED));
         builder.promoterUrn(promotedSource.getPromoterUrn());

@@ -70,6 +70,8 @@ public abstract class PromotedTrackingEvent extends TrackingEvent {
 
     public abstract Optional<String> clickName();
 
+    abstract Builder toBuilder();
+
     private static PromotedTrackingEvent.Builder create(Kind kind, String adUrn, Optional<Urn> promoterUrn, List<String> trackingUrls, String screen) {
         return new AutoValue_PromotedTrackingEvent.Builder().id(defaultId())
                                                             .timestamp(defaultTimestamp())
@@ -122,7 +124,7 @@ public abstract class PromotedTrackingEvent extends TrackingEvent {
 
     @Override
     public PromotedTrackingEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_PromotedTrackingEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

@@ -4,7 +4,6 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -69,17 +68,14 @@ public abstract class Track {
 
     public abstract Optional<String> genre();
 
-    @VisibleForTesting
-    public static Builder builder(Track track) {
-        return new AutoValue_Track.Builder(track);
-    }
+    public abstract Builder toBuilder();
 
     public static Builder builder() {
         return new AutoValue_Track.Builder();
     }
 
     public static Track copyWithDescription(Track track, Optional<String> description) {
-        return new AutoValue_Track.Builder(track).description(description).build();
+        return track.toBuilder().description(description).build();
     }
 
     public static Track from(ApiTrack apiTrack) {

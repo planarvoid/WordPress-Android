@@ -55,6 +55,8 @@ public abstract class FacebookInvitesEvent extends TrackingEvent {
 
     public abstract Optional<InteractionName> impressionName();
 
+    public abstract Builder toBuilder();
+
     public static FacebookInvitesEvent forListenerShown(boolean hasPictures) {
         return baseImpressionEvent(withListenerImages(hasPictures));
     }
@@ -81,7 +83,7 @@ public abstract class FacebookInvitesEvent extends TrackingEvent {
 
     @Override
     public FacebookInvitesEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_FacebookInvitesEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     private static FacebookInvitesEvent.Builder baseEvent(String screen, EventName eventName) {

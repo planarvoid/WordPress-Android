@@ -75,9 +75,11 @@ public abstract class CollectionEvent extends TrackingEvent {
 
     public abstract Optional<DiscoverySource> source();
 
+    abstract Builder toBuilder();
+
     @Override
     public CollectionEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_CollectionEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     public static CollectionEvent forClearFilter() {

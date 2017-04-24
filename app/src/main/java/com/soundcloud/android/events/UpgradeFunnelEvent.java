@@ -171,6 +171,8 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
 
     public abstract Optional<AdjustToken> adjustToken();
 
+    public abstract Builder toBuilder();
+
     @NotNull
     @Override
     public String getKind() {
@@ -459,7 +461,7 @@ public abstract class UpgradeFunnelEvent extends TrackingEvent {
 
     @Override
     public UpgradeFunnelEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_UpgradeFunnelEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

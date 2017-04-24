@@ -59,9 +59,11 @@ public abstract class SearchEvent extends TrackingEvent {
 
     public abstract Optional<Kind> kind();
 
+    public abstract Builder toBuilder();
+
     @Override
     public SearchEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_SearchEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     public static SearchEvent recentTagSearch() {

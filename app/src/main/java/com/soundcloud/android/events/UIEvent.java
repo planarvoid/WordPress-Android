@@ -247,6 +247,8 @@ public abstract class UIEvent extends TrackingEvent {
 
     public abstract Optional<Action> action();
 
+    public abstract Builder toBuilder();
+
     public static UIEvent fromPlayerOpen(boolean manual) {
         return event(Kind.PLAYER_OPEN, ClickName.PLAYER_OPEN).trigger(Optional.of(manual ? Trigger.MANUAL : Trigger.AUTO)).build();
     }
@@ -509,7 +511,7 @@ public abstract class UIEvent extends TrackingEvent {
 
     @Override
     public UIEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_UIEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

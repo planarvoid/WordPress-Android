@@ -272,7 +272,7 @@ public abstract class PlayableFixtures {
     }
 
     private static TrackItem.Builder builderFromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted) {
-        final Track.Builder builder = Track.builder(Track.from(apiTrack));
+        final Track.Builder builder = Track.from(apiTrack).toBuilder();
         builder.isPrivate(isPrivate);
         builder.userLike(isLiked);
         builder.userRepost(isReposted);

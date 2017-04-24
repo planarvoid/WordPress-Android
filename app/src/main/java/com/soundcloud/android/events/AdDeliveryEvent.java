@@ -19,6 +19,8 @@ public abstract class AdDeliveryEvent extends TrackingEvent {
 
     public abstract boolean playerVisible();
 
+    abstract Builder toBuilder();
+
     public static AdDeliveryEvent adDelivered(Optional<Urn> monetizableUrn, Urn adUrn, String adRequestId, boolean playerVisible, boolean inForeground) {
         return new AutoValue_AdDeliveryEvent.Builder().id(defaultId())
                                                       .timestamp(defaultTimestamp())
@@ -33,7 +35,7 @@ public abstract class AdDeliveryEvent extends TrackingEvent {
 
     @Override
     public AdDeliveryEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_AdDeliveryEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder

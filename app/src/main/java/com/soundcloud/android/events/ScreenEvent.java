@@ -24,6 +24,7 @@ public abstract class ScreenEvent extends TrackingEvent {
 
     public abstract Optional<Urn> pageUrn();
 
+    public abstract Builder toBuilder();
 
     public static ScreenEvent create(Screen screen) {
         return create(screen.get());
@@ -61,7 +62,7 @@ public abstract class ScreenEvent extends TrackingEvent {
 
     @Override
     public ScreenEvent putReferringEvent(ReferringEvent referringEvent) {
-        return new AutoValue_ScreenEvent.Builder(this).referringEvent(Optional.of(referringEvent)).build();
+        return toBuilder().referringEvent(Optional.of(referringEvent)).build();
     }
 
     @AutoValue.Builder
