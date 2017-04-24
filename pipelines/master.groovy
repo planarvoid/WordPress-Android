@@ -71,7 +71,9 @@ try {
       sh "./scripts/update_master_status_in_slack.sh $status"
       emailext body: '<p>${SCRIPT, template="random-gif.template"}</p>See this build on Jenkins: $JOB_URL', mimeType: 'text/html', replyTo: '$DEFAULT_REPLYTO', subject: emailSubject, to: 'marvin.ramin@soundcloud.com'
 
-      if (!success) {
+      if (success) {
+        sh 'git push origin HEAD:green_master || echo "Not updating green_master. Already ahead."'
+      } else {
         // to mark build as failed
         throw exc
       }
