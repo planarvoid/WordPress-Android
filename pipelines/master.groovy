@@ -59,6 +59,8 @@ try {
 } finally {
   stage('Reporting') {
     node('chaos-slave') {
+      deleteDir()
+      unstash 'repository'
       def status
       def emailSubject = "$JOB_NAME - Build # $BUILD_NUMBER - "
       if (success) {
