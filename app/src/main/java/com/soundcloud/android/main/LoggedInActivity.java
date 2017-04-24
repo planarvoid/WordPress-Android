@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
+import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
 import com.soundcloud.android.policies.PolicyUpdateController;
@@ -33,6 +34,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject @LightCycle CastIntroductoryOverlayPresenter castIntroductoryOverlayPresenter;
+    @Inject CastButtonInstaller castButtonInstaller;
 
     private Optional<MenuItem> castMenu = Optional.absent();
 
@@ -50,7 +52,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        castMenu = castConnectionHelper.addMediaRouterButton(this, menu, R.id.media_route_menu_item);
+        castMenu = castButtonInstaller.addMediaRouteButton(this, menu, R.id.media_route_menu_item);
         updateCastMenuItemVisibility();
         return true;
     }

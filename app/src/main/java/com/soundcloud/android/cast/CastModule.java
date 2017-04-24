@@ -37,13 +37,12 @@ public class CastModule {
     @Singleton
     public CastConnectionHelper provideCastConnectionHelper(Context context,
                                                             Lazy<CastContextWrapper> castContext,
-                                                            GooglePlayServicesWrapper gpsWrapper,
-                                                            Lazy<DefaultCastButtonInstaller> castButtonInstaller) {
+                                                            GooglePlayServicesWrapper gpsWrapper) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
         if ("Dalvik".equals(System.getProperty("java.vm.name"))) {
             if (isCastEnabled(gpsWrapper, context)) {
-                return new DefaultCastConnectionHelper(castContext.get(), castButtonInstaller.get());
+                return new DefaultCastConnectionHelper(castContext.get());
             }
         }
         return new NoOpCastConnectionHelper();

@@ -5,12 +5,8 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,15 +18,13 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
 
     private final Set<OnConnectionChangeListener> connectionChangeListeners;
     private final CastContextWrapper castContextWrapper;
-    private final DefaultCastButtonInstaller castButtonInstaller;
 
     private boolean sessionConnected;
     private boolean isCastDeviceAvailable;
 
     @Inject
-    DefaultCastConnectionHelper(CastContextWrapper castContextWrapper, DefaultCastButtonInstaller castButtonInstaller) {
+    DefaultCastConnectionHelper(CastContextWrapper castContextWrapper) {
         this.castContextWrapper = castContextWrapper;
-        this.castButtonInstaller = castButtonInstaller;
         this.connectionChangeListeners = new HashSet<>();
     }
 
@@ -67,16 +61,6 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
     }
 
     @Override
-    public Optional<MenuItem> addMediaRouterButton(Context context, Menu menu, int itemId) {
-        return castButtonInstaller.addMediaRouterButton(context, menu, itemId);
-    }
-
-    @Override
-    public void addMediaRouterButton(MediaRouteButton mediaRouteButton) {
-        castButtonInstaller.addMediaRouterButton(mediaRouteButton);
-    }
-
-    @Override
     public boolean onDispatchVolumeEvent(KeyEvent event) {
         return castContextWrapper.onDispatchVolumeKeyEventBeforeJellyBean(event);
     }
@@ -101,4 +85,3 @@ class DefaultCastConnectionHelper extends DefaultActivityLightCycle<AppCompatAct
         }
     }
 }
-

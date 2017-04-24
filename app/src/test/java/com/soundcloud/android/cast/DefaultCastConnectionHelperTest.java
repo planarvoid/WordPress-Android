@@ -18,15 +18,13 @@ import org.mockito.Mock;
 public class DefaultCastConnectionHelperTest extends AndroidUnitTest {
 
     @Mock private CastContextWrapper castContextWrapper;
-    @Mock private DefaultCastButtonInstaller castButtonInstaller;
-
     @Mock private CastConnectionHelper.OnConnectionChangeListener listener;
 
     private DefaultCastConnectionHelper castConnectionHelper;
 
     @Before
     public void setUp() {
-        castConnectionHelper = new DefaultCastConnectionHelper(castContextWrapper, castButtonInstaller);
+        castConnectionHelper = new DefaultCastConnectionHelper(castContextWrapper);
     }
 
     @Test

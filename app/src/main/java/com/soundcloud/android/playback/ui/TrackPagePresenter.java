@@ -8,6 +8,7 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
+import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.ads.VisualAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
@@ -81,6 +82,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final ErrorViewControllerFactory errorControllerFactory;
     private final EmptyViewControllerFactory emptyControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
+    private final CastButtonInstaller castButtonInstaller;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
 
@@ -101,6 +103,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        ErrorViewControllerFactory errorControllerFactory,
                        EmptyViewControllerFactory emptyControllerFactory,
                        CastConnectionHelper castConnectionHelper,
+                       CastButtonInstaller castButtonInstaller,
                        Resources resources,
                        PlayerUpsellImpressionController upsellImpressionController) {
         this.waveformOperations = waveformOperations;
@@ -117,6 +120,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.errorControllerFactory = errorControllerFactory;
         this.emptyControllerFactory = emptyControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
+        this.castButtonInstaller = castButtonInstaller;
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
     }
@@ -458,7 +462,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     public void onForeground(View trackPage) {
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onForeground();
-        castConnectionHelper.addMediaRouterButton(viewHolder.mediaRouteButton);
+        castButtonInstaller.addMediaRouteButton(viewHolder.mediaRouteButton);
         viewHolder.castPlayerStripController.subscribeToEvents();
     }
 
@@ -745,7 +749,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
                 if (fullscreen) {
                     AnimUtils.showViews(holder.hideOnAdViews);
-                    castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
+                    castButtonInstaller.addMediaRouteButton(holder.mediaRouteButton);
                 }
             }
         };

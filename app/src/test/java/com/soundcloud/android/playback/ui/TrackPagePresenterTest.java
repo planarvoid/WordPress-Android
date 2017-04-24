@@ -15,6 +15,7 @@ import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
@@ -84,6 +85,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
+    @Mock private CastButtonInstaller castButtonInstaller;
     @Mock private TrackPageMenuController.Factory trackMenuControllerFactory;
     @Mock private TrackPageMenuController trackPageMenuController;
     @Mock private PlaybackProgress playbackProgress;
@@ -121,6 +123,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            errorControllerFactory,
                                            emptyControllerFactory,
                                            castConnectionHelper,
+                                           castButtonInstaller,
                                            resources(),
                                            upsellImpressionController);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
