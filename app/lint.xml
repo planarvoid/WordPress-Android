@@ -163,4 +163,7 @@
     <!-- we only use this annotation for documentation -->
     <issue id="VisibleForTests" severity="ignore" />
 
+    <!-- don't want to break build for identical assets in different density buckets -->
+    <issue id="IconDuplicates" severity="informational" />
+
 </lint>

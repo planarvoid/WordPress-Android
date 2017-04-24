@@ -79,7 +79,7 @@ class TrackLikesHeaderView {
 
     void showNoWifi() {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.setState(OfflineState.UNAVAILABLE);
+            offlineStateButton.showNoWiFi();
         } else {
             downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_wifi), headerView);
         }
@@ -87,7 +87,7 @@ class TrackLikesHeaderView {
 
     void showNoConnection() {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.setState(OfflineState.UNAVAILABLE);
+            offlineStateButton.showNoConnection();
         } else {
             downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_connection), headerView);
         }

@@ -9,7 +9,6 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,17 +35,30 @@ public class OfflineStateButton extends LinearLayout {
     }
 
     public void setState(OfflineState state) {
-        label.setVisibility(shouldShowText(state)
-                            ? View.VISIBLE
-                            : View.GONE);
         icon.setState(state);
+        if (shouldShowSavingText(state)) {
+            label.setVisibility(VISIBLE);
+            label.setText(R.string.offline_update_in_progress);
+        } else {
+            label.setVisibility(GONE);
+        }
+    }
+
+    public void showNoWiFi() {
+        setState(OfflineState.UNAVAILABLE);
+        label.setVisibility(VISIBLE);
+        label.setText(R.string.offline_no_wifi);
+    }
+
+    public void showNoConnection() {
+        setState(OfflineState.UNAVAILABLE);
     }
 
     public DownloadImageView getIcon() {
         return icon;
     }
 
-    private boolean shouldShowText(OfflineState state) {
+    private boolean shouldShowSavingText(OfflineState state) {
         return OfflineState.DOWNLOADING == state
                 || OfflineState.REQUESTED == state;
     }

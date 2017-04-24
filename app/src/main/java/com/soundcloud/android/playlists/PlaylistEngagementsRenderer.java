@@ -173,18 +173,29 @@ class PlaylistEngagementsRenderer {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
             OfflineStateButton stateButton = ButterKnife.findById(barView, R.id.offline_state_button);
             stateButton.setVisibility(View.VISIBLE);
-            stateButton.setState(OfflineState.REQUESTED == item.offlineState() && isDownloadUnavailable()
-                                 ? OfflineState.UNAVAILABLE
-                                 : item.offlineState());
+            setOfflineButtonState(stateButton, item.offlineState());
             stateButton.setOnClickListener(v -> toggleOffline(v.getContext(), item, listener));
         } else {
             showLegacyOfflineToggle(barView, item, listener);
         }
     }
 
-    private boolean isDownloadUnavailable() {
-        return (offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected())
-                || !connectionHelper.isNetworkConnected();
+    private void setOfflineButtonState(OfflineStateButton stateButton, OfflineState offlineState) {
+        if (OfflineState.REQUESTED == offlineState && shouldShowNoWifi()) {
+            stateButton.showNoWiFi();
+        } else if (OfflineState.REQUESTED == offlineState && shouldShowNoConnection()) {
+            stateButton.showNoConnection();
+        } else {
+            stateButton.setState(offlineState);
+        }
+    }
+
+    private boolean shouldShowNoWifi() {
+        return offlineSettings.isWifiOnlyEnabled() && !connectionHelper.isWifiConnected();
+    }
+
+    private boolean shouldShowNoConnection() {
+        return !connectionHelper.isNetworkConnected();
     }
 
     private void showLegacyOfflineToggle(View barView, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {

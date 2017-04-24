@@ -19,7 +19,6 @@
         android:id="@+id/label"
         style="@style/Collections.EngagementText"
         android:layout_marginRight="4dp"
-        android:text="@string/offline_update_in_progress"
         android:visibility="gone" />
 
 </LinearLayout>
