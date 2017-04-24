@@ -5,11 +5,14 @@ import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.events.EventQueue.REPOST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.TRACK_CHANGED;
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 import static com.soundcloud.java.collections.Iterables.getLast;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -68,6 +71,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private final DataSource dataSource;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private final TrackLikeOperations likeOperations;
     private final PlaybackInitiator playbackOperations;
     private final OfflineContentOperations offlineContentOperations;
@@ -104,7 +108,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         TrackLikesIntentResolver intentResolver,
                         DataSource dataSource,
                         OfflinePropertiesProvider offlinePropertiesProvider,
-                        FeatureFlags featureFlags) {
+                        FeatureFlags featureFlags,
+                        PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
@@ -112,6 +117,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         this.dataSource = dataSource;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
+        this.performanceMetricsEngine = performanceMetricsEngine;
         this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -130,7 +136,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         return CollectionBinding.from(dataSource.initialTrackLikes(), TO_TRACK_LIKES_ITEMS)
                                 .withAdapter(adapter)
                                 .withPager(dataSource.pagingFunction())
+                                .addObserver(onNext(o -> endMeasuringFirstPageLoadingTime()))
                                 .build();
+    }
+
+    private void endMeasuringFirstPageLoadingTime() {
+        performanceMetricsEngine.endMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
     }
 
     @Override
@@ -146,7 +157,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                       CompositeSubscription viewLifeCycle) {
         Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                                                                    .first()
-                                                                   .flatMap((Func1<Object,Observable<List<Urn>>>) o -> likeOperations.likedTrackUrns())
+                                                                   .flatMap(o -> likeOperations.likedTrackUrns())
                                                                    .observeOn(AndroidSchedulers.mainThread())
                                                                    .cache();
         collectionSubscription = allLikedTrackUrns
@@ -201,7 +212,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                                    .flatMap(o -> likeOperations.likedTrackUrns())
                                    .map(List::size)
                                    .observeOn(AndroidSchedulers.mainThread())
-                                   .subscribe(LambdaSubscriber.onNext(headerPresenter::updateTrackCount));
+                                   .subscribe(onNext(headerPresenter::updateTrackCount));
     }
 
     private Subscription subscribeToOfflineContent() {
@@ -227,12 +238,14 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     @Override
     public void onItemClicked(View view, int position) {
-        // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
-        // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
+        // here we assume that the list you are looking at is up to date with the database,
+        // which is not necessarily the case a sync may have happened in the background.
+        // This is def. an edge case, but worth handling maybe??
         final TrackLikesItem item = adapter.getItem(position);
 
         if (item == null) {
-            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
+            String exceptionMessage = "Adapter item is null on item click, with adapter: "
+                    + adapter + ", on position " + position;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else if (item.isTrack()) {
             TrackItem trackItem = ((TrackLikesTrackItem) item).getTrackItem();
@@ -251,7 +264,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     }
 
     @AutoValue
-    static abstract class TrackLikesPage {
+    abstract static class TrackLikesPage {
 
         static TrackLikesPage withHeader(List<LikeWithTrack> trackLikes) {
             return new AutoValue_TrackLikesPresenter_TrackLikesPage(trackLikes, true);
@@ -262,6 +275,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         }
 
         abstract List<LikeWithTrack> getTrackLikes();
+
         abstract boolean hasHeader();
     }
 
@@ -285,12 +299,12 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
         Pager.PagingFunction<TrackLikesPage> pagingFunction() {
             return result -> {
-                    if (result.getTrackLikes().size() < PAGE_SIZE) {
-                        return Pager.finish();
-                    } else {
-                        final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
-                        return wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false);
-                    }
+                if (result.getTrackLikes().size() < PAGE_SIZE) {
+                    return Pager.finish();
+                } else {
+                    final long oldestLike = getLast(result.getTrackLikes()).like().likedAt().getTime();
+                    return wrapLikedTracks(trackLikeOperations.likedTracks(oldestLike), false);
+                }
             };
         }
 

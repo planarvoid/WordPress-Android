@@ -30,13 +30,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
-    private final View.OnClickListener goToTrackLikesListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            navigator.openTrackLikes(v.getContext());
-        }
-    };
-
     @Inject
     public CollectionPreviewRenderer(Navigator navigator,
                                      Resources resources,
@@ -56,8 +49,13 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     public View createItemView(ViewGroup parent) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         final View view = inflater.inflate(R.layout.collections_preview_item, parent, false);
-        getLikesPreviewView(view).setOnClickListener(goToTrackLikesListener);
+        getLikesPreviewView(view).setOnClickListener(this::onGoToTrackLikesClick);
         return view;
+    }
+
+    void onGoToTrackLikesClick(View v) {
+        performanceMetricsEngine.startMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
+        navigator.openTrackLikes(v.getContext());
     }
 
     private void setupStationsView(CollectionPreviewView stationsView) {

@@ -46,4 +46,11 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.PLAYLISTS_LOAD);
     }
+
+    @Test
+    public void shouldStartMeasuringLikedTracksLoadingOnGotToTrackLikes() {
+        collectionPreviewRenderer.onGoToTrackLikesClick(view);
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
+    }
 }

@@ -23,7 +23,8 @@ public enum MetricType {
     REFRESH_HOME("refresh_home"),
     LIKED_STATIONS_LOAD("liked_stations_load"),
     SUGGESTED_TRACKS_LOAD("suggested_tracks_load"),
-    PLAYLISTS_LOAD("playlists_load");
+    PLAYLISTS_LOAD("playlists_load"),
+    LIKED_TRACKS_FIRST_PAGE_LOAD("liked_tracks_first_page_load");
 
     private final String metricType;
 

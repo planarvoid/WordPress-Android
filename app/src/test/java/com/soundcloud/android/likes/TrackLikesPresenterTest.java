@@ -15,6 +15,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.TrackLikesPresenter.DataSource;
@@ -36,7 +38,6 @@ import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.utils.CollapsingScrollHelper;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.jetbrains.annotations.NotNull;
@@ -73,10 +74,10 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private TrackLikesAdapter adapter;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private CollapsingScrollHelper collapsingScrollHelper;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
     @Mock private TrackLikesIntentResolver intentResolver;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
     private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
@@ -100,7 +101,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             intentResolver,
                                             dataSource,
                                             offlinePropertiesProvider,
-                                            featureFlags);
+                                            featureFlags,
+                                            performanceMetricsEngine);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());
@@ -301,6 +303,14 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
         final Pager.PagingFunction<TrackLikesPage> listPager = new DataSource(likeOperations).pagingFunction();
 
         assertThat(listPager.call(TrackLikesPage.withHeader(tracks))).isSameAs(Pager.finish());
+    }
+
+    @Test
+    public void shouldEndMeasuringFirstPageTimeLoad() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        likedTracksObservable.onNext(TrackLikesPage.withHeader(Collections.emptyList()));
+
+        verify(performanceMetricsEngine).endMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
     }
 
     @NonNull
