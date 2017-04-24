@@ -12,17 +12,17 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscoveryCardSyncProvider extends SyncerRegistry.SyncProvider {
 
-    private final Provider<DiscoveryCardSyncer> homeSyncerProvider;
+    private final Provider<DiscoveryCardSyncer> discoveryCardSyncerProvider;
 
     @Inject
-    DiscoveryCardSyncProvider(Provider<DiscoveryCardSyncer> homeSyncerProvider) {
+    DiscoveryCardSyncProvider(Provider<DiscoveryCardSyncer> discoveryCardSyncerProvider) {
         super(Syncable.DISCOVERY_CARDS);
-        this.homeSyncerProvider = homeSyncerProvider;
+        this.discoveryCardSyncerProvider = discoveryCardSyncerProvider;
     }
 
     @Override
     public Callable<Boolean> syncer(@Nullable String action, boolean isUiRequest) {
-        return homeSyncerProvider.get();
+        return discoveryCardSyncerProvider.get();
     }
 
     @Override
