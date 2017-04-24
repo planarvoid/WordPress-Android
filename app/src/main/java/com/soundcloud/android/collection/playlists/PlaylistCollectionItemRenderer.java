@@ -2,18 +2,16 @@ package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -32,7 +30,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
-    private final FeatureFlags featureFlags;
+    private final PlaylistItemIndicatorsView playlistItemIndicatorsView;
 
     @Inject
     PlaylistCollectionItemRenderer(ImageOperations imageOperations,
@@ -40,13 +38,13 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
                                    Navigator navigator,
                                    FeatureOperations featureOperations,
                                    PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                   FeatureFlags featureFlags) {
+                                   PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
-        this.featureFlags = featureFlags;
+        this.playlistItemIndicatorsView = playlistItemIndicatorsView;
     }
 
     @Override
@@ -61,26 +59,22 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
         final TextView title = (TextView) view.findViewById(R.id.title);
         final TextView creator = (TextView) view.findViewById(R.id.creator);
-        final View privateIndicator = view.findViewById(R.id.private_indicator);
-        final View likeIndicator = view.findViewById(R.id.like_indicator);
         final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
 
         view.setOnClickListener(goToPlaylist(playlistItem));
-
         title.setText(playlistItem.title());
         creator.setText(playlistItem.creatorName());
-        privateIndicator.setVisibility(playlistItem.isPrivate() ? View.VISIBLE : View.GONE);
-        likeIndicator.setVisibility(playlistItem.isUserLike() ? View.VISIBLE : View.GONE);
         trackCount.setText(String.valueOf(playlistItem.trackCount()));
-
+        setupOverFlow(view.findViewById(R.id.overflow_button), playlistItem);
         imageOperations.displayInAdapterView(
                 playlistItem,
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );
-
-        setupOverFlow(view.findViewById(R.id.overflow_button), playlistItem);
-        setDownloadProgressIndicator(view, playlistItem);
+        playlistItemIndicatorsView.setupView(view, playlistItem.isPrivate(), playlistItem.isUserLike(),
+                                             featureOperations.isOfflineContentEnabled()
+                                             ? Optional.of(playlistItem.offlineState())
+                                             : Optional.absent());
     }
 
     private void setupOverFlow(final View button, final PlaylistItem playlistItem) {
@@ -88,18 +82,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         ViewUtils.extendTouchArea(button);
     }
 
-    private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
-        final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
-        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
-        if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(playlistItem.getDownloadState(), useNewIcons);
-        } else {
-            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE, useNewIcons);
-        }
-    }
-
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
         return view -> navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
     }
-
 }

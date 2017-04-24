@@ -56,11 +56,12 @@ class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
         final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
-        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
-        if (featureOperations.isOfflineContentEnabled()) {
-            downloadProgressIcon.setState(playlistItem.getDownloadState(), useNewIcons);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            downloadProgressIcon.setVisibility(View.GONE);
         } else {
-            downloadProgressIcon.setState(OfflineState.NOT_OFFLINE, useNewIcons);
+            downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
+                                          ? playlistItem.getDownloadState()
+                                          : OfflineState.NOT_OFFLINE, false);
         }
     }
 }

@@ -6,6 +6,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -13,14 +14,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -37,14 +33,14 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private static final int TOUCH_DELEGATE_DP = 8;
 
+    private final boolean fixedWidth;
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
-    private final boolean fixedWidth;
-    private final FeatureFlags featureFlags;
+    private final PlaylistItemIndicatorsView playlistItemIndicatorsView;
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
@@ -53,7 +49,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
                                    @Provided ScreenProvider screenProvider,
                                    @Provided EventBus eventBus,
                                    @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                   @Provided FeatureFlags featureFlags) {
+                                   @Provided PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -61,7 +57,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
-        this.featureFlags = featureFlags;
+        this.playlistItemIndicatorsView = playlistItemIndicatorsView;
     }
 
     @Override
@@ -84,33 +80,9 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         setType(view, playlist.isAlbum()
                       ? R.string.collections_recently_played_album
                       : R.string.collections_recently_played_playlist);
-        setOfflineState(view, playlist.getOfflineState());
-        setPrivate(view, playlist.isPrivate());
-        setLiked(view, playlist.isLiked());
-
         view.setOnClickListener(goToPlaylist(playlist));
         setupOverFlow(view.findViewById(R.id.overflow_button), playlist);
-    }
-
-    private void setLiked(View view, boolean isLiked) {
-        ButterKnife.findById(view, R.id.like_indicator)
-                   .setVisibility(isLiked ? View.VISIBLE : View.GONE);
-    }
-
-    private void setPrivate(View view, boolean isPrivate) {
-        ButterKnife.findById(view, R.id.private_indicator)
-                   .setVisibility(isPrivate ? View.VISIBLE : View.GONE);
-    }
-
-    private void setOfflineState(View view, Optional<OfflineState> offlineState) {
-        final DownloadImageView downloadImageView = ButterKnife.findById(view, R.id.item_download_state);
-        final boolean useNewIcons = featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS);
-        if (offlineState.isPresent()) {
-            downloadImageView.setState(offlineState.get(), useNewIcons);
-            downloadImageView.setVisibility(View.VISIBLE);
-        } else {
-            downloadImageView.setVisibility(View.GONE);
-        }
+        playlistItemIndicatorsView.setupView(view, playlist.isPrivate(), playlist.isLiked(), playlist.getOfflineState());
     }
 
     private void setTitle(View view, String title) {

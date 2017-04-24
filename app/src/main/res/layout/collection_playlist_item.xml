@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/artwork"
-            android:layout_toLeftOf="@+id/like_indicator"
+            android:layout_toLeftOf="@+id/indicator_views"
             android:layout_marginRight="4dp" />
 
         <com.soundcloud.android.view.CustomFontTextView
@@ -67,26 +67,47 @@
             android:layout_toLeftOf="@+id/overflow_button"
             android:layout_marginRight="4dp" />
 
-        <ImageView
-            android:id="@+id/private_indicator"
+        <LinearLayout
+            android:id="@+id/indicator_views"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_below="@id/artwork"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="12dp"
-            android:layout_marginRight="4dp"
-            android:src="@drawable/ic_playlist_private" />
+            android:layout_marginTop="12dp">
+            <ImageView
+                android:id="@+id/like_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:src="@drawable/ic_playlist_like"
+                android:visibility="gone" />
 
-        <ImageView
-            android:id="@+id/like_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/artwork"
-            android:layout_toLeftOf="@id/private_indicator"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_marginTop="12dp"
-            android:layout_marginRight="4dp"
-            android:src="@drawable/ic_playlist_like" />
+            <ImageView
+                android:id="@+id/private_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:src="@drawable/ic_playlist_private"
+                android:visibility="gone" />
+
+            <com.soundcloud.android.offline.DownloadImageView
+                android:id="@+id/offline_state_indicator"
+                style="@style/DownloadItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/no_network_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:src="@drawable/entity_no_network"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <com.soundcloud.android.view.OverflowAnchorImageView
             android:id="@+id/overflow_button"

@@ -815,7 +815,7 @@
     <string name="offline_update_completed_message">Ready for offline listening</string>
     <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
     <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
-    <string name="offline_update_requested">In queue</string>
+    <string name="offline_update_requested">Preparing download</string>
     <string name="offline_update_in_progress">Saving offline</string>
     <string name="offline_update_completed">Saved offline</string>
     <string name="offline_likes_dialog_title">Save your likes offline</string>
