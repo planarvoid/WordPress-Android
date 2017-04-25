@@ -49,8 +49,8 @@ class AvailableWebProducts implements Parcelable {
 
     private static List<WebProduct> unpackParcel(Parcel in) {
         List<WebProduct> products = new LinkedList<>();
-        AutoParcel_WebProduct[] parcel = new AutoParcel_WebProduct[in.readInt()];
-        in.readTypedArray(parcel, AutoParcel_WebProduct.CREATOR);
+        AutoValue_WebProduct[] parcel = new AutoValue_WebProduct[in.readInt()];
+        in.readTypedArray(parcel, AutoValue_WebProduct.CREATOR);
         Collections.addAll(products, parcel);
         return products;
     }

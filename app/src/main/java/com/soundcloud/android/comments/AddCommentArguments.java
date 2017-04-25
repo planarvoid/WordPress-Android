@@ -1,13 +1,15 @@
 package com.soundcloud.android.comments;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 
-@AutoParcel
-public abstract class AddCommentArguments {
+import android.os.Parcelable;
+
+@AutoValue
+public abstract class AddCommentArguments implements Parcelable {
 
     public static AddCommentArguments create(String trackTitle, Urn trackUrn, String creatorName, Urn creatorUrn, long position, String commentText, String originScreen) {
-        return new AutoParcel_AddCommentArguments(trackTitle, trackUrn, creatorName, creatorUrn, position, commentText, originScreen);
+        return new AutoValue_AddCommentArguments(trackTitle, trackUrn, creatorName, creatorUrn, position, commentText, originScreen);
     }
 
     public abstract String trackTitle();

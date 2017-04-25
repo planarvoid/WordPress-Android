@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import auto.parcel.AutoParcel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
@@ -8,11 +7,11 @@ import com.soundcloud.android.playback.PlaybackConstants;
 
 import android.os.Parcelable;
 
-@AutoParcel
+@AutoValue
 public abstract class AudioAdSource implements Parcelable {
 
     public static AudioAdSource create(ApiModel apiModel) {
-        return new AutoParcel_AudioAdSource(apiModel.type(), apiModel.url(), apiModel.requiresAuth());
+        return new AutoValue_AudioAdSource(apiModel.type(), apiModel.url(), apiModel.requiresAuth());
     }
 
     public abstract String type();

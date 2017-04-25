@@ -99,7 +99,7 @@ public class StreamPreloader {
             final PlaybackType playbackType = trackItem.track().snipped() ?
                                               PlaybackType.AUDIO_SNIPPET :
                                               PlaybackType.AUDIO_DEFAULT;
-            return new AutoParcel_PreloadItem(trackItem.getUrn(), playbackType);
+            return new AutoValue_PreloadItem(trackItem.getUrn(), playbackType);
         };
     }
 

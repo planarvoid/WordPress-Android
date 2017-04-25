@@ -1,13 +1,13 @@
 package com.soundcloud.android.search;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
-@AutoParcel
+@AutoValue
 public abstract class SearchFragmentArgs implements Parcelable {
     public abstract SearchType searchType();
 
@@ -35,6 +35,6 @@ public abstract class SearchFragmentArgs implements Parcelable {
                                             Optional<Integer> queryPosition,
                                             boolean publishSearchSubmissionEvent,
                                             boolean isPremium) {
-        return new AutoParcel_SearchFragmentArgs(type, apiQuery, userQuery, queryUrn.orNull(), queryPosition, publishSearchSubmissionEvent, isPremium);
+        return new AutoValue_SearchFragmentArgs(type, apiQuery, userQuery, queryUrn.orNull(), queryPosition, publishSearchSubmissionEvent, isPremium);
     }
 }

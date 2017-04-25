@@ -1,8 +1,8 @@
 package com.soundcloud.android.payments;
 
-import auto.parcel.AutoParcel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.java.optional.Optional;
 
 import android.os.Parcelable;
@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
-@AutoParcel
+@AutoValue
 public abstract class WebProduct implements Parcelable {
 
     private static final char EURO = '€';
@@ -32,7 +32,7 @@ public abstract class WebProduct implements Parcelable {
             @JsonProperty("start_date") String startDate,
             @JsonProperty("expiry_date") String expiryDate
     ) {
-        return new AutoParcel_WebProduct(
+        return new AutoValue_WebProduct(
                 planId,
                 packageUrn,
                 reformatCurrency(price),

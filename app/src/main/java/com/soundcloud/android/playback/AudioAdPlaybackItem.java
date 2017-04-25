@@ -1,22 +1,22 @@
 package com.soundcloud.android.playback;
 
-import android.os.Parcelable;
-
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.model.Urn;
+
+import android.os.Parcelable;
+
 import java.util.List;
 
-import auto.parcel.AutoParcel;
-
-@AutoParcel
+@AutoValue
 public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
 
     private static final long POSITION_START = 0L;
 
     public static AudioAdPlaybackItem create(AudioAd audioAd) {
-        return new AutoParcel_AudioAdPlaybackItem(
+        return new AutoValue_AudioAdPlaybackItem(
                 audioAd.adUrn(),
                 audioAd.audioSources(),
                 POSITION_START,

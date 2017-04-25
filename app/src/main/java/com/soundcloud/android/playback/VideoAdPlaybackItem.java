@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VideoAdSource;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@AutoParcel
+@AutoValue
 public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
     private static final float INITIAL_VOLUME = 1.0f;
@@ -23,7 +23,7 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition, float initialVolume) {
         final boolean firstPlay = !adData.hasReportedEvent(PlayableAdData.ReportingEvent.START);
-        return new AutoParcel_VideoAdPlaybackItem(adData.adUrn(),
+        return new AutoValue_VideoAdPlaybackItem(adData.adUrn(),
                                                   adData.videoSources(),
                                                   startPosition,
                                                   initialVolume,

@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import auto.parcel.AutoParcel;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
@@ -11,13 +10,13 @@ import android.os.Parcelable;
 import java.util.Comparator;
 import java.util.Locale;
 
-@AutoParcel
+@AutoValue
 public abstract class VideoAdSource implements Parcelable {
 
     public static final Comparator<VideoAdSource> BITRATE_COMPARATOR = (lhs, rhs) -> Integer.valueOf(lhs.bitRateKbps()).compareTo(rhs.bitRateKbps());
 
     public static VideoAdSource create(ApiModel apiModel) {
-        return new AutoParcel_VideoAdSource(
+        return new AutoValue_VideoAdSource(
                 apiModel.type(),
                 apiModel.url(),
                 apiModel.bitRate(),

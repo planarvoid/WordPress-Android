@@ -1,23 +1,23 @@
 package com.soundcloud.android.playback;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.Track;
 
 import android.os.Parcelable;
 
-@AutoParcel
+@AutoValue
 public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
 
     private static AudioPlaybackItem create(Track track, long startPosition, PlaybackType playbackType) {
-        return new AutoParcel_AudioPlaybackItem(track.urn(),
+        return new AutoValue_AudioPlaybackItem(track.urn(),
                                                 startPosition,
                                                 Durations.getTrackPlayDuration(track),
                                                 playbackType);
     }
 
     public static AudioPlaybackItem create(Urn trackUrn, long startPosition, long duration, PlaybackType playbackType) {
-        return new AutoParcel_AudioPlaybackItem(trackUrn, startPosition, duration, playbackType);
+        return new AutoValue_AudioPlaybackItem(trackUrn, startPosition, duration, playbackType);
     }
 
     public static AudioPlaybackItem create(Track track, long startPosition) {
