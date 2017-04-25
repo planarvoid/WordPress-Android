@@ -278,6 +278,7 @@ dependencies {
     exclude group: 'org.hamcrest', module: 'hamcrest-core'
   }
   androidTestCompile acceptanceTestLibraries.httpComponents // needed for wiremock
+  androidTestCompile acceptanceTestLibraries.mrLocalLocal
   androidTestCompile unitTestLibraries.assertj
   androidTestAnnotationProcessor libraries.daggerCompiler
 }

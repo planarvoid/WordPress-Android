@@ -2,6 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.di.TestApiModule;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
@@ -11,14 +12,17 @@ import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.mrlocallocal.MrLocalLocal;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.TestConnectionHelper;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.ProgressBar;
@@ -40,6 +44,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected ToastObserver toastObserver;
     protected TestConnectionHelper connectionHelper;
     private WireMockServer wireMockServer;
+    protected MrLocalLocal mrLocalLocal;
 
     public ActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -58,7 +63,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         // Wait for SoundCloudApplication.onCreate() to run so that we can be sure it has been injected.
         // Otherwise there is a race where we might use it before injection, resulting in an NPE.
-        final SoundCloudTestApplication application = SoundCloudTestApplication.fromContext(getInstrumentation().getTargetContext());
+        Context targetContext = getInstrumentation().getTargetContext();
+        final SoundCloudTestApplication application = SoundCloudTestApplication.fromContext(targetContext);
         application.awaitOnCreate(10, TimeUnit.SECONDS);
         connectionHelper = application.getConnectionHelper();
         connectionHelper.setWifiConnected(true);
@@ -67,14 +73,15 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
-        LogCollector.startCollecting(getInstrumentation().getTargetContext(), testCaseName);
+        LogCollector.startCollecting(targetContext, testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
         // the introductory overlay blocks interaction with the player, so disable it
-        ConfigurationHelper.disableIntroductoryOverlays(getInstrumentation().getTargetContext());
+        ConfigurationHelper.disableIntroductoryOverlays(targetContext);
 
         // Player pager nudge onboarding interferes with player tests, so disable it
-        ConfigurationHelper.disablePagerOnboarding(getInstrumentation().getTargetContext());
+        ConfigurationHelper.disablePagerOnboarding(targetContext);
+        enableEventLoggerInstantFlush(targetContext);
 
         beforeLogIn();
         logIn();
@@ -93,6 +100,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         wireMockServer.start();
 
         addInitialStubMappings();
+        mrLocalLocal = new MrLocalLocal(getInstrumentation().getContext(), wireMockServer, TestApiModule.EVENTS_URL);
     }
 
     protected boolean wiremockLoggingEnabled() {
@@ -221,6 +229,13 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     private void observeToasts() {
         toastObserver = new ToastObserver(solo);
         observeToastsHelper();
+    }
+
+    private void enableEventLoggerInstantFlush(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                         .edit()
+                         .putBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, true)
+                         .apply();
     }
 
     protected void observeToastsHelper() {

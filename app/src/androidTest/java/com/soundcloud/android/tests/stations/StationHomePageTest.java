@@ -6,15 +6,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> {
+public class StationHomePageTest extends ActivityTest<LauncherActivity> {
 
-    private static final String START_STATION_FROM_TRACK_ITEM = "audio-events-v1-open_station_from_playlist";
+    private static final String START_STATION_FROM_TRACK_ITEM = "specs/audio-events-v1-open_station_from_playlist.spec";
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
@@ -38,8 +38,8 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testOpenStationFromTrackItem() {
-        startEventTracking();
+    public void testOpenStationFromTrackItem() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement player = playlistDetailsScreen
                 .findAndClickFirstTrackOverflowButton()
@@ -53,7 +53,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         assertTrue(player.isExpandedPlayerPlaying());
         player.clickArtwork();
 
-        finishEventTracking(START_STATION_FROM_TRACK_ITEM);
+        mrLocalLocal.verify(START_STATION_FROM_TRACK_ITEM);
     }
 
     public void testOpenStationFromPlayer() {

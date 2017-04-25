@@ -10,7 +10,6 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.matcher.screen.IsVisible;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
@@ -22,6 +21,7 @@ import com.soundcloud.android.screens.elements.Element;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -29,19 +29,19 @@ import org.hamcrest.core.Is;
 
 import android.content.Intent;
 
-public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
-    private static final String PROFILE_PAGEVIEWS_SCENARIO = "profile_pageview_events";
-    private static final String TEST_SCENARIO_TRACKS_BUCKET = "audio-events-v1-other-profile-tracks-bucket";
-    private static final String TEST_SCENARIO_LIKES_BUCKET = "audio-events-v1-other-profile-likes-bucket";
-    private static final String TEST_SCENARIO_REPOSTS_BUCKET = "audio-events-v1-other-profile-reposts-bucket";
-    private static final String TEST_SCENARIO_PLAYLISTS_BUCKET = "other-profile-playlists-bucket";
-    private static final String TEST_SCENARIO_ALBUMS_BUCKET = "other-profile-albums-bucket";
-    private static final String TEST_SCENARIO_FOLLOW_USER = "follow-user";
+public class ProfileTest extends ActivityTest<ResolveActivity> {
+    private static final String PROFILE_PAGEVIEWS_SCENARIO = "specs/profile_pageview_events.spec";
+    private static final String TEST_SCENARIO_TRACKS_BUCKET = "specs/audio-events-v1-other-profile-tracks-bucket.spec";
+    private static final String TEST_SCENARIO_LIKES_BUCKET = "specs/audio-events-v1-other-profile-likes-bucket.spec";
+    private static final String TEST_SCENARIO_REPOSTS_BUCKET = "specs/audio-events-v1-other-profile-reposts-bucket.spec";
+    private static final String TEST_SCENARIO_PLAYLISTS_BUCKET = "specs/other-profile-playlists-bucket.spec";
+    private static final String TEST_SCENARIO_ALBUMS_BUCKET = "specs/other-profile-albums-bucket.spec";
+    private static final String TEST_SCENARIO_FOLLOW_USER = "specs/follow-user.spec";
 
-    private static final String TEST_SCENARIO_TRACKS_LIST = "audio-events-v1-other-profile-tracks-list";
-    private static final String TEST_SCENARIO_LIKES_LIST = "audio-events-v1-other-profile-likes-list";
-    private static final String TEST_SCENARIO_REPOSTS_LIST = "audio-events-v1-other-profile-reposts-list";
-    private static final String TEST_SCENARIO_PLAYLISTS_LIST = "other-profile-playlists-list";
+    private static final String TEST_SCENARIO_TRACKS_LIST = "specs/audio-events-v1-other-profile-tracks-list.spec";
+    private static final String TEST_SCENARIO_LIKES_LIST = "specs/audio-events-v1-other-profile-likes-list.spec";
+    private static final String TEST_SCENARIO_REPOSTS_LIST = "specs/audio-events-v1-other-profile-reposts-list.spec";
+    private static final String TEST_SCENARIO_PLAYLISTS_LIST = "specs/other-profile-playlists-list.spec";
 
     private FeatureFlagsHelper featureFlagsHelper;
 
@@ -106,76 +106,76 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
         assertEquals(expectedUser.click().getUserName(), targetUsername);
     }
 
-    public void testPlayAndPauseFromTracksBucket() {
-        startEventTracking();
+    public void testPlayAndPauseFromTracksBucket() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement =
                 profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.TRACKS);
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_TRACKS_BUCKET);
+        mrLocalLocal.verify(TEST_SCENARIO_TRACKS_BUCKET);
     }
 
-    public void testOpenPlaylistFromPlaylistsBucket() {
-        startEventTracking();
+    public void testOpenPlaylistFromPlaylistsBucket() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
                 .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.PLAYLISTS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
-        endScenario(TEST_SCENARIO_PLAYLISTS_BUCKET);
+        mrLocalLocal.verify(TEST_SCENARIO_PLAYLISTS_BUCKET);
     }
 
-    public void testOpenPlaylistFromAlbumsBucket() {
+    public void testOpenPlaylistFromAlbumsBucket() throws Exception {
         assertTrue(profileScreen.albumsHeader().hasVisibility());
         
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
                 .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.ALBUMS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
-        endScenario(TEST_SCENARIO_ALBUMS_BUCKET);
+        mrLocalLocal.verify(TEST_SCENARIO_ALBUMS_BUCKET);
     }
 
-    public void testPlayAndPauseFromRepostsBucket() {
-        startEventTracking();
+    public void testPlayAndPauseFromRepostsBucket() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
                 .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.REPOSTS);
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_REPOSTS_BUCKET);
+        mrLocalLocal.verify(TEST_SCENARIO_REPOSTS_BUCKET);
     }
 
-    public void testPlayAndPauseFromLikesBucket() {
-        startEventTracking();
+    public void testPlayAndPauseFromLikesBucket() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
                 .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.LIKES);
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_LIKES_BUCKET);
+        mrLocalLocal.verify(TEST_SCENARIO_LIKES_BUCKET);
     }
 
-    public void testPlayAndPauseFromTracksList() {
+    public void testPlayAndPauseFromTracksList() throws Exception {
         profileScreen.scrollToViewAllTracks();
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
         final VisualPlayerElement playerElement = profileScreen.goToAllTracks().clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_TRACKS_LIST);
+        mrLocalLocal.verify(TEST_SCENARIO_TRACKS_LIST);
     }
 
-    public void testOpenPlaylistFromPlaylistsList() {
+    public void testOpenPlaylistFromPlaylistsList() throws Exception {
         profileScreen.scrollToViewAllPlaylists();
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
                 .goToAllPlaylists()
@@ -183,12 +183,12 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
-        endScenario(TEST_SCENARIO_PLAYLISTS_LIST);
+        mrLocalLocal.verify(TEST_SCENARIO_PLAYLISTS_LIST);
     }
 
-    public void testPlayAndPauseFromRepostsList() {
+    public void testPlayAndPauseFromRepostsList() throws Exception {
         profileScreen.scrollToViewAllReposts();
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
                 .goToAllReposts()
@@ -196,12 +196,12 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_REPOSTS_LIST);
+        mrLocalLocal.verify(TEST_SCENARIO_REPOSTS_LIST);
     }
 
-    public void testPlayAndPauseFromLikesList() {
+    public void testPlayAndPauseFromLikesList() throws Exception {
         profileScreen.scrollToViewAllLikes();
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen
                 .goToAllLikes()
@@ -209,15 +209,15 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
 
         assertPlayAndPause(playerElement);
 
-        endScenario(TEST_SCENARIO_LIKES_LIST);
+        mrLocalLocal.verify(TEST_SCENARIO_LIKES_LIST);
     }
 
-    public void testFollowUserTracking() {
-        startEventTracking();
+    public void testFollowUserTracking() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         profileScreen.clickFollowToggle();
 
-        endScenario(TEST_SCENARIO_FOLLOW_USER);
+        mrLocalLocal.verify(TEST_SCENARIO_FOLLOW_USER);
     }
 
     private void assertPlayAndPause(final VisualPlayerElement playerElement) {
@@ -229,8 +229,8 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
         assertThat(playerElement, is(not(playing())));
     }
 
-    public void testInfoTabEvents() {
-        startEventTracking();
+    public void testInfoTabEvents() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         profileScreen
                 .touchInfoTab()
@@ -240,7 +240,7 @@ public class ProfileTest extends TrackingActivityTest<ResolveActivity> {
                 .goBackToProfile()
                 .touchSoundsTab();
 
-        finishEventTracking(PROFILE_PAGEVIEWS_SCENARIO);
+        mrLocalLocal.verify(PROFILE_PAGEVIEWS_SCENARIO);
     }
 
     public void testShowsExpandedImage() {

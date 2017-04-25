@@ -12,20 +12,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import android.content.res.Resources;
-
 @RunWith(MockitoJUnitRunner.class)
 public class TrackingApiFactoryTest {
+    private static final String URL = "testurl";
 
     @Mock private OkHttpClient httpClient;
     @Mock private DeviceHelper deviceHelper;
-    @Mock private Resources resources;
 
     private TrackingApiFactory apiFactory;
 
     @Before
     public void setUp() throws Exception {
-        apiFactory = new TrackingApiFactory(httpClient, deviceHelper, resources);
+        apiFactory = new TrackingApiFactory(httpClient, deviceHelper, URL);
     }
 
     @Test

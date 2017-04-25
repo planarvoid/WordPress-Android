@@ -1,12 +1,12 @@
 package com.soundcloud.android.tests.discovery;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainActivity> {
-    private static final String START_TRACK_RECOMMENDATIONS_FROM_REASON = "start_track_recommendations_from_reason";
-    private static final String START_TRACK_RECOMMENDATIONS_FROM_VIEW_ALL = "start_track_recommendations_view_all";
+public class TrackRecommendationsTrackingTest extends ActivityTest<MainActivity> {
+    private static final String START_TRACK_RECOMMENDATIONS_FROM_REASON = "specs/start_track_recommendations_from_reason.spec";
+    private static final String START_TRACK_RECOMMENDATIONS_FROM_VIEW_ALL = "specs/start_track_recommendations_view_all.spec";
 
     public TrackRecommendationsTrackingTest() {
         super(MainActivity.class);
@@ -17,8 +17,8 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
         return TestUser.defaultUser;
     }
 
-    public void testStartPlaybackFromReasonOnDiscoveryScreen() {
-        startEventTracking();
+    public void testStartPlaybackFromReasonOnDiscoveryScreen() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         mainNavHelper.goToDiscovery()
                      .trackRecommendationsBucket()
@@ -26,11 +26,11 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
                      .waitForExpandedPlayerToStartPlaying()
                      .clickArtwork();
 
-        finishEventTracking(START_TRACK_RECOMMENDATIONS_FROM_REASON);
+        mrLocalLocal.verify(START_TRACK_RECOMMENDATIONS_FROM_REASON);
     }
 
-    public void testStartPlaybackFromRecommendationOnViewAllScreen() {
-        startEventTracking();
+    public void testStartPlaybackFromRecommendationOnViewAllScreen() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         mainNavHelper.goToDiscovery()
                      .trackRecommendationsBucket()
@@ -40,6 +40,6 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
                      .waitForExpandedPlayerToStartPlaying()
                      .clickArtwork();
 
-        finishEventTracking(START_TRACK_RECOMMENDATIONS_FROM_VIEW_ALL);
+        mrLocalLocal.verify(START_TRACK_RECOMMENDATIONS_FROM_VIEW_ALL);
     }
 }

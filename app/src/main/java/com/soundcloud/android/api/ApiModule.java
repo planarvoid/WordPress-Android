@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 @Module
 public class ApiModule {
 
+    public static final String EVENTGATEWAY_BASE_URL = "EventgatewayBaseUrl";
     protected static final String PUBLIC_API_BASE_URL = "PublicApiBaseUrl";
     protected static final String MOBILE_API_BASE_URL = "MobileApiBaseUrl";
     private static final int READ_WRITE_TIMEOUT_SECONDS = 20;
@@ -42,6 +43,13 @@ public class ApiModule {
     @Named(MOBILE_API_BASE_URL)
     protected String provideMobileApiBaseUrl(Resources resources) {
         return resources.getString(R.string.mobile_api_base_url);
+    }
+
+    @Provides
+    @Singleton
+    @Named(EVENTGATEWAY_BASE_URL)
+    protected String provideEventgatewayBaseUrl(Resources resources) {
+        return resources.getString(R.string.eventgateway_url);
     }
 
     @Provides

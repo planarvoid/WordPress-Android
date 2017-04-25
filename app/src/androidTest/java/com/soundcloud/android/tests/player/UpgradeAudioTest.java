@@ -3,17 +3,17 @@ package com.soundcloud.android.tests.player;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
+public class UpgradeAudioTest extends ActivityTest<MainActivity> {
 
-    private static final String TEST_SCENARIO_UPGRADE_AUDIO = "audio-events-v1-profile-upgrade";
+    private static final String TEST_SCENARIO_UPGRADE_AUDIO = "specs/audio-events-v1-profile-upgrade.spec";
     private ProfileScreen profileScreen;
 
     public UpgradeAudioTest() {
@@ -37,16 +37,16 @@ public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void ignoretestUpgradeAudio() {
+    public void ignoretestUpgradeAudio() throws Exception {
         // ignoring while we use progressive download, when we use HLS it should get rid of phantom HLS
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement visualPlayerElement = profileScreen.playTrackWithTitle("HT 1");
 
         visualPlayerElement.waitForPlayState();
         visualPlayerElement.clickArtwork();
 
-        finishEventTracking(TEST_SCENARIO_UPGRADE_AUDIO);
+        mrLocalLocal.verify(TEST_SCENARIO_UPGRADE_AUDIO);
     }
 }

@@ -8,15 +8,15 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
+import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
 
-public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
-    private static final String OFFLINE_LIKES_PERFORMANCE_TRACKING = "offline_likes_performance_tracking";
+public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
+    private static final String OFFLINE_LIKES_PERFORMANCE_TRACKING = "specs/offline_likes_performance_tracking.spec";
 
     private final OfflineContentHelper offlineContentHelper;
     private Context context;
@@ -48,10 +48,10 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(trackLikesScreen.offlineToggle(), is(visible()));
     }
 
-    public void testOfflineSyncOfOfflineLikes() {
+    public void testOfflineSyncOfOfflineLikes() throws Exception {
         enableOfflineContent(context);
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToTrackLikes()
@@ -62,6 +62,6 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertTrue(likesScreen.isLikedTracksTextVisible());
         assertEquals(offlineContentHelper.offlineFilesCount(context), likesScreen.getTotalLikesCount() - 1);
 
-        finishEventTracking(OFFLINE_LIKES_PERFORMANCE_TRACKING);
+        mrLocalLocal.verify(OFFLINE_LIKES_PERFORMANCE_TRACKING);
     }
 }

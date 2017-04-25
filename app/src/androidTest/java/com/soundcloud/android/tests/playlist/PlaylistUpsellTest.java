@@ -7,15 +7,15 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-public class PlaylistUpsellTest extends TrackingActivityTest<MainActivity> {
+public class PlaylistUpsellTest extends ActivityTest<MainActivity> {
 
     public PlaylistUpsellTest() {
         super(MainActivity.class);

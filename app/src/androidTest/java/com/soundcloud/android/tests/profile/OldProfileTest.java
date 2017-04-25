@@ -4,17 +4,17 @@ import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.UserItemElement;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-public class OldProfileTest extends TrackingActivityTest<ResolveActivity> {
-    private static final String OTHER_PROFILE_PAGEVIEW_EVENTS = "other_profile_pageview_events";
+public class OldProfileTest extends ActivityTest<ResolveActivity> {
+    private static final String OTHER_PROFILE_PAGEVIEW_EVENTS = "specs/other_profile_pageview_events.spec";
 
     private FeatureFlagsHelper featureFlagsHelper;
 
@@ -46,15 +46,15 @@ public class OldProfileTest extends TrackingActivityTest<ResolveActivity> {
         featureFlagsHelper.reset(Flag.ALIGNED_USER_INFO);
     }
 
-    public void testOldPageViewEvents() {
-        startEventTracking();
+    public void testOldPageViewEvents() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         profileScreen.touchInfoTab();
         profileScreen.touchSoundsTab();
         profileScreen.touchFollowersTab();
         profileScreen.touchFollowingsTab();
 
-        finishEventTracking(OTHER_PROFILE_PAGEVIEW_EVENTS);
+        mrLocalLocal.verify(OTHER_PROFILE_PAGEVIEW_EVENTS);
     }
 
     public void testFollowersClickOpensProfilePage() {

@@ -9,15 +9,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.Is;
 
-public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO_LIKES = "audio-events-v1-main-likes";
-    private static final String TEST_LIKES_SHUFFLE = "likes-shuffle-events";
+public class TrackLikesTest extends ActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_LIKES = "specs/audio-events-v1-main-likes.spec";
+    private static final String TEST_LIKES_SHUFFLE = "specs/likes-shuffle-events.spec";
 
     private TrackLikesScreen likesScreen;
 
@@ -40,19 +40,19 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertLoadsNextPageOfLikes();
     }
 
-    private void assertPlaysAndPausesTrack() {
+    private void assertPlaysAndPausesTrack() throws Exception {
         final VisualPlayerElement playerElement = likesScreen.clickFirstLongTrack();
 
         assertThat(playerElement, Is.is(visible()));
         assertThat(playerElement, Is.is(playing()));
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         playerElement.clickArtwork();
 
         assertThat(playerElement, Is.is(not(playing())));
 
-        finishEventTracking(TEST_SCENARIO_LIKES);
+        mrLocalLocal.verify(TEST_SCENARIO_LIKES);
         playerElement.pressBackToCollapse();
     }
 
@@ -84,13 +84,13 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
 
-    private void assertShuffleStartsPlaying() {
-        startEventTracking();
+    private void assertShuffleStartsPlaying() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
         assertThat(playerElement, is(playing()));
 
-        finishEventTracking(TEST_LIKES_SHUFFLE);
+        mrLocalLocal.verify(TEST_LIKES_SHUFFLE);
         playerElement.clickArtwork();
         playerElement.pressBackToCollapse();
     }

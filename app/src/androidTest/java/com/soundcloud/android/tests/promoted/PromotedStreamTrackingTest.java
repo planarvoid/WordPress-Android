@@ -7,15 +7,15 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivity> {
+public class PromotedStreamTrackingTest extends ActivityTest<MainActivity> {
 
-    private static final String PROMOTED_PLAY = "promoted-play";
-    private static final String PROMOTED_BY_PLAY = "promoted-by-play";
+    private static final String PROMOTED_PLAY = "specs/promoted-play.spec";
+    private static final String PROMOTED_BY_PLAY = "specs/promoted-by-play.spec";
 
     public PromotedStreamTrackingTest() {
         super(MainActivity.class);
@@ -32,8 +32,7 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
         super.setUp();
     }
 
-    public void testPlayPromotedTrackFromStream() {
-        startEventTracking();
+    public void testPlayPromotedTrackFromStream() throws Exception {
         StreamScreen streamScreen = mainNavHelper.goToStream();
 
         // do not run when promoted item is a promoted playlist
@@ -44,7 +43,11 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
             assertThat(playerElement, is(visible()));
             assertThat(playerElement, is(playing()));
 
-            finishEventTracking(hasPromoter ? PROMOTED_BY_PLAY : PROMOTED_PLAY);
+            if (hasPromoter) {
+                mrLocalLocal.verify(PROMOTED_BY_PLAY);
+            } else {
+                mrLocalLocal.verify(PROMOTED_PLAY);
+            }
         }
     }
 

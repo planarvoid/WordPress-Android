@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
@@ -19,9 +18,10 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
-    private static final String ALBUMS_IN_SEARCH = "albums_in_search2";
+public class SearchResultsTest extends ActivityTest<MainActivity> {
+    private static final String ALBUMS_IN_SEARCH = "specs/albums_in_search2.spec";
     public static final String QUERY = "forss";
 
     private DiscoveryScreen discoveryScreen;
@@ -112,8 +112,8 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
                    equalTo("Playlist"));
     }
 
-    public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() {
-        startEventTracking();
+    public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         PlaylistDetailsScreen playlistDetailsScreen = discoveryScreen
                 .clickSearch()
@@ -123,7 +123,7 @@ public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
 
         assertThat("Album screen should be visible", playlistDetailsScreen, is(visible()));
 
-        finishEventTracking(ALBUMS_IN_SEARCH);
+        mrLocalLocal.verify(ALBUMS_IN_SEARCH);
     }
 
     public void testOrderOfDisplayedTabsWithAlbums() {

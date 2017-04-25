@@ -9,14 +9,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.Is;
 
-public class StreamTest extends TrackingActivityTest<LauncherActivity> {
-    private static final String TEST_SCENARIO_STREAM_PLAYLIST = "audio-events-v1-stream-playlist";
+public class StreamTest extends ActivityTest<LauncherActivity> {
+    private static final String TEST_SCENARIO_STREAM_PLAYLIST = "specs/audio-events-v1-stream-playlist.spec";
 
     private StreamScreen streamScreen;
 
@@ -41,8 +41,8 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
         assertThat(streamScreen.getItemCount(), is(greaterThan(itemsBeforePaging)));
     }
 
-    public void testPlayAndPausePlaylistTrackFromStream() {
-        startEventTracking();
+    public void testPlayAndPausePlaylistTrackFromStream() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement =
                 streamScreen.clickFirstNotPromotedPlaylistCard().clickFirstTrack();
@@ -54,6 +54,6 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
 
         assertThat(playerElement, Is.is(not(playing())));
 
-        finishEventTracking(TEST_SCENARIO_STREAM_PLAYLIST);
+        mrLocalLocal.verify(TEST_SCENARIO_STREAM_PLAYLIST);
     }
 }

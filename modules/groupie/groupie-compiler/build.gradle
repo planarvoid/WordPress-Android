@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 repositories {
-  mavenCentral()
+  maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
 }
 
 dependencies {

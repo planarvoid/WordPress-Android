@@ -1,13 +1,13 @@
 package com.soundcloud.android.tests.player;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class PlayerTrackingTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO_EXPAND_COLLAPSE = "player-expand-collapse";
+public class PlayerTrackingTest extends ActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_EXPAND_COLLAPSE = "specs/player-expand-collapse.spec";
     private StreamScreen streamScreen;
 
     public PlayerTrackingTest() {
@@ -26,8 +26,8 @@ public class PlayerTrackingTest extends TrackingActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testTrackPlayerExpandAndCollapse() {
-        startEventTracking();
+    public void testTrackPlayerExpandAndCollapse() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement player = streamScreen.clickFirstRepostedTrack()
                                                        .waitForExpandedPlayer();
@@ -35,7 +35,7 @@ public class PlayerTrackingTest extends TrackingActivityTest<MainActivity> {
         player.pressCloseButton();
         player.waitForCollapsedPlayer();
 
-        finishEventTracking(TEST_SCENARIO_EXPAND_COLLAPSE);
+        mrLocalLocal.verify(TEST_SCENARIO_EXPAND_COLLAPSE);
     }
 
 }

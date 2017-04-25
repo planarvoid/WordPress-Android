@@ -19,20 +19,20 @@ import android.net.Uri;
 @AdsTest
 public class AudioAdTest extends AdBaseTest {
 
-    public static final String SCENARIO_AUDIO_AD_QUARTILES = "audio_ad_quartiles";
+    public static final String SCENARIO_AUDIO_AD_QUARTILES = "specs/audio_ad_quartiles.spec";
 
     @Override
     protected Uri getUri() {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
-    public void testQuartileEvents() {
-        startEventTracking();
+    public void testQuartileEvents() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         swipeToAd();
 
         playerElement.waitForAudioAdToBeDone();
-        finishEventTracking(SCENARIO_AUDIO_AD_QUARTILES);
+        mrLocalLocal.verify(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
     public void testSkipIsNotAllowedOnAd() {

@@ -7,13 +7,13 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.go.GoOffboardingScreen;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardingActivity> {
+public class GoOffboardingTrackingTest extends ActivityTest<GoOffboardingActivity> {
 
-    private static final String TEST_SCENARIO = "go-offboarding2";
+    private static final String TEST_SCENARIO = "specs/go-offboarding2.spec";
     private GoOffboardingScreen screen;
 
     public GoOffboardingTrackingTest() {
@@ -39,13 +39,12 @@ public class GoOffboardingTrackingTest extends TrackingActivityTest<GoOffboardin
     @Override
     protected void beforeLogIn() {
         super.beforeLogIn();
-        startEventTracking();
     }
 
-    public void testTrackResubscribeButtonClickAndImpression() {
+    public void testTrackResubscribeButtonClickAndImpression() throws Exception {
         final UpgradeScreen upgradeScreen = screen.clickResubscribe();
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking(TEST_SCENARIO);
+        mrLocalLocal.verify(TEST_SCENARIO);
     }
 }

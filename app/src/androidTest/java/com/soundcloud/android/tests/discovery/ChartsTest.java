@@ -5,17 +5,17 @@ import static org.hamcrest.Matchers.equalTo;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.AllGenresScreen;
 import com.soundcloud.android.screens.discovery.ChartsScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
 import java.util.Locale;
 
-public class ChartsTest extends TrackingActivityTest<MainActivity> {
-    private static final String CHARTS_TRACKING_SCENARIO = "charts-tracking";
+public class ChartsTest extends ActivityTest<MainActivity> {
+    private static final String CHARTS_TRACKING_SCENARIO = "specs/charts-tracking.spec";
     private DiscoveryScreen discoveryScreen;
 
     public ChartsTest() {
@@ -35,7 +35,7 @@ public class ChartsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testPlayTrackFromCharts() throws Exception {
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         // New and Hot
         ChartsScreen newAndHotScreen = discoveryScreen.chartBucket().clickNewAndHot();
@@ -77,6 +77,6 @@ public class ChartsTest extends TrackingActivityTest<MainActivity> {
         assertThat(player.isExpandedPlayerPlaying(), equalTo(true));
         assertThat(trackTitle, equalTo(player.getTrackTitle()));
 
-        finishEventTracking(CHARTS_TRACKING_SCENARIO);
+        mrLocalLocal.verify(CHARTS_TRACKING_SCENARIO);
     }
 }

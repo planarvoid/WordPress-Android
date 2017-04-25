@@ -6,14 +6,14 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MoreScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
+public class UpgradeTrackingTest extends ActivityTest<MainActivity> {
 
-    private static final String UPGRADE_TEST_SCENARIO = "upgrade-tracking-test2";
+    private static final String UPGRADE_TEST_SCENARIO = "specs/upgrade-tracking-test2.spec";
 
     public UpgradeTrackingTest() {
         super(MainActivity.class);
@@ -29,13 +29,13 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
-    public void testUpgradePageEvents() {
+    public void testUpgradePageEvents() throws Exception {
         MoreScreen moreScreen = mainNavHelper.goToMore();
         assertThat(moreScreen, is(visible()));
 
         waiter.waitTwoSeconds();
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         UpgradeScreen upgradeScreen = moreScreen.clickSubscribe();
         assertThat(upgradeScreen, is(visible()));
@@ -43,7 +43,7 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
         waiter.waitTwoSeconds();
         upgradeScreen.clickDefaultCheckout();
 
-        finishEventTracking(UPGRADE_TEST_SCENARIO);
+        mrLocalLocal.verify(UPGRADE_TEST_SCENARIO);
     }
 
 }

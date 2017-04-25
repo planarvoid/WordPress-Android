@@ -10,16 +10,16 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity> {
-    private static final String REPOST_TRACK_PLAYING_FROM_STREAM = "stream_engagements_repost_from_player";
-    private static final String LIKE_TRACK_PLAYING_FROM_STREAM = "stream_engagements_like_from_player";
+public class PlayerEngagementTest extends ActivityTest<LauncherActivity> {
+    private static final String REPOST_TRACK_PLAYING_FROM_STREAM = "specs/stream_engagements_repost_from_player.spec";
+    private static final String LIKE_TRACK_PLAYING_FROM_STREAM = "specs/stream_engagements_like_from_player.spec";
 
     private StreamScreen streamScreen;
 
@@ -38,8 +38,8 @@ public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity>
         streamScreen = new StreamScreen(solo);
     }
 
-    public void testPlayAndPauseTrackFromStream() {
-        startEventTracking();
+    public void testPlayAndPauseTrackFromStream() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement =
                 streamScreen.clickFirstNotPromotedTrackCard();
@@ -57,11 +57,11 @@ public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity>
         likeButton.click();
         likeButton.click();
 
-        finishEventTracking(LIKE_TRACK_PLAYING_FROM_STREAM);
+        mrLocalLocal.verify(LIKE_TRACK_PLAYING_FROM_STREAM);
 
         playerElement.pressBackToCollapse();
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement2 =
                 streamScreen.clickFirstNotPromotedTrackCard();
@@ -72,7 +72,7 @@ public class PlayerEngagementTest extends TrackingActivityTest<LauncherActivity>
         playerElement2.playForFiveSeconds();
         playerElement2.clickMenu().toggleRepost();
 
-        finishEventTracking(REPOST_TRACK_PLAYING_FROM_STREAM);
+        mrLocalLocal.verify(REPOST_TRACK_PLAYING_FROM_STREAM);
 
         PlayerMenuElement menu = playerElement2.clickMenu();
         assertThat(menu.repostItem(), is(Enabled()));

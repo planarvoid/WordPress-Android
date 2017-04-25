@@ -1,3 +1,4 @@
 include ':app'
 
 include ':modules:groupie:groupie-compiler', ':modules:groupie:groupie-annotation', ':modules:groupie:groupie'
+include ':modules:mrlocallocal'

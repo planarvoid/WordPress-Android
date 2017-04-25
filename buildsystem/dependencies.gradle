@@ -61,6 +61,7 @@ ext {
           jacksonAnnotations          : "com.fasterxml.jackson.core:jackson-annotations:2.8.6",
           jacksonCore                 : "com.fasterxml.jackson.core:jackson-core:2.8.6",
           jacksonDataBind             : "com.fasterxml.jackson.core:jackson-databind:2.8.6",
+          jacksonYaml                 : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.6",
           okHttp                      : "com.squareup.okhttp3:okhttp:3.6.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.2.1",
           rxJava                      : "io.reactivex:rxjava:1.2.9",
@@ -135,5 +136,6 @@ ext {
           httpComponents      : "org.apache.httpcomponents:httpclient-android:4.3.5.1",
           mockito             : "org.mockito:mockito-core:$mockitoVersion",
           mockitoAndroid      : "org.mockito:mockito-android:$mockitoVersion",
+          mrLocalLocal        : project(':modules:mrlocallocal')
   ]
 }

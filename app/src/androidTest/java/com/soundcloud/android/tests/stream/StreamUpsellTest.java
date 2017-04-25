@@ -6,15 +6,15 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
+public class StreamUpsellTest extends ActivityTest<MainActivity> {
 
-    private static final String STREAM_UPSELL_TRACKING_TEST = "stream_upsell_tracking_test";
+    private static final String STREAM_UPSELL_TRACKING_TEST = "specs/stream_upsell_tracking_test.spec";
 
     public StreamUpsellTest() {
         super(MainActivity.class);
@@ -30,7 +30,7 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
-    public void testUserCanNavigateToSubscribePageFromUpsell() {
+    public void testUserCanNavigateToSubscribePageFromUpsell() throws Exception {
         final StreamScreen streamScreen = mainNavHelper.goToStream();
 
         VisualPlayerElement player = mainNavHelper
@@ -45,12 +45,12 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         solo.goBack();
         player.pressBackToCollapse();
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         assertThat(streamScreen
                            .scrollToUpsell()
                            .clickUpgrade(), is(visible()));
 
-        finishEventTracking(STREAM_UPSELL_TRACKING_TEST);
+        mrLocalLocal.verify(STREAM_UPSELL_TRACKING_TEST);
     }
 }

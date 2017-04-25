@@ -1,13 +1,13 @@
 package com.soundcloud.android.tests.playqueue;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class PlayQueueTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO_PLAY_QUEUE = "play-queue";
+public class PlayQueueTest extends ActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_PLAY_QUEUE = "specs/play-queue.spec";
     private VisualPlayerElement player;
 
     public PlayQueueTest() {
@@ -27,8 +27,8 @@ public class PlayQueueTest extends TrackingActivityTest<MainActivity> {
                              .waitForExpandedPlayer();
     }
 
-    public void testPlayQueueExpandAndCollapse() {
-        startEventTracking();
+    public void testPlayQueueExpandAndCollapse() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         player.pressPlayQueueButton()
               .pressShuffleButton()
@@ -37,7 +37,7 @@ public class PlayQueueTest extends TrackingActivityTest<MainActivity> {
               .pressRepeatButton()
               .pressCloseButton();
 
-        finishEventTracking(TEST_SCENARIO_PLAY_QUEUE);
+        mrLocalLocal.verify(TEST_SCENARIO_PLAY_QUEUE);
     }
 
 }

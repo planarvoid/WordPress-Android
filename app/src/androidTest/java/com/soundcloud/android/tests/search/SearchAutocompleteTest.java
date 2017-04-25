@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.search;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
@@ -11,10 +10,11 @@ import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
+public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
 
-    private static final String SEARCH_AUTOCOMPLETE = "search_autocomplete2";
+    private static final String SEARCH_AUTOCOMPLETE = "specs/search_autocomplete2.spec";
     private DiscoveryScreen discoveryScreen;
 
     public SearchAutocompleteTest() {
@@ -46,7 +46,7 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testAutocompleteResults() throws Exception {
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
                                                            .setSearchQuery("clown")
                                                            .clickOnAutocompleteSuggestion("clowns");
@@ -57,6 +57,6 @@ public class SearchAutocompleteTest extends TrackingActivityTest<MainActivity> {
 
         assertThat("Profile should be visible", profileScreen.isVisible());
 
-        finishEventTracking(SEARCH_AUTOCOMPLETE);
+        mrLocalLocal.verify(SEARCH_AUTOCOMPLETE);
     }
 }

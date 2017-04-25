@@ -18,20 +18,20 @@ import android.net.Uri;
 @AdsTest
 public class VideoAdsTest extends AdBaseTest {
 
-    public static final String SCENARIO_VIDEO_AD_QUARTILES = "video_ad_quartiles";
+    public static final String SCENARIO_VIDEO_AD_QUARTILES = "specs/video_ad_quartiles.spec";
 
     @Override
     protected Uri getUri() {
         return TestConsts.LETTERBOX_VIDEO_PLAYLIST_URI;
     }
 
-    public void testQuartileEvents() {
-        startEventTracking();
+    public void testQuartileEvents() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         swipeToAd();
 
         playerElement.waitForVideoAdToBeDone();
-        finishEventTracking(SCENARIO_VIDEO_AD_QUARTILES);
+        mrLocalLocal.verify(SCENARIO_VIDEO_AD_QUARTILES);
     }
 
     public void testSkipIsNotAllowedOnAd() {

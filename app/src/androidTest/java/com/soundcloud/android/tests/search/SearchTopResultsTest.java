@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.search;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
@@ -14,8 +13,9 @@ import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchTopResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchTrackResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
+public class SearchTopResultsTest extends ActivityTest<MainActivity> {
 
     private DiscoveryScreen discoveryScreen;
     private FeatureFlagsHelper featureFlagsHelper;
@@ -44,7 +44,7 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
     }
 
     public void testTopResultsUpgradeAndTracks() throws Exception {
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
         SearchTopResultsScreen topResultsScreen = discoveryScreen.clickSearch().doSearchTopResults("coldplay");
         assertThat("Search top results buckets screen should be visible", topResultsScreen.isVisible());
         assertTrue(topResultsScreen.goTracksHeader().hasVisibility());
@@ -63,11 +63,11 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
         VisualPlayerElement playerElement = topResultsScreen.findAndClickFirstTrackItem();
         assertThat("Player should be expanded", playerElement.isExpanded());
 
-        finishEventTracking("search_top_results_upgrade_and_tracks");
+        mrLocalLocal.verify("specs/search_top_results_upgrade_and_tracks.spec");
     }
 
     public void testTopResultsProfileAndAlbum() throws Exception {
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
         SearchTopResultsScreen topResultsScreen = discoveryScreen.clickSearch().doSearchTopResults("coldplay");
         assertThat("Search top results buckets screen should be visible", topResultsScreen.isVisible());
 
@@ -84,6 +84,6 @@ public class SearchTopResultsTest extends TrackingActivityTest<MainActivity> {
         assertThat("Search results screen should be visible", topResultsScreen.isVisible());
 
         assertTrue(topResultsScreen.playlistHeader().hasVisibility());
-        finishEventTracking("search_top_results_profile_and_album");
+        mrLocalLocal.verify("specs/search_top_results_profile_and_album.spec");
     }
 }

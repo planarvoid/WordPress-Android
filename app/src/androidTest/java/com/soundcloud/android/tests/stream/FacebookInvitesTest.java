@@ -8,14 +8,14 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.FacebookInvitesItemElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> {
+public class FacebookInvitesTest extends ActivityTest<LauncherActivity> {
 
-    private static final String FACEBOOK_INVITES_CLOSED = "facebook-invites-closed";
+    private static final String FACEBOOK_INVITES_CLOSED = "specs/facebook-invites-closed.spec";
 
     public FacebookInvitesTest() {
         super(LauncherActivity.class);
@@ -32,15 +32,15 @@ public class FacebookInvitesTest extends TrackingActivityTest<LauncherActivity> 
         return streamUser;
     }
 
-    public void testShouldHideFacebookInvitesNotification() {
+    public void testShouldHideFacebookInvitesNotification() throws Throwable {
         FacebookInvitesItemElement notification = new StreamScreen(solo)
                 .getFirstFacebookInvitesNotification();
 
-        startEventTracking();
         assertThat(notification.getViewElement(), is(visible()));
         notification.close();
         assertThat(notification.getViewElement(), is(not(visible())));
-        finishEventTracking(FACEBOOK_INVITES_CLOSED);
+
+        mrLocalLocal.verify(FACEBOOK_INVITES_CLOSED);
     }
 
 }

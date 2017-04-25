@@ -17,7 +17,7 @@ import android.net.Uri;
 @AdsTest
 public class WhyAdsUpsellTest extends AdBaseTest {
 
-    private static final String WHY_ADS_UPSELL_TEST_SCENARIO = "why-ads-upsell-tracking-test";
+    private static final String WHY_ADS_UPSELL_TEST_SCENARIO = "specs/why-ads-upsell-tracking-test.spec";
 
     @Override
     protected TestUser getUserForLogin() {
@@ -34,18 +34,18 @@ public class WhyAdsUpsellTest extends AdBaseTest {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
-    public void testWhyAdsUpsellImpressionAndClick() {
+    public void testWhyAdsUpsellImpressionAndClick() throws Exception {
         swipeToAd();
         waiter.waitTwoSeconds();
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
         WhyAdsUpsellScreen dialog = playerElement.clickWhyAdsForUpsell();
         assertThat(dialog, is(visible()));
 
         UpgradeScreen upgradeScreen = dialog.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking(WHY_ADS_UPSELL_TEST_SCENARIO);
+        mrLocalLocal.verify(WHY_ADS_UPSELL_TEST_SCENARIO);
     }
 
 }

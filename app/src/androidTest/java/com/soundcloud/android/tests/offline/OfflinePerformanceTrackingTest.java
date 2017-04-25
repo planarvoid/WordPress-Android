@@ -10,20 +10,18 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
 
-import java.io.IOException;
-
-public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainActivity> {
-    private static final String OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING = "offline_playlist_cancel_download_tracking";
-    private static final String OFFLINE_LIKES_STORAGE_LIMIT_TRACKING = "offline_likes_storage_limit_tracking";
+public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
+    private static final String OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING = "specs/offline_playlist_cancel_download_tracking.spec";
+    private static final String OFFLINE_LIKES_STORAGE_LIMIT_TRACKING = "specs/offline_likes_storage_limit_tracking.spec";
 
     private Context context;
     private OfflineContentHelper offlineContentHelper;
@@ -46,10 +44,10 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         resetOfflineSyncState(context);
     }
 
-    public void testCancelDownloadTracking() {
+    public void testCancelDownloadTracking() throws Exception {
         enableOfflineContent(context);
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
@@ -63,10 +61,10 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         assertThat(playlistDetailsScreen.clickDownloadToggle()
                                         .headerDownloadElement().isVisible(), is(false));
 
-        finishEventTracking(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
+        mrLocalLocal.verify(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
     }
 
-    public void testStorageLimitErrorTracking() throws IOException {
+    public void testStorageLimitErrorTracking() throws Exception {
         enableOfflineContent(context);
         disableOfflineSettingsOnboarding(context);
         offlineContentHelper.addFakeOfflineTrack(context, Urn.forTrack(123L), 530);
@@ -75,7 +73,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         mainNavHelper.goToOfflineSettings().tapOnSlider(0);
         solo.goBack();
 
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
 
         final TrackLikesScreen likesScreen = mainNavHelper
                 .goToCollections()
@@ -86,7 +84,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         DownloadImageViewElement downloadElement = likesScreen.headerDownloadElement();
         assertThat(downloadElement, is(not(downloading())));
 
-        finishEventTracking(OFFLINE_LIKES_STORAGE_LIMIT_TRACKING);
+        mrLocalLocal.verify(OFFLINE_LIKES_STORAGE_LIMIT_TRACKING);
     }
 
     @Override

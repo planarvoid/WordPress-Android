@@ -5,15 +5,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.NewForYouScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 
-public class NewForYouTest extends TrackingActivityTest<MainActivity> {
+public class NewForYouTest extends ActivityTest<MainActivity> {
     private DiscoveryScreen discoveryScreen;
 
     public NewForYouTest() {
@@ -43,8 +43,8 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
         super.tearDown();
     }
 
-    public void testNewForYouPlayback() {
-        startEventTracking();
+    public void testNewForYouPlayback() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final NewForYouScreen newForYouScreen = discoveryScreen.newForYouBucket()
                                                                .clickViewAll();
@@ -55,12 +55,12 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
 
         assertTrue(player.isExpanded());
 
-        finishEventTracking("new_for_you_playback");
+        mrLocalLocal.verify("specs/new_for_you_playback.spec");
     }
 
     // Note: I had to split this test into 2 to reduce flakiness caused by `player:max / player:min` click events.
-    public void testNewForYouEngagement() {
-        startEventTracking();
+    public void testNewForYouEngagement() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final NewForYouScreen newForYouScreen = discoveryScreen.newForYouBucket()
                                                                .clickViewAll();
@@ -69,6 +69,6 @@ public class NewForYouTest extends TrackingActivityTest<MainActivity> {
 
         newForYouScreen.toggleTrackLike(0);
 
-        finishEventTracking("new_for_you_engagement3");
+        mrLocalLocal.verify("specs/new_for_you_engagement3.spec");
     }
 }

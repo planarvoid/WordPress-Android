@@ -6,18 +6,18 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.Ignore;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.discovery.SearchResultsTest;
 
-public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
+public class SearchNavigationTest extends ActivityTest<MainActivity> {
 
-    private static final String SEARCH_LOCAL_RESULTS = "search_local_results";
+    private static final String SEARCH_LOCAL_RESULTS = "specs/search_local_results.spec";
     private DiscoveryScreen discoveryScreen;
 
     public SearchNavigationTest() {
@@ -52,15 +52,15 @@ public class SearchNavigationTest extends TrackingActivityTest<MainActivity> {
         assertThat("Tags screen should be visible", discoveryScreen, is(visible()));
     }
 
-    private void assertClickSearchSuggestionUser() {
-        startEventTracking();
+    private void assertClickSearchSuggestionUser() throws Exception {
+        mrLocalLocal.startEventTracking();
         ProfileScreen profile = discoveryScreen.clickSearch()
                                                .setSearchQuery("skrillex")
                                                .clickOnUserSuggestion();
 
         assertThat("Profile screen should be visible", profile, is(visible()));
 
-        finishEventTracking(SEARCH_LOCAL_RESULTS);
+        mrLocalLocal.verify(SEARCH_LOCAL_RESULTS);
         solo.goBack();
         solo.goBack();
     }

@@ -7,18 +7,18 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
-import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-public class UpgradeTest extends TrackingActivityTest<MainActivity> {
+public class UpgradeTest extends ActivityTest<MainActivity> {
 
-    private static final String TRACKING_UPGRADE_SCENARIO = "upgrade-from-player";
+    private static final String TRACKING_UPGRADE_SCENARIO = "specs/upgrade-from-player.spec";
     private ProfileScreen profileScreen;
 
     public UpgradeTest() {
@@ -42,8 +42,8 @@ public class UpgradeTest extends TrackingActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testUserCanNavigateToSubscribePageFromPlayer() {
-        startEventTracking();
+    public void testUserCanNavigateToSubscribePageFromPlayer() throws Exception {
+        mrLocalLocal.startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen.playTrackWithTitle("HT 1");
 
@@ -53,6 +53,6 @@ public class UpgradeTest extends TrackingActivityTest<MainActivity> {
         UpgradeScreen upgradeScreen = playerElement.clickUpgrade();
         assertThat(upgradeScreen, is(visible()));
 
-        finishEventTracking(TRACKING_UPGRADE_SCENARIO);
+        mrLocalLocal.verify(TRACKING_UPGRADE_SCENARIO);
     }
 }

@@ -8,7 +8,7 @@ import android.net.Uri;
 
 public class ResolveUpsellTrackingTest extends ResolveBaseTest {
 
-    private static final String RESOLVE_UPSELL_REF = "resolve-upsell-ref";
+    private static final String RESOLVE_UPSELL_REF = "specs/resolve-upsell-ref.spec";
 
     @Override
     protected Uri getUri() {
@@ -22,11 +22,11 @@ public class ResolveUpsellTrackingTest extends ResolveBaseTest {
 
     @Override
     protected void beforeStartActivity() {
-        startEventTracking();
+        mrLocalLocal.startEventTracking();
     }
 
-    public void testResolveUpsellTracksRefParam() {
-        finishEventTracking(RESOLVE_UPSELL_REF);
+    public void testResolveUpsellTracksRefParam() throws Exception {
+        mrLocalLocal.verify(RESOLVE_UPSELL_REF);
     }
 
 }
