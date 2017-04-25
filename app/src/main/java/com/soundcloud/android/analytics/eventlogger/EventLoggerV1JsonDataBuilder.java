@@ -52,7 +52,7 @@ class EventLoggerV1JsonDataBuilder {
     // Ads specific events
     private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
-    private static final String BOOGALOO_VERSION = "v1.26.1";
+    static final String BOOGALOO_VERSION = "v1.26.2";
 
     private final int appId;
     private final DeviceHelper deviceHelper;

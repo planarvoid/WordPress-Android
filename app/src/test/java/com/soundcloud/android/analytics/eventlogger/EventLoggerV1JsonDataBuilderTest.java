@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerV1JsonDataBuilder.BOOGALOO_VERSION;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_BUFFERING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_CONCURRENT_STREAMING;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
@@ -91,7 +92,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String PLAY_ID = "play-id";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
-    private static final String BOOGALOO_VERSION = "v1.26.1";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final Urn TRACK_URN = Urn.forTrack(123L);
