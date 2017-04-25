@@ -9,13 +9,13 @@ import org.jetbrains.annotations.Nullable;
 @AutoValue
 abstract class ApiDiscoveryCard {
 
-    abstract Optional<ApiSingletonSelectionCard> singletonSelectionCard();
+    abstract Optional<ApiSingleContentSelectionCard> singleContentSelectionCard();
 
-    abstract Optional<ApiSelectionCard> selectionCard();
+    abstract Optional<ApiMultipleContentSelectionCard> multipleContentSelectionCard();
 
     @JsonCreator
-    static ApiDiscoveryCard create(@JsonProperty("single_content_selection_card") @Nullable ApiSingletonSelectionCard singletonSelectionCard,
-                                   @JsonProperty("multiple_content_selection_card") @Nullable ApiSelectionCard selectionCard) {
-        return new AutoValue_ApiDiscoveryCard(Optional.fromNullable(singletonSelectionCard), Optional.fromNullable(selectionCard));
+    static ApiDiscoveryCard create(@JsonProperty("single_content_selection_card") @Nullable ApiSingleContentSelectionCard apiSingleContentSelectionCard,
+                                   @JsonProperty("multiple_content_selection_card") @Nullable ApiMultipleContentSelectionCard apiMultipleContentSelectionCard) {
+        return new AutoValue_ApiDiscoveryCard(Optional.fromNullable(apiSingleContentSelectionCard), Optional.fromNullable(apiMultipleContentSelectionCard));
     }
 }

@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 @AutoValue
-abstract class ApiSingletonSelectionCard {
+abstract class ApiSingleContentSelectionCard {
     abstract Urn selectionUrn();
 
     abstract Optional<Urn> queryUrn();
@@ -29,15 +29,15 @@ abstract class ApiSingletonSelectionCard {
     abstract Optional<List<String>> socialProofAvatarUrlTemplates();
 
     @JsonCreator
-    static ApiSingletonSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
-                                            @JsonProperty("query_urn") @Nullable Urn queryUrn,
-                                            @JsonProperty("style") @Nullable String style,
-                                            @JsonProperty("title") @Nullable String title,
-                                            @JsonProperty("description") @Nullable String description,
-                                            @JsonProperty("social_proof") @Nullable String socialProof,
-                                            @JsonProperty("selection_playlist") ApiSelectionPlaylist selectionPlaylist,
-                                            @JsonProperty("social_proof_avatar_url_templates") @Nullable List<String> socialProofAvatarUrlTemplates) {
-        return new AutoValue_ApiSingletonSelectionCard(selectionUrn,
+    static ApiSingleContentSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
+                                                @JsonProperty("query_urn") @Nullable Urn queryUrn,
+                                                @JsonProperty("style") @Nullable String style,
+                                                @JsonProperty("title") @Nullable String title,
+                                                @JsonProperty("description") @Nullable String description,
+                                                @JsonProperty("social_proof") @Nullable String socialProof,
+                                                @JsonProperty("selection_playlist") ApiSelectionPlaylist selectionPlaylist,
+                                                @JsonProperty("social_proof_avatar_url_templates") @Nullable List<String> socialProofAvatarUrlTemplates) {
+        return new AutoValue_ApiSingleContentSelectionCard(selectionUrn,
                                                        Optional.fromNullable(queryUrn),
                                                        Optional.fromNullable(style),
                                                        Optional.fromNullable(title),

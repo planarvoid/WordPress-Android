@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ApiSingletonSelectionCardTest {
+public class ApiSingleContentSelectionCardTest {
     private static final String SELECTION_URN = "soundcloud:selections:new-release:soundcloud:playlists:283891650";
     private static final String QUERY_URN = "soundcloud:queries:vefvefgvhvth334v54v";
     private static final String STYLE = "go_plus";
@@ -28,20 +28,20 @@ public class ApiSingletonSelectionCardTest {
             "        \"selection_playlist\": " + ApiSelectionPlaylistTest.JSON + ",\n" +
             "        \"social_proof_avatar_url_templates\": [\"" + AVATAR_URL + "\"]\n" +
             "      }";
-    static final ApiSingletonSelectionCard EXPECTED_SINGLETON_SELECTION_CARD = ApiSingletonSelectionCard.create(new Urn(SELECTION_URN),
-                                                                                                                new Urn(QUERY_URN),
-                                                                                                                STYLE,
-                                                                                                                TITLE,
-                                                                                                                DESCRIPTION,
-                                                                                                                null,
-                                                                                                                ApiSelectionPlaylistTest.EXPECTED_PLAYLIST,
-                                                                                                                Lists.newArrayList(AVATAR_URL));
+    static final ApiSingleContentSelectionCard EXPECTED_SINGLE_CONTENT_SELECTION_CARD = ApiSingleContentSelectionCard.create(new Urn(SELECTION_URN),
+                                                                                                                             new Urn(QUERY_URN),
+                                                                                                                             STYLE,
+                                                                                                                             TITLE,
+                                                                                                                             DESCRIPTION,
+                                                                                                                             null,
+                                                                                                                             ApiSelectionPlaylistTest.EXPECTED_PLAYLIST,
+                                                                                                                             Lists.newArrayList(AVATAR_URL));
     private final JsonTransformer jsonTransformer = new JacksonJsonTransformer();
 
     @Test
     public void deserialize() throws Exception {
-        final ApiSingletonSelectionCard fromJson = jsonTransformer.fromJson(JSON, TypeToken.of(ApiSingletonSelectionCard.class));
+        final ApiSingleContentSelectionCard fromJson = jsonTransformer.fromJson(JSON, TypeToken.of(ApiSingleContentSelectionCard.class));
 
-        assertThat(fromJson).isEqualTo(EXPECTED_SINGLETON_SELECTION_CARD);
+        assertThat(fromJson).isEqualTo(EXPECTED_SINGLE_CONTENT_SELECTION_CARD);
     }
 }

@@ -29,7 +29,7 @@ class DiscoveryStorage {
     }
 
     private boolean isValidDiscoveryCard(ApiDiscoveryCard apiDiscoveryCard) {
-        return apiDiscoveryCard.selectionCard().isPresent() || apiDiscoveryCard.singletonSelectionCard().isPresent();
+        return apiDiscoveryCard.multipleContentSelectionCard().isPresent() || apiDiscoveryCard.singleContentSelectionCard().isPresent();
     }
 
     Observable<List<ApiDiscoveryCard>> discoveryCards() {

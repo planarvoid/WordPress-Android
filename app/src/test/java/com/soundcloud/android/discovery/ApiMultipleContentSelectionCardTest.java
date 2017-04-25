@@ -15,18 +15,18 @@ import org.junit.runners.JUnit4;
 import java.util.Collections;
 
 @RunWith(JUnit4.class)
-public class ApiSelectionCardTest {
+public class ApiMultipleContentSelectionCardTest {
 
     private static final String SELECTION_URN = "soundcloud:selections:the-upload";
     private static final String QUERY_URN = "soundcloud:queries:3rgt3trbg3b3t3rbt3r";
     private static final String STYLE = "go_plus";
     private static final String TITLE = "Playlists for Chilling";
     private static final String DESCRIPTION = "Some \uD83D\uDEC0\uD83C\uDF34\uD83C\uDF0A marketing copy goes here.";
-    static final ApiSelectionCard EXPECTED_SELECTION_CARD = ApiSelectionCard.create(new Urn(SELECTION_URN),
-                                                                            STYLE,
-                                                                            TITLE,
-                                                                            DESCRIPTION,
-                                                                            new ModelCollection<>(Lists.newArrayList(ApiSelectionPlaylistTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
+    static final ApiMultipleContentSelectionCard EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD = ApiMultipleContentSelectionCard.create(new Urn(SELECTION_URN),
+                                                                                                                                   STYLE,
+                                                                                                                                   TITLE,
+                                                                                                                                   DESCRIPTION,
+                                                                                                                                   new ModelCollection<>(Lists.newArrayList(ApiSelectionPlaylistTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
     static final String JSON = "{\n" +
             "  \"selection_urn\": \"" + SELECTION_URN + "\",\n" +
             "  \"style\": \"" + STYLE + "\",\n" +
@@ -44,8 +44,8 @@ public class ApiSelectionCardTest {
 
     @Test
     public void deserialize() throws Exception {
-        final ApiSelectionCard fromJson = jsonTransformer.fromJson(JSON, TypeToken.of(ApiSelectionCard.class));
+        final ApiMultipleContentSelectionCard fromJson = jsonTransformer.fromJson(JSON, TypeToken.of(ApiMultipleContentSelectionCard.class));
 
-        assertThat(fromJson).isEqualTo(EXPECTED_SELECTION_CARD);
+        assertThat(fromJson).isEqualTo(EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD);
     }
 }

@@ -10,15 +10,15 @@ import org.junit.runners.JUnit4;
 public class DiscoveryCardMapperTest {
     @Test
     public void mapsSingletonSelectionCard() throws Exception {
-        final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_SINGLETON_SELECTION_CARD);
+        final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_SINGLE_CONTENT_SELECTION_CARD);
 
-        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.SINGLETON_SELECTION_CARD);
+        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD);
     }
 
     @Test
     public void mapsSelectionCard() throws Exception {
-        final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_SELECTION_CARD);
+        final DiscoveryCard card = DiscoveryCardMapper.map(ApiDiscoveryCardTest.EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD);
 
-        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.SELECTION_CARD);
+        assertThat(card.kind()).isEqualTo(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD);
     }
 }

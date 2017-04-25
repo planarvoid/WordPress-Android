@@ -23,7 +23,7 @@ public class DiscoveryStorageTest {
     @Test
     public void filtersOutInvalidCard() throws Exception {
         ApiDiscoveryCard invalidCard = ApiDiscoveryCard.create(null, null);
-        ApiDiscoveryCard validCard = ApiDiscoveryCard.create(null, ApiSelectionCardTest.EXPECTED_SELECTION_CARD);
+        ApiDiscoveryCard validCard = ApiDiscoveryCard.create(null, ApiMultipleContentSelectionCardTest.EXPECTED_MULTIPLE_CONTENT_SELECTION_CARD);
 
         discoveryStorage.store(new ModelCollection<>(Lists.newArrayList(invalidCard, validCard)));
 

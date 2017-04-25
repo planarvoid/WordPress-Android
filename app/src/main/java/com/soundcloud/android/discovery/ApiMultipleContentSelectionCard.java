@@ -10,7 +10,7 @@ import com.soundcloud.java.optional.Optional;
 import android.support.annotation.Nullable;
 
 @AutoValue
-abstract class ApiSelectionCard {
+abstract class ApiMultipleContentSelectionCard {
 
     abstract Urn selectionUrn();
 
@@ -23,12 +23,12 @@ abstract class ApiSelectionCard {
     abstract Optional<ModelCollection<ApiSelectionPlaylist>> selectionPlaylists();
 
     @JsonCreator
-    static ApiSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
-                                   @JsonProperty("style") @Nullable String style,
-                                   @JsonProperty("title") @Nullable String title,
-                                   @JsonProperty("description") @Nullable String description,
-                                   @JsonProperty("selection_playlists") @Nullable ModelCollection<ApiSelectionPlaylist> selectionPlaylists) {
-        return new AutoValue_ApiSelectionCard(selectionUrn,
+    static ApiMultipleContentSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
+                                                  @JsonProperty("style") @Nullable String style,
+                                                  @JsonProperty("title") @Nullable String title,
+                                                  @JsonProperty("description") @Nullable String description,
+                                                  @JsonProperty("selection_playlists") @Nullable ModelCollection<ApiSelectionPlaylist> selectionPlaylists) {
+        return new AutoValue_ApiMultipleContentSelectionCard(selectionUrn,
                                               Optional.fromNullable(style),
                                               Optional.fromNullable(title),
                                               Optional.fromNullable(description),

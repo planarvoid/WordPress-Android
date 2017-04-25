@@ -9,8 +9,8 @@ import java.util.List;
 abstract class DiscoveryCard {
     enum Kind {
         SEARCH_ITEM,
-        SELECTION_CARD,
-        SINGLETON_SELECTION_CARD
+        MULTIPLE_CONTENT_SELECTION_CARD,
+        SINGLE_CONTENT_SELECTION_CARD
     }
 
     abstract Kind kind();
@@ -27,7 +27,7 @@ abstract class DiscoveryCard {
     }
 
     @AutoValue
-    static abstract class SelectionCard extends DiscoveryCard {
+    static abstract class MultipleContentSelectionCard extends DiscoveryCard {
 
         abstract Urn selectionUrn();
 
@@ -39,17 +39,17 @@ abstract class DiscoveryCard {
 
         abstract Optional<List<SelectionPlaylist>> selectionPlaylists();
 
-        static SelectionCard create(Urn selectionUrn,
-                                    Optional<String> style,
-                                    Optional<String> title,
-                                    Optional<String> description,
-                                    Optional<List<SelectionPlaylist>> selectionPlaylists) {
-            return new AutoValue_DiscoveryCard_SelectionCard(Kind.SELECTION_CARD, selectionUrn, style, title, description, selectionPlaylists);
+        static MultipleContentSelectionCard create(Urn selectionUrn,
+                                                   Optional<String> style,
+                                                   Optional<String> title,
+                                                   Optional<String> description,
+                                                   Optional<List<SelectionPlaylist>> selectionPlaylists) {
+            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, style, title, description, selectionPlaylists);
         }
     }
 
     @AutoValue
-    static abstract class SingletonSelectionCard extends DiscoveryCard {
+    static abstract class SingleContentSelectionCard extends DiscoveryCard {
 
         abstract Urn selectionUrn();
 
@@ -67,15 +67,15 @@ abstract class DiscoveryCard {
 
         abstract Optional<List<String>> socialProofAvatarUrlTemplates();
 
-        static SingletonSelectionCard create(Urn selectionUrn,
-                                             Optional<Urn> queryUrn,
-                                             Optional<String> style,
-                                             Optional<String> title,
-                                             Optional<String> description,
-                                             SelectionPlaylist selectionPlaylist,
-                                             Optional<String> socialProof,
-                                             Optional<List<String>> socialProofAvatarUrlTemplates) {
-            return new AutoValue_DiscoveryCard_SingletonSelectionCard(Kind.SINGLETON_SELECTION_CARD,
+        static SingleContentSelectionCard create(Urn selectionUrn,
+                                                 Optional<Urn> queryUrn,
+                                                 Optional<String> style,
+                                                 Optional<String> title,
+                                                 Optional<String> description,
+                                                 SelectionPlaylist selectionPlaylist,
+                                                 Optional<String> socialProof,
+                                                 Optional<List<String>> socialProofAvatarUrlTemplates) {
+            return new AutoValue_DiscoveryCard_SingleContentSelectionCard(Kind.SINGLE_CONTENT_SELECTION_CARD,
                     selectionUrn,
                     style,
                     title,
