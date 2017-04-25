@@ -29,6 +29,11 @@ task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${proj
   description = 'Performs static analysis of code.'
 }
 
+task staticAnalysisChanged(dependsOn: ['checkstyleChanged', 'findbugsChanged', 'pmdChanged', "lintProd${project.('buildType').capitalize()}",
+                                "assembleProd${project.('buildType').capitalize()}"]) {
+  description = 'Performs static analysis of changed code.'
+}
+
 if (System.env.containsKey('JENKINS_URL')) {
   apply plugin: ViolationCommentsToGitHubGradlePlugin
   task violationCommentsToGitHub(type: ViolationCommentsToGitHubTask) {
@@ -59,8 +64,12 @@ if (System.env.containsKey('JENKINS_URL')) {
 task assembleDebugWrapper(dependsOn: 'assembleProdDebug')
 assembleDebugWrapper.mustRunAfter('versionizeDebug')
 
-task buildDebug(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper', 'staticAnalysis']) {
+task buildDebug(dependsOn: ['assembleDebugApk', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
+}
+
+task buildPR(dependsOn: ['assembleDebugApk', 'staticAnalysisChanged']) {
+  description = 'Assembles Debug build and performs static analysis of changed files for CI.'
 }
 
 task assembleDebugApk(dependsOn: ['clean', 'versionizeDebug', 'assembleDebugWrapper']) {
