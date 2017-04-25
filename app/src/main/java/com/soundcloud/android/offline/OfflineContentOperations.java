@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsMarkedForDownload;
 import static com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent.fromPlaylistsUnmarkedForDownload;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
@@ -14,7 +15,6 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -172,14 +172,9 @@ public class OfflineContentOperations {
                 .storeAsOfflinePlaylists(playlistUrns)
                 .doOnNext(eventBus.publishAction1(EventQueue.PLAYLIST_CHANGED, fromPlaylistsMarkedForDownload(playlistUrns)))
                 .doOnNext(serviceInitiator.startFromUserAction())
-                .flatMap(result -> syncPlaylistUrns(playlistUrns))
+                .doOnNext(ignored -> fireAndForget(syncInitiator.syncPlaylists(playlistUrns)))
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
-    }
-
-    private Observable<SyncJobResult> syncPlaylistUrns(List<Urn> playlistUrns) {
-        return syncInitiator.syncPlaylists(playlistUrns)
-                            .onErrorResumeNext(Observable.just(null));
     }
 
     public Observable<Void> makePlaylistUnavailableOffline(final Urn playlistUrn) {
