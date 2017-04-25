@@ -18,12 +18,6 @@ public class EntityMetadata {
                                                                   Strings.EMPTY,
                                                                   Urn.NOT_SET);
 
-    public static final String KEY_CREATOR_NAME = "creator_display_name";
-    public static final String KEY_CREATOR_URN = "creator_urn";
-    public static final String KEY_PLAYABLE_TITLE = "playable_title";
-    public static final String KEY_PLAYABLE_URN = "playable_urn";
-    public static final String KEY_PLAYABLE_TYPE = "playable_type";
-
     private static final String TYPE_TRACK = "track";
     private static final String TYPE_PLAYLIST = "playlist";
     private static final String TYPE_STATION = "station";

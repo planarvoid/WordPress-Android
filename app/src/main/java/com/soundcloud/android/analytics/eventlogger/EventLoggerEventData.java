@@ -8,8 +8,10 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_R
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.APP_VERSION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ATTRIBUTING_ACTIVITY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_ATTRIBUTES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_OBJECT;
@@ -45,6 +47,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OVERFLOW_MENU;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGEVIEW_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
@@ -57,12 +60,15 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.POLICY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRING_EVENT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPEAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.RESOURCE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SHARE_LINK_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -111,7 +117,9 @@ class EventLoggerEventData {
                                 int clientId,
                                 String anonymousId,
                                 String loggedInUserUrn,
-                                long timestamp) {
+                                long timestamp,
+                                String connectionType,
+                                String appVersion) {
         this.event = event;
         this.version = version;
         this.payload = new HashMap<>();
@@ -119,6 +127,8 @@ class EventLoggerEventData {
         addToPayload(ANONYMOUS_ID, anonymousId);
         addToPayload(USER, loggedInUserUrn);
         addToPayload(TIMESTAMP, timestamp);
+        addToPayload(CONNECTION_TYPE, connectionType);
+        addToPayload(APP_VERSION, appVersion);
     }
 
     public EventLoggerEventData pageName(String pageName) {
@@ -426,11 +436,6 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData bitrate(String bitrate) {
-        addToPayload(BITRATE, bitrate);
-        return this;
-    }
-
     public EventLoggerEventData bitrate(int bitrate) {
         addToPayload(BITRATE, bitrate);
         return this;
@@ -539,57 +544,63 @@ class EventLoggerEventData {
         return this;
     }
 
-    @Deprecated // this is added to the base event in v1
-    public EventLoggerEventData connectionType(String connectionType) {
-        addToPayload(CONNECTION_TYPE, connectionType);
-        return this;
-    }
-
-    public EventLoggerEventData fromOverflowMenu(boolean fromOverflow) {
-        // Not supported by v0
+    public EventLoggerEventData fromOverflowMenu(boolean fromOverflowMenu) {
+        getClickAttributes().put(OVERFLOW_MENU, fromOverflowMenu);
         return this;
     }
 
     public EventLoggerEventData clickSource(String source) {
-        // Not supported by v0
+        if (Strings.isNotBlank(source)) {
+            getClickAttributes().put(SOURCE, source);
+        }
         return this;
     }
 
     public EventLoggerEventData clickSourceUrn(String sourceUrn) {
-        // Not supported by v0
+        if (Strings.isNotBlank(sourceUrn)) {
+            getClickAttributes().put(SOURCE_URN, sourceUrn);
+        }
         return this;
     }
 
     public EventLoggerEventData clickTrigger(String trigger) {
-        // Not supported by v0
+        if (Strings.isNotBlank(trigger)) {
+            getClickAttributes().put(TRIGGER, trigger);
+        }
         return this;
     }
 
-    public EventLoggerEventData clickRepeat(String repeat_mode) {
-        // Not supported by v0
+    public EventLoggerEventData clickRepeat(String repeatMode) {
+        if (Strings.isNotBlank(repeatMode)) {
+            getClickAttributes().put(REPEAT, repeatMode);
+        }
         return this;
     }
 
     public EventLoggerEventData searchQuery(String query) {
-        // Not supported by v0
+        if (Strings.isNotBlank(query)) {
+            getClickAttributes().put(QUERY, query);
+        }
         return this;
     }
 
     public EventLoggerEventData shareLinkType(String shareLinkType) {
-        // Not supported by v0
+        if (Strings.isNotBlank(shareLinkType)) {
+            getClickAttributes().put(SHARE_LINK_TYPE, shareLinkType);
+        }
         return this;
     }
 
     protected void addToPayload(String key, boolean value) {
-        addToPayload(key, String.valueOf(value));
+        payload.put(key, value);
     }
 
     protected void addToPayload(String key, int value) {
-        addToPayload(key, String.valueOf(value));
+        payload.put(key, value);
     }
 
     protected void addToPayload(String key, long value) {
-        addToPayload(key, String.valueOf(value));
+        payload.put(key, value);
     }
 
     protected void addToPayload(String key, Map<String, ?> child) {
@@ -653,5 +664,12 @@ class EventLoggerEventData {
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);
         }
+    }
+
+    private HashMap<String, Object> getClickAttributes() {
+        if (!payload.containsKey(CLICK_ATTRIBUTES)) {
+            payload.put(CLICK_ATTRIBUTES, new HashMap<String, Object>());
+        }
+        return (HashMap<String, Object>) payload.get(CLICK_ATTRIBUTES);
     }
 }

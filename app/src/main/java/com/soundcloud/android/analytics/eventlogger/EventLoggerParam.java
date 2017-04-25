@@ -112,10 +112,4 @@ class EventLoggerParam {
     // foreground
     static final String PAGE_URN = "page_urn";
     static final String REFERRER = "referrer";
-
-    // audio action
-    static final String AUDIO_ACTION_PLAY_START = "play_start";
-    static final String AUDIO_ACTION_PLAY = "play";
-    static final String AUDIO_ACTION_PAUSE = "pause";
-    static final String AUDIO_ACTION_CHECKPOINT = "checkpoint";
 }

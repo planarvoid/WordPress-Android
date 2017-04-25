@@ -12,6 +12,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
@@ -19,18 +20,22 @@ import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -158,6 +163,111 @@ class EventLoggerV1JsonDataBuilder {
             data.impressionName(eventData.impressionName().get().key());
         }
         return transform(data);
+    }
+
+    String buildForAdOverlayTracking(AdOverlayTrackingEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(event.eventName().key(), event)
+                .adUrn(event.adUrn().toString())
+                .externalMedia(event.adArtworkUrl())
+                .monetizedObject(event.monetizableTrack().toString());
+        if (event.originScreen().isPresent()) {
+            eventData.pageName(event.originScreen().get());
+        }
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().key());
+        }
+        if (event.impressionObject().isPresent()) {
+            eventData.impressionObject(event.impressionObject().get().toString());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get());
+        }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        if (event.clickTarget().isPresent()) {
+            eventData.clickTarget(event.clickTarget().get().toString());
+        }
+        if (event.monetizationType().isPresent()) {
+            eventData.monetizationType(event.monetizationType().get().key());
+        }
+        return transform(eventData);
+    }
+
+    String buildForVisualAdImpression(VisualAdImpressionEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(VisualAdImpressionEvent.EVENT_NAME, event)
+                .adUrn(event.adUrn())
+                .pageName(event.originScreen())
+                .impressionName(event.impressionName().key())
+                .monetizedObject(event.trackUrn())
+                .monetizationType(event.monetizationType().key())
+                .externalMedia(event.adArtworkUrl());
+
+        return transform(eventData);
+    }
+
+    String buildForPromotedTracking(PromotedTrackingEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(event.kind().key(), event)
+                .adUrn(event.adUrn())
+                .pageName(event.originScreen())
+                .monetizationType(event.monetizationType());
+        if (event.promoterUrn().isPresent()) {
+            eventData.promotedBy(event.promoterUrn().get().toString());
+        }
+        if (event.clickObject().isPresent()) {
+            eventData.clickObject(event.clickObject().get().toString());
+        }
+        if (event.clickTarget().isPresent()) {
+            eventData.clickTarget(event.clickTarget().get().toString());
+        }
+        if (event.clickName().isPresent()) {
+            eventData.clickName(event.clickName().get());
+        }
+        if (event.impressionObject().isPresent()) {
+            eventData.impressionObject(event.impressionObject().get().toString());
+        }
+        if (event.impressionName().isPresent()) {
+            eventData.impressionName(event.impressionName().get().key());
+        }
+
+        return transform(eventData);
+    }
+
+    String buildForPlaybackPerformance(PlaybackPerformanceEvent event) {
+        EventLoggerEventData eventLoggerEventData = buildBaseEvent(event.eventName().key(), event.timestamp())
+                .latency(event.metricValue())
+                .protocol(event.protocol().getValue())
+                .playerType(event.playerType().getValue())
+                .type(getPerformanceEventType(event.metric()))
+                .host(event.cdnHost())
+                .format(event.format())
+                .bitrate(event.bitrate())
+                .playbackDetails(event.details());
+        return transform(eventLoggerEventData);
+    }
+
+    String buildForPlaybackError(PlaybackErrorEvent event) {
+        EventLoggerEventData eventLoggerEventData = buildBaseEvent(PlaybackErrorEvent.EVENT_NAME, event.getTimestamp())
+                .protocol(event.getProtocol().getValue())
+                .os(deviceHelper.getUserAgent())
+                .bitrate(event.getBitrate())
+                .format(event.getFormat())
+                .url(event.getCdnHost())
+                .errorCode(event.getCategory());
+        return transform(eventLoggerEventData);
+    }
+
+    String buildForForgroundEvent(ForegroundEvent event) {
+        final EventLoggerEventData eventData = buildBaseEvent(ForegroundEvent.EVENT_NAME, event)
+                .pageName(event.pageName())
+                .referrer(event.referrer());
+        if (event.pageUrn().isPresent()) {
+            eventData.pageUrn(event.pageUrn().get().toString());
+        }
+        if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+            eventData.clientEventId(event.id());
+        }
+        return transform(eventData);
     }
 
     String buildForRichMediaSessionEvent(AdRichMediaSessionEvent eventData) {
@@ -689,7 +799,7 @@ class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        EventLoggerEventDataV1 eventData = new EventLoggerEventDataV1(eventName,
+        EventLoggerEventData eventData = new EventLoggerEventData(eventName,
                                                                       BOOGALOO_VERSION,
                                                                       appId,
                                                                       getAnonymousId(),
@@ -756,5 +866,28 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         return data;
+    }
+
+    private String getPerformanceEventType(int type) {
+        switch (type) {
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
+                return "play";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
+                return "playlist";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
+                return "buffer";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
+                return "seek";
+            case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
+                return "fragmentRate";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD:
+                return "timeToLoadLibrary";
+            case PlaybackPerformanceEvent.METRIC_CACHE_USAGE_PERCENT:
+                return "cacheUsage";
+            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
+                return "uninterruptedPlaytimeMs";
+            default:
+                throw new IllegalArgumentException("Unexpected metric type " + type);
+        }
     }
 }

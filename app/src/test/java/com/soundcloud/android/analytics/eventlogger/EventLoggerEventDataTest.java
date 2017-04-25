@@ -20,6 +20,7 @@ import java.util.UUID;
 public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     private static final int CLIENT_ID = 12;
+    private static final String VERSION = "123";
 
     @Test
     public void implementsEqualsContract() throws Exception {
@@ -30,30 +31,30 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsClientIdAsString() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
-        assertThat(data.payload.get(EventLoggerParam.CLIENT_ID)).isEqualTo(String.valueOf(CLIENT_ID));
+        assertThat(data.payload.get(EventLoggerParam.CLIENT_ID)).isEqualTo(CLIENT_ID);
     }
 
     @Test
     public void addsTimestampAsString() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
-        assertThat(data.payload.get(EventLoggerParam.TIMESTAMP)).isEqualTo(String.valueOf(12345));
+        assertThat(data.payload.get(EventLoggerParam.TIMESTAMP)).isEqualTo(12345l);
     }
 
     @Test
     public void addsLocalStoragePlaybackAsString() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.localStoragePlayback(true);
 
-        assertThat(data.payload.get(EventLoggerParam.LOCAL_STORAGE_PLAYBACK)).isEqualTo(String.valueOf(true));
+        assertThat(data.payload.get(EventLoggerParam.LOCAL_STORAGE_PLAYBACK)).isEqualTo(true);
     }
 
     @Test
     public void addsParamWithValueToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.clickName("clicky");
 
@@ -62,7 +63,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void excludesEmptyParamsFromPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.action(null);
         data.clickObject("");
@@ -73,16 +74,16 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsExperimentToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.experiment("exp_android_listening", 12345);
 
-        assertThat(data.payload.get("exp_android_listening")).isEqualTo(String.valueOf(12345));
+        assertThat(data.payload.get("exp_android_listening")).isEqualTo(12345);
     }
 
     @Test
     public void addsPageviewIdToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.pageviewId("uuid");
 
@@ -91,7 +92,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsAttributingActivityToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.attributingActivity("some_activity_type", "resource");
 
@@ -103,7 +104,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsLinkTypeToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.linkType("link_type");
 
@@ -112,7 +113,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsItemToPayload() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.item("item");
 
@@ -121,7 +122,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsModuleToPayloadAsContext() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.module("module_name");
 
@@ -132,17 +133,17 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void addsModulePositionToPayloadAsPositionInContext() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.modulePosition(0);
 
-        assertThat(data.payload.get(EventLoggerParam.MODULE_POSITION)).isEqualTo("0");
+        assertThat(data.payload.get(EventLoggerParam.MODULE_POSITION)).isEqualTo(0);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldMapScreenEventKindToReferringEventName() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         final String uuid = UUID.randomUUID().toString();
 
@@ -157,7 +158,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     @Test
     @SuppressWarnings("unchecked")
     public void shouldMapForegroundEventKindToReferringEventName() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         final String uuid = UUID.randomUUID().toString();
 
@@ -172,7 +173,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     @Test
     @SuppressWarnings("unchecked")
     public void shouldMapNavigationEventKindToReferringEventName() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         final String uuid = UUID.randomUUID().toString();
 
@@ -186,7 +187,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfUnknownReferringEventKind() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         final String uuid = UUID.randomUUID().toString();
 
@@ -196,7 +197,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     @Test
     public void shouldAddPlaybackDetailsAsJson() {
         final String detailsJson = "{\"some\":{\"key\": 1234}}";
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.playbackDetails(Optional.of(detailsJson));
 
@@ -207,7 +208,7 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     @Test
     public void shouldIgnoreMalformedPlaybackDetailsJson() {
         final String detailsJson = "me-no-entiende";
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.playbackDetails(Optional.of(detailsJson));
 
@@ -216,11 +217,43 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotAddDetailsWhenNotAvailable() {
-        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
 
         data.playbackDetails(Optional.absent());
 
         assertThat(data.payload.containsKey("details")).isFalse();
+    }
+
+    @Test
+    public void addsClientIdAsInt() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
+
+        assertThat(data.payload.get(EventLoggerParam.CLIENT_ID)).isEqualTo(CLIENT_ID);
+    }
+
+    @Test
+    public void addsTimestampAsLong() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
+
+        assertThat(data.payload.get(EventLoggerParam.TIMESTAMP)).isEqualTo(12345L);
+    }
+
+    @Test
+    public void addsLocalStoragePlaybackAsBoolean() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345L, "conn-type", VERSION);
+
+        data.localStoragePlayback(true);
+
+        assertThat(data.payload.get(EventLoggerParam.LOCAL_STORAGE_PLAYBACK)).isEqualTo(true);
+    }
+
+    @Test
+    public void addsExperimentAsInteger() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
+
+        data.experiment("exp_android_listening", 12345);
+
+        assertThat(data.payload.get("exp_android_listening")).isEqualTo(12345);
     }
 
 }

@@ -16,6 +16,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.InterstitialAd;
+import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -26,6 +28,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRequestEvent;
@@ -42,10 +45,12 @@ import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
@@ -54,6 +59,7 @@ import com.soundcloud.android.events.ScrollDepthEvent.ItemDetails;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
@@ -82,6 +88,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
@@ -106,6 +113,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String SOURCE = "stations";
     private static final int QUERY_POSITION = 0;
     private static final String SEARCH_QUERY = "searchQuery";
+    private static final long TIMESTAMP = new Date().getTime();
+    private static final String CDN_URL = "host.com";
+    private static final String MEDIA_TYPE = "mp3";
+    private static final int BIT_RATE = 128000;
+    private static final Optional<String> DETAILS_JSON = Optional.of("{\"some\":{\"key\": 1234}}");
+
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -875,8 +888,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         final AdRichMediaSessionEvent event = AdRichMediaSessionEvent.forStop(audioAd,
-                                                                            eventArgs,
-                                                                            STOP_REASON_BUFFERING);
+                                                                              eventArgs,
+                                                                              STOP_REASON_BUFFERING);
 
         jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
@@ -1034,6 +1047,103 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::third_quartile"));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceJsonForPlayEvent() throws Exception {
+
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(PlaybackType.AUDIO_DEFAULT)
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HTTPS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost(CDN_URL)
+                                                                 .format(MEDIA_TYPE)
+                                                                 .bitrate(BIT_RATE)
+                                                                 .userUrn(LOGGED_IN_USER)
+                                                                 .details(DETAILS_JSON)
+                                                                 .build();
+
+        jsonDataBuilder.buildForPlaybackPerformance(event);
+
+        verify(jsonTransformer).toJson(getPlaybackPerformanceEventFor(event, "play"));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceJsonForBufferEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer()
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HTTPS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost(CDN_URL)
+                                                                 .format(MEDIA_TYPE)
+                                                                 .bitrate(BIT_RATE)
+                                                                 .userUrn(LOGGED_IN_USER)
+                                                                 .details(DETAILS_JSON)
+                                                                 .build();
+
+        jsonDataBuilder.buildForPlaybackPerformance(event);
+
+        verify(jsonTransformer).toJson(getPlaybackPerformanceEventFor(event, "buffer"));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceJsonForPlaylistEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist()
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HTTPS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost(CDN_URL)
+                                                                 .format(MEDIA_TYPE)
+                                                                 .bitrate(BIT_RATE)
+                                                                 .userUrn(LOGGED_IN_USER)
+                                                                 .details(DETAILS_JSON)
+                                                                 .build();
+
+        jsonDataBuilder.buildForPlaybackPerformance(event);
+
+        verify(jsonTransformer).toJson(getPlaybackPerformanceEventFor(event, "playlist"));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceJsonForSeekEvent() throws Exception {
+
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek()
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HTTPS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost(CDN_URL)
+                                                                 .format(MEDIA_TYPE)
+                                                                 .bitrate(BIT_RATE)
+                                                                 .userUrn(LOGGED_IN_USER)
+                                                                 .details(DETAILS_JSON)
+                                                                 .build();
+
+        jsonDataBuilder.buildForPlaybackPerformance(event);
+
+        verify(jsonTransformer).toJson(getPlaybackPerformanceEventFor(event, "seek"));
+    }
+
+    @Test
+    public void createsPlaybackPerformanceJsonForFragmentDownloadRateEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate()
+                                                                 .metricValue(1000L)
+                                                                 .protocol(PlaybackProtocol.HTTPS)
+                                                                 .playerType(PlayerType.MEDIA_PLAYER)
+                                                                 .connectionType(ConnectionType.FOUR_G)
+                                                                 .cdnHost(CDN_URL)
+                                                                 .format(MEDIA_TYPE)
+                                                                 .bitrate(BIT_RATE)
+                                                                 .userUrn(LOGGED_IN_USER)
+                                                                 .details(DETAILS_JSON)
+                                                                 .build();
+
+        jsonDataBuilder.buildForPlaybackPerformance(event);
+
+        verify(jsonTransformer).toJson(getPlaybackPerformanceEventFor(event, "fragmentRate"));
     }
 
     @Test
@@ -1200,6 +1310,185 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::finish"));
+    }
+
+    @Test
+    public void createsJsonForLeaveBehindImpression() throws ApiMapperException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+
+        jsonDataBuilder.buildForAdOverlayTracking(AdOverlayTrackingEvent.forImpression(TIMESTAMP,
+                                                                                       leaveBehindAd,
+                                                                                       monetizedTrack,
+                                                                                       LOGGED_IN_USER,
+                                                                                       trackSourceInfo));
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, TIMESTAMP)
+                                               .adUrn(leaveBehindAd.adUrn().toString())
+                                               .pageName(Screen.LIKES.get())
+                                               .impressionName("leave_behind")
+                                               .impressionObject(leaveBehindAd.audioAdUrn().toString())
+                                               .externalMedia(leaveBehindAd.getImageUrl())
+                                               .monetizedObject(monetizedTrack.toString())
+                                               .monetizationType("audio_ad"));
+    }
+
+    @Test
+    public void createsJsonForInterstitialImpression() throws ApiMapperException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final InterstitialAd interstitialAd = AdFixtures.getInterstitialAd(Urn.forTrack(123L));
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(TIMESTAMP,
+                                                                                  interstitialAd,
+                                                                                  monetizedTrack,
+                                                                                  LOGGED_IN_USER,
+                                                                                  trackSourceInfo);
+        jsonDataBuilder.buildForAdOverlayTracking(event);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, TIMESTAMP)
+                                               .adUrn(interstitialAd.adUrn().toString())
+                                               .pageName(Screen.LIKES.get())
+                                               .impressionName("interstitial")
+                                               .impressionObject(monetizedTrack.toString())
+                                               .externalMedia(interstitialAd.getImageUrl())
+                                               .monetizedObject(monetizedTrack.toString())
+                                               .monetizationType("interstitial"));
+    }
+
+    @Test
+    public void createsJsonForLeaveBehindClick() throws ApiMapperException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(TIMESTAMP,
+                                                                             leaveBehindAd,
+                                                                             monetizedTrack,
+                                                                             LOGGED_IN_USER,
+                                                                             trackSourceInfo);
+
+        jsonDataBuilder.buildForAdOverlayTracking(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, TIMESTAMP)
+                                               .adUrn(leaveBehindAd.adUrn().toString())
+                                               .pageName(Screen.LIKES.get())
+                                               .clickName("clickthrough::leave_behind")
+                                               .clickObject(leaveBehindAd.audioAdUrn().toString())
+                                               .clickTarget(leaveBehindAd.getClickthroughUrl().toString())
+                                               .externalMedia(leaveBehindAd.getImageUrl())
+                                               .monetizedObject(monetizedTrack.toString())
+                                               .monetizationType("audio_ad"));
+    }
+
+    @Test
+    public void createsJsonForInterstitialClick() throws ApiMapperException {
+        final Urn monetizedTrack = Urn.forTrack(123L);
+        final InterstitialAd interstitialAd = AdFixtures.getInterstitialAd(Urn.forTrack(123L));
+        final AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forClick(TIMESTAMP,
+                                                                             interstitialAd,
+                                                                             monetizedTrack,
+                                                                             LOGGED_IN_USER,
+                                                                             trackSourceInfo);
+
+        jsonDataBuilder.buildForAdOverlayTracking(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, TIMESTAMP)
+                                               .adUrn(interstitialAd.adUrn().toString())
+                                               .pageName(Screen.LIKES.get())
+                                               .clickName("clickthrough::interstitial")
+                                               .clickTarget(interstitialAd.getClickthroughUrl().toString())
+                                               .monetizedObject(monetizedTrack.toString())
+                                               .monetizationType("interstitial")
+                                               .externalMedia(interstitialAd.getImageUrl()));
+    }
+
+    @Test
+    public void createsImpressionJsonForCompanionDisplayToAudioAd() throws ApiMapperException {
+        Urn audioAdTrackUrn = Urn.forTrack(123L);
+        final AudioAd audioAd = AdFixtures.getAudioAd(audioAdTrackUrn);
+        final VisualAdImpressionEvent event = VisualAdImpressionEvent.create(audioAd,
+                                                                             LOGGED_IN_USER,
+                                                                             trackSourceInfo);
+        jsonDataBuilder.buildForVisualAdImpression(event);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, event.timestamp())
+                                               .adUrn(audioAd.companionAdUrn().get().toString())
+                                               .pageName(Screen.LIKES.get())
+                                               .impressionName("companion_display")
+                                               .monetizationType("audio_ad")
+                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                                               .externalMedia(audioAd.companionImageUrl().get().toString()));
+    }
+
+
+    @Test
+    public void createsPromotedTrackClickJson() throws Exception {
+        TrackItem item = PlayableFixtures.expectedPromotedTrack();
+        PromotedTrackingEvent click = PromotedTrackingEvent.forPromoterClick(item, "stream");
+
+        jsonDataBuilder.buildForPromotedTracking(click);
+
+        String promotedBy = item.promoterUrn().get().toString();
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, click.getTimestamp())
+                                               .pageName("stream")
+                                               .monetizationType("promoted")
+                                               .adUrn(item.adUrn())
+                                               .promotedBy(promotedBy)
+                                               .clickObject(item.getUrn().toString())
+                                               .clickTarget(promotedBy)
+                                               .clickName("item_navigation"));
+    }
+
+    @Test
+    public void createsPromotedTrackImpressionJson() throws Exception {
+        TrackItem item = PlayableFixtures.expectedPromotedTrack();
+        PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
+
+        jsonDataBuilder.buildForPromotedTracking(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                                               .pageName("stream")
+                                               .monetizationType("promoted")
+                                               .adUrn(item.adUrn())
+                                               .promotedBy(item.promoterUrn().get().toString())
+                                               .impressionName("promoted_track")
+                                               .impressionObject(item.getUrn().toString()));
+    }
+
+    @Test
+    public void createsPromotedPlaylistImpressionJson() throws Exception {
+        PlaylistItem item = PlayableFixtures.expectedPromotedPlaylist();
+        PromotedTrackingEvent impression = PromotedTrackingEvent.forImpression(item, "stream");
+
+        jsonDataBuilder.buildForPromotedTracking(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, impression.getTimestamp())
+                                               .pageName("stream")
+                                               .monetizationType("promoted")
+                                               .adUrn(item.adUrn())
+                                               .promotedBy(item.promoterUrn().get().toString())
+                                               .impressionName("promoted_playlist")
+                                               .impressionObject(item.getUrn().toString()));
+    }
+
+    @Test
+    public void createsPlaybackErrorJsonForErrorEvent() throws Exception {
+        final String userAgent = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
+        when(deviceHelper.getUserAgent()).thenReturn(userAgent);
+        PlaybackErrorEvent event = new PlaybackErrorEvent("category",
+                                                          PlaybackProtocol.HTTPS,
+                                                          "cdn-uri",
+                                                          MEDIA_TYPE,
+                                                          BIT_RATE,
+                                                          ConnectionType.FOUR_G,
+                                                          PlayerType.FLIPPER);
+
+        jsonDataBuilder.buildForPlaybackError(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio_error", BOOGALOO_VERSION, event.getTimestamp())
+                                               .protocol("https")
+                                               .os(userAgent)
+                                               .bitrate(BIT_RATE)
+                                               .format("mp3")
+                                               .errorCode("category")
+                                               .url("cdn-uri"));
     }
 
     @Test
@@ -1929,7 +2218,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
-        return new EventLoggerEventDataV1(eventName,
+        return new EventLoggerEventData(eventName,
                                           boogalooVersion,
                                           CLIENT_ID,
                                           UDID,
@@ -1963,5 +2252,17 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                 boolean isOfflineTrack) {
         return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL,
                                                PLAYER_TYPE, isOfflineTrack, false, CLIENT_EVENT_ID, PLAY_ID);
+    }
+
+    private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {
+        return getEventData("audio_performance", BOOGALOO_VERSION, event.timestamp())
+                .latency(1000L)
+                .protocol("https")
+                .playerType("MediaPlayer")
+                .type(type)
+                .format(MEDIA_TYPE)
+                .bitrate(BIT_RATE)
+                .host(CDN_URL)
+                .playbackDetails(DETAILS_JSON);
     }
 }

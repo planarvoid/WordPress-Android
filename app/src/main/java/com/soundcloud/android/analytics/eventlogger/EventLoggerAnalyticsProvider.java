@@ -40,19 +40,16 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
     private final EventTrackingManager eventTrackingManager;
-    private final Lazy<EventLoggerJsonDataBuilder> dataBuilderV0;
     private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
     private final FeatureFlags featureFlags;
 
     @Inject
     public EventLoggerAnalyticsProvider(EventTrackingManager eventTrackingManager,
-                                        Lazy<EventLoggerJsonDataBuilder> dataBuilderV0,
                                         Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
                                         SharedPreferences sharedPreferences,
                                         FeatureFlags featureFlags) {
         this.sharedPreferences = sharedPreferences;
-        this.dataBuilderV0 = dataBuilderV0;
         this.dataBuilderV1 = dataBuilderV1;
         this.eventTrackingManager = eventTrackingManager;
         this.featureFlags = featureFlags;
@@ -131,7 +128,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleForegroundEvent(ForegroundEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForForgroundEvent(event));
     }
 
     private void handleScreenEvent(ScreenEvent event) {
@@ -139,12 +136,12 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {
-        final String url = dataBuilderV0.get().build(event);
+        final String url = dataBuilderV1.get().buildForAdOverlayTracking(event);
         trackEvent(event.getTimestamp(), url);
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForVisualAdImpression(event));
     }
 
     private void handleStreamAdImpression(InlayAdImpressionEvent event) {
@@ -152,7 +149,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePromotedEvent(PromotedTrackingEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForPromotedTracking(eventData));
     }
 
     private void handleUpsellEvent(UpgradeFunnelEvent event) {
@@ -232,13 +229,13 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
         final String data = eventData.isAd() ?
                             dataBuilderV1.get().buildForRichMediaPerformance(eventData) :
-                            dataBuilderV0.get().build(eventData);
+                            dataBuilderV1.get().buildForPlaybackPerformance(eventData);
         trackEvent(eventData.timestamp(), data);
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForPlaybackError(eventData));
     }
 
     @Override
