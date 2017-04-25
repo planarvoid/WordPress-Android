@@ -16,16 +16,9 @@ stage('Build') {
         unstash 'repository'
         sh './scripts/pull_all_translations.sh'
         gradle 'buildAlpha'
-        stash includes: 'app/build/outputs/apk/app-prod-alpha.apk', name: 'apk'
+        gradle 'deployAlpha'
         archiveArtifacts artifacts: "app/build/outputs/apk/app-prod-alpha.apk", onlyIfSuccessful: true
     }
-}
-stage('Upload') {
-  node('chaos-slave') {
-    deleteDir()
-    unstash 'apk'
-    gradle 'deployAlpha'
-  }
 }
 } // timestamps
 } // color
