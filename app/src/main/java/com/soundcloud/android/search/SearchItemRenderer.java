@@ -1,4 +1,4 @@
-package com.soundcloud.android.olddiscovery;
+package com.soundcloud.android.search;
 
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class SearchItemRenderer implements CellRenderer<OldDiscoveryItem> {
+public class SearchItemRenderer implements CellRenderer {
 
-    interface SearchListener {
+    public interface SearchListener {
         void onSearchClicked(Context context);
     }
 
@@ -33,7 +33,7 @@ class SearchItemRenderer implements CellRenderer<OldDiscoveryItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<OldDiscoveryItem> list) {
+    public void bindItemView(int position, View itemView, List unused) {
         ButterKnife.bind(this, itemView);
     }
 
@@ -44,7 +44,7 @@ class SearchItemRenderer implements CellRenderer<OldDiscoveryItem> {
         }
     }
 
-    void setSearchListener(SearchListener searchListener) {
+    public void setSearchListener(SearchListener searchListener) {
         checkNotNull(searchListener);
         this.searchListener = searchListener;
     }

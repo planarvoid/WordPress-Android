@@ -25,6 +25,7 @@ import com.soundcloud.android.olddiscovery.welcomeuser.WelcomeUserItemRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
+import com.soundcloud.android.search.SearchItemRenderer;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.upsell.DiscoveryUpsellItemRenderer;
 import com.soundcloud.java.collections.Iterables;

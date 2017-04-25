@@ -1,15 +1,14 @@
-package com.soundcloud.android.search;
+package com.soundcloud.android.olddiscovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.olddiscovery.OldDiscoveryFragment;
 import com.soundcloud.android.main.BaseNavigationTarget;
+import com.soundcloud.android.main.Screen;
 
 import android.support.v4.app.Fragment;
 
-public class DiscoveryNavigationTarget extends BaseNavigationTarget {
+public class OldDiscoveryNavigationTarget extends BaseNavigationTarget {
 
-    public DiscoveryNavigationTarget() {
+    public OldDiscoveryNavigationTarget() {
         super(R.string.tab_discovery, R.drawable.tab_discovery);
     }
 

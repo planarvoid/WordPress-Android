@@ -24,6 +24,7 @@ import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksBuck
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsBucketRenderer;
 import com.soundcloud.android.olddiscovery.welcomeuser.WelcomeUserItem;
 import com.soundcloud.android.olddiscovery.welcomeuser.WelcomeUserItemRenderer;
+import com.soundcloud.android.search.SearchItemRenderer;
 import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

@@ -8,22 +8,35 @@ import java.util.List;
 
 abstract class DiscoveryCard {
     enum Kind {
+        SEARCH_ITEM,
         SELECTION_CARD,
         SINGLETON_SELECTION_CARD
     }
 
     abstract Kind kind();
 
-    abstract Urn selectionUrn();
+    static DiscoveryCard forSearchItem() {
+        return DiscoveryCard.Default.create(Kind.SEARCH_ITEM);
+    }
 
-    abstract Optional<String> style();
-
-    abstract Optional<String> title();
-
-    abstract Optional<String> description();
+    @AutoValue
+    static abstract class Default extends DiscoveryCard {
+        public static DiscoveryCard create(Kind kind) {
+            return new AutoValue_DiscoveryCard_Default(kind);
+        }
+    }
 
     @AutoValue
     static abstract class SelectionCard extends DiscoveryCard {
+
+        abstract Urn selectionUrn();
+
+        abstract Optional<String> style();
+
+        abstract Optional<String> title();
+
+        abstract Optional<String> description();
+
         abstract Optional<List<SelectionPlaylist>> selectionPlaylists();
 
         static SelectionCard create(Urn selectionUrn,
@@ -37,6 +50,14 @@ abstract class DiscoveryCard {
 
     @AutoValue
     static abstract class SingletonSelectionCard extends DiscoveryCard {
+
+        abstract Urn selectionUrn();
+
+        abstract Optional<String> style();
+
+        abstract Optional<String> title();
+
+        abstract Optional<String> description();
 
         abstract Optional<Urn> queryUrn();
 
@@ -55,14 +76,14 @@ abstract class DiscoveryCard {
                                              Optional<String> socialProof,
                                              Optional<List<String>> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingletonSelectionCard(Kind.SINGLETON_SELECTION_CARD,
-                                                                 selectionUrn,
-                                                                 style,
-                                                                 title,
-                                                                 description,
-                                                                 queryUrn,
-                                                                 selectionPlaylist,
-                                                                 socialProof,
-                                                                 socialProofAvatarUrlTemplates);
+                    selectionUrn,
+                    style,
+                    title,
+                    description,
+                    queryUrn,
+                    selectionPlaylist,
+                    socialProof,
+                    socialProofAvatarUrlTemplates);
         }
     }
 }

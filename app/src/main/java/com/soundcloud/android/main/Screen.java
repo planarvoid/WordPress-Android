@@ -73,6 +73,9 @@ public enum Screen {
     // play queue
     PLAY_QUEUE("play_queue:main"),
 
+    // discover / new home
+    DISCOVER("discover::main"),
+
     // search
     SEARCH_MAIN("search:main"),
     SEARCH_EVERYTHING("search:everything"),
