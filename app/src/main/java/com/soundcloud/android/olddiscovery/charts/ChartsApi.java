@@ -1,21 +1,21 @@
 package com.soundcloud.android.olddiscovery.charts;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.java.reflect.TypeToken;
-import rx.Observable;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 
-public class ChartsApi {
-    private final ApiClientRx apiClientRx;
+class ChartsApi {
+    private final ApiClientRxV2 apiClientRx;
 
     @Inject
-    public ChartsApi(ApiClientRx apiClientRx) {
+    ChartsApi(ApiClientRxV2 apiClientRx) {
         this.apiClientRx = apiClientRx;
     }
 
@@ -31,6 +31,6 @@ public class ChartsApi {
 
     private Observable<ApiChart<ApiTrack>> getMappedResponse(ApiRequest request) {
         return apiClientRx.mappedResponse(request, new TypeToken<ApiChart<ApiTrack>>() {
-        });
+        }).toObservable();
     }
 }

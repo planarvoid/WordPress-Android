@@ -18,6 +18,7 @@ import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
@@ -25,7 +26,6 @@ import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,7 +122,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
                                                                                                  .getCollection()
                                                                                                  .get(0)
                                                                                                  .getUrn());
-        verify(storeTracksCommand).toAction1().call(apiChart.tracks());
+        verify(storeTracksCommand).call(apiChart.tracks());
     }
 
     @Test

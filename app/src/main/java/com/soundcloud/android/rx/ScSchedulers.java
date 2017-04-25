@@ -40,10 +40,13 @@ public final class ScSchedulers {
     private static final long QUEUE_SIZE_WARNING_THRESHOLD = 3;
 
     static {
-        HIGH_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(createExecutor("HighPriorityPool", 5));
-        LOW_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(createExecutor("LowPriorityPool", 1));
-        RX_HIGH_PRIORITY_SCHEDULER = Schedulers.from(createExecutor("RxHighPriorityPool", 2));
-        RX_LOW_PRIORITY_SCHEDULER = Schedulers.from(createExecutor("RxLowPriorityPool", 1));
+        final Executor highPriorityPool = createExecutor("HighPriorityPool", 6);
+        final Executor lowPriorityPool = createExecutor("LowPriorityPool", 1);
+
+        HIGH_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(highPriorityPool);
+        RX_HIGH_PRIORITY_SCHEDULER = Schedulers.from(highPriorityPool);
+        LOW_PRIO_SCHEDULER = rx.schedulers.Schedulers.from(lowPriorityPool);
+        RX_LOW_PRIORITY_SCHEDULER = Schedulers.from(lowPriorityPool);
     }
 
     private static Executor createExecutor(final String threadIdentifier, int numThreads) {

@@ -5,6 +5,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.test.IntegrationTest;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
@@ -23,7 +24,6 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(packageName = "com.soundcloud.android",
@@ -37,6 +37,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
 
     private DatabaseFixtures helper;
     private PropellerRx propellerRx;
+    private PropellerRxV2 propellerRxV2;
     private DatabaseAssertions databaseAssertions;
 
     protected DatabaseFixtures testFixtures() {
@@ -51,8 +52,12 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
         return propellerRx;
     }
 
+    protected PropellerRxV2 propellerRxV2() {
+        return propellerRxV2;
+    }
+
     protected static SharedPreferences sharedPreferences() {
-        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "Test", Context.MODE_PRIVATE);
+        return new RoboSharedPreferences(new HashMap<>(), "Test", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -71,6 +76,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
             helper = new DatabaseFixtures(database());
             databaseAssertions = new DatabaseAssertions(database());
             propellerRx = new PropellerRx(propeller());
+            propellerRxV2 = new PropellerRxV2(propeller());
         }
 
     }

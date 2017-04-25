@@ -1,5 +1,6 @@
 package com.soundcloud.android.commands;
 
+import io.reactivex.functions.Consumer;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -28,16 +29,21 @@ public abstract class Command<I, O> {
         });
     }
 
-    public final Action1<I> toAction1() {
-        return i -> Command.this.call(i);
+    public final Consumer<I> toConsumer() {
+        return Command.this::call;
     }
 
-    public final Action0 toAction0() {
-        return () -> Command.this.call();
+    @Deprecated
+    /** Use {@link Command#toConsumer()} */
+    public final Action1<I> toAction1() {
+        return Command.this::call;
+    }
+
+    final Action0 toAction0() {
+        return Command.this::call;
     }
 
     public final Func1<I, Observable<O>> toContinuation() {
-        return i -> toObservable(i);
+        return this::toObservable;
     }
-
 }
