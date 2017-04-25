@@ -53,7 +53,7 @@ try {
         deleteDir()
         unstash 'repository'
         gradle 'clean lintProdDebug'
-        androidLint canComputeNew: false, defaultEncoding: '', failedTotalHigh: '0', failedTotalNormal: '0', healthy: '', pattern: 'app/build/outputs/lint-results-prodDebug.xml', unHealthy: ''
+        androidLint canComputeNew: false, defaultEncoding: '', failedTotalHigh: '0', failedTotalNormal: '0', healthy: '', pattern: 'app/build/reports/lint-results-prodDebug.xml', unHealthy: ''
       }
     }
   }
