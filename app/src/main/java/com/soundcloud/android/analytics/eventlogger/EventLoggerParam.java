@@ -73,8 +73,7 @@ class EventLoggerParam {
     static final String FORMAT = "format";
     static final String DETAILS = "details";
     static final String URL = "url";
-    static final String ERROR_CODE = "errorCode";
-    static final String ERROR_NAME = "error_code";
+    static final String ERROR_CODE = "error_code";
 
     // rich media specific performance & error event params
     static final String METRIC_NAME = "metric";

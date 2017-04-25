@@ -635,6 +635,11 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
+    public PlayerType getPlayerType() {
+        return PlayerType.MEDIA_PLAYER;
+    }
+
+    @Override
     public void setVolume(float volume) {
         if (mediaPlayer != null) {
             this.volume = volume;

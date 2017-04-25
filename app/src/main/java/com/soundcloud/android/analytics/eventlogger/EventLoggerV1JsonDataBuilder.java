@@ -249,7 +249,7 @@ class EventLoggerV1JsonDataBuilder {
                 .mediaType(eventData.mediaType())
                 .format(eventData.format())
                 .bitrate(eventData.bitrate())
-                .errorName(eventData.errorName())
+                .errorCode(eventData.errorName())
                 .host(eventData.host());
         if (eventData.protocol().isPresent()) {
             data.protocol(eventData.protocol().get());

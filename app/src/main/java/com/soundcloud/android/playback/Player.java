@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.events.PlayerType;
+
 public interface Player {
 
     void preload(PreloadItem preloadItem);
@@ -28,6 +30,8 @@ public interface Player {
 
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
+
+    PlayerType getPlayerType();
 
     interface PlayerListener {
 

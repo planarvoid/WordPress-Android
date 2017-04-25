@@ -157,6 +157,7 @@ public class EventLoggerJsonDataBuilder {
                 .format(event.getFormat())
                 .url(event.getCdnHost())
                 .errorCode(event.getCategory())
+                .playerType(event.getPlayerType())
                 .connectionType(event.getConnectionType().getValue());
     }
 

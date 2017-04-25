@@ -282,7 +282,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                           "cdn-uri",
                                                           MEDIA_TYPE,
                                                           BIT_RATE,
-                                                          ConnectionType.FOUR_G);
+                                                          ConnectionType.FOUR_G,
+                                                          PlayerType.FLIPPER);
 
         jsonDataBuilder.build(event);
 
@@ -293,6 +294,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .bitrate("128000")
                                                .format("mp3")
                                                .errorCode("category")
+                                               .playerType("Flipper")
                                                .url("cdn-uri"));
     }
 

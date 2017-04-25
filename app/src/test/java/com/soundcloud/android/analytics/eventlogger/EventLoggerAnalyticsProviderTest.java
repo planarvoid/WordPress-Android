@@ -159,7 +159,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                           "uri",
                                                           PlaybackConstants.MediaType.MP3,
                                                           128000,
-                                                          ConnectionType.FOUR_G);
+                                                          ConnectionType.FOUR_G,
+                                                          PlayerType.FLIPPER);
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

@@ -795,7 +795,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream_error", BOOGALOO_VERSION, event.getTimestamp())
                                                .mediaType("video")
-                                               .errorName("failToBuffer")
+                                               .errorCode("failToBuffer")
                                                .host("http://videourl.com/video.mp4")
                                                .format("mp4")
                                                .bitrate(1001)

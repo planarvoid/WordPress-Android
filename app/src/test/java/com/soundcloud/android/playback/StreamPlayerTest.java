@@ -15,6 +15,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.flipper.FlipperAdapter;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
@@ -178,6 +179,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void playLogsErrorOnOfflinePlayWhenSkippyFailedToInitialize() {
         when(skippyAdapter.init()).thenReturn(false);
+        when(mediaPlayerAdapter.getPlayerType()).thenReturn(PlayerType.MEDIA_PLAYER);
         instantiateStreamPlaya();
 
         startPlaybackOnSkippy(offlinePlaybackItem);

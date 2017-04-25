@@ -329,6 +329,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
+    public PlayerType getPlayerType() {
+        return PlayerType.SKIPPY;
+    }
+
+    @Override
     public void onStateChanged(Skippy.State state,
                                Skippy.Reason reason,
                                Skippy.Error errorCode,
@@ -371,7 +376,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                                                    dateProvider);
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
                                          getPlaybackProtocol().getValue());
-            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().getValue());
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
                                          connectionHelper.getCurrentConnectionType().getValue());
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE,
@@ -524,7 +529,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         return builder.metricValue(value)
                       .protocol(getPlaybackProtocol())
-                      .playerType(PlayerType.SKIPPY)
+                      .playerType(getPlayerType())
                       .connectionType(connectionHelper.getCurrentConnectionType())
                       .cdnHost(cdnHost)
                       .format(format.name())
@@ -566,8 +571,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             ErrorUtils.handleSilentExceptionWithLog(new SkippyException(category, line, sourceFile), errorMsg);
         }
 
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(),
-                                                                cdn, format.name(), bitRate, currentConnectionType);
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(), cdn, format.name(),
+                                                                bitRate, currentConnectionType, getPlayerType());
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 

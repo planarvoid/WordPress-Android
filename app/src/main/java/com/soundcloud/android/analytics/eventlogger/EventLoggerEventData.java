@@ -21,7 +21,6 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONS
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONTEXT_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.DETAILS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
@@ -449,12 +448,6 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData errorName(String errorName) {
-        addToPayload(ERROR_NAME, errorName);
-        return this;
-    }
-
-    @Deprecated
     public EventLoggerEventData errorCode(String errorCode) {
         addToPayload(ERROR_CODE, errorCode);
         return this;
