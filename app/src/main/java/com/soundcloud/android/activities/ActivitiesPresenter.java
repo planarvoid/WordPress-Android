@@ -1,7 +1,11 @@
 package com.soundcloud.android.activities;
 
+import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -30,6 +34,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     private final ActivitiesAdapter adapter;
     private final TrackRepository trackRepository;
     private final Navigator navigator;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
 
     @Inject
@@ -38,13 +43,15 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
                         ActivitiesAdapter adapter,
                         TrackRepository trackRepository,
                         Navigator navigator,
-                        NewItemsIndicator newItemsIndicator) {
+                        NewItemsIndicator newItemsIndicator,
+                        PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, RecyclerViewPresenter.Options.list().build(),
               newItemsIndicator, operations, adapter);
         this.operations = operations;
         this.adapter = adapter;
         this.trackRepository = trackRepository;
         this.navigator = navigator;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -67,7 +74,12 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         return CollectionBinding.from(operations.initialActivities())
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
+                                .addObserver(onNext(o -> endMeasuringLoadingTime()))
                                 .build();
+    }
+
+    private void endMeasuringLoadingTime() {
+        performanceMetricsEngine.endMeasuring(MetricType.ACTIVITIES_LOAD);
     }
 
     @Override

@@ -22,6 +22,7 @@ public enum MetricType {
     PLAY_QUEUE_SHUFFLE("play_queue_shuffle"),
     REFRESH_HOME("refresh_home"),
     LIKED_STATIONS_LOAD("liked_stations_load"),
+    ACTIVITIES_LOAD("activities_load"),
     SUGGESTED_TRACKS_LOAD("suggested_tracks_load"),
     PLAYLISTS_LOAD("playlists_load"),
     LIKED_TRACKS_FIRST_PAGE_LOAD("liked_tracks_first_page_load");

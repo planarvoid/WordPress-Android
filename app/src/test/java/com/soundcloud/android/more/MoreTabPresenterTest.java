@@ -3,6 +3,7 @@ package com.soundcloud.android.more;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -11,6 +12,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
@@ -24,8 +27,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
@@ -64,11 +65,10 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
-    @Mock private SyncConfig syncConfig;
     @Mock private OfflineSettingsStorage storage;
     @Mock private ConfigurationOperations configurationOperations;
-    @Mock private FeatureFlags flags;
     @Mock private FeedbackController feedbackController;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
@@ -89,7 +89,9 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          appProperties,
                                          storage,
                                          configurationOperations,
-                                         feedbackController);
+                                         feedbackController,
+                                         performanceMetricsEngine);
+
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
@@ -346,6 +348,14 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_plus));
         verify(moreView, never()).showHighTierUpsell();
         verify(moreView).showOfflineSettings();
+    }
+
+    @Test
+    public void shouldStartMeasuringActivitiesLoadMetricOnActivitiesClicked() {
+
+        presenter.onActivitiesClicked(mock(View.class));
+
+        verify(performanceMetricsEngine).startMeasuring(MetricType.ACTIVITIES_LOAD);
     }
 
     private void initFragment() {

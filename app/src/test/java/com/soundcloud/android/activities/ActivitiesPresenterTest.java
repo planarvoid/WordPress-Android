@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -42,6 +44,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private View itemView;
     @Mock private NewItemsIndicator newItemsIndicator;
+    @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Before
     public void setUp() throws Exception {
@@ -52,7 +55,9 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 adapter,
                 trackRepository,
                 navigator,
-                newItemsIndicator);
+                newItemsIndicator,
+                performanceMetricsEngine);
+
         when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
         when(operations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
     }
@@ -153,5 +158,13 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
         verify(newItemsIndicator).update(5);
     }
 
+    @Test
+    public void shouldEndMeasuringLoadingPerformance() {
+        when(operations.initialActivities())
+                .thenReturn(Observable.just(Collections.emptyList()));
 
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(performanceMetricsEngine).endMeasuring(MetricType.ACTIVITIES_LOAD);
+    }
 }

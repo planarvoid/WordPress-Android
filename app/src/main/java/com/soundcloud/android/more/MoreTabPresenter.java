@@ -4,6 +4,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
+import com.soundcloud.android.analytics.performance.MetricType;
+import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -55,6 +57,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final OfflineSettingsStorage settingsStorage;
     private final ConfigurationOperations configurationOperations;
     private final FeedbackController feedbackController;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private Subscription configSubscription = RxUtils.invalidSubscription();
@@ -76,7 +79,8 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                      ApplicationProperties appProperties,
                      OfflineSettingsStorage settingsStorage,
                      ConfigurationOperations configurationOperations,
-                     FeedbackController feedbackController) {
+                     FeedbackController feedbackController,
+                     PerformanceMetricsEngine performanceMetricsEngine) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -91,6 +95,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.settingsStorage = settingsStorage;
         this.configurationOperations = configurationOperations;
         this.feedbackController = feedbackController;
+        this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     @Override
@@ -216,6 +221,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onActivitiesClicked(View view) {
+        performanceMetricsEngine.startMeasuring(MetricType.ACTIVITIES_LOAD);
         navigator.openActivities(view.getContext());
     }
 
