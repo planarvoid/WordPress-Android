@@ -17,8 +17,8 @@ public class ApiDiscoveryCardTest {
     static final ApiDiscoveryCard EXPECTED_SELECTION_CARD = ApiDiscoveryCard.create(null, ApiSelectionCardTest.EXPECTED_SELECTION_CARD);
     static final ApiDiscoveryCard EXPECTED_SINGLETON_SELECTION_CARD = ApiDiscoveryCard.create(ApiSingletonSelectionCardTest.EXPECTED_SINGLETON_SELECTION_CARD, null);
 
-    private static final String SELECTION_JSON = "{\"selection_card\":" + ApiSelectionCardTest.JSON + "}";
-    private static final String SINGLETON_SELECTION_JSON = "{\"singleton_selection_card\":" + ApiSingletonSelectionCardTest.JSON + "}";
+    private static final String SELECTION_JSON = "{\"multiple_content_selection_card\":" + ApiSelectionCardTest.JSON + "}";
+    private static final String SINGLETON_SELECTION_JSON = "{\"single_content_selection_card\":" + ApiSingletonSelectionCardTest.JSON + "}";
     private static final String COLLECTION_JSON = "{\"collection\": [" + SINGLETON_SELECTION_JSON + "," + SELECTION_JSON + "],\"_links\": {}}";
     private static final ModelCollection<ApiDiscoveryCard> EXPECTED_COLLECTION = new ModelCollection<>(Lists.newArrayList(EXPECTED_SINGLETON_SELECTION_CARD, EXPECTED_SELECTION_CARD));
 

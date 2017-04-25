@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 import java.util.List;
 
 @Singleton
@@ -32,6 +33,6 @@ class DiscoveryStorage {
     }
 
     Observable<List<ApiDiscoveryCard>> discoveryCards() {
-        return Observable.just(apiDiscoveryCards.getCollection());
+        return Observable.just(apiDiscoveryCards == null ? Collections.emptyList() : apiDiscoveryCards.getCollection());
     }
 }

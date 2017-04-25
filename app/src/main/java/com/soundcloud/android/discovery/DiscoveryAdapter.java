@@ -28,7 +28,16 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryCard, RecyclerView.V
 
     @Override
     public int getBasicItemViewType(int position) {
-        return getItem(position).kind().ordinal();
+        if (isRendererImplemented(getItem(position).kind())) {
+            return getItem(position).kind().ordinal();
+        }
+        //TODO remove this once all the renderers are implemented
+        return DiscoveryCard.Kind.SEARCH_ITEM.ordinal();
+    }
+
+    private boolean isRendererImplemented(DiscoveryCard.Kind kind) {
+        //Add your item once you write a renderer
+        return kind == DiscoveryCard.Kind.SEARCH_ITEM;
     }
 
     void setSearchListener(SearchListener searchListener) {

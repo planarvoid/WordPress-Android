@@ -1,15 +1,18 @@
 package com.soundcloud.android.discovery;
 
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,12 +33,15 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Observer<Iterable<DiscoveryCard>> itemObserver;
     @Mock private Activity activity;
+    @Mock private DiscoveryOperations discoveryOperations;
 
     private DiscoveryPresenter presenter;
 
     @Before
     public void setUp() {
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapter, navigator);
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapter, navigator, discoveryOperations);
+        when(discoveryOperations.discoveryCards()).thenReturn(Observable.just(emptyList()));
+        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Observable.just(emptyList()));
     }
 
     @Test

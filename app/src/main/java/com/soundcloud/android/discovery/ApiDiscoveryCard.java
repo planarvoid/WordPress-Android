@@ -14,8 +14,8 @@ abstract class ApiDiscoveryCard {
     abstract Optional<ApiSelectionCard> selectionCard();
 
     @JsonCreator
-    static ApiDiscoveryCard create(@JsonProperty("singleton_selection_card") @Nullable ApiSingletonSelectionCard singletonSelectionCard,
-                                   @JsonProperty("selection_card") @Nullable ApiSelectionCard selectionCard) {
+    static ApiDiscoveryCard create(@JsonProperty("single_content_selection_card") @Nullable ApiSingletonSelectionCard singletonSelectionCard,
+                                   @JsonProperty("multiple_content_selection_card") @Nullable ApiSelectionCard selectionCard) {
         return new AutoValue_ApiDiscoveryCard(Optional.fromNullable(singletonSelectionCard), Optional.fromNullable(selectionCard));
     }
 }
