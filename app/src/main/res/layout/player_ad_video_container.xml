@@ -50,4 +50,12 @@
 
     </FrameLayout>
 
+    <!-- Moat needs an unobscured view that is the same dimensions and placement as video_view -->
+    <View
+        android:id="@+id/viewability_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:clickable="false"
+        android:focusable="false" />
 </FrameLayout>

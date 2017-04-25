@@ -13,7 +13,6 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
-import android.view.TextureView;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -27,6 +26,7 @@ public class MoatViewabilityController {
 
     private Optional<MoatFactory> moatFactory = Optional.absent();
     private Optional<NativeDisplayTracker> displayTracker = Optional.absent();
+
     private HashMap<String, ReactiveVideoTracker> videoTrackers = new HashMap<>(2); // Stream and player can have video ads
 
     @Inject
@@ -39,7 +39,7 @@ public class MoatViewabilityController {
     }
 
     void createTrackerForAd(Urn adUrn, long duration, String uuid, String monetizationType) {
-        final Optional<TextureView> videoView = videoSurfaceProvider.getTextureView(uuid);
+        final Optional<View> videoView = videoSurfaceProvider.getViewabilityView(uuid);
         videoView.ifPresent(view -> {
             ReactiveVideoTracker tracker = getMoatFactory().get().createCustomTracker(videoPlugin);
             tracker.trackVideoAd(getMoatSlicers(adUrn, monetizationType), Long.valueOf(duration).intValue(), view);
@@ -91,8 +91,8 @@ public class MoatViewabilityController {
         trackerForAd(uuid).ifPresent(tracker -> tracker.setPlayerVolume(MoatAdEvent.VOLUME_UNMUTED));
     }
 
-    void dispatchVideoViewUpdate(String uuid, TextureView textureView) {
-        trackerForAd(uuid).ifPresent(tracker -> tracker.changeTargetView(textureView));
+    void dispatchVideoViewUpdate(String uuid, View view) {
+        trackerForAd(uuid).ifPresent(tracker -> tracker.changeTargetView(view));
     }
 
     private void dispatchVideoEvent(String uuid, MoatAdEventType eventType, long position) {
@@ -106,11 +106,9 @@ public class MoatViewabilityController {
         });
     }
 
-    private Optional<ReactiveVideoTracker> trackerForAd(String videoUuid) {
-        if (videoTrackers.containsKey(videoUuid)) {
-            return Optional.of(videoTrackers.get(videoUuid));
-        }
-        return Optional.absent();
+    private Optional<ReactiveVideoTracker> trackerForAd(String uuid) {
+        return videoTrackers.containsKey(uuid) ? Optional.of(videoTrackers.get(uuid))
+                                               : Optional.absent();
     }
 
     void startOverlayTracking(View imageView, VisualAdData adData) {

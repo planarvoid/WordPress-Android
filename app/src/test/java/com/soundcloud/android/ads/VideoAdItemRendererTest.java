@@ -65,14 +65,14 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     public void onVideoTextureBindCalledOnBind() {
         renderer.bindItemView(0, adView, ITEMS);
 
-        verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), VIDEO_AD_1);
+        verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), adView.findViewById(R.id.viewability_layer), VIDEO_AD_1);
     }
 
     @Test
     public void onVideoTextureBindCalledOnViewAttached() {
         renderer.onViewAttachedToWindow(adView, Optional.of(VIDEO_AD_1));
 
-        verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), VIDEO_AD_1);
+        verify(listener).onVideoTextureBind((TextureView) adView.findViewById(R.id.video_view), adView.findViewById(R.id.viewability_layer), VIDEO_AD_1);
     }
 
     @Test

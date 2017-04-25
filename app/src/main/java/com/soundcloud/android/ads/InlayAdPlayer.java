@@ -89,7 +89,6 @@ class InlayAdPlayer implements Player.PlayerListener {
 
             currentPlayer.stopForTrackTransition();
             currentPlayer.play(playbackItem);
-            adViewabilityController.onVolumeToggle(ad, isPlayerMuted);
 
             subscription = eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlayStateSubscriber());
         }
@@ -129,7 +128,7 @@ class InlayAdPlayer implements Player.PlayerListener {
             final VideoAd ad = currentAd.get();
             final UIEvent event = mute ? UIEvent.fromVideoMute(ad, getSourceInfo())
                                        : UIEvent.fromVideoUnmute(ad, getSourceInfo());
-            adViewabilityController.onVolumeToggle(ad, mute);
+            adViewabilityController.onVolumeToggle(ad.uuid(), mute);
             eventBus.publish(EventQueue.TRACKING, event);
         }
     }

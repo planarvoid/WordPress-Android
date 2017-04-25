@@ -1,24 +1,26 @@
 package com.soundcloud.android.playback;
 
-import android.graphics.SurfaceTexture;
-import android.view.Surface;
-import android.view.TextureView;
-
-import com.soundcloud.android.testsupport.AndroidUnitTest;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import static com.soundcloud.android.playback.VideoSurfaceProvider.*;
+import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import android.graphics.SurfaceTexture;
+import android.view.Surface;
+import android.view.TextureView;
+import android.view.View;
+
 public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Mock VideoTextureContainer.Listener textureContainerListener;
+    @Mock View view;
     @Mock TextureView textureView;
     @Mock TextureView textureView2;
     @Mock SurfaceTexture surfaceTexture;
@@ -30,7 +32,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        textureContainer = new VideoTextureContainer(UUID, ORIGIN, textureView, textureContainerListener);
+        textureContainer = new VideoTextureContainer(UUID, ORIGIN, textureView, Optional.absent(), textureContainerListener);
     }
 
     @Test
@@ -52,7 +54,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
         when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.reattachSurfaceTexture(textureView);
+        textureContainer.reattachSurfaceTexture(textureView, Optional.absent());
 
         verify(textureView, never()).setSurfaceTexture(surfaceTexture);
     }
@@ -62,9 +64,22 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
         when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.reattachSurfaceTexture(textureView2);
+        textureContainer.reattachSurfaceTexture(textureView2, Optional.absent());
 
         verify(textureView2).setSurfaceTexture(surfaceTexture);
+    }
+
+    @Test
+    public void surfaceTextureWithViewabilityViewWillBeSetToNewTextureView() {
+        when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
+        textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
+        final Optional<View> viewabilityView = Optional.of(view);
+
+        textureContainer.reattachSurfaceTexture(textureView2, viewabilityView);
+
+        verify(textureView2).setSurfaceTexture(surfaceTexture);
+        assertThat(textureContainer.getViewabilityView().isPresent()).isTrue();
+        assertThat(textureContainer.getViewabilityView()).isEqualTo(viewabilityView);
     }
 
     @Test

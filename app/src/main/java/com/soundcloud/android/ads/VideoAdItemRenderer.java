@@ -75,7 +75,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
     void bindVideoSurface(View itemView, VideoAd videoAd) {
         final Holder holder = getHolder(itemView);
         if (listener.isPresent()) {
-            listener.get().onVideoTextureBind(holder.videoView, videoAd);
+            listener.get().onVideoTextureBind(holder.videoView, holder.viewabilityLayer, videoAd);
         }
     }
 
@@ -140,7 +140,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         if (listener.isPresent() && adData.isPresent() && adData.get() instanceof VideoAd) {
             final Holder holder = getHolder(itemView);
             holder.resetMuteState(holder);
-            listener.get().onVideoTextureBind(holder.videoView, (VideoAd) adData.get());
+            listener.get().onVideoTextureBind(holder.videoView, holder.viewabilityLayer, (VideoAd) adData.get());
         }
     }
 
@@ -161,6 +161,7 @@ public class VideoAdItemRenderer extends AdItemRenderer {
         @BindView(R.id.video_volume_control) IconToggleButton volumeButton;
         @BindView(R.id.video_fullscreen_control) Button fullscreenButton;
         @BindView(R.id.video_progress) CircularProgressBar loadingIndicator;
+        @BindView(R.id.viewability_layer) View viewabilityLayer;
 
         @BindView(R.id.player_play) ImageButton playButton;
 

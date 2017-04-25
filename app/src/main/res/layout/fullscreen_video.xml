@@ -27,7 +27,7 @@
         <ImageButton
             android:id="@+id/player_play"
             style="@style/AdVideoButton.Play"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"/>
 
         <View
             android:id="@+id/video_gradient"
@@ -39,6 +39,16 @@
             android:id="@+id/video_shrink_control"
             style="@style/AdVideoButton.Shrink"
             android:visibility="visible"/>
+
+        <!-- Moat needs an unobscured view that is the same dimensions and placement as video_view -->
+        <View
+            android:id="@+id/viewability_layer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/video_view"
+            android:layout_alignBottom="@id/video_view"
+            android:clickable="false"
+            android:focusable="false"/>
     </RelativeLayout>
 
     <com.soundcloud.android.playback.ui.view.RoundedColorButton

@@ -17,7 +17,7 @@ public abstract class AdItemRenderer implements CellRenderer<StreamItem> {
 
     public interface Listener {
         void onAdItemClicked(Context context, AdData adData);
-        void onVideoTextureBind(TextureView textureView, VideoAd videoAd);
+        void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd);
         void onVideoFullscreenClicked(Context context, VideoAd videoAd);
         void onWhyAdsClicked(Context context);
     }

@@ -384,9 +384,9 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     }
 
     @Override
-    public void onVideoTextureBind(TextureView textureView, VideoAd videoAd) {
+    public void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd) {
         if (!streamAdsController.isInFullscreen()) {
-            videoSurfaceProvider.setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
+            videoSurfaceProvider.setTextureView(videoAd.uuid(), Origin.STREAM, textureView, viewabilityLayer);
         }
     }
 

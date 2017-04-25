@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_END_OF_QUEUE;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_ERROR;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_PAUSE;
 import static com.soundcloud.android.playback.StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED;
@@ -7,7 +8,6 @@ import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
@@ -20,8 +20,8 @@ import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdRichMediaSessionEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider.StopReason;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -140,8 +140,31 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                                                                                PlayStateReason.PLAYBACK_COMPLETE,
                                                                                STOP_REASON_TRACK_FINISHED);
 
-
         when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_TRACK_FINISHED);
+
+        playTransition();
+        stopTransition(PlaybackState.BUFFERING, PlayStateReason.NONE); // make sure intermediate events don't matter
+        playTransition();
+
+        final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
+        AdPlaybackSessionEvent event = (AdPlaybackSessionEvent) trackingEvents.get(2);
+        AdRichMediaSessionEvent richEvent = (AdRichMediaSessionEvent) trackingEvents.get(3);
+
+        assertCommonEventData(stateTransitionFinished, richEvent);
+        assertThat(event.adUrn()).isEqualTo(audioAd.adUrn());
+        assertThat(event.monetizableTrackUrn()).isEqualTo(Optional.of(audioAd.getMonetizableTrackUrn()));
+    }
+
+    @Test
+    public void stateChangeEventForQueueFinishPublishesStopEvent() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
+        dispatcher.setAdMetadata(audioAd, trackSourceInfo);
+
+        final PlaybackStateTransition stateTransitionFinished = stopTransition(PlaybackState.IDLE,
+                                                                               PlayStateReason.PLAYBACK_COMPLETE,
+                                                                               STOP_REASON_END_OF_QUEUE);
+
+        when(stopReasonProvider.fromTransition(any(PlaybackStateTransition.class))).thenReturn(STOP_REASON_END_OF_QUEUE);
 
         playTransition();
         stopTransition(PlaybackState.BUFFERING, PlayStateReason.NONE); // make sure intermediate events don't matter

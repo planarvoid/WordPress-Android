@@ -650,9 +650,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
     public void shouldSetTextureViewForVideoAdUsingVideoSurfaceProvider() {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
-        presenter.onVideoTextureBind(textureView, videoAd);
+        presenter.onVideoTextureBind(textureView, view, videoAd);
 
-        verify(videoSurfaceProvider).setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
+        verify(videoSurfaceProvider).setTextureView(videoAd.uuid(), Origin.STREAM, textureView, view);
     }
 
     @Test
@@ -660,9 +660,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
         when(streamAdsController.isInFullscreen()).thenReturn(true);
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(32L);
 
-        presenter.onVideoTextureBind(textureView, videoAd);
+        presenter.onVideoTextureBind(textureView, view, videoAd);
 
-        verify(videoSurfaceProvider, never()).setTextureView(videoAd.uuid(), Origin.STREAM, textureView);
+        verify(videoSurfaceProvider, never()).setTextureView(videoAd.uuid(), Origin.STREAM, textureView, view);
     }
 
     @Test

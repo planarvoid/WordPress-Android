@@ -4,7 +4,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
-import android.view.TextureView;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -24,8 +23,8 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
         moatViewabilityController.createTrackerForAd(adUrn, duration, uuid, monetizationType);
     }
 
-    public void updateView(String uuid, TextureView textureView) {
-        moatViewabilityController.dispatchVideoViewUpdate(uuid, textureView);
+    public void updateView(String uuid, View viewabilityLayer) {
+        moatViewabilityController.dispatchVideoViewUpdate(uuid, viewabilityLayer);
     }
 
     public void onResume(VideoAd ad, long currentPosition)  {
@@ -61,8 +60,7 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
         }
     }
 
-    void onVolumeToggle(VideoAd ad, boolean isMuted) {
-        final String uuid = ad.uuid();
+    public void onVolumeToggle(String uuid, boolean isMuted) {
         if (isMuted) {
             moatViewabilityController.onVideoMute(uuid);
         } else {

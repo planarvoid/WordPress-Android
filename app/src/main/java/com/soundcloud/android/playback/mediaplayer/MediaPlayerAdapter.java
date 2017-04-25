@@ -46,7 +46,7 @@ import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.Surface;
-import android.view.TextureView;
+import android.view.View;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -195,9 +195,11 @@ public class MediaPlayerAdapter implements
         }
     }
 
-    private void setupVideoTracking(VideoAdPlaybackItem video) {
+    private void setupVideoTracking(VideoAdPlaybackItem video, float initialVolume) {
         if (video.isFirstPlay()) {
+            final boolean isMuted = initialVolume == 0.0f;
             adViewabilityController.setupVideoTracking(video.getUrn(), video.getDuration(), video.getUuid(), video.getMonetizationType());
+            adViewabilityController.onVolumeToggle(video.getUuid(), isMuted);
         }
     }
 
@@ -210,9 +212,9 @@ public class MediaPlayerAdapter implements
             if (playerListener != null) {
                 if (isPlayingVideo()) {
                     final VideoAdPlaybackItem videoItem = (VideoAdPlaybackItem) this.currentItem;
-                    final float volume = videoItem.getInitialVolume();
-                    mediaPlayer.setVolume(volume, volume);
-                    setupVideoTracking(videoItem);
+                    final float initialVolume = videoItem.getInitialVolume();
+                    mediaPlayer.setVolume(initialVolume, initialVolume);
+                    setupVideoTracking(videoItem, initialVolume);
                 }
 
                 play();
@@ -657,7 +659,6 @@ public class MediaPlayerAdapter implements
                 mediaPlayer.stop();
             }
 
-            stopVideoTracking();
             clearSurface();
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
@@ -697,8 +698,8 @@ public class MediaPlayerAdapter implements
     }
 
     @Override
-    public void onTextureViewUpdate(String uuid, TextureView textureView) {
-        adViewabilityController.updateView(uuid, textureView);
+    public void onViewabilityViewUpdate(String uuid, View view) {
+        adViewabilityController.updateView(uuid, view);
     }
 
     private void clearSurface() {

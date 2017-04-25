@@ -188,7 +188,8 @@ public class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher
     }
 
     private static boolean shouldTrackFinish(StopReasonProvider.StopReason stopReason, PlayableAdData adData) {
-        return stopReason == StopReasonProvider.StopReason.STOP_REASON_TRACK_FINISHED && !adData.hasReportedEvent(ReportingEvent.FINISH);
+        final boolean hasFinishedPlayback = stopReason == StopReason.STOP_REASON_TRACK_FINISHED || stopReason == StopReason.STOP_REASON_END_OF_QUEUE;
+        return hasFinishedPlayback && !adData.hasReportedEvent(ReportingEvent.FINISH);
     }
 
     private static boolean shouldTrackPause(StopReasonProvider.StopReason stopReason) {

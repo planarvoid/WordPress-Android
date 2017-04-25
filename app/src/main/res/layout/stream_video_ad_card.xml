@@ -80,6 +80,16 @@
                 android:layout_alignParentRight="true"
                 android:checked="false"
                 android:visibility="visible"/>
+
+            <!-- Moat needs an unobscured view that is the same dimensions and placement as video_view -->
+            <View
+                android:id="@+id/viewability_layer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/video_view"
+                android:layout_alignBottom="@id/video_view"
+                android:clickable="false"
+                android:focusable="false" />
         </RelativeLayout>
 
         <RelativeLayout

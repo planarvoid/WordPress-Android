@@ -50,10 +50,12 @@ class FullScreenVideoView {
     @BindView(R.id.video_shrink_control) View shrinkControl;
     @BindView(R.id.cta_button) RoundedColorButton ctaButton;
     @BindView(R.id.video_gradient) View gradient;
+    @BindView(R.id.viewability_layer) View viewabilityLayer;
 
     @Inject
-    FullScreenVideoView(VideoSurfaceProvider videoSurfaceProvider, Resources resources) {
-        this.videoSurfaceProvider = videoSurfaceProvider;
+    FullScreenVideoView(VideoSurfaceProvider surfaceProvider,
+                        Resources resources) {
+        this.videoSurfaceProvider = surfaceProvider;
         this.resources = resources;
     }
 
@@ -94,7 +96,7 @@ class FullScreenVideoView {
     }
 
     void bindVideoSurface(String uuid, VideoSurfaceProvider.Origin origin) {
-        videoSurfaceProvider.setTextureView(uuid, origin, videoView);
+        videoSurfaceProvider.setTextureView(uuid, origin, videoView, viewabilityLayer);
     }
 
     void unbindVideoSurface(VideoSurfaceProvider.Origin origin) {

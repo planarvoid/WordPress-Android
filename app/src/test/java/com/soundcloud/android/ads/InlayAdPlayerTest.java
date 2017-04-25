@@ -266,7 +266,7 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
 
-        verify(adViewabilityController).onVolumeToggle(VIDEO_AD, false);
+        verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), false);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_UNMUTE");
     }
 
@@ -277,9 +277,8 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
         player.toggleVolume();
 
         final InOrder inOrder = Mockito.inOrder(adViewabilityController);
-        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
-        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, false);
-        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD, true);
+        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), false);
+        inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), true);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_MUTE");
     }
 

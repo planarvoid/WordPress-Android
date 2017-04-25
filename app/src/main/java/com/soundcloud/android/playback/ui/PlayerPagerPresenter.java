@@ -53,7 +53,6 @@ import android.os.Bundle;
 import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -284,7 +283,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
             final PlayerPagePresenter presenter = pagePresenter(pageData);
             final View view = entry.getKey();
             presenter.onForeground(view);
-            setVideoSurfaceIfNecessary(pageData, presenter, view);
+            setVideoSurfaceIfNecessary(pageData, view);
         }
     }
 
@@ -440,7 +439,7 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
         if (isForeground) {
             // this will attach the cast button
             presenter.onForeground(view);
-            setVideoSurfaceIfNecessary(playQueueItem, presenter, view);
+            setVideoSurfaceIfNecessary(playQueueItem, view);
         }
 
         foregroundSubscription.add(getTrackOrAdObservable(playQueueItem)
@@ -458,13 +457,12 @@ public class PlayerPagerPresenter extends SupportFragmentLightCycleDispatcher<Pl
                 : Observable.just(PlayerTrackState.EMPTY);
     }
 
-    private void setVideoSurfaceIfNecessary(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
+    private void setVideoSurfaceIfNecessary(PlayQueueItem playQueueItem, View view) {
         if (playQueueItem.isVideoAd()) {
-            final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
             final VideoAd ad = (VideoAd) playQueueItem.getAdData().get();
-            videoSurfaceProvider.setTextureView(ad.uuid(), Origin.PLAYER, textureView);
+            final String uuid = ad.uuid();
+            videoSurfaceProvider.setTextureView(uuid, Origin.PLAYER, videoAdPresenter.getVideoTexture(view), videoAdPresenter.getViewabilityLayer(view));
         }
-
     }
 
     private void configureInitialPageState(final View view) {

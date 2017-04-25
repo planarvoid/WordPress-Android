@@ -117,6 +117,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         return getViewHolder(adView).videoTextureView;
     }
 
+    View getViewabilityLayer(View adView) {
+        return getViewHolder(adView).viewabilityLayer;
+    }
+
     private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
         final LayoutParams layoutParams = adjustedVideoViewLayoutParams(playerAd, holder);
         final int backgroundColor = resources.getColor(isOrientationLandscape() ?
@@ -126,6 +130,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         adView.setBackgroundColor(backgroundColor);
         holder.videoTextureView.setLayoutParams(layoutParams);
         holder.letterboxBackground.setLayoutParams(layoutParams);
+        holder.viewabilityLayer.setLayoutParams(layoutParams);
         if (isOrientationPortrait()) {
             holder.videoOverlayContainer.setLayoutParams(layoutParams);
         }
@@ -278,6 +283,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         private final TextureView videoTextureView;
         private final View videoOverlayContainer;
         private final View videoOverlay;
+        private final View viewabilityLayer;
 
         private final View fullscreenButton;
         private final View shrinkButton;
@@ -298,6 +304,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             videoTextureView = (TextureView) adView.findViewById(R.id.video_view);
             videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
             videoOverlay = adView.findViewById(R.id.video_overlay);
+            viewabilityLayer = adView.findViewById(R.id.viewability_layer);
 
             fullscreenButton = adView.findViewById(R.id.video_fullscreen_control);
             shrinkButton = adView.findViewById(R.id.video_shrink_control);

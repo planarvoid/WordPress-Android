@@ -58,7 +58,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
 import android.view.Surface;
-import android.view.TextureView;
+import android.view.View;
 
 import java.io.IOException;
 import java.util.Date;
@@ -84,7 +84,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Mock private VideoSurfaceProvider videoSurfaceProvider;
     @Mock private AdViewabilityController adViewabilityController;
     @Mock private Surface surface;
-    @Mock private TextureView textureView;
+    @Mock private View view;
 
     @Captor private ArgumentCaptor<PlaybackStateTransition> stateCaptor;
 
@@ -720,16 +720,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stopShouldStopVideoTracking() {
-        mediaPlayerAdapter.play(videoItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-
-        mediaPlayerAdapter.stop(mediaPlayer);
-
-        verify(adViewabilityController).stopVideoTracking(videoItem.getUuid());
-    }
-
-    @Test
     public void onBufferingListenerClearsSeekMessageThroughHandlerWhenBuffering() {
         mediaPlayerAdapter.play(trackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -943,9 +933,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void onTextureViewUpdateShouldForwardVideoViewUpdatesToAdViewability() {
-        mediaPlayerAdapter.onTextureViewUpdate(videoItem.getUuid(), textureView);
+        mediaPlayerAdapter.onViewabilityViewUpdate(videoItem.getUuid(), view);
 
-        verify(adViewabilityController).updateView(videoItem.getUuid(), textureView);
+        verify(adViewabilityController).updateView(videoItem.getUuid(), view);
     }
 
     private void playUrlAndSetPrepared(PlaybackItem item) {
