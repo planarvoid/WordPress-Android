@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
@@ -55,6 +56,9 @@ public class PremiumSearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Player should play premium track", playerElement, is(playing()));
     }
 
+    @Ignore
+    /** Test cannot find Premium Content, even though it is displayed on screen.
+     *  JIRA Ticket: https://soundcloud.atlassian.net/browse/DROID-1304 */
     public void testClickOnPremiumBucketHelpOpensUpgradeScreen() {
         final UpgradeScreen upgradeScreen = searchResultsScreen.clickOnPremiumContentHelp();
         assertThat("Upgrade subscription screen should be visible", upgradeScreen, is(visible()));
