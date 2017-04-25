@@ -42,7 +42,7 @@ public class PlayerEngagementTest extends ActivityTest<LauncherActivity> {
     @Ignore
     /** This test is flaky for many reasons. RecyclerView issues, the overflow menu in the Player cannot be clicked
      * correctly sometimes. Ignoring this as part of my build sheriff role.
-     * JIRA: */
+     * JIRA: https://soundcloud.atlassian.net/browse/LISTEN-276 */
     public void testPlayAndPauseTrackFromStream() throws Exception {
         mrLocalLocal.startEventTracking();
 
