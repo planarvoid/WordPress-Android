@@ -174,7 +174,7 @@ class PlaylistEngagementsRenderer {
             OfflineStateButton stateButton = ButterKnife.findById(barView, R.id.offline_state_button);
             stateButton.setVisibility(View.VISIBLE);
             setOfflineButtonState(stateButton, item.offlineState());
-            stateButton.setOnClickListener(v -> toggleOffline(v.getContext(), item, listener));
+            stateButton.setOnClickListener(v -> toggleOffline(item, listener));
         } else {
             showLegacyOfflineToggle(barView, item, listener);
         }
@@ -207,15 +207,15 @@ class PlaylistEngagementsRenderer {
         toggle.setOnClickListener(v -> {
             boolean changedState = toggle.isChecked();
             toggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-            toggleOffline(v.getContext(), item, listener);
+            toggleOffline(item, listener);
         });
     }
 
-    private void toggleOffline(Context context, PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {
+    private void toggleOffline(PlaylistDetailsMetadata item, PlaylistDetailsInputs listener) {
         if (item.isMarkedForOffline()) {
             listener.onMakeOfflineUnavailable();
         } else {
-            listener.onMakeOfflineAvailable(context);
+            listener.onMakeOfflineAvailable();
         }
     }
 
@@ -330,7 +330,7 @@ class PlaylistEngagementsRenderer {
                     listener.onOverflowUpsell();
                     return true;
                 case R.id.make_offline_available:
-                    listener.onMakeOfflineAvailable(context);
+                    listener.onMakeOfflineAvailable();
                     return true;
                 case R.id.make_offline_unavailable:
                     listener.onMakeOfflineUnavailable();

@@ -56,7 +56,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
         final Screen screen = new Screen(presenter);
 
-        presenter.connect();
+        presenter.connect(PlaylistDetailsInputs.create());
 
         screen.assertState(contains(AsyncViewModel.create(Optional.absent(), true, false, Optional.absent())));
     }
@@ -68,7 +68,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
         final Screen screen = new Screen(presenter);
 
-        presenter.connect();
+        presenter.connect(PlaylistDetailsInputs.create());
 
         screen.assertState(contains(AsyncViewModel.create(Optional.absent(), true, false, Optional.absent()),
                                     AsyncViewModel.create(Optional.absent(), false, false, Optional.of(ViewError.CONNECTION_ERROR))));
@@ -80,7 +80,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
         final Screen screen = new Screen(presenter);
 
-        presenter.connect();
+        presenter.connect(PlaylistDetailsInputs.create());
 
         screen.assertLastState(this::lastPlaylistUrn, is(playlistUrn));
         screen.assertLastState(AsyncViewModel::isRefreshing, is(false));
@@ -93,7 +93,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         final PlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
         final Screen screen = new Screen(presenter);
 
-        presenter.connect();
+        presenter.connect(PlaylistDetailsInputs.create());
 
         screen.assertLastState(this::lastPlaylistUrn, is(playlistWith2Tracks));
         screen.assertLastState(state -> state.data().get().tracks().size(), greaterThan(1));
@@ -104,6 +104,24 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         presenter.actionUpdateTrackList(updatedTrackList);
 
         screen.assertLastState(state -> state.data().get().tracks(), is(updatedTrackList));
+    }
+
+    private PlaylistDetailsPresenter createPresenter(Urn playlistUrn) {
+        final String screen = "fake-screen";
+        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("query"), "query");
+        final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("add urn", new Urn("promoted item"), Optional.absent(), emptyList());
+
+        PlaylistDetailsPresenterFactory presenterFactory = SoundCloudApplication.getObjectGraph().playlistDetailsPresenterFactory();
+        return presenterFactory.create(playlistUrn, screen, searchQuerySourceInfo, promotedSourceInfo);
+    }
+
+    private Urn lastPlaylistUrn(AsyncViewModel<PlaylistDetailsViewModel> state) {
+        final Optional<PlaylistDetailsViewModel> data = state.data();
+        if (data.isPresent()) {
+            return data.get().metadata().urn();
+        } else {
+            return Urn.NOT_SET;
+        }
     }
 
     static class Screen extends TestAsyncState<AsyncViewModel<PlaylistDetailsViewModel>> {
@@ -139,22 +157,5 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
             return () -> models;
         }
     }
-
-    private PlaylistDetailsPresenter createPresenter(Urn playlistUrn) {
-        final String screen = "fake-screen";
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("query"), "query");
-        final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("add urn", new Urn("promoted item"), Optional.absent(), emptyList());
-
-        PlaylistDetailsPresenterFactory presenterFactory = SoundCloudApplication.getObjectGraph().PlaylistDetailsPresenterFactory();
-        return presenterFactory.create(playlistUrn, screen, searchQuerySourceInfo, promotedSourceInfo);
-    }
-
-    private Urn lastPlaylistUrn(AsyncViewModel<PlaylistDetailsViewModel> state) {
-        final Optional<PlaylistDetailsViewModel> data = state.data();
-        if (data.isPresent()) {
-            return data.get().metadata().urn();
-        } else {
-            return Urn.NOT_SET;
-        }
-    }
 }
+

@@ -12,6 +12,7 @@ import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
@@ -76,6 +77,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     private CompositeSubscription subscription;
 
     private CollectionRenderer<PlaylistDetailItem, RecyclerView.ViewHolder> collectionRenderer;
+    private PlaylistDetailsInputs inputs;
 
     public static Fragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo,
                                   PromotedSourceInfo promotedInfo, boolean autoplay) {
@@ -112,13 +114,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
                                                     Screen.fromBundle(getArguments()).get(),
                                                     getArguments().getParcelable(EXTRA_QUERY_SOURCE_INFO),
                                                     getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO));
-        presenter.connect();
 
         setHasOptionsMenu(true);
 
-        adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(presenter));
-
-        collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true);
     }
 
 
@@ -131,12 +129,16 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        this.inputs = PlaylistDetailsInputs.create();
+        this.adapter = newPlaylistDetailsAdapterFactory.create(this, playlistDetailsHeaderRendererFactory.create(inputs));
+        this.collectionRenderer = new CollectionRenderer<>(adapter, PlaylistDetailOtherPlaylistsItem::isTheSameItem, Object::equals, new DefaultEmptyStateProvider(), false, true);
+        this.collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
         this.itemTouchHelper = new ItemTouchHelper(touchCallbackFactory.create(this));
-        collectionRenderer.attach(view, false, new SmoothLinearLayoutManager(view.getContext()));
 
         final View detailView = view.findViewById(R.id.playlist_details);
         final boolean showInlineHeader = detailView == null;
 
+        presenter.connect(inputs);
         subscription = new CompositeSubscription();
         subscription.addAll(
 
@@ -150,21 +152,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 collectionRenderer.onRefresh()
                                   .observeOn(AndroidSchedulers.mainThread())
-                                  .subscribe(aVoid -> {
-                                      presenter.refresh();
-                                  }),
+                                  .subscribe(aVoid -> inputs.refresh()),
 
                 presenter.goToCreator()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> {
-                             navigator.legacyOpenProfile(getActivity(), urn);
-                         }),
+                         .subscribe(urn -> navigator.legacyOpenProfile(getActivity(), urn)),
 
                 presenter.goToUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> {
-                             navigator.openUpgrade(getContext());
-                         }),
+                         .subscribe(urn -> navigator.openUpgrade(getContext())),
 
                 presenter.onRepostResult()
                          .observeOn(AndroidSchedulers.mainThread())
@@ -172,25 +168,24 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.onRequestingPlaylistDeletion()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> {
-                             DeletePlaylistDialogFragment.show(getFragmentManager(), urn);
-                         }),
+                         .subscribe(urn -> DeletePlaylistDialogFragment.show(getFragmentManager(), urn)),
 
                 presenter.onShowDisableOfflineCollectionConfirmation()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(data -> {
-                             ConfirmRemoveOfflineDialogFragment.showForPlaylist(getFragmentManager(), data.first(), data.second().getPromotedSourceInfo());
-                         }),
+                         .subscribe(data -> ConfirmRemoveOfflineDialogFragment.showForPlaylist(getFragmentManager(), data.first(), data.second().getPromotedSourceInfo())),
 
                 presenter.onGoBack()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> {
-                             getActivity().onBackPressed();
-                         }),
+                         .subscribe(ignored -> getActivity().onBackPressed()),
 
                 presenter.onShare()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions))
+                         .subscribe(shareOptions -> shareOperations.share(getContext(), shareOptions)),
+
+                presenter.onShowOfflineStorageErrorDialog()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(ignored -> OfflineStorageErrorDialog.show(getActivity().getSupportFragmentManager()))
+
         );
 
         if (showInlineHeader) {
@@ -216,7 +211,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.edit_validate) {
-            presenter.onExitEditMode();
+            inputs.onExitEditMode();
             return true;
         }
         return false;
@@ -248,11 +243,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
             if (detailView != null) {
                 // landscape tablet with side by side details
-                playlistEngagementsRenderer.bind(detailView, presenter, data.metadata());
+                playlistEngagementsRenderer.bind(detailView, inputs, data.metadata());
                 playlistCoverRenderer.bind(detailView,
                                            data.metadata(),
-                                           presenter::onHeaderPlayButtonClicked,
-                                           presenter::onCreatorClicked);
+                                           inputs::onHeaderPlayButtonClicked,
+                                           inputs::onCreatorClicked);
             }
 
         }
@@ -272,6 +267,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onDestroyView() {
+        presenter.disconnect();
         subscription.unsubscribe();
         collectionRenderer.detach();
 
@@ -286,14 +282,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onDestroy() {
-        presenter.disconnect();
         toolbarView = null;
         super.onDestroy();
     }
 
     @Override
     public void onItemClicked(PlaylistDetailTrackItem trackItem) {
-        presenter.onItemTriggered(trackItem);
+        inputs.onItemTriggered(trackItem);
     }
 
     @Override
@@ -303,7 +298,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onUpsellItemDismissed(PlaylistDetailUpsellItem item) {
-        presenter.onItemDismissed(item);
+        inputs.onItemDismissed(item);
 
         final int position = adapter.getItems().indexOf(item);
         adapter.removeItem(position);
@@ -312,7 +307,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
     @Override
     public void onUpsellItemClicked(PlaylistDetailUpsellItem item) {
-        presenter.onItemTriggered(item);
+        inputs.onItemTriggered(item);
     }
 
     @Override

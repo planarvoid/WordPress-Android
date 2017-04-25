@@ -59,12 +59,10 @@ class DataSourceProvider {
     private final PublishSubject<PartialState> refreshStateSubject = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithExtrasState> data = BehaviorSubject.create();
     private final BehaviorSubject<Urn> latestUrn;
-    private final Observable<Object> refresh;
     private CompositeSubscription subscription;
 
     @Inject
     DataSourceProvider(Urn initialUrn,
-                       Observable<Object> refresh,
                        @Provided PlaylistRepository playlistRepository,
                        @Provided TrackRepository trackRepository,
                        @Provided EventBus eventBus,
@@ -73,7 +71,6 @@ class DataSourceProvider {
                        @Provided MyPlaylistsOperations myPlaylistsOperations,
                        @Provided ProfileApiMobile profileApiMobile,
                        @Provided SyncInitiator syncInitiator) {
-        this.refresh = refresh;
         this.playlistRepository = playlistRepository;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
@@ -87,10 +84,10 @@ class DataSourceProvider {
         this.syncInitiator = syncInitiator;
     }
 
-    public void connect() {
+    public void connect(PublishSubject<Void> refresh) {
         // two things that can result in a new paging sequence. When either emits, start over
         Observable<Urn> pageSequenceStarters = Observable.merge(
-                refreshIntent(), // the user refreshed
+                refreshIntent(refresh), // the user refreshed
                 latestUrn // initial load, or the urn changed
         );
 
@@ -131,7 +128,7 @@ class DataSourceProvider {
                                  .onErrorReturn(LoadingError::new);
     }
 
-    private Observable<Urn> refreshIntent() {
+    private Observable<Urn> refreshIntent(PublishSubject<Void> refresh) {
         return latestUrn.compose(Transformers.takeWhen(refresh))
                         .flatMap(urn -> syncInitiator.syncPlaylist(urn)
                                                      .map(syncJobResult -> urn)

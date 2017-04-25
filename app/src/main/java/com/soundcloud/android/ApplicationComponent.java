@@ -373,5 +373,5 @@ public interface ApplicationComponent {
     //Features Module --------
     
     // For testing purpose
-    PlaylistDetailsPresenterFactory PlaylistDetailsPresenterFactory();
+    PlaylistDetailsPresenterFactory playlistDetailsPresenterFactory();
 }
