@@ -78,6 +78,7 @@ android {
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -118,6 +119,7 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
     }
 
     release {
@@ -132,6 +134,7 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_CONTENT_LOCATION.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
     }
   }
 }

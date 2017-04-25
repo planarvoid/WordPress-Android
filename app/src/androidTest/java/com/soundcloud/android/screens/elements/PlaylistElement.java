@@ -54,7 +54,11 @@ public class PlaylistElement {
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.item_download_state)));
+        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.offline_state_indicator)));
+    }
+
+    public ViewElement noNetworkElement() {
+        return wrapped.findOnScreenElement(With.id(R.id.no_network_indicator));
     }
 
     private String getText(ViewElement element) {

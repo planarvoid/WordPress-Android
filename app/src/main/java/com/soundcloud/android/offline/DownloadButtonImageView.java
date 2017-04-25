@@ -8,13 +8,13 @@ public class DownloadButtonImageView extends DownloadImageView {
 
     public DownloadButtonImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setDownloadStateResource(queued); // Default button icon
+        setState(OfflineState.REQUESTED); // Default button icon
     }
 
     @Override
     protected void setNoOfflineState() {
         clearAnimation();
-        setDownloadStateResource(queued);
+        setState(OfflineState.REQUESTED);
     }
 
     @Override

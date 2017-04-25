@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloaded.downloaded;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloadingOrDownloaded.downloadingOrDownloaded;
@@ -10,6 +11,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -162,13 +164,12 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(not(downloading())));
-        assertThat("Playlist should be requested ", downloadElement.isRequested());
+        assertThat("Playlist should be unavailable ", downloadElement.isUnavailable());
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+        final ViewElement collectionsNoNetworkElement = playlistDetailsScreen
                 .goBackToPlaylists()
                 .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
-                .downloadElement();
-        assertThat(collectionsDownloadElement, is(not(downloading())));
-        assertThat("Playlist should be requested ", collectionsDownloadElement.isRequested());
+                .noNetworkElement();
+        assertThat(collectionsNoNetworkElement, is(visible()));
     }
 }

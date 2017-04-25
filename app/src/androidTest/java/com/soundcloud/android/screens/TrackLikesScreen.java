@@ -131,22 +131,22 @@ public class TrackLikesScreen extends Screen {
     }
 
     public SyncYourLikesScreen toggleOfflineEnabled() {
-        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
+        testDriver.findOnScreenElement(With.id(R.id.offline_state_button)).click();
         return new SyncYourLikesScreen(testDriver);
     }
 
     public UpgradeScreen toggleOfflineUpsell() {
-        testDriver.findOnScreenElement(With.id(R.id.toggle_download)).click();
+        testDriver.findOnScreenElement(With.id(R.id.offline_state_button)).click();
         return new UpgradeScreen(testDriver);
     }
 
     public ViewElement offlineToggle() {
-        return testDriver.findOnScreenElement(With.id(R.id.toggle_download));
+        return testDriver.findOnScreenElement(With.id(R.id.offline_state_button));
     }
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(testDriver,
-                                            header().findOnScreenElement(With.id(R.id.header_download_state)));
+                                            header().findOnScreenElement(With.id(R.id.offline_state_button)).findElement(With.id(R.id.icon)));
     }
 
     public CollectionScreen goBack() {

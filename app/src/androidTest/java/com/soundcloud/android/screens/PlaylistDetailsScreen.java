@@ -61,7 +61,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public ViewElement getDownloadToggle() {
         return testDriver
-                .findOnScreenElement(With.id(R.id.toggle_download));
+                .findOnScreenElement(With.id(R.id.offline_state_button));
     }
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
@@ -73,7 +73,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(testDriver,
-                                            testDriver.findOnScreenElement(With.id(R.id.header_download_state)));
+                                            testDriver.findOnScreenElement(With.id(R.id.offline_state_button)).findElement(With.id(R.id.icon)));
     }
 
     public String getTitle() {
