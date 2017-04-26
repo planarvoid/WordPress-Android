@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
+import com.soundcloud.android.view.OfflineStateButton;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -182,6 +183,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public DownloadImageView toDownloadImageView() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public OfflineStateButton toOfflineStateButton() {
         throw new ViewNotFoundException(selector);
     }
 

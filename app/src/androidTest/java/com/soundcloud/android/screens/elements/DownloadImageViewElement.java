@@ -12,9 +12,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class DownloadImageViewElement {
+
     private final Waiter waiter;
     private final ViewElement wrappedElement;
-
 
     public DownloadImageViewElement(Han driver, ViewElement element) {
         this.waiter = new Waiter(driver);

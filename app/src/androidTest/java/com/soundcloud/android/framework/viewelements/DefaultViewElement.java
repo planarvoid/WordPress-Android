@@ -8,6 +8,7 @@ import com.soundcloud.android.framework.with.With.WithPopulatedText;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
+import com.soundcloud.android.view.OfflineStateButton;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -318,6 +319,11 @@ public class DefaultViewElement extends ViewElement {
     @Override
     public DownloadImageView toDownloadImageView() {
         return (DownloadImageView) view;
+    }
+
+    @Override
+    public OfflineStateButton toOfflineStateButton() {
+        return (OfflineStateButton) view;
     }
 
     @Override
