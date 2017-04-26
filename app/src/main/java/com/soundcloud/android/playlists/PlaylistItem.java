@@ -170,10 +170,6 @@ public abstract class PlaylistItem extends PlayableItem implements UpdatablePlay
         }
     }
 
-    public OfflineState getDownloadState() {
-        return offlineState();
-    }
-
     public List<String> getTags() {
         final Optional<List<String>> optionalTags = tags();
         return optionalTags.isPresent() ? optionalTags.get() : Collections.emptyList();
