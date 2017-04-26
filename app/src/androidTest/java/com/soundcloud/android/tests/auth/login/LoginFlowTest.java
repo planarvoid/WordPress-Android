@@ -13,6 +13,7 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
@@ -146,6 +147,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to recover my forgotten password
     * So that I don't need to recreate my account
     */
+    @Ignore
     public void testRecoverPassword() throws Throwable {
         loginScreen = homeScreen.clickLogInButton();
         RecoverPasswordScreen recoveryScreen = loginScreen.clickForgotPassword();
