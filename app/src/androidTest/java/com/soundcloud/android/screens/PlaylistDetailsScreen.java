@@ -10,7 +10,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.AdapterElement;
-import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.PlaylistUpsellCardElement;
@@ -71,9 +71,8 @@ public class PlaylistDetailsScreen extends Screen {
         return new PlaylistOverflowMenu(testDriver);
     }
 
-    public DownloadImageViewElement headerDownloadElement() {
-        return new DownloadImageViewElement(testDriver,
-                                            testDriver.findOnScreenElement(With.id(R.id.offline_state_button)).findElement(With.id(R.id.icon)));
+    public OfflineStateButtonElement offlineButtonElement() {
+        return new OfflineStateButtonElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.offline_state_button)));
     }
 
     public String getTitle() {

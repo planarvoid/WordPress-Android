@@ -9,7 +9,7 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.likes.TrackLikesActivity;
-import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -144,9 +144,8 @@ public class TrackLikesScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.offline_state_button));
     }
 
-    public DownloadImageViewElement headerDownloadElement() {
-        return new DownloadImageViewElement(testDriver,
-                                            header().findOnScreenElement(With.id(R.id.offline_state_button)).findElement(With.id(R.id.icon)));
+    public OfflineStateButtonElement offlineButtonElement() {
+        return new OfflineStateButtonElement(testDriver, header().findOnScreenElement(With.id(R.id.offline_state_button)));
     }
 
     public CollectionScreen goBack() {

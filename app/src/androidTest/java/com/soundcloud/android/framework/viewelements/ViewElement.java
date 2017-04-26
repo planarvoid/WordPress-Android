@@ -6,6 +6,7 @@ import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.OfflineStateButton;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -83,6 +84,8 @@ public abstract class ViewElement {
     public abstract WebView toWebView();
 
     public abstract DownloadImageView toDownloadImageView();
+
+    public abstract OfflineStateButton toOfflineStateButton();
 
     /* package */
     abstract View getView();

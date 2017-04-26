@@ -75,6 +75,13 @@
         <attr name="unavailable" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="OfflineStateButton">
+        <attr name="defaultIcon" format="integer" />
+        <attr name="downloadedIcon" format="integer" />
+        <attr name="downloadingIcon" format="integer" />
+        <attr name="waitingIcon" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="RoundedColorButton">
         <attr name="backgroundColorStateList" format="reference" />
     </declare-styleable>

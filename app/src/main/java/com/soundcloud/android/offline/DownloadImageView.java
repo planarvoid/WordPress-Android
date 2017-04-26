@@ -6,18 +6,19 @@ import com.soundcloud.android.util.AnimUtils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 
 public class DownloadImageView extends AppCompatImageView {
 
-    protected final Drawable queued;
-    protected final Drawable downloading;
-    protected final Drawable downloaded;
-    protected final Drawable unavailable;
+    private final Drawable queued;
+    private final Drawable downloading;
+    private final Drawable downloaded;
+    private final Drawable unavailable;
 
-    protected OfflineState offlineState;
+    private OfflineState offlineState;
 
     public DownloadImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -30,34 +31,38 @@ public class DownloadImageView extends AppCompatImageView {
         a.recycle();
     }
 
+    @VisibleForTesting
     public boolean isUnavailable() {
         return offlineState == OfflineState.UNAVAILABLE;
     }
 
+    @VisibleForTesting
     public boolean isRequested() {
         return offlineState == OfflineState.REQUESTED;
     }
 
+    @VisibleForTesting
     public boolean isDownloading() {
         return offlineState == OfflineState.DOWNLOADING;
     }
 
+    @VisibleForTesting
     public boolean isDownloaded() {
         return offlineState == OfflineState.DOWNLOADED;
     }
 
-    protected void setNoOfflineState() {
+    private void setNoOfflineState() {
         clearAnimation();
         setVisibility(View.GONE);
         setImageDrawable(null);
     }
 
-    protected void animateDownloadingState() {
+    private void animateDownloadingState() {
         setDownloadStateResource(downloading);
         AnimUtils.runSpinClockwiseAnimationOn(this);
     }
 
-    protected void setDownloadStateResource(Drawable drawable) {
+    private void setDownloadStateResource(Drawable drawable) {
         clearAnimation();
         setVisibility(View.VISIBLE);
         setImageDrawable(drawable);
@@ -68,7 +73,7 @@ public class DownloadImageView extends AppCompatImageView {
         setState(state);
     }
 
-    public void setState(OfflineState state) {
+    private void setState(OfflineState state) {
         offlineState = state;
         switch (state) {
             case NOT_OFFLINE:
