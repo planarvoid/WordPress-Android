@@ -36,12 +36,7 @@ public class GoOffboardingTrackingTest extends ActivityTest<GoOffboardingActivit
         return TestUser.htCreator;
     }
 
-    @Override
-    protected void beforeLogIn() {
-        super.beforeLogIn();
-    }
-
-    public void testTrackResubscribeButtonClickAndImpression() throws Exception {
+    public void ignore_testTrackResubscribeButtonClickAndImpression() throws Exception {
         final UpgradeScreen upgradeScreen = screen.clickResubscribe();
         assertThat(upgradeScreen, is(visible()));
 
