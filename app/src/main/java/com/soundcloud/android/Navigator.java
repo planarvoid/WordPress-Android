@@ -2,6 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
+import com.soundcloud.android.ads.VisualPrestitialActivity;
+import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -18,12 +20,6 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.olddiscovery.SearchActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
-import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
-import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -34,6 +30,12 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
+import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
+import com.soundcloud.android.olddiscovery.SearchActivity;
+import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
+import com.soundcloud.android.olddiscovery.charts.ChartActivity;
+import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
+import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
@@ -132,6 +134,12 @@ public class Navigator {
     public void openFullscreenVideoAd(Context context, Urn adUrn) {
         Intent intent = new Intent(context, FullScreenVideoActivity.class)
                 .putExtra(FullScreenVideoActivity.EXTRA_AD_URN, adUrn);
+        context.startActivity(intent);
+    }
+
+    public void openVisualPrestitital(Context context, VisualPrestitialAd prestitial) {
+        Intent intent = new Intent(context, VisualPrestitialActivity.class)
+                .putExtra(VisualPrestitialActivity.EXTRA_AD, prestitial);
         context.startActivity(intent);
     }
 

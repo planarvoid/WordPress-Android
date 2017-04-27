@@ -17,6 +17,11 @@ public class AdFixtures {
     private static final int VIDEO_BIT_RATE = 1001;
     private static final boolean SKIPPABLE = true;
 
+
+    public static VisualPrestitialAd visualPrestitialAd() {
+        return VisualPrestitialAd.create(getApiVisualPrestitial());
+    }
+
     public static InterstitialAd getInterstitialAd(Urn monetizableUrn) {
         final InterstitialAd interstitial = InterstitialAd.create(getApiInterstitial(), monetizableUrn);
         interstitial.setMonetizableTitle("dubstep anthem");
@@ -140,7 +145,7 @@ public class AdFixtures {
                                              Arrays.asList("leave_click1", "leave_click2"));
     }
 
-    static VisualPrestitialAd.ApiModel getApiVisualPrestitial() {
+    public static VisualPrestitialAd.ApiModel getApiVisualPrestitial() {
         return VisualPrestitialAd.ApiModel.create(Urn.forAd("ads", "123"),
                                                   "http://image-url.com",
                                                   "http://clickthrough.com",

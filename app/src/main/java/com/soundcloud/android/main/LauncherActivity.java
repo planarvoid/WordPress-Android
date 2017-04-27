@@ -6,9 +6,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import android.content.Intent;
+
 import javax.inject.Inject;
 
 public class LauncherActivity extends RootActivity {
+
+    public static final String EXTRA_FROM_LAUNCHER = "EXTRA_FROM_LAUNCHER";
 
     @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
@@ -44,7 +48,9 @@ public class LauncherActivity extends RootActivity {
     }
 
     private void handleLoggedInUser() {
-        navigator.launchHome(this, getIntent().getExtras());
+        final Intent intent = getIntent();
+        intent.putExtra(EXTRA_FROM_LAUNCHER, true);
+        navigator.launchHome(this, intent.getExtras());
     }
 
 }

@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
-import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -25,6 +24,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -34,8 +34,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
-
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -177,21 +175,24 @@ public class AdsController {
     }
 
     public void subscribe() {
+        eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE)
+                .subscribe(new ActivityStateSubscriber());
+
+        eventBus.queue(EventQueue.PLAYER_UI)
+                .subscribe(new PlayerStateSubscriber());
+
+
 
         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).subscribe(new ResetAdsOnTrackChange());
 
-        final Observable<Object> queueChangeForAd = Observable.merge(
-                eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
-                eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent::isQueueUpdate)
-        );
+        final Observable<Object> queueChangeForAd = Observable.merge(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
+                                                                     eventBus.queue(EventQueue.PLAY_QUEUE).filter(PlayQueueEvent::isQueueUpdate));
 
-        queueChangeForAd
-                .filter(shouldFetchInterstitialForCurrentTrack)
-                .subscribe(new FetchAdForCurrentTrackSubscriber());
+        queueChangeForAd.filter(shouldFetchInterstitialForCurrentTrack)
+                        .subscribe(new FetchAdForCurrentTrackSubscriber());
 
-        queueChangeForAd
-                .filter(shouldFetchAudioAdForNextItem)
-                .subscribe(new FetchAdForNextTrackSubscriber());
+        queueChangeForAd.filter(shouldFetchAudioAdForNextItem)
+                        .subscribe(new FetchAdForNextTrackSubscriber());
 
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .doOnNext(unsubscribeFailedAdSkip)
@@ -200,12 +201,6 @@ public class AdsController {
 
         visualAdImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
         adOverlayImpressionOperations.trackImpression().subscribe(eventBus.queue(EventQueue.TRACKING));
-
-        eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE)
-                .subscribe(new ActivityStateSubscriber());
-
-        eventBus.queue(EventQueue.PLAYER_UI)
-                .subscribe(new PlayerStateSubscriber());
     }
 
     public void reconfigureAdForNextTrack() {

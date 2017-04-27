@@ -4,7 +4,6 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
-import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -37,7 +36,6 @@ import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class AdsOperations {
 
@@ -89,7 +87,7 @@ public class AdsOperations {
                 .map(adsForStream -> adsForStream.getAds(dateProvider));
     }
 
-    Observable<AdData> prestitialAd(AdRequestData requestData) {
+    public Observable<AdData> prestitialAd(AdRequestData requestData) {
         if (featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)) {
             final String endpoint = ApiEndpoints.PRESTITIALS.path();
             return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiPrestitialAd.class)
@@ -262,25 +260,4 @@ public class AdsOperations {
         return playQueueManager.getNextPlayQueueItem().getAdData();
     }
 
-    @AutoValue
-    public static abstract class AdRequestData {
-
-        private static AdRequestData create(Optional<Urn> monetizableTrackUrn, Optional<String> kruxSegments)  {
-            return new AutoValue_AdsOperations_AdRequestData(UUID.randomUUID().toString(), monetizableTrackUrn, kruxSegments);
-        }
-
-        static AdRequestData forPlayerAd(Urn monetizableTrackUrn, Optional<String> kruxSegments) {
-            return create(Optional.of(monetizableTrackUrn), kruxSegments);
-        }
-
-        static AdRequestData forPageAds(Optional<String> kruxSegments) {
-            return create(Optional.absent(), kruxSegments);
-        }
-
-        public abstract String getRequestId();
-
-        public abstract Optional<Urn> getMonetizableTrackUrn();
-
-        public abstract Optional<String> getKruxSegments();
-    }
 }

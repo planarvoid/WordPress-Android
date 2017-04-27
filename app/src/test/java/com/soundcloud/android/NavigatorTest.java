@@ -1,11 +1,15 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
+import com.soundcloud.android.ads.VisualPrestitialActivity;
+import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -175,11 +179,20 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openVideoFullScreen() {
-        final Urn urn = Urn.forAd("network", "123");
+        final Urn urn = forAd("network", "123");
         navigator.openFullscreenVideoAd(activityContext, urn);
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn)
                                    .opensActivity(FullScreenVideoActivity.class);
+    }
+
+    @Test
+    public void openVisualPrestitial() {
+        final VisualPrestitialAd ad = VisualPrestitialAd.create(AdFixtures.getApiVisualPrestitial());
+        navigator.openVisualPrestitital(activityContext, ad);
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(VisualPrestitialActivity.EXTRA_AD, ad)
+                                   .opensActivity(VisualPrestitialActivity.class);
     }
 
     @Test

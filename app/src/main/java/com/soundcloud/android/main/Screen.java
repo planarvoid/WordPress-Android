@@ -25,6 +25,7 @@ public enum Screen {
 
     // ads
     VIDEO_FULLSCREEN("ads:video"),
+    VISUAL_PRESTITIAL("ads:display"),
 
     // collection
     COLLECTIONS("collection:main"),

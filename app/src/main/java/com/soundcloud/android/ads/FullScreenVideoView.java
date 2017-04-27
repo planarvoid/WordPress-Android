@@ -8,9 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.RoundedColorButton;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.AspectRatioTextureView;
-import com.soundcloud.java.functions.Consumer;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;

@@ -6,13 +6,14 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 
 import android.net.Uri;
+import android.os.Parcelable;
 
 import java.util.List;
 
 @AutoValue
-public abstract class VisualPrestitialAd extends VisualAdData {
+public abstract class VisualPrestitialAd extends VisualAdData implements Parcelable {
 
-    static VisualPrestitialAd create(ApiModel apiModel) {
+    public static VisualPrestitialAd create(ApiModel apiModel) {
         return new AutoValue_VisualPrestitialAd(apiModel.adUrn(),
                                                 MonetizationType.PRESTITIAL,
                                                 apiModel.imageUrl(),

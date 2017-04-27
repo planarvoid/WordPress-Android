@@ -13,8 +13,9 @@ public class RealAppboyWrapper implements AppboyWrapper {
 
     private final Appboy appboy;
 
-    public RealAppboyWrapper(Appboy appboy) {
+    public RealAppboyWrapper(Appboy appboy, AppboyInAppMessageListener listener) {
         this.appboy = appboy;
+        AppboyInAppMessageManager.getInstance().setCustomInAppMessageManagerListener(listener);
     }
 
     public void handleRegistration(String token) {

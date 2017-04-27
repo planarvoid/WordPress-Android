@@ -3,18 +3,12 @@ package com.soundcloud.android.main;
 import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.PLAY_LIKES;
 import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.SEARCH;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ShortcutController;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
@@ -25,58 +19,36 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity>
-        implements EnterScreenDispatcher.Listener {
+public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity> {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final Navigator navigator;
-    private final EventTracker eventTracker;
-    private final NavigationModel navigationModel;
     private final ShortcutController shortcutController;
     private final FeatureOperations featureOperations;
 
     private RootActivity activity;
-    private MainPagerAdapter pagerAdapter;
 
-    @BindView(R.id.pager) ViewPager pager;
-    @BindView(R.id.tab_layout) TabLayout tabBar;
-    @BindView(R.id.toolbar_id) Toolbar toolBar;
-    @BindView(R.id.appbar) AppBarLayout appBarLayout;
-    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbarLayout;
+    private Subscription subscriber = RxUtils.invalidSubscription();
 
-    private Subscription subscription = RxUtils.invalidSubscription();
-
-    @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
+    @LightCycle final MainTabsView mainTabsView;
 
     @Inject
-    MainTabsPresenter(NavigationModel navigationModel,
-                      BaseLayoutHelper layoutHelper,
+    MainTabsPresenter(BaseLayoutHelper layoutHelper,
                       MainPagerAdapter.Factory pagerAdapterFactory,
                       Navigator navigator,
-                      EventTracker eventTracker,
-                      EnterScreenDispatcher enterScreenDispatcher,
                       ShortcutController shortcutController,
-                      FeatureOperations featureOperations) {
-        this.navigationModel = navigationModel;
+                      FeatureOperations featureOperations,
+                      MainTabsView mainTabsView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigator = navigator;
-        this.eventTracker = eventTracker;
-        this.enterScreenDispatcher = enterScreenDispatcher;
         this.shortcutController = shortcutController;
         this.featureOperations = featureOperations;
-        enterScreenDispatcher.setListener(this);
+        this.mainTabsView = mainTabsView;
     }
 
     public void setBaseLayout(RootActivity activity) {
@@ -87,10 +59,8 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
         this.activity = activity;
-        pagerAdapter = pagerAdapterFactory.create(activity);
 
-        ButterKnife.bind(this, activity);
-        setupViews(activity);
+        mainTabsView.setupViews(activity, pagerAdapterFactory.create(activity));
 
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
@@ -99,23 +69,8 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     }
 
     @Override
-    public void onResume(RootActivity activity) {
-        super.onResume(activity);
-
-        pager.addOnPageChangeListener(enterScreenDispatcher);
-        toolBar.setTitle(pagerAdapter.getPageTitle(pager.getCurrentItem()));
-    }
-
-    @Override
-    public void onPause(RootActivity activity) {
-        pager.removeOnPageChangeListener(enterScreenDispatcher);
-
-        super.onPause(activity);
-    }
-
-    @Override
     public void onDestroy(RootActivity activity) {
-        subscription.unsubscribe();
+        subscriber.unsubscribe();
 
         super.onDestroy(activity);
     }
@@ -127,29 +82,18 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         setTabFromIntent(intent);
     }
 
-    @Override
-    public void onEnterScreen(RootActivity activity) {
-        toolBar.setTitle(pagerAdapter.getPageTitle(pager.getCurrentItem()));
-        eventTracker.trackScreen(ScreenEvent.create(getScreen()), activity.getReferringEvent());
-    }
-
     void hideToolbar() {
-        if (collapsingToolbarLayout != null) {
-            collapsingToolbarLayout.setVisibility(View.GONE);
-        }
+        mainTabsView.hideToolbar();
     }
 
     void showToolbar() {
-        if (collapsingToolbarLayout != null && appBarLayout != null) {
-            appBarLayout.setExpanded(true);
-            collapsingToolbarLayout.setVisibility(View.VISIBLE);
-        }
+        mainTabsView.showToolbar();
     }
 
     private void startDevelopmentMenuStream() {
-        subscription = featureOperations.developmentMenuEnabled()
-                                        .startWith(featureOperations.isDevelopmentMenuEnabled())
-                                        .subscribe(new UpdateDevelopmentMenuAction());
+        subscriber = featureOperations.developmentMenuEnabled()
+                                      .startWith(featureOperations.isDevelopmentMenuEnabled())
+                                      .subscribe(new UpdateDevelopmentMenuAction());
     }
 
     private void setTabFromIntent(Intent intent) {
@@ -164,83 +108,43 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private void resolveData(@NonNull Uri data) {
         if (NavigationIntentHelper.shouldGoToStream(data)) {
-            selectItem(Screen.STREAM);
+            mainTabsView.selectItem(Screen.STREAM);
         } else if (NavigationIntentHelper.shouldGoToSearch(data)) {
-            selectItem(Screen.SEARCH_MAIN);
+            mainTabsView.selectItem(Screen.SEARCH_MAIN);
         }
     }
 
     private void resolveIntentFromAction(@NonNull final Intent intent) {
         switch (intent.getAction()) {
             case Actions.STREAM:
-                selectItem(Screen.STREAM);
+                mainTabsView.selectItem(Screen.STREAM);
                 break;
             case Actions.COLLECTION:
-                selectItem(Screen.COLLECTIONS);
+                mainTabsView.selectItem(Screen.COLLECTIONS);
                 break;
             case Actions.DISCOVERY:
-                selectItem(Screen.SEARCH_MAIN);
+                mainTabsView.selectItem(Screen.SEARCH_MAIN);
                 break;
             case Actions.SEARCH:
-                selectItem(Screen.SEARCH_MAIN);
+                mainTabsView.selectItem(Screen.SEARCH_MAIN);
                 openSearchScreen(intent);
                 break;
             case Actions.MORE:
-                selectItem(Screen.MORE);
+                mainTabsView.selectItem(Screen.MORE);
                 break;
             case Actions.SHORTCUT_SEARCH:
                 shortcutController.reportUsage(SEARCH);
-                selectItem(Screen.SEARCH_MAIN);
+                mainTabsView.selectItem(Screen.SEARCH_MAIN);
                 navigator.openSearchFromShortcut(activity);
                 break;
             case Actions.SHORTCUT_PLAY_LIKES:
                 shortcutController.reportUsage(PLAY_LIKES);
-                selectItem(Screen.COLLECTIONS);
+                mainTabsView.selectItem(Screen.COLLECTIONS);
                 navigator.openTrackLikesFromShortcut(activity, intent);
                 break;
             default:
                 break;
         }
-    }
-
-    private void selectItem(Screen screen) {
-        int position = navigationModel.getPosition(screen);
-        if (position != NavigationModel.NOT_FOUND) {
-            tabBar.getTabAt(position).select();
-        }
-    }
-
-    private void setupViews(RootActivity activity) {
-        pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
-        pager.setPageMarginDrawable(R.color.page_background);
-
-        activity.setSupportActionBar(toolBar);
-
-        bindPagerToTabs();
-    }
-
-    private void bindPagerToTabs() {
-        pager.setAdapter(pagerAdapter);
-        tabBar.setOnTabSelectedListener(tabSelectedListener(pager, pagerAdapter));
-        pager.addOnPageChangeListener(pageChangeListenerFor(tabBar, pagerAdapter));
-        setTabIcons(pagerAdapter, tabBar, pager.getCurrentItem());
-    }
-
-    private void setTabIcons(MainPagerAdapter pagerAdapter, TabLayout tabBar, int currentItem) {
-        int tabCount = pagerAdapter.getCount();
-        tabBar.removeAllTabs();
-        for (int pageIndex = 0; pageIndex < tabCount; pageIndex++) {
-            TabLayout.Tab tab = tabBar.newTab();
-            tab.setCustomView(createTabViewFor(navigationModel.getItem(pageIndex)));
-            tabBar.addTab(tab, pageIndex, pageIndex == currentItem);
-        }
-    }
-
-    private View createTabViewFor(NavigationModel.Target target) {
-        ImageView view = new ImageView(activity);
-        view.setImageResource(target.getIcon());
-        view.setContentDescription(activity.getString(target.getName()));
-        return view;
     }
 
     private void openSearchScreen(final Intent intent) {
@@ -249,47 +153,6 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         } else {
             navigator.openSearch(activity);
         }
-    }
-
-    private NavigationModel.Target currentTargetItem() {
-        return navigationModel.getItem(pager.getCurrentItem());
-    }
-
-    Screen getScreen() {
-        return currentTargetItem().getScreen();
-    }
-
-    private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
-                                                                                final MainPagerAdapter pagerAdapter) {
-        return new TabLayout.ViewPagerOnTabSelectedListener(pager) {
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                pagerAdapter.resetScroll(tab.getPosition());
-            }
-        };
-    }
-
-    private static ViewPager.OnPageChangeListener pageChangeListenerFor(final TabLayout tabBar, final MainPagerAdapter pagerAdapter) {
-        return new TabLayout.TabLayoutOnPageChangeListener(tabBar) {
-            /*
-            * Workaround for tab re-selection callback issue:
-            * https://code.google.com/p/android/issues/detail?id=177189#c16
-            */
-            @Override
-            public void onPageSelected(int position) {
-                if (tabBar.getSelectedTabPosition() != position) {
-                    super.onPageSelected(position);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                if (state == ViewPager.SCROLL_STATE_IDLE) {
-                    pagerAdapter.setCurrentFragmentFocused();
-                }
-            }
-        };
     }
 
     private class UpdateDevelopmentMenuAction extends DefaultSubscriber<Boolean> {

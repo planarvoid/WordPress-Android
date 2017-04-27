@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import com.soundcloud.android.ads.AdsOperations.AdRequestData;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
