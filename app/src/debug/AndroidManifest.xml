@@ -35,5 +35,16 @@
 
         <activity android:name="com.soundcloud.android.utils.TestGplusRegistrationActivity" />
 
+        <service
+            android:name="com.soundcloud.android.BugReporterTileService"
+            android:icon="@drawable/ic_bug_report"
+            android:label="@string/bug_report_settings_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action
+                    android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>

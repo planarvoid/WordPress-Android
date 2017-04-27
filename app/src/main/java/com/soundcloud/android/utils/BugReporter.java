@@ -12,12 +12,12 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.annotation.ArrayRes;
-import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,16 +46,16 @@ public class BugReporter {
     }
 
     public void showGeneralFeedbackDialog(final Context context) {
-        showFeedbackDialog(context, R.array.feedback_general);
+        getFeedbackDialog(context, R.array.feedback_general).show();
     }
 
     public void showSignInFeedbackDialog(final Context context) {
-        showFeedbackDialog(context, R.array.feedback_sign_in);
+        getFeedbackDialog(context, R.array.feedback_sign_in).show();
     }
 
-    private void showFeedbackDialog(final Context context, @ArrayRes int options) {
+    public AlertDialog getFeedbackDialog(final Context context, @ArrayRes int options) {
         final String[] feedbackOptions = resources.getStringArray(options);
-        new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
+        return new AlertDialog.Builder(context).setTitle(R.string.select_feedback_category)
                                         .setItems(feedbackOptions, (dialog, which) -> {
                                             final String feedbackOption = feedbackOptions[which];
                                             final String subject = resources.getString(R.string.feedback_email_subject,
@@ -70,7 +70,7 @@ public class BugReporter {
                                                      subject,
                                                      deviceHelper.getUserAgent(),
                                                      actionChooser);
-                                        }).show();
+                                        }).create();
     }
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {

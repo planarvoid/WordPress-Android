@@ -176,6 +176,8 @@ public interface ApplicationComponent {
     //SyncModule
     void inject(SyncAdapterService syncAdapterService);
 
+    void inject(BugReporterTileService bugReporterTileService);
+
     //WidgetModule
     void inject(PlayerWidgetReceiver playerWidgetReceiver);
     void inject(PlayerAppWidgetProvider playerAppWidgetProvider);

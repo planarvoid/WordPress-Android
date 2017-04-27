@@ -1097,4 +1097,7 @@
     <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
     <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
 
+    <!-- Bug report settings tile -->
+    <string name="bug_report_settings_title">Send bug report</string>
+
 </resources>

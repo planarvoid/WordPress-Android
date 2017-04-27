@@ -17,6 +17,11 @@
         <item>@string/feedback_sign_in_issue</item>
         <item>@string/feedback_other_issue</item>
     </string-array>
+    <string-array name="feedback_all">
+        <item>@string/feedback_sign_in_issue</item>
+        <item>@string/feedback_playback_issue</item>
+        <item>@string/feedback_other_issue</item>
+    </string-array>
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>
     <string name="feedback_sign_in_issue">Sign in issue</string>
