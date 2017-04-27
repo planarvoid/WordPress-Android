@@ -10,6 +10,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
@@ -281,7 +282,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void registerDeviceStoresConfiguration() throws Exception {
+    public void registerDeviceStoresConfigurationIfNoDeviceConflict() throws Exception {
         Token token = new Token("accessToken", "refreshToken");
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                                                            .withQueryParam("experiment_layers",
@@ -296,6 +297,20 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         verify(featureOperations).updatePlan(configuration.getUserPlan());
         verify(experimentOperations).update(configuration.getAssignment());
     }
+
+    @Test
+    public void registerDeviceDoesNotStoreConfigurationOnDeviceConflict() throws Exception {
+        Configuration conflict = TestConfiguration.deviceConflict();
+        Token token = new Token("accessToken", "refreshToken");
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
+                                                           .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
+                                           eq(Configuration.class))).thenReturn(conflict);
+
+        operations.registerDevice(token);
+
+        verifyNoMoreInteractions(featureOperations);
+    }
+
 
     @Test
     public void forceRegisterReturnsResultOfUnregisterPost() throws Exception {

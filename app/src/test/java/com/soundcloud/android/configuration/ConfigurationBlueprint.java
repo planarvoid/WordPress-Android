@@ -22,7 +22,7 @@ public class ConfigurationBlueprint {
                                 .features(createFeatures())
                                 .userPlan(new UserPlan("free", true, Optional.absent(), Collections.singletonList(new Upsell("high_tier", 30))))
                                 .assignment(new Assignment(createLayers()))
-                                .deviceManagement(new DeviceManagement(false, true))
+                                .deviceManagement(new DeviceManagement(true, false))
                                 .selfDestruct(false)
                                 .imageSizeSpecs(Collections.emptyList())
                                 .build();

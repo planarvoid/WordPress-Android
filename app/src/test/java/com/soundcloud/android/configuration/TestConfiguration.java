@@ -20,9 +20,18 @@ public final class TestConfiguration {
         return buildWithPlan(Plan.FREE_TIER.planId);
     }
 
+    public static Configuration deviceConflict() {
+        return Configuration.builder()
+                            .userPlan(new UserPlan(Plan.HIGH_TIER.planId, true, Optional.absent(), Collections.emptyList()))
+                            .deviceManagement(new DeviceManagement(false, true))
+                            .build();
+    }
+
     private static Configuration buildWithPlan(String plan) {
-        final UserPlan userPlan = new UserPlan(plan, true, Optional.absent(), Collections.emptyList());
-        return Configuration.builder().userPlan(userPlan).build();
+        return Configuration.builder()
+                            .userPlan(new UserPlan(plan, true, Optional.absent(), Collections.emptyList()))
+                            .deviceManagement(new DeviceManagement(true, false))
+                            .build();
     }
 
 }

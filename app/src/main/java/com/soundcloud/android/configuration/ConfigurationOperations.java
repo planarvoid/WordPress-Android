@@ -167,7 +167,7 @@ public class ConfigurationOperations {
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token)).build();
 
         Configuration configuration = apiClient.fetchMappedResponse(request, Configuration.class);
-        saveConfiguration(configuration);
+        saveIfDeviceRegistered(configuration);
         return configuration.getDeviceManagement();
     }
 
@@ -179,7 +179,15 @@ public class ConfigurationOperations {
                                              .forPrivateApi()
                                              .build();
 
-        return apiClient.fetchMappedResponse(request, Configuration.class).getDeviceManagement();
+        Configuration configuration = apiClient.fetchMappedResponse(request, Configuration.class);
+        saveIfDeviceRegistered(configuration);
+        return configuration.getDeviceManagement();
+    }
+
+    private void saveIfDeviceRegistered(Configuration configuration) {
+        if (!configuration.getDeviceManagement().isUnauthorized()) {
+            saveConfiguration(configuration);
+        }
     }
 
     public Observable<Object> deregisterDevice() {
