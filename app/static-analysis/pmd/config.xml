@@ -18,10 +18,11 @@
         <exclude name="TooFewBranchesForASwitchStatement"/>
         <exclude name="ConfusingTernary"/>
         <!-- we frequently do this on purpose when connecting to the Android life-cycle -->
-        <exclude name="UncommentedEmptyMethod"/>
+        <exclude name="UncommentedEmptyMethodBody"/>
         <!-- we do this for Dagger -->
         <exclude name="UncommentedEmptyConstructor"/>
         <exclude name="UseVarargs"/>
+        <exclude name="AccessorMethodGeneration"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
@@ -39,9 +40,7 @@
     <rule ref="rulesets/java/unnecessary.xml">
         <exclude name="UselessParentheses"/>
     </rule>
-    <rule ref="rulesets/java/unusedcode.xml">
-        <exclude name="UnusedModifier"/>
-    </rule>
+    <rule ref="rulesets/java/unusedcode.xml"/>
 
     <rule ref="rulesets/java/optimizations.xml">
         <exclude name="LocalVariableCouldBeFinal"/>

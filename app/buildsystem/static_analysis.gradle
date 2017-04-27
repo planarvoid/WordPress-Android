@@ -64,7 +64,7 @@ tasks.withType(FindBugs) {
   ignoreFailures true
   effort = 'max'
   reportLevel = 'high'
-  excludeFilter = file("${staticAnalysisDirPath}/findbugs-exclude.xml")
+  excludeFilter = file("${staticAnalysisDirPath}/findbugs/suppressions.xml")
   classes = files("$project.buildDir/intermediates/classes/")
 
   source sourceSetMain
@@ -96,9 +96,13 @@ task findbugsChanged(type: FindBugs) {
   }
 }
 
+pmd {
+  toolVersion '5.6.0'
+}
+
 tasks.withType(Pmd) {
   ignoreFailures true
-  ruleSetFiles = files("${staticAnalysisDirPath}/pmd.xml")
+  ruleSetFiles = files("${staticAnalysisDirPath}/pmd/config.xml")
 
   source sourceSetMain
   exclude excludeSrcPatternRClass
