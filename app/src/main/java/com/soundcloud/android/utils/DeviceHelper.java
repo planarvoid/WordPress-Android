@@ -22,6 +22,7 @@ import java.text.Normalizer;
 @Singleton
 public class DeviceHelper {
 
+    static final String USER_AGENT_PRODUCT_TAG = "SoundCloud";
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // Available memory (bytes)
 
     private static final String MISSING_DEVICE_NAME = "unknown device";
@@ -82,7 +83,8 @@ public class DeviceHelper {
     }
 
     public String getUserAgent() {
-        return String.format("SoundCloud-Android/%s (Android %s; %s)",
+        return String.format("%s/%s (Android %s; %s)",
+                             USER_AGENT_PRODUCT_TAG,
                              BuildConfig.VERSION_NAME,
                              String.valueOf(buildHelper.getAndroidReleaseVersion()),
                              sanitizeForAscii(getDeviceName()));

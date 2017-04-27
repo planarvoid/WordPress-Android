@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.utils.DeviceHelper.USER_AGENT_PRODUCT_TAG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -98,7 +99,7 @@ public class DeviceHelperTest extends AndroidUnitTest {
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
         when(buildHelper.getAndroidReleaseVersion()).thenReturn("4.1.1");
         assertThat(deviceHelper.getUserAgent()).isEqualTo(
-                "SoundCloud-Android/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; Samsung GT-I9082)");
+                USER_AGENT_PRODUCT_TAG + "/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; Samsung GT-I9082)");
     }
 
     @Test
@@ -106,7 +107,7 @@ public class DeviceHelperTest extends AndroidUnitTest {
         when(buildHelper.getModel()).thenReturn("öäü");
         when(buildHelper.getAndroidReleaseVersion()).thenReturn("4.1.1");
         assertThat(deviceHelper.getUserAgent()).isEqualTo(
-                "SoundCloud-Android/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; oau)");
+                USER_AGENT_PRODUCT_TAG + "/" + BuildConfig.VERSION_NAME + " (Android 4.1.1; oau)");
     }
 
     @Test
