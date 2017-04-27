@@ -23,8 +23,11 @@ import android.widget.ListAdapter;
 
 import javax.inject.Inject;
 
-@Deprecated // use ListPresenter
-public class ListViewController extends DefaultSupportFragmentLightCycle {
+/**
+ * @deprecated use ListPresenter
+ */
+@Deprecated
+public class ListViewController extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;

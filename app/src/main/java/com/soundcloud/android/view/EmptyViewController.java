@@ -16,8 +16,11 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-@Deprecated // use ListPresenter or EmptyViewPresenter
-public class EmptyViewController extends DefaultSupportFragmentLightCycle {
+/**
+ * @deprecated use ListPresenter or EmptyViewPresenter
+ */
+@Deprecated
+public class EmptyViewController extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final ConnectionHelper connectionHelper;
     private EmptyView emptyView;

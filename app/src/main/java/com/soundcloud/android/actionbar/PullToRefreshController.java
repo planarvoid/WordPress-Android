@@ -22,8 +22,11 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-@Deprecated // use ListPresenter now, or use PullToRefreshWrapper directly
-public class PullToRefreshController extends DefaultSupportFragmentLightCycle {
+/**
+ * @deprecated use ListPresenter now, or use PullToRefreshWrapper directly
+ */
+@Deprecated
+public class PullToRefreshController extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final SwipeRefreshAttacher wrapper;
 
