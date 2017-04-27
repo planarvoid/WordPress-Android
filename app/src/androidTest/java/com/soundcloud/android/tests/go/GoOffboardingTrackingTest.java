@@ -36,7 +36,7 @@ public class GoOffboardingTrackingTest extends ActivityTest<GoOffboardingActivit
         return TestUser.htCreator;
     }
 
-    public void ignore_testTrackResubscribeButtonClickAndImpression() throws Exception {
+    public void testTrackResubscribeButtonClickAndImpression() throws Exception {
         final UpgradeScreen upgradeScreen = screen.clickResubscribe();
         assertThat(upgradeScreen, is(visible()));
 
