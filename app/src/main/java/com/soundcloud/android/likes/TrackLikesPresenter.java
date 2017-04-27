@@ -168,7 +168,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
 
     private void checkAutoPlayIntent() {
         if (intentResolver.consumePlaybackRequest()) {
-            onItemClicked(null, 1);
+            if (adapter.getItemCount() > 0) {
+                onItemClicked(null, 1);
+            }
         }
     }
 
@@ -256,6 +258,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                     .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
+
     }
 
     @Override
