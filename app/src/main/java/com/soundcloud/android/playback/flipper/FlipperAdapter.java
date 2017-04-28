@@ -69,7 +69,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private final LockUtil lockUtil;
     private final CryptoOperations cryptoOperations;
 
-
     @Nullable private volatile String currentStreamUrl;
     @Nullable private PlaybackItem currentPlaybackItem;
     private PlayerListener playerListener;

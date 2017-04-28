@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.flipper;
 
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.StreamCacheConfig;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.flippernative.Decoder;
@@ -30,13 +32,17 @@ class FlipperFactory {
     private final CryptoOperations cryptoOperations;
     private final StreamCacheConfig.FlipperConfig cacheConfig;
 
+    private final boolean forceEncryptedHls;
+
     @Inject
     FlipperFactory(Context context,
                    CryptoOperations cryptoOperations,
-                   StreamCacheConfig.FlipperConfig cacheConfig) {
+                   StreamCacheConfig.FlipperConfig cacheConfig,
+                   FeatureFlags featureFlags) {
         this.context = context;
         this.cryptoOperations = cryptoOperations;
         this.cacheConfig = cacheConfig;
+        this.forceEncryptedHls = featureFlags.isEnabled(Flag.ENCRYPTED_HLS);
     }
 
     public Player create(PlayerListener listener) {
@@ -54,6 +60,7 @@ class FlipperFactory {
                 cacheConfig.getStreamCacheSize(),
                 cacheConfig.getStreamCacheMinFreeSpaceAvailablePercentage(),
                 PROGRESS_INTERVAL_MS,
+                forceEncryptedHls,
                 cacheConfig.getLogFilePath()
         );
     }

@@ -21,6 +21,7 @@ enum Feature {
   PROFILE_BANNER,
   SEARCH_TOP_RESULTS,
   FLIPPER,
+  ENCRYPTED_HLS,
   DISPLAY_PRESTITIAL,
   WELCOME_USER,
   OFFLINE_PROPERTIES_PROVIDER,
@@ -49,6 +50,7 @@ android {
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FLIPPER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DISPLAY_PRESTITIAL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
@@ -79,6 +81,7 @@ android {
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
     }
 
     alpha {
@@ -103,6 +106,7 @@ android {
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
     }
 
     beta {
