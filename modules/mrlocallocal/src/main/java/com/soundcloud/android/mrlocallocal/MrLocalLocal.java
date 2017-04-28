@@ -7,7 +7,6 @@ import com.soundcloud.android.mrlocallocal.data.MrLocalLocalResult;
 import com.soundcloud.android.mrlocallocal.data.Spec;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.List;
 
@@ -16,11 +15,13 @@ public class MrLocalLocal {
 
     private final SpecReader specReader;
     private final EventLogger eventLogger;
+    private final Logger logger;
     private long startTimestamp;
 
     public MrLocalLocal(Context context, WireMockServer wireMockServer, String eventGatewayUrl) {
         specReader = new SpecReader(context);
         eventLogger = new EventLogger(wireMockServer, eventGatewayUrl);
+        logger = new RealLogger();
     }
 
     public void startEventTracking() {
@@ -44,7 +45,7 @@ public class MrLocalLocal {
         }
 
         if (result.wasSuccessful()) {
-            Log.w("MrLocalLocal", result.message());
+            logger.info(result.message());
         } else {
             throw new MrLocalLocalException(result.message());
         }
@@ -52,6 +53,6 @@ public class MrLocalLocal {
 
     private MrLocalLocalResult verify(Spec spec) throws Exception {
         List<LoggedEvent> events = eventLogger.getLoggedEvents();
-        return SpecValidator.create().verify(spec, events, startTimestamp);
+        return new SpecValidator(logger).verify(spec, events, startTimestamp);
     }
 }

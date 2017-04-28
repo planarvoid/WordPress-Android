@@ -6,7 +6,6 @@ import com.soundcloud.android.mrlocallocal.data.MrLocalLocalException;
 import com.soundcloud.android.mrlocallocal.data.MrLocalLocalResult;
 import com.soundcloud.android.mrlocallocal.data.Spec;
 import com.soundcloud.android.mrlocallocal.data.SpecEvent;
-import com.soundcloud.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,11 +19,6 @@ class SpecValidator {
     private final Logger logger;
     private final SpecPayloadValidator specPayloadValidator;
 
-    static SpecValidator create() {
-        return new SpecValidator(new RealLogger());
-    }
-
-    @VisibleForTesting
     SpecValidator(Logger logger) {
         this.logger = logger;
         specPayloadValidator = new SpecPayloadValidator(logger);
