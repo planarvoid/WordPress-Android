@@ -749,7 +749,9 @@ vão aparecer aqui.</string>
   <string name="offline_update_completed_message">Pronto para a escuta offline</string>
   <string name="offline_update_storage_limit_reached_title">Limite de armazenamento atingido</string>
   <string name="offline_update_storage_limit_reached_message">Toque aqui para ver as configurações de armazenamento</string>
+  <string name="offline_update_requested">Preparando download</string>
   <string name="offline_update_in_progress">Salvando offline</string>
+  <string name="offline_update_completed">Salvo offline</string>
   <string name="offline_likes_dialog_title">Salvar suas curtidas offline</string>
   <string name="offline_likes_dialog_message">Isso vai salvar as curtidas atuais e futuras offline, assim você poderá ouvir sem conexão Wi-Fi ou de dados.</string>
   <string name="make_offline_available">Salvar off-line</string>

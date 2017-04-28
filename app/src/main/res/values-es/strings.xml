@@ -101,7 +101,7 @@
   <string name="auth_disclaimer_message">Al seleccionar \"Continuar\" estas aceptando las Condiciones de uso y la Política de privacidad de SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Inténtalo de nuevo más tarde o inicia sesión con tu dirección de email y tu contraseña.</string>
   <string name="authentication_recover_password_msg">Introduce tu dirección de email y te enviaremos un enlace para cambiar tu contraseña. Si tienes alguna duda, visita nuestro Centro de ayuda.</string>
-  <string name="authentication_recover_password_visit_our_Help_Center">Visita nuestra Centro de ayuda</string>
+  <string name="authentication_recover_password_visit_our_Help_Center">Visita nuestro Centro de ayuda</string>
   <string name="authentication_recover_password_send">Enviar</string>
   <string name="authentication_blocked_title">No hemos podido crear una cuenta.</string>
   <string name="authentication_blocked_message">Nuestros robots piensan que este registro podría ser spam. Si consideras que es un error, contacta con el centro de soporte técnico de SoundCloud.</string>
@@ -227,7 +227,7 @@
   <string tools:ignore="UnusedResources" name="category_learning">Aprendizaje</string>
   <!--__PLAYABLE-->
   <string name="private_indicator">Privado</string>
-  <string name="title_now_playing">Reproduciendo</string>
+  <string name="title_now_playing">Reproducción en curso</string>
   <string name="title_paused">En pausa</string>
   <string name="like_toast_overflow_action">Guardada en tus Me gusta</string>
   <string name="unlike_toast_overflow_action">Eliminada de tus Me gusta</string>
@@ -491,7 +491,7 @@
   <!--__SETTINGS NAVIGATION-->
   <string name="title_about">Acerca de</string>
   <string name="title_legal">Legal</string>
-  <string name="title_notification_settings">Configuración de las notificaciones</string>
+  <string name="title_notification_settings">Configuración de notificaciones</string>
   <!--__STATIONS-->
   <string name="stations_collection_title_liked_stations">Emisoras</string>
   <string name="liked_stations_empty_view_message">Todavía no te ha gustado ninguna emisora</string>
@@ -714,7 +714,7 @@
   <string name="product_choice_error_already_subscribed">Ya estás suscrito</string>
   <string name="product_choice_error_unavailable">Producto no disponible</string>
   <!--PRODUCT_CHOICE-->
-  <string name="product_choice_line_1_mid">Descubre, escucha y comparte un catálogo de música que no deja de crecer con artistas emergentes y consolidados </string>
+  <string name="product_choice_line_1_mid">Descubre, escucha y comparte un catálogo de música que no deja de crecer con artistas emergentes y consolidados</string>
   <string name="product_choice_line_1_high">Accede al mayor catálogo mundial de música en streaming, una mezcla de artistas emergentes y consolidados que no deja de crecer</string>
   <string name="product_choice_line_2_mid">Más de 120 millones de pistas</string>
   <string name="product_choice_line_2_high">Acceso a más de 150 millones de pistas</string>
@@ -754,7 +754,7 @@
   <string name="make_offline_unavailable">Eliminar del modo sin conexión</string>
   <string name="offline_dialog_go_online_continue">Continuar</string>
   <string name="offline_dialog_go_online_error_title">No se pudo verificar tu suscripción</string>
-  <string name="offline_dialog_go_online_error_content">Este dispositivo lleva más de 30 días desconectado, por lo que no hemos podido verificar tu suscripción. Para poder acceder de nuevo a tu contenido sin conexión, conecta el dispositivo a Internet .</string>
+  <string name="offline_dialog_go_online_error_content">Este dispositivo lleva más de 30 días desconectado, por lo que no hemos podido verificar tu suscripción. Para poder acceder de nuevo a tu contenido sin conexión, conecta el dispositivo a Internet.</string>
   <string name="offline_update_paused">Guardar sin conexión en pausa</string>
   <string name="no_network_connection">No hay conexión de red</string>
   <string name="no_wifi_connection">No hay conexión wifi</string>
@@ -776,7 +776,7 @@
   <string name="go_onboarding_start_title">¡Vamos allá!</string>
   <string name="go_onboarding_start_body">Ahora tienes acceso a más pistas que en ningún otro servicio de streaming</string>
   <string name="go_onboarding_start">Empieza a escuchar</string>
-  <string name="go_onboarding_retry">Error al cargar. ¿Deseas volver a intentarlo?</string>
+  <string name="go_onboarding_retry">Error al cargar. ¿Quieres volver a intentarlo?</string>
   <string name="go_onboarding_error_dialog_title">Algo ha ido mal</string>
   <string name="go_onboarding_error_dialog_msg">Ha habido un problema al activar las funciones y los contenidos nuevos. Debes reiniciar la app.</string>
   <string name="go_onboarding_error_dialog_button">Inténtalo de nuevo más tarde</string>
@@ -843,7 +843,7 @@
   </plurals>
   <plurals name="offline_dialog_go_online_warning_content">
     <item quantity="one">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Conéctate antes de %d día para que el contenido que guardaste sin conexión siga estándo accesible.</item>
-    <item quantity="other">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Conéctate antes de %d días para que el  contenido que guardaste sin conexión siga estándo accesible.</item>
+    <item quantity="other">Tu dispositivo tiene que estar en línea al menos una vez cada 30 días para verificar tu suscripción. Conéctate antes de %d días para que el contenido que guardaste sin conexión siga estando accesible.</item>
   </plurals>
   <!--__DEVICE MANAGEMENT-->
   <string name="device_management_limit_title">Has alcanzado el límite de dispositivos</string>
@@ -929,7 +929,7 @@
   <string name="search_premium_content_upsell">Mejora tu cuenta y escucha la pista completa</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notificaciones emergentes</string>
-  <string name="push_notifications_all_summary">Activa todas las notificaciones móviles\no selecciona cuál recibir</string>
+  <string name="push_notifications_all_summary">Activa todas las notificaciones móviles\no selecciona cuál recibir.</string>
   <string name="push_notifications_follower">Nuevo seguidor</string>
   <string name="push_notifications_repost">Repost de tu post</string>
   <string name="push_notifications_new_post">Nuevo post de un usuario seguido</string>
@@ -940,7 +940,7 @@
   <string name="push_notifications_tips">Consejos y ofertas de SoundCloud</string>
   <string name="push_notifications_suggestions">Contenido sugerido</string>
   <string name="email_notifications_all_title">Notificaciones por email</string>
-  <string name="email_notifications_all_summary">Activa todas las notificaciones por email\no selecciona cuál recibir</string>
+  <string name="email_notifications_all_summary">Activa todas las notificaciones por email\no selecciona cuál recibir.</string>
   <string name="email_notifications_follower">Nuevo seguidor</string>
   <string name="email_notifications_repost">Repost de tu post</string>
   <string name="email_notifications_new_post">Nuevo post de un usuario seguido</string>

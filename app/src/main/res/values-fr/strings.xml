@@ -752,7 +752,9 @@
   <string name="offline_update_completed_message">Prêt pour l\'écoute hors connexion</string>
   <string name="offline_update_storage_limit_reached_title">Limite de stockage atteinte</string>
   <string name="offline_update_storage_limit_reached_message">Appuyez ici pour voir les paramètres de stockage</string>
+  <string name="offline_update_requested">Préparation du téléchargement</string>
   <string name="offline_update_in_progress">Sauvegarde hors connexion</string>
+  <string name="offline_update_completed">Enregistré hors connexion</string>
   <string name="offline_likes_dialog_title">Sauvegardez vos favoris hors connexion</string>
   <string name="offline_likes_dialog_message">Cette option vous permettra de sauvegarder vos favoris actuels et à venir hors connexion pour que vous puissiez les écouter sans connexion Wifi ou connexion de données.</string>
   <string name="make_offline_available">Sauvegarder hors connexion</string>
@@ -766,6 +768,8 @@
   <string name="offline_not_available_offline">Non disponible hors connexion</string>
   <string name="offline_no_wifi">Aucun signal Wifi</string>
   <string name="offline_no_connection">Aucune connexion</string>
+  <string name="sd_card_cannot_be_found">Carte SD introuvable</string>
+  <string name="tap_here_to_change_storage_location">Appuyez ici pour modifier l\'emplacement de stockage</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_landing_title">Bienvenue dans SoundCloud Go+</string>
   <string name="go_onboarding_landing_title_mid">Bienvenue sur SoundCloud Go !</string>
@@ -801,6 +805,8 @@
   <string name="pref_offline_change_storage_location">Modifier l\'emplacement de stockage</string>
   <string name="pref_offline_change_storage_location_description_device_storage">Le contenu hors connexion est actuellement enregistré sur l\'espace de stockage interne de votre appareil.</string>
   <string name="pref_offline_change_storage_location_description_sd_card">Le contenu hors connexion est actuellement enregistré sur votre carte SD.</string>
+  <string name="sd_card_unavailable">Carte SD indisponible</string>
+  <string name="unavailable">Non disponible</string>
   <string name="pref_offline_storage_limit">Limite de stockage</string>
   <string name="pref_offline_storage_limit_description">Ceci défini l\'espace utilisable pour l\'écoute hors connexion.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f Go libre(s) sur %2$.1f Go</string>
@@ -831,6 +837,9 @@
   <string name="confirm_change_storage_location_dialog_title">Modifier l\'emplacement de stockage ?</string>
   <string name="confirm_change_storage_location_dialog_message_internal_device_storage">Tout le contenu hors connexion actuel et ultérieur sera téléchargé sur l\'espace de stockage interne de votre appareil et sera supprimé de votre carte SD.</string>
   <string name="confirm_change_storage_location_dialog_message_sd_card">Tout le contenu hors connexion actuel et ultérieur sera téléchargé sur votre carte SD et sera supprimé de l\'espace de stockage interne de votre appareil.</string>
+  <string name="offline_storage_error_dialog_title">Carte SD introuvable</string>
+  <string name="offline_storage_error_dialog_message">Insérez à nouveau votre carte SD ou modifiez l\'emplacement de stockage pour continuer à gérer votre contenu hors connexion.</string>
+  <string name="go_to_settings">Accéder aux paramètres</string>
   <plurals name="downloading_track_of_tracks">
     <item quantity="one">%1$d titre</item>
     <item quantity="other">%1$d sur %2$d titres</item>
@@ -967,6 +976,7 @@
   <!--__PLAY QUEUE-->
   <string name="play_next">Prochaine écoute</string>
   <string name="track_removed">Titre supprimé</string>
+  <string name="tracks_removed">Titres supprimés</string>
   <string name="play_queue_header_search">À partir des résultats de recherche pour %1$s</string>
   <string name="play_queue_header_stream">À partir de votre flux</string>
   <string name="play_queue_header_link">À partir d\'un lien</string>
