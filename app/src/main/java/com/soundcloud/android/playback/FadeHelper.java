@@ -31,7 +31,7 @@ class FadeHelper {
 
     FadeHelper(Listener listener) {
         this.listener = listener;
-        this.scheduler = Schedulers.newThread();
+        this.scheduler = Schedulers.io();
     }
 
     @VisibleForTesting

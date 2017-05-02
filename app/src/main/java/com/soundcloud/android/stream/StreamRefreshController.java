@@ -44,7 +44,7 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
         this.eventBus = eventBus;
         this.operations = operations;
         this.dateProvider = dateProvider;
-        this.scheduler = Schedulers.newThread();
+        this.scheduler = Schedulers.io();
     }
 
     @VisibleForTesting

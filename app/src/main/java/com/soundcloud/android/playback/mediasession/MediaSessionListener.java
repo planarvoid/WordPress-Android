@@ -42,7 +42,7 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
         this.context = context;
-        this.scheduler = Schedulers.newThread();
+        this.scheduler = Schedulers.io();
     }
 
     @VisibleForTesting
