@@ -17,6 +17,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -62,6 +63,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
     @Inject CastConfigStorage castConfigStorage;
     @Inject EventBus eventBus;
     @Inject IntroductoryOverlayOperations introductoryOverlayOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -84,6 +86,11 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
         introductoryOverlayOperations.unregisterOnStateChangedListener(this);
         subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

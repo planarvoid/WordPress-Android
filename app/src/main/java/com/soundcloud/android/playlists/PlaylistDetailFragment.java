@@ -16,6 +16,7 @@ import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
@@ -64,6 +65,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject SharePresenter shareOperations;
     @Inject PlaylistDetailsHeaderRendererFactory playlistDetailsHeaderRendererFactory;
     @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -278,6 +280,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         itemTouchHelper = null;
 
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

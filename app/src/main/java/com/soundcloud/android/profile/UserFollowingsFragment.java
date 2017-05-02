@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -20,6 +21,8 @@ public class UserFollowingsFragment extends ScrollableProfileFragment {
     static final String USER_URN_KEY = "user_urn_key";
     static final String SCREEN_KEY = "screen_key";
     static final String SEARCH_QUERY_SOURCE_INFO_KEY = "search_query_source_info_key";
+
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle UserFollowingsPresenter presenter;
 
     public static UserFollowingsFragment create(Urn userUrn,
@@ -38,6 +41,11 @@ public class UserFollowingsFragment extends ScrollableProfileFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

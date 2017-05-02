@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 public class UserSoundsFragment extends ScrollableProfileFragment {
     public static final String IS_CURRENT_USER = "is_current_user";
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle UserSoundsPresenter presenter;
 
     public static UserSoundsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -50,5 +52,10 @@ public class UserSoundsFragment extends ScrollableProfileFragment {
     @Override
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

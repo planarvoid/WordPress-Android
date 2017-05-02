@@ -3,6 +3,7 @@ package com.soundcloud.android.more;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.MainPagerAdapter;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 public class MoreFragment extends LightCycleSupportFragment<MoreFragment> implements MainPagerAdapter.ScrollContent, MainPagerAdapter.FocusListener {
 
     @Inject @LightCycle MoreTabPresenter presenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public MoreFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -40,4 +42,8 @@ public class MoreFragment extends LightCycleSupportFragment<MoreFragment> implem
         presenter.onFocusChange(hasFocus);
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

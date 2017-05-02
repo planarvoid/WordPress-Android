@@ -3,6 +3,7 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
@@ -16,6 +17,7 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
 
     @Inject OldUserDetailsView oldUserDetailsView;
     @Inject UserProfileOperations profileOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @LightCycle OldUserDetailsPresenter oldUserDetailsPresenter;
 
     public static OldUserDetailsFragment create(Urn userUrn) {
@@ -48,5 +50,10 @@ public class OldUserDetailsFragment extends ScrollableProfileFragment {
         final View view = getView();
         return new View[]{view.findViewById(android.R.id.empty),
                 view.findViewById(R.id.user_details_holder)};
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

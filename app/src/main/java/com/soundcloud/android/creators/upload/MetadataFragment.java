@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 public class MetadataFragment extends LightCycleSupportFragment<MetadataFragment> {
 
     @Inject @LightCycle MetadataPresenter metadataPresenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static Fragment create(Recording recording) {
         final MetadataFragment metadataFragment = new MetadataFragment();
@@ -52,5 +54,10 @@ public class MetadataFragment extends LightCycleSupportFragment<MetadataFragment
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         metadataPresenter.onRequestPermissionsResult(requestCode, grantResults);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

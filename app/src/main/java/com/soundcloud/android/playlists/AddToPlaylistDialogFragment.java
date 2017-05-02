@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -46,6 +47,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     @Inject PlaylistOperations playlistOperations;
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private MyPlaylistsAdapter adapter;
     private Subscription addTrackSubscription = RxUtils.invalidSubscription();
@@ -238,5 +240,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             }
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

@@ -7,6 +7,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.subscriptions.CompositeSubscription;
 
@@ -27,6 +28,7 @@ public class LogoutFragment extends Fragment {
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
     @Inject FeatureOperations featureOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -61,6 +63,11 @@ public class LogoutFragment extends Fragment {
     public void onDestroy() {
         subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     private final class LogoutSubscriber extends DefaultSubscriber<Void> {

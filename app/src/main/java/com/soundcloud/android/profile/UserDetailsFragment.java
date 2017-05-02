@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFragment>
         implements RefreshableScreen {
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject UserDetailsView userDetailsView;
     @Inject UserProfileOperations profileOperations;
     @Inject CondensedNumberFormatter numberFormatter;
@@ -46,6 +48,11 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.user_info_view, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

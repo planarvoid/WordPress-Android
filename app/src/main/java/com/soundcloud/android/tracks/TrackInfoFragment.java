@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -40,6 +41,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Inject ImageOperations imageOperations;
     @Inject TrackInfoPresenter presenter;
     @Inject Navigator navigator;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private Observable<TrackItem> loadTrack;
     private Subscription subscription;
@@ -89,6 +91,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             getDialog().setDismissMessage(null);
         }
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

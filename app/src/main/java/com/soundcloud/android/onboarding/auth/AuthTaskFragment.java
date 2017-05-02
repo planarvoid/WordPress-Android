@@ -17,6 +17,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -42,6 +43,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject SyncInitiatorBridge syncInitiatorBridge;
     @Inject SignInOperations signInOperations;
     @Inject SignUpOperations signUpOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(ApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);
@@ -115,6 +117,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
 
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

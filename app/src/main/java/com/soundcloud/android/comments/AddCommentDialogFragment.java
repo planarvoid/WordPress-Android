@@ -7,6 +7,7 @@ import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
 
@@ -30,8 +31,8 @@ public class AddCommentDialogFragment extends DialogFragment {
     private static final String EXTRA_POSITION = "position";
     private static final String EXTRA_ORIGIN_SCREEN = "origin";
 
-    @Inject
-    TrackRepository trackRepository;
+    @Inject TrackRepository trackRepository;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static AddCommentDialogFragment create(TrackItem track, long position, String originScreen) {
         Bundle b = new Bundle();
@@ -83,5 +84,10 @@ public class AddCommentDialogFragment extends DialogFragment {
         final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
         final PlayerActivity activity = (PlayerActivity) getActivity();
         activity.addComment(AddCommentArguments.create(trackTitle, trackUrn, creatorName, creatorUrn, position, commentText, originScreen));
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

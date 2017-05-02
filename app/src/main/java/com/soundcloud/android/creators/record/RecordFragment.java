@@ -2,6 +2,7 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -19,6 +20,7 @@ public class RecordFragment extends LightCycleSupportFragment<RecordFragment> {
         return new RecordFragment();
     }
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle RecordPresenter recordPresenter;
 
     public RecordFragment() {
@@ -35,6 +37,11 @@ public class RecordFragment extends LightCycleSupportFragment<RecordFragment> {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.sc_create, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     public enum CreateState {

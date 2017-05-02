@@ -3,6 +3,7 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.optional.Optional;
 
 import android.annotation.SuppressLint;
@@ -29,6 +30,7 @@ public class TabbedSearchFragment extends Fragment {
     private static final String KEY_QUERY_URN = "queryUrn";
     private static final String KEY_QUERY_POSITION = "queryPosition";
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject Resources resources;
     @Inject SearchTracker searchTracker;
 
@@ -125,6 +127,7 @@ public class TabbedSearchFragment extends Fragment {
         // Avoid leaking context through internal dataset observer in adapter
         pager = null;
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {

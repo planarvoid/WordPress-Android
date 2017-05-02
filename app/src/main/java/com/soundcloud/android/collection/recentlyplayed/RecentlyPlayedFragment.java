@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collection.playlists.PlaylistsFragment;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsFragment>
         implements RefreshableScreen {
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle RecentlyPlayedPresenter presenter;
 
     public RecentlyPlayedFragment() {
@@ -41,4 +43,8 @@ public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsF
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

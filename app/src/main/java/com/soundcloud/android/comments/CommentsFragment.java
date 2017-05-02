@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.lightcycle.LightCycle;
@@ -35,6 +36,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     @Inject PagingListItemAdapter<Comment> adapter;
     @Inject Navigator navigator;
     @Inject @LightCycle ListViewController listViewController;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -100,5 +102,10 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     public void onDestroy() {
         subscription.unsubscribe();
         super.onDestroy();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

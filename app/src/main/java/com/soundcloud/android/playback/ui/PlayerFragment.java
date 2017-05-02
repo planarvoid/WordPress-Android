@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
 
     @Inject @LightCycle PlayerPresenter presenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -39,5 +41,10 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
     public PlayerTrackPager getPlayerPager() {
         View view = getView();
         return view != null ? (PlayerTrackPager) view.findViewById(R.id.player_track_pager) : null;
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

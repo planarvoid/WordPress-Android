@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.optional.Optional;
 
 import android.os.Bundle;
@@ -23,6 +24,7 @@ public class NotificationPreferencesFragment extends PreferenceFragment {
     private static final Collection<String> MAIL_KEYS = NotificationPreferenceType.mailKeys();
 
     @Inject NotificationPreferencesOperations operations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public NotificationPreferencesFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -32,6 +34,11 @@ public class NotificationPreferencesFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setup();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

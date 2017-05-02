@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.app.Dialog;
@@ -41,6 +42,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
     @Inject ApplicationProperties properties;
     @Inject FeatureOperations featureOperations;
     @Inject OfflineSettingsStorage offlineSettingsStorage;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     @BindView(android.R.id.edit) EditText input;
     @BindView(R.id.chk_private) CheckBox privacy;
@@ -111,6 +113,11 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                                                            Urn.forTrack(firstTrackId)));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     private EventContextMetadata getEventContextMetadata() {

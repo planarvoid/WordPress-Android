@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
 import com.soundcloud.android.search.SearchTracker;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
 import com.soundcloud.java.optional.Optional;
@@ -48,6 +49,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject PlaybackFeedbackHelper playbackFeedbackHelper;
     @Inject SearchTracker searchTracker;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
 
@@ -239,6 +241,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onDestroyView() {
         collectionRenderer.detach();
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
 }

@@ -30,6 +30,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -58,6 +59,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject FeatureFlags featureFlags;
     @Inject ConfigurationManager configurationManager;
     @Inject ApplicationProperties applicationProperties;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private CompositeSubscription subscription;
 
@@ -144,6 +146,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     public void onDestroyView() {
         subscription.unsubscribe();
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 public class UploadMonitorFragment extends LightCycleSupportFragment<UploadMonitorFragment> {
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle UploadMonitorPresenter uploadMonitorPresenter;
 
     public static Fragment create(Recording recording) {
@@ -36,5 +38,10 @@ public class UploadMonitorFragment extends LightCycleSupportFragment<UploadMonit
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.upload_monitor, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

@@ -5,6 +5,7 @@ import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresent
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -21,6 +22,7 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
 
     public static final String TAG = "suggestions_search";
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle SearchSuggestionsPresenter presenter;
 
     public SearchSuggestionsFragment() {
@@ -37,6 +39,11 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.recyclerview_with_emptyview, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     public void showSuggestionsFor(String query) {

@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.settings.ClearCacheDialog;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 public class BasicSettingsFragment extends PreferenceFragment {
 
     @Inject FeatureFlags featureFlags;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static BasicSettingsFragment create() {
         return new BasicSettingsFragment();
@@ -36,5 +38,10 @@ public class BasicSettingsFragment extends PreferenceFragment {
                                  ClearCacheDialog.show(getFragmentManager());
                                  return true;
                              });
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

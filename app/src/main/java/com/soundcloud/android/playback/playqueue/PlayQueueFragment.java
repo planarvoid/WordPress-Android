@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -17,6 +18,7 @@ public class PlayQueueFragment extends LightCycleSupportFragment<PlayQueueFragme
 
     public static final String TAG = "play_queue";
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @LightCycle @Inject ArtworkView artworkView;
     @LightCycle @Inject PlayQueueView playQueueView;
 
@@ -32,4 +34,8 @@ public class PlayQueueFragment extends LightCycleSupportFragment<PlayQueueFragme
         return inflater.inflate(R.layout.player_play_queue, container, false);
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

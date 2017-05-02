@@ -3,6 +3,7 @@ package com.soundcloud.android.olddiscovery.charts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -17,6 +18,7 @@ public class GenresFragment extends LightCycleSupportFragment<ChartTracksFragmen
     public static final String EXTRA_CHART_CATEGORY = "chartCategory";
 
     @Inject @LightCycle GenresPresenter presenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     static GenresFragment create(ChartCategory chartCategory) {
         final Bundle bundle = new Bundle();
@@ -34,5 +36,10 @@ public class GenresFragment extends LightCycleSupportFragment<ChartTracksFragmen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.discovery_recycler_view, container, false);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

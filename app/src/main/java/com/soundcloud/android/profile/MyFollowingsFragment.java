@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 public class MyFollowingsFragment extends ScrollableProfileFragment implements RefreshableScreen {
 
     @Inject @LightCycle MyFollowingsPresenter presenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static MyFollowingsFragment create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();
@@ -47,5 +49,10 @@ public class MyFollowingsFragment extends ScrollableProfileFragment implements R
     @Override
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

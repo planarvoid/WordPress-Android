@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -33,6 +34,7 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject EventBus eventBus;
     @Inject ScreenProvider screenProvider;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static void showForPlaylist(FragmentManager fragmentManager,
                                        Urn playlist,
@@ -110,6 +112,11 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
 
     private PromotedSourceInfo promotedSourceInfo() {
         return (PromotedSourceInfo) getArguments().getParcelable(PROMOTED_SOURCE_INFO);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
 }

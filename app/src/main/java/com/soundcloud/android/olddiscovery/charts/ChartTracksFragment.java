@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -30,6 +31,8 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
 
     @Inject @LightCycle ChartTracksPresenter presenter;
     @Inject Navigator navigator;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
+
     private Subscription errorSubscription;
 
     static ChartTracksFragment create(ChartType type, Urn genreUrn) {
@@ -77,5 +80,10 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
     public void onStop() {
         errorSubscription.unsubscribe();
         super.onStop();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

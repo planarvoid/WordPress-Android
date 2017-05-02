@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -21,6 +22,7 @@ public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFr
     static final String EXTRA_SOURCE = "source";
     static final String EXTRA_SEED_TRACK = "seed_track";
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle StationInfoPresenter stationInfoPresenter;
 
     public static Fragment create(Urn stationUrn, Urn seedTrack, String source) {
@@ -54,4 +56,8 @@ public class StationInfoFragment extends LightCycleSupportFragment<StationInfoFr
         return new View[]{stationInfoPresenter.getRecyclerView(), stationInfoPresenter.getEmptyView()};
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -20,6 +21,7 @@ public class CollectionFragment extends LightCycleSupportFragment<CollectionFrag
         implements RefreshableScreen, MainPagerAdapter.ScrollContent {
 
     @Inject @LightCycle CollectionPresenter presenter;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public CollectionFragment() {
         setRetainInstance(true);
@@ -48,4 +50,8 @@ public class CollectionFragment extends LightCycleSupportFragment<CollectionFrag
         presenter.scrollToTop();
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

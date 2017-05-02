@@ -4,6 +4,7 @@ package com.soundcloud.android.gcm;
 import com.google.firebase.messaging.RemoteMessage;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.app.DialogFragment;
@@ -26,6 +27,7 @@ import java.util.Locale;
 public class GcmDebugDialogFragment extends DialogFragment implements GcmMessageHandler.Listener {
 
     @Inject GcmMessageHandler gcmMessageHandler;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     private TextView debugText;
 
     public GcmDebugDialogFragment() {
@@ -56,6 +58,7 @@ public class GcmDebugDialogFragment extends DialogFragment implements GcmMessage
     public void onDestroyView() {
         gcmMessageHandler.setListener(null);
         super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 
     @Override

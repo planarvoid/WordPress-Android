@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 
 public class UserRepostsFragment extends LightCycleSupportFragment<UserRepostsFragment> implements RefreshableScreen {
 
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
     @Inject @LightCycle UserRepostsPresenter presenter;
 
     public static UserRepostsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -49,5 +51,10 @@ public class UserRepostsFragment extends LightCycleSupportFragment<UserRepostsFr
     @Override
     public View[] getRefreshableViews() {
         return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
     }
 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 public class LegalFragment extends PreferenceFragment implements OnPreferenceClickListener {
 
     @Inject FeatureOperations featureOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     public static LegalFragment create() {
         return new LegalFragment();
@@ -57,4 +59,8 @@ public class LegalFragment extends PreferenceFragment implements OnPreferenceCli
         return true;
     }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        leakCanaryWrapper.watch(this);
+    }
 }

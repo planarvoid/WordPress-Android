@@ -60,6 +60,7 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
+import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -130,6 +131,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject ApplicationStartupMeterFactory applicationStartupMeterFactory;
     @Inject PlaybackMeter playbackMeter;
     @Inject OfflineStorageOperations offlineStorageOperations;
+    @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -159,7 +161,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         applicationComponent.inject(this);
 
         if (applicationProperties.isDevelopmentMode()) {
-            LeakCanary.install(this);
+            leakCanaryWrapper.install(this);
             Stetho.initializeWithDefaults(this);
         }
 
