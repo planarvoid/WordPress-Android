@@ -1398,7 +1398,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropView("SearchSuggestions", db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 109);
+            handleUpgradeException(exception, oldVersion, 110);
         }
         return false;
     }
