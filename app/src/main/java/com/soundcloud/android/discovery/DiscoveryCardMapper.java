@@ -11,7 +11,9 @@ class DiscoveryCardMapper {
                                                                      apiMultipleContentSelectionCard.style(),
                                                                      apiMultipleContentSelectionCard.title(),
                                                                      apiMultipleContentSelectionCard.description(),
-                                                                     apiMultipleContentSelectionCard.selectionPlaylists().transform(apiSelectionPlaylists -> Lists.transform(apiSelectionPlaylists.getCollection(), DiscoveryCardMapper::map)));
+                                                                     apiMultipleContentSelectionCard.selectionItems()
+                                                                                                    .transform(apiSelectionPlaylists ->
+                                                                                                                    Lists.transform(apiSelectionPlaylists.getCollection(), DiscoveryCardMapper::map)));
         } else if (apiDiscoveryCard.singleContentSelectionCard().isPresent()) {
             final ApiSingleContentSelectionCard apiSingleContentSelectionCard = apiDiscoveryCard.singleContentSelectionCard().get();
             return DiscoveryCard.SingleContentSelectionCard.create(apiSingleContentSelectionCard.selectionUrn(),
@@ -19,7 +21,7 @@ class DiscoveryCardMapper {
                                                                    apiSingleContentSelectionCard.style(),
                                                                    apiSingleContentSelectionCard.title(),
                                                                    apiSingleContentSelectionCard.description(),
-                                                                   map(apiSingleContentSelectionCard.selectionPlaylist()),
+                                                                   map(apiSingleContentSelectionCard.selectionItem()),
                                                                    apiSingleContentSelectionCard.socialProof(),
                                                                    apiSingleContentSelectionCard.socialProofAvatarUrlTemplates());
         } else {
@@ -27,11 +29,11 @@ class DiscoveryCardMapper {
         }
     }
 
-    private static SelectionPlaylist map(ApiSelectionPlaylist apiSelectionPlaylist) {
-        return SelectionPlaylist.create(apiSelectionPlaylist.urn(),
-                                        apiSelectionPlaylist.artworkUrlTemplate(),
-                                        apiSelectionPlaylist.trackCount(),
-                                        apiSelectionPlaylist.shortTitle(),
-                                        apiSelectionPlaylist.shortSubtitle());
+    private static SelectionItem map(ApiSelectionItem apiSelectionItem) {
+        return SelectionItem.create(apiSelectionItem.urn(),
+                                    apiSelectionItem.artworkUrlTemplate(),
+                                    apiSelectionItem.count(),
+                                    apiSelectionItem.shortTitle(),
+                                    apiSelectionItem.shortSubtitle());
     }
 }

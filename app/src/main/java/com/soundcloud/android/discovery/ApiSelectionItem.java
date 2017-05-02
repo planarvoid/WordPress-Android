@@ -9,26 +9,26 @@ import com.soundcloud.java.optional.Optional;
 import android.support.annotation.Nullable;
 
 @AutoValue
-abstract class ApiSelectionPlaylist {
+abstract class ApiSelectionItem {
     abstract Urn urn();
 
     abstract Optional<String> artworkUrlTemplate();
 
-    abstract Optional<Integer> trackCount();
+    abstract Optional<Integer> count();
 
     abstract Optional<String> shortTitle();
 
     abstract Optional<String> shortSubtitle();
 
     @JsonCreator
-    static ApiSelectionPlaylist create(@JsonProperty("urn") Urn urn,
-                                       @JsonProperty("artwork_url_template") @Nullable String artworkUrlTemplate,
-                                       @JsonProperty("track_count") @Nullable Integer trackCount,
-                                       @JsonProperty("short_title") @Nullable String shortTitle,
-                                       @JsonProperty("short_subtitle") @Nullable String shortSubtitle) {
-        return new AutoValue_ApiSelectionPlaylist(urn,
+    static ApiSelectionItem create(@JsonProperty("urn") Urn urn,
+                                   @JsonProperty("artwork_url_template") @Nullable String artworkUrlTemplate,
+                                   @JsonProperty("count") @Nullable Integer count,
+                                   @JsonProperty("short_title") @Nullable String shortTitle,
+                                   @JsonProperty("short_subtitle") @Nullable String shortSubtitle) {
+        return new AutoValue_ApiSelectionItem(urn,
                                                   Optional.fromNullable(artworkUrlTemplate),
-                                                  Optional.fromNullable(trackCount),
+                                                  Optional.fromNullable(count),
                                                   Optional.fromNullable(shortTitle),
                                                   Optional.fromNullable(shortSubtitle));
     }

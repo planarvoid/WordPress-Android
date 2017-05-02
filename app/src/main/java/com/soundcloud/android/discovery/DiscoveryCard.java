@@ -37,14 +37,14 @@ abstract class DiscoveryCard {
 
         abstract Optional<String> description();
 
-        abstract Optional<List<SelectionPlaylist>> selectionPlaylists();
+        abstract Optional<List<SelectionItem>> selectionItems();
 
         static MultipleContentSelectionCard create(Urn selectionUrn,
                                                    Optional<String> style,
                                                    Optional<String> title,
                                                    Optional<String> description,
-                                                   Optional<List<SelectionPlaylist>> selectionPlaylists) {
-            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, style, title, description, selectionPlaylists);
+                                                   Optional<List<SelectionItem>> selectionItems) {
+            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, style, title, description, selectionItems);
         }
     }
 
@@ -61,7 +61,7 @@ abstract class DiscoveryCard {
 
         abstract Optional<Urn> queryUrn();
 
-        abstract SelectionPlaylist selectionPlaylist();
+        abstract SelectionItem selectionItem();
 
         abstract Optional<String> socialProof();
 
@@ -72,7 +72,7 @@ abstract class DiscoveryCard {
                                                  Optional<String> style,
                                                  Optional<String> title,
                                                  Optional<String> description,
-                                                 SelectionPlaylist selectionPlaylist,
+                                                 SelectionItem selectionItem,
                                                  Optional<String> socialProof,
                                                  Optional<List<String>> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingleContentSelectionCard(Kind.SINGLE_CONTENT_SELECTION_CARD,
@@ -81,7 +81,7 @@ abstract class DiscoveryCard {
                     title,
                     description,
                     queryUrn,
-                    selectionPlaylist,
+                    selectionItem,
                     socialProof,
                     socialProofAvatarUrlTemplates);
         }

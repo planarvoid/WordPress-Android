@@ -24,7 +24,7 @@ abstract class ApiSingleContentSelectionCard {
 
     abstract Optional<String> socialProof();
 
-    abstract ApiSelectionPlaylist selectionPlaylist();
+    abstract ApiSelectionItem selectionItem();
 
     abstract Optional<List<String>> socialProofAvatarUrlTemplates();
 
@@ -35,7 +35,7 @@ abstract class ApiSingleContentSelectionCard {
                                                 @JsonProperty("title") @Nullable String title,
                                                 @JsonProperty("description") @Nullable String description,
                                                 @JsonProperty("social_proof") @Nullable String socialProof,
-                                                @JsonProperty("selection_playlist") ApiSelectionPlaylist selectionPlaylist,
+                                                @JsonProperty("selection_item") ApiSelectionItem selectionItem,
                                                 @JsonProperty("social_proof_avatar_url_templates") @Nullable List<String> socialProofAvatarUrlTemplates) {
         return new AutoValue_ApiSingleContentSelectionCard(selectionUrn,
                                                        Optional.fromNullable(queryUrn),
@@ -43,7 +43,7 @@ abstract class ApiSingleContentSelectionCard {
                                                        Optional.fromNullable(title),
                                                        Optional.fromNullable(description),
                                                        Optional.fromNullable(socialProof),
-                                                       selectionPlaylist,
+                                                       selectionItem,
                                                        Optional.fromNullable(socialProofAvatarUrlTemplates));
     }
 }

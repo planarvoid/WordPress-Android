@@ -5,7 +5,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class SelectionPlaylist {
+abstract class SelectionItem {
     abstract Urn urn();
 
     abstract Optional<String> artworkUrlTemplate();
@@ -16,8 +16,8 @@ abstract class SelectionPlaylist {
 
     abstract Optional<String> shortSubtitle();
 
-    static SelectionPlaylist create(Urn urn, Optional<String> artworkUrlTemplate, Optional<Integer> trackCount, Optional<String> shortTitle, Optional<String> shortSubtitle) {
-        return new AutoValue_SelectionPlaylist(urn, artworkUrlTemplate, trackCount, shortTitle, shortSubtitle);
+    static SelectionItem create(Urn urn, Optional<String> artworkUrlTemplate, Optional<Integer> trackCount, Optional<String> shortTitle, Optional<String> shortSubtitle) {
+        return new AutoValue_SelectionItem(urn, artworkUrlTemplate, trackCount, shortTitle, shortSubtitle);
     }
 
 }

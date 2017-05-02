@@ -26,15 +26,15 @@ public class ApiMultipleContentSelectionCardTest {
                                                                                                                                    STYLE,
                                                                                                                                    TITLE,
                                                                                                                                    DESCRIPTION,
-                                                                                                                                   new ModelCollection<>(Lists.newArrayList(ApiSelectionPlaylistTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
+                                                                                                                                   new ModelCollection<>(Lists.newArrayList(ApiSelectionItemTest.EXPECTED_PLAYLIST), Collections.emptyMap(), new Urn(QUERY_URN)));
     static final String JSON = "{\n" +
             "  \"selection_urn\": \"" + SELECTION_URN + "\",\n" +
             "  \"style\": \"" + STYLE + "\",\n" +
             "  \"title\": \"" + TITLE + "\",\n" +
             "  \"description\": \"" + DESCRIPTION + "\",\n" +
-            "  \"selection_playlists\": {\n" +
+            "  \"selection_items\": {\n" +
             "    \"collection\": [\n" +
-           ApiSelectionPlaylistTest.JSON +
+           ApiSelectionItemTest.JSON +
             "    ],\n" +
             "    \"_links\": {},\n" +
             "    \"query_urn\": \"" + QUERY_URN + "\"\n" +

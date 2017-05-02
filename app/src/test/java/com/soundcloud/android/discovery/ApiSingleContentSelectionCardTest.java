@@ -25,7 +25,7 @@ public class ApiSingleContentSelectionCardTest {
             "        \"style\": \"" + STYLE + "\",\n" +
             "        \"title\": \"" + TITLE + "\",\n" +
             "        \"description\": \"" + DESCRIPTION + "\",\n" +
-            "        \"selection_playlist\": " + ApiSelectionPlaylistTest.JSON + ",\n" +
+            "        \"selection_item\": " + ApiSelectionItemTest.JSON + ",\n" +
             "        \"social_proof_avatar_url_templates\": [\"" + AVATAR_URL + "\"]\n" +
             "      }";
     static final ApiSingleContentSelectionCard EXPECTED_SINGLE_CONTENT_SELECTION_CARD = ApiSingleContentSelectionCard.create(new Urn(SELECTION_URN),
@@ -34,7 +34,7 @@ public class ApiSingleContentSelectionCardTest {
                                                                                                                              TITLE,
                                                                                                                              DESCRIPTION,
                                                                                                                              null,
-                                                                                                                             ApiSelectionPlaylistTest.EXPECTED_PLAYLIST,
+                                                                                                                             ApiSelectionItemTest.EXPECTED_PLAYLIST,
                                                                                                                              Lists.newArrayList(AVATAR_URL));
     private final JsonTransformer jsonTransformer = new JacksonJsonTransformer();
 
