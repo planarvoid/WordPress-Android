@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -123,6 +124,15 @@ class EventLoggerV1JsonDataBuilder {
         }
 
         return transform(data);
+    }
+
+    String buildForPrestitialAd(PrestitialAdImpressionEvent event) {
+        return transform(buildBaseEvent(PrestitialAdImpressionEvent.EVENT_NAME, event.getTimestamp())
+                                 .clientEventId(event.id())
+                                 .impressionName(PrestitialAdImpressionEvent.IMPRESSION_NAME)
+                                 .adUrn(event.urn().toString())
+                                 .pageName(PrestitialAdImpressionEvent.PAGE_NAME)
+                                 .monetizationType(event.monetizationType()));
     }
 
     String buildForStreamAd(InlayAdImpressionEvent event) {

@@ -7,6 +7,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
@@ -1041,6 +1042,18 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.com");
         assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::app_install");
         assertThat(uiEvent.adTrackingUrls().get()).contains("app_click1", "app_click2");
+    }
+
+    @Test
+    public void shouldCreateEventFromVisualPrestitialClickThrough() {
+        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
+        UIEvent uiEvent = UIEvent.fromPrestitialAdClickThrough(ad);
+        assertThat(uiEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
+        assertThat(uiEvent.adUrn().get()).isEqualTo(ad.adUrn().toString());
+        assertThat(uiEvent.monetizationType().get().key()).isEqualTo("prestitial");
+        assertThat(uiEvent.clickthroughsUrl().get()).isEqualTo("http://clickthrough.com");
+        assertThat(uiEvent.clickthroughsKind().get()).isEqualTo("clickthrough::display");
+        assertThat(uiEvent.adTrackingUrls().get()).contains("visual_click1", "visual_click2");
     }
 
     @Test

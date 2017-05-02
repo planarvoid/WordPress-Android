@@ -6,13 +6,15 @@ import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 // This class is all about multiplexing out tracking events
@@ -34,59 +36,48 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
+        final List<String> trackingUrls;
+
+        // TODO: Merge all impression events into single AdImpressionEvent
         if (event instanceof PlaybackSessionEvent) {
-            handlePlaybackSessionEvent((PlaybackSessionEvent) event);
+            trackingUrls = handlePlaybackSessionEvent((PlaybackSessionEvent) event);
         } else if (event instanceof UIEvent) {
-            handleUIEvent((UIEvent) event);
+            UIEvent uiEvent = (UIEvent) event;
+            trackingUrls = uiEvent.adTrackingUrls().or(Collections.emptyList());
         } else if (event instanceof VisualAdImpressionEvent) {
-            handleVisualAdImpression((VisualAdImpressionEvent) event);
+            trackingUrls = ((VisualAdImpressionEvent) event).impressionUrls();
         } else if (event instanceof InlayAdImpressionEvent) {
-            handleInlayAdImpression((InlayAdImpressionEvent) event);
+            trackingUrls = ((InlayAdImpressionEvent) event).impressionUrls();
         } else if (event instanceof AdOverlayTrackingEvent) {
-            handleLeaveBehindImpression((AdOverlayTrackingEvent) event);
+            trackingUrls = ((AdOverlayTrackingEvent) event).trackingUrls();
         } else if (event instanceof PromotedTrackingEvent) {
-            handlePromotedTrackEvent((PromotedTrackingEvent) event);
+            trackingUrls = ((PromotedTrackingEvent) event).trackingUrls();
         } else if (event instanceof AdPlaybackSessionEvent) {
-            handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
+            AdPlaybackSessionEvent sessionEvent = (AdPlaybackSessionEvent) event;
+            trackingUrls = sessionEvent.trackingUrls().or(Collections.emptyList());
+        } else if (event instanceof PrestitialAdImpressionEvent) {
+            trackingUrls = ((PrestitialAdImpressionEvent) event).impressionUrls();
+        } else {
+            trackingUrls = Collections.emptyList();
         }
+
+        trackAllUrls(event.getTimestamp(), trackingUrls);
     }
 
-    private void handleLeaveBehindImpression(AdOverlayTrackingEvent event) {
-        trackAllUrls(event.getTimestamp(), event.trackingUrls());
-    }
-
-    private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        trackAllUrls(event.getTimestamp(), event.impressionUrls());
-    }
-
-    private void handleInlayAdImpression(InlayAdImpressionEvent event) {
-        trackAllUrls(event.getTimestamp(), event.impressionUrls());
-    }
-
-    private void handlePromotedTrackEvent(PromotedTrackingEvent event) {
-        trackAllUrls(event.getTimestamp(), event.trackingUrls());
-    }
-
-    private void handleAdPlaybackSessionEvent(AdPlaybackSessionEvent event) {
-        trackAllUrls(event.getTimestamp(), event.trackingUrls().get());
-    }
-
-    private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
+    private List<String> handlePlaybackSessionEvent(PlaybackSessionEvent event) {
         if (event.isPromotedTrack() && event.isPlayAdShouldReportAdStart() && event.promotedPlayUrls().isPresent()) {
-            trackAllUrls(event.getTimestamp(), event.promotedPlayUrls().get());
-        }
-    }
-
-    private void handleUIEvent(UIEvent event) {
-        if (event.adTrackingUrls().isPresent()) {
-            trackAllUrls(event.getTimestamp(), event.adTrackingUrls().get());
+            return event.promotedPlayUrls().get();
+        } else {
+            return Collections.emptyList();
         }
     }
 
     private void trackAllUrls(long timeStamp, List<String> urls) {
-        for (String url : urls) {
-            eventTrackingManager.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
+        if (!urls.isEmpty()) {
+            for (String url : urls) {
+                eventTrackingManager.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
+            }
+            eventTrackingManager.flush(BACKEND_NAME);
         }
-        eventTrackingManager.flush(BACKEND_NAME);
     }
 }

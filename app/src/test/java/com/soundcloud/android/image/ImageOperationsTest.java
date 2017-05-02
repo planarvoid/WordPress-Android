@@ -324,7 +324,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayAppInstallDoesNotCacheAndHasPlaceholder() {
-        imageOperations.displayAppInstall(Urn.forAd("dfp", "123"), URL, imageView);
+        imageOperations.displayAdImage(Urn.forAd("dfp", "123"), URL, imageView);
 
         verify(imageLoader).displayImage(eq(URL), imageViewAwareCaptor.capture(),
                                          displayOptionsCaptor.capture(), any(ImageOperations.FallbackImageListener.class));

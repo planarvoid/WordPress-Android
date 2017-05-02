@@ -103,7 +103,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
                                                              .trackingUrls(trackingUrls)
                                                              .user(user)
                                                              .monetizableTrack(monetizableTrack)
-                                                             .adArtworkUrl(adData.getImageUrl())
+                                                             .adArtworkUrl(adData.imageUrl())
                                                              .originScreen(screen)
                                                              .adUrn(adData.adUrn())
                                                              .monetizationType(monetizationType)
@@ -135,7 +135,7 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
                                                        Urn track,
                                                        Urn user,
                                                        TrackSourceInfo sourceInfo) {
-        final List<String> trackingUrls = adData.getImpressionUrls();
+        final List<String> trackingUrls = adData.impressionUrls();
         return AdOverlayTrackingEvent.create(timeStamp, EventName.KIND_IMPRESSION, adData, track, user, trackingUrls, sourceInfo)
                                      .impressionName(getImpressionName(adData))
                                      .impressionObject(getImpressionObject(adData, track))
@@ -148,10 +148,10 @@ public abstract class AdOverlayTrackingEvent extends TrackingEvent {
                                                   Urn track,
                                                   Urn user,
                                                   TrackSourceInfo sourceInfo) {
-        final List<String> trackingUrls = adData.getClickUrls();
+        final List<String> trackingUrls = adData.clickUrls();
         return AdOverlayTrackingEvent.create(timestamp, EventName.KIND_CLICK, adData, track, user, trackingUrls, sourceInfo)
                                      .clickName(getClickName(adData))
-                                     .clickTarget(Optional.of(adData.getClickthroughUrl()))
+                                     .clickTarget(Optional.of(adData.clickthroughUrl()))
                                      .clickObject(getClickObject(adData))
                                      .build();
     }

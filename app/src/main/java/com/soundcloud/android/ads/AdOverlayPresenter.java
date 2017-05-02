@@ -72,7 +72,7 @@ public abstract class AdOverlayPresenter {
     public abstract boolean isFullScreen();
 
     public void bind(VisualAdData data) {
-        imageOperations.displayLeaveBehind(Uri.parse(data.getImageUrl()), getImageView(), imageListener);
+        imageOperations.displayLeaveBehind(Uri.parse(data.imageUrl()), getImageView(), imageListener);
     }
 
     public interface Listener {

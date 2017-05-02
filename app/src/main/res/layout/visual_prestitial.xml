@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sc_dark_orange">
+    android:background="@color/white">
+
+    <View
+        android:id="@+id/player_strip"
+        style="@style/PlayerStrip"/>
+
+    <FrameLayout
+        android:id="@+id/advertisement_header"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/advertisement"
+            android:textColor="@color/ash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_horizontal"
+            android:text="@string/ads_advertisement"/>
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/ad_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sc_dark_orange"
+        android:scaleType="centerCrop"
+        android:layout_above="@id/btn_continue"
+        android:layout_below="@id/advertisement_header"/>
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/btn_continue"
+        android:layout_height="75dp"
+        android:layout_width="match_parent"
+        android:text="@string/btn_continue"
+        android:gravity="center"
+        android:textColor="@color/soundcloud_orange"
+        android:textSize="20sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_alignParentBottom="true"/>
+
 </RelativeLayout>

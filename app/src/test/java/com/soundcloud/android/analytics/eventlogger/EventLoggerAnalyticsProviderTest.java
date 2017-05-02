@@ -36,6 +36,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
@@ -661,6 +662,19 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTrackingManager).trackEvent(eventCaptor.capture());
         assertThat(eventCaptor.getValue().getData()).isEqualTo("StreamAdImpression");
+    }
+
+    @Test
+    public void shouldTrackPrestitialAdImpressionEvents() {
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.create(AdFixtures.visualPrestitialAd());
+        final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        when(dataBuilder.buildForPrestitialAd(event)).thenReturn("PrestitialAdImpression");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getData()).isEqualTo("PrestitialAdImpression");
     }
 
     @Test

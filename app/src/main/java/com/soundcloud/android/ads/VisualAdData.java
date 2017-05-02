@@ -38,11 +38,11 @@ public abstract class VisualAdData extends AdData {
         metaAdClicked = false;
     }
 
-    public abstract String getImageUrl();
+    public abstract String imageUrl();
 
-    public abstract Uri getClickthroughUrl();
+    public abstract Uri clickthroughUrl();
 
-    public abstract List<String> getImpressionUrls();
+    public abstract List<String> impressionUrls();
 
-    public abstract List<String> getClickUrls();
+    public abstract List<String> clickUrls();
 }

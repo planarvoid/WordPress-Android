@@ -360,15 +360,15 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    void displayAppInstall(Urn urn, String imageUri, ImageView imageView) {
-        displayAppInstall(urn, imageUri, imageView, notFoundListener);
+    void displayAdImage(Urn urn, String imageUri, ImageView imageView) {
+        displayAdImage(urn, imageUri, imageView, notFoundListener);
     }
 
-    public void displayAppInstall(Urn urn, String imageUri, ImageView imageView, final ImageListener listener) {
-        displayAppInstall(urn, imageUri, imageView, new ImageListenerUILAdapter(listener));
+    public void displayAdImage(Urn urn, String imageUri, ImageView imageView, final ImageListener listener) {
+        displayAdImage(urn, imageUri, imageView, new ImageListenerUILAdapter(listener));
     }
 
-    private void displayAppInstall(Urn urn, String imageUri, ImageView imageView, ImageLoadingListener listener) {
+    private void displayAdImage(Urn urn, String imageUri, ImageView imageView, ImageLoadingListener listener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable drawable = getPlaceholderDrawable(urn, imageAware);
         final DisplayImageOptions options = ImageOptionsFactory.streamAdImage(drawable, deviceHelper);

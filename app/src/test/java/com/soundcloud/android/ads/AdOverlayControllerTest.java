@@ -164,7 +164,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         Intent intent = intentArgumentCaptor.getValue();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isEqualTo(leaveBehindData.getClickthroughUrl());
+        assertThat(intent.getData()).isEqualTo(leaveBehindData.clickthroughUrl());
     }
 
     @Test

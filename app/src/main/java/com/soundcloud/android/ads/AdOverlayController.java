@@ -80,7 +80,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     @Override
     public void onImageClick() {
-        startActivity(overlayData.get().getClickthroughUrl());
+        startActivity(overlayData.get().clickthroughUrl());
         sendTrackingEvent();
         clear();
     }

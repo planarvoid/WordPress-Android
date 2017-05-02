@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -363,6 +364,14 @@ public abstract class UIEvent extends TrackingEvent {
                                           .adTrackingUrls(Optional.of(adData.clickUrls()))
                                           .clickthroughsUrl(Optional.of(adData.clickThroughUrl()))
                                           .clickthroughsKind(Optional.of("clickthrough::app_install"))
+                                          .build();
+    }
+
+    public static UIEvent fromPrestitialAdClickThrough(VisualPrestitialAd ad) {
+        return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(ad)
+                                          .adTrackingUrls(Optional.of(ad.clickUrls()))
+                                          .clickthroughsUrl(Optional.of(ad.clickthroughUrl().toString()))
+                                          .clickthroughsKind(Optional.of("clickthrough::display"))
                                           .build();
     }
 

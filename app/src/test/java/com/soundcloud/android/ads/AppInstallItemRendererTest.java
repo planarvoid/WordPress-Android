@@ -89,7 +89,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         final AppInstallAd ad = APP_INSTALLS.get(0);
         final ImageView imageView = (ImageView) adView.findViewById(R.id.image);
 
-        verify(imageOperations).displayAppInstall(
+        verify(imageOperations).displayAdImage(
                 eq(ad.adUrn()),
                 eq(ad.imageUrl()),
                 eq(imageView),

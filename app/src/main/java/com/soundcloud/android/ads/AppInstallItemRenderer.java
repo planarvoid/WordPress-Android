@@ -58,10 +58,10 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         final AppInstallAd appInstall = ((AppInstall) items.get(position)).appInstall();
         final Holder holder = getHolder(itemView);
 
-        imageOperations.displayAppInstall(appInstall.adUrn(),
-                                          appInstall.imageUrl(),
-                                          holder.image,
-                                          new ImageLoadTimeListener(position, appInstall));
+        imageOperations.displayAdImage(appInstall.adUrn(),
+                                       appInstall.imageUrl(),
+                                       holder.image,
+                                       new ImageLoadTimeListener(position, appInstall));
 
         holder.headerText.setText(getSponsoredHeaderText(resources, resources.getString(R.string.ads_app)));
         holder.appNameText.setText(appInstall.name());

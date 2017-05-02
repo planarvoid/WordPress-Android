@@ -31,7 +31,7 @@ public class AdOverlayTrackingEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
         assertThat(uiEvent.adUrn()).isEqualTo(leaveBehindAd.adUrn());
         assertThat(uiEvent.monetizableTrack()).isEqualTo(Urn.forTrack(456));
-        assertThat(uiEvent.adArtworkUrl()).isEqualTo(leaveBehindAd.getImageUrl());
+        assertThat(uiEvent.adArtworkUrl()).isEqualTo(leaveBehindAd.imageUrl());
         assertThat(uiEvent.trackingUrls()).containsExactly("leave_impression1", "leave_impression2");
     }
 
@@ -47,8 +47,8 @@ public class AdOverlayTrackingEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
         assertThat(uiEvent.adUrn()).isEqualTo(leaveBehindAd.adUrn());
         assertThat(uiEvent.monetizableTrack()).isEqualTo(Urn.forTrack(456));
-        assertThat(uiEvent.adArtworkUrl()).isEqualTo(leaveBehindAd.getImageUrl());
-        assertThat(uiEvent.clickTarget().get()).isEqualTo(leaveBehindAd.getClickthroughUrl());
+        assertThat(uiEvent.adArtworkUrl()).isEqualTo(leaveBehindAd.imageUrl());
+        assertThat(uiEvent.clickTarget().get()).isEqualTo(leaveBehindAd.clickthroughUrl());
         assertThat(uiEvent.trackingUrls()).containsExactly("leave_click1", "leave_click2");
     }
 }

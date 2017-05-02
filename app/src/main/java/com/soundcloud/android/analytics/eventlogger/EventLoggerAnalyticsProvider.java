@@ -13,16 +13,17 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -72,6 +73,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleStreamAdImpression((InlayAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
+        } else if (event instanceof PrestitialAdImpressionEvent) {
+            handlePrestitialAdImpression((PrestitialAdImpressionEvent) event);
         } else if (event instanceof ScreenEvent) {
             handleScreenEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {
@@ -142,6 +145,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
         trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForVisualAdImpression(event));
+    }
+
+    private void handlePrestitialAdImpression(PrestitialAdImpressionEvent event) {
+        trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForPrestitialAd(event));
     }
 
     private void handleStreamAdImpression(InlayAdImpressionEvent event) {

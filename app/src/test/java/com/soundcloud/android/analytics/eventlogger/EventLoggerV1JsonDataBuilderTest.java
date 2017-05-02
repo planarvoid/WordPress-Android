@@ -19,6 +19,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
@@ -26,6 +27,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -1161,6 +1163,21 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createJsonForPrestitialAdImpressionEvent() throws ApiMapperException {
+        final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.create(prestitial);
+
+        jsonDataBuilder.buildForPrestitialAd(event);
+
+        verify(jsonTransformer).toJson(getEventData("impression", BOOGALOO_VERSION, event.getTimestamp())
+                                               .monetizationType("prestitial")
+                                               .adUrn("ads:ads:123")
+                                               .pageName("ads:display")
+                                               .impressionName("display")
+                                               .clientEventId(event.id()));
+    }
+
+    @Test
     public void createJsonForStreamAdImpressionEvent() throws ApiMapperException {
         final AppInstallAd appInstall = AdFixtures.getAppInstalls().get(0);
         final InlayAdImpressionEvent event = InlayAdImpressionEvent.create(appInstall, 42, 9876543210L);
@@ -1328,7 +1345,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("leave_behind")
                                                .impressionObject(leaveBehindAd.audioAdUrn().toString())
-                                               .externalMedia(leaveBehindAd.getImageUrl())
+                                               .externalMedia(leaveBehindAd.imageUrl())
                                                .monetizedObject(monetizedTrack.toString())
                                                .monetizationType("audio_ad"));
     }
@@ -1349,7 +1366,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("interstitial")
                                                .impressionObject(monetizedTrack.toString())
-                                               .externalMedia(interstitialAd.getImageUrl())
+                                               .externalMedia(interstitialAd.imageUrl())
                                                .monetizedObject(monetizedTrack.toString())
                                                .monetizationType("interstitial"));
     }
@@ -1371,8 +1388,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::leave_behind")
                                                .clickObject(leaveBehindAd.audioAdUrn().toString())
-                                               .clickTarget(leaveBehindAd.getClickthroughUrl().toString())
-                                               .externalMedia(leaveBehindAd.getImageUrl())
+                                               .clickTarget(leaveBehindAd.clickthroughUrl().toString())
+                                               .externalMedia(leaveBehindAd.imageUrl())
                                                .monetizedObject(monetizedTrack.toString())
                                                .monetizationType("audio_ad"));
     }
@@ -1393,10 +1410,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn(interstitialAd.adUrn().toString())
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::interstitial")
-                                               .clickTarget(interstitialAd.getClickthroughUrl().toString())
+                                               .clickTarget(interstitialAd.clickthroughUrl().toString())
                                                .monetizedObject(monetizedTrack.toString())
                                                .monetizationType("interstitial")
-                                               .externalMedia(interstitialAd.getImageUrl()));
+                                               .externalMedia(interstitialAd.imageUrl()));
     }
 
     @Test
