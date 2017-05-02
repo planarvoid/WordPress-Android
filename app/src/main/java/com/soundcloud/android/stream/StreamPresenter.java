@@ -153,6 +153,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems()
                                                       .observeOn(AndroidSchedulers.mainThread())
+                                                      .doOnSubscribe(streamMeasurements::startLoading)
                                                       .doOnNext(streamItems -> adapter.clear()))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())

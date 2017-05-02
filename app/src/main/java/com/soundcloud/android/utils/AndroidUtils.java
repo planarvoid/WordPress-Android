@@ -2,6 +2,8 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
+import com.soundcloud.java.strings.Strings;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -10,16 +12,20 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 
@@ -211,6 +217,22 @@ public final class AndroidUtils {
                 return 1;
             } // returning 0 would merge keys
         }
+    }
+
+    public static String dumpBundleToString(Bundle bundle) {
+        if (bundle != null) {
+
+            Set<String> keySet = bundle.keySet();
+            ArrayList<String> tokens = new ArrayList<>(keySet.size());
+
+            for (String key : keySet) {
+                tokens.add(String.format("%s = %s", key, bundle.get(key)));
+            }
+
+            return TextUtils.join(", ", tokens);
+        }
+
+        return Strings.EMPTY;
     }
 
 }

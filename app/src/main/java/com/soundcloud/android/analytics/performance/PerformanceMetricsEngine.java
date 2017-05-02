@@ -1,9 +1,13 @@
 package com.soundcloud.android.analytics.performance;
 
+import static com.soundcloud.android.utils.AndroidUtils.dumpBundleToString;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PerformanceEvent;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
+
+import android.os.Bundle;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -129,11 +133,13 @@ public class PerformanceMetricsEngine {
         MetricParams metricParams = buildMetricParams(metricType, duration);
         PerformanceEvent performanceEvent = PerformanceEvent.create(metricType, metricParams);
         eventBus.publish(EventQueue.PERFORMANCE, performanceEvent);
-        logPerformanceMetric(metricType, duration);
+        logPerformanceMetric(performanceEvent, duration);
     }
 
-    private void logPerformanceMetric(MetricType metricType, long duration) {
-        Log.d(TAG, metricType.toString() + ": " + duration + "ms");
+    private void logPerformanceMetric(PerformanceEvent performanceEvent, long duration) {
+        MetricType metricType = performanceEvent.metricType();
+        Bundle parametersBundle = performanceEvent.metricParams().toBundle();
+        Log.d(TAG, metricType.toString() + " took " + duration + "ms. Metric params: {" + dumpBundleToString(parametersBundle) + "}");
     }
 
     private void removeMetric(MetricType metricType) {

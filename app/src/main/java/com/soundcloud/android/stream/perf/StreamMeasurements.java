@@ -6,5 +6,7 @@ public interface StreamMeasurements {
 
     void endRefreshing();
 
+    void startLoading();
+
     void endLoading();
 }

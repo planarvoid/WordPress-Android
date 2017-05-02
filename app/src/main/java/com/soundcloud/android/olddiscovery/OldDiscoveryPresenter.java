@@ -3,16 +3,16 @@ package com.soundcloud.android.olddiscovery;
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurements;
-import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurementsFactory;
-import com.soundcloud.android.olddiscovery.recommendations.RecommendationBucketRendererFactory;
-import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationListener;
-import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurements;
+import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurementsFactory;
+import com.soundcloud.android.olddiscovery.recommendations.RecommendationBucketRendererFactory;
+import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationListener;
+import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationPlaybackInitiator;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -161,6 +161,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
         adapter.setUpsellItemListener(this);
         final Observable<List<OldDiscoveryItem>> source = oldDiscoveryModulesProvider
                 .discoveryItems()
+                .doOnSubscribe(discoveryMeasurements::startLoading)
                 .doOnCompleted(this::subscribeToUpdates);
 
         return CollectionBinding

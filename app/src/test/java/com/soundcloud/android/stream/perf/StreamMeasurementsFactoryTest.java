@@ -30,7 +30,7 @@ public class StreamMeasurementsFactoryTest {
 
         StreamMeasurements discoveryMeasurements = factory.create();
 
-        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(NoOpStreamMeasurements.class);
+        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(DefaultStreamMeasurements.class);
     }
 
     @Test
@@ -39,6 +39,6 @@ public class StreamMeasurementsFactoryTest {
 
         StreamMeasurements discoveryMeasurements = factory.create();
 
-        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(DefaultStreamMeasurement.class);
+        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(StreamAsHomeMeasurements.class);
     }
 }

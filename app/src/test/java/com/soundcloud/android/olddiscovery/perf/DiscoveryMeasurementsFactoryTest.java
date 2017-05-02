@@ -30,7 +30,7 @@ public class DiscoveryMeasurementsFactoryTest {
 
         DiscoveryMeasurements discoveryMeasurements = factory.create();
 
-        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(NoOpDiscoveryMeasurements.class);
+        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(DefaultDiscoveryMeasurements.class);
     }
 
     @Test
@@ -39,6 +39,6 @@ public class DiscoveryMeasurementsFactoryTest {
 
         DiscoveryMeasurements discoveryMeasurements = factory.create();
 
-        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(DefaultDiscoveryMeasurement.class);
+        assertThat(discoveryMeasurements.getClass()).isAssignableFrom(DiscoveryAsHomeMeasurements.class);
     }
 }

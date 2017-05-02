@@ -19,9 +19,9 @@ public class DiscoveryMeasurementsFactory {
 
     public DiscoveryMeasurements create() {
         if (defaultHomeScreenConfiguration.isDiscoveryHome()) {
-            return new DefaultDiscoveryMeasurement(performanceMetricsEngine);
+            return new DiscoveryAsHomeMeasurements(performanceMetricsEngine);
         } else {
-            return new NoOpDiscoveryMeasurements();
+            return new DefaultDiscoveryMeasurements(performanceMetricsEngine, defaultHomeScreenConfiguration.screenName());
         }
     }
 }

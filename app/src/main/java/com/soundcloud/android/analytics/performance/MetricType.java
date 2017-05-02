@@ -20,12 +20,15 @@ public enum MetricType {
     LOGIN("login"),
     LOAD_STATION("load_station"),
     PLAY_QUEUE_SHUFFLE("play_queue_shuffle"),
-    REFRESH_HOME("refresh_home"),
     LIKED_STATIONS_LOAD("liked_stations_load"),
     ACTIVITIES_LOAD("activities_load"),
     SUGGESTED_TRACKS_LOAD("suggested_tracks_load"),
     PLAYLISTS_LOAD("playlists_load"),
-    LIKED_TRACKS_FIRST_PAGE_LOAD("liked_tracks_first_page_load");
+    LIKED_TRACKS_FIRST_PAGE_LOAD("liked_tracks_first_page_load"),
+    DISCOVERY_LOAD("discovery_load"),
+    DISCOVERY_REFRESH("discovery_refresh"),
+    STREAM_REFRESH("stream_refresh"),
+    STREAM_LOAD("stream_load");
 
     private final String metricType;
 

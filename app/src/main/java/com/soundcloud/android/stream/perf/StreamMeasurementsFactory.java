@@ -19,9 +19,9 @@ public class StreamMeasurementsFactory {
 
     public StreamMeasurements create() {
         if (defaultHomeScreenConfiguration.isStreamHome()) {
-            return new DefaultStreamMeasurement(performanceMetricsEngine);
+            return new StreamAsHomeMeasurements(performanceMetricsEngine);
         } else {
-            return new NoOpStreamMeasurements();
+            return new DefaultStreamMeasurements(performanceMetricsEngine, defaultHomeScreenConfiguration.screenName());
         }
     }
 }

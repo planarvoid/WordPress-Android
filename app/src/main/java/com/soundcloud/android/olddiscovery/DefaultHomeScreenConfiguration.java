@@ -2,6 +2,7 @@ package com.soundcloud.android.olddiscovery;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
+import com.soundcloud.android.main.Screen;
 
 import javax.inject.Inject;
 
@@ -23,5 +24,13 @@ public class DefaultHomeScreenConfiguration {
 
     public boolean isStreamHome() {
         return !isDiscoveryHome();
+    }
+
+    public String screenName() {
+        if (isDiscoveryHome()) {
+            return Screen.SEARCH_MAIN.get();
+        } else {
+            return Screen.STREAM.get();
+        }
     }
 }

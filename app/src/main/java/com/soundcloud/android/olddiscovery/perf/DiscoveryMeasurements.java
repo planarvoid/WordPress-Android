@@ -6,5 +6,7 @@ public interface DiscoveryMeasurements {
 
     void endRefreshing();
 
+    void startLoading();
+
     void endLoading();
 }
