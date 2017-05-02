@@ -3,8 +3,7 @@ package com.soundcloud.android.tests.offline;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSettingsOnboarding;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
-import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDefault.defaultState;
-import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloading.downloadingState;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -15,7 +14,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Context;
@@ -56,9 +55,9 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
                 .scrollToAndClickPlaylistWithTitle("Offline tracking playlist")
                 .clickDownloadToggle();
 
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingState()));
+        assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloading()));
         playlistDetailsScreen.clickDownloadToggle();
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(defaultState()));
+        assertThat(playlistDetailsScreen.headerDownloadElement().isVisible(), is(false));
 
         mrLocalLocal.verify(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
     }
@@ -80,8 +79,8 @@ public class OfflinePerformanceTrackingTest extends ActivityTest<MainActivity> {
                 .toggleOfflineEnabled()
                 .clickKeepLikesSynced();
 
-        OfflineStateButtonElement offlineButton = likesScreen.offlineButtonElement();
-        assertThat(offlineButton, is(not(downloadingState())));
+        DownloadImageViewElement downloadElement = likesScreen.headerDownloadElement();
+        assertThat(downloadElement, is(not(downloading())));
 
         mrLocalLocal.verify(OFFLINE_LIKES_STORAGE_LIMIT_TRACKING);
     }
