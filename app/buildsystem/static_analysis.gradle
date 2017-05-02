@@ -97,7 +97,7 @@ task findbugsChanged(type: FindBugs) {
 }
 
 pmd {
-  toolVersion '5.6.0'
+  toolVersion '5.6.1'
 }
 
 tasks.withType(Pmd) {
