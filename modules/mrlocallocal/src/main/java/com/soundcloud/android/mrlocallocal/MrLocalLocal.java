@@ -29,6 +29,7 @@ public class MrLocalLocal {
     }
 
     public void verify(String specName) throws Exception {
+        logger.info("The spec name is: " + specName);
         long start = System.currentTimeMillis();
         Spec spec = specReader.readSpec(specName);
 
