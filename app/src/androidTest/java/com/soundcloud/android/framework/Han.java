@@ -354,6 +354,10 @@ public class Han {
         return solo.waitForCondition(condition, timeout);
     }
 
+    public boolean waitForText(String text) {
+        return solo.waitForText(text);
+    }
+
     public void waitForDialogToClose(long timeout) {
         solo.waitForDialogToClose(timeout);
     }

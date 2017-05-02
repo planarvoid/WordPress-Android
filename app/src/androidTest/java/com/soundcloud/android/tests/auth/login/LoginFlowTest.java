@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.auth.login;
 
 import static com.soundcloud.android.framework.TestUser.GPlusAccount;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
-import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static com.soundcloud.android.framework.TestUser.noGPlusAccount;
 import static com.soundcloud.android.framework.TestUser.scAccount;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
@@ -13,11 +12,9 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.LoginErrorScreen;
-import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.screens.auth.TermsOfUseScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
 
@@ -140,23 +137,6 @@ public class LoginFlowTest extends LoginTest {
 
         assertThat(mainNavHelper.goToMore()
                                 .clickLogoutAndConfirm(), is(visible()));
-    }
-
-    /*
-    * As a User
-    * I want to recover my forgotten password
-    * So that I don't need to recreate my account
-    */
-    @Ignore
-    public void testRecoverPassword() throws Throwable {
-        loginScreen = homeScreen.clickLogInButton();
-        RecoverPasswordScreen recoveryScreen = loginScreen.clickForgotPassword();
-        recoveryScreen.typeEmail(generateEmail());
-        recoveryScreen.clickOkButton();
-
-        String message = solo.getString(R.string.authentication_recover_password_failure_reason,
-                                        "Unknown Email Address");
-        assertTrue(waiter.expectToastWithText(toastObserver, message));
     }
 
     /*
