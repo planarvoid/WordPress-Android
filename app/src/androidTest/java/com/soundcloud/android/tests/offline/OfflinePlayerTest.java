@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
-import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloading.downloadingState;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -49,8 +49,8 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
                 .toggleOfflineEnabled()
                 .clickKeepLikesSyncedAndWaitToFinish();
 
-        assertThat(likesScreen.offlineButtonElement(), is(not(downloadingState())));
-        assertThat("Likes should be downloaded", likesScreen.offlineButtonElement().isDownloadedState());
+        assertThat(likesScreen.headerDownloadElement(), is(not(downloading())));
+        assertThat("Likes should be downloaded", likesScreen.headerDownloadElement().isDownloaded());
 
         connectionHelper.setNetworkConnected(false);
 

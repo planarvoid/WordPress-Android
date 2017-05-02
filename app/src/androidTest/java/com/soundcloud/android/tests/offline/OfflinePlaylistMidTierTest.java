@@ -3,7 +3,7 @@ package com.soundcloud.android.tests.offline;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloadingOrDownloaded.downloadingOrDownloadedState;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloadingOrDownloaded.downloadingOrDownloaded;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -68,13 +68,13 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
                 .click()
                 .clickDownloadToggle();
 
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
 
         playlistDetailsScreen.scrollToBottom();
         playlistDetailsScreen.waitForDownloadToFinish();
         connectionHelper.setWifiConnected(false);
 
-        assertThat("Playlist should be downloaded", playlistDetailsScreen.offlineButtonElement().isDownloadedState());
+        assertThat("Playlist should be downloaded", playlistDetailsScreen.headerDownloadElement().isDownloaded());
         return playlistDetailsScreen;
     }
 }
