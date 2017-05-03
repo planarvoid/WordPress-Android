@@ -24,8 +24,7 @@ public abstract class StreamItem {
         STREAM_UPSELL,
         SUGGESTED_CREATORS,
         APP_INSTALL,
-        VIDEO_AD,
-        STREAM_HIGHLIGHTS
+        VIDEO_AD
     }
 
     static StreamItem forUpsell() {
@@ -128,15 +127,6 @@ public abstract class StreamItem {
                 suggestedCreatorItems.add(SuggestedCreatorItem.fromSuggestedCreator(suggestedCreator));
             }
             return new AutoValue_StreamItem_SuggestedCreators(Kind.SUGGESTED_CREATORS, suggestedCreatorItems);
-        }
-    }
-
-    @AutoValue
-    abstract static class StreamHighlights extends StreamItem {
-        public abstract List<TrackStreamItem> suggestedTrackItems();
-
-        static StreamHighlights create(List<TrackStreamItem> suggestedTrackItems) {
-            return new AutoValue_StreamItem_StreamHighlights(Kind.STREAM_HIGHLIGHTS, suggestedTrackItems);
         }
     }
 

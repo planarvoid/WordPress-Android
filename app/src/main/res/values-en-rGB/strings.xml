@@ -675,10 +675,6 @@
   <string name="stream_track">track</string>
   <string name="stream_promoted_playable">Promoted %s</string>
   <string name="stream_sponsored_item">Sponsored %s</string>
-  <string name="stream_highlights">Stream highlights</string>
-  <string name="stream_highlights_description_one">With a track from %s</string>
-  <string name="stream_highlights_description_two">With tracks from %1$s and %2$s</string>
-  <string name="stream_highlights_description_other">With tracks from %1$s, %2$s and %3$s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->

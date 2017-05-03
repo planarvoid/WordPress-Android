@@ -42,7 +42,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     private final StreamAdsController streamAdsController;
     private final StationsOperations stationsOperations;
     private final InlineUpsellOperations upsellOperations;
-    private final StreamHighlightsOperations streamHighlightsOperations;
     private final SuggestedCreatorsOperations suggestedCreatorsOperations;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
@@ -65,7 +64,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
                      StationsOperations stationsOperations,
                      InlineUpsellOperations upsellOperations,
                      SyncStateStorage syncStateStorage,
-                     StreamHighlightsOperations streamHighlightsOperations,
                      SuggestedCreatorsOperations suggestedCreatorsOperations,
                      StreamEntityToItemTransformer streamEntityToItemTransformer) {
         super(Syncable.SOUNDSTREAM,
@@ -81,7 +79,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         this.facebookInvites = facebookInvites;
         this.streamAdsController = streamAdsController;
         this.stationsOperations = stationsOperations;
-        this.streamHighlightsOperations = streamHighlightsOperations;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
         this.streamEntityToItemTransformer = streamEntityToItemTransformer;
@@ -96,10 +93,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(o -> initialTimelineItems(false))
-                                              .zipWith(streamHighlightsOperations.highlights().map(Optional::of)
-                                                                                 .defaultIfEmpty(Optional.absent())
-                                                                                 .onErrorReturn(throwable -> Optional.absent())
-                                                      , StreamOperations::addNotificationItemToStream)
                                               .zipWith(initialNotificationItem(),
                                                        StreamOperations::addNotificationItemToStream)
                                               .map(this::addUpsellableItem)
@@ -131,8 +124,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     Observable<List<StreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
-                    .zipWith(streamHighlightsOperations.highlights().map(Optional::of).defaultIfEmpty(Optional.absent())
-                            , StreamOperations::addNotificationItemToStream)
                     .zipWith(updatedNotificationItem(), StreamOperations::addNotificationItemToStream)
                     .doOnNext(this::promotedImpressionAction)
                     // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below

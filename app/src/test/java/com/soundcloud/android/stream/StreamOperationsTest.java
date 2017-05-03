@@ -66,7 +66,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     @Mock private StationsOperations stationsOperations;
     @Mock private InlineUpsellOperations upsellOperations;
     @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
-    @Mock private StreamHighlightsOperations streamHighlightsOperations;
     @Mock private StreamEntityToItemTransformer streamEntityToItemTransformer;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -84,7 +83,6 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(facebookInvitesOperations.creatorInvites()).thenReturn(empty());
         when(facebookInvitesOperations.listenerInvites()).thenReturn(empty());
         when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(empty());
-        when(streamHighlightsOperations.highlights()).thenReturn(empty());
         when(streamEntityToItemTransformer.call(eq(emptyList()))).thenReturn(Observable.just(emptyList()));
         this.operations = (StreamOperations) super.operations;
     }
@@ -97,7 +95,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         return new StreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                     markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
                                     streamAdsController, stationsOperations, upsellOperations, syncStateStorage,
-                                    streamHighlightsOperations, suggestedCreatorsOperations, streamEntityToItemTransformer);
+                                    suggestedCreatorsOperations, streamEntityToItemTransformer);
     }
 
     @Override

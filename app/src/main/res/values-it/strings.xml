@@ -673,10 +673,6 @@
   <string name="stream_track">traccia</string>
   <string name="stream_promoted_playable">Sponsorizzata %s</string>
   <string name="stream_sponsored_item">Sponsorizzata %s</string>
-  <string name="stream_highlights">Riproduci gli elementi più rilevanti in streaming</string>
-  <string name="stream_highlights_description_one">Con una traccia di %s</string>
-  <string name="stream_highlights_description_two">Con tracce di %1$s e %2$s</string>
-  <string name="stream_highlights_description_other">Con tracce di %1$s, %2$s e %3$s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->

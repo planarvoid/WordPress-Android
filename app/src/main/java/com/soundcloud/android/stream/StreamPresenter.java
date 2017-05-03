@@ -74,8 +74,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         FacebookCreatorInvitesItemRenderer.Listener,
         UpsellItemRenderer.Listener,
         AdItemRenderer.Listener,
-        NewItemsIndicator.Listener,
-        StreamHighlightsItemRenderer.Listener {
+        NewItemsIndicator.Listener {
 
     private final StreamOperations streamOperations;
     private final StreamAdapter adapter;
@@ -139,7 +138,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         adapter.setOnUpsellClickListener(this);
         adapter.setOnAppInstallClickListener(this);
         adapter.setOnVideoAdClickListener(this);
-        adapter.setOnStreamHighlightsClickListener(this);
     }
 
     @Override
@@ -347,11 +345,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onUpsellItemCreated() {
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamImpression());
-    }
-
-    @Override
-    public void onStreamHighlightsClicked(List<Urn> highlights) {
-        navigator.openStreamHighlights(fragment.getActivity(), highlights);
     }
 
     private void removeItem(int position) {

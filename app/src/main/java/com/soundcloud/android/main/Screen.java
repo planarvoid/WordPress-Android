@@ -21,7 +21,6 @@ public enum Screen {
 
     SIDE_MENU_DRAWER("drawer"),
     STREAM("stream:main"),
-    STREAM_HIGHLIGHTS("stream:highlights"),
 
     // ads
     VIDEO_FULLSCREEN("ads:video"),

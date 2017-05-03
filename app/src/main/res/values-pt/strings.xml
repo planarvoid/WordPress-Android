@@ -675,10 +675,6 @@ vão aparecer aqui.</string>
   <string name="stream_track">faixa</string>
   <string name="stream_promoted_playable">Promovido %s</string>
   <string name="stream_sponsored_item">Patrocinou %s</string>
-  <string name="stream_highlights">Destaques de streaming</string>
-  <string name="stream_highlights_description_one">Com uma faixa de %s</string>
-  <string name="stream_highlights_description_two">Com faixas de %1$s e %2$s</string>
-  <string name="stream_highlights_description_other">Com faixas de %1$s, %2$s e %3$s</string>
   <!--__NOTIFICATIONS (prev. ACTIVITIES)-->
   <!--@Todo from l10n: please add %s for username in the notification since this might be cause translation issues
         ie. <string name="notification_username_liked_tracktitle">%s liked %s</string>-->

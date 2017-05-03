@@ -16,7 +16,6 @@ enum Feature {
   NEW_HOME,
   NEW_FOR_YOU_FIRST,
   NEW_FOR_YOU_SECOND,
-  STREAM_HIGHLIGHTS,
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
   SEARCH_TOP_RESULTS,
@@ -45,7 +44,6 @@ android {
     buildConfigField FLAG, Feature.NEW_HOME.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PROFILE_BANNER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), UNDER_DEVELOPMENT
@@ -68,7 +66,6 @@ android {
     debug {
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
@@ -89,7 +86,6 @@ android {
       buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FORCE_SUGGESTED_CREATORS_FOR_ALL.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.STREAM_HIGHLIGHTS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW

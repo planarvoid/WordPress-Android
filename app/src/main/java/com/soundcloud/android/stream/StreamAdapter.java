@@ -30,7 +30,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
     private final SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer;
     private final StreamUpsellItemRenderer upsellItemRenderer;
     private final AppInstallItemRenderer appInstallItemRenderer;
-    private final StreamHighlightsItemRenderer streamHighlightsItemRenderer;
     private final VideoAdItemRenderer videoAdItemRenderer;
 
     @Inject
@@ -41,15 +40,13 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
                          StreamUpsellItemRenderer upsellItemRenderer,
                          SuggestedCreatorsItemRenderer suggestedCreatorsItemRenderer,
                          AppInstallItemRenderer appInstallItemRenderer,
-                         VideoAdItemRenderer videoAdItemRenderer,
-                         StreamHighlightsItemRenderer streamHighlightsItemRenderer) {
+                         VideoAdItemRenderer videoAdItemRenderer) {
         super(new CellRendererBinding<>(StreamItem.Kind.TRACK.ordinal(), trackItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.PLAYLIST.ordinal(), playlistItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_LISTENER_INVITES.ordinal(), facebookListenerInvitesItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.FACEBOOK_CREATORS.ordinal(), facebookCreatorInvitesItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.STREAM_UPSELL.ordinal(), upsellItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.SUGGESTED_CREATORS.ordinal(), suggestedCreatorsItemRenderer),
-              new CellRendererBinding<>(StreamItem.Kind.STREAM_HIGHLIGHTS.ordinal(), streamHighlightsItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.APP_INSTALL.ordinal(), appInstallItemRenderer),
               new CellRendererBinding<>(StreamItem.Kind.VIDEO_AD.ordinal(), videoAdItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
@@ -58,7 +55,6 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         this.suggestedCreatorsItemRenderer = suggestedCreatorsItemRenderer;
         this.appInstallItemRenderer = appInstallItemRenderer;
         this.videoAdItemRenderer = videoAdItemRenderer;
-        this.streamHighlightsItemRenderer = streamHighlightsItemRenderer;
     }
 
     @Override
@@ -161,9 +157,5 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
 
     void setOnVideoAdClickListener(VideoAdItemRenderer.Listener listener) {
         this.videoAdItemRenderer.setListener(listener);
-    }
-
-    void setOnStreamHighlightsClickListener(StreamHighlightsItemRenderer.Listener listener) {
-        this.streamHighlightsItemRenderer.setListener(listener);
     }
 }
