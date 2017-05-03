@@ -24,7 +24,7 @@ try {
       deleteDir()
       unstash 'repository'
       try {
-        gradle 'clean assembleDebugApk assembleAcceptanceTest downloadNetworkManagerApkCI'
+        gradle 'clean assembleDebugApk assembleAcceptanceTest'
         gradle 'runLollipopTests'
       } finally {
         archiveArtifacts artifacts: "app/build/outputs/apk/soundcloud-android-*-${env.PIPELINE_VERSION}-debug-*.apk", onlyIfSuccessful: true

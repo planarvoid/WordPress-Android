@@ -36,10 +36,9 @@
           },
           {
             "build_test_apk": {
-              "cmd": "BUILD_TYPE=preRelease ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "BUILD_TYPE=preRelease ./gradlew clean assembleAcceptanceTest",
               "artifacts": [
-                "app/build/outputs/apk/*androidTest*.apk",
-                "app/build/outputs/apk/androidnetworkmanager-*.apk"
+                "app/build/outputs/apk/*androidTest*.apk"
               ]
             }
           }
