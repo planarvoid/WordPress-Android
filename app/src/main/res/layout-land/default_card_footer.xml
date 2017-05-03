@@ -41,18 +41,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/card_padding_horizontal_negative">
 
         <com.soundcloud.android.view.OverflowAnchorImageView
             android:id="@+id/overflow_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Cards.OverflowButton"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="8dp"
-            android:src="@drawable/ic_more" />
+            android:layout_centerVertical="true" />
 
         <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/toggle_like"

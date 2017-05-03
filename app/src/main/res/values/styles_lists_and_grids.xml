@@ -263,6 +263,14 @@
         <item name="android:textOff">@null</item>
     </style>
 
+    <style name="Cards.OverflowButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:src">@drawable/ic_more</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
     <style name="EmptyView" />
     <style name="EmptyView.Container">
         <item name="android:layout_width">match_parent</item>
