@@ -16,6 +16,8 @@ expected_events:
     page_name: stream:main
     click_target: soundcloud:tracks:[0-9]+
     user: soundcloud:users:107904111
+    app_version: '[0-9]+'
+    connection_type: wifi
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: click
