@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/multiple_selection_card"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Discovery.Selection.Card"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/selection_title"
+        style="@style/Discovery.Selection.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/selection_description"
+        style="@style/Discovery.Selection.Description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/selection_playlists_carousel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp" />
+
+    <View style="@style/Divider.Section" />
+
+    <View style="@style/Divider.Background" />
+
+</LinearLayout>

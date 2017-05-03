@@ -15,13 +15,14 @@ import org.mockito.Mock;
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock SearchItemRenderer searchItemRenderer;
+    @Mock MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer;
 
     private DiscoveryAdapter adapter;
     private DiscoveryCard searchItem = DiscoveryCard.forSearchItem();
 
     @Before
     public void setUp() {
-        adapter = new DiscoveryAdapter(searchItemRenderer);
+        adapter = new DiscoveryAdapter(searchItemRenderer, multipleContentSelectionCardRenderer);
     }
 
     @Test

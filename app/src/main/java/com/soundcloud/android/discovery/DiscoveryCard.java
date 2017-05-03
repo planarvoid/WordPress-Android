@@ -37,13 +37,13 @@ abstract class DiscoveryCard {
 
         abstract Optional<String> description();
 
-        abstract Optional<List<SelectionItem>> selectionItems();
+        abstract List<SelectionItem> selectionItems();
 
         static MultipleContentSelectionCard create(Urn selectionUrn,
                                                    Optional<String> style,
                                                    Optional<String> title,
                                                    Optional<String> description,
-                                                   Optional<List<SelectionItem>> selectionItems) {
+                                                   List<SelectionItem> selectionItems) {
             return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, style, title, description, selectionItems);
         }
     }

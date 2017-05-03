@@ -16,8 +16,9 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryCard, RecyclerView.V
 
     @SuppressWarnings("unchecked")
     @Inject
-    DiscoveryAdapter(SearchItemRenderer searchItemRenderer) {
-        super(new CellRendererBinding(DiscoveryCard.Kind.SEARCH_ITEM.ordinal(), searchItemRenderer));
+    DiscoveryAdapter(SearchItemRenderer searchItemRenderer, MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer) {
+        super(new CellRendererBinding(DiscoveryCard.Kind.SEARCH_ITEM.ordinal(), searchItemRenderer),
+              new CellRendererBinding(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD.ordinal(), multipleContentSelectionCardRenderer));
         this.searchItemRenderer = searchItemRenderer;
     }
 
@@ -37,7 +38,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryCard, RecyclerView.V
 
     private boolean isRendererImplemented(DiscoveryCard.Kind kind) {
         //Add your item once you write a renderer
-        return kind == DiscoveryCard.Kind.SEARCH_ITEM;
+        return kind == DiscoveryCard.Kind.SEARCH_ITEM || kind == DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD;
     }
 
     void setSearchListener(SearchListener searchListener) {

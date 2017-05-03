@@ -20,7 +20,7 @@ abstract class ApiMultipleContentSelectionCard {
 
     abstract Optional<String> description();
 
-    abstract Optional<ModelCollection<ApiSelectionItem>> selectionItems();
+    abstract ModelCollection<ApiSelectionItem> selectionItems();
 
     @JsonCreator
     static ApiMultipleContentSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
@@ -32,6 +32,6 @@ abstract class ApiMultipleContentSelectionCard {
                                               Optional.fromNullable(style),
                                               Optional.fromNullable(title),
                                               Optional.fromNullable(description),
-                                              Optional.fromNullable(selectionItems));
+                                              selectionItems);
     }
 }

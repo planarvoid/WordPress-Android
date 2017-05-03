@@ -313,4 +313,31 @@
         <item name="android:background">@drawable/btn_header_play</item>
     </style>
 
+
+    <!-- New Discovery -->
+
+    <style name="Discovery" />
+
+    <style name="Discovery.Selection" />
+
+    <style name="Discovery.Selection.Card" >
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="Discovery.Selection.Title" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/raven</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="Discovery.Selection.Description" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/ash</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
 </resources>

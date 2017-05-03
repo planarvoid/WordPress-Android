@@ -1,8 +1,10 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.java.collections.Lists;
+final class DiscoveryCardMapper {
 
-class DiscoveryCardMapper {
+    private DiscoveryCardMapper() {
+        // not used
+    }
 
     static DiscoveryCard map(ApiDiscoveryCard apiDiscoveryCard) {
         if (apiDiscoveryCard.multipleContentSelectionCard().isPresent()) {
@@ -11,9 +13,7 @@ class DiscoveryCardMapper {
                                                                      apiMultipleContentSelectionCard.style(),
                                                                      apiMultipleContentSelectionCard.title(),
                                                                      apiMultipleContentSelectionCard.description(),
-                                                                     apiMultipleContentSelectionCard.selectionItems()
-                                                                                                    .transform(apiSelectionPlaylists ->
-                                                                                                                    Lists.transform(apiSelectionPlaylists.getCollection(), DiscoveryCardMapper::map)));
+                                                                     apiMultipleContentSelectionCard.selectionItems().transform(DiscoveryCardMapper::map).getCollection());
         } else if (apiDiscoveryCard.singleContentSelectionCard().isPresent()) {
             final ApiSingleContentSelectionCard apiSingleContentSelectionCard = apiDiscoveryCard.singleContentSelectionCard().get();
             return DiscoveryCard.SingleContentSelectionCard.create(apiSingleContentSelectionCard.selectionUrn(),

@@ -30,7 +30,7 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher, DiscoveryAdapter adapter, Navigator navigator, DiscoveryOperations discoveryOperations) {
-        super(swipeRefreshAttacher);
+        super(swipeRefreshAttacher, Options.defaults());
         this.adapter = adapter;
         this.navigator = navigator;
         this.discoveryOperations = discoveryOperations;
