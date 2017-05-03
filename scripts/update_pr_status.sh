@@ -18,8 +18,10 @@ EOF
 }
 
 update_status() {
+  echo "Current rate limits:"
+  curl -H "Authorization: token $TOKEN" https://api.github.com/rate_limit
   curl -X "POST" https://api.github.com/repos/soundcloud/android-listeners/statuses/$SHA \
-    -H "Authorization: Bearer $TOKEN" \
+    -H "Authorization: token $TOKEN" \
     -H "Content-Type: application/json" \
     -d "{\"description\":\"$DESCRIPTION\",\"state\":\"$STATE\",\"target_url\":\"$TARGET_URL\",\"context\":\"$CONTEXT\"}"
 }
