@@ -49,7 +49,6 @@ buildscript {
   dependencies {
     classpath 'io.fabric.tools:gradle:1.22.0'
     classpath 'com.fernandocejas.frodo:frodo-plugin:0.8.2'
-    classpath "gradle.plugin.com.nimbledroid:gradle-profiler:1.0.8"
     classpath 'me.tatarka:gradle-retrolambda:3.6.1'
   }
 }
@@ -72,7 +71,6 @@ apply plugin: 'com.android.application'
 //apply plugin: 'com.fernandocejas.frodo'
 apply plugin: 'maven'
 apply plugin: 'io.fabric'
-apply plugin: "com.nimbledroid.profiler"
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
@@ -130,21 +128,6 @@ android {
   dexOptions {
     jumboMode true
     javaMaxHeapSize "4g"
-  }
-}
-
-nimbledroid {
-  def propertiesFile = file("$System.env.HOME/.gradle/nimbledroid.properties")
-  if (propertiesFile.exists() && propertiesFile.canRead()) {
-    def nimbledroidProperties = new Properties()
-    nimbledroidProperties.load(new FileInputStream(propertiesFile))
-
-    apkFilename "app-prod-release.apk"
-    apiKey nimbledroidProperties.getProperty('apiKey')
-    appData {
-      username nimbledroidProperties.getProperty('username')
-      password nimbledroidProperties.getProperty('password')
-    }
   }
 }
 
