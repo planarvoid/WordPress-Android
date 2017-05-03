@@ -129,7 +129,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     public void show(boolean isForeground) {
         if (overlayData.isPresent() && shouldDisplayAdOverlay(isForeground)) {
             VisualAdData adData = overlayData.get();
-            adViewabilityController.startOverlayTracking(presenter.getImageView(), adData);
+            adViewabilityController.startDisplayTracking(presenter.getImageView(), adData);
             presenter.bind(adData);
             resetMetaData();
         }
@@ -179,7 +179,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
             overlayData = Optional.absent();
             listener.onAdOverlayHidden(fullScreen);
         }
-        adViewabilityController.stopOverlayTracking();
+        adViewabilityController.stopDisplayTracking();
     }
 
     private void setOverlayDismissed() {

@@ -25,8 +25,8 @@ public class MoatViewabilityController {
     private final ReactiveVideoTrackerPlugin videoPlugin;
 
     private Optional<MoatFactory> moatFactory = Optional.absent();
-    private Optional<NativeDisplayTracker> displayTracker = Optional.absent();
 
+    private Optional<NativeDisplayTracker> displayTracker = Optional.absent();
     private HashMap<String, ReactiveVideoTracker> videoTrackers = new HashMap<>(2); // Stream and player can have video ads
 
     @Inject
@@ -111,8 +111,8 @@ public class MoatViewabilityController {
                                                : Optional.absent();
     }
 
-    void startOverlayTracking(View imageView, VisualAdData adData) {
-        if (adData instanceof InterstitialAd) {
+    void startDisplayTracking(View imageView, VisualAdData adData) {
+        if (adData instanceof InterstitialAd || adData instanceof VisualPrestitialAd) {
             final HashMap<String, String> moatSlicers = getMoatSlicers(adData.adUrn(), adData.monetizationType().key());
             final NativeDisplayTracker tracker = getMoatFactory().get().createNativeDisplayTracker(imageView, moatSlicers);
             tracker.startTracking();
@@ -120,7 +120,7 @@ public class MoatViewabilityController {
         }
     }
 
-    void stopOverlayTracking() {
+    void stopDisplayTracking() {
         displayTracker.ifPresent(tracker -> {
             tracker.stopTracking();
             displayTracker = Optional.absent();
@@ -140,7 +140,7 @@ public class MoatViewabilityController {
         if (urnComponents.length == 2) {
             final String slicerTwo = slicerForMonetizationType(monetizationType);
             if (monetizationType.equals(AdData.MonetizationType.INTERSTITIAL.key())) {
-                return slicersForInterstitial(urnComponents[0], urnComponents[1], appVersion, slicerTwo);
+                return slicersForDisplay(urnComponents[0], urnComponents[1], appVersion, slicerTwo);
             } else {
                 return slicersForVideo(urnComponents[0], urnComponents[1], appVersion, slicerTwo);
             }
@@ -157,7 +157,7 @@ public class MoatViewabilityController {
         return slicers;
     }
 
-    private HashMap<String, String> slicersForInterstitial(String levelOne, String levelTwo, String slicerOne, String slicerTwo) {
+    private HashMap<String, String> slicersForDisplay(String levelOne, String levelTwo, String slicerOne, String slicerTwo) {
         final HashMap<String, String> slicers = new HashMap<>(4);
         slicers.put("moatClientLevel1", levelOne);
         slicers.put("moatClientLevel2", levelTwo);
@@ -171,6 +171,8 @@ public class MoatViewabilityController {
             return "video";
         } else if (monetizationType.equals(AdData.MonetizationType.INLAY.key())) {
             return "video-inlay";
+        } else if (monetizationType.equals(AdData.MonetizationType.PRESTITIAL.key())) {
+            return "prestitial";
         } else {
             return "interstitial";
         }

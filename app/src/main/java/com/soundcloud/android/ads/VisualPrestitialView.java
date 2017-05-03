@@ -22,7 +22,7 @@ class VisualPrestitialView {
 
     interface Listener {
         void onClickThrough(AppCompatActivity activity, View view, VisualPrestitialAd ad);
-        void onImageLoadComplete(VisualPrestitialAd ad);
+        void onImageLoadComplete(VisualPrestitialAd ad, View imageView);
     }
 
     @Inject
@@ -51,7 +51,7 @@ class VisualPrestitialView {
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            listener.onImageLoadComplete(ad);
+            listener.onImageLoadComplete(ad, imageView);
         }
     }
 }

@@ -17,12 +17,17 @@ import javax.inject.Inject;
 class VisualPrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements VisualPrestitialView.Listener {
 
     private final VisualPrestitialView view;
+    private final AdViewabilityController adViewabilityController;
     private final Navigator navigator;
     private final EventBus eventBus;
 
     @Inject
-    VisualPrestitialPresenter(VisualPrestitialView view, Navigator navigator, EventBus eventBus) {
+    VisualPrestitialPresenter(VisualPrestitialView view,
+                              AdViewabilityController adViewabilityController,
+                              Navigator navigator,
+                              EventBus eventBus) {
         this.view = view;
+        this.adViewabilityController = adViewabilityController;
         this.navigator = navigator;
         this.eventBus = eventBus;
     }
@@ -48,6 +53,11 @@ class VisualPrestitialPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     @Override
+    public void onDestroy(AppCompatActivity activity) {
+        adViewabilityController.stopDisplayTracking();
+    }
+
+    @Override
     public void onClickThrough(AppCompatActivity activity, View view, VisualPrestitialAd ad) {
         navigator.openAdClickthrough(view.getContext(), ad.clickthroughUrl());
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(ad));
@@ -55,7 +65,8 @@ class VisualPrestitialPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     @Override
-    public void onImageLoadComplete(VisualPrestitialAd ad) {
+    public void onImageLoadComplete(VisualPrestitialAd ad, View imageView) {
+        adViewabilityController.startDisplayTracking(imageView, ad);
         eventBus.publish(EventQueue.TRACKING, PrestitialAdImpressionEvent.create(ad));
     }
 

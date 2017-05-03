@@ -272,7 +272,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.setExpanded();
         controller.show(true);
 
-        verify(adViewabilityController).startOverlayTracking(imageView, interstitialData);
+        verify(adViewabilityController).startDisplayTracking(imageView, interstitialData);
     }
 
     @Test
@@ -283,7 +283,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.setExpanded();
         controller.show(true);
 
-        verify(adViewabilityController, never()).startOverlayTracking(any(ImageView.class), eq(interstitialData));
+        verify(adViewabilityController, never()).startDisplayTracking(any(ImageView.class), eq(interstitialData));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.initialize(interstitialData);
         controller.clear();
 
-        verify(adViewabilityController).stopOverlayTracking();
+        verify(adViewabilityController).stopDisplayTracking();
     }
 
     private AdOverlayPresenter.Listener captureLeaveBehindListener() {

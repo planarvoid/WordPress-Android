@@ -22,14 +22,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 
 public class VisualPrestitialPresenterTest extends AndroidUnitTest {
 
     @Mock Navigator navigator;
+    @Mock AdViewabilityController viewabilityController;
     @Mock VisualPrestitialView view;
     @Mock AppCompatActivity activity;
+
     @Mock Bundle bundle;
     @Mock Intent intent;
+    @Mock ImageView imageView;
 
     private TestEventBus eventBus;
     private VisualPrestitialPresenter presenter;
@@ -38,6 +42,7 @@ public class VisualPrestitialPresenterTest extends AndroidUnitTest {
     public void setUp() {
         eventBus = new TestEventBus();
         presenter = new VisualPrestitialPresenter(view,
+                                                  viewabilityController,
                                                   navigator,
                                                   eventBus);
         when(activity.getIntent()).thenReturn(intent);
@@ -108,9 +113,25 @@ public class VisualPrestitialPresenterTest extends AndroidUnitTest {
     public void publishesImpressionOnImageLoadComplete(){
         VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
 
-        presenter.onImageLoadComplete(ad);
+        presenter.onImageLoadComplete(ad, imageView);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
+    }
+
+    @Test
+    public void startsViewabilityTrackingOnImageLoadComplete(){
+        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
+
+        presenter.onImageLoadComplete(ad, imageView);
+
+        verify(viewabilityController).startDisplayTracking(imageView, ad);
+    }
+
+    @Test
+    public void stopsViewabilityTrackingOnDestroy(){
+        presenter.onDestroy(activity);
+
+        verify(viewabilityController).stopDisplayTracking();
     }
 
     private class FakeAd extends AdData implements Parcelable {
