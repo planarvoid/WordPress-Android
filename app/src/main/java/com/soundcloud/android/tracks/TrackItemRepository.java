@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
@@ -23,11 +24,11 @@ public class TrackItemRepository {
     }
 
     public Observable<TrackItem> track(final Urn trackUrn) {
-        return trackRepository.track(trackUrn).map(entityItemCreator::trackItem);
+        return RxJava.toV1Observable(trackRepository.track(trackUrn)).map(entityItemCreator::trackItem);
     }
 
     public Observable<Map<Urn, TrackItem>> fromUrns(final List<Urn> requestedTracks) {
-        return trackRepository.fromUrns(requestedTracks).map(entityItemCreator::convertTrackMap);
+        return RxJava.toV1Observable(trackRepository.fromUrns(requestedTracks)).map(entityItemCreator::convertTrackMap);
     }
 
     public Observable<List<TrackItem>> trackListFromUrns(List<Urn> requestedTracks) {
@@ -36,19 +37,17 @@ public class TrackItemRepository {
     }
 
     public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn) {
-        return trackRepository.forPlaylist(playlistUrn)
-                              .compose(tracksToItems());
+        return RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn)).compose(tracksToItems());
 
     }
 
     public Observable<List<TrackItem>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
-        return trackRepository.forPlaylist(playlistUrn, staleTimeMillis)
-                              .compose(tracksToItems());
+        return RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn, staleTimeMillis)).compose(tracksToItems());
 
     }
 
     Observable<TrackItem> fullTrackWithUpdate(final Urn trackUrn) {
-        return trackRepository.fullTrackWithUpdate(trackUrn).map(entityItemCreator::trackItem);
+        return RxJava.toV1Observable(trackRepository.fullTrackWithUpdate(trackUrn)).map(entityItemCreator::trackItem);
     }
 
     private Observable.Transformer<? super List<Track>, List<TrackItem>> tracksToItems() {

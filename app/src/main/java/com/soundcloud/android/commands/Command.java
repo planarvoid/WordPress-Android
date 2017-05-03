@@ -1,5 +1,6 @@
 package com.soundcloud.android.commands;
 
+import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import rx.Observable;
 import rx.Subscriber;
@@ -27,6 +28,10 @@ public abstract class Command<I, O> {
                 }
             }
         });
+    }
+
+    public Single<O> toSingle(final I input) {
+        return Single.fromCallable(() -> call(input));
     }
 
     public final Consumer<I> toConsumer() {

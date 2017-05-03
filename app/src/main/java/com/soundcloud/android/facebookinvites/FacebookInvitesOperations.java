@@ -5,10 +5,12 @@ import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stream.StreamItem;
+import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.ConnectionHelper;
+import io.reactivex.Maybe;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -54,18 +56,20 @@ public class FacebookInvitesOperations {
         this.myProfileOperations = myProfileOperations;
     }
 
-    public Observable<StreamItem> creatorInvites() {
-        return canShowForCreators()
+    public Maybe<StreamItem> creatorInvites() {
+        final Observable<StreamItem> observable = canShowForCreators()
                 .filter(IS_TRUE)
                 .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
                                                  .flatMap(toCreatorInvitesItem)
                                                  .onErrorResumeNext(Observable.empty()));
+        return RxJava.toV2Observable(observable).firstElement();
     }
 
-    public Observable<StreamItem> listenerInvites() {
-        return canShowForListeners()
+    public Maybe<StreamItem> listenerInvites() {
+        final Observable<StreamItem> observable = canShowForListeners()
                 .filter(IS_TRUE)
                 .flatMap(o -> Observable.just(StreamItem.forFacebookListenerInvites()));
+        return RxJava.toV2Observable(observable).firstElement();
     }
 
     private Observable<Boolean> canShowForCreators() {

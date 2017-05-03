@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.timeline;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 import java.util.List;
 

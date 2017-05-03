@@ -24,6 +24,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -77,7 +78,7 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     public void shouldInsertIntoPlayQueue() {
         final List<Track> tracks = ModelFixtures.tracks(2);
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Observable.just(tracks));
+        when(trackRepository.forPlaylist(playlistUrn)).thenReturn(Single.just(tracks));
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
         playQueueHelper.playNext(playlistUrn);

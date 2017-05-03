@@ -6,6 +6,7 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistRepository;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import rx.Observable;
@@ -56,8 +57,8 @@ public class RecommendedPlaylistsOperations {
             return Observable.empty();
         }
 
-        return playlistRepository.withUrns(recommendedPlaylists)
-                                 .flatMap(toOrderedBuckets(buckets));
+        return RxJava.toV1Observable(playlistRepository.withUrns(recommendedPlaylists))
+                     .flatMap(toOrderedBuckets(buckets));
     }
 
     private Func1<Map<Urn, Playlist>, Observable<? extends RecommendedPlaylistsBucketItem>> toOrderedBuckets(List<RecommendedPlaylistsEntity> buckets) {

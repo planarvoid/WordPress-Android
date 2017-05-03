@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.JsonFileStorage;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -52,8 +53,8 @@ public class NewForYouStorage {
 
     private Observable<NewForYou> toNewForYouItem(NewForYouStorageItem storageItem) {
         List<Urn> trackUrns = Lists.transform(storageItem.trackUrns(), urnString -> Urn.forTrack(Long.valueOf(urnString)));
-        return trackRepository.trackListFromUrns(trackUrns)
-                              .map(tracks -> NewForYou.create(storageItem.lastUpdated(), Urn.forNewForYou(storageItem.queryUrn()), tracks));
+        return RxJava.toV1Observable(trackRepository.trackListFromUrns(trackUrns))
+                     .map(tracks -> NewForYou.create(storageItem.lastUpdated(), Urn.forNewForYou(storageItem.queryUrn()), tracks));
     }
 
     @VisibleForTesting
@@ -70,9 +71,9 @@ public class NewForYouStorage {
 
         @JsonCreator
         public static NewForYouStorageItem create(@JsonProperty("lastUpdated") Date lastUpdated,
-                             @JsonProperty("queryUrn") String queryUrn,
-                             @JsonProperty("trackUrns") List<String> trackUrns) {
-            return new AutoValue_NewForYouStorage_NewForYouStorageItem(lastUpdated,queryUrn,trackUrns);
+                                                  @JsonProperty("queryUrn") String queryUrn,
+                                                  @JsonProperty("trackUrns") List<String> trackUrns) {
+            return new AutoValue_NewForYouStorage_NewForYouStorageItem(lastUpdated, queryUrn, trackUrns);
         }
 
         static NewForYouStorageItem fromApiNewForYou(ApiNewForYou apiNewForYou) {

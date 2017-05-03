@@ -7,17 +7,20 @@ import static java.util.Collections.singletonList;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,11 +39,11 @@ public class TrackRepository {
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
-                           LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-                           SyncInitiator syncInitiator,
-                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                           EntitySyncStateStorage entitySyncStateStorage,
-                           CurrentDateProvider currentDateProvider) {
+                             LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+                             SyncInitiator syncInitiator,
+                             @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
+                             EntitySyncStateStorage entitySyncStateStorage,
+                             CurrentDateProvider currentDateProvider) {
         this.trackStorage = trackStorage;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.syncInitiator = syncInitiator;
@@ -49,30 +52,27 @@ public class TrackRepository {
         this.currentDateProvider = currentDateProvider;
     }
 
-    public Observable<Track> track(final Urn trackUrn) {
-        return fromUrns(singletonList(trackUrn)).flatMap(new Func1<Map<Urn, Track>, Observable<Track>>() {
-            @Override
-            public Observable<Track> call(Map<Urn, Track> urnTrackMap) {
-                return urnTrackMap.isEmpty() ? Observable.empty() : Observable.just(urnTrackMap.values().iterator().next());
-            }
-        });
+    public Maybe<Track> track(final Urn trackUrn) {
+        return fromUrns(singletonList(trackUrn))
+                .filter(urnTrackMap -> !urnTrackMap.isEmpty())
+                .map(urnTrackMap -> urnTrackMap.values().iterator().next());
     }
 
-    public Observable<Map<Urn, Track>> fromUrns(final List<Urn> requestedTracks) {
+    public Single<Map<Urn, Track>> fromUrns(final List<Urn> requestedTracks) {
         checkTracksUrn(requestedTracks);
         return trackStorage
                 .availableTracks(requestedTracks)
                 .flatMap(syncMissingTracks(requestedTracks))
-                .flatMap(o -> trackStorage.loadTracks(requestedTracks))
+                .flatMap(success -> trackStorage.loadTracks(requestedTracks))
                 .subscribeOn(scheduler);
     }
 
-    public Observable<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
+    public Single<List<Track>> trackListFromUrns(List<Urn> requestedTracks) {
         return fromUrns(requestedTracks)
                 .map(urnTrackMap -> Lists.newArrayList(Iterables.transform(Iterables.filter(requestedTracks, urnTrackMap::containsKey), urnTrackMap::get)));
     }
 
-    public Observable<List<Track>> forPlaylist(Urn playlistUrn) {
+    public Single<List<Track>> forPlaylist(Urn playlistUrn) {
         if (entitySyncStateStorage.hasSyncedBefore(playlistUrn)) {
             return loadPlaylistTracks(playlistUrn);
         } else {
@@ -80,7 +80,7 @@ public class TrackRepository {
         }
     }
 
-    public Observable<List<Track>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
+    public Single<List<Track>> forPlaylist(Urn playlistUrn, long staleTimeMillis) {
         if (currentDateProvider.getCurrentTime() - staleTimeMillis > entitySyncStateStorage.lastSyncTime(playlistUrn)) {
             return syncAndLoadPlaylistTracks(playlistUrn);
         } else {
@@ -88,35 +88,37 @@ public class TrackRepository {
         }
     }
 
-    private Observable<List<Track>> loadPlaylistTracks(Urn playlistUrn) {
+    private Single<List<Track>> loadPlaylistTracks(Urn playlistUrn) {
         return loadPlaylistTracksCommand
-                .toObservable(playlistUrn)
+                .toSingle(playlistUrn)
                 .subscribeOn(scheduler);
     }
 
-    private Observable<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
-        return syncInitiator
-                .syncPlaylist(playlistUrn)
-                .observeOn(scheduler)
-                .flatMap(ignored -> loadPlaylistTracksCommand.toObservable(playlistUrn));
+    private Single<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
+        return RxJava.toV2Observable(syncInitiator.syncPlaylist(playlistUrn))
+                     .map(SyncJobResult::wasSuccess)
+                     .first(false)
+                     .observeOn(scheduler)
+                     .flatMap(ignored -> loadPlaylistTracksCommand.toSingle(playlistUrn));
     }
 
-    private Func1<List<Urn>, Observable<?>> syncMissingTracks(final List<Urn> requestedTracks) {
+    private Function<List<Urn>, Single<Boolean>> syncMissingTracks(final List<Urn> requestedTracks) {
         return tracksAvailable -> {
             final List<Urn> missingTracks = minus(requestedTracks, tracksAvailable);
             if (missingTracks.isEmpty()) {
-                return Observable.just(null);
+                return Single.just(false);
             } else {
-                return syncInitiator
-                        .batchSyncTracks(missingTracks)
-                        .observeOn(scheduler);
+                return RxJava.toV2Observable(syncInitiator.batchSyncTracks(missingTracks))
+                             .observeOn(scheduler)
+                             .map(SyncJobResult::wasSuccess)
+                             .first(false);
             }
         };
     }
 
-    Observable<Track> fullTrackWithUpdate(final Urn trackUrn) {
+    Flowable<Track> fullTrackWithUpdate(final Urn trackUrn) {
         checkTrackUrn(trackUrn);
-        return Observable.concat(
+        return Maybe.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
         );
@@ -131,20 +133,20 @@ public class TrackRepository {
         checkArgument(hasOnlyTracks, "Trying to sync track without a valid track urn. trackUrns = [" + trackUrns + "]");
     }
 
-    private Observable<Optional<Track>> trackFromStorage(Urn trackUrn) {
+    private Maybe<Track> trackFromStorage(Urn trackUrn) {
         return trackStorage.loadTrack(trackUrn).subscribeOn(scheduler);
     }
 
-    private Observable<Track> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn).filter(Optional::isPresent)
-                                         .map(Optional::get)
-                                         .zipWith(trackStorage.loadTrackDescription(trackUrn), Track::copyWithDescription)
+    private Maybe<Track> fullTrackFromStorage(Urn trackUrn) {
+        return trackFromStorage(trackUrn).flatMap(track -> trackStorage.loadTrackDescription(trackUrn)
+                                                                       .map(description -> Track.copyWithDescription(track, description))
+                                                                       .toMaybe())
                                          .subscribeOn(scheduler);
     }
 
-    private Observable<Track> syncThenLoadTrack(final Urn trackUrn,
-                                                final Observable<Track> loadObservable) {
-        return syncInitiator.syncTrack(trackUrn).flatMap(o -> loadObservable);
+    private Maybe<Track> syncThenLoadTrack(final Urn trackUrn,
+                                           final Maybe<Track> loadObservable) {
+        return RxJava.toV2Observable(syncInitiator.syncTrack(trackUrn)).firstElement().flatMap(o -> loadObservable);
     }
 
 }

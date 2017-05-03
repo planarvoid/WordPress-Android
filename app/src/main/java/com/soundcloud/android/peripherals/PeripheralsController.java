@@ -6,6 +6,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.Durations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -92,7 +93,7 @@ public class PeripheralsController {
         public void onNext(CurrentPlayQueueItemEvent event) {
             PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
-                trackRepository.track(playQueueItem.getUrn()).subscribe(new CurrentTrackSubscriber());
+                RxJava.toV1Observable(trackRepository.track(playQueueItem.getUrn())).subscribe(new CurrentTrackSubscriber());
             } else {
                 resetTrackInformation();
             }

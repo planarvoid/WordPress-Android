@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static io.reactivex.Single.just;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -10,7 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
@@ -24,13 +24,14 @@ import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.TestSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.AssertableSubscriber;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.HashMap;
@@ -61,15 +62,14 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private EntitySyncStateStorage entitySyncStateStorage;
 
-    private TestSubscriber<Track> propSubscriber = new TestSubscriber<>();
-    private TestSubscriber<Track> trackItemSubscriber = new TestSubscriber<>();
-    private TestSubscriber<Map<Urn,Track>> mapSubscriber = new TestSubscriber<>();
+    private TestObserver<Track> trackItemSubscriber = new TestObserver<>();
+    private TestObserver<Map<Urn,Track>> mapSubscriber = new TestObserver<>();
     private PublishSubject<SyncJobResult> syncSubject = PublishSubject.create();
     private TestDateProvider currentTimeProvider = new TestDateProvider();
 
     @Before
     public void setUp() {
-        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.immediate(), entitySyncStateStorage, currentTimeProvider);
+        trackRepository = new TrackRepository(trackStorage, loadPlaylistTracksCommand, syncInitiator, Schedulers.trampoline(), entitySyncStateStorage, currentTimeProvider);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = ModelFixtures.trackBuilder().urn(trackUrn).title(TITLE).creatorName(CREATOR).build();
@@ -99,7 +99,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(rx.Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
@@ -114,7 +114,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> syncedTracks = emptyMap();
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(rx.Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(syncedTracks));
 
         trackRepository.track(trackUrn).subscribe(trackItemSubscriber);
@@ -124,13 +124,13 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.empty());
-        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(Optional.of(track)));
-        when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(Optional.of(DESCRIPTION)));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(rx.Observable.empty());
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
+        when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
+        final TestSubscriber<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
 
-        final Track first = propSubscriber.getOnNextEvents().get(0);
+        final Track first = subscriber.values().get(0);
         assertThat(first.title()).isEqualTo(trackItem.title());
         assertThat(first.creatorName()).isEqualTo(trackItem.creatorName());
         assertThat(first.description().get()).isEqualTo(DESCRIPTION);
@@ -138,39 +138,39 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
-        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(Optional.of(track)));
-        when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(Optional.of(DESCRIPTION)));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(rx.Observable.just(getSuccessResult()));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
+        when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(propSubscriber);
+        final TestSubscriber<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
 
-        final Track propertySet = track.toBuilder().description(Optional.of(DESCRIPTION)).build();
-        assertThat(propSubscriber.getOnNextEvents()).containsExactly(propertySet, propertySet);
+        final Track track = this.track.toBuilder().description(Optional.of(DESCRIPTION)).build();
+        assertThat(subscriber.values()).containsExactly(track, track);
         verify(trackStorage, times(2)).loadTrack(trackUrn);
     }
 
     @Test
     public void fromUrnsLoadsTracksFromStorage() throws CreateModelException {
         List<Urn> urns = asList(track1.urn(), track2.urn());
-        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(urns));
+        when(trackStorage.availableTracks(urns)).thenReturn(Single.just(urns));
         final List<Track> trackList = asList(track1, track2);
         when(trackStorage.loadTracks(urns))
-                .thenReturn(Observable.just(toMap(trackList)));
+                .thenReturn(Single.just(toMap(trackList)));
 
 
         trackRepository.fromUrns(urns).subscribe(mapSubscriber);
 
         mapSubscriber.assertValue(toMap(trackList));
-        mapSubscriber.assertCompleted();
+        mapSubscriber.assertComplete();
     }
 
     @Test
     public void fromUrnsLoadsTracksFromStorageAfterSyncingMissingTracks() throws CreateModelException {
         List<Urn> urns = asList(track1.urn(), track2.urn());
-        when(trackStorage.availableTracks(urns)).thenReturn(Observable.just(singletonList(track1.urn())));
+        when(trackStorage.availableTracks(urns)).thenReturn(Single.just(singletonList(track1.urn())));
         when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(syncSubject);
         when(trackStorage.loadTracks(urns))
-                .thenReturn(Observable.just(toMap(asList(track1, track2))));
+                .thenReturn(Single.just(toMap(asList(track1, track2))));
 
         trackRepository.fromUrns(urns).subscribe(mapSubscriber);
 
@@ -178,26 +178,26 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
         mapSubscriber.assertValue(toMap(asList(track1, track2)));
-        mapSubscriber.assertCompleted();
+        mapSubscriber.assertComplete();
     }
 
     @Test
     public void fromPlaylistBackfillsIfNeverSynced() {
         when(entitySyncStateStorage.hasSyncedBefore(PLAYLIST_URN)).thenReturn(false);
-        
+
         final List<Track> trackList = singletonList(track);
 
 
         when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
-        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+        when(loadPlaylistTracksCommand.toSingle(PLAYLIST_URN)).thenReturn(just(trackList));
 
-        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
+        final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
         testSubscriber.assertNoValues();
 
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
         testSubscriber.assertValue(trackList)
-                       .assertCompleted();
+                      .assertComplete();
     }
 
     @Test
@@ -207,11 +207,11 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Track> trackList = singletonList(track);
 
         when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
-        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+        when(loadPlaylistTracksCommand.toSingle(PLAYLIST_URN)).thenReturn(just(trackList));
 
-        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
+        final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN).test();
         testSubscriber.assertValue(trackList)
-                       .assertCompleted();
+                      .assertComplete();
     }
 
     @Test
@@ -222,15 +222,15 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Track> trackList = singletonList(track);
 
         when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
-        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+        when(loadPlaylistTracksCommand.toSingle(PLAYLIST_URN)).thenReturn(just(trackList));
 
-        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 999).test();
+        final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 999).test();
         testSubscriber.assertNoValues();
 
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
         testSubscriber.assertValue(trackList)
-                      .assertCompleted();
+                      .assertComplete();
 
     }
 
@@ -242,11 +242,11 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final List<Track> trackList = singletonList(track);
 
         when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
-        when(loadPlaylistTracksCommand.toObservable(PLAYLIST_URN)).thenReturn(just(trackList));
+        when(loadPlaylistTracksCommand.toSingle(PLAYLIST_URN)).thenReturn(just(trackList));
 
-        AssertableSubscriber<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 1001).test();
+        final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 1001).test();
         testSubscriber.assertValue(trackList)
-                      .assertCompleted();
+                      .assertComplete();
     }
 
     @Test
@@ -257,7 +257,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         final Map<Urn, Track> actualTrackProperties = singletonMap(track1.urn(), track1);
 
         when(trackStorage.availableTracks(requestedTracks)).thenReturn(just(availableTracks));
-        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(just(getSuccessResult()));
+        when(syncInitiator.batchSyncTracks(singletonList(track2.urn()))).thenReturn(rx.Observable.just(getSuccessResult()));
         when(trackStorage.loadTracks(requestedTracks)).thenReturn(just(actualTrackProperties));
 
         trackRepository.trackListFromUrns(requestedTracks).test().assertValue(

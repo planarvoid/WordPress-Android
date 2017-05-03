@@ -18,12 +18,12 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -79,7 +79,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
         final Track track = ModelFixtures.trackBuilder().build();
         final Urn trackUrn = track.urn();
-        when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
+        when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
@@ -110,7 +110,7 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
     public void shouldNotifyWithAnEmptyArtistName() {
         final Track track = ModelFixtures.trackBuilder().creatorName(Strings.EMPTY).build();
         final Urn trackUrn = track.urn();
-        when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
+        when(trackRepository.track(eq(trackUrn))).thenReturn(Maybe.just(track));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),

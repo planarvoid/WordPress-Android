@@ -2,12 +2,12 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.api.TestApiResponses.status;
 import static com.soundcloud.java.collections.Maps.asMap;
+import static io.reactivex.Single.just;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
@@ -16,11 +16,12 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSyncJobResults;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.AssertableSubscriber;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.List;
@@ -38,9 +39,9 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistRepository = new PlaylistRepository(playlistStorage, syncinitiator, Schedulers.immediate());
-        when(playlistStorage.loadPlaylists(anyList())).thenReturn(just(emptyList()));
-        when(playlistStorage.availablePlaylists(anyList())).thenReturn(just(emptyList()));
+        playlistRepository = new PlaylistRepository(playlistStorage, syncinitiator, Schedulers.trampoline());
+        when(playlistStorage.loadPlaylists(anyList())).thenReturn(Single.just(emptyList()));
+        when(playlistStorage.availablePlaylists(anyList())).thenReturn(Single.just(emptyList()));
     }
 
     @Test
@@ -67,7 +68,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(playlists));
         when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
 
-        final AssertableSubscriber<Playlist> test = playlistRepository.withUrn(playlist.urn()).test();
+        final TestObserver<Playlist> test = playlistRepository.withUrn(playlist.urn()).test();
 
         test.assertNoValues();
         syncSubject.onNext(TestSyncJobResults.successWithChange());
@@ -84,7 +85,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
         when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
 
-        final AssertableSubscriber<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
+        final TestObserver<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
         subscriber.assertNoValues();
 
         ApiRequestException exception = ApiRequestException.notFound(null, status(404));
@@ -101,14 +102,14 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         when(playlistStorage.availablePlaylists(urns)).thenReturn(just(emptyList()));
         when(syncinitiator.batchSyncPlaylists(singletonList(playlist.urn()))).thenReturn(syncSubject);
 
-        final AssertableSubscriber<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
+        final TestObserver<Playlist> subscriber = playlistRepository.withUrn(playlist.urn()).test();
         subscriber.assertNoValues();
 
         syncSubject.onNext(TestSyncJobResults.successWithChange());
         syncSubject.onCompleted();
 
         subscriber.assertNoValues();
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
@@ -136,7 +137,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(expectedPlaylists));
         when(syncinitiator.batchSyncPlaylists(singletonList(playlistToFetch.urn()))).thenReturn(syncSubject);
 
-        final AssertableSubscriber<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
+        final TestObserver<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
 
         subscriber.assertNoValues();
 
@@ -157,7 +158,7 @@ public class PlaylistRepositoryTest extends AndroidUnitTest {
         when(playlistStorage.loadPlaylists(urns)).thenReturn(just(expectedPlaylists));
         when(syncinitiator.batchSyncPlaylists(singletonList(playlistToFetch.urn()))).thenReturn(syncSubject);
 
-        final AssertableSubscriber<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
+        final TestObserver<Map<Urn, Playlist>> subscriber = playlistRepository.withUrns(urns).test();
 
         subscriber.assertNoValues();
 

@@ -9,9 +9,9 @@ import com.soundcloud.android.sync.playlists.LocalPlaylistChange;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Collections;
 import java.util.Date;
@@ -23,7 +23,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() {
-        storage = new PlaylistStorage(propeller(), propellerRx(), new NewPlaylistMapper());
+        storage = new PlaylistStorage(propeller(), propellerRxV2(), new NewPlaylistMapper());
     }
 
     @Test
@@ -79,8 +79,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     public void availablePlaylistsReturnsUrnsForAvailablePlaylist() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
-        TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
-        storage.availablePlaylists(Sets.newHashSet(apiPlaylist.getUrn(), Urn.forPlaylist(9876))).subscribe(testSubscriber);
+        final TestObserver<List<Urn>> testSubscriber = storage.availablePlaylists(Sets.newHashSet(apiPlaylist.getUrn(), Urn.forPlaylist(9876))).test();
 
         testSubscriber.assertValue(Collections.singletonList(apiPlaylist.getUrn()));
     }
@@ -89,12 +88,11 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     public void loadPlaylistEntities() {
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
 
-        TestSubscriber<List<Playlist>> testSubscriber = new TestSubscriber<>();
-        storage.loadPlaylists(Sets.newHashSet(apiPlaylist.getUrn())).subscribe(testSubscriber);
+        final TestObserver<List<Playlist>> testSubscriber = storage.loadPlaylists(Sets.newHashSet(apiPlaylist.getUrn())).test();
 
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertValueCount(1);
-        List<Playlist> playlistEntities = testSubscriber.getOnNextEvents().get(0);
+        List<Playlist> playlistEntities = testSubscriber.values().get(0);
         assertThat(playlistEntities.size()).isEqualTo(1);
 
         assertPlaylistsMatch(apiPlaylist, playlistEntities.get(0));

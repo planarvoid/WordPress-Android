@@ -82,7 +82,6 @@ public class SyncInitiator {
             SyncIntentHelper.putSyncEntities(intent, Arrays.asList(playlistUrn));
             return getSyncObservable(intent);
         }
-
     }
 
     public Observable<SyncJobResult> batchSyncPlaylists(List<Urn> playlistUrns) {

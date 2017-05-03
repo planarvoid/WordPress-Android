@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.LambdaSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -71,7 +71,7 @@ public class ArtworkPresenter {
                                   .map(CurrentPlayQueueItemEvent::getCurrentPlayQueueItem)
                                   .startWith(Observable.just(playQueueManager.getCurrentPlayQueueItem()))
                                   .filter(PlayQueueItem::isTrack)
-                                  .flatMap(playQueueItem -> trackRepository.track(playQueueItem.getUrn()))
+                                  .flatMap(playQueueItem -> RxJava.toV1Observable(trackRepository.track(playQueueItem.getUrn())))
                                   .map(track -> SimpleImageResource.create(track.urn(), track.imageUrlTemplate()))
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .filter(event -> artworkViewContract.isPresent())

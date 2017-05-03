@@ -15,10 +15,9 @@ import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestObserver;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
 import java.util.List;
@@ -29,14 +28,13 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     private ActivitiesStorage storage;
 
-    private TestSubscriber<ActivityItem> subscriber = new TestSubscriber<>();
     private ApiTrackCommentActivity oldestActivity;
     private ApiTrackLikeActivity olderActivity;
     private ApiUserFollowActivity newestActivity;
 
     @Before
     public void setUp() throws Exception {
-        storage = new ActivitiesStorage(propeller(), propellerRx());
+        storage = new ActivitiesStorage(propeller(), propellerRxV2());
         oldestActivity = apiTrackCommentActivity(new Date(TIMESTAMP));
         olderActivity = apiTrackLikeActivity(new Date(TIMESTAMP + 1));
         newestActivity = apiUserFollowActivity(new Date(TIMESTAMP + 2));
@@ -47,71 +45,71 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadLatestActivitiesInReverseChronologicalOrder() {
-        storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItems(Integer.MAX_VALUE).test();
 
         subscriber.assertValues(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity),
                 expectedPropertiesFor(oldestActivity)
         );
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
     public void shouldNotReturnUnsupportedActivitiesFromLatestActivities() {
         testFixtures().insertUnsupportedActivity();
 
-        storage.timelineItems(Integer.MAX_VALUE).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItems(Integer.MAX_VALUE).test();
 
         subscriber.assertValues(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity),
                 expectedPropertiesFor(oldestActivity)
         );
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
     public void shouldLimitLatestActivitiesResultSet() {
         final int limit = 1;
-        storage.timelineItems(limit).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItems(limit).test();
 
         subscriber.assertValue(expectedPropertiesFor(newestActivity));
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
     public void shouldLoadActivitiesBeforeGivenTimestampInReverseChronologicalOrder() {
-        storage.timelineItemsBefore(TIMESTAMP + 2, Integer.MAX_VALUE).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItemsBefore(TIMESTAMP + 2, Integer.MAX_VALUE).test();
 
         subscriber.assertValues(
                 expectedPropertiesFor(olderActivity),
                 expectedPropertiesFor(oldestActivity)
         );
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
     public void shouldNotReturnUnsupportedActivitiesFromActivitiesBeforeGivenTimestamp() {
         testFixtures().insertUnsupportedActivity();
 
-        storage.timelineItemsBefore(Long.MAX_VALUE, Integer.MAX_VALUE).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItemsBefore(Long.MAX_VALUE, Integer.MAX_VALUE).test();
 
         subscriber.assertValues(
                 expectedPropertiesFor(newestActivity),
                 expectedPropertiesFor(olderActivity),
                 expectedPropertiesFor(oldestActivity)
         );
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
     public void shouldLimitActivitiesBeforeGivenTimestamp() {
         final int limit = 1;
-        storage.timelineItemsBefore(TIMESTAMP + 2, limit).subscribe(subscriber);
+        final io.reactivex.observers.TestObserver<ActivityItem> subscriber = storage.timelineItemsBefore(TIMESTAMP + 2, limit).test();
 
         subscriber.assertValue(expectedPropertiesFor(olderActivity));
-        subscriber.assertCompleted();
+        subscriber.assertComplete();
     }
 
     @Test
@@ -173,11 +171,9 @@ public class ActivitiesStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadActivityItemsCountSinceOnlyCountsItemsNewerThanTheGivenTimestamp() {
-        TestObserver<Integer> observer = new TestObserver<>();
+        final TestObserver<Integer> observer = storage.timelineItemCountSince(TIMESTAMP).test();
 
-        storage.timelineItemCountSince(TIMESTAMP).subscribe(observer);
-
-        assertThat(observer.getOnNextEvents()).containsExactly(2);
+        observer.assertValue(2);
     }
 
     private ActivityItem expectedPropertiesFor(ApiUserFollowActivity activity) {

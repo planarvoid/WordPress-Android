@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
@@ -18,6 +19,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Maybe;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -72,6 +74,10 @@ public class SuggestedCreatorsOperations {
                                       .flatMap(loadSuggestedCreators());
         }
         return Observable.empty();
+    }
+
+    public Maybe<StreamItem> suggestedCreatorsV2() {
+        return RxJava.toV2Observable(suggestedCreators()).firstElement();
     }
 
     Observable<Void> toggleFollow(Urn urn, boolean isFollowing) {

@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static rx.Observable.empty;
 import static rx.Observable.just;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -44,6 +43,9 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.subjects.MaybeSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,6 +59,7 @@ import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class PlaylistOperationsTest extends AndroidUnitTest {
 
@@ -116,7 +119,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
 
         eventBus = new TestEventBus();
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
+        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
         operations = new PlaylistOperations(Schedulers.immediate(),
                                             syncInitiator,
                                             playlistRepository,
@@ -154,8 +157,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistWithTracksFromStorage() {
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(just(playlist));
+        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(track1, track2)));
+        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
 
@@ -165,8 +168,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void playlistWithTracksAndRecosLoadsFromStorageAndOthersApi() {
-        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
-        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(this.playlist));
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Single.just(newArrayList(track1, track2)));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(Maybe.just(this.playlist));
         when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
         when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
@@ -185,9 +188,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         when(accountOperations.isLoggedInUser(this.playlist.creatorUrn())).thenReturn(true);
         final List<Track> tracks = newArrayList(track1, track2);
-        final List<TrackItem> trackItems = newArrayList(trackItem1, trackItem2);
-        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(tracks));
-        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(this.playlist));
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Single.just(tracks));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(Maybe.just(this.playlist));
         when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()))
@@ -204,8 +206,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void playlistWithTracksAndRecosLoadsFromStorageAndEmitsExceptionIfStillMissingMetadata() {
-        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(empty(), empty());
-        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(newArrayList(track1, track2)));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(Maybe.empty(), Maybe.empty());
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Single.just(newArrayList(track1, track2)));
         when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
         when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
@@ -213,15 +215,14 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         playlistSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
-        viewModelSubscriber.assertError(PlaylistOperations.PlaylistMissingException.class);
+        viewModelSubscriber.assertError(NoSuchElementException.class);
     }
 
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
         final ArrayList<Track> tracks = newArrayList(track1, track2);
-        final ArrayList<TrackItem> trackItems = newArrayList(trackItem1, trackItem2);
-        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Observable.just(tracks));
-        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(just(playlist));
+        when(trackRepository.forPlaylist(this.playlist.urn())).thenReturn(Single.just(tracks));
+        when(playlistRepository.withUrn(this.playlist.urn())).thenReturn(Maybe.just(playlist));
         when(profileApiMobile.userPlaylists(this.playlist.creatorUrn())).thenReturn(just(userPlaylistCollection));
         when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
@@ -240,16 +241,18 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(just(newArrayList(
+        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(
                 track1,
                 track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Observable.empty(), just(playlist));
+        final MaybeSubject<Playlist> playlistSource = MaybeSubject.create();
+        when(playlistRepository.withUrn(playlist.urn())).thenReturn(playlistSource);
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
 
         playlistSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
         playlistSyncSubject.onCompleted();
+        playlistSource.onSuccess(playlist);
         playlistSubscriber.assertReceivedOnNext(singletonList(playlist));
         playlistSubscriber.assertCompleted();
     }
@@ -259,16 +262,16 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(syncInitiator.syncPlaylist(playlist.urn())).thenReturn(just(SyncJobResult.success(
                 Syncable.PLAYLIST.name(),
                 true)));
-        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Observable.just(newArrayList(
+        when(trackRepository.forPlaylist(playlist.urn())).thenReturn(Single.just(newArrayList(
                 track1,
                 track2)));
-        when(playlistRepository.withUrn(playlist.urn())).thenReturn(empty(), empty());
+        when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.empty(), Maybe.empty());
 
         operations.playlist(playlist.urn()).subscribe(playlistSubscriber);
 
         playlistSubscriber.assertNoValues();
         playlistSyncSubject.onNext(TestSyncJobResults.successWithChange());
-        playlistSubscriber.assertError(PlaylistOperations.PlaylistMissingException.class);
+        playlistSubscriber.assertError(NoSuchElementException.class);
     }
 
     @Test
@@ -278,8 +281,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         PublishSubject<Void> myPlaylistSyncSubject = PublishSubject.create();
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(myPlaylistSyncSubject);
-        when(trackRepository.forPlaylist(localPlaylist.urn())).thenReturn(just(trackList));
-        when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(just(localPlaylist));
+        when(trackRepository.forPlaylist(localPlaylist.urn())).thenReturn(Single.just(trackList));
+        when(playlistRepository.withUrn(localPlaylist.urn())).thenReturn(Maybe.just(localPlaylist));
         when(syncInitiator.syncPlaylist(localPlaylist.urn())).thenReturn(playlistSyncSubject);
 
         operations.playlist(localPlaylist.urn()).subscribe(playlistSubscriber);

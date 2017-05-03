@@ -1,5 +1,6 @@
 package com.soundcloud.android.activities;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.times;
@@ -20,11 +21,12 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.view.View;
 
@@ -58,14 +60,15 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 newItemsIndicator,
                 performanceMetricsEngine);
 
-        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Maybe.empty());
         when(operations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
+        when(operations.initialActivities()).thenReturn(Single.just(emptyList()));
     }
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() {
         ActivityItem activityItem = PlayableFixtures.activityTrackLike();
-        when(operations.initialActivities()).thenReturn(Observable.just(singletonList(activityItem)));
+        when(operations.initialActivities()).thenReturn(Single.just(singletonList(activityItem)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -127,7 +130,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
         final Track track = ModelFixtures.trackBuilder().build();
         final ActivityItem activity = PlayableFixtures.activityTrackComment(track.urn());
         when(trackRepository.track(activity.getCommentedTrackUrn().get()))
-                .thenReturn(Observable.just(track));
+                .thenReturn(Maybe.just(track));
         when(adapter.getItem(0)).thenReturn(activity);
 
         presenter.onItemClicked(itemView, 0);
@@ -138,7 +141,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void onNewItemsIndicatorClickedUpdatesActivitiesAgain() {
         when(operations.initialActivities())
-                .thenReturn(Observable.just(Collections.emptyList()));
+                .thenReturn(Single.just(Collections.emptyList()));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -149,9 +152,9 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(operations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.emptyList()));
+        when(operations.updatedTimelineItemsForStart()).thenReturn(Maybe.just(Collections.emptyList()));
         when(operations.getFirstItemTimestamp(anyListOf(ActivityItem.class))).thenReturn(Optional.of(new Date(123L)));
-        when(operations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(operations.newItemsSince(123L)).thenReturn(io.reactivex.Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -161,7 +164,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldEndMeasuringLoadingPerformance() {
         when(operations.initialActivities())
-                .thenReturn(Observable.just(Collections.emptyList()));
+                .thenReturn(Single.just(Collections.emptyList()));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 

@@ -8,7 +8,7 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
 
 import java.util.Date;
 import java.util.List;

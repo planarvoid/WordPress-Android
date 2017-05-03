@@ -15,6 +15,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserRepository;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -51,7 +52,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         final EntityMetadata entityMetadata = EntityMetadata.from(TRACK);
         final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
 
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, promotedSourceInfo);
 
@@ -69,7 +70,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         final EntityMetadata entityMetadata = EntityMetadata.from(TRACK);
         final EventContextMetadata eventContextMetadata = getEventContextMetadata();
 
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
 
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
@@ -86,7 +87,7 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     public void testLikeTrackUrnForWidgetTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(TRACK);
         final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().pageName("widget").build();
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(TRACK));
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,

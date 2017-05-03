@@ -20,6 +20,7 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
@@ -271,8 +272,8 @@ public class AdsController {
     }
 
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
-        final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(trackRepository.track(playQueueItem.getUrn())
-                                                                                        .filter(Track::monetizable),
+        final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(RxJava.toV1Observable(trackRepository.track(playQueueItem.getUrn()))
+                                                                               .filter(Track::monetizable),
                                                                          adsOperations.kruxSegments(),
                                                                          TO_AD_REQUEST_DATA)
                                                                     .flatMap(fetchAds)

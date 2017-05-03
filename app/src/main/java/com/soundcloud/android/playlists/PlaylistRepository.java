@@ -1,16 +1,18 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.collections.Maps.asMap;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,15 +28,15 @@ public class PlaylistRepository {
 
     @Inject
     public PlaylistRepository(PlaylistStorage playlistStorage,
-                              SyncInitiator syncInitiator,
-                              @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                                SyncInitiator syncInitiator,
+                                @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.playlistStorage = playlistStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;
     }
 
     @SuppressWarnings("WeakerAccess")
-    public Observable<Playlist> withUrn(final Urn playlistUrn) {
+    public Maybe<Playlist> withUrn(final Urn playlistUrn) {
         final Collection<Urn> requestedPlaylists = singletonList(playlistUrn);
         return playlistStorage
                 .availablePlaylists(requestedPlaylists)
@@ -45,7 +47,7 @@ public class PlaylistRepository {
                 .map(playlistItems -> playlistItems.get(0));
     }
 
-    public Observable<Map<Urn, Playlist>> withUrns(final Collection<Urn> requestedPlaylists) {
+    public Single<Map<Urn, Playlist>> withUrns(final Collection<Urn> requestedPlaylists) {
         return playlistStorage
                 .availablePlaylists(requestedPlaylists)
                 .flatMap(syncMissingPlaylists(requestedPlaylists))
@@ -56,15 +58,13 @@ public class PlaylistRepository {
 
     }
 
-    private Func1<List<Urn>, Observable<SyncJobResult>> syncMissingPlaylists(final Collection<Urn> requestedPlaylists) {
+    private Function<List<Urn>, Single<Boolean>> syncMissingPlaylists(final Collection<Urn> requestedPlaylists) {
         return playlistsAvailable -> {
             final List<Urn> missingPlaylists = minus(requestedPlaylists, playlistsAvailable);
             if (missingPlaylists.isEmpty()) {
-                return Observable.just(null);
+                return Single.just(true);
             } else {
-                return syncInitiator
-                        .batchSyncPlaylists(missingPlaylists)
-                        .observeOn(scheduler);
+                return RxJava.toV2Observable(syncInitiator.batchSyncPlaylists(missingPlaylists)).map(SyncJobResult::wasSuccess).first(false).observeOn(scheduler);
             }
         };
     }

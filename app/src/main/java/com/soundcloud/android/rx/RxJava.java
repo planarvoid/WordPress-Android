@@ -2,7 +2,10 @@ package com.soundcloud.android.rx;
 
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * <p>Utility class to handle interoperability between RxJava 1 and RxJava 2.</p>
@@ -15,6 +18,18 @@ public class RxJava {
 
     public static <T> rx.Observable<T> toV1Observable(Observable<T> sourceObservable) {
         return RxJavaInterop.toV1Observable(sourceObservable, BackpressureStrategy.DROP);
+    }
+
+    public static <T> rx.Observable<T> toV1Observable(Single<T> sourceObservable) {
+        return RxJavaInterop.toV1Single(sourceObservable).toObservable();
+    }
+
+    public static <T> rx.Observable<T> toV1Observable(Maybe<T> sourceObservable) {
+        return RxJavaInterop.toV1Single(sourceObservable).toObservable();
+    }
+
+    public static <T> rx.Observable<T> toV1Observable(Flowable<T> sourceObservable) {
+        return RxJavaInterop.toV1Observable(sourceObservable);
     }
 
     public static <T> Observable<T> toV2Observable(rx.Observable<T> sourceObservable) {

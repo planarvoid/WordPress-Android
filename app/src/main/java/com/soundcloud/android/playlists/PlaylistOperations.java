@@ -25,6 +25,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.profile.ProfileApiMobile;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -140,7 +141,7 @@ public class PlaylistOperations {
                                                                               title,
                                                                               isPrivate,
                                                                               updatedTracklist))
-                                  .flatMap(o -> playlistRepository.withUrn(playlistUrn))
+                                  .flatMap(o -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)))
                                   .doOnNext(newPlaylistTrackData -> eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistEdited(newPlaylistTrackData)))
                                   .doOnNext(playlist -> fireAndForget(syncInitiator.syncPlaylist(playlist.urn())))
                                   .subscribeOn(scheduler);
@@ -180,9 +181,9 @@ public class PlaylistOperations {
     }
 
     public Observable<Playlist> playlist(final Urn playlistUrn) {
-        return playlistRepository.withUrn(playlistUrn)
-                                 .flatMap(syncIfNecessary(playlistUrn))
-                                 .switchIfEmpty(updatedPlaylist(playlistUrn));
+        return RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn))
+                     .flatMap(syncIfNecessary(playlistUrn))
+                     .switchIfEmpty(updatedPlaylist(playlistUrn));
     }
 
     private Observable<Playlist> updatedPlaylist(final Urn playlistUrn) {
@@ -192,8 +193,8 @@ public class PlaylistOperations {
                 .flatMap(new Func1<SyncJobResult, Observable<Playlist>>() {
                     @Override
                     public Observable<Playlist> call(SyncJobResult playlistWasUpdated) {
-                        return playlistRepository.withUrn(playlistUrn)
-                                                 .switchIfEmpty(error(new PlaylistMissingException()));
+                        return RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn))
+                                     .switchIfEmpty(error(new PlaylistMissingException()));
                     }
                 });
     }
@@ -211,12 +212,11 @@ public class PlaylistOperations {
     }
 
     private Observable<Pair<Playlist, List<Track>>> playlistWithTracks(Urn playlistUrn) {
-        return Observable.combineLatest(playlistRepository.withUrn(playlistUrn),
-                                        trackRepository
-                                                .forPlaylist(playlistUrn)
-                                                .startWith(Collections.<Track>emptyList())
-                                                .debounce(300, TimeUnit.MILLISECONDS)
-                                                .onErrorResumeNext(throwable -> just(Collections.emptyList())),
+        return Observable.combineLatest(RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)),
+                                        RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn))
+                                              .startWith(Collections.<Track>emptyList())
+                                              .debounce(300, TimeUnit.MILLISECONDS)
+                                              .onErrorResumeNext(throwable -> just(Collections.emptyList())),
                                         Pair::of).switchIfEmpty(error(new PlaylistMissingException()));
     }
 

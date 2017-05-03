@@ -10,10 +10,10 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 public class PlaybackProgressRepositoryTest extends AndroidUnitTest {
     private static final long POSITION = 23456L;
@@ -52,7 +52,7 @@ public class PlaybackProgressRepositoryTest extends AndroidUnitTest {
     @Test
     public void putForPositionOnlyWillGetDurationFromDatabaseToCacheIt() throws Exception {
         final Track track = ModelFixtures.trackBuilder().build();
-        when(trackRepo.track(URN)).thenReturn(Observable.just(track));
+        when(trackRepo.track(URN)).thenReturn(Maybe.just(track));
 
         playbackProgressRepository.put(URN, POSITION);
 

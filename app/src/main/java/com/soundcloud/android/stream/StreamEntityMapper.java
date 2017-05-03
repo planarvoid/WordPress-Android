@@ -10,15 +10,18 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
 
 import java.util.Date;
 import java.util.List;
 
 class StreamEntityMapper {
 
-    static RxResultMapper<StreamEntity> getMapper() {
-        return new RxResultMapper<StreamEntity>() {
+    private StreamEntityMapper() {
+    }
+
+    static RxResultMapperV2<StreamEntity> getMapper() {
+        return new RxResultMapperV2<StreamEntity>() {
             @Override
             public StreamEntity map(CursorReader cursorReader) {
                 final Urn urn = readSoundUrn(cursorReader);
@@ -27,8 +30,8 @@ class StreamEntityMapper {
         };
     }
 
-    static RxResultMapper<StreamEntity> getPromotedMapper() {
-        return new RxResultMapper<StreamEntity>() {
+    static RxResultMapperV2<StreamEntity> getPromotedMapper() {
+        return new RxResultMapperV2<StreamEntity>() {
             @Override
             public StreamEntity map(CursorReader cursorReader) {
                 final Urn urn = readSoundUrn(cursorReader);

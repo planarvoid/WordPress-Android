@@ -10,6 +10,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -97,7 +98,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (isNewItem) {
             trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.track(playStateEvent.getPlayingItemUrn()).filter(track -> track != null).subscribe(trackObservable);
+            RxJava.toV1Observable(trackRepository.track(playStateEvent.getPlayingItemUrn())).filter(track -> track != null).subscribe(trackObservable);
         }
     }
 
@@ -151,11 +152,11 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
             final PlaybackSessionEvent playEventForStop = lastPlaySessionEvent.get();
             trackObservable
                     .map(track -> PlaybackSessionEvent.forStop(playEventForStop,
-                                                       stopReason,
-                                                       buildEventArgs(track,
-                                                                       playStateEvent,
-                                                                       uuidProvider.getRandomUuid(),
-                                                                       playStateEvent.getPlayId())))
+                                                               stopReason,
+                                                               buildEventArgs(track,
+                                                                              playStateEvent,
+                                                                              uuidProvider.getRandomUuid(),
+                                                                              playStateEvent.getPlayId())))
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
             lastPlaySessionEvent = Optional.absent();
         }
@@ -164,10 +165,10 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private Func1<Track, TrackingEvent> stateTransitionToCheckpointEvent(final PlayStateEvent playStateEvent,
                                                                          final PlaybackProgressEvent progressEvent) {
         return track -> PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
-                                                                  progressEvent.getPlaybackProgress(),
-                                                                  playStateEvent,
-                                                                  uuidProvider.getRandomUuid(),
-                                                                  playStateEvent.getPlayId()));
+                                                                          progressEvent.getPlaybackProgress(),
+                                                                          playStateEvent,
+                                                                          uuidProvider.getRandomUuid(),
+                                                                          playStateEvent.getPlayId()));
     }
 
     private boolean isForPlayingTrack(PlaybackProgressEvent progressEvent) {

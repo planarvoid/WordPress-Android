@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.StopReasonProvider.StopReason;
@@ -23,10 +23,10 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +54,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         Track track = ModelFixtures.expectedTrackEntityForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Maybe.just(track));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));

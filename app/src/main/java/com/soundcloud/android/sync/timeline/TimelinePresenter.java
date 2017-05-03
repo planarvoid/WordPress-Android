@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
@@ -44,7 +45,7 @@ public abstract class TimelinePresenter<ItemT>
     private final Func1<Long, Observable<Integer>> newItemsCount = new Func1<Long, Observable<Integer>>() {
         @Override
         public Observable<Integer> call(Long time) {
-            return operations.newItemsSince(time);
+            return RxJava.toV1Observable(operations.newItemsSince(time));
         }
     };
 
@@ -100,7 +101,6 @@ public abstract class TimelinePresenter<ItemT>
     }
 
     private void refreshAndUpdateIndicator() {
-        fireAndForget(operations.updatedTimelineItemsForStart()
-                  .flatMap(o -> updateIndicatorFromMostRecent()));
+        fireAndForget(RxJava.toV1Observable(operations.updatedTimelineItemsForStart().toObservable()).flatMap(o -> updateIndicatorFromMostRecent()));
     }
 }

@@ -3,7 +3,7 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.propeller.query.Field.field;
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
+import static com.soundcloud.propeller.rx.RxResultMapperV2.scalar;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayableWithReposter;
@@ -15,9 +15,9 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -53,6 +53,9 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
 
+    private final PropellerRxV2 propellerRx;
+    private final PropellerDatabase propeller;
+
     private static Object[] buildPromotedSelection() {
         Object[] promotedSelection = new Object[STREAM_SELECTION.length + PROMOTED_EXTRAS.length];
         System.arraycopy(STREAM_SELECTION, 0, promotedSelection, 0, STREAM_SELECTION.length);
@@ -60,12 +63,9 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
         return promotedSelection;
     }
 
-    private final PropellerRx propellerRx;
-    private final PropellerDatabase propeller;
-
     @Inject
     public StreamStorage(PropellerDatabase propeller) {
-        this.propellerRx = new PropellerRx(propeller);
+        this.propellerRx = new PropellerRxV2(propeller);
         this.propeller = propeller;
     }
 
@@ -122,8 +122,7 @@ public class StreamStorage implements TimelineStorage<StreamEntity> {
         return propellerRx.query(query).map(new ItemsForPlayback());
     }
 
-
-    private static final class ItemsForPlayback extends RxResultMapper<PlayableWithReposter> {
+    private static final class ItemsForPlayback extends RxResultMapperV2<PlayableWithReposter> {
         @Override
         public PlayableWithReposter map(CursorReader cursorReader) {
             final Urn urn = readSoundUrn(cursorReader);

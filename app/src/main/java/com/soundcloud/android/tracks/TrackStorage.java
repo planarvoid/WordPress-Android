@@ -37,7 +37,7 @@ import static com.soundcloud.java.collections.Lists.partition;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.commands.TrackUrnMapper;
+import com.soundcloud.android.commands.TrackUrnMapperV2;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.storage.Table;
@@ -49,14 +49,15 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
-import rx.functions.Func1;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,49 +68,44 @@ public class TrackStorage {
     private static final int MAX_TRACKS_BATCH = 200;
     private static final String SHARING_PRIVATE = "private";
 
-    private final PropellerRx propeller;
+    private final PropellerRxV2 propeller;
 
-    private Func1<List<Urn>, Observable<QueryResult>> fetchTracks = new Func1<List<Urn>, Observable<QueryResult>>() {
+    private final Function<List<Urn>, Observable<QueryResult>> fetchTracks = new Function<List<Urn>, Observable<QueryResult>>() {
         @Override
-        public Observable<QueryResult> call(List<Urn> urns) {
+        public Observable<QueryResult> apply(List<Urn> urns) {
             return propeller.queryResult(buildTracksQuery(urns));
         }
     };
 
-    private Func1<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Func1<List<Urn>, Observable<Urn>>() {
+    private final Function<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Function<List<Urn>, Observable<Urn>>() {
         @Override
-        public Observable<Urn> call(List<Urn> urns) {
+        public Observable<Urn> apply(List<Urn> urns) {
             return propeller.query(buildAvailableTracksQuery(urns))
-                            .map(new TrackUrnMapper());
+                            .map(new TrackUrnMapperV2());
         }
     };
 
     @Inject
-    public TrackStorage(PropellerRx propeller) {
+    public TrackStorage(PropellerRxV2 propeller) {
         this.propeller = propeller;
     }
 
-    Observable<Optional<Track>> loadTrack(Urn urn) {
+    Maybe<Track> loadTrack(Urn urn) {
         return propeller.query(buildTrackQuery(urn))
                         .map(TrackStorage::trackFromCursorReader)
-                        .map(Optional::of)
-                        .firstOrDefault(Optional.absent());
+                        .firstElement();
     }
 
-    Observable<Map<Urn, Track>> loadTracks(List<Urn> urns) {
-        return batchedTracks(urns).toList()
-                                  .map(this::toMapOfUrnAndTrack)
-                                  .doOnError(error -> error.printStackTrace())
-                                  .firstOrDefault(Collections.emptyMap());
+    Single<Map<Urn, Track>> loadTracks(List<Urn> urns) {
+        return batchedTracks(urns).toList().map(this::toMapOfUrnAndTrack);
     }
 
     private Observable<QueryResult> batchedTracks(List<Urn> urns) {
-        return Observable.from(partition(urns, MAX_TRACKS_BATCH))
-                         .flatMap(fetchTracks);
+        return Observable.fromIterable(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchTracks);
     }
 
     private Observable<Urn> batchedAvailableTracks(List<Urn> urns) {
-        return Observable.from(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchAvailableTrackUrns);
+        return Observable.fromIterable(partition(urns, MAX_TRACKS_BATCH)).flatMap(fetchAvailableTrackUrns);
     }
 
     private Map<Urn, Track> toMapOfUrnAndTrack(List<QueryResult> cursorReadersBatches) {
@@ -123,16 +119,14 @@ public class TrackStorage {
         return tracks;
     }
 
-    Observable<List<Urn>> availableTracks(final List<Urn> requestedTracks) {
-        return batchedAvailableTracks(requestedTracks)
-                .toList()
-                .firstOrDefault(Collections.emptyList());
+    Single<List<Urn>> availableTracks(final List<Urn> requestedTracks) {
+        return batchedAvailableTracks(requestedTracks).toList();
     }
 
-    Observable<Optional<String>> loadTrackDescription(Urn urn) {
+    Single<Optional<String>> loadTrackDescription(Urn urn) {
         return propeller.query(buildTrackDescriptionQuery(urn))
                         .map(new TrackDescriptionMapper())
-                        .firstOrDefault(Optional.absent());
+                        .first(Optional.absent());
     }
 
     private Query buildTrackDescriptionQuery(Urn trackUrn) {

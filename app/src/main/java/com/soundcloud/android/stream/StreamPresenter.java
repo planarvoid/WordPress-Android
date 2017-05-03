@@ -35,6 +35,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stream.StreamItem.FacebookListenerInvites;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.stream.perf.StreamMeasurements;
@@ -149,7 +150,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(streamOperations.initialStreamItems()
+        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.initialStreamItems().toObservable())
                                                       .observeOn(AndroidSchedulers.mainThread())
                                                       .doOnSubscribe(streamMeasurements::startLoading)
                                                       .doOnNext(streamItems -> adapter.clear()))
@@ -163,7 +164,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
         streamMeasurements.startRefreshing();
         newItemsIndicator.hideAndReset();
-        return CollectionBinding.from(streamOperations.updatedStreamItems())
+        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.updatedStreamItems().toObservable()))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .addObserver(onNext(streamItems -> streamMeasurements.endRefreshing()))
@@ -271,7 +272,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
             if (item.isPromoted()) {
                 publishPromotedItemClickEvent(playableItem.get());
             }
-            itemClickListener.legacyOnPostClick(streamOperations.urnsForPlayback(), view, position, playableItem.get());
+            itemClickListener.legacyOnPostClick(RxJava.toV1Observable(streamOperations.urnsForPlayback()), view, position, playableItem.get());
         }
     }
 

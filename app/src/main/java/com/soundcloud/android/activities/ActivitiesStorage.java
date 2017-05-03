@@ -1,6 +1,6 @@
 package com.soundcloud.android.activities;
 
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
+import static com.soundcloud.propeller.rx.RxResultMapperV2.scalar;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -13,9 +13,9 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
+import io.reactivex.Observable;
 
 import android.support.annotation.NonNull;
 
@@ -26,10 +26,10 @@ import java.util.List;
 public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
 
     private final PropellerDatabase propeller;
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
 
     @Inject
-    public ActivitiesStorage(PropellerDatabase propeller, PropellerRx propellerRx) {
+    public ActivitiesStorage(PropellerDatabase propeller, PropellerRxV2 propellerRx) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
     }
@@ -68,7 +68,7 @@ public class ActivitiesStorage implements TimelineStorage<ActivityItem> {
         return propeller.query(query).toList(new ActivityRowMapper());
     }
 
-    private static class ActivityRowMapper extends RxResultMapper<ActivityItem> {
+    private static class ActivityRowMapper extends RxResultMapperV2<ActivityItem> {
         @Override
         public ActivityItem map(CursorReader reader) {
             final Date createdAt = reader.getDateFromTimestamp(ActivityView.CREATED_AT);

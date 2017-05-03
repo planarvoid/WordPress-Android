@@ -22,8 +22,8 @@ import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -36,13 +36,13 @@ import java.util.Set;
 public class PlaylistStorage {
 
     private final PropellerDatabase propeller;
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final NewPlaylistMapper playlistMapper;
 
     @Inject
     public PlaylistStorage(PropellerDatabase propeller,
-                           PropellerRx propellerRx,
-                           NewPlaylistMapper playlistMapper) {
+                             PropellerRxV2 propellerRx,
+                             NewPlaylistMapper playlistMapper) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.playlistMapper = playlistMapper;
@@ -80,7 +80,7 @@ public class PlaylistStorage {
         return returnSet;
     }
 
-    Observable<List<Urn>> availablePlaylists(final Collection<Urn> playlistUrns) {
+    Single<List<Urn>> availablePlaylists(final Collection<Urn> playlistUrns) {
         return propellerRx
                 .query(Query.from(Tables.PlaylistView.TABLE)
                             .select(Tables.PlaylistView.ID)
@@ -89,10 +89,10 @@ public class PlaylistStorage {
                 .toList();
     }
 
-    Observable<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
+    Single<List<Playlist>> loadPlaylists(final Collection<Urn> playlistUrns) {
         return propellerRx.queryResult(buildPlaylistQuery(Sets.newHashSet(playlistUrns)))
                           .map(this::toPlaylistItems)
-                          .firstOrDefault(Collections.emptyList());
+                          .first(Collections.emptyList());
     }
 
     private List<Playlist> toPlaylistItems(QueryResult cursorReaders) {

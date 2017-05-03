@@ -8,10 +8,10 @@ import com.soundcloud.android.events.StreamEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.schedulers.TestScheduler;
 
 import android.support.v7.app.AppCompatActivity;
@@ -35,12 +35,12 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         controller = new StreamRefreshController(eventBus, operations, dateProvider, scheduler);
-        when(operations.updatedStreamItems()).thenReturn(Observable.just(Collections.emptyList()));
+        when(operations.updatedStreamItems()).thenReturn(Single.just(Collections.emptyList()));
     }
 
     @Test
     public void onResumeEmitsRefreshStreamEventWhenStale() throws Exception {
-        when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
+        when(operations.lastSyncTime()).thenReturn(io.reactivex.Observable.just(-1L));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);
@@ -50,7 +50,7 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onResumeDoesNotEmitRefreshStreamEventWhenNotStale() throws Exception {
-        when(operations.lastSyncTime()).thenReturn(Observable.just(dateProvider.getCurrentTime()));
+        when(operations.lastSyncTime()).thenReturn(io.reactivex.Observable.just(dateProvider.getCurrentTime()));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);
@@ -60,8 +60,8 @@ public class StreamRefreshControllerTest extends AndroidUnitTest {
 
     @Test
     public void onSyncErrorDoesNotPropagateToSubscriber() {
-        when(operations.lastSyncTime()).thenReturn(Observable.just(-1L));
-        when(operations.updatedStreamItems()).thenReturn(Observable.error(new Throwable()));
+        when(operations.lastSyncTime()).thenReturn(io.reactivex.Observable.just(-1L));
+        when(operations.updatedStreamItems()).thenReturn(Single.error(new Throwable()));
 
         controller.onResume(activity);
         scheduler.advanceTimeBy(30, TimeUnit.SECONDS);

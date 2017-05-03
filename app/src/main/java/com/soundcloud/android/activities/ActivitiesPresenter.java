@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
@@ -71,7 +72,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(operations.initialActivities())
+        return CollectionBinding.from(RxJava.toV1Observable(operations.initialActivities().toObservable()))
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
                                 .addObserver(onNext(o -> endMeasuringLoadingTime()))
@@ -84,7 +85,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
 
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onRefreshBinding() {
-        return CollectionBinding.from(operations.updatedActivities())
+        return CollectionBinding.from(RxJava.toV1Observable(operations.updatedActivities().toObservable()))
                                 .withAdapter(adapter)
                                 .withPager(operations.pagingFunction())
                                 .build();
@@ -108,7 +109,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         if (commentedTrackUrn.isPresent()) {
             // for track comments we go to the comments screen
             final Urn trackUrn = commentedTrackUrn.get();
-            trackSubscription = trackRepository.track(trackUrn).subscribe(new DefaultSubscriber<Track>() {
+            trackSubscription = RxJava.toV1Observable(trackRepository.track(trackUrn)).subscribe(new DefaultSubscriber<Track>() {
                 @Override
                 public void onNext(Track track) {
                     navigator.openTrackComments(view.getContext(), trackUrn);

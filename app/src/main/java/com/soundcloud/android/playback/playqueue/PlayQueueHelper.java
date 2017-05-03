@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -63,9 +64,9 @@ public class PlayQueueHelper {
                               .observeOn(AndroidSchedulers.mainThread())
                               .subscribe(new ShowPlayerSubscriber(eventBus, playbackFeedbackHelper));
         } else {
-            trackRepository.forPlaylist(playlistUrn)
-                              .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(new InsertSubscriber());
+            RxJava.toV1Observable(trackRepository.forPlaylist(playlistUrn))
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribe(new InsertSubscriber());
         }
     }
 

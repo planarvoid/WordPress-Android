@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -52,9 +53,9 @@ public class TrackCommentsActivity extends PlayerActivity {
         ButterKnife.bind(this);
 
         final Urn trackUrn = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK_URN);
-        trackSubscription = trackRepository.track(trackUrn)
-                                           .observeOn(AndroidSchedulers.mainThread())
-                                           .subscribe(new TrackSubscriber());
+        trackSubscription = RxJava.toV1Observable(trackRepository.track(trackUrn))
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .subscribe(new TrackSubscriber());
 
         if (bundle == null) {
             attachCommentsFragment(trackUrn);

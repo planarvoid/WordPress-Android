@@ -11,14 +11,14 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreamEntityToItemTransformer implements Func1<List<StreamEntity>, Observable<List<StreamItem>>> {
+public class StreamEntityToItemTransformer implements Function<List<StreamEntity>, Single<List<StreamItem>>> {
     private final TrackRepository trackRepository;
     private final PlaylistRepository playlistRepository;
     private final EntityItemCreator entityItemCreator;
@@ -33,25 +33,25 @@ public class StreamEntityToItemTransformer implements Func1<List<StreamEntity>, 
     }
 
     @Override
-    public Observable<List<StreamItem>> call(List<StreamEntity> streamEntities) {
+    public Single<List<StreamItem>> apply(List<StreamEntity> streamEntities) {
         final List<StreamEntity> trackList = newArrayList(filter(streamEntities, entity -> entity.urn().isTrack()));
         final List<StreamEntity> playlistList = newArrayList(filter(streamEntities, entity -> entity.urn().isPlaylist()));
-        return Observable.zip(trackRepository.fromUrns(Lists.transform(trackList, StreamEntity::urn)),
-                              playlistRepository.withUrns(Lists.transform(playlistList, StreamEntity::urn)),
-                              (trackMap, playlistMap) -> {
-                                  final List<StreamItem> result = new ArrayList<>(streamEntities.size());
-                                  for (StreamEntity streamEntity : streamEntities) {
-                                      final Urn urn = streamEntity.urn();
-                                      final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
-                                      if (trackMap.containsKey(urn)) {
-                                          final TrackItem promotedTrackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
-                                          result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), avatarUrlTemplate));
-                                      } else if (playlistMap.containsKey(urn)) {
-                                          final PlaylistItem promotedPlaylistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
-                                          result.add(PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), avatarUrlTemplate));
-                                      }
+        return Single.zip(trackRepository.fromUrns(Lists.transform(trackList, StreamEntity::urn)),
+                          playlistRepository.withUrns(Lists.transform(playlistList, StreamEntity::urn)),
+                          (trackMap, playlistMap) -> {
+                              final List<StreamItem> result = new ArrayList<>(streamEntities.size());
+                              for (StreamEntity streamEntity : streamEntities) {
+                                  final Urn urn = streamEntity.urn();
+                                  final Optional<String> avatarUrlTemplate = streamEntity.avatarUrlTemplate();
+                                  if (trackMap.containsKey(urn)) {
+                                      final TrackItem promotedTrackItem = entityItemCreator.trackItem(trackMap.get(urn), streamEntity);
+                                      result.add(TrackStreamItem.create(promotedTrackItem, streamEntity.createdAt(), avatarUrlTemplate));
+                                  } else if (playlistMap.containsKey(urn)) {
+                                      final PlaylistItem promotedPlaylistItem = entityItemCreator.playlistItem(playlistMap.get(urn), streamEntity);
+                                      result.add(PlaylistStreamItem.create(promotedPlaylistItem, streamEntity.createdAt(), avatarUrlTemplate));
                                   }
-                                  return result;
-                              });
+                              }
+                              return result;
+                          });
     }
 }

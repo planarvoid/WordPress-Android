@@ -18,6 +18,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -157,14 +158,12 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
-        final TestSubscriber<StreamItem> subscriber = new TestSubscriber<>();
         LastPostedTrack track = PlayableFixtures.expectedLastPostedTrackForPostsScreen();
         when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(track));
 
-        operations.creatorInvites().subscribe(subscriber);
+        final TestObserver<StreamItem> subscriber = operations.creatorInvites().test();
 
-        final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.getOnNextEvents()
-                                                                                                            .get(0);
+        final StreamItem.FacebookCreatorInvites invitesItem = (StreamItem.FacebookCreatorInvites) subscriber.values().get(0);
         assertThat(invitesItem.trackUrn()).isEqualTo(track.urn());
     }
 

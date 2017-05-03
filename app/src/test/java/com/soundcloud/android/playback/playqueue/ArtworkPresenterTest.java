@@ -19,7 +19,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackContext;
@@ -32,10 +31,10 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 public class ArtworkPresenterTest extends AndroidUnitTest {
 
@@ -57,7 +56,7 @@ public class ArtworkPresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(new TrackQueueItem.Builder(Urn.forTrack(1L))
                                                                             .withPlaybackContext(PlaybackContext.create(PlaybackContext.Bucket.AUTO_PLAY))
                                                                             .build());
-        when(trackRepository.track(any())).thenReturn(Observable.just(track.track()));
+        when(trackRepository.track(any())).thenReturn(Maybe.just(track.track()));
 
         artworkPresenter = new ArtworkPresenter(eventBus, trackRepository, playQueueManager);
         artworkPresenter.attachView(artworkView);

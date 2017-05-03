@@ -62,13 +62,14 @@ import com.soundcloud.android.view.NewItemsIndicator;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import rx.Observable;
 import rx.Observer;
 import rx.subjects.PublishSubject;
 
@@ -150,8 +151,8 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 updatePlayableAdapterSubscriberFactory,
                 streamMeasurementsFactory);
 
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.empty());
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
+        when(streamOperations.initialStreamItems()).thenReturn(Single.just(Collections.emptyList()));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Maybe.empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.singlePageFunction());
         when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(followingOperations.onUserFollowed()).thenReturn(followSubject);
@@ -171,7 +172,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
                                                      normalTrackStreamItem,
                                                      playlistStreamItem);
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
+        when(streamOperations.initialStreamItems()).thenReturn(Single.just(items));
 
         CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onBuildBinding(null);
         binding.connect();
@@ -184,7 +185,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     public void canRefreshStreamItems() {
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
         final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
-        when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
+        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(
                 Collections.singletonList(streamItem)
         ));
 
@@ -198,20 +199,20 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void forwardsTrackClicksToClickListener() {
         final TrackItem clickedTrack = ModelFixtures.trackItem();
-        final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
+        final Single<List<PlayableWithReposter>> streamTracks = Single.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
-        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, clickedTrack);
+        verify(itemClickListener).legacyOnPostClick(any(rx.Observable.class), eq(view), eq(0), eq(clickedTrack));
     }
 
     @Test
     public void tracksPromotedTrackItemClick() {
         final TrackItem clickedTrack = expectedPromotedTrack();
-        final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
+        final Single<List<PlayableWithReposter>> streamTracks = Single.just(Arrays.asList(PlayableWithReposter.from(clickedTrack.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(TrackStreamItem.create(clickedTrack, clickedTrack.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -224,7 +225,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void tracksPromotedPlaylistItemClick() {
         final PlaylistItem clickedPlaylist = PlayableFixtures.expectedPromotedPlaylist();
-        final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(clickedPlaylist.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
+        final Single<List<PlayableWithReposter>> streamTracks = Single.just(Arrays.asList(PlayableWithReposter.from(clickedPlaylist.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(clickedPlaylist, clickedPlaylist.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -232,20 +233,20 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, 0);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, clickedPlaylist);
+        verify(itemClickListener).legacyOnPostClick(any(rx.Observable.class), eq(view), eq(0), eq(clickedPlaylist));
     }
 
     @Test
     public void forwardsPlaylistClicksToClickListener() {
         final PlaylistItem playlistItem = ModelFixtures.playlistItem();
-        final Observable<List<PlayableWithReposter>> streamTracks = Observable.just(Arrays.asList(PlayableWithReposter.from(playlistItem.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
+        final Single<List<PlayableWithReposter>> streamTracks = Single.just(Arrays.asList(PlayableWithReposter.from(playlistItem.getUrn()), PlayableWithReposter.from(Urn.forTrack(634L))));
 
         when(adapter.getItem(0)).thenReturn(PlaylistStreamItem.create(playlistItem, playlistItem.getCreatedAt(), Optional.absent()));
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
 
         presenter.onItemClicked(view, 0);
 
-        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, playlistItem);
+        verify(itemClickListener).legacyOnPostClick(any(rx.Observable.class), eq(view), eq(0), eq(playlistItem));
     }
 
     @Test
@@ -364,7 +365,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Test
     public void onRefreshableOverlayClickedUpdatesStreamAgain() {
         when(streamOperations.initialStreamItems())
-                .thenReturn(Observable.just(Collections.emptyList()));
+                .thenReturn(Single.just(Collections.emptyList()));
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
@@ -375,7 +376,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onStreamRefreshNewItemsSinceDate() {
-        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.newItemsSince(123L)).thenReturn(io.reactivex.Observable.just(5));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class)))
                 .thenReturn(Optional.of(DATE));
 
@@ -389,7 +390,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onStreamRefreshUpdatesOnlyWhenThereAreVisibleItems() {
-        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.newItemsSince(123L)).thenReturn(io.reactivex.Observable.just(5));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.absent());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
@@ -402,9 +403,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldRefreshOnCreate() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.just(Collections.emptyList()));
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Maybe.just(Collections.emptyList()));
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
-        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.newItemsSince(123L)).thenReturn(io.reactivex.Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -413,9 +414,9 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateIndicatorWhenUpdatedItemsForStartIsEmpty() {
-        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Observable.empty());
+        when(streamOperations.updatedTimelineItemsForStart()).thenReturn(Maybe.empty());
         when(streamOperations.getFirstItemTimestamp(anyListOf(StreamItem.class))).thenReturn(Optional.of(DATE));
-        when(streamOperations.newItemsSince(123L)).thenReturn(Observable.just(5));
+        when(streamOperations.newItemsSince(123L)).thenReturn(io.reactivex.Observable.just(5));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -424,7 +425,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetOverlayOnRefreshBinding() {
-        when(streamOperations.updatedStreamItems()).thenReturn(Observable.empty());
+        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(Collections.emptyList()));
 
         presenter.onRefreshBinding();
 
@@ -618,7 +619,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
         List<StreamItem> items = Collections.singletonList(normalTrackStreamItem);
 
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
+        when(streamOperations.initialStreamItems()).thenReturn(Single.just(items));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 
@@ -632,7 +633,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
         final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
-        when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
+        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(
                 Collections.singletonList(streamItem)
         ));
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.java.collections.Lists.newArrayList;
+import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.ads.StreamAdsController;
@@ -11,7 +12,6 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -21,9 +21,8 @@ import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -40,7 +39,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     private final EventBus eventBus;
     private final FacebookInvitesOperations facebookInvites;
     private final StreamAdsController streamAdsController;
-    private final StationsOperations stationsOperations;
     private final InlineUpsellOperations upsellOperations;
     private final SuggestedCreatorsOperations suggestedCreatorsOperations;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
@@ -58,10 +56,9 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
                      RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
                      MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand,
                      EventBus eventBus,
-                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                     @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                      FacebookInvitesOperations facebookInvites,
                      StreamAdsController streamAdsController,
-                     StationsOperations stationsOperations,
                      InlineUpsellOperations upsellOperations,
                      SyncStateStorage syncStateStorage,
                      SuggestedCreatorsOperations suggestedCreatorsOperations,
@@ -78,29 +75,28 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         this.eventBus = eventBus;
         this.facebookInvites = facebookInvites;
         this.streamAdsController = streamAdsController;
-        this.stationsOperations = stationsOperations;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
         this.streamEntityToItemTransformer = streamEntityToItemTransformer;
     }
 
     @Override
-    protected Observable<List<StreamItem>> toViewModels(List<StreamEntity> streamEntities) {
-        return streamEntityToItemTransformer.call(streamEntities);
+    protected Single<List<StreamItem>> toViewModels(List<StreamEntity> streamEntities) {
+        return streamEntityToItemTransformer.apply(streamEntities);
     }
 
-    Observable<List<StreamItem>> initialStreamItems() {
-        return removeStalePromotedItemsCommand.toObservable(null)
+    Single<List<StreamItem>> initialStreamItems() {
+        return removeStalePromotedItemsCommand.toSingle(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(o -> initialTimelineItems(false))
                                               .zipWith(initialNotificationItem(),
                                                        StreamOperations::addNotificationItemToStream)
                                               .map(this::addUpsellableItem)
-                                              .doOnNext(this::promotedImpressionAction)
+                                              .doOnSuccess(this::promotedImpressionAction)
                                               // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                                               // logic to the presenter
-                                              .observeOn(AndroidSchedulers.mainThread())
-                                              .doOnNext(streamItems -> streamAdsController.insertAds());
+                                              .observeOn(mainThread())
+                                              .doOnSuccess(streamItems -> streamAdsController.insertAds());
     }
 
     private List<StreamItem> addUpsellableItem(List<StreamItem> streamItems) {
@@ -113,32 +109,32 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         return streamItems;
     }
 
-    private Observable<Optional<StreamItem>> initialNotificationItem() {
-        return suggestedCreatorsOperations.suggestedCreators()
+    private Single<Optional<StreamItem>> initialNotificationItem() {
+        return suggestedCreatorsOperations.suggestedCreatorsV2()
                                           .switchIfEmpty(facebookInvites.creatorInvites())
                                           .switchIfEmpty(facebookInvites.listenerInvites())
                                           .map(Optional::of)
-                                          .switchIfEmpty(Observable.just(Optional.absent()));
+                                          .toSingle(Optional.absent());
     }
 
-    Observable<List<StreamItem>> updatedStreamItems() {
+    Single<List<StreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
                     .zipWith(updatedNotificationItem(), StreamOperations::addNotificationItemToStream)
-                    .doOnNext(this::promotedImpressionAction)
+                    .doOnSuccess(this::promotedImpressionAction)
                     // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                     // logic to the presenter
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(streamItems -> streamAdsController.insertAds());
+                    .observeOn(mainThread())
+                    .doOnSuccess(streamItems -> streamAdsController.insertAds());
     }
 
-    private Observable<Optional<StreamItem>> updatedNotificationItem() {
-        return suggestedCreatorsOperations.suggestedCreators()
+    private Single<Optional<StreamItem>> updatedNotificationItem() {
+        return suggestedCreatorsOperations.suggestedCreatorsV2()
                                           .map(Optional::of)
-                                          .switchIfEmpty(Observable.just(Optional.absent()));
+                                          .toSingle(Optional.absent());
     }
 
-    Observable<List<PlayableWithReposter>> urnsForPlayback() {
+    Single<List<PlayableWithReposter>> urnsForPlayback() {
         return streamStorage.playbackItems().subscribeOn(scheduler).toList();
     }
 

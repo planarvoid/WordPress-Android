@@ -6,8 +6,8 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,7 +22,7 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem, ActivityItem
     @Inject
     ActivitiesOperations(ActivitiesStorage activitiesStorage,
                          SyncInitiator syncInitiator,
-                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                         @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                          SyncStateStorage syncStateStorage) {
         super(Syncable.ACTIVITIES,
               activitiesStorage,
@@ -32,11 +32,11 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem, ActivityItem
         this.scheduler = scheduler;
     }
 
-    Observable<List<ActivityItem>> initialActivities() {
+    Single<List<ActivityItem>> initialActivities() {
         return initialTimelineItems(false);
     }
 
-    Observable<List<ActivityItem>> updatedActivities() {
+    Single<List<ActivityItem>> updatedActivities() {
         return updatedTimelineItems().subscribeOn(scheduler);
     }
 
@@ -46,8 +46,8 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem, ActivityItem
     }
 
     @Override
-    protected Observable<List<ActivityItem>> toViewModels(List<ActivityItem> activityItems) {
-        return Observable.just(activityItems);
+    protected Single<List<ActivityItem>> toViewModels(List<ActivityItem> activityItems) {
+        return Single.just(activityItems);
     }
 
     public Optional<Date> getFirstItemTimestamp(List<ActivityItem> items) {

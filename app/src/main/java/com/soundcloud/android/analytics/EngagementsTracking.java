@@ -4,6 +4,7 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.users.User;
@@ -22,17 +23,17 @@ public class EngagementsTracking {
                                                                final EventContextMetadata eventMetadata,
                                                                final PromotedSourceInfo promotedSourceInfo) {
         return track -> UIEvent.fromToggleLike(addLike,
-                                       trackUrn,
-                                       eventMetadata,
-                                       promotedSourceInfo,
-                                       EntityMetadata.from(track));
+                                               trackUrn,
+                                               eventMetadata,
+                                               promotedSourceInfo,
+                                               EntityMetadata.from(track));
     }
 
     private static Func1<User, UIEvent> FOLLOW_EVENT_FROM_USER(final boolean isFollow,
                                                                final EventContextMetadata eventContextMetadata) {
         return user -> UIEvent.fromToggleFollow(isFollow,
-                                        EntityMetadata.fromUser(user),
-                                        eventContextMetadata);
+                                                EntityMetadata.fromUser(user),
+                                                eventContextMetadata);
     }
 
     @Inject
@@ -47,9 +48,9 @@ public class EngagementsTracking {
     public void likeTrackUrn(Urn trackUrn, boolean addLike, EventContextMetadata eventMetadata,
                              PromotedSourceInfo promotedSourceInfo) {
 
-        trackRepository.track(trackUrn)
-                       .map(LIKE_EVENT_FROM_TRACK(trackUrn, addLike, eventMetadata, promotedSourceInfo))
-                       .subscribe(eventTracker.trackEngagementSubscriber());
+        RxJava.toV1Observable(trackRepository.track(trackUrn))
+              .map(LIKE_EVENT_FROM_TRACK(trackUrn, addLike, eventMetadata, promotedSourceInfo))
+              .subscribe(eventTracker.trackEngagementSubscriber());
     }
 
     public void followUserUrn(Urn userUrn, boolean isFollow, EventContextMetadata eventContextMetadata) {

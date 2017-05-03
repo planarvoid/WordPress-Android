@@ -22,6 +22,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistWithExtrasState.PartialState;
 import com.soundcloud.android.playlists.PlaylistWithExtrasState.PartialState.LoadingError;
 import com.soundcloud.android.profile.ProfileApiMobile;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -123,9 +124,9 @@ class DataSourceProvider {
 
     @NonNull
     private Observable<PartialState> playlistWithExtras(Urn urn) {
-        return playlistRepository.withUrn(urn)
-                                 .flatMap(this::emissions)
-                                 .onErrorReturn(LoadingError::new);
+        return RxJava.toV1Observable(playlistRepository.withUrn(urn))
+                     .flatMap(this::emissions)
+                     .onErrorReturn(LoadingError::new);
     }
 
     private Observable<Urn> refreshIntent(PublishSubject<Void> refresh) {
@@ -180,7 +181,7 @@ class DataSourceProvider {
 
     private Observable<List<Track>> tracks(Urn urn) {
         return merge(just(null), tracklistChanges(urn))
-                .switchMap(ignored -> trackRepository.forPlaylist(urn, STALE_TIME_MILLIS));
+                .switchMap(ignored -> RxJava.toV1Observable(trackRepository.forPlaylist(urn, STALE_TIME_MILLIS)));
     }
 
     @NonNull

@@ -8,6 +8,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.Predicate;
 import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
@@ -20,6 +21,8 @@ import java.util.List;
 public final class RxUtils {
 
     public static final Func1<Boolean, Boolean> IS_TRUE = isTrue -> isTrue;
+
+    public static final Predicate<Boolean> TRUE = isTrue -> isTrue;
 
     public static final Func1<Boolean, Boolean> IS_FALSE = isTrue -> !isTrue;
 

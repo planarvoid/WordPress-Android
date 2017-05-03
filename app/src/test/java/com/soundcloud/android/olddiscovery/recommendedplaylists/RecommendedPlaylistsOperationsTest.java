@@ -11,6 +11,7 @@ import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -56,7 +57,7 @@ public class RecommendedPlaylistsOperationsTest extends AndroidUnitTest {
 
         when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_PLAYLISTS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
         when(playlistsStorage.recommendedPlaylists()).thenReturn(Observable.just(singletonList(recommendedPlaylistEntity)));
-        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Observable.just(singletonMap(playlist.urn(), playlist)));
+        when(playlistRepository.withUrns(new HashSet<>(urns))).thenReturn(Single.just(singletonMap(playlist.urn(), playlist)));
 
         operations.recommendedPlaylists()
                   .test()

@@ -18,6 +18,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.InsertResult;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -60,7 +61,7 @@ public class NewForYouStorageTest extends AndroidUnitTest {
     @Test
     public void loadsNewForYou() throws Exception {
         List<Track> trackList = Collections.singletonList(Track.from(firstTrack));
-        when(trackRepository.trackListFromUrns(asList(firstTrack.getUrn(), secondTrack.getUrn()))).thenReturn(Observable.just(trackList));
+        when(trackRepository.trackListFromUrns(asList(firstTrack.getUrn(), secondTrack.getUrn()))).thenReturn(Single.just(trackList));
         when(fileStorage.readFromFile(eq(FILE_NAME), any())).thenReturn(Observable.just(NewForYouStorage.NewForYouStorageItem.fromApiNewForYou(apiNewForYou)));
 
         storage.newForYou().test().assertValue(NewForYou.create(apiNewForYou.lastUpdate(), QUERY_URN, trackList));
