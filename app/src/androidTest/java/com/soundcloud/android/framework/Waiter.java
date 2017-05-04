@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.observers.ToastObserver;
+import com.soundcloud.android.framework.viewelements.ImageViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -187,6 +188,10 @@ public class Waiter {
         return solo.waitForCondition(new TextInViewCondition(textView, text), ELEMENT_TIMEOUT);
     }
 
+    public boolean waitForElementImageToLoad(ImageViewElement imageView) {
+        return solo.waitForCondition(new ImageLoadedCondition(imageView), ELEMENT_TIMEOUT);
+    }
+
     public boolean waitForElements(int elementId) {
         return solo.waitForCondition(new VisibleElementsCondition(elementId), NETWORK_TIMEOUT);
     }
@@ -361,6 +366,19 @@ public class Waiter {
         @Override
         public boolean isSatisfied() {
             return view.getText().equals(text);
+        }
+    }
+
+    private class ImageLoadedCondition implements Condition {
+        private final ImageViewElement view;
+
+        private ImageLoadedCondition(ImageViewElement view) {
+            this.view = view;
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return view.hasImageLoaded();
         }
     }
 

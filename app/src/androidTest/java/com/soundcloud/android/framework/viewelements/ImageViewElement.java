@@ -20,4 +20,11 @@ public class ImageViewElement {
         }
         throw new UnsupportedOperationException("View is not an image element: " + view);
     }
+
+    public boolean hasImageLoaded() {
+        if (view instanceof ImageView) {
+            return ((ImageView) view).getDrawable() != null;
+        }
+        throw new UnsupportedOperationException("View is not an image element: " + view);
+    }
 }
