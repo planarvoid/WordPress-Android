@@ -309,7 +309,7 @@ public class TestUser {
             "PrestitialAdUser",
             "soundcloud.manual.PrestitialAdUser@tests.soundcloud",
             "SoundCloudTest2016",
-            "1-8742-305111241-b2d721a24c377af",
+            "1-276024-305111241-f125ae1da3851",
             305111241,
             false);
 
