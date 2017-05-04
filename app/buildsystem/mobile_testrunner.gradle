@@ -68,6 +68,7 @@ def systemProperties = [
         "log.tag.ActivityLifeCycle"    : "DEBUG"
 ]
 def lollipopLabel = new Label("Lollipop")
+def marshmallowLabel = new Label("Marshmallow")
 
 
 task runListOfTests(dependsOn: extractHtmlTemplates) {
@@ -97,6 +98,18 @@ task runLollipopTests(dependsOn: extractHtmlTemplates) {
     ] as String[]
 
     testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
+  }
+}
+
+task runMarshmallowTests(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def excludeAnnotations = [
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
+            "com.soundcloud.android.framework.annotation.PaymentTest"
+    ] as String[]
+
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, systemProperties, null, null, null)
   }
 }
 
