@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -70,7 +71,6 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
     @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
-    @Captor private ArgumentCaptor<Intent> intentCaptor;
     private CondensedNumberFormatter numberFormatter;
     private UserProfileInfo fullUserProfileInfo;
     private UserProfileInfo emptyUserProfileInfo;
@@ -88,6 +88,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         fullUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(links), of(BIO), fullUser());
         emptyUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(newArrayList()), Optional.absent(), emptyUser());
         when(fragment.getArguments()).thenReturn(value);
+        when(fragment.getActivity()).thenReturn(activity());
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -209,18 +210,17 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clickingLinkStartsActivityForIntent() {
-        Intent socialMediaLinkIntent = new Intent();
-        when(socialMediaLink.toIntent()).thenReturn(socialMediaLinkIntent);
+    public void clickingLinkNavigatesToThatLinkViaNavigator() {
+        final String url = "soundcloud://foo";
+        when(socialMediaLink.url()).thenReturn(url);
 
         presenter.onCreate(fragment, null);
         doNothing().when(userDetailsView).setListener(listenerCaptor.capture());
-        doNothing().when(fragment).startActivity(intentCaptor.capture());
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onLinkClicked(socialMediaLink);
 
-        assertThat(intentCaptor.getValue()).isEqualTo(socialMediaLinkIntent);
+        verify(navigator).openLink(fragment.getActivity(), url);
     }
 
     @Test

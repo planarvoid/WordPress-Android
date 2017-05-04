@@ -793,4 +793,43 @@ public class NavigatorTest extends AndroidUnitTest {
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                    .containsAction(Actions.COLLECTION);
     }
+
+    @Test
+    public void openLinkWorksForEmails() {
+        navigator.openLink(activityContext, "email@address.com");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_SENDTO)
+                .containsUri(Uri.parse("mailto:"))
+                .containsExtra(Intent.EXTRA_EMAIL, new String[] { "email@address.com" });
+    }
+
+    @Test
+    public void openLinkWorksForSupportedAppLinks() {
+        navigator.openLink(activityContext, "soundcloud://search");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse("soundcloud://search"))
+                .opensActivity(ResolveActivity.class);
+    }
+
+    @Test
+    public void openLinkWorksForSupportedWebLinks() {
+        navigator.openLink(activityContext, "http://soundcloud.com/search");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse("http://soundcloud.com/search"))
+                .opensActivity(ResolveActivity.class);
+    }
+
+    @Test
+    public void openLinkFallsBackToAndroidForUnrecognisedLinks() {
+        navigator.openLink(activityContext, "http://facebook.com/whatever");
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse("http://facebook.com/whatever"));
+    }
 }

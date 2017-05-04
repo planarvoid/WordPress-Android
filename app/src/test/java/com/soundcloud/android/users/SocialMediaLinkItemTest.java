@@ -52,40 +52,11 @@ public class SocialMediaLinkItemTest extends AndroidUnitTest {
         assertThat(urlDisplayName("https://www.foo.com/bar?baz=quux")).isEqualTo("foo.com/bar?baz=quux");
     }
 
-    @Test
-    public void createsEmailIntentWhenUrlIsAnEmail() {
-        intentMatchesEmail("email", "foo@bar.com");
-        intentMatchesEmail("email", "https://www.foo.com/bar?baz=quux");
-    }
-
-    @Test
-    public void createsViewIntentWhenUrlIsNotAnEmail() {
-        intentMatchesView("unknown", "unknown.com/famous");
-        intentMatchesView("personal", "foo.com/bar?baz=quux");
-        intentMatchesView("spotify", "spotify.com/famous");
-    }
-
     private boolean networkHasExpectedDrawable(String network, @DrawableRes int drawable) {
         final SocialMediaLinkItem link = SocialMediaLinkItem.create(Optional.absent(), network, "some_url");
         return link.icon(context()).getConstantState().equals(context().getResources().getDrawable(drawable).getConstantState());
     }
 
-    private IntentAssert intentMatchesEmail(String network, String url) {
-        return new IntentAssert(intent(network, url))
-                .containsAction(Intent.ACTION_SENDTO)
-                .containsUri(Uri.parse("mailto:"))
-                .containsExtra(Intent.EXTRA_EMAIL, new String[] { url });
-    }
-
-    private IntentAssert intentMatchesView(String network, String url) {
-        return new IntentAssert(intent(network, url))
-                .containsAction(Intent.ACTION_VIEW)
-                .containsUri(Uri.parse(url));
-    }
-
-    private Intent intent(String network, String url) {
-        return SocialMediaLinkItem.create(Optional.absent(), network, url).toIntent();
-    }
 
     private String urlDisplayName(String url) {
         return SocialMediaLinkItem.create(Optional.absent(), "unrecognized", url).displayName();
