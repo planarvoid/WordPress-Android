@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import com.appboy.Appboy;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.soundcloud.android.analytics.appboy.AppboyInAppMessageListener;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.analytics.appboy.RealAppboyWrapper;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
@@ -28,8 +29,8 @@ public class AnalyticsModule {
 
     @Provides
     @Singleton
-    protected AppboyWrapper provideAppboy(Context context) {
-        return new RealAppboyWrapper(Appboy.getInstance(context));
+    protected AppboyWrapper provideAppboy(Context context, AppboyInAppMessageListener listener) {
+        return new RealAppboyWrapper(Appboy.getInstance(context), listener);
     }
 
     @Provides

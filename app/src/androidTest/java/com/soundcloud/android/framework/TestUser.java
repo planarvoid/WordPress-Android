@@ -304,15 +304,6 @@ public class TestUser {
             "1-21686-276289453-57ff1011de8ea3",
             276289453,
             true);
-
-    public static final TestUser adPrestitialUser = new TestUser(
-            "PrestitialAdUser",
-            "soundcloud.manual.PrestitialAdUser@tests.soundcloud",
-            "SoundCloudTest2016",
-            "1-276024-305111241-f125ae1da3851",
-            305111241,
-            false);
-
     public static final TestUser androidTestUser = new TestUser(
             "andtestpl",
             "sc.test.user.pl1@gmail.com",
