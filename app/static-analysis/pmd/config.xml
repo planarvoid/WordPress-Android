@@ -13,6 +13,14 @@
         <!-- One cyclomatic complexity check is enough -->
         <exclude name="StdCyclomaticComplexity"/>
         <exclude name="CyclomaticComplexity"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="ExcessiveParameterList"/>
+    </rule>
+    <rule ref="rulesets/java/codesize.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="12" />
+            <property name="violationSuppressXPath" value="//ConstructorDeclaration" />
+        </properties>
     </rule>
     <rule ref="rulesets/java/design.xml">
         <exclude name="TooFewBranchesForASwitchStatement"/>
@@ -23,6 +31,7 @@
         <exclude name="UncommentedEmptyConstructor"/>
         <exclude name="UseVarargs"/>
         <exclude name="AccessorMethodGeneration"/>
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
