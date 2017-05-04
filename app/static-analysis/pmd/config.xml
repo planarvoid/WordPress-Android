@@ -19,7 +19,7 @@
     <rule ref="rulesets/java/codesize.xml/ExcessiveParameterList">
         <properties>
             <property name="minimum" value="12" />
-            <property name="violationSuppressXPath" value="//ConstructorDeclaration" />
+            <property name="violationSuppressXPath" value="//ClassOrInterfaceBodyDeclaration[Annotation/MarkerAnnotation/Name[@Image='Inject'] and ConstructorDeclaration]" />
         </properties>
     </rule>
     <rule ref="rulesets/java/design.xml">
