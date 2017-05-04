@@ -19,8 +19,8 @@ public class RecoverPasswordOperations {
 
     public ApiResponse recoverPassword(String email) {
         return apiClient.fetchResponse(ApiRequest.post(ApiEndpoints.RESET_PASSWORD.path())
-                                                                    .forPrivateApi()
-                                                                    .withContent(ResetPasswordBody.create(email))
-                                                                    .build());
+                                                 .forPrivateApi()
+                                                 .withContent(ResetPasswordBody.create(email))
+                                                 .build());
     }
 }

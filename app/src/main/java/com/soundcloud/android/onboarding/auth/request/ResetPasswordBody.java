@@ -5,9 +5,9 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class ResetPasswordBody {
-    @JsonProperty("email") abstract String email();
+    @JsonProperty("identifier") abstract String identifier();
 
-    public static ResetPasswordBody create(String email) {
-        return new AutoValue_ResetPasswordBody(email);
+    public static ResetPasswordBody create(String identifier) {
+        return new AutoValue_ResetPasswordBody(identifier);
     }
 }
