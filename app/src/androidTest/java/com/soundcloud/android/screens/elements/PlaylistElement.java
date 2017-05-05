@@ -5,6 +5,8 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
 public class PlaylistElement {
@@ -13,10 +15,13 @@ public class PlaylistElement {
     private final ViewElement wrapped;
     private final int titleId;
 
+    private final FeatureFlagsHelper featureFlagsHelper;
+
     private PlaylistElement(Han testDriver, ViewElement wrapped, int titleId) {
         this.testDriver = testDriver;
         this.wrapped = wrapped;
         this.titleId = titleId;
+        featureFlagsHelper = FeatureFlagsHelper.create(testDriver.getCurrentActivity());
     }
 
     public static PlaylistElement forListItem(Han testDriver, ViewElement wrapped) {
@@ -54,7 +59,9 @@ public class PlaylistElement {
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.offline_state_indicator)));
+        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(featureFlagsHelper.isEnabled(Flag.NEW_OFFLINE_ICONS)
+                                                                                            ? R.id.offline_state_indicator
+                                                                                            : R.id.item_download_state)));
     }
 
     public ViewElement noNetworkElement() {

@@ -15,10 +15,10 @@ import java.util.Arrays;
 @VisibleForTesting
 public class FeatureFlagsHelper {
 
-    private final FeatureFlags featureFlags;
+    private final FeatureFlags wrappedFlags;
 
-    private FeatureFlagsHelper(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
+    private FeatureFlagsHelper(FeatureFlags wrappedFlags) {
+        this.wrappedFlags = wrappedFlags;
     }
 
     public static FeatureFlagsHelper create(Context context) {
@@ -26,20 +26,28 @@ public class FeatureFlagsHelper {
     }
 
     public void enable(Flag flag) {
-        featureFlags.setRuntimeFeatureFlagValue(flag, true);
+        wrappedFlags.setRuntimeFeatureFlagValue(flag, true);
     }
 
     public void disable(Flag flag) {
-        featureFlags.setRuntimeFeatureFlagValue(flag, false);
+        wrappedFlags.setRuntimeFeatureFlagValue(flag, false);
     }
 
     public void assertEnabled(Flag... requiredEnabledFeatures) {
         checkState(isLocallyEnabled(requiredEnabledFeatures), "Required feature flags were not enabled. " + Arrays.toString(requiredEnabledFeatures));
     }
 
+    public boolean isEnabled(Flag flag) {
+        return wrappedFlags.isEnabled(flag);
+    }
+
+    public boolean isDisabled(Flag flag) {
+        return wrappedFlags.isDisabled(flag);
+    }
+
     public boolean isLocallyEnabled(Flag[] requiredEnabledFeatures) {
         for (Flag flag : requiredEnabledFeatures) {
-            if (!featureFlags.getRuntimeFeatureFlagValue(flag)) {
+            if (!wrappedFlags.getRuntimeFeatureFlagValue(flag)) {
                 return false;
             }
         }
@@ -48,7 +56,7 @@ public class FeatureFlagsHelper {
 
     public boolean isLocallyDisabled(Flag[] requiredDisabledFeatures) {
         for (Flag flag : requiredDisabledFeatures) {
-            if (featureFlags.getRuntimeFeatureFlagValue(flag)) {
+            if (wrappedFlags.getRuntimeFeatureFlagValue(flag)) {
                 return false;
             }
         }
@@ -56,6 +64,6 @@ public class FeatureFlagsHelper {
     }
 
     public void reset(Flag flag) {
-        featureFlags.resetRuntimeFlagValue(flag);
+        wrappedFlags.resetRuntimeFlagValue(flag);
     }
 }

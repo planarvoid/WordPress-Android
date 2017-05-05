@@ -16,6 +16,7 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
@@ -44,13 +45,13 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        final Context context = getInstrumentation().getTargetContext();
+        Context context = getInstrumentation().getTargetContext();
         resetOfflineSyncState(context);
         enableOfflineContent(context);
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOfflineFromItem() {
-        final PlaylistsScreen playlistsScreen = mainNavHelper
+        PlaylistsScreen playlistsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview();
 
@@ -62,21 +63,30 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         PlaylistDetailsScreen playlistDetailsScreen =
                 playlistsScreen.scrollToPlaylistWithTitle("Offline playlist").click();
 
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        } else {
+            assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
+
+        }
     }
 
     public void testDownloadsPlaylistWhenMadeAvailableOfflineFromDetails() {
-        final PlaylistsScreen playlistsScreen = mainNavHelper
+        PlaylistsScreen playlistsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview();
 
-        final PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
+        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
                 .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
-                .clickDownloadToggle();
+                .clickDownloadButton();
 
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        } else {
+            assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
+        }
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+        DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
                 .goBackToPlaylists()
                 .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
                 .downloadElement();
@@ -88,14 +98,21 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
                                                                          .clickPlaylistsPreview()
                                                                          .scrollToAndClickPlaylistWithTitle(
                                                                                  OFFLINE_PLAYLIST)
-                                                                         .clickDownloadToggle();
+                                                                         .clickDownloadButton();
 
-        final OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
-        assertThat(offlineButton, is(downloadingState()));
-        playlistDetailsScreen.waitForDownloadToFinish();
-        assertThat(offlineButton, is(downloadedState()));
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
+            assertThat(offlineButton, is(downloadingState()));
+            playlistDetailsScreen.waitForDownloadToFinish();
+            assertThat(offlineButton, is(downloadedState()));
+        } else {
+            DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
+            assertThat(downloadElement, is(downloading()));
+            playlistDetailsScreen.waitForDownloadToFinish();
+            assertThat(downloadElement, is(downloaded()));
+        }
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+        DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
                 .goBackToPlaylists()
                 .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
                 .downloadElement();
@@ -103,17 +120,23 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testEmptyPlaylistsAreMarkedAsRequested() {
-        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
+        PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                                                                          .clickPlaylistsPreview()
                                                                          .scrollToAndClickPlaylistWithTitle(
                                                                                  EMPTY_PLAYLIST)
-                                                                         .clickDownloadToggle();
+                                                                         .clickDownloadButton();
 
-        final OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
-        assertThat(offlineButton, is(not(downloadingState())));
-        assertThat("Playlist should be requested ", offlineButton.isDefaultState());
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
+            assertThat(offlineButton, is(not(downloadingState())));
+            assertThat("Playlist should be requested ", offlineButton.isDefaultState());
+        } else {
+            DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
+            assertThat(downloadElement, is(not(downloading())));
+            assertThat("Playlist should be requested ", downloadElement.isRequested());
+        }
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+        DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
                 .goBackToPlaylists()
                 .scrollToPlaylistWithTitle(EMPTY_PLAYLIST)
                 .downloadElement();
@@ -126,13 +149,19 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
                                                                          .clickPlaylistsPreview()
                                                                          .scrollToAndClickPlaylistWithTitle(
                                                                                  UNAVAILABLE_PLAYLIST)
-                                                                         .clickDownloadToggle();
+                                                                         .clickDownloadButton();
 
-        final OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
-        assertThat(offlineButton, is(not(downloadingState())));
-        assertThat("Playlist should be unavailable ", offlineButton.isWaitingState());
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
+            assertThat(offlineButton, is(not(downloadingState())));
+            assertThat("Playlist should be unavailable ", offlineButton.isWaitingState());
+        } else {
+            DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
+            assertThat(downloadElement, is(not(downloading())));
+            assertThat("Playlist should be unavailable ", downloadElement.isUnavailable());
+        }
 
-        final DownloadImageViewElement collectionsDownloadElement =
+        DownloadImageViewElement collectionsDownloadElement =
                 playlistDetailsScreen
                         .goBackToPlaylists()
                         .scrollToPlaylistWithTitle(UNAVAILABLE_PLAYLIST)
@@ -142,16 +171,21 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlaylistsWithAvailableTracksAreNotMarkedAsUnavailable() {
-        final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
+        PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
                 .clickPlaylistsPreview()
                 .scrollToAndClickPlaylistWithTitle(MIXED_PLAYLIST)
-                .clickDownloadToggle();
+                .clickDownloadButton();
 
-        final OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
-        assertThat("Playlist should not be unavailable ", !offlineButton.isWaitingState());
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
+            assertThat("Playlist should not be unavailable ", !offlineButton.isWaitingState());
+        } else {
+            DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
+            assertThat("Playlist should not be unavailable ", !downloadElement.isUnavailable());
+        }
 
-        final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+        DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
                 .goBackToPlaylists()
                 .scrollToPlaylistWithTitle(MIXED_PLAYLIST)
                 .downloadElement();
@@ -159,21 +193,32 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlaylistIsRequestedWhenNetworkIsOff() {
-        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
+        PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
         playlistsScreen.scrollToPlaylistWithTitle(OFFLINE_PLAYLIST);
         connectionHelper.setWifiConnected(false);
-        final PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
+        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
                 .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
-                .clickDownloadToggle();
+                .clickDownloadButton();
 
-        final OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
-        assertThat(offlineButton, is(not(downloadingState())));
-        assertThat("Playlist should be unavailable ", offlineButton.isWaitingState());
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            OfflineStateButtonElement offlineButton = playlistDetailsScreen.offlineButtonElement();
+            assertThat(offlineButton, is(not(downloadingState())));
+            assertThat("Playlist should be unavailable ", offlineButton.isWaitingState());
 
-        final ViewElement collectionsNoNetworkElement = playlistDetailsScreen
-                .goBackToPlaylists()
-                .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
-                .noNetworkElement();
-        assertThat(collectionsNoNetworkElement, is(visible()));
+            ViewElement collectionsNoNetworkElement = playlistDetailsScreen
+                    .goBackToPlaylists()
+                    .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
+                    .noNetworkElement();
+            assertThat(collectionsNoNetworkElement, is(visible()));
+        } else {
+            DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
+            assertThat(downloadElement, is(not(downloading())));
+            assertThat("Playlist should be requested ", downloadElement.isRequested());
+
+            DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
+                    .headerDownloadElement();
+            assertThat(collectionsDownloadElement, is(not(downloading())));
+            assertThat("Playlist should be requested ", collectionsDownloadElement.isRequested());
+        }
     }
 }

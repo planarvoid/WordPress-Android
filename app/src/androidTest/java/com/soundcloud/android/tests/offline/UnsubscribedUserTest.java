@@ -12,7 +12,6 @@ import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.matcher.element.IsVisible;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
 import org.hamcrest.core.IsNot;
@@ -39,7 +38,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
     @Ignore
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
-                                                       .offlineToggle();
+                                                       .offlineButton();
 
         assertThat(offlineToggle, is(not(visible())));
     }
@@ -49,7 +48,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
                                                      .clickPlaylistsPreview()
                                                      .clickOnFirstPlaylist()
-                                                     .getDownloadToggle();
+                                                     .getDownloadButton();
 
         assertThat(offlineItem, is(not(visible())));
     }
@@ -59,7 +58,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
                                                      .clickPlaylistsPreview()
                                                      .clickOnFirstPlaylist()
-                                                     .getDownloadToggle();
+                                                     .getDownloadButton();
 
         assertThat(offlineItem, is(not(visible())));
     }

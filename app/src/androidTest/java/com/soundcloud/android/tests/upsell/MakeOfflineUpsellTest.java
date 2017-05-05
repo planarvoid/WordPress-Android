@@ -55,7 +55,7 @@ public class MakeOfflineUpsellTest extends ActivityTest<MainActivity> {
         UpgradeScreen upgradeScreen = collectionScreen
                 .clickPlaylistsPreview()
                 .clickOnFirstPlaylist()
-                .clickDownloadToggleForUpsell();
+                .clickDownloadButtonForUpsell();
 
         assertThat(upgradeScreen, is(visible()));
 

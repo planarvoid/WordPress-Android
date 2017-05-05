@@ -44,7 +44,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
-        assertThat(trackLikesScreen.offlineToggle(), is(visible()));
+        assertThat(trackLikesScreen.offlineButton(), is(visible()));
     }
 
     public void testOfflineSyncOfOfflineLikes() throws Exception {

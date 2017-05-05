@@ -11,7 +11,6 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.BasicSettingsScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -51,7 +50,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
                      .clickPlaylistsPreview()
                      .scrollToFirstPlaylist()
                      .click()
-                     .clickDownloadToggle()
+                     .clickDownloadButton()
                      .goBackToPlaylists()
                      .goBackToCollections();
         mainNavHelper.goToBasicSettings();

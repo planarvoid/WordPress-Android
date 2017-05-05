@@ -9,7 +9,10 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.AdapterElement;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
@@ -26,8 +29,11 @@ public class PlaylistDetailsScreen extends Screen {
 
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
 
+    private final FeatureFlagsHelper featureFlagsHelper;
+
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
+        featureFlagsHelper = FeatureFlagsHelper.create(solo.getCurrentActivity());
     }
 
     public PlaylistsScreen goBackToPlaylists() {
@@ -40,28 +46,29 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
-    public ConfirmDisableSyncCollectionScreen clickDownloadToDisableSyncCollection() {
-        getDownloadToggle().click();
-        return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);
-    }
-
-    public PlaylistDetailsScreen clickDownloadToggle() {
-        getDownloadToggle().click();
+    public PlaylistDetailsScreen clickDownloadButton() {
+        getDownloadButton().click();
         return this;
     }
 
-    public UpgradeScreen clickDownloadToggleForUpsell() {
-        getDownloadToggle().click();
+    public UpgradeScreen clickDownloadButtonForUpsell() {
+        getDownloadButton().click();
         return new UpgradeScreen(testDriver);
+    }
+
+    public ConfirmDisableSyncCollectionScreen clickDownloadToDisableSyncCollection() {
+        getDownloadButton().click();
+        return new ConfirmDisableSyncCollectionScreen(testDriver, MainActivity.class);
     }
 
     public PlaylistUpsellCardElement scrollToUpsell() {
         return new PlaylistUpsellCardElement(testDriver, scrollToItem(With.id(R.id.playlist_upsell)));
     }
 
-    public ViewElement getDownloadToggle() {
-        return testDriver
-                .findOnScreenElement(With.id(R.id.offline_state_button));
+    public ViewElement getDownloadButton() {
+        return testDriver.findOnScreenElement(With.id(featureFlagsHelper.isEnabled(Flag.NEW_OFFLINE_ICONS)
+                                                      ? R.id.offline_state_button
+                                                      : R.id.toggle_download));
     }
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
@@ -73,6 +80,10 @@ public class PlaylistDetailsScreen extends Screen {
 
     public OfflineStateButtonElement offlineButtonElement() {
         return new OfflineStateButtonElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.offline_state_button)));
+    }
+
+    public DownloadImageViewElement headerDownloadElement() {
+        return new DownloadImageViewElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public String getTitle() {

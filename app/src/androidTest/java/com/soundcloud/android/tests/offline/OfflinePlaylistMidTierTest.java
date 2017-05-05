@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.offline;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloadingOrDownloaded.downloadingOrDownloaded;
 import static com.soundcloud.android.screens.elements.OfflineStateButtonElement.IsDownloadingOrDownloaded.downloadingOrDownloadedState;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -10,6 +11,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
@@ -66,15 +68,24 @@ public class OfflinePlaylistMidTierTest extends ActivityTest<MainActivity> {
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen
                 .scrollToPlaylistWithTitle(MIXED_PLAYLIST)
                 .click()
-                .clickDownloadToggle();
+                .clickDownloadButton();
 
-        assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            assertThat(playlistDetailsScreen.offlineButtonElement(), is(downloadingOrDownloadedState()));
+        } else {
+            assertThat(playlistDetailsScreen.headerDownloadElement(), is(downloadingOrDownloaded()));
+        }
 
         playlistDetailsScreen.scrollToBottom();
         playlistDetailsScreen.waitForDownloadToFinish();
         connectionHelper.setWifiConnected(false);
 
-        assertThat("Playlist should be downloaded", playlistDetailsScreen.offlineButtonElement().isDownloadedState());
+        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            assertThat("Playlist should be downloaded", playlistDetailsScreen.offlineButtonElement().isDownloadedState());
+        } else {
+            assertThat("Playlist should be downloaded", playlistDetailsScreen.headerDownloadElement().isDownloaded());
+        }
+
         return playlistDetailsScreen;
     }
 }

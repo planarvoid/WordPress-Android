@@ -211,7 +211,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         return requiredDisabledFeatures == null || getFeatureFlags().isLocallyDisabled(requiredDisabledFeatures);
     }
 
-    private FeatureFlagsHelper getFeatureFlags() {
+    protected FeatureFlagsHelper getFeatureFlags() {
         return FeatureFlagsHelper.create(getActivity().getApplicationContext());
     }
 
