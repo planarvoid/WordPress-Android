@@ -23,7 +23,7 @@
     <issue id="MissingQuantity" severity="warning"/>
     <issue id="ImpliedQuantity" severity="informational"/>
 
-    <issue id="MissingTranslation" severity="informational"/>
+    <issue id="MissingTranslation" severity="ignore"/>
 
     <!-- These need to be updated when we bump to api level 23 -->
     <issue id="OldTargetApi" severity="informational"/>
