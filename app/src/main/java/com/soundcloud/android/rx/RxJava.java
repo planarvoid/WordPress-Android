@@ -17,7 +17,7 @@ public class RxJava {
     private RxJava() {}
 
     public static <T> rx.Observable<T> toV1Observable(Observable<T> sourceObservable) {
-        return RxJavaInterop.toV1Observable(sourceObservable, BackpressureStrategy.DROP);
+        return RxJavaInterop.toV1Observable(sourceObservable, BackpressureStrategy.ERROR);
     }
 
     public static <T> rx.Observable<T> toV1Observable(Single<T> sourceObservable) {

@@ -5,11 +5,10 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import hu.akarnokd.rxjava.interop.RxJavaInterop;
-import io.reactivex.BackpressureStrategy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
@@ -22,7 +21,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, DiscoveryCard> implements SearchListener {
+class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, DiscoveryCard> implements SearchListener {
 
     private final DiscoveryAdapter adapter;
     private final Navigator navigator;
@@ -45,7 +44,7 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard
 
     @Override
     protected CollectionBinding<List<DiscoveryCard>, DiscoveryCard> onBuildBinding(Bundle bundle) {
-        Observable<List<DiscoveryCard>> dataSource = RxJavaInterop.toV1Observable(discoveryOperations.discoveryCards(), BackpressureStrategy.ERROR).map(this::addSearchItem);
+        Observable<List<DiscoveryCard>> dataSource = RxJava.toV1Observable(discoveryOperations.discoveryCards()).map(this::addSearchItem);
         return CollectionBinding
                 .from(dataSource)
                 .withAdapter(adapter)
@@ -61,7 +60,7 @@ public class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard
 
     @Override
     protected CollectionBinding<List<DiscoveryCard>, DiscoveryCard> onRefreshBinding() {
-        Observable<List<DiscoveryCard>> dataSource = RxJavaInterop.toV1Observable(discoveryOperations.refreshDiscoveryCards(), BackpressureStrategy.ERROR).map(this::addSearchItem);
+        Observable<List<DiscoveryCard>> dataSource = RxJava.toV1Observable(discoveryOperations.refreshDiscoveryCards()).map(this::addSearchItem);
         return CollectionBinding
                 .from(dataSource)
                 .withAdapter(adapter)
