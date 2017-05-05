@@ -97,6 +97,7 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
         apiPlaylist.setTitle(NEW_TITLE);
         apiPlaylist.setSharing(Sharing.PRIVATE);
+        apiPlaylist.setTrackCount(0);
 
         databaseAssertions().assertPlaylistInserted(apiPlaylist);
     }
@@ -113,6 +114,7 @@ public class EditPlaylistCommandTest extends StorageIntegrationTest {
 
         apiPlaylist.setTitle(NEW_TITLE);
         apiPlaylist.setSharing(Sharing.PRIVATE);
+        apiPlaylist.setTrackCount(newTrackList.size());
 
         databaseAssertions().assertPlaylistInserted(apiPlaylist);
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), newTrackList);

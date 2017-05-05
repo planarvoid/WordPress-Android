@@ -117,6 +117,7 @@ class EditPlaylistCommand
                                    .put(Tables.Sounds.SHARING,
                                         input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
                                    .put(Tables.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
+                                   .put(Tables.Sounds.TRACK_COUNT, input.trackList.size())
                                    .get();
     }
 
