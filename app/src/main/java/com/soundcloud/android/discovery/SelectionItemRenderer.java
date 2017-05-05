@@ -63,7 +63,7 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private void bindImage(View view, SelectionItem selectionItem) {
         final ImageView artwork = findById(view, R.id.artwork);
-        imageOperations.displayWithPlaceholder(selectionItem, ApiImageSize.getFullImageSize(resources), artwork);
+        imageOperations.displayWithPlaceholder(String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), artwork);
     }
 
     private void bindTitle(View view, Optional<String> title) {

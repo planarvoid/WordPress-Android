@@ -300,6 +300,11 @@ public class ImageOperations {
                                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize), Optional.absent());
     }
 
+    public void displayWithPlaceholder(String cacheKey, Optional<String> imageUrlTemplate, ApiImageSize apiImageSize, ImageView imageView) {
+        displayWithPlaceholder(cacheKey, imageView,
+                buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize), Optional.absent());
+    }
+
     public Observable<Bitmap> displayWithPlaceholderObservable(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
@@ -318,11 +323,15 @@ public class ImageOperations {
     }
 
     private void displayWithPlaceholder(Urn urn, ImageView imageView, String imageUrl, Optional<ImageLoadingListener> imageListener) {
+        displayWithPlaceholder(urn.toString(), imageView, imageUrl, imageListener);
+    }
+
+    private void displayWithPlaceholder(String cacheKey, ImageView imageView, String imageUrl, Optional<ImageLoadingListener> imageListener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
-                ImageOptionsFactory.placeholder(getPlaceholderDrawable(urn, imageAware)),
+                ImageOptionsFactory.placeholder(getPlaceholderDrawable(cacheKey, imageAware)),
                 imageListener.isPresent() ? imageListener.get() : notFoundListener);
     }
 
@@ -577,16 +586,20 @@ public class ImageOperations {
     }
 
     private Drawable getPlaceholderDrawable(final Urn urn, ImageViewAware imageViewAware) {
-        return getPlaceholderDrawable(urn, imageViewAware.getWidth(), imageViewAware.getHeight());
+        return getPlaceholderDrawable(urn.toString(), imageViewAware.getWidth(), imageViewAware.getHeight());
+    }
+
+    private Drawable getPlaceholderDrawable(final String cacheKey, ImageViewAware imageViewAware) {
+        return getPlaceholderDrawable(cacheKey, imageViewAware.getWidth(), imageViewAware.getHeight());
     }
 
     /**
      * We have to store these so so we don't animate on every load attempt. this prevents flickering
      */
     @Nullable
-    private TransitionDrawable getPlaceholderDrawable(final Urn urn, int width, int height) {
-        final String key = String.format(PLACEHOLDER_KEY_BASE, urn, String.valueOf(width), String.valueOf(height));
-        return placeholderCache.get(key, key1 -> placeholderGenerator.generateTransitionDrawable(urn.toString()));
+    private TransitionDrawable getPlaceholderDrawable(final String cacheKey, int width, int height) {
+        final String widthHeightSpecificKey = String.format(PLACEHOLDER_KEY_BASE, cacheKey, String.valueOf(width), String.valueOf(height));
+        return placeholderCache.get(widthHeightSpecificKey, key1 -> placeholderGenerator.generateTransitionDrawable(cacheKey));
     }
 
     @Nullable
@@ -598,6 +611,12 @@ public class ImageOperations {
     @Nullable
     private String buildUrlIfNotPreviouslyMissing(ImageResource imageResource, ApiImageSize apiImageSize) {
         final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
+        return notFoundUris.contains(imageUrl) ? null : imageUrl;
+    }
+
+    @Nullable
+    private String buildUrlIfNotPreviouslyMissing(Optional<String> imageUrlTemplate, ApiImageSize apiImageSize) {
+        final String imageUrl = imageUrlBuilder.buildUrl(imageUrlTemplate, apiImageSize);
         return notFoundUris.contains(imageUrl) ? null : imageUrl;
     }
 

@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 
 @AutoValue
 abstract class ApiSelectionItem {
-    abstract Urn urn();
+    abstract Optional<Urn> urn();
 
     abstract Optional<String> artworkUrlTemplate();
 
@@ -21,15 +21,16 @@ abstract class ApiSelectionItem {
     abstract Optional<String> shortSubtitle();
 
     @JsonCreator
-    static ApiSelectionItem create(@JsonProperty("urn") Urn urn,
+    static ApiSelectionItem create(@JsonProperty("urn") @Nullable Urn urn,
                                    @JsonProperty("artwork_url_template") @Nullable String artworkUrlTemplate,
                                    @JsonProperty("count") @Nullable Integer count,
                                    @JsonProperty("short_title") @Nullable String shortTitle,
                                    @JsonProperty("short_subtitle") @Nullable String shortSubtitle) {
-        return new AutoValue_ApiSelectionItem(urn,
-                                                  Optional.fromNullable(artworkUrlTemplate),
-                                                  Optional.fromNullable(count),
-                                                  Optional.fromNullable(shortTitle),
-                                                  Optional.fromNullable(shortSubtitle));
+        return new AutoValue_ApiSelectionItem(
+                Optional.fromNullable(urn),
+                Optional.fromNullable(artworkUrlTemplate),
+                Optional.fromNullable(count),
+                Optional.fromNullable(shortTitle),
+                Optional.fromNullable(shortSubtitle));
     }
 }

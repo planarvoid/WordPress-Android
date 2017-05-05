@@ -25,9 +25,18 @@ class ImageUrlBuilder {
     String buildUrl(ImageResource imageResource, ApiImageSize apiImageSize) {
         final Optional<String> urlTemplate = imageResource.getImageUrlTemplate();
         if (urlTemplate.isPresent()) {
-            return urlTemplate.get().replaceAll(SIZE_TOKEN, apiImageSize.sizeSpec);
+            return buildUrlFromTemplate(apiImageSize, urlTemplate.get());
         } else if (!imageResource.getUrn().isUser()) {
             return imageResolverUrl(imageResource.getUrn(), apiImageSize);
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    String buildUrl(Optional<String> urlTemplate, ApiImageSize apiImageSize) {
+        if (urlTemplate.isPresent()) {
+            return buildUrlFromTemplate(apiImageSize, urlTemplate.get());
         } else {
             return null;
         }
@@ -38,5 +47,9 @@ class ImageUrlBuilder {
         return apiUrlBuilder
                 .from(ApiEndpoints.IMAGES, urn, apiImageSize.sizeSpec)
                 .build();
+    }
+
+    private String buildUrlFromTemplate(ApiImageSize apiImageSize, String urlTemplate) {
+        return urlTemplate.replaceAll(SIZE_TOKEN, apiImageSize.sizeSpec);
     }
 }
