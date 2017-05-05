@@ -1,10 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
-import static com.soundcloud.android.properties.Flag.LAUNCHER_SHORTCUTS;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.FeatureFlags;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -22,27 +19,25 @@ import java.util.List;
 public class ShortcutController {
 
     private final Context context;
-    private final FeatureFlags featureFlags;
 
     @Inject
-    public ShortcutController(Context context,
-                              FeatureFlags featureFlags) {
+    public ShortcutController(Context context) {
         this.context = context;
-        this.featureFlags = featureFlags;
     }
 
     @SuppressLint("NewApi")
-    public void manageShortcuts() {
+    public void createShortcuts() {
         if (missingSdk()) {
             return;
         }
 
-        if (featureFlags.isDisabled(LAUNCHER_SHORTCUTS) && hasShortcuts()) {
-            // In case we turn off the feature flag at some point
-            removeShortcuts();
-        } else if (featureFlags.isEnabled(LAUNCHER_SHORTCUTS)) {
-            createShortcuts();
-        }
+        List<ShortcutInfo> shortcuts = Arrays.asList(
+                createSearchShortcut(),
+                createShuffleLikesShortcut()
+        );
+
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        shortcutManager.setDynamicShortcuts(shortcuts);
     }
 
     @SuppressLint("NewApi")
@@ -67,16 +62,6 @@ public class ShortcutController {
         shortcutManager.reportShortcutUsed(shortcut.id);
     }
 
-    @SuppressLint("NewApi")
-    private void createShortcuts() {
-        List<ShortcutInfo> shortcuts = Arrays.asList(
-                createSearchShortcut(),
-                createShuffleLikesShortcut()
-        );
-
-        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
-        shortcutManager.setDynamicShortcuts(shortcuts);
-    }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
     private ShortcutInfo createSearchShortcut() {

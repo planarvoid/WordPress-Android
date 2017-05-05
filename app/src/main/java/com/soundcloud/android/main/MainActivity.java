@@ -93,7 +93,7 @@ public class MainActivity extends PlayerActivity {
         super.onPostResume();
         fetchFeatureFlags();
         castSessionController.get().onResume(this);
-        shortcutController.manageShortcuts();
+        shortcutController.createShortcuts();
     }
 
     @Override
