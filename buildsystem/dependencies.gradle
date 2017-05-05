@@ -76,8 +76,8 @@ ext {
           androidCrop                  : "com.soundcloud.android:android-crop:1.0.1@aar",
           facebookRebound              : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk           : "com.facebook.android:facebook-android-sdk:4.4.0",
-          butterKnife                  : "com.jakewharton:butterknife:8.4.0",
-          butterKnifeCompiler          : "com.jakewharton:butterknife-compiler:8.4.0",
+          butterKnife                  : "com.jakewharton:butterknife:8.5.1",
+          butterKnifeCompiler          : "com.jakewharton:butterknife-compiler:8.5.1",
           tapTargetView                : "com.getkeepsafe.taptargetview:taptargetview:1.9.1",
 
           // Android libraries
