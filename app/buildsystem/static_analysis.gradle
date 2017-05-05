@@ -134,7 +134,7 @@ task pmdChanged(type: Pmd) {
 android {
   lintOptions {
     abortOnError false
-    // checks are specified in the app/lint.xml file
+    lintConfig file("${staticAnalysisDirPath}/lint/config.xml")
   }
 }
 
