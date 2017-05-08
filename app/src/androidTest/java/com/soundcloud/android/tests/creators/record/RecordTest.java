@@ -13,6 +13,9 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.record.RecordMetadataScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.utils.PermissionsHelper;
+
+import android.Manifest;
 
 public class RecordTest extends ActivityTest<MainActivity> {
     private RecordScreen recordScreen;
@@ -26,12 +29,9 @@ public class RecordTest extends ActivityTest<MainActivity> {
         return TestUser.recordUser;
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testRecordFlow() {
+        PermissionsHelper.grantPermission(Manifest.permission.RECORD_AUDIO);
+
         recordScreen = mainNavHelper.goToRecord();
         recordScreen.deleteRecordingIfPresent(); // start clean
 
