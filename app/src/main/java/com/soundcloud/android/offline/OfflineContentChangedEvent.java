@@ -11,6 +11,8 @@ import java.util.Collections;
 
 public final class OfflineContentChangedEvent {
 
+    public static final long DEBOUNCE_TIMEOUT = 200L;
+
     public static final Func1<OfflineContentChangedEvent, OfflineState> TO_OFFLINE_STATE = event -> event.state;
 
     public static final Func1<OfflineContentChangedEvent, Boolean> HAS_LIKED_COLLECTION_CHANGE = event -> event.isLikedTrackCollection;
