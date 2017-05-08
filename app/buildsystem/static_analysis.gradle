@@ -110,6 +110,7 @@ tasks.withType(Pmd) {
 
   reports {
     xml.enabled = true
+    xml.destination = file("$reportDir/pmd/pmd.xml")
     html.enabled = false
   }
 }
