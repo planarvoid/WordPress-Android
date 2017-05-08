@@ -53,8 +53,8 @@ timestamps {
 
 enum Builds {
   BUILD("Compile"),
-  ACCEPTANCE_TESTS("Acceptance Tests"),
-  UNIT_TESTS("Unit Tests"),
+  ACCEPTANCE_TESTS("Acceptance-Tests"),
+  UNIT_TESTS("Unit-Tests"),
   STATIC_ANALYSIS("Static Analysis")
 
   def final name
