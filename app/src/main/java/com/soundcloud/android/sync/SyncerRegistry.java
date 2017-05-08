@@ -10,8 +10,6 @@ import com.soundcloud.android.olddiscovery.charts.ChartsSyncProvider;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
@@ -34,8 +32,7 @@ public class SyncerRegistry {
     private final Map<Syncable, SyncProvider> syncers;
 
     @Inject
-    public SyncerRegistry(FeatureFlags featureFlags,
-                          SoundStreamSyncProvider soundStreamSyncProvider,
+    public SyncerRegistry(SoundStreamSyncProvider soundStreamSyncProvider,
                           ActivitiesSyncProvider activitiesSyncProvider,
                           LikedStationsSyncProvider likedStationsSyncProvider,
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
@@ -74,10 +71,7 @@ public class SyncerRegistry {
         registerSyncer(suggestedCreatorsSyncProvider);
         registerSyncer(recommendedPlaylistsSyncProvider);
         registerSyncer(newForYouSyncProvider);
-
-        if (featureFlags.isEnabled(Flag.DISCOVER_BACKEND)) {
-            registerSyncer(discoveryCardSyncProvider);
-        }
+        registerSyncer(discoveryCardSyncProvider);
     }
 
     @Nullable
