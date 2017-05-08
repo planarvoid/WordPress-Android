@@ -9,6 +9,7 @@ import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
@@ -16,6 +17,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -40,6 +42,12 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
         super.onCreate(fragment, bundle);
         getBinding().connect();
         adapter.setSearchListener(this);
+    }
+
+    @Override
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
+        getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
     }
 
     @Override

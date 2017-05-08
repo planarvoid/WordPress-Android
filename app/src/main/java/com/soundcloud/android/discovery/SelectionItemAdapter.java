@@ -10,7 +10,7 @@ import com.soundcloud.java.optional.Optional;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-@AutoFactory
+@AutoFactory(allowSubclasses = true)
 class SelectionItemAdapter extends RecyclerItemAdapter<SelectionItem, RecyclerView.ViewHolder> {
 
     private Optional<Urn> selectionUrn = Optional.absent();

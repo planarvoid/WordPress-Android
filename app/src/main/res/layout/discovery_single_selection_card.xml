@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/Discovery.Selection.Card"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View style="@style/Divider.Section" />
+
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="24dp" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/single_card_title"
+        style="@style/Discovery.Selection.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Title" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/single_card_description"
+        style="@style/Discovery.Selection.Description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Description" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <com.soundcloud.android.view.ParallaxImageView
+            android:id="@+id/single_card_artwork"
+            style="@style/Stream.Image.Track"
+            android:layout_height="164dp"
+            sc:foreground="@drawable/artwork_border" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/single_card_track_count"
+            style="@style/Collections.SmallTrackCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/single_card_artwork"
+            tools:text="12" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/single_card_social_proof_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical">
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_1"
+            style="@style/Discovery.Selection.SocialProofImage"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_2"
+            style="@style/Discovery.Selection.SocialProofImageOverlap"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_3"
+            style="@style/Discovery.Selection.SocialProofImageOverlap"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_4"
+            style="@style/Discovery.Selection.SocialProofImageOverlap"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CircularBorderImageView
+            android:id="@+id/single_card_user_artwork_5"
+            style="@style/Discovery.Selection.SocialProofImageOverlap"
+            android:layout_weight="0" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/single_card_social_proof"
+            style="@style/Discovery.Selection.SocialProofText"
+            tools:text="Artists in the playlist" />
+    </LinearLayout>
+
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <View style="@style/Divider.Section" />
+
+    <View style="@style/Divider.Background" />
+</LinearLayout>

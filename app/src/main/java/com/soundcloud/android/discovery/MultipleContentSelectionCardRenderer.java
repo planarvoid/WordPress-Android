@@ -5,9 +5,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.DiscoveryCard.MultipleContentSelectionCard;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.support.annotation.IdRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -58,31 +60,29 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
     }
 
     private void bindTitle(View view, MultipleContentSelectionCard selectionCard) {
-        TextView title = ButterKnife.findById(view, R.id.selection_title);
-        if (selectionCard.title().isPresent()) {
-            title.setVisibility(View.VISIBLE);
-            title.setText(selectionCard.title().get());
-        } else {
-            title.setVisibility(View.GONE);
-        }
+        bindText(view, R.id.selection_title, selectionCard.title());
     }
 
     private void bindDescription(View view, MultipleContentSelectionCard selectionCard) {
-        TextView description = ButterKnife.findById(view, R.id.selection_description);
-        if (selectionCard.description().isPresent()) {
-            description.setVisibility(View.VISIBLE);
-            description.setText(selectionCard.description().get());
+        bindText(view, R.id.selection_description, selectionCard.description());
+    }
+
+    private void bindText(View view, @IdRes int id, Optional<String> text) {
+        TextView textView = ButterKnife.findById(view, id);
+        if (text.isPresent()) {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(text.get());
         } else {
-            description.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
         }
     }
 
-    private void bindCarousel(View view, MultipleContentSelectionCard selection) {
+    private void bindCarousel(View view, MultipleContentSelectionCard selectionCard) {
         final RecyclerView recyclerView = ButterKnife.findById(view, R.id.selection_playlists_carousel);
         final SelectionItemAdapter adapter = (SelectionItemAdapter) view.getTag();
 
         saveOldScrollingState(adapter, recyclerView);
-        adapter.updateSelection(selection);
+        adapter.updateSelection(selectionCard);
         loadScrollingState(adapter, recyclerView);
     }
 

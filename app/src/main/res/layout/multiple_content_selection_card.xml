@@ -8,6 +8,10 @@
 
     <View style="@style/Divider.Section" />
 
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="24dp" />
+
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/selection_title"
         style="@style/Discovery.Selection.Title"
@@ -26,12 +30,15 @@
         android:id="@+id/selection_playlists_carousel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:overScrollMode="never"
         android:paddingTop="16dp"
         android:paddingLeft="16dp" />
+
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
 
     <View style="@style/Divider.Section" />
 
