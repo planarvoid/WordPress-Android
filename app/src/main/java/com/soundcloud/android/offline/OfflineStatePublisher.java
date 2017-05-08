@@ -15,8 +15,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class OfflineStatePublisher {
@@ -81,12 +79,7 @@ class OfflineStatePublisher {
     }
 
     private void publishUpdatesForTrack(OfflineState newTracksState, Collection<Urn> tracks) {
-        Map<OfflineState, TrackCollections> collectionsStates = new HashMap<>();
-        for (Urn track : tracks) {
-            collectionsStates = mergeStates(collectionsStates,
-                                            collectionStateOperations.loadTracksCollectionsState(track, newTracksState));
-        }
-
+        Map<OfflineState, TrackCollections> collectionsStates = collectionStateOperations.loadTracksCollectionsState(tracks, newTracksState);
         for (OfflineState state : OfflineState.values()) {
             final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state)
                                                              ? Optional.of(tracks)
@@ -102,31 +95,6 @@ class OfflineStatePublisher {
                 );
             }
         }
-    }
-
-    private static HashMap<OfflineState, TrackCollections> mergeStates(Map<OfflineState, TrackCollections> previousStates,
-                                                                       Map<OfflineState, TrackCollections> addedStates) {
-        final HashMap<OfflineState, TrackCollections> newStates = new HashMap<>();
-        newStates.putAll(previousStates);
-
-        for (Map.Entry<OfflineState, TrackCollections> entry : addedStates.entrySet()) {
-            final OfflineState state = entry.getKey();
-            final TrackCollections newTrackCollections = entry.getValue();
-
-            if (previousStates.containsKey(state)) {
-                final TrackCollections collections = previousStates.get(state);
-                final boolean isLikedTracksCollection = collections.likesCollection() || newTrackCollections.likesCollection();
-                final List<Urn> mergedPlaylists = new ArrayList<>(collections.playlists()
-                                                                             .size() + newTrackCollections.playlists()
-                                                                                                          .size());
-                mergedPlaylists.addAll(collections.playlists());
-                mergedPlaylists.addAll(newTrackCollections.playlists());
-                newStates.put(state, TrackCollections.create(mergedPlaylists, isLikedTracksCollection));
-            } else {
-                newStates.put(state, newTrackCollections);
-            }
-        }
-        return newStates;
     }
 
     private static OfflineContentChangedEvent createOfflineContentChangedEvent(OfflineState state,

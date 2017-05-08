@@ -42,7 +42,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED,
                                                                                 TrackCollections.create(singletonList(
                                                                                         PLAYLIST), false));
-        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(
+        when(offlineStateOperations.loadTracksCollectionsState(eq(singletonList(TRACK)), any(OfflineState.class))).thenReturn(
                 collectionsMap);
     }
 
@@ -71,7 +71,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishRequested(singletonList(TRACK));
 
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, REQUESTED);
+        verify(offlineStateOperations).loadTracksCollectionsState(singletonList(TRACK), REQUESTED);
         assertEvent(event(0), REQUESTED, true, TRACK, PLAYLIST);
     }
 
@@ -81,7 +81,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishDownloaded(TRACK);
 
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, DOWNLOADED);
+        verify(offlineStateOperations).loadTracksCollectionsState(singletonList(TRACK), DOWNLOADED);
         assertEvent(event(0), REQUESTED, true, PLAYLIST);
         assertEvent(event(1), DOWNLOADED, false, TRACK);
     }
@@ -92,7 +92,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
 
         publisher.publishRemoved(singletonList(TRACK));
 
-        verify(offlineStateOperations).loadTracksCollectionsState(TRACK, NOT_OFFLINE);
+        verify(offlineStateOperations).loadTracksCollectionsState(singletonList(TRACK), NOT_OFFLINE);
         assertEvent(event(0), NOT_OFFLINE, false, TRACK);
         assertEvent(event(1), UNAVAILABLE, true, PLAYLIST);
     }
@@ -121,7 +121,7 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
     }
 
     private void setTracksCollections(OfflineState state) {
-        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class)))
+        when(offlineStateOperations.loadTracksCollectionsState(eq(singletonList(TRACK)), any(OfflineState.class)))
                 .thenReturn(singletonMap(state, TrackCollections.create(singletonList(PLAYLIST), true)));
     }
 

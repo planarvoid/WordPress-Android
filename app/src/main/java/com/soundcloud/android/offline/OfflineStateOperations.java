@@ -26,7 +26,7 @@ import java.util.Map;
 public class OfflineStateOperations {
 
     private final IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand;
-    private final LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand;
+    private final LoadOfflinePlaylistsContainingTracksCommand loadOfflinePlaylistsContainingTracksCommand;
     private final LoadLikedTracksCommand loadLikedTracksCommand;
     private final TrackItemRepository trackRepository;
     private final LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand;
@@ -49,7 +49,7 @@ public class OfflineStateOperations {
     @Inject
     OfflineStateOperations(
             IsOfflineLikedTracksEnabledCommand isOfflineLikedTracksEnabledCommand,
-            LoadOfflinePlaylistsContainingTrackCommand loadOfflinePlaylistsContainingTrackCommand,
+            LoadOfflinePlaylistsContainingTracksCommand loadOfflinePlaylistsContainingTracksCommand,
             LoadLikedTracksCommand loadLikedTracksCommand,
             TrackItemRepository trackRepository,
             LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand,
@@ -57,7 +57,7 @@ public class OfflineStateOperations {
             TrackDownloadsStorage trackDownloadsStorage,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
-        this.loadOfflinePlaylistsContainingTrackCommand = loadOfflinePlaylistsContainingTrackCommand;
+        this.loadOfflinePlaylistsContainingTracksCommand = loadOfflinePlaylistsContainingTracksCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;
         this.trackRepository = trackRepository;
         this.loadLikedTracksOfflineStateCommand = loadLikedTracksOfflineStateCommand;
@@ -66,15 +66,15 @@ public class OfflineStateOperations {
         this.scheduler = scheduler;
     }
 
-    Map<OfflineState, TrackCollections> loadTracksCollectionsState(Urn track, OfflineState state) {
+    Map<OfflineState, TrackCollections> loadTracksCollectionsState(Collection<Urn> tracks, OfflineState state) {
         switch (state) {
             case REQUESTED:
             case DOWNLOADING:
-                return setState(track, state);
+                return setState(tracks, state);
             case NOT_OFFLINE:
             case DOWNLOADED:
             case UNAVAILABLE:
-                return determineState(track);
+                return determineState(tracks);
             default:
                 throw new IllegalStateException("Unknown state: " + state);
         }
@@ -86,10 +86,10 @@ public class OfflineStateOperations {
                                     .subscribeOn(scheduler);
     }
 
-    private Map<OfflineState, TrackCollections> determineState(Urn track) {
+    private Map<OfflineState, TrackCollections> determineState(Collection<Urn> tracks) {
         final HashMap<OfflineState, TrackCollections> map = new HashMap<>();
-        final boolean isTrackLiked = isTrackLiked(track);
-        final Map<OfflineState, Collection<Urn>> playlistsState = loadOfflinePlaylistsContainingTrack(track);
+        final boolean isTrackLiked = areTracksLiked(tracks);
+        final Map<OfflineState, Collection<Urn>> playlistsState = loadOfflinePlaylistsContainingTracks(tracks);
 
         final OfflineState likedTrackState = loadLikedTrackState();
         for (OfflineState state : OfflineState.values()) {
@@ -104,10 +104,10 @@ public class OfflineStateOperations {
         return map;
     }
 
-    private Map<OfflineState, TrackCollections> setState(Urn track, OfflineState newState) {
+    private Map<OfflineState, TrackCollections> setState(Collection<Urn> tracks, OfflineState newState) {
         final HashMap<OfflineState, TrackCollections> map = new HashMap<>();
-        final boolean isOfflineLikedTrack = isOfflineLikedTracksEnabledCommand.call(null) && isTrackLiked(track);
-        final List<Urn> offlinePlaylists = loadOfflinePlaylistsContainingTrackCommand.call(track);
+        final boolean isOfflineLikedTrack = isOfflineLikedTracksEnabledCommand.call(null) && areTracksLiked(tracks);
+        final List<Urn> offlinePlaylists = loadOfflinePlaylistsContainingTracksCommand.call(tracks);
 
         final TrackCollections collections = populate(isOfflineLikedTrack, offlinePlaylists);
         if (collections != TrackCollections.EMPTY) {
@@ -124,8 +124,8 @@ public class OfflineStateOperations {
         }
     }
 
-    private Map<OfflineState, Collection<Urn>> loadOfflinePlaylistsContainingTrack(Urn track) {
-        final List<Urn> playlists = loadOfflinePlaylistsContainingTrackCommand.call(track);
+    private Map<OfflineState, Collection<Urn>> loadOfflinePlaylistsContainingTracks(Collection<Urn> tracks) {
+        final List<Urn> playlists = loadOfflinePlaylistsContainingTracksCommand.call(tracks);
         return loadPlaylistsOfflineState(playlists);
     }
 
@@ -177,8 +177,8 @@ public class OfflineStateOperations {
         }
     }
 
-    private boolean isTrackLiked(Urn track) {
-        return transform(loadLikedTracksCommand.call(Optional.absent()), Like::urn).contains(track);
+    private boolean areTracksLiked(Collection<Urn> tracks) {
+        return transform(loadLikedTracksCommand.call(Optional.absent()), Like::urn).containsAll(tracks);
     }
 
 }

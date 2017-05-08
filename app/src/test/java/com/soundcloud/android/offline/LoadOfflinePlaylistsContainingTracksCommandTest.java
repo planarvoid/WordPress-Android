@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -10,24 +12,24 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class LoadOfflinePlaylistsContainingTrackCommandTest extends StorageIntegrationTest {
+public class LoadOfflinePlaylistsContainingTracksCommandTest extends StorageIntegrationTest {
 
-    private LoadOfflinePlaylistsContainingTrackCommand command;
+    private LoadOfflinePlaylistsContainingTracksCommand command;
 
     @Before
     public void setUp() throws Exception {
-        command = new LoadOfflinePlaylistsContainingTrackCommand(propeller());
+        command = new LoadOfflinePlaylistsContainingTracksCommand(propeller());
     }
 
     @Test
-    public void returnsOfflinePlaylistsForGivenTrack() {
+    public void returnsOfflinePlaylistsForGivenTracks() {
         testFixtures().insertPlaylistTrack(testFixtures().insertPlaylistMarkedForOfflineSync(), 0);
         final Urn expectedPlaylist1 = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final Urn trackForPlaylist = testFixtures().insertPlaylistTrack(expectedPlaylist1, 0).getUrn();
         final Urn expectedPlaylist2 = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        testFixtures().insertPlaylistTrack(expectedPlaylist2, trackForPlaylist, 0);
+        final Urn trackForPlaylist1 = testFixtures().insertPlaylistTrack(expectedPlaylist1, 0).getUrn();
+        final Urn trackForPlaylist2 = testFixtures().insertPlaylistTrack(expectedPlaylist2, 0).getUrn();
 
-        final List<Urn> actual = command.call(trackForPlaylist);
+        final List<Urn> actual = command.call(asList(trackForPlaylist1, trackForPlaylist2));
 
         assertThat(actual).containsExactly(expectedPlaylist1, expectedPlaylist2);
     }
@@ -37,7 +39,7 @@ public class LoadOfflinePlaylistsContainingTrackCommandTest extends StorageInteg
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         final Urn track = testFixtures().insertPlaylistTrack(playlist, 0).getUrn();
 
-        final List<Urn> actual = command.call(track);
+        final List<Urn> actual = command.call(singletonList(track));
 
         assertThat(actual).isEmpty();
     }
