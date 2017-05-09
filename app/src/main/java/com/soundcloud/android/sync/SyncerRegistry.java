@@ -4,12 +4,12 @@ import com.soundcloud.android.activities.ActivitiesSyncProvider;
 import com.soundcloud.android.associations.MyFollowingsSyncProvider;
 import com.soundcloud.android.collection.playhistory.PlayHistorySyncProvider;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedSyncProvider;
+import com.soundcloud.android.discovery.DiscoveryCardSyncProvider;
 import com.soundcloud.android.olddiscovery.charts.ChartGenresSyncProvider;
 import com.soundcloud.android.olddiscovery.charts.ChartsSyncProvider;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksSyncProvider;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsSyncProvider;
-import com.soundcloud.android.discovery.DiscoveryCardSyncProvider;
 import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
@@ -101,8 +101,8 @@ public class SyncerRegistry {
         /**
          * Provides a {@link Callable} that will perform the syncing task.
          *
-         * @param action a specific action for this sync. If a syncer can perform multiple types of syncs,
-         *               this action specify that type. See {@link com.soundcloud.android.sync.stream.SoundStreamSyncer}
+         * @param action      a specific action for this sync. If a syncer can perform multiple types of syncs,
+         *                    this action specify that type. See {@link com.soundcloud.android.sync.stream.SoundStreamSyncer}
          * @param isUiRequest
          * @return The return value indicates that there were actual updates performed.
          * A return of true will reset the periodic sync time to the actual stale time
