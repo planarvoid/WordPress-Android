@@ -4,6 +4,7 @@ import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistArtworkView;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -39,11 +40,11 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
     public void bindItemView(int position, View bucketView, List<NewForYouDiscoveryItem> items) {
         List<ImageResource> imageResources = transform(items.get(position).newForYou().tracks(), entityItemCreator::trackItem);
 
-        bindCoverArtAnimation((NewForYouArtworkView) bucketView.findViewById(R.id.artwork), imageResources);
+        bindCoverArtAnimation((SystemPlaylistArtworkView) bucketView.findViewById(R.id.artwork), imageResources);
         bindViewAllViews(bucketView.findViewById(R.id.view_all_container), bucketView.findViewById(R.id.new_for_you_bucket_header));
     }
 
-    private void bindCoverArtAnimation(NewForYouArtworkView artworkView, List<ImageResource> imageResources) {
+    private void bindCoverArtAnimation(SystemPlaylistArtworkView artworkView, List<ImageResource> imageResources) {
         artworkView.bindWithAnimation(imageOperations, imageResources);
     }
 

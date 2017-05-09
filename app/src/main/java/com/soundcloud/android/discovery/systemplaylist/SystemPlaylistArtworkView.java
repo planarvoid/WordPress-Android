@@ -1,4 +1,4 @@
-package com.soundcloud.android.olddiscovery.newforyou;
+package com.soundcloud.android.discovery.systemplaylist;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
@@ -23,56 +23,40 @@ import android.widget.ViewFlipper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewForYouArtworkView extends FrameLayout {
+public class SystemPlaylistArtworkView extends FrameLayout {
     private LayoutInflater inflater;
     private ViewFlipper artworkAnimator;
     private Subscription subscription = RxUtils.invalidSubscription();
     int artworkLayout;
 
-    public NewForYouArtworkView(Context context) {
+    public SystemPlaylistArtworkView(Context context) {
         super(context);
         init(context, null);
     }
 
-    public NewForYouArtworkView(Context context, AttributeSet attrs) {
+    public SystemPlaylistArtworkView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public NewForYouArtworkView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SystemPlaylistArtworkView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
-    private void init(Context context, @Nullable AttributeSet attrs) {
-        int containerLayout;
-
-        if (attrs != null) {
-            final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.NewForYouArtworkView);
-            final boolean isLarge = styledAttributes.getBoolean(R.styleable.NewForYouArtworkView_large, false);
-            styledAttributes.recycle();
-
-            containerLayout = isLarge ? R.layout.new_for_you_artwork_container_large : R.layout.new_for_you_artwork_container;
-            artworkLayout = isLarge ? R.layout.new_for_you_artwork_large : R.layout.new_for_you_artwork;
-        } else {
-            containerLayout = R.layout.new_for_you_artwork_container;
-            artworkLayout = R.layout.new_for_you_artwork;
-        }
-
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(containerLayout, this);
-        artworkAnimator = (ViewFlipper) findViewById(R.id.artwork_animator);
-    }
-
-    void bindWithoutAnimation(ImageOperations imageOperations, ImageResource imageResource) {
+    public void bindWithoutAnimation(ImageOperations imageOperations, SystemPlaylistItem.Header item) {
         artworkAnimator.removeAllViews();
 
         inflater.inflate(artworkLayout, artworkAnimator);
         final ImageView imageView = (ImageView) artworkAnimator.getChildAt(0);
-        imageOperations.displayWithPlaceholder(imageResource, ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
+        if (item.image().isPresent()) {
+            imageOperations.displayWithPlaceholder(item.image().get(), ApiImageSize.getFullImageSize(imageView.getResources()), imageView);
+        } else {
+            imageOperations.displayPlaceholder(String.valueOf(item.hashCode()), imageView);
+        }
     }
 
-    void bindWithAnimation(ImageOperations imageOperations, List<? extends ImageResource> imageResources) {
+    public void bindWithAnimation(ImageOperations imageOperations, List<? extends ImageResource> imageResources) {
         List<Observable<Bitmap>> observables = new ArrayList<>(imageResources.size());
 
         artworkAnimator.removeAllViews();
@@ -89,12 +73,32 @@ public class NewForYouArtworkView extends FrameLayout {
                                  .subscribe(new DefaultSubscriber<Object[]>() {
                                                 @Override
                                                 public void onNext(Object[] ignored) {
-                                                        artworkAnimator.startFlipping();
-                                                        artworkAnimator.setInAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_in));
-                                                        artworkAnimator.setOutAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_out));
+                                                    artworkAnimator.startFlipping();
+                                                    artworkAnimator.setInAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_in));
+                                                    artworkAnimator.setOutAnimation(AnimationUtils.loadAnimation(artworkAnimator.getContext(), R.anim.slow_fade_out));
                                                 }
                                             }
                                  );
+    }
+
+    private void init(Context context, @Nullable AttributeSet attrs) {
+        int containerLayout;
+
+        if (attrs != null) {
+            final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.SystemPlaylistArtworkView);
+            final boolean isLarge = styledAttributes.getBoolean(R.styleable.SystemPlaylistArtworkView_large, false);
+            styledAttributes.recycle();
+
+            containerLayout = isLarge ? R.layout.system_playlist_artwork_container_large : R.layout.system_playlist_artwork_container;
+            artworkLayout = isLarge ? R.layout.system_playlist_artwork_large : R.layout.system_playlist_artwork;
+        } else {
+            containerLayout = R.layout.system_playlist_artwork_container;
+            artworkLayout = R.layout.system_playlist_artwork;
+        }
+
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(containerLayout, this);
+        artworkAnimator = (ViewFlipper) findViewById(R.id.artwork_animator);
     }
 
     @Override

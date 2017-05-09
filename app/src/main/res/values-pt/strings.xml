@@ -918,8 +918,8 @@ vão aparecer aqui.</string>
   <string name="new_for_you_title">O upload</string>
   <string name="new_for_you_intro">Novo na SoundCloud. Selecionado para você.</string>
   <string name="new_for_you_action">Ver playlist</string>
-  <string name="new_for_you_duration">%1$d faixas, %2$s</string>
-  <string name="new_for_you_updated_at">%s atualizado</string>
+  <string name="system_playlist_duration">%1$d faixas, %2$s</string>
+  <string name="system_playlist_updated_at">%s atualizado</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Foi encontrado um %1$s resultado do SoundCloud Go+</item>

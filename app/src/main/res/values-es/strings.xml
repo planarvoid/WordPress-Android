@@ -914,8 +914,8 @@
   <string name="new_for_you_title">La subida</string>
   <string name="new_for_you_intro">Novedades de SoundCloud escogidas para ti.</string>
   <string name="new_for_you_action">Ver lista</string>
-  <string name="new_for_you_duration">%1$d pistas, %2$s</string>
-  <string name="new_for_you_updated_at">Actualizado %s</string>
+  <string name="system_playlist_duration">%1$d pistas, %2$s</string>
+  <string name="system_playlist_updated_at">Actualizado %s</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Encontramos %1$s resultado de SoundCloud Go+</item>

@@ -12,20 +12,20 @@ import io.reactivex.Single;
  * <p>This class exists ONLY for the sake of migrating V1 building blocks to V2.</p>
  * <p>Please REMOVE once the job is done.</p>
  */
-public class RxJava {
+public final class RxJava {
 
-    private RxJava() {}
+    private static final BackpressureStrategy BACKPRESSURE_STRATEGY = BackpressureStrategy.ERROR;
 
     public static <T> rx.Observable<T> toV1Observable(Observable<T> sourceObservable) {
-        return RxJavaInterop.toV1Observable(sourceObservable, BackpressureStrategy.ERROR);
+        return RxJavaInterop.toV1Observable(sourceObservable, BACKPRESSURE_STRATEGY);
     }
 
-    public static <T> rx.Observable<T> toV1Observable(Single<T> sourceObservable) {
-        return RxJavaInterop.toV1Single(sourceObservable).toObservable();
+    public static <T> rx.Observable<T> toV1Observable(Maybe<T> sourceMaybe) {
+        return RxJavaInterop.toV1Observable(sourceMaybe.toObservable(), BACKPRESSURE_STRATEGY);
     }
 
-    public static <T> rx.Observable<T> toV1Observable(Maybe<T> sourceObservable) {
-        return RxJavaInterop.toV1Single(sourceObservable).toObservable();
+    public static <T> rx.Observable<T> toV1Observable(Single<T> sourceSingle) {
+        return RxJavaInterop.toV1Observable(sourceSingle.toObservable(), BACKPRESSURE_STRATEGY);
     }
 
     public static <T> rx.Observable<T> toV1Observable(Flowable<T> sourceObservable) {
@@ -35,4 +35,10 @@ public class RxJava {
     public static <T> Observable<T> toV2Observable(rx.Observable<T> sourceObservable) {
         return RxJavaInterop.toV2Observable(sourceObservable);
     }
+
+    public static <T> Single<T> toV2Single(rx.Observable<T> sourceObservable) {
+        return RxJavaInterop.toV2Single(sourceObservable.toSingle());
+    }
+
+    private RxJava() {}
 }

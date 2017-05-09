@@ -145,6 +145,12 @@ public class UrnTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldBuildSystemPlaylistUrns() {
+        final Urn urn = Urn.forSystemPlaylist(123L);
+        assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlist:123"));
+    }
+
+    @Test
     public void isStationShouldMatchStationUrns() {
         Urn trackStationUrn = new Urn("soundcloud:track-stations:1");
         Urn curatorStationUrn = new Urn("soundcloud:curator-stations:1");

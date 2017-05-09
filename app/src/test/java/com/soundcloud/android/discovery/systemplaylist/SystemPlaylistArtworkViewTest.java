@@ -1,4 +1,4 @@
-package com.soundcloud.android.olddiscovery.newforyou;
+package com.soundcloud.android.discovery.systemplaylist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,16 +24,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class NewForYouArtworkViewTest extends AndroidUnitTest {
+public class SystemPlaylistArtworkViewTest extends AndroidUnitTest {
 
-    private NewForYouArtworkView view;
+    private SystemPlaylistArtworkView view;
     private ViewFlipper artworkContainer;
     @Mock private ImageOperations imageOperations;
 
 
     @Before
     public void setUp() throws Exception {
-        view = new NewForYouArtworkView(context());
+        view = new SystemPlaylistArtworkView(context());
         artworkContainer = (ViewFlipper) view.findViewById(R.id.artwork_animator);
     }
 

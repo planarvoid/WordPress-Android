@@ -16,8 +16,8 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -116,12 +116,9 @@ public class TrackRepository {
         };
     }
 
-    Flowable<Track> fullTrackWithUpdate(final Urn trackUrn) {
+    Observable<Track> fullTrackWithUpdate(final Urn trackUrn) {
         checkTrackUrn(trackUrn);
-        return Maybe.concat(
-                fullTrackFromStorage(trackUrn),
-                syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
-        );
+        return Maybe.concat(fullTrackFromStorage(trackUrn), syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))).toObservable();
     }
 
     private void checkTrackUrn(Urn trackUrn) {

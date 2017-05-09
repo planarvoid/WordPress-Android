@@ -38,6 +38,8 @@ import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.creators.upload.Uploader;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryFragment;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.downgrade.GoOffboardingFragment;
 import com.soundcloud.android.gcm.GcmDebugDialogFragment;
@@ -66,8 +68,6 @@ import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
 import com.soundcloud.android.olddiscovery.charts.GenresFragment;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouFragment;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksFragment;
 import com.soundcloud.android.onboarding.FacebookSessionCallback;
@@ -360,8 +360,8 @@ public interface ApplicationComponent {
     void inject(ChartTracksFragment chartTracksFragment);
     void inject(AllGenresActivity allGenresActivity);
     void inject(GenresFragment genresFragment);
-    void inject(NewForYouActivity newForYouActivity);
-    void inject(NewForYouFragment newForYouFragment);
+    void inject(SystemPlaylistActivity systemPlaylistActivity);
+    void inject(SystemPlaylistFragment systemPlaylistFragment);
     void inject(TopResultsBucketActivity viewAllActivity);
 
     //CollectionModule

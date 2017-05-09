@@ -32,7 +32,7 @@
         <ImageButton
             android:id="@+id/btn_play"
             android:layout_marginLeft="16dp"
-            style="@style/NewForYouHeader.PlayButton" />
+            style="@style/SystemPlaylistHeader.PlayButton" />
 
     </RelativeLayout>
 

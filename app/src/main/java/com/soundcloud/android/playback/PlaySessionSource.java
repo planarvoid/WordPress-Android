@@ -111,6 +111,13 @@ public class PlaySessionSource implements Parcelable {
         return playSessionSource;
     }
 
+    public static PlaySessionSource forSystemPlaylist(String screenTag) {
+        // TODO (REC-1174): Use proper tracking information
+        // playSessionSource.querySourceInfo = QuerySourceInfo.create(queryPosition, queryUrn);
+        // playSessionSource.discoverySource = DiscoverySource.NEW_FOR_YOU;
+        return new PlaySessionSource(screenTag);
+    }
+
     public static PlaySessionSource forHistory(Screen screen) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.discoverySource = DiscoverySource.HISTORY;

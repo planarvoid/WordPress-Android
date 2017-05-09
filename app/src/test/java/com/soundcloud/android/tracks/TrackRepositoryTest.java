@@ -128,7 +128,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
-        final TestSubscriber<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
+        final TestObserver<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
 
         final Track first = subscriber.values().get(0);
         assertThat(first.title()).isEqualTo(trackItem.title());
@@ -142,7 +142,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Maybe.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Single.just(Optional.of(DESCRIPTION)));
 
-        final TestSubscriber<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
+        final TestObserver<Track> subscriber = trackRepository.fullTrackWithUpdate(trackUrn).test();
 
         final Track track = this.track.toBuilder().description(Optional.of(DESCRIPTION)).build();
         assertThat(subscriber.values()).containsExactly(track, track);

@@ -60,6 +60,7 @@ public enum ApiEndpoints {
 
     // Home card selection
     DISCOVERY_CARDS("/discovery/cards"),
+    SYSTEM_PLAYLISTS("/system-playlists/%s"),
 
     // ads + monetization
     ADS("/tracks/%s/ads"),

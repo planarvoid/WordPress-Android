@@ -69,6 +69,10 @@ public final class Urn extends ContentStringHelper<Urn> {
         return new Urn(namespace, UrnCollection.PLAYLISTS, id);
     }
 
+    public static Urn forSystemPlaylist(long id) {
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.SYSTEM_PLAYLIST, id);
+    }
+
     public static Urn newLocalPlaylist() {
         return forPlaylist(-System.currentTimeMillis());
     }

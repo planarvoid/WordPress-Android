@@ -12,7 +12,7 @@
         <attr name="custom_font" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="NewForYouArtworkView">
+    <declare-styleable name="SystemPlaylistArtworkView">
         <attr name="large" format="boolean" />
     </declare-styleable>
 

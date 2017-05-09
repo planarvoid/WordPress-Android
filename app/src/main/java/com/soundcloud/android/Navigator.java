@@ -20,6 +20,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -34,7 +35,6 @@ import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.RemoteSignInWebViewActivity;
@@ -339,6 +339,10 @@ public class Navigator {
                                       .putExtra(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
+    public void openSystemPlaylist(Context context, Urn urn, Screen screen) {
+        context.startActivity(createSystemPlaylistIntent(context, urn, screen));
+    }
+
     public void openActivities(Context context) {
         context.startActivity(new Intent(context, ActivitiesActivity.class));
     }
@@ -549,7 +553,9 @@ public class Navigator {
     }
 
     public void openNewForYou(Context context) {
-        context.startActivity(new Intent(context, NewForYouActivity.class));
+        // TODO (REC-1174): Is screen tracking required?
+        final Intent intent = new Intent(context, SystemPlaylistActivity.class).putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
+        context.startActivity(intent);
     }
 
     public void openPlayHistory(Context context) {
@@ -695,6 +701,15 @@ public class Navigator {
     private Intent createProfilePlaylistsIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserPlaylistsActivity.class)
                 .putExtra(UserPlaylistsActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+
+    private Intent createSystemPlaylistIntent(Context context, Urn playlist, Screen screen) {
+        Intent intent = new Intent(context, SystemPlaylistActivity.class)
+                .putExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, playlist)
+                .putExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false);
         screen.addToIntent(intent);
         return intent;
     }

@@ -17,7 +17,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <com.soundcloud.android.olddiscovery.newforyou.NewForYouArtworkView
+        <com.soundcloud.android.discovery.systemplaylist.SystemPlaylistArtworkView
             android:id="@+id/artwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

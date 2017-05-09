@@ -36,6 +36,7 @@ import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.Maybe;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -168,14 +169,11 @@ public class PlaylistOperations {
         return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
                                             .toObservable()
                                             .subscribeOn(scheduler)
-                                            .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
-                                                @Override
-                                                public Observable<List<Urn>> call(List<Urn> trackItems) {
-                                                    if (trackItems.isEmpty()) {
-                                                        return updatedUrnsForPlayback(playlistUrn);
-                                                    } else {
-                                                        return just(trackItems);
-                                                    }
+                                            .flatMap(trackItems -> {
+                                                if (trackItems.isEmpty()) {
+                                                    return updatedUrnsForPlayback(playlistUrn);
+                                                } else {
+                                                    return just(trackItems);
                                                 }
                                             });
     }
@@ -190,13 +188,8 @@ public class PlaylistOperations {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .observeOn(scheduler)
-                .flatMap(new Func1<SyncJobResult, Observable<Playlist>>() {
-                    @Override
-                    public Observable<Playlist> call(SyncJobResult playlistWasUpdated) {
-                        return RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn))
-                                     .switchIfEmpty(error(new PlaylistMissingException()));
-                    }
-                });
+                .flatMap(playlistWasUpdated -> RxJava.toV1Observable(playlistRepository.withUrn(playlistUrn)
+                                                                                       .switchIfEmpty(Maybe.error(new PlaylistMissingException()))));
     }
 
     Observable<PlaylistDetailsViewModel> playlistWithTracksAndRecommendations(Urn playlistUrn) {

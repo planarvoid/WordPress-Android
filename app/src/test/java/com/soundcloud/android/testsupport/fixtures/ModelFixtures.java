@@ -25,6 +25,7 @@ import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
+import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UserUrnBlueprint;
@@ -119,12 +120,26 @@ public class ModelFixtures {
         return create(ApiTrack.class);
     }
 
+    public static List<ApiTrack> apiTracks(int count) {
+        return create(ApiTrack.class, count);
+    }
+
     public static ApiUser apiUser() {
         return create(ApiUser.class);
     }
 
     public static Configuration configuration() {
         return create(Configuration.class);
+    }
+
+    public static ApiSystemPlaylist apiSystemPlaylist() {
+        return ApiSystemPlaylist.create(Urn.forSystemPlaylist(123L),
+                                        Optional.of(1),
+                                        Optional.of(new Date(123)),
+                                        Optional.of("title"),
+                                        Optional.of("description"),
+                                        Optional.of("http://fancy.jpg"),
+                                        new ModelCollection<>(apiTracks(1)));
     }
 
     public static ApiPlaylist apiPlaylist() {

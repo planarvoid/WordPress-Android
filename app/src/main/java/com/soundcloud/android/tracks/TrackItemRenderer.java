@@ -133,10 +133,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         showChartPosition(itemView, position);
     }
 
-    public void bindNewForYouTrackView(final TrackItem track,
-                                       View itemView,
-                                       final int position,
-                                       Optional<TrackSourceInfo> trackSourceInfo) {
+    public void bindSystemPlaylistTrackView(final TrackItem track,
+                                            View itemView,
+                                            final int position,
+                                            Optional<TrackSourceInfo> trackSourceInfo) {
         bindTrackView(track,
                       itemView,
                       position,

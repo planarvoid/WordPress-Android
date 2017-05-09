@@ -308,7 +308,7 @@
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".olddiscovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>
         <activity android:label="@string/discovery_search_title" android:name=".olddiscovery.PlaylistDiscoveryActivity"/>
-        <activity android:label="@string/new_for_you_title" android:name=".olddiscovery.newforyou.NewForYouActivity" android:theme="@style/Theme.SoundCloud" />
+        <activity android:name=".discovery.systemplaylist.SystemPlaylistActivity" android:theme="@style/Theme.SoundCloud" />
         <activity android:name=".search.topresults.TopResultsBucketActivity" />
 
         <!-- stations -->

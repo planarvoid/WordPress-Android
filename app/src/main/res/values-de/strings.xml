@@ -914,8 +914,8 @@
   <string name="new_for_you_title">Der Upload</string>
   <string name="new_for_you_intro">Neu bei SoundCloud. Für dich ausgewählt.</string>
   <string name="new_for_you_action">Playlist anzeigen</string>
-  <string name="new_for_you_duration">%1$d Tracks, %2$s</string>
-  <string name="new_for_you_updated_at">aktualisiert am %s</string>
+  <string name="system_playlist_duration">%1$d Tracks, %2$s</string>
+  <string name="system_playlist_updated_at">aktualisiert am %s</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">%1$s SoundCloud Go+-Ergebnis gefunden</item>

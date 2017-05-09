@@ -1,11 +1,11 @@
-package com.soundcloud.android.olddiscovery.newforyou;
+package com.soundcloud.android.discovery.systemplaylist;
 
-import static com.soundcloud.android.olddiscovery.newforyou.NewForYouItem.Kind.HEADER;
-import static com.soundcloud.android.olddiscovery.newforyou.NewForYouItem.Kind.TRACK;
+
+import static com.soundcloud.android.discovery.systemplaylist.SystemPlaylistItem.Kind.HEADER;
+import static com.soundcloud.android.discovery.systemplaylist.SystemPlaylistItem.Kind.TRACK;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouItem.NewForYouTrackItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -17,12 +17,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-class NewForYouAdapter extends RecyclerItemAdapter<NewForYouItem, RecyclerView.ViewHolder> implements PlayingTrackAware {
+class SystemPlaylistAdapter extends RecyclerItemAdapter<SystemPlaylistItem, RecyclerView.ViewHolder> implements PlayingTrackAware {
 
-    NewForYouAdapter(NewForYouHeaderRenderer.Listener headerItemListener,
-                     TrackItemRenderer.Listener trackItemListener,
-                     @Provided NewForYouHeaderRendererFactory headerRendererFactory,
-                     @Provided NewForYouTrackRendererFactory trackRendererFactory) {
+    SystemPlaylistAdapter(SystemPlaylistHeaderRenderer.Listener headerItemListener,
+                          TrackItemRenderer.Listener trackItemListener,
+                          @Provided SystemPlaylistHeaderRendererFactory headerRendererFactory,
+                          @Provided SystemPlaylistTrackRendererFactory trackRendererFactory) {
         super(new CellRendererBinding<>(HEADER.ordinal(), headerRendererFactory.create(headerItemListener)),
               new CellRendererBinding<>(TRACK.ordinal(), trackRendererFactory.create(trackItemListener))
         );
@@ -36,12 +36,12 @@ class NewForYouAdapter extends RecyclerItemAdapter<NewForYouItem, RecyclerView.V
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
         for (int i = 0; i < items.size(); i++) {
-            NewForYouItem newForYouItem = items.get(i);
-            if (newForYouItem.isTrack()) {
-                final TrackItem track = ((NewForYouTrackItem) newForYouItem).track();
+            SystemPlaylistItem systemPlaylistItem = items.get(i);
+            if (systemPlaylistItem.isTrack()) {
+                final TrackItem track = ((SystemPlaylistItem.Track) systemPlaylistItem).track();
                 final boolean isPlaying = track.getUrn().equals(currentlyPlayingUrn);
                 final TrackItem trackItem = track.withPlayingState(isPlaying);
-                items.set(i, NewForYouTrackItem.create(newForYouItem.newForYou(), trackItem));
+                items.set(i, ((SystemPlaylistItem.Track) systemPlaylistItem).withTrackItem(trackItem));
             }
         }
 

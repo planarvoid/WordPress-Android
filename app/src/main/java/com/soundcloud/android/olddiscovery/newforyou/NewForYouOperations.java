@@ -1,10 +1,11 @@
 package com.soundcloud.android.olddiscovery.newforyou;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,21 +19,19 @@ public class NewForYouOperations {
     @Inject
     NewForYouOperations(SyncOperations syncOperations,
                         NewForYouStorage storage,
-                        @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                        @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.syncOperations = syncOperations;
         this.storage = storage;
         this.scheduler = scheduler;
     }
 
-    public Observable<NewForYou> newForYou() {
-        return syncOperations.lazySyncIfStale(Syncable.NEW_FOR_YOU)
-                             .flatMap(read -> storage.newForYou())
-                             .subscribeOn(scheduler);
+    public Single<NewForYou> newForYou() {
+        return RxJava.toV2Single(syncOperations.lazySyncIfStale(Syncable.NEW_FOR_YOU).flatMap(read -> storage.newForYou()))
+                     .subscribeOn(scheduler);
     }
 
-    public Observable<NewForYou> refreshNewForYou() {
-        return syncOperations.failSafeSync(Syncable.NEW_FOR_YOU)
-                             .flatMap(read -> storage.newForYou())
-                             .subscribeOn(scheduler);
+    public Single<NewForYou> refreshNewForYou() {
+        return RxJava.toV2Single(syncOperations.failSafeSync(Syncable.NEW_FOR_YOU).flatMap(read -> storage.newForYou()))
+                     .subscribeOn(scheduler);
     }
 }

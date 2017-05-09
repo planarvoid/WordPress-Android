@@ -20,41 +20,43 @@
 
         <LinearLayout
             android:id="@+id/header_container"
-            style="@style/NewForYouHeader.Container"
+            style="@style/SystemPlaylistHeader.Container"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.soundcloud.android.olddiscovery.newforyou.NewForYouArtworkView
+            <com.soundcloud.android.discovery.systemplaylist.SystemPlaylistArtworkView
                 android:id="@+id/artwork"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 artworkSize:large="true" />
 
             <com.soundcloud.android.view.AutoResizeTextView
-                style="@style/NewForYouHeader.Title"
-                android:text="@string/new_for_you_title" />
+                android:id="@+id/system_playlist_title"
+                style="@style/SystemPlaylistHeader.Title"
+                tools:text="@string/new_for_you_title" />
 
             <com.soundcloud.android.view.CustomFontTextView
-                style="@style/NewForYouHeader.Description"
-                android:text="@string/new_for_you_intro" />
+                android:id="@+id/system_playlist_description"
+                style="@style/SystemPlaylistHeader.Description"
+                tools:text="@string/new_for_you_intro" />
         </LinearLayout>
 
     </FrameLayout>
 
-    <FrameLayout style="@style/NewForYouHeader.DetailsContainer">
+    <FrameLayout style="@style/SystemPlaylistHeader.DetailsContainer">
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/new_for_you_duration"
-            style="@style/NewForYouHeader.Duration"
+            android:id="@+id/system_playlist_duration"
+            style="@style/SystemPlaylistHeader.Duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="8 tracks, 33:45" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/new_for_you_updated_at"
-            style="@style/NewForYouHeader.UpdatedAt"
+            android:id="@+id/system_playlist_updated_at"
+            style="@style/SystemPlaylistHeader.UpdatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="Updated 3 hours ago" />

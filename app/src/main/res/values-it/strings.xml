@@ -916,8 +916,8 @@ Riavvia l\'applicazione.</string>
   <string name="new_for_you_title">Caricamenti</string>
   <string name="new_for_you_intro">Le novità di SoundCloud selezionate per te.</string>
   <string name="new_for_you_action">Visualizza la playlist</string>
-  <string name="new_for_you_duration">%1$d tracce, %2$s</string>
-  <string name="new_for_you_updated_at">Aggiornata %s</string>
+  <string name="system_playlist_duration">%1$d tracce, %2$s</string>
+  <string name="system_playlist_updated_at">Aggiornata %s</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Trovato %1$s risultato SoundCloud Go+</item>

@@ -31,7 +31,7 @@ public class NewForYouScreen extends Screen {
     }
 
     private boolean waitForFragment() {
-        return waiter.waitForFragmentByTag("NewForYouFragmentTag");
+        return waiter.waitForFragmentByTag("SystemPlaylistFragment");
     }
 
     public VisualPlayerElement clickHeaderPlay() {

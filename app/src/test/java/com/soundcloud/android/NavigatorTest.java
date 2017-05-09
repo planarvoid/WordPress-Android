@@ -25,12 +25,13 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylist;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
 import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
 import com.soundcloud.android.olddiscovery.charts.ChartActivity;
 import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
-import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -509,8 +510,22 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openNewForYou(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(NewForYouActivity.class);
+                                   .opensActivity(SystemPlaylistActivity.class)
+                                   .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, true);
     }
+
+    @Test
+    public void opensSystemPlaylist() {
+        final Urn urn = Urn.forSystemPlaylist(123L);
+        navigator.openSystemPlaylist(activityContext, urn, Screen.DEEPLINK);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(SystemPlaylistActivity.class)
+                                   .containsExtra(SystemPlaylistActivity.EXTRA_FOR_NEW_FOR_YOU, false)
+                                   .containsExtra(SystemPlaylistActivity.EXTRA_PLAYLIST_URN, urn)
+                                   .containsScreen(Screen.DEEPLINK);
+    }
+
 
     @Test
     public void opensSearchPremiumContentResults() {
@@ -779,8 +794,8 @@ public class NavigatorTest extends AndroidUnitTest {
         pendingIntent.send();
 
         assertThat(activityContext).nextStartedIntent()
-                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                    .opensActivity(MainActivity.class);
+                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                   .opensActivity(MainActivity.class);
     }
 
     @Test

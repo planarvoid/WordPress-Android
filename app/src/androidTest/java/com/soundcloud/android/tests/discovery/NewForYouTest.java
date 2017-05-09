@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.discovery;
 
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
@@ -50,6 +51,9 @@ public class NewForYouTest extends ActivityTest<MainActivity> {
                                                                .clickViewAll();
 
         assertThat(newForYouScreen, is(visible()));
+        assertThat("New for you screen title should be 'The Upload'",
+                   newForYouScreen.getActionBarTitle(),
+                   equalTo("The Upload"));
 
         final VisualPlayerElement player = newForYouScreen.clickHeaderPlay();
 
@@ -66,6 +70,9 @@ public class NewForYouTest extends ActivityTest<MainActivity> {
                                                                .clickViewAll();
 
         assertThat(newForYouScreen, is(visible()));
+        assertThat("New for you screen title should be 'The Upload'",
+                   newForYouScreen.getActionBarTitle(),
+                   equalTo("The Upload"));
 
         newForYouScreen.toggleTrackLike(0);
 

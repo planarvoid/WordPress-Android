@@ -29,6 +29,7 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,12 +37,11 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
+public class OldDiscoveryModulesProviderTest extends AndroidUnitTest {
 
     private static final Function<OldDiscoveryItem, OldDiscoveryItem.Kind> TO_KIND = OldDiscoveryItem::getKind;
     private final TestSubscriber<List<OldDiscoveryItem>> subscriber = new TestSubscriber<>();
@@ -96,7 +96,7 @@ public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
         when(recommendedPlaylistsOperations.recommendedPlaylists()).thenReturn(Observable.just(playlistsItem));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.just(playlistTagsItem));
         when(welcomeUserOperations.welcome()).thenReturn(Observable.just(welcomeUserItem));
-        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));
         when(inlineUpsellOperations.shouldDisplayInDiscovery()).thenReturn(true);
     }
 
@@ -251,7 +251,7 @@ public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
     public void loadsItemsWithoutNewForYouWhenNoTracksAvailable() {
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), Collections.emptyList());
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
-        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));
         oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
@@ -269,7 +269,7 @@ public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadsMaxFiveTracksInNewForYouModule() {
-        List trackList = new ArrayList();
+        List<Track> trackList = Lists.newArrayList();
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
@@ -278,7 +278,7 @@ public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
-        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));
         oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
@@ -296,14 +296,14 @@ public class OldOldDiscoveryModulesProviderTest extends AndroidUnitTest {
 
     @Test
     public void loadsLessThanMaxIfFewerTracksAvailable() {
-        List trackList = new ArrayList();
+        List<Track> trackList = Lists.newArrayList();
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         trackList.add(Track.from(ModelFixtures.create(ApiTrack.class)));
         final NewForYou newForYou = NewForYou.create(new Date(), Urn.forNewForYou("1"), trackList);
         when(newForYouConfig.isTopPositionEnabled()).thenReturn(true);
-        when(newForYouOperations.newForYou()).thenReturn(Observable.just(newForYou));
+        when(newForYouOperations.newForYou()).thenReturn(Single.just(newForYou));
         oldDiscoveryModulesProvider.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 

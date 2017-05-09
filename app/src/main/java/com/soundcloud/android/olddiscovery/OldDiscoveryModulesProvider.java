@@ -168,9 +168,9 @@ class OldDiscoveryModulesProvider {
     }
 
     private Observable<OldDiscoveryItem> newForYouItem(boolean isRefresh) {
-        final Observable<NewForYou> newForYouObservable = isRefresh ?
+        final Observable<NewForYou> newForYouObservable = RxJava.toV1Observable(isRefresh ?
                                                           newForYouOperations.refreshNewForYou() :
-                                                          newForYouOperations.newForYou();
+                                                          newForYouOperations.newForYou());
 
         return newForYouObservable.filter(newForYou -> !newForYou.tracks().isEmpty())
                                   .map(newForYou -> NewForYouDiscoveryItem.create(

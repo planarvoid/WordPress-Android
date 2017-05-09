@@ -309,6 +309,10 @@ public class ImageOperations {
                 listener);
     }
 
+    public void displayPlaceholder(String cacheKey, ImageView imageView) {
+        displayWithPlaceholder(cacheKey, imageView, null, Optional.absent());
+    }
+
     public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         displayWithPlaceholder(imageResource.getUrn(), imageView,
                                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize), Optional.absent());
