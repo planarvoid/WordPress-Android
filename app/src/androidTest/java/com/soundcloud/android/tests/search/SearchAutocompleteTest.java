@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.search;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
@@ -45,6 +46,7 @@ public class SearchAutocompleteTest extends ActivityTest<MainActivity> {
         discoveryScreen = mainNavHelper.goToDiscovery();
     }
 
+    @Ignore
     public void testAutocompleteResults() throws Exception {
         mrLocalLocal.startEventTracking();
         SearchResultsScreen resultsScreen = discoveryScreen.clickSearch()
