@@ -10,6 +10,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.configuration.experiments.LocalizedAutocompletionsExperiment;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
 import rx.Scheduler;
@@ -26,6 +27,7 @@ class SearchSuggestionOperations {
     private final SearchSuggestionStorage suggestionStorage;
     private final AccountOperations accountOperations;
     private final SearchSuggestionFiltering searchSuggestionFiltering;
+    private final LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment;
     private final TypeToken<ModelCollection<Autocompletion>> autocompletionTypeToken = new TypeToken<ModelCollection<Autocompletion>>() {
     };
 
@@ -34,12 +36,13 @@ class SearchSuggestionOperations {
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                SearchSuggestionStorage suggestionStorage,
                                AccountOperations accountOperations,
-                               SearchSuggestionFiltering searchSuggestionFiltering) {
+                               SearchSuggestionFiltering searchSuggestionFiltering, LocalizedAutocompletionsExperiment localizedAutocompletionsExperiment) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.suggestionStorage = suggestionStorage;
         this.accountOperations = accountOperations;
         this.searchSuggestionFiltering = searchSuggestionFiltering;
+        this.localizedAutocompletionsExperiment = localizedAutocompletionsExperiment;
     }
 
     Observable<List<SuggestionItem>> suggestionsFor(String query) {
@@ -59,12 +62,12 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> getAutocompletions(String query) {
-        final ApiRequest request =
-                ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
-                          .addQueryParam("query", query)
-                          .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
-                          .forPrivateApi()
-                          .build();
+        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
+                                                     .addQueryParam("query", query)
+                                                     .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
+                                                     .forPrivateApi();
+        localizedAutocompletionsExperiment.variantName().ifPresent(variantName -> builder.addQueryParam("variant", variantName));
+        final ApiRequest request = builder.build();
 
         return apiClientRx.mappedResponse(request, autocompletionTypeToken)
                           .flatMap(modelCollection -> Observable.from(modelCollection.getCollection())
