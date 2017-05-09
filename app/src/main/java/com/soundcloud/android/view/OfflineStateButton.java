@@ -69,15 +69,9 @@ public class OfflineStateButton extends LinearLayout {
     }
 
     public void setState(OfflineState state) {
-        if (!isTransitioningFromDownloadingToRequested(state)) {
-            offlineState = state;
-            setIcon(state);
-            setLabel(state);
-        }
-    }
-
-    private boolean isTransitioningFromDownloadingToRequested(OfflineState state) {
-        return OfflineState.DOWNLOADING == offlineState && OfflineState.REQUESTED == state;
+        offlineState = state;
+        setIcon(state);
+        setLabel(state);
     }
 
     private void setIcon(OfflineState state) {

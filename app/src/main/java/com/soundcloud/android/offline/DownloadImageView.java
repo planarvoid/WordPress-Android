@@ -69,14 +69,8 @@ public class DownloadImageView extends AppCompatImageView {
     }
 
     public void setState(OfflineState state, boolean selected) {
-        if (!isTransitioningFromDownloadingToRequested(state)) {
-            setSelected(selected);
-            setState(state);
-        }
-    }
-
-    private boolean isTransitioningFromDownloadingToRequested(OfflineState state) {
-        return OfflineState.DOWNLOADING == offlineState && OfflineState.REQUESTED == state;
+        setSelected(selected);
+        setState(state);
     }
 
     private void setState(OfflineState state) {

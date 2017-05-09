@@ -49,7 +49,6 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.schedulers.TestScheduler;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
@@ -61,7 +60,6 @@ import android.widget.ListView;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
@@ -90,7 +88,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     private TrackLikesHeaderPresenter presenter;
     private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
-    private TestScheduler scheduler = new TestScheduler();
 
     @Before
     public void setUp() throws Exception {
@@ -106,9 +103,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigator,
                 eventBus,
-                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)),
-                offlineSettingsStorage,
-                scheduler);
+                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)), offlineSettingsStorage);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
@@ -129,7 +124,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         presenter.updateTrackCount(3);
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).updateTrackCount(3);
     }
@@ -160,7 +154,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(singletonList(TRACK1), true));
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         final InOrder inOrder = inOrder(headerView);
         inOrder.verify(headerView).show(OfflineState.REQUESTED);
@@ -173,7 +166,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloading(singletonList(TRACK1), true));
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.DOWNLOADING);
     }
@@ -185,7 +177,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(singletonList(TRACK1), true));
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView, times(2)).show(OfflineState.REQUESTED); // once from storage
     }
@@ -197,7 +188,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(true));
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
@@ -251,7 +241,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, removed(true));
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         final InOrder inOrder = inOrder(headerView);
         inOrder.verify(headerView).show(OfflineState.REQUESTED);
@@ -263,7 +252,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.DOWNLOADED));
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.DOWNLOADED);
     }
@@ -273,7 +261,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.REQUESTED));
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.REQUESTED);
     }
@@ -283,7 +270,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
@@ -296,7 +282,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, offlineLikesDisabled);
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).show(OfflineState.NOT_OFFLINE);
     }
@@ -307,7 +292,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView, never()).show(OfflineState.DOWNLOADED);
     }
@@ -340,7 +324,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).showNoWifi();
     }
@@ -351,7 +334,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 .thenReturn(just(OfflineState.REQUESTED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).showNoConnection();
     }
@@ -362,7 +344,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 .thenReturn(just(OfflineState.DOWNLOADED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView, times(0)).showNoConnection();
     }
@@ -381,7 +362,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void showsOfflineDownloadOptionWhenOfflineLikesDisabled() {
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).setDownloadedButtonState(false);
     }
@@ -390,7 +370,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void showsOfflineRemovalOptionWhenOfflineTracksEnabled() {
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
         createAndBindView();
-        scheduler.advanceTimeBy(200, TimeUnit.MILLISECONDS);
 
         verify(headerView).setDownloadedButtonState(true);
     }

@@ -30,18 +30,15 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.ConnectionHelper;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.functions.Func4;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 import android.os.Bundle;
@@ -55,7 +52,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
         implements TrackLikesHeaderView.Listener, CellRenderer<TrackLikesItem> {
@@ -74,7 +70,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
     private final OfflineSettingsStorage offlineSettingsStorage;
-    private final Scheduler scheduler;
 
     private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
             new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
@@ -127,25 +122,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      EventBus eventBus,
                                      Provider<UpdateHeaderViewSubscriber> subscriberProvider,
                                      OfflineSettingsStorage offlineSettingsStorage) {
-        this(headerViewFactory, offlineContentOperations, offlineStateOperations, likeOperations, featureOperations,
-             playbackInitiator, expandPlayerSubscriberProvider, syncLikesDialogProvider,
-             navigator, eventBus, subscriberProvider, offlineSettingsStorage, Schedulers.computation());
-    }
-
-    @VisibleForTesting
-    TrackLikesHeaderPresenter(final TrackLikesHeaderViewFactory headerViewFactory,
-                                     OfflineContentOperations offlineContentOperations,
-                                     OfflineStateOperations offlineStateOperations,
-                                     TrackLikeOperations likeOperations,
-                                     final FeatureOperations featureOperations,
-                                     PlaybackInitiator playbackInitiator,
-                                     Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                     Provider<OfflineLikesDialog> syncLikesDialogProvider,
-                                     Navigator navigator,
-                                     EventBus eventBus,
-                                     Provider<UpdateHeaderViewSubscriber> subscriberProvider,
-                                     OfflineSettingsStorage offlineSettingsStorage,
-                                     Scheduler scheduler) {
         this.headerViewFactory = headerViewFactory;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
@@ -158,7 +134,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.offlineContentOperations = offlineContentOperations;
         this.subscriberProvider = subscriberProvider;
         this.offlineSettingsStorage = offlineSettingsStorage;
-        this.scheduler = scheduler;
 
         trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
         viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
@@ -209,7 +184,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private Observable<Boolean> getOfflineLikesEnabledObservable() {
         if (featureOperations.isOfflineContentEnabled()) {
             return offlineContentOperations.getOfflineLikedTracksStatusChanges()
-                                           .debounce(OfflineContentChangedEvent.DEBOUNCE_TIMEOUT, TimeUnit.MILLISECONDS, scheduler)
                                            .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(false);
@@ -221,12 +195,12 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                            .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
                            .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                           .debounce(OfflineContentChangedEvent.DEBOUNCE_TIMEOUT, TimeUnit.MILLISECONDS, scheduler)
                            .startWith(offlineStateOperations.loadLikedTracksOfflineState())
                            .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(OfflineState.NOT_OFFLINE);
         }
+
     }
 
     @Override
