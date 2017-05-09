@@ -32,6 +32,19 @@
         android:visibility="gone"/>
 
     <com.soundcloud.android.collection.CollectionPreviewView
+        android:id="@+id/collection_albums_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        soundcloud:collectionIcon="@drawable/ic_collection_playlists"
+        soundcloud:collectionTitle="@string/collections_albums_header" />
+
+    <View
+        android:id="@+id/collection_albums_preview_divider"
+        style="@style/Divider.Section"
+        android:visibility="gone"/>
+
+    <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/collection_stations_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

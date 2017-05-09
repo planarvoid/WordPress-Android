@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,7 +30,10 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
             PreviewCollectionItem.forLikesPlaylistsAndStations(
                     LikesItem.fromTrackPreviews(singletonList(
                             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
-                    Collections.emptyList(), Collections.emptyList());
+                    Optional.of(Collections.emptyList()),
+                    Optional.of(Collections.emptyList()),
+                    Optional.of(Collections.emptyList()),
+                    Collections.emptyList());
 
     private UpdateCollectionDownloadSubscriber subscriber;
 
@@ -52,7 +56,7 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
         subscriber.onNext(event);
 
         verify(adapter).setItem(eq(0), collectionItemArgumentCaptor.capture());
-        assertThat(((PreviewCollectionItem)collectionItemArgumentCaptor.getValue()).getLikes().offlineState()).isEqualTo(OfflineState.DOWNLOADING);
+        assertThat(((PreviewCollectionItem) collectionItemArgumentCaptor.getValue()).getLikes().offlineState()).isEqualTo(OfflineState.DOWNLOADING);
     }
 
     @Test

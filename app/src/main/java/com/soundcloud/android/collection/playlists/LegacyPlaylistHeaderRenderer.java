@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
 import android.content.res.Resources;
+import android.support.annotation.PluralsRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,11 +51,11 @@ public class LegacyPlaylistHeaderRenderer implements PlaylistHeaderRenderer {
     public void bindItemView(int position, View view, List<PlaylistCollectionHeaderItem> list) {
         PlaylistCollectionHeaderItem item = list.get(position);
         ButterKnife.bind(this, view);
-        setHeaderTitle(item.getPlaylistCount());
+        setHeaderTitle(item.kind().headerResource(), item.getPlaylistCount());
     }
 
-    private void setHeaderTitle(int count) {
-        String title = resources.getQuantityString(R.plurals.collections_playlists_header_plural, count, count);
+    private void setHeaderTitle(@PluralsRes int pluralsRes, int count) {
+        String title = resources.getQuantityString(pluralsRes, count, count);
         headerText.setText(title);
     }
 

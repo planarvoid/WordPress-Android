@@ -27,6 +27,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -44,11 +45,13 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     private Playlist postedPlaylist1;
     private Playlist postedPlaylist2;
+    private Playlist album1;
     private Playlist likedPlaylist1;
     private Playlist likedPlaylist2;
     private Playlist likedPlaylist3Offline;
     private PlaylistAssociation postedPlaylistAssociation1;
     private PlaylistAssociation postedPlaylistAssociation2;
+    private PlaylistAssociation albumAssociation1;
     private PlaylistAssociation likedPlaylistAssociation1;
     private PlaylistAssociation likedPlaylistAssociation2;
     private PlaylistAssociation likedPlaylistAssociation3Offline;
@@ -69,21 +72,22 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         postedPlaylist2 = getPlaylistItem(Urn.forPlaylist(2L), "banana");
         likedPlaylist1 = getPlaylistItem(Urn.forPlaylist(3L), "cherry");
         likedPlaylist2 = getPlaylistItem(Urn.forPlaylist(4L), "doughnut");
-        likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L),
-                                                        "eclair",
-                                                        OfflineState.DOWNLOADED);
+        likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L), "eclair", OfflineState.DOWNLOADED);
+        album1 = getAlbum(Urn.forPlaylist(6L), "froyo");
 
         postedPlaylistAssociation1 = getAssociatedPlaylist(postedPlaylist1, new Date(1));
         postedPlaylistAssociation2 = getAssociatedPlaylist(postedPlaylist2, new Date(3));
         likedPlaylistAssociation1 = getAssociatedPlaylist(likedPlaylist1, new Date(2));
         likedPlaylistAssociation2 = getAssociatedPlaylist(likedPlaylist2, new Date(4));
         likedPlaylistAssociation3Offline = getAssociatedPlaylist(likedPlaylist3Offline, new Date(5));
+        albumAssociation1 = getAssociatedPlaylist(album1, new Date(6));
 
         when(playlistPostStorage.loadPostedPlaylists(any(Integer.class), eq(Long.MAX_VALUE), anyString()))
                 .thenReturn(Observable.just(
                         Arrays.asList(
                                 postedPlaylistAssociation1,
-                                postedPlaylistAssociation2
+                                postedPlaylistAssociation2,
+                                albumAssociation1
                         )));
 
         when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE), anyString()))
@@ -102,6 +106,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 postedPlaylist2,
                 postedPlaylist1
         ));
@@ -121,12 +126,24 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void myPlaylistsReturnsOnlyAlbums() throws Exception {
+        final PlaylistsOptions options = PlaylistsOptions.builder().entities(PlaylistsOptions.Entities.ALBUMS).build();
+        operations.myPlaylists(options).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Collections.singletonList(
+                album1
+        ));
+    }
+
+    @Test
     public void myPlaylistsReturnsPostedAndLikedPlaylistsSortedByCreationDate() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.myPlaylists(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
                 postedPlaylist2,
@@ -151,6 +168,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 likedPlaylist3,
                 likedPlaylist3Offline,
                 likedPlaylist2,
@@ -167,6 +185,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
                 postedPlaylist2,
@@ -188,7 +207,8 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
                 postedPlaylist2,
                 likedPlaylist1,
                 likedPlaylist2,
-                likedPlaylist3Offline
+                likedPlaylist3Offline,
+                album1
         ));
     }
 
@@ -219,6 +239,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
                 postedPlaylist2,
@@ -242,6 +263,7 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
 
         assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+                album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
                 postedPlaylist2,
@@ -252,6 +274,10 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     private Playlist getPlaylistItem(Urn urn, String title) {
         return getPlaylistBuilder(urn, title).build();
+    }
+
+    private Playlist getAlbum(Urn urn, String title) {
+        return getPlaylistBuilder(urn, title).isAlbum(true).build();
     }
 
     private Playlist.Builder getPlaylistBuilder(Urn urn, String title) {

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -17,7 +18,7 @@ public class PreviewCollectionItemTest extends AndroidUnitTest {
         final LikesItem likesItem = LikesItem.fromTrackPreviews(singletonList(
                 LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
         final PreviewCollectionItem item = PreviewCollectionItem.forLikesPlaylistsAndStations(
-                likesItem, Collections.emptyList(), Collections.emptyList());
+                likesItem, Optional.of(Collections.emptyList()), Optional.of(Collections.emptyList()), Optional.of(Collections.emptyList()), Collections.emptyList());
 
         final PreviewCollectionItem updatedItem = item.updatedWithOfflineState(OfflineState.REQUESTED);
 

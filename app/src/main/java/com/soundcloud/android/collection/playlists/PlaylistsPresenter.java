@@ -82,6 +82,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     private final EntityItemCreator entityItemCreator;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
+    private PlaylistsOptions.Entities entities;
     private PlaylistsOptions currentOptions;
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
@@ -114,11 +115,12 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
         adapter.setHasStableIds(true);
         adapter.setListener(this);
-        currentOptions = collectionOptionsStorage.getLastOrDefault();
     }
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+        this.entities = PlaylistsArguments.entities(fragment.getArguments());
+        this.currentOptions = buildPlaylistOptionsWithFilters(collectionOptionsStorage.getLastOrDefault());
         super.onCreate(fragment, bundle);
         getBinding().connect();
     }
@@ -138,7 +140,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         recyclerView.setPadding(itemMargin, 0, 0, 0);
         recyclerView.setClipToPadding(false);
         recyclerView.setClipChildren(false);
-
     }
 
     @Override
@@ -222,9 +223,13 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
     }
 
-    public void refreshWithNewOptions(PlaylistsOptions options) {
-        currentOptions = options;
+    private void refreshWithNewOptions(PlaylistsOptions options) {
+        currentOptions = buildPlaylistOptionsWithFilters(options);
         refreshCollections();
+    }
+
+    private PlaylistsOptions buildPlaylistOptionsWithFilters(PlaylistsOptions options) {
+        return PlaylistsOptions.builder(options).entities(entities).build();
     }
 
     private boolean isCurrentlyFiltered() {
@@ -239,7 +244,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
 
         List<PlaylistCollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
 
-        items.add(PlaylistCollectionHeaderItem.create(playlistItems.size()));
+        items.add(createCollectionHeaderItem(playlistItems.size()));
 
         for (PlaylistItem playlistItem : playlistItems) {
             items.add(PlaylistCollectionPlaylistItem.create(playlistItem));
@@ -252,6 +257,17 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
         }
 
         return items;
+    }
+
+    @NonNull
+    private PlaylistCollectionHeaderItem createCollectionHeaderItem(int entityCount) {
+        if (entities == PlaylistsOptions.Entities.PLAYLISTS) {
+            return PlaylistCollectionHeaderItem.createForPlaylists(entityCount);
+        } else if (entities == PlaylistsOptions.Entities.ALBUMS) {
+            return PlaylistCollectionHeaderItem.createForAlbums(entityCount);
+        } else {
+            return PlaylistCollectionHeaderItem.create(entityCount);
+        }
     }
 
     private void refreshCollections() {

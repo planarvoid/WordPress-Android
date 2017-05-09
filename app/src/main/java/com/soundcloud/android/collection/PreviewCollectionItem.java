@@ -13,21 +13,27 @@ import java.util.List;
 public abstract class PreviewCollectionItem extends CollectionItem implements OfflineItem {
 
     static PreviewCollectionItem forLikesPlaylistsAndStations(LikesItem likes,
-                                                       List<PlaylistItem> playlistItems,
-                                                       List<StationRecord> stations) {
+                                                              Optional<List<PlaylistItem>> playlistsAndAlbums,
+                                                              Optional<List<PlaylistItem>> playlists,
+                                                              Optional<List<PlaylistItem>> albums,
+                                                              List<StationRecord> stations) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
-                                                   likes, Optional.of(stations), Optional.of(playlistItems));
+                                                   likes, Optional.of(stations), playlistsAndAlbums, playlists, albums);
     }
 
     PreviewCollectionItem copyWithLikes(LikesItem likes) {
-        return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW, likes, getStations(), getPlaylists());
+        return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW, likes, getStations(), getPlaylistsAndAlbums(), getPlaylists(), getAlbums());
     }
 
     abstract LikesItem getLikes();
 
     abstract Optional<List<StationRecord>> getStations();
 
+    abstract Optional<List<PlaylistItem>> getPlaylistsAndAlbums();
+
     abstract Optional<List<PlaylistItem>> getPlaylists();
+
+    abstract Optional<List<PlaylistItem>> getAlbums();
 
     @Override
     public PreviewCollectionItem updatedWithOfflineState(OfflineState offlineState) {

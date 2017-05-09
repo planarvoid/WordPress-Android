@@ -591,7 +591,7 @@
   <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists &amp; albums</string>
-  <plurals name="collections_playlists_header_plural">
+  <plurals name="collections_playlists_and_albums_header_plural">
     <item quantity="one">Playlists &amp; albums</item>
     <item quantity="other">%d playlists &amp; albums</item>
   </plurals>

@@ -6,10 +6,15 @@ import com.soundcloud.java.strings.Strings;
 @AutoValue
 public abstract class PlaylistsOptions {
 
+    enum Entities {
+        PLAYLISTS_AND_ALBUMS, PLAYLISTS, ALBUMS
+    }
+
     public static final PlaylistsOptions SHOW_ALL = new AutoValue_PlaylistsOptions.Builder()
             .showLikes(true)
             .showPosts(true)
             .showOfflineOnly(false)
+            .entities(Entities.PLAYLISTS_AND_ALBUMS)
             .sortByTitle(false)
             .textFilter(Strings.EMPTY)
             .build();
@@ -18,6 +23,7 @@ public abstract class PlaylistsOptions {
             .showLikes(false)
             .showPosts(false)
             .showOfflineOnly(true)
+            .entities(Entities.PLAYLISTS_AND_ALBUMS)
             .sortByTitle(false)
             .textFilter(Strings.EMPTY)
             .build();
@@ -28,6 +34,7 @@ public abstract class PlaylistsOptions {
                 .showPosts(false)
                 .showLikes(false)
                 .showOfflineOnly(false)
+                .entities(Entities.PLAYLISTS_AND_ALBUMS)
                 .sortByTitle(false)
                 .textFilter(Strings.EMPTY);
     }
@@ -38,6 +45,7 @@ public abstract class PlaylistsOptions {
                 .showPosts(options.showPosts())
                 .showLikes(options.showLikes())
                 .showOfflineOnly(options.showOfflineOnly())
+                .entities(options.entities())
                 .sortByTitle(options.sortByTitle())
                 .textFilter(options.textFilter());
     }
@@ -47,6 +55,8 @@ public abstract class PlaylistsOptions {
     public abstract boolean showPosts();
 
     public abstract boolean showOfflineOnly();
+
+    public abstract Entities entities();
 
     public abstract boolean sortByTitle();
 
@@ -59,6 +69,8 @@ public abstract class PlaylistsOptions {
         public abstract Builder showPosts(boolean enabled);
 
         public abstract Builder showOfflineOnly(boolean enabled);
+
+        public abstract Builder entities(Entities entities);
 
         public abstract Builder sortByTitle(boolean enabled);
 

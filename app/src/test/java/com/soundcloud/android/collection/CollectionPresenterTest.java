@@ -126,7 +126,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(MY_COLLECTION.getLikes(),
-                                                                   MY_COLLECTION.getPlaylistItems(),
+                                                                   MY_COLLECTION.getPlaylistAndAlbums(),
+                                                                   MY_COLLECTION.getPlaylists(),
+                                                                   MY_COLLECTION.getAlbums(),
                                                                    MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
@@ -140,7 +142,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
-                                                                   myCollection.getPlaylistItems(),
+                                                                   myCollection.getPlaylistAndAlbums(),
+                                                                   myCollection.getPlaylists(),
+                                                                   myCollection.getAlbums(),
                                                                    myCollection.getStations()),
                 RecentlyPlayedBucketItem.create(Collections.emptyList()),
                 PlayHistoryBucketItem.create(Collections.emptyList())
@@ -154,7 +158,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
-                                                                   myCollection.getPlaylistItems(),
+                                                                   myCollection.getPlaylistAndAlbums(),
+                                                                   myCollection.getPlaylists(),
+                                                                   myCollection.getAlbums(),
                                                                    myCollection.getStations()),
                 RecentlyPlayedBucketItem.create(Collections.emptyList()),
                 PlayHistoryBucketItem.create(Collections.emptyList())
@@ -217,7 +223,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
                 CollectionItem.OnboardingCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
-                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
@@ -248,7 +254,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
                 CollectionItem.UpsellCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
-                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
@@ -264,7 +270,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
-                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems(), MY_COLLECTION.getStations()),
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
                 PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
@@ -314,6 +320,4 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         verify(performanceMetricEngine).startMeasuring(MetricType.COLLECTION_LOAD);
         verify(performanceMetricEngine).endMeasuring(MetricType.COLLECTION_LOAD);
     }
-
-
 }

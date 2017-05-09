@@ -323,7 +323,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + FIXED_ITEMS);
 
         collectionItems.add(PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
-                                                                               myCollection.getPlaylistItems(),
+                                                                               myCollection.getPlaylistAndAlbums(),
+                                                                               myCollection.getPlaylists(),
+                                                                               myCollection.getAlbums(),
                                                                                myCollection.getStations()));
         addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
         addPlayHistory(playHistoryTrackItems, collectionItems);

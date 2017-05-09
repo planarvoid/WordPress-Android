@@ -21,6 +21,14 @@ public class NewPlaylistsFragment extends LightCycleSupportFragment<NewPlaylists
     @Inject @LightCycle NewPlaylistsPresenter presenter;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
+    public static NewPlaylistsFragment create(PlaylistsOptions.Entities entities) {
+        final Bundle bundle = PlaylistsArguments.from(entities);
+
+        NewPlaylistsFragment fragment = new NewPlaylistsFragment();
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
     public NewPlaylistsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);

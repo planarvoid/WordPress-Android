@@ -589,7 +589,7 @@
   <string name="facebook_creator_invites_title">Nodig vrienden uit om naar je nieuwste track op SoundCloud te luisteren</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Afspeellijsten &amp; albums</string>
-  <plurals name="collections_playlists_header_plural">
+  <plurals name="collections_playlists_and_albums_header_plural">
     <item quantity="one">Afspeellijsten en albums</item>
     <item quantity="other">%d afspeellijsten &amp; albums</item>
   </plurals>

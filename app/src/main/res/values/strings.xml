@@ -642,7 +642,17 @@
 
     <!-- __COLLECTION -->
     <string name="collections_playlists_header">Playlists &amp; albums</string>
+    <string name="collections_playlists_separate_header">Playlists</string>
+    <string name="collections_albums_header">Albums</string>
     <plurals name="collections_playlists_header_plural">
+        <item quantity="one">playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
+    <plurals name="collections_albums_header_plural">
+        <item quantity="one">album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
+    <plurals name="collections_playlists_and_albums_header_plural">
         <item quantity="one">Playlists &amp; albums</item>
         <item quantity="other">%d playlists &amp; albums</item>
     </plurals>

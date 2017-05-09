@@ -104,11 +104,43 @@ public class MyPlaylistsOperations {
 
     private Observable<List<Playlist>> loadPlaylists(PlaylistsOptions options) {
         return unsortedPlaylists(options)
+                .map(albumsOnly(options.entities() == PlaylistsOptions.Entities.ALBUMS))
+                .map(playlistsOnly(options.entities() == PlaylistsOptions.Entities.PLAYLISTS))
                 .map(offlineOnly(options.showOfflineOnly()))
                 .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
                 .map(REMOVE_DUPLICATE_PLAYLISTS)
                 .map(EXTRACT_PLAYLIST_ITEMS)
                 .subscribeOn(scheduler);
+    }
+
+    private Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> albumsOnly(final boolean albumsOnly) {
+        return propertySets -> {
+            if (albumsOnly) {
+                for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
+                    Playlist playlist = iterator.next().getPlaylist();
+
+                    if (!playlist.isAlbum()) {
+                        iterator.remove();
+                    }
+                }
+            }
+            return propertySets;
+        };
+    }
+
+    private Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> playlistsOnly(final boolean playlistsOnly) {
+        return propertySets -> {
+            if (playlistsOnly) {
+                for (Iterator<PlaylistAssociation> iterator = propertySets.iterator(); iterator.hasNext(); ) {
+                    Playlist playlist = iterator.next().getPlaylist();
+
+                    if (playlist.isAlbum()) {
+                        iterator.remove();
+                    }
+                }
+            }
+            return propertySets;
+        };
     }
 
     private Func1<List<PlaylistAssociation>, List<PlaylistAssociation>> offlineOnly(final boolean offlineOnly) {
@@ -131,7 +163,7 @@ public class MyPlaylistsOperations {
                                                                                                                  Long.MAX_VALUE,
                                                                                                                  options.textFilter());
         final Observable<List<PlaylistAssociation>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
-                                                                                                          Long.MAX_VALUE,
+                                                                                                                  Long.MAX_VALUE,
                                                                                                                   options.textFilter());
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;

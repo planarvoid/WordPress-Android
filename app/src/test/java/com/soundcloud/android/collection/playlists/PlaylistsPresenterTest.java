@@ -31,6 +31,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import java.util.Arrays;
@@ -39,17 +40,18 @@ import java.util.List;
 
 public class PlaylistsPresenterTest extends AndroidUnitTest {
 
-    private static final int PLAYLIST_COUNT = 2;
+    private static final int PLAYLIST_COUNT = 3;
     private static final int ZERO_PLAYLIST_COUNT = 0;
 
     private static final List<Playlist> PLAYLISTS = Arrays.asList(
             ModelFixtures.playlist(),
+            ModelFixtures.playlist().toBuilder().isAlbum(true).build(),
             ModelFixtures.playlist()
     );
 
     private static final List<PlaylistItem> PLAYLISTS_ITEMS = Lists.transform(PLAYLISTS, ModelFixtures::playlistItem);
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
 
     private PlaylistsPresenter presenter;
 
@@ -65,14 +67,18 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
+    @Captor private ArgumentCaptor<Iterable<PlaylistCollectionItem>> playlistCollectionItemCaptor;
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
+    @Captor private ArgumentCaptor<PlaylistsOptions> playlistsOptionsCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private PlaylistsOptions options;
 
     @Before
     public void setUp() throws Exception {
-        when(myPlaylistsOperations.myPlaylists(any(PlaylistsOptions.class))).thenReturn(Observable.empty());
+        Bundle fragmentArgs = PlaylistsArguments.from(PlaylistsOptions.Entities.PLAYLISTS_AND_ALBUMS);
+        fragmentRule.setFragmentArguments(fragmentArgs);
+
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
         when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class), anyInt())).thenReturn(
@@ -95,6 +101,8 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void updatesStoredOptionsWhenOptionsUpdated() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
         final PlaylistsOptions options = PlaylistsOptions.builder().build();
 
         presenter.onOptionsUpdated(options);
@@ -104,73 +112,82 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void usesFilterFromStorageForInitialLoad() {
-        when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
-
-        presenter.onCreate(fragment, null);
+        presenter.onCreate(fragmentRule.getFragment(), null);
 
         verify(myPlaylistsOperations).myPlaylists(options);
     }
 
     @Test
     public void addsFilterRemovalWhenFilterAppliedForLikes() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
         assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(2)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
 
     @Test
     public void addsFilterRemovalWhenFilterAppliedForPosts() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
         assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(2)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
 
     @Test
     public void addsFilterRemovalWhenFilterAppliedForOfflineOnly() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showOfflineOnly(true).build());
 
         assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(2)),
                 PlaylistCollectionRemoveFilterItem.create()
         );
     }
 
     @Test
     public void doesNotAddFilterRemovalWhenBothFiltersApplied() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
         assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1))
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(2))
         );
     }
 
     @Test
     public void doesNotAddFilterRemovalWhenNoFiltersApplied() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.playlistCollectionItems(PLAYLISTS_ITEMS)).containsExactly(
                 PlaylistCollectionHeaderItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(0)),
-                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1))
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(1)),
+                PlaylistCollectionPlaylistItem.create(PLAYLISTS_ITEMS.get(2))
         );
     }
 
     @Test
     public void addsEmptyPlaylistsItemWithNoPlaylistsAndNoFilters() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         final List<PlaylistItem> playlistItems = Collections.emptyList();
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
@@ -183,6 +200,7 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void addsEmptyPlaylistsItemWithNoPlaylistsAndBothFilters() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
         final List<PlaylistItem> playlistItems = Collections.emptyList();
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
@@ -195,7 +213,6 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldEndMeasuringPlaylistLoading() {
-
         presenter.onCreate(fragmentRule.getFragment(), null);
 
         verify(performanceMetricsEngine).endMeasuring(performanceMetricArgumentCaptor.capture());
@@ -203,5 +220,27 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
         Assertions.assertThat(performanceMetricArgumentCaptor.getValue())
                   .hasMetricType(MetricType.PLAYLISTS_LOAD)
                   .containsMetricParam(MetricKey.PLAYLISTS_COUNT, PLAYLISTS.size() + 1); //+1 for the header
+    }
+
+    @Test
+    public void playlistsAreFilteredFromEntityListBasedOnFragmentArguments() {
+        Bundle fragmentArgs = PlaylistsArguments.from(PlaylistsOptions.Entities.PLAYLISTS);
+        fragmentRule.setFragmentArguments(fragmentArgs);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(myPlaylistsOperations).myPlaylists(playlistsOptionsCaptor.capture());
+        assertThat(playlistsOptionsCaptor.getValue().entities()).isEqualTo(PlaylistsOptions.Entities.PLAYLISTS);
+    }
+
+    @Test
+    public void albumsAreFilteredFromEntityListBasedOnFragmentArguments() {
+        Bundle fragmentArgs = PlaylistsArguments.from(PlaylistsOptions.Entities.ALBUMS);
+        fragmentRule.setFragmentArguments(fragmentArgs);
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        verify(myPlaylistsOperations).myPlaylists(playlistsOptionsCaptor.capture());
+        assertThat(playlistsOptionsCaptor.getValue().entities()).isEqualTo(PlaylistsOptions.Entities.ALBUMS);
     }
 }

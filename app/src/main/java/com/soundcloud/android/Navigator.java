@@ -575,8 +575,16 @@ public class Navigator {
         context.startActivity(new Intent(context, OfflineSettingsOnboardingActivity.class));
     }
 
-    public void openPlaylistsCollection(Context context) {
-        context.startActivity(new Intent(context, PlaylistsActivity.class));
+    public void openPlaylistsAndAlbumsCollection(Activity activity) {
+        activity.startActivity(PlaylistsActivity.intentForPlaylistsAndAlbums(activity));
+    }
+
+    public void openPlaylistsCollection(Activity activity) {
+        activity.startActivity(PlaylistsActivity.intentForPlaylists(activity));
+    }
+
+    public void openAlbumsCollection(Activity activity) {
+        activity.startActivity(PlaylistsActivity.intentForAlbums(activity));
     }
 
     public void openDiscovery(Context context, Screen screen) {

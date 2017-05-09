@@ -10,6 +10,9 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.PlaylistEntityChangedEvent;
@@ -53,6 +56,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment;
 
     private TestSubscriber<MyCollection> subscriber = new TestSubscriber<>();
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
@@ -104,7 +109,9 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 playHistoryOperations,
                 recentlyPlayedOperations,
                 myPlaylistsOperations,
-                ModelFixtures.entityItemCreator());
+                ModelFixtures.entityItemCreator(),
+                featureOperations,
+                playlistAndAlbumsPreviewsExperiment);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
@@ -198,7 +205,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         MyCollection collection = subscriber.getOnNextEvents().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(Collections.emptyList());
-        assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
         assertThat(collection.hasError()).isTrue();
     }
@@ -217,8 +224,50 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         MyCollection collection = subscriber.getOnNextEvents().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(trackPreviews);
-        assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
+    }
+
+    @Test
+    public void collectionsShouldSeparatePlaylistsAndAlbumsIfUserIsHighTierAndIntoABTest() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        when(playlistAndAlbumsPreviewsExperiment.isEnabled()).thenReturn(true);
+
+        Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
+        Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
+        Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
+        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
+                .thenReturn(Observable.just(Arrays.asList(playlist1, playlist2, album1)));
+
+        operations.collections().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        assertThat(collection.getPlaylistAndAlbums().isPresent()).isFalse();
+        assertThat(collection.getPlaylists().isPresent()).isTrue();
+        assertThat(collection.getAlbums().isPresent()).isTrue();
+        assertThat(collection.getPlaylists().get().size()).isEqualTo(2);
+        assertThat(collection.getAlbums().get().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void collectionsShouldKeepPlaylistsAndAlbumsTogetherIfUserIsNotHighTier() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+
+        Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
+        Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
+        Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
+        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
+                .thenReturn(Observable.just(Arrays.asList(playlist1, playlist2, album1)));
+
+        operations.collections().subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        assertThat(collection.getPlaylistAndAlbums().isPresent()).isTrue();
+        assertThat(collection.getPlaylists().isPresent()).isFalse();
+        assertThat(collection.getAlbums().isPresent()).isFalse();
+        assertThat(collection.getPlaylistAndAlbums().get().size()).isEqualTo(3);
     }
 
     @Test

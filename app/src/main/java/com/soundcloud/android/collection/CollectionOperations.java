@@ -12,6 +12,9 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
@@ -31,13 +34,12 @@ import rx.Notification;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
-import rx.functions.Func2;
-import rx.functions.Func5;
 
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,17 +58,8 @@ public class CollectionOperations {
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final EntityItemCreator entityItemCreator;
-
-
-    private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS =
-            (playlistItems, likes, stationRecords, playHistoryTrackItems, recentlyPlayedPlayableItems) -> MyCollection.forCollectionWithPlayHistory(likes,
-                                                             playlistItems,
-                                                             stationRecords,
-                                                             playHistoryTrackItems,
-                                                             recentlyPlayedPlayableItems,
-                                                             false);
-
-    private static final Func2<List<LikedTrackPreview>, OfflineState, LikesItem> TO_LIKES_ITEM = (likedTracks, offlineState) -> LikesItem.create(likedTracks, offlineState);
+    private final FeatureOperations featureOperations;
+    private final PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment;
 
     private static List<PlaylistItem> getPlaylistsPreview(Notification<List<PlaylistItem>> playlists) {
         return playlists.isOnError() ? Collections.emptyList() : playlists.getValue();
@@ -77,23 +70,6 @@ public class CollectionOperations {
                LikesItem.fromTrackPreviews(Collections.emptyList()) :
                likes.getValue();
     }
-
-    private static final Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
-            (playlists, likes, stations, playHistoryTrackItems, recentlyPlayedItems) -> {
-                if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()
-                        && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
-                    return Notification.createOnCompleted();
-                }
-                return Notification.createOnNext(MyCollection.forCollectionWithPlayHistory(
-                        getLikesPreviews(likes),
-                        getPlaylistsPreview(playlists),
-                        getStationsPreview(stations),
-                        getPlayHistoryTrackItems(playHistoryTrackItems),
-                        getRecentlyPlayedPlayableItems(recentlyPlayedItems),
-                        likes.isOnError() || playlists.isOnError() || stations.isOnError()
-                                || playHistoryTrackItems.isOnError() || recentlyPlayedItems.isOnError()
-                ));
-            };
 
     private static List<RecentlyPlayedPlayableItem> getRecentlyPlayedPlayableItems(Notification<List<RecentlyPlayedPlayableItem>> recentlyPlayed) {
         return recentlyPlayed.isOnError() ? Collections.emptyList() :
@@ -108,18 +84,15 @@ public class CollectionOperations {
         return stations.isOnError() ? Collections.emptyList() : stations.getValue();
     }
 
-    private static final Func1<? super UrnStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = new Func1<UrnStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(UrnStateChangedEvent event) {
-            switch (event.kind()) {
-                case ENTITY_CREATED:
-                case ENTITY_DELETED:
-                    return event.containsPlaylist();
-                case STATIONS_COLLECTION_UPDATED:
-                    return true;
-                default:
-                    return false;
-            }
+    private static final Func1<? super UrnStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = (Func1<UrnStateChangedEvent, Boolean>) event -> {
+        switch (event.kind()) {
+            case ENTITY_CREATED:
+            case ENTITY_DELETED:
+                return event.containsPlaylist();
+            case STATIONS_COLLECTION_UPDATED:
+                return true;
+            default:
+                return false;
         }
     };
 
@@ -134,7 +107,9 @@ public class CollectionOperations {
                          PlayHistoryOperations playHistoryOperations,
                          RecentlyPlayedOperations recentlyPlayedOperations,
                          MyPlaylistsOperations myPlaylistsOperations,
-                         EntityItemCreator entityItemCreator) {
+                         EntityItemCreator entityItemCreator,
+                         FeatureOperations featureOperations,
+                         PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.loadLikedTrackPreviews = loadLikedTrackPreviews;
@@ -146,6 +121,8 @@ public class CollectionOperations {
         this.recentlyPlayedOperations = recentlyPlayedOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.entityItemCreator = entityItemCreator;
+        this.featureOperations = featureOperations;
+        this.playlistAndAlbumsPreviewsExperiment = playlistAndAlbumsPreviewsExperiment;
     }
 
     Observable<Object> onCollectionChanged() {
@@ -164,8 +141,24 @@ public class CollectionOperations {
                 loadStations().materialize(),
                 playHistoryItems().materialize(),
                 recentlyPlayed().materialize(),
-                TO_MY_COLLECTIONS_OR_ERROR
+                (playlists, likes, stations, playHistoryTrackItems, recentlyPlayedItems) -> {
+                    if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()
+                            && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
+                        return Notification.createOnCompleted();
+                    }
+                    return Notification.createOnNext(myCollection(getLikesPreviews(likes),
+                                                                  getPlaylistsPreview(playlists),
+                                                                  getStationsPreview(stations),
+                                                                  getPlayHistoryTrackItems(playHistoryTrackItems),
+                                                                  getRecentlyPlayedPlayableItems(recentlyPlayedItems),
+                                                                  likes.isOnError() || playlists.isOnError() || stations.isOnError()
+                                                                          || playHistoryTrackItems.isOnError() || recentlyPlayedItems.isOnError()));
+                }
         ).dematerialize();
+    }
+
+    private boolean shouldSeparatePlaylistsAndAlbums() {
+        return featureOperations.getCurrentPlan() == Plan.HIGH_TIER && playlistAndAlbumsPreviewsExperiment.isEnabled();
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
@@ -183,7 +176,7 @@ public class CollectionOperations {
     private Observable<LikesItem> likesItem() {
         return Observable.zip(tracksLiked(),
                               likedTracksOfflineState(),
-                              TO_LIKES_ITEM);
+                              LikesItem::create);
     }
 
     private Observable<List<TrackItem>> playHistoryItems() {
@@ -217,12 +210,41 @@ public class CollectionOperations {
                 myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()),
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
-                               TO_LIKES_ITEM),
+                               LikesItem::create),
                 refreshStationsAndLoad(),
                 refreshPlayHistoryItems(),
                 refreshRecentlyPlayedItems(),
-                TO_MY_COLLECTIONS
+                (playlistItems, likes, stationRecords, playHistoryTrackItems, recentlyPlayedPlayableItems) -> myCollection(likes,
+                                                                                                                           playlistItems,
+                                                                                                                           stationRecords,
+                                                                                                                           playHistoryTrackItems,
+                                                                                                                           recentlyPlayedPlayableItems,
+                                                                                                                           false)
         );
+    }
+
+    @NonNull
+    private MyCollection myCollection(LikesItem likes,
+                                      List<PlaylistItem> playlistsAndAlbums,
+                                      List<StationRecord> stations,
+                                      List<TrackItem> playHistoryTrackItems,
+                                      List<RecentlyPlayedPlayableItem> recentlyPlayedItems,
+                                      boolean hasError) {
+        if (shouldSeparatePlaylistsAndAlbums()) {
+            final List<PlaylistItem> playlists = new ArrayList<>();
+            final List<PlaylistItem> albums = new ArrayList<>();
+            for (PlaylistItem item : playlistsAndAlbums) {
+                if (item.isAlbum()) {
+                    albums.add(item);
+                } else {
+                    playlists.add(item);
+                }
+            }
+
+            return MyCollection.forCollectionWithPlayHistoryAndSeparatedAlbums(likes, playlists, albums, stations, playHistoryTrackItems, recentlyPlayedItems, hasError);
+        } else {
+            return MyCollection.forCollectionWithPlayHistory(likes, playlistsAndAlbums, stations, playHistoryTrackItems, recentlyPlayedItems, hasError);
+        }
     }
 
     @NonNull

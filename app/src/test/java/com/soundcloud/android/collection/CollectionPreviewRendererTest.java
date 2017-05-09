@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.view.View;
 
@@ -24,6 +25,7 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     @Mock private View view;
+    @Mock private Activity activity;
     @Mock private FeatureFlags featureFlags;
 
     private CollectionPreviewRenderer collectionPreviewRenderer;
@@ -42,7 +44,7 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartMeasuringPlaylistsLoadingOnGoToPlaylists() {
-        collectionPreviewRenderer.onGoToPlayListsClick(view);
+        collectionPreviewRenderer.onGoToPlaylistsAndAlbumsClick(activity);
 
         verify(performanceMetricsEngine).startMeasuring(MetricType.PLAYLISTS_LOAD);
     }

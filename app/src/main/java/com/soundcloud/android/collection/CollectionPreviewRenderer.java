@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -12,8 +14,12 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.checks.Preconditions;
 
+import android.app.Activity;
 import android.content.res.Resources;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,9 +59,16 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         return view;
     }
 
+    @VisibleForTesting
     void onGoToTrackLikesClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
         navigator.openTrackLikes(v.getContext());
+    }
+
+    @VisibleForTesting
+    void onGoToPlaylistsAndAlbumsClick(Activity activity) {
+        performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
+        navigator.openPlaylistsAndAlbumsCollection(activity);
     }
 
     private void setupStationsView(CollectionPreviewView stationsView) {
@@ -64,28 +77,29 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         stationsView.setOnClickListener(this::onGoToStationsClick);
     }
 
+    @VisibleForTesting
     void onGoToStationsClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
         navigator.openLikedStations(v.getContext());
     }
 
-    void onGoToPlayListsClick(View v) {
-        performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
-        navigator.openPlaylistsCollection(v.getContext());
-    }
-
-    private void setupPlaylistsView(CollectionPreviewView playlistsView, View divider) {
+    private CollectionPreviewView setupPlaylistsView(View parent, @StringRes int titleRes, View.OnClickListener onClickListener) {
+        final CollectionPreviewView playlistsView = (CollectionPreviewView) parent.findViewById(R.id.collection_playlists_preview);
+        final View divider = parent.findViewById(R.id.collection_playlists_preview_divider);
         divider.setVisibility(View.VISIBLE);
         playlistsView.setVisibility(View.VISIBLE);
-        playlistsView.setOnClickListener(this::onGoToPlayListsClick);
+        playlistsView.setTitle(resources.getString(titleRes));
+        playlistsView.setOnClickListener(onClickListener);
+        return playlistsView;
     }
 
-    private CollectionPreviewView getPlaylistsPreviewView(View view) {
-        return (CollectionPreviewView) view.findViewById(R.id.collection_playlists_preview);
-    }
-
-    private View getPlaylistsPreviewDividerView(View view) {
-        return view.findViewById(R.id.collection_playlists_preview_divider);
+    private CollectionPreviewView setupAlbumsView(View parent, View.OnClickListener onClickListener) {
+        final CollectionPreviewView albumsView = (CollectionPreviewView) parent.findViewById(R.id.collection_albums_preview);
+        final View divider = parent.findViewById(R.id.collection_albums_preview_divider);
+        divider.setVisibility(View.VISIBLE);
+        albumsView.setVisibility(View.VISIBLE);
+        albumsView.setOnClickListener(onClickListener);
+        return albumsView;
     }
 
     private CollectionPreviewView getStationsPreviewView(View view) {
@@ -98,20 +112,30 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
+        checkArgument(view.getContext() instanceof Activity);
+        Activity activity = (Activity) view.getContext();
         PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
         bindLikesView(item.getLikes(), view);
 
-        if (item.getStations().isPresent()) {
-            setThumbnails(item.getStations().get(), getStationsPreviewView(view));
+        item.getStations().ifPresent(stationRecords -> {
+            setThumbnails(stationRecords, getStationsPreviewView(view));
             setupStationsView(getStationsPreviewView(view));
-        }
+        });
 
-        if (item.getPlaylists().isPresent()) {
-            final CollectionPreviewView playlistsPreviewView = getPlaylistsPreviewView(view);
-            final View divider = getPlaylistsPreviewDividerView(view);
-            setupPlaylistsView(playlistsPreviewView, divider);
-            setThumbnails(item.getPlaylists().get(), playlistsPreviewView);
-        }
+        item.getPlaylistsAndAlbums().ifPresent(playlistsAndAlbums -> {
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick(activity));
+            setThumbnails(playlistsAndAlbums, playlistsPreviewView);
+        });
+
+        item.getPlaylists().ifPresent(playlists -> {
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigator.openPlaylistsCollection(activity));
+            setThumbnails(playlists, playlistsPreviewView);
+        });
+
+        item.getAlbums().ifPresent(albums -> {
+            CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigator.openAlbumsCollection(activity));
+            setThumbnails(albums, albumsPreviewView);
+        });
     }
 
     private void bindLikesView(LikesItem likes, View view) {

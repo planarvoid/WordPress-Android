@@ -5,6 +5,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableIt
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -16,13 +17,28 @@ public abstract class MyCollection {
                                                      List<TrackItem> playHistoryTrackItems,
                                                      List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems,
                                                      boolean atLeastOneError) {
-        return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, stations, playHistoryTrackItems,
+        return new AutoValue_MyCollection(likes, Optional.of(likedAndPostedPlaylists), Optional.absent(), Optional.absent(),
+                                          stations, playHistoryTrackItems,
+                                          recentlyPlayedPlayableItems, atLeastOneError);
+    }
+
+    static MyCollection forCollectionWithPlayHistoryAndSeparatedAlbums(LikesItem likes, List<PlaylistItem> playlists, List<PlaylistItem> albums,
+                                                     List<StationRecord> stations,
+                                                     List<TrackItem> playHistoryTrackItems,
+                                                     List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems,
+                                                     boolean atLeastOneError) {
+        return new AutoValue_MyCollection(likes, Optional.absent(), Optional.of(playlists), Optional.of(albums),
+                                          stations, playHistoryTrackItems,
                                           recentlyPlayedPlayableItems, atLeastOneError);
     }
 
     public abstract LikesItem getLikes();
 
-    public abstract List<PlaylistItem> getPlaylistItems();
+    public abstract Optional<List<PlaylistItem>> getPlaylistAndAlbums();
+
+    public abstract Optional<List<PlaylistItem>> getPlaylists();
+
+    public abstract Optional<List<PlaylistItem>> getAlbums();
 
     public abstract List<StationRecord> getStations();
 
