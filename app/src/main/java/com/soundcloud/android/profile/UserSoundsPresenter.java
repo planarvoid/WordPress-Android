@@ -8,9 +8,11 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -58,6 +60,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final UserSoundsItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
     private final Resources resources;
+    private final PlaySessionOriginScreenProvider screenProvider;
     private Urn userUrn;
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription viewLifeCycle;
@@ -72,7 +75,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserSoundsItemMapper userSoundsItemMapper,
                         UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
-                        Resources resources) {
+                        Resources resources,
+                        PlaySessionOriginScreenProvider screenProvider) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.user_profile_card_grid_span_count)
                                            .useDividers(Options.DividerMode.NONE)
                                            .build());
@@ -83,6 +87,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
         this.resources = resources;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -108,7 +113,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
         searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
-        clickListener = this.clickListenerFactory.create(searchQuerySourceInfo);
+        clickListener = this.clickListenerFactory.create(Screen.fromTag(screenProvider.getOriginScreen()), searchQuerySourceInfo);
         getBinding().connect();
     }
 

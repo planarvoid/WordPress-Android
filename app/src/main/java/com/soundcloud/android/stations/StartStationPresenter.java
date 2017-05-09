@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
@@ -35,16 +35,16 @@ public class StartStationPresenter {
     private final PlaybackInitiator playbackInitiator;
     private final EventBus eventBus;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
-    private final ScreenProvider screenProvider;
+    private final PlaySessionOriginScreenProvider screenProvider;
     private final MiniplayerExperiment miniplayerExperiment;
-    private PerformanceMetricsEngine performanceMetricsEngine;
+    private final PerformanceMetricsEngine performanceMetricsEngine;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public StartStationPresenter(DelayedLoadingDialogPresenter.Builder dialogBuilder,
                                  StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
                                  EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper,
-                                 ScreenProvider screenProvider,
+                                 PlaySessionOriginScreenProvider screenProvider,
                                  MiniplayerExperiment miniplayerExperiment,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.dialogBuilder = dialogBuilder;
@@ -86,15 +86,18 @@ public class StartStationPresenter {
         return stationRecord -> {
             checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
 
-            final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
-                                                                   stationRecord.getUrn(),
-                                                                   discoverySource);
             return playbackInitiator.playStation(stationRecord.getUrn(),
                                                  stationRecord.getTracks(),
-                                                 playSessionSource,
+                                                 createPlaySessionSource(discoverySource, stationRecord),
                                                  stationRecord.getTracks().get(position).getTrackUrn(),
                                                  position);
         };
+    }
+
+    private PlaySessionSource createPlaySessionSource(DiscoverySource discoverySource, StationRecord stationRecord) {
+        return forStation(screenProvider.getOriginScreen(),
+                          stationRecord.getUrn(),
+                          discoverySource);
     }
 
     void playStation(Context context,
@@ -129,12 +132,9 @@ public class StartStationPresenter {
                 trackToPlay = station.getTracks().get(station.getPreviousPosition()).getTrackUrn();
                 position = (station.getPreviousPosition() + 1) % station.getTracks().size();
             }
-            final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
-                                                                   station.getUrn(),
-                                                                   source);
             return playbackInitiator.playStation(station.getUrn(),
                                                  station.getTracks(),
-                                                 playSessionSource,
+                                                 createPlaySessionSource(source, station),
                                                  trackToPlay,
                                                  position);
         };

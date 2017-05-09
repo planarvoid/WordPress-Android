@@ -13,6 +13,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
@@ -110,6 +111,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CryptoOperations cryptoOperations;
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject ScreenProvider screenProvider;
+    @Inject PlaySessionOriginScreenProvider playSessionOriginScreenProvider;
     @Inject AdIdHelper adIdHelper;
     @Inject Lazy<DefaultCastSessionController> castControllerProvider;
     @Inject StationsController stationsController;
@@ -217,6 +219,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         playSessionController.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
+        playSessionOriginScreenProvider.subscribe();
         appboyPlaySessionState.subscribe();
         applicationStartupMeterFactory.create(this).subscribe();
         playbackMeter.subscribe();

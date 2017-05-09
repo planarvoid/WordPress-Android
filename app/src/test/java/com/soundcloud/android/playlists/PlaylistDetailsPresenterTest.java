@@ -233,7 +233,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         AssertableSubscriber<Urn> test = newPlaylistPresenter.goToCreator().test();
 
-        inputs .onCreatorClicked();
+        inputs.onCreatorClicked();
 
         test.assertReceivedOnNext(singletonList(initialPlaylist.creatorUrn()));
     }
@@ -244,7 +244,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        inputs .onEnterEditMode();
+        inputs.onEnterEditMode();
 
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(toEditMode(initialModel)));
     }
@@ -255,8 +255,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
         final AssertableSubscriber<AsyncViewModel<PlaylistDetailsViewModel>> modelUpdates = newPlaylistPresenter.viewModel().test();
 
-        inputs .onEnterEditMode();
-        inputs .onExitEditMode();
+        inputs.onEnterEditMode();
+        inputs.onExitEditMode();
 
         modelUpdates.assertValues(getIdleViewModel(initialModel), getIdleViewModel(toEditMode(initialModel)), getIdleViewModel(initialModel));
     }

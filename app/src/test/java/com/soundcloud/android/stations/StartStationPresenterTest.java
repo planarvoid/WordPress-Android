@@ -8,7 +8,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
@@ -34,7 +34,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock EventBus eventBus;
     @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Mock ScreenProvider screenProvider;
+    @Mock PlaySessionOriginScreenProvider screenProvider;
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock DelayedLoadingDialogPresenter dialogPresenter;
     @Mock MiniplayerExperiment miniplayerExperiment;
@@ -51,7 +51,7 @@ public class StartStationPresenterTest extends AndroidUnitTest {
         when(dialogBuilder.create()).thenReturn(dialogPresenter);
         when(dialogPresenter.show(any(Context.class))).thenReturn(dialogPresenter);
 
-        when(screenProvider.getLastScreenTag()).thenReturn(screen.get());
+        when(screenProvider.getOriginScreen()).thenReturn(screen.get());
         when(playbackInitiator.playStation(any(Urn.class), anyListOf(StationTrack.class),
                                            any(PlaySessionSource.class), any(Urn.class), anyInt()))
                 .thenReturn(Observable.just(PlaybackResult.success()));

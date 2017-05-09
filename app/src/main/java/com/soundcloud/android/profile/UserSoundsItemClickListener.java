@@ -98,9 +98,8 @@ class UserSoundsItemClickListener {
             this.mixedItemClickListenerFactory = mixedItemClickListenerFactory;
         }
 
-        public UserSoundsItemClickListener create(SearchQuerySourceInfo searchQuerySourceInfo) {
-            final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(Screen.USER_MAIN,
-                                                                                                   searchQuerySourceInfo);
+        public UserSoundsItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+            final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(screen, searchQuerySourceInfo);
             return new UserSoundsItemClickListener(navigator, clickListener);
         }
     }

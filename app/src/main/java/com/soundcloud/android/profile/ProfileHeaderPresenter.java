@@ -89,8 +89,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
         } else {
             followButton.setOnClickListener(createOnClickListener(user,
                                                                   followingOperations,
-                                                                  engagementsTracking,
-                                                                  screenProvider));
+                                                                  engagementsTracking));
         }
         stationButton.setVisibility(View.GONE);
         image.setOnClickListener(view -> FullImageDialog.show(activity.getSupportFragmentManager(), user));
@@ -104,21 +103,20 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
 
     private View.OnClickListener createOnClickListener(final Urn user,
                                                        final FollowingOperations followingOperations,
-                                                       final EngagementsTracking engagementsTracking,
-                                                       final ScreenProvider screenProvider) {
+                                                       final EngagementsTracking engagementsTracking) {
         return v -> {
             fireAndForget(followingOperations.toggleFollowing(user, followButton.isChecked()));
             engagementsTracking.followUserUrn(user,
                                               followButton.isChecked(),
-                                              getEventContextMetadata(screenProvider));
+                                              getEventContextMetadata());
             updateStationButton();
         };
     }
 
-    private EventContextMetadata getEventContextMetadata(ScreenProvider screenProvider) {
+    private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
                                    .module(Module.create(Module.SINGLE, POSITION_IN_CONTEXT))
-                                   .pageName(screenProvider.getLastScreen().get())
+                                   .pageName(screenProvider.getLastScreenTag())
                                    .build();
     }
 
@@ -147,16 +145,16 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
     @NonNull
     private ImageResource getImageResource(final User user) {
         return new ImageResource() {
-                                                           @Override
-                                                           public Urn getUrn() {
-                                                               return user.urn();
-                                                           }
+            @Override
+            public Urn getUrn() {
+                return user.urn();
+            }
 
-                                                           @Override
-                                                           public Optional<String> getImageUrlTemplate() {
-                                                               return user.avatarUrl();
-                                                           }
-                                                       };
+            @Override
+            public Optional<String> getImageUrlTemplate() {
+                return user.avatarUrl();
+            }
+        };
     }
 
     private void setFollowerCount(User user) {

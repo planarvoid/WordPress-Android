@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -24,6 +25,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -78,6 +80,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private RecyclerView recyclerView;
     @Mock private SimpleItemAnimator itemAnimator;
+    @Mock private PlaySessionOriginScreenProvider screenProvider;
 
     @Captor private ArgumentCaptor<Observable<List<PlayableItem>>> argumentCaptor;
 
@@ -92,10 +95,10 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                                            userSoundsItemMapper, clickListenerFactory, eventBus, resources);
+                                            userSoundsItemMapper, clickListenerFactory, eventBus, resources, screenProvider);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
-        doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
+        doReturn(clickListener).when(clickListenerFactory).create(any(Screen.class), eq(SEARCH_QUERY_SOURCE_INFO));
         when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
         when(resources.getInteger(R.integer.user_profile_card_grid_span_count)).thenReturn(1);
         when(recyclerView.getItemAnimator()).thenReturn(itemAnimator);
