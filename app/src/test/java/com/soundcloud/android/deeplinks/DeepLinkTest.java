@@ -202,6 +202,18 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");
     }
 
+    @Test
+    public void shouldHandleRemoteSignInDeeplinks() {
+        assertDeeplink(DeepLink.REMOTE_SIGN_IN, "https://soundcloud.com/activate");
+        assertDeeplink(DeepLink.REMOTE_SIGN_IN, "https://soundcloud.com/activate/something");
+        assertDeeplink(DeepLink.REMOTE_SIGN_IN, "https://soundcloud.com/activate/something/else");
+        assertDeeplink(DeepLink.REMOTE_SIGN_IN, "https://soundcloud.com/activate?foo=bar");
+
+        assertDeeplink(DeepLink.REMOTE_SIGN_IN, "soundcloud://remote-sign-in");
+
+        assertDeeplink(DeepLink.ENTITY, "https://soundcloud.com/activate-whatever");
+    }
+
     private void assertDeeplink(DeepLink deepLink, String url) {
         assertThat(DeepLink.fromUri(Uri.parse(url))).isEqualTo(deepLink);
     }

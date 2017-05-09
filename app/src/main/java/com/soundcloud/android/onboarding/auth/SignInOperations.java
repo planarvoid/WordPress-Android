@@ -25,10 +25,12 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.exceptions.AddAccountException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 
@@ -47,26 +49,26 @@ public class SignInOperations {
     private final ConfigurationOperations configurationOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
+    private final LocaleFormatter localeFormatter;
     private final Context context;
     private final ApiClient apiClient;
-    private final AuthResultMapper authResultMapper;
     private final OAuth oAuth;
 
     @Inject
     public SignInOperations(Context context,
                             ApiClient apiClient,
-                            AuthResultMapper authResultMapper,
                             OAuth oAuth,
                             ConfigurationOperations configurationOperations,
                             EventBus eventBus,
-                            AccountOperations accountOperations) {
+                            AccountOperations accountOperations,
+                            LocaleFormatter localeFormatter) {
         this.context = context;
         this.apiClient = apiClient;
-        this.authResultMapper = authResultMapper;
         this.oAuth = oAuth;
         this.configurationOperations = configurationOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
+        this.localeFormatter = localeFormatter;
     }
 
     public AuthTaskResult signIn(Bundle data) {
@@ -180,5 +182,24 @@ public class SignInOperations {
 
     private String getPassword(Bundle data) {
         return data.getString(PASSWORD_EXTRA);
+    }
+
+    public Uri generateRemoteSignInUri() {
+        return generateRemoteSignInUri("/activate");
+    }
+
+    public Uri generateRemoteSignInUri(String state) {
+        String accessToken = accountOperations.getSoundCloudToken().getAccessToken();
+
+        Uri.Builder uriBuilder = Uri.parse("https://secure.soundcloud.com/oauth2_callback")
+                                    .buildUpon()
+                                    .appendQueryParameter("display", "chromeless")
+                                    .appendQueryParameter("state", state)
+                                    .appendQueryParameter("client_id", oAuth.getClientId())
+                                    .fragment("access_token=" + accessToken);
+
+        localeFormatter.getLocale().ifPresent(locale -> uriBuilder.appendQueryParameter("device_locale", locale));
+
+        return uriBuilder.build();
     }
 }

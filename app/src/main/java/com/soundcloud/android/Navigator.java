@@ -37,6 +37,7 @@ import com.soundcloud.android.olddiscovery.charts.ChartActivity;
 import com.soundcloud.android.olddiscovery.newforyou.NewForYouActivity;
 import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.onboarding.auth.RemoteSignInWebViewActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
@@ -478,6 +479,11 @@ public class Navigator {
 
     public void openWebView(Context context, Uri uri) {
         context.startActivity(createWebViewIntent(context, uri));
+    }
+
+    public void openRemoteSignInWebView(Context context, Uri uri) {
+        Intent intent = new Intent(context, RemoteSignInWebViewActivity.class).setData(uri);
+        context.startActivity(intent);
     }
 
     public void openResolveForUri(Context context, Uri uri) {

@@ -18,17 +18,17 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
-import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.olddiscovery.charts.Chart;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -63,7 +63,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private Resources resources;
     @Mock private ChartsUriResolver chartsUriResolver;
-    @Mock private FeatureFlags featureFlags;
+    @Mock private SignInOperations signInOperations;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -640,6 +640,28 @@ public class IntentResolverTest extends AndroidUnitTest {
                                     ChartType.TOP,
                                     ChartCategory.MUSIC,
                                     TOP_FIFTY);
+    }
+
+    @Test
+    public void shouldOpenWebViewWithStateParameter() {
+        Uri fakeUri = Uri.parse("http://foo.com");
+        when(signInOperations.generateRemoteSignInUri("/activate/something")).thenReturn(fakeUri);
+        setupIntentForUrl("http://soundcloud.com/activate/something");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openRemoteSignInWebView(context, fakeUri);
+    }
+
+    @Test
+    public void shouldOpenWebViewWithoutStateParameter() {
+        Uri fakeUri = Uri.parse("http://foo.com");
+        when(signInOperations.generateRemoteSignInUri()).thenReturn(fakeUri);
+        setupIntentForUrl("soundcloud://remote-sign-in");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openRemoteSignInWebView(context, fakeUri);
     }
 
     public void setupIntentForUrl(String url) {

@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,15 +25,17 @@ import com.soundcloud.android.onboarding.auth.response.AuthResponse;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.LocaleFormatter;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 
 import java.io.IOException;
@@ -53,8 +56,8 @@ public class SignInOperationsTest extends AndroidUnitTest {
     @Mock AccountOperations accountOperations;
     @Mock Token token;
     @Mock JsonTransformer jsonTransformer;
-    @Captor ArgumentCaptor<ApiRequest> apiRequestCaptor;
-    private AuthResultMapper authResultMapper = new AuthResultMapper(jsonTransformer);
+    @Mock LocaleFormatter localeFormatter;
+
     private Bundle bundle;
     private SignInOperations operations;
 
@@ -63,9 +66,14 @@ public class SignInOperationsTest extends AndroidUnitTest {
         when(context.getApplicationContext()).thenReturn(application);
         when(oAuth.getClientId()).thenReturn("clientId");
         when(oAuth.getClientSecret()).thenReturn("clientSecret");
+        when(localeFormatter.getLocale()).thenReturn(Optional.of("en-GB"));
+
+        Token token = mock(Token.class);
+        when(token.getAccessToken()).thenReturn("user_access_token");
+        when(accountOperations.getSoundCloudToken()).thenReturn(token);
 
         bundle = new Bundle();
-        operations = new SignInOperations(context, apiClient, authResultMapper, oAuth, configurationOperations, eventBus, accountOperations);
+        operations = new SignInOperations(context, apiClient, oAuth, configurationOperations, eventBus, accountOperations, localeFormatter);
     }
 
     @Test
@@ -204,6 +212,38 @@ public class SignInOperationsTest extends AndroidUnitTest {
         AuthTaskResult authTaskResult = operations.signIn(bundle);
 
         assertThat(authTaskResult.wasSuccess()).isFalse();
+    }
+
+    @Test
+    public void shouldGenerateProperRemoteSignInUrlWithStateParameter() {
+
+        Uri url = operations.generateRemoteSignInUri("/activate/something");
+
+        Assertions.assertThat(url)
+                  .hasScheme("https")
+                  .hasHost("secure.soundcloud.com")
+                  .hasPath("/oauth2_callback")
+                  .hasQueryParamWithValue("state", "/activate/something")
+                  .hasQueryParamWithValue("display", "chromeless")
+                  .hasQueryParamWithValue("client_id", "clientId")
+                  .hasQueryParamWithValue("device_locale", "en-GB")
+                  .hasFragment("access_token=user_access_token");
+    }
+
+    @Test
+    public void shouldGenerateProperRemoteSignInUrl() {
+
+        Uri url = operations.generateRemoteSignInUri();
+
+        Assertions.assertThat(url)
+                  .hasScheme("https")
+                  .hasHost("secure.soundcloud.com")
+                  .hasPath("/oauth2_callback")
+                  .hasQueryParamWithValue("display", "chromeless")
+                  .hasQueryParamWithValue("client_id", "clientId")
+                  .hasQueryParamWithValue("device_locale", "en-GB")
+                  .hasFragment("access_token=user_access_token")
+                  .hasQueryParamWithValue("state", "/activate");
     }
 
     private void setupDefaultMocksForSuccessfulLogin() throws IOException, ApiRequestException, ApiMapperException {

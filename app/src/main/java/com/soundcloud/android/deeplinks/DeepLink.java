@@ -7,13 +7,14 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, 
-    STREAM, 
+    HOME,
+    STREAM,
     TRACK_RECOMMENDATIONS,
-    DISCOVERY, 
+    DISCOVERY,
     SEARCH,
     RECORD,
     WEB_VIEW,
@@ -32,13 +33,15 @@ public enum DeepLink {
     PLAYLIST_ENTITY,
     USER_ENTITY,
     SHARE_APP,
-    SYSTEM_SETTINGS;
+    SYSTEM_SETTINGS,
+    REMOTE_SIGN_IN;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     @VisibleForTesting
     static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
             EnumSet.of(TRACK_RECOMMENDATIONS,
+                       REMOTE_SIGN_IN,
                        DISCOVERY,
                        SEARCH,
                        RECORD,
@@ -203,6 +206,8 @@ public enum DeepLink {
                 return ENTITY;
             case "open-notification-settings":
                 return SYSTEM_SETTINGS;
+            case "remote-sign-in":
+                return REMOTE_SIGN_IN;
             default:
                 return ENTITY;
         }
@@ -266,15 +271,21 @@ public enum DeepLink {
             case "/open-notification-settings":
                 return SYSTEM_SETTINGS;
             default:
-                if (isChartsUrl(uri)) {
+                if (isRemoteSignIn(uri)) {
+                    return REMOTE_SIGN_IN;
+                } else if (isChartsUrl(uri)) {
                     return CHARTS;
-                }
-                else if (isWebViewUrl(uri)) {
+                } else if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
                 } else {
                     return ENTITY;
                 }
         }
+    }
+
+    private static boolean isRemoteSignIn(Uri uri) {
+        List<String> segments = uri.getPathSegments();
+        return segments != null && segments.size() > 0 && segments.get(0).equals("activate");
     }
 
     private static boolean isChartsUrl(Uri uri) {

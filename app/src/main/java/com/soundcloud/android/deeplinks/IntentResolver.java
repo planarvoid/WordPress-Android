@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -44,6 +45,7 @@ public class IntentResolver {
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final ChartsUriResolver chartsUriResolver;
+    private final SignInOperations signInOperations;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -55,7 +57,8 @@ public class IntentResolver {
                    EventBus eventBus,
                    Navigator navigator,
                    FeatureOperations featureOperations,
-                   ChartsUriResolver chartsUriResolver) {
+                   ChartsUriResolver chartsUriResolver,
+                   SignInOperations signInOperations) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
@@ -66,6 +69,7 @@ public class IntentResolver {
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.chartsUriResolver = chartsUriResolver;
+        this.signInOperations = signInOperations;
     }
 
     void handleIntent(Intent intent, Context context) {
@@ -142,9 +146,24 @@ public class IntentResolver {
             case SYSTEM_SETTINGS:
                 showSystemSettings(context);
                 break;
+            case REMOTE_SIGN_IN:
+                startWebViewForRemoteSignIn(context, uri, referrer);
+                break;
             default:
                 resolve(context, uri, referrer);
         }
+    }
+
+    private void startWebViewForRemoteSignIn(Context context, Uri uri, String referrer) {
+        Uri target;
+        if (DeepLink.isWebScheme(uri)) {
+            target = signInOperations.generateRemoteSignInUri(uri.getPath());
+        } else {
+            target = signInOperations.generateRemoteSignInUri();
+        }
+
+        trackForegroundEvent(referrer);
+        navigator.openRemoteSignInWebView(context, target);
     }
 
     private boolean shouldShowLogInMessage(DeepLink deepLink, String referrer) {
