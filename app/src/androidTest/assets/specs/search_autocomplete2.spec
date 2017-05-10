@@ -48,7 +48,7 @@ expected_events:
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-    query_urn: soundcloud:search-autocomplete:(\w|-)+
+    query_urn: soundcloud:search:(\w|-)+
     client_id: '3152'
     page_name: search:everything
     user: soundcloud:users:285710974
