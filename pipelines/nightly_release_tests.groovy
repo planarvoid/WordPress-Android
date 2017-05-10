@@ -30,8 +30,7 @@ timestamps {
         node('chaos-slave') {
           deleteDir()
           unstash 'repository'
-          echo 'Reporting'
-//          sh './scripts/release_build_of_master_branch_acceptance_tests_report.sh'
+          sh './scripts/release_build_of_master_branch_acceptance_tests_report.sh'
         }
       }
     }
