@@ -4,6 +4,7 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,13 +32,15 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private DiscoveryCard.SingleContentSelectionCard card;
     @Mock private SelectionItem selectionItem;
+    @Mock private Navigator navigator;
+    @Mock private OnClickListener onClickListener;
 
     private SingleSelectionContentCardRenderer renderer;
     private View itemView;
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources);
+        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources, navigator);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(card.title()).thenReturn(Optional.of("title"));
@@ -198,4 +202,13 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
         assertThat(container.findViewById(R.id.single_card_user_artwork_5)).isNotVisible();
     }
 
+    @Test
+    public void bindsClickHandlingFromSelectionItem() {
+        when(selectionItem.onClickListener(navigator)).thenReturn(onClickListener);
+
+        renderer.bindItemView(0, itemView, Collections.singletonList(card));
+        itemView.performClick();
+
+        verify(onClickListener).onClick(itemView);
+    }
 }

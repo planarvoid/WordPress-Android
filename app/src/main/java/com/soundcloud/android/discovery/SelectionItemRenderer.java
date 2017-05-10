@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 
 import static butterknife.ButterKnife.findById;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -24,11 +25,13 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private final Navigator navigator;
 
     @Inject
-    SelectionItemRenderer(ImageOperations imageOperations, Resources resources) {
+    SelectionItemRenderer(ImageOperations imageOperations, Resources resources, Navigator navigator) {
         this.imageOperations = imageOperations;
         this.resources = resources;
+        this.navigator = navigator;
     }
 
     @Override
@@ -46,6 +49,7 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
         bindSubtitle(view, selectionItem.shortSubtitle());
         bindCount(view, selectionItem.count());
         bindOverflowMenu(view);
+        bindClickHandling(view, selectionItem);
     }
 
     private void bindOverflowMenu(View view) {
@@ -88,5 +92,9 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
         } else {
             textView.setVisibility(View.GONE);
         }
+    }
+
+    private void bindClickHandling(View view, final SelectionItem selectionItem) {
+        view.setOnClickListener(selectionItem.onClickListener(navigator));
     }
 }

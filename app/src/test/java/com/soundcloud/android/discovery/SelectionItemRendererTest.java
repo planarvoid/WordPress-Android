@@ -4,6 +4,7 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 
 import android.content.res.Resources;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,13 +29,15 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private SelectionItem selectionItem;
     @Mock private ImageOperations imageOperations;
+    @Mock private Navigator navigator;
+    @Mock private OnClickListener onClickListener;
 
     private SelectionItemRenderer renderer;
     private View itemView;
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SelectionItemRenderer(imageOperations, resources);
+        renderer = new SelectionItemRenderer(imageOperations, resources, navigator);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(selectionItem.shortTitle()).thenReturn(Optional.of("title"));
@@ -132,4 +136,15 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
         assertThat(overflowMenu).isNotVisible();
     }
+
+    @Test
+    public void bindsClickHandlingFromSelectionItem() {
+        when(selectionItem.onClickListener(navigator)).thenReturn(onClickListener);
+
+        renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
+        itemView.performClick();
+
+        verify(onClickListener).onClick(itemView);
+    }
+
 }

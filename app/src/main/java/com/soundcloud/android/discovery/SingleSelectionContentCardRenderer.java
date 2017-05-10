@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -20,11 +21,13 @@ import java.util.List;
 class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private final Navigator navigator;
 
     @Inject
-    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources) {
+    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources, Navigator navigator) {
         this.imageOperations = imageOperations;
         this.resources = resources;
+        this.navigator = navigator;
     }
 
     @Override
@@ -39,6 +42,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         bindText(view, R.id.single_card_description, singleContentSelectionCard.description());
         bindSelectionItem(view, R.id.single_card_artwork, singleContentSelectionCard.selectionItem());
         bindSocialProof(view, singleContentSelectionCard);
+        bindClickHandling(view, singleContentSelectionCard.selectionItem());
     }
 
     private void bindText(View parentView, int resource, Optional<String> value) {
@@ -94,5 +98,9 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         } else {
             imageView.setVisibility(View.GONE);
         }
+    }
+
+    private void bindClickHandling(View view, final SelectionItem selectionItem) {
+        view.setOnClickListener(selectionItem.onClickListener(navigator));
     }
 }

@@ -18,10 +18,12 @@ public class ApiSelectionItemTest {
     private static final String SHORT_TITLE = "Chill Playlist";
     private static final String SHORT_SUBTITLE = "willywacker";
     private static final String URN_VALUE = "soundcloud:playlists:96836877";
+    private static final String APP_LINK = "soundcloud://playlists/96836877";
+    private static final String WEB_LINK = "https://soundcloud.com/willywacker/sets/ny9ks2pfc7se";
     private static final Urn URN = new Urn(URN_VALUE);
 
-    static final ApiSelectionItem EXPECTED_PLAYLIST = ApiSelectionItem.create(URN, ARTWORK, TRACK_COUNT, SHORT_TITLE, SHORT_SUBTITLE);
-    static final String JSON = "{\"urn\": \"" + URN_VALUE + "\",\"artwork_url_template\": \"" + ARTWORK + "\",\"count\": " + TRACK_COUNT + ",\"short_title\": \"" + SHORT_TITLE + "\",\"short_subtitle\": \"" + SHORT_SUBTITLE + "\"}";
+    static final ApiSelectionItem EXPECTED_PLAYLIST = ApiSelectionItem.create(URN, ARTWORK, TRACK_COUNT, SHORT_TITLE, SHORT_SUBTITLE, APP_LINK, WEB_LINK);
+    static final String JSON = "{\"urn\": \"" + URN_VALUE + "\",\"artwork_url_template\": \"" + ARTWORK + "\",\"count\": " + TRACK_COUNT + ",\"short_title\": \"" + SHORT_TITLE + "\",\"short_subtitle\": \"" + SHORT_SUBTITLE + "\",\"app_link\": \"" + APP_LINK + "\",\"web_link\": \"" + WEB_LINK + "\"}";
 
     private final JsonTransformer jsonTransformer = new JacksonJsonTransformer();
 

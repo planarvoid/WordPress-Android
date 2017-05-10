@@ -34,6 +34,8 @@ final class DiscoveryCardMapper {
                                     apiSelectionItem.artworkUrlTemplate(),
                                     apiSelectionItem.count(),
                                     apiSelectionItem.shortTitle(),
-                                    apiSelectionItem.shortSubtitle());
+                                    apiSelectionItem.shortSubtitle(),
+                                    apiSelectionItem.appLink(),
+                                    apiSelectionItem.webLink());
     }
 }
