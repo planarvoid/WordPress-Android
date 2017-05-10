@@ -34,7 +34,7 @@ public class LauncherActivity extends RootActivity {
 
     @Override
     protected void setActivityContentView() {
-        setContentView(R.layout.launch);
+        setContentView(R.layout.empty);
     }
 
     @Override

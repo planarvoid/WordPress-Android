@@ -7,7 +7,6 @@ import com.soundcloud.android.main.Screen;
 
 import android.content.res.Resources;
 import android.net.Uri;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -31,13 +30,12 @@ public class ResolveActivity extends RootActivity {
 
     @Override
     protected void setActivityContentView() {
-        setContentView(R.layout.resolve);
+        setContentView(R.layout.empty);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        findViewById(R.id.progress).setVisibility(View.VISIBLE);
         intentResolver.handleIntent(getIntent(), this);
         finish();
     }

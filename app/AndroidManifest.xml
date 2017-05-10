@@ -51,7 +51,7 @@
         tools:ignore="ManifestResource,UnusedAttribute"
         android:supportsRtl="false">
 
-        <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
+        <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -136,7 +136,7 @@
         </activity>
 
         <!-- activities -->
-        <activity android:name=".deeplinks.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar" android:windowSoftInputMode="adjustPan">
+        <activity android:name=".deeplinks.ResolveActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.Launcher" android:windowSoftInputMode="adjustPan">
 
             <intent-filter android:priority="10" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
