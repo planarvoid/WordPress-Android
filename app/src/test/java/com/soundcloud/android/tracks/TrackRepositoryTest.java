@@ -13,6 +13,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.sync.EntitySyncStateStorage;
@@ -28,12 +30,12 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subscribers.TestSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.subjects.PublishSubject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +217,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     }
 
     @Test
-    public void fromPlaylistWithStaleTimeBackfillsIfStaleTimePassed() throws Exception {
+    public void fromPlaylistWithStaleTimeBackfillsIfStaleTimePassed() {
         when(entitySyncStateStorage.lastSyncTime(PLAYLIST_URN)).thenReturn(1000L);
         currentTimeProvider.setTime(2, TimeUnit.SECONDS);
 
@@ -232,6 +234,24 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         testSubscriber.assertValue(trackList)
                       .assertComplete();
 
+    }
+
+    @Test
+    public void fromPlaylistWithStaleTimeReturnsStaleContentWhenApiRequestException()  {
+        when(entitySyncStateStorage.lastSyncTime(PLAYLIST_URN)).thenReturn(1000L);
+        currentTimeProvider.setTime(2, TimeUnit.SECONDS);
+
+        final List<Track> trackList = singletonList(track);
+
+        when(syncInitiator.syncPlaylist(PLAYLIST_URN)).thenReturn(syncSubject);
+        when(loadPlaylistTracksCommand.toSingle(PLAYLIST_URN)).thenReturn(just(trackList));
+
+        final TestObserver<List<Track>> testSubscriber = trackRepository.forPlaylist(PLAYLIST_URN, 999).test();
+        testSubscriber.assertNoValues();
+
+        syncSubject.onError(ApiRequestException.networkError(ApiRequest.get("http://server").forPrivateApi().build(), new IOException("Test")));
+        testSubscriber.assertValue(trackList)
+                      .assertComplete();
     }
 
     @Test
