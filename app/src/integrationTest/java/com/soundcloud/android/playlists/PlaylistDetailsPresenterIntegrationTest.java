@@ -3,12 +3,13 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.reverse;
+import static com.soundcloud.java.optional.Optional.absent;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;
@@ -43,7 +44,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
     public void presenterDoesNotEmitWhenNotConnected() {
         noNetwork();
 
-        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
         screen.assertState(empty());
@@ -53,66 +54,85 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
     public void presenterStartsWithEmptyModel() {
         unrespondingNetwork();
 
-        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create());
+        presenter.connect(PlaylistDetailsInputs.create(), Urn.forPlaylist(123L));
 
-        screen.assertState(contains(AsyncViewModel.create(Optional.absent(), true, false, Optional.absent())));
+        screen.assertState(contains(AsyncViewModel.<Object>builder()
+                                            .data(Optional.absent())
+                                            .isLoadingNextPage(true)
+                                            .isRefreshing(false)
+                                            .error(Optional.absent())
+                                            .refreshError(absent())
+                                            .build()));
     }
 
     @Test
     public void showNetworkError() throws InterruptedException {
         noNetwork();
 
-        final PlaylistDetailsPresenter presenter = createPresenter(Urn.forPlaylist(123L));
+        final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create());
+        presenter.connect(PlaylistDetailsInputs.create(), Urn.forPlaylist(123L));
 
-        screen.assertState(contains(AsyncViewModel.create(Optional.absent(), true, false, Optional.absent()),
-                                    AsyncViewModel.create(Optional.absent(), false, false, Optional.of(ViewError.CONNECTION_ERROR))));
+        screen.assertState(contains(AsyncViewModel.<Object>builder()
+                                            .data(Optional.absent())
+                                            .isLoadingNextPage(true)
+                                            .isRefreshing(false)
+                                            .error(Optional.absent())
+                                            .refreshError(absent())
+                                            .build(),
+                                    AsyncViewModel.<Object>builder()
+                                            .data(Optional.absent())
+                                            .isLoadingNextPage(false)
+                                            .isRefreshing(false)
+                                            .error(Optional.of(ViewError.CONNECTION_ERROR))
+                                            .refreshError(absent())
+                                            .build()));
     }
 
     @Test
     public void showPlaylistWithTracks() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final PlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
+        final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create());
+        presenter.connect(PlaylistDetailsInputs.create(), playlistUrn);
 
-        screen.assertLastState(this::lastPlaylistUrn, is(playlistUrn));
-        screen.assertLastState(AsyncViewModel::isRefreshing, is(false));
+        screen.assertLastState(this::lastPlaylistUrn, equalTo(playlistUrn));
+        screen.assertLastState(AsyncViewModel::isRefreshing, equalTo(false));
         screen.assertLastState(state -> state.data().get().tracks(), not(empty()));
     }
 
     @Test
     public void editTrackList() {
         final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);
-        final PlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
+        final PlaylistDetailsPresenter presenter = createPresenter();
         final Screen screen = new Screen(presenter);
 
-        presenter.connect(PlaylistDetailsInputs.create());
+        final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
+        presenter.connect(inputs, playlistWith2Tracks);
 
-        screen.assertLastState(this::lastPlaylistUrn, is(playlistWith2Tracks));
+        screen.assertLastState(this::lastPlaylistUrn, equalTo(playlistWith2Tracks));
         screen.assertLastState(state -> state.data().get().tracks().size(), greaterThan(1));
 
         final List<PlaylistDetailTrackItem> tracks = screen.currentState().data().get().tracks();
         final List<PlaylistDetailTrackItem> updatedTrackList = reverse(newArrayList(tracks));
 
-        presenter.actionUpdateTrackList(updatedTrackList);
+        inputs.actionUpdateTrackList(updatedTrackList);
 
-        screen.assertLastState(state -> state.data().get().tracks(), is(updatedTrackList));
+        screen.assertLastState(state -> state.data().get().tracks(), equalTo(updatedTrackList));
     }
 
-    private PlaylistDetailsPresenter createPresenter(Urn playlistUrn) {
+    private PlaylistDetailsPresenter createPresenter() {
         final String screen = "fake-screen";
         final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("query"), "query");
         final PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("add urn", new Urn("promoted item"), Optional.absent(), emptyList());
 
         PlaylistDetailsPresenterFactory presenterFactory = SoundCloudApplication.getObjectGraph().playlistDetailsPresenterFactory();
-        return presenterFactory.create(playlistUrn, screen, searchQuerySourceInfo, promotedSourceInfo);
+        return presenterFactory.create(screen, searchQuerySourceInfo, promotedSourceInfo);
     }
 
     private Urn lastPlaylistUrn(AsyncViewModel<PlaylistDetailsViewModel> state) {
@@ -137,7 +157,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         }
 
         public void assertContentLoaded() {
-            assertLastState(state -> !state.isRefreshing() && hasTracks(state.data()), is(true));
+            assertLastState(state -> !state.isRefreshing() && hasTracks(state.data()), equalTo(true));
         }
 
         public void resetState() {

@@ -1,10 +1,11 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.PlaylistUtils.getDuration;
+import static java.util.Collections.emptyList;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.events.LikesStatusEvent;
-import com.soundcloud.android.events.RepostsStatusEvent;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
@@ -19,40 +20,6 @@ import java.util.List;
 
 @AutoValue
 abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageResource {
-
-    static PlaylistDetailsMetadata from(Playlist playlist,
-                                        List<TrackItem> trackItems,
-                                        boolean isLiked,
-                                        boolean isReposted,
-                                        boolean isInEditMode,
-                                        OfflineState offlineState,
-                                        int trackCount,
-                                        OfflineOptions offlineOptions,
-                                        Resources resources,
-                                        boolean isOwner) {
-        return builder()
-                .urn(playlist.urn())
-                .title(playlist.title())
-                .permalinkUrl(playlist.permalinkUrl())
-                .creatorUrn(playlist.creatorUrn())
-                .creatorName(playlist.creatorName())
-                .canShuffle(trackItems.size() > 1)
-                .canBePlayed(!trackItems.isEmpty())
-                .trackCount(trackCount)
-                .isPrivate(playlist.isPrivate())
-                .isRepostedByUser(isReposted)
-                .isLikedByUser(isLiked)
-                .likesCount(playlist.likesCount())
-                .isMarkedForOffline(offlineState != OfflineState.NOT_OFFLINE)
-                .isOwner(isOwner)
-                .headerText(PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems)))
-                .offlineOptions(offlineOptions)
-                .offlineState(offlineState)
-                .label(PlaylistUtils.formatPlaylistTitle(resources, playlist.setType().or(Strings.EMPTY), playlist.isAlbum(), playlist.releaseDate().or(Strings.EMPTY)))
-                .imageUrlTemplate(playlist.imageUrlTemplate())
-                .isInEditMode(isInEditMode)
-                .build();
-    }
 
     enum OfflineOptions {
         AVAILABLE, UPSELL, NONE
@@ -137,18 +104,6 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
                 .build();
     }
 
-    PlaylistDetailsMetadata updatedWithLikeStatus(LikesStatusEvent.LikeStatus likeStatus) {
-        final Builder builder = toBuilder().isLikedByUser(likeStatus.isUserLike());
-        if (likeStatus.likeCount().isPresent()) {
-            builder.likesCount(likeStatus.likeCount().get());
-        }
-        return builder.build();
-    }
-
-    PlaylistDetailsMetadata updatedWithRepostStatus(RepostsStatusEvent.RepostStatus repostStatus) {
-        return toBuilder().isRepostedByUser(repostStatus.isReposted()).build();
-    }
-
     static Builder builder() {
         return new AutoValue_PlaylistDetailsMetadata.Builder();
     }
@@ -156,48 +111,109 @@ abstract class PlaylistDetailsMetadata implements UpdatablePlaylistItem, ImageRe
     @AutoValue.Builder
     abstract static class Builder {
 
-        abstract Builder urn(Urn value);
+        static PlaylistDetailsMetadata.OfflineOptions toOfflineOptions(FeatureOperations featureOperations) {
+            if (featureOperations.isOfflineContentEnabled()) {
+                return PlaylistDetailsMetadata.OfflineOptions.AVAILABLE;
+            } else if (featureOperations.upsellOfflineContent()) {
+                return PlaylistDetailsMetadata.OfflineOptions.UPSELL;
+            } else {
+                return PlaylistDetailsMetadata.OfflineOptions.NONE;
+            }
+        }
 
-        abstract Builder creatorUrn(Urn value);
+        protected abstract Builder urn(Urn value);
 
-        abstract Builder creatorName(String value);
+        protected abstract Builder creatorUrn(Urn value);
 
-        abstract Builder canShuffle(boolean value);
+        protected abstract Builder creatorName(String value);
 
-        abstract Builder canBePlayed(boolean value);
+        protected abstract Builder canShuffle(boolean value);
 
-        abstract Builder trackCount(int value);
+        protected abstract Builder canBePlayed(boolean value);
 
-        abstract Builder likesCount(int value);
+        protected abstract Builder trackCount(int value);
 
-        abstract Builder isLikedByUser(boolean value);
+        protected abstract Builder likesCount(int value);
 
-        abstract Builder isPrivate(boolean value);
+        protected abstract Builder isPrivate(boolean value);
 
-        abstract Builder isRepostedByUser(boolean value);
+        protected abstract Builder isMarkedForOffline(boolean value);
 
-        abstract Builder isMarkedForOffline(boolean value);
+        protected abstract Builder isOwner(boolean value);
 
-        abstract Builder isOwner(boolean value);
+        protected abstract Builder offlineState(OfflineState value);
 
-        abstract Builder offlineState(OfflineState value);
+        protected abstract Builder offlineOptions(OfflineOptions value);
 
-        abstract Builder offlineOptions(OfflineOptions value);
+        protected abstract Builder permalinkUrl(Optional<String> value);
 
-        abstract Builder permalinkUrl(Optional<String> value);
+        protected abstract Builder title(String value);
 
-        abstract Builder title(String value);
+        protected abstract Builder label(String value);
 
-        abstract Builder label(String value);
+        protected abstract Builder headerText(String value);
 
-        abstract Builder headerText(String value);
-
-        abstract Builder imageUrlTemplate(Optional<String> value);
+        protected abstract Builder imageUrlTemplate(Optional<String> value);
 
         abstract Builder isInEditMode(boolean value);
 
+        abstract Builder isRepostedByUser(boolean value);
+
+        abstract Builder isLikedByUser(boolean value);
+
         abstract PlaylistDetailsMetadata build();
+
+        public Builder with(Resources resources, FeatureOperations featureOperations, AccountOperations accountOperations, Playlist playlist) {
+            return with(resources, featureOperations, accountOperations, playlist, emptyList());
+        }
+
+        public Builder with(Resources resources,
+                            FeatureOperations featureOperations,
+                            AccountOperations accountOperations,
+                            Playlist playlist,
+                            List<TrackItem> trackItems) {
+            return with(resources, playlist, trackItems, accountOperations.isLoggedInUser(playlist.creatorUrn()), toOfflineOptions(featureOperations));
+        }
+
+        public Builder with(Resources resources,
+                            Playlist playlist,
+                            List<TrackItem> trackItems,
+                            boolean isOwner,
+                            OfflineOptions offlineOptions) {
+            final int trackCount = trackItems.isEmpty() ? playlist.trackCount() : trackItems.size();
+            final String headerText = PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(playlist, trackItems));
+            final String label = PlaylistUtils.formatPlaylistTitle(resources, playlist.setType().or(Strings.EMPTY), playlist.isAlbum(), playlist.releaseDate().or(Strings.EMPTY));
+
+            return urn(playlist.urn())
+                    .title(playlist.title())
+                    .permalinkUrl(playlist.permalinkUrl())
+                    .creatorUrn(playlist.creatorUrn())
+                    .creatorName(playlist.creatorName())
+                    .isPrivate(playlist.isPrivate())
+                    .likesCount(playlist.likesCount())
+                    .imageUrlTemplate(playlist.imageUrlTemplate())
+                    .label(label)
+                    .canShuffle(trackItems.size() > 1)
+                    .canBePlayed(!trackItems.isEmpty())
+                    .headerText(headerText)
+                    .trackCount(trackCount)
+                    .isOwner(isOwner)
+                    .offlineOptions(offlineOptions);
+        }
+
+        public Builder with(Resources resources, List<TrackItem> trackItems) {
+            final int trackCount = trackItems.size();
+            final String headerText = PlaylistUtils.getPlaylistInfoLabel(resources, trackCount, getDuration(trackItems));
+
+            return headerText(headerText)
+                    .canShuffle(trackCount > 1)
+                    .canBePlayed(trackCount > 0)
+                    .trackCount(trackCount);
+        }
+
+        public Builder with(OfflineState offlineState) {
+            return isMarkedForOffline(offlineState != OfflineState.NOT_OFFLINE)
+                    .offlineState(offlineState);
+        }
     }
-
-
 }

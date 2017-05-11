@@ -62,7 +62,6 @@ import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.AsyncViewModel;
-import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -90,7 +89,6 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private LikesStateProvider likesStateProvider;
     @Mock private SyncInitiator syncInitiator;
     @Mock private PlaybackInitiator playbackInitiator;
-    @Mock private PlaylistUpsellOperations playlistUpsellOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaylistUpsellOperations upsellOperations;
@@ -99,11 +97,9 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private EventTracker eventTracker;
     @Mock private LikeOperations likeOperations;
-    @Mock private DataSourceProviderFactory dataSourceProviderFactory;
     @Mock private DataSourceProvider dataSourceProvider;
     @Mock private RepostOperations repostOperations;
     @Mock private RepostsStateProvider repostsStateProvider;
-    @Mock private FeedbackController feedbackController;
     @Mock private SharePresenter shareOperations;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
 
@@ -134,31 +130,29 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
     private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
-    private final PublishSubject<OfflineProperties> offlineProperties = PublishSubject.create();
+    private final BehaviorSubject<OfflineProperties> offlineProperties = BehaviorSubject.create(OfflineProperties.empty());
     private final PublishSubject<SyncJobResult> syncPlaylist = PublishSubject.create();
 
-    private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)));
-    private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, of(asList(track1, track2, track3)));
+    private final PlaylistWithExtras initialPlaylistWithTrackExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), false);
+    private final PlaylistWithExtras updatedPlaylistWithTrackExtras = PlaylistWithExtras.create(updatedPlaylist, of(asList(track1, track2, track3)), false);
     private final Playlist otherPlaylistByUser = ModelFixtures.playlist();
-    private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(
-            otherPlaylistByUser));
+    private final PlaylistWithExtras initialPlaylistWithAllExtras = PlaylistWithExtras.create(initialPlaylist, of(asList(track1, track2)), singletonList(otherPlaylistByUser), false);
 
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource = BehaviorSubject.create();
 
     private final PlaylistDetailsInputs inputs = PlaylistDetailsInputs.create();
     private PlaylistDetailsPresenter newPlaylistPresenter;
 
-
     @Before
     public void setUp() throws Exception {
         ShadowLog.stream = System.out;
-        PlaylistDetailsViewModelCreator viewModelCreator = new PlaylistDetailsViewModelCreator(resources(), featureOperations, accountOperations, upsellOperations);
 
         when(upsellOperations.getUpsell(any(Playlist.class), anyList())).thenReturn(absent());
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
-        when(dataSourceProviderFactory.create(eq(playlistUrn))).thenReturn(dataSourceProvider);
-        when(dataSourceProvider.data()).thenReturn(dataSource);
+
+        when(dataSourceProvider.dataWith(any(Urn.class), eq(inputs.refresh))).thenReturn(dataSource);
+
         when(likesStateProvider.likedStatuses()).thenReturn(likeStatuses);
         when(likesStateProvider.latest()).thenReturn(LikedStatuses.create(emptySet()));
         when(repostsStateProvider.repostedStatuses()).thenReturn(repostStatuses);
@@ -167,11 +161,11 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         when(offlineSettingsStorage.isOfflineContentAccessible()).thenReturn(true);
 
         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber(eventBus);
-        newPlaylistPresenter = new PlaylistDetailsPresenter(playlistUrn,
-                                                            screen,
+        newPlaylistPresenter = new PlaylistDetailsPresenter(screen,
                                                             searchQuerySourceInfo,
                                                             promotedSourceInfo,
-                                                            playlistUpsellOperations,
+                                                            resources(),
+                                                            upsellOperations,
                                                             playbackInitiator,
                                                             playlistOperations,
                                                             likesStateProvider,
@@ -182,10 +176,8 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
                                                             offlineContentOperations,
                                                             eventTracker,
                                                             likeOperations,
-                                                            viewModelCreator,
-                                                            dataSourceProviderFactory,
+                                                            dataSourceProvider,
                                                             repostOperations,
-                                                            feedbackController,
                                                             accountOperations,
                                                             expandPlayerSubscriberProvider,
                                                             ModelFixtures.entityItemCreator(),
@@ -198,7 +190,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     private void connect(PlaylistWithExtras initialEmission) {
-        newPlaylistPresenter.connect(inputs);
+        newPlaylistPresenter.connect(inputs, playlistUrn);
         emitLikedEntities();
         emitRepostedEntities();
         emitOfflineEntities(Collections.<Urn, OfflineState>emptyMap());
@@ -692,15 +684,12 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void savesPlaylistWithNewTracklist() throws Exception {
         connect();
 
-        PublishSubject<Playlist> saveSubject = PublishSubject.create();
-        when(playlistOperations.editPlaylist(
-                initialPlaylist.urn(),
-                initialPlaylist.title(),
-                initialPlaylist.isPrivate(),
+        when(playlistOperations.editPlaylistTracks(
+                updatedPlaylist.urn(),
                 asList(trackItem2.getUrn(), trackItem1.getUrn())
-        )).thenReturn(saveSubject);
+        )).thenReturn(just(asList(track2, track1)));
 
-        newPlaylistPresenter.actionUpdateTrackList(asList(
+        inputs.actionUpdateTrackList(asList(
                 getPlaylistDetailTrackItem(trackItem2),
                 getPlaylistDetailTrackItem(trackItem1)));
 
@@ -710,8 +699,6 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
         newPlaylistPresenter.viewModel()
                             .test()
                             .assertValue(getIdleViewModel(viewModelWithReversedTracks));
-
-        assertThat(saveSubject.hasObservers()).isTrue();
     }
 
     @Test
@@ -836,12 +823,24 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
 
     @NonNull
     private AsyncViewModel<PlaylistDetailsViewModel> getIdleViewModel(PlaylistDetailsViewModel model) {
-        return AsyncViewModel.create(of(model), false, false, absent());
+        return AsyncViewModel.<PlaylistDetailsViewModel>builder()
+                .data(of(model))
+                .isLoadingNextPage(false)
+                .isRefreshing(false)
+                .error(absent())
+                .refreshError(absent())
+                .build();
     }
 
     @NonNull
     private AsyncViewModel<PlaylistDetailsViewModel> getRefreshingModel(PlaylistDetailsViewModel initialModel) {
-        return AsyncViewModel.create(of(initialModel), false, true, absent());
+        return AsyncViewModel.<PlaylistDetailsViewModel>builder()
+                .data(of(initialModel))
+                .isLoadingNextPage(false)
+                .isRefreshing(true)
+                .error(absent())
+                .refreshError(absent())
+                .build();
     }
 
 }

@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
@@ -17,12 +18,14 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.AsyncViewModel;
 import com.soundcloud.android.view.DefaultEmptyStateProvider;
 import com.soundcloud.android.view.EmptyStatus;
 import com.soundcloud.android.view.SmoothLinearLayoutManager;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -66,6 +69,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject PlaylistDetailsHeaderRendererFactory playlistDetailsHeaderRendererFactory;
     @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject FeedbackController feedbackController;
     @Inject @LightCycle PlaylistDetailToolbarView toolbarView;
     @Inject @LightCycle PlaylistDetailHeaderScrollHelper headerScrollHelper;
 
@@ -112,8 +116,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        presenter = playlistPresenterFactory.create(getArguments().getParcelable(EXTRA_URN),
-                                                    Screen.fromBundle(getArguments()).get(),
+        presenter = playlistPresenterFactory.create(Screen.fromBundle(getArguments()).get(),
                                                     getArguments().getParcelable(EXTRA_QUERY_SOURCE_INFO),
                                                     getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO));
 
@@ -140,7 +143,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
         final View detailView = view.findViewById(R.id.playlist_details);
         final boolean showInlineHeader = detailView == null;
 
-        presenter.connect(inputs);
+        presenter.connect(inputs, getArguments().getParcelable(EXTRA_URN));
         subscription = new CompositeSubscription();
         subscription.addAll(
 
@@ -186,7 +189,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.onShowOfflineStorageErrorDialog()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> OfflineStorageErrorDialog.show(getActivity().getSupportFragmentManager()))
+                         .subscribe(ignored -> OfflineStorageErrorDialog.show(getActivity().getSupportFragmentManager())),
+
+                presenter.onRefreshError()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(error -> feedbackController.showFeedback(Feedback.create(ErrorUtils.emptyMessageFromViewError(error))))
 
         );
 
@@ -343,13 +350,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     }
 
     private void removeTrackAtPosition(int trackPosition) {
+        final List<PlaylistDetailTrackItem> previous = trackItems();
         adapter.getItems().remove(trackPosition);
         adapter.notifyItemRemoved(trackPosition);
-        presenter.actionUpdateTrackListWithUndo(trackItems());
+        inputs.actionUpdateTrackList(trackItems());
+        feedbackController.showFeedback(Feedback.create(R.string.track_removed, R.string.undo, view -> inputs.actionUpdateTrackList(previous)));
     }
 
     private void saveUpdates() {
-        presenter.actionUpdateTrackList(trackItems());
+        inputs.actionUpdateTrackList(trackItems());
     }
 
     private List<PlaylistDetailTrackItem> trackItems() {
