@@ -10,7 +10,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
@@ -60,12 +60,14 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
         final TextView title = (TextView) view.findViewById(R.id.title);
         final TextView creator = (TextView) view.findViewById(R.id.creator);
         final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
+        final View container = view.findViewById(R.id.collections_playlist_item);
+        final OverflowAnchorImageView overflowButton = (OverflowAnchorImageView) view.findViewById(R.id.overflow_button);
 
-        view.setOnClickListener(goToPlaylist(playlistItem));
+        container.setOnClickListener(goToPlaylist(playlistItem));
         title.setText(playlistItem.title());
         creator.setText(playlistItem.creatorName());
         trackCount.setText(String.valueOf(playlistItem.trackCount()));
-        setupOverFlow(view.findViewById(R.id.overflow_button), playlistItem);
+        setupOverFlow(overflowButton, playlistItem);
         imageOperations.displayInAdapterView(
                 playlistItem,
                 ApiImageSize.getFullImageSize(resources),
@@ -77,9 +79,9 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
                                              : Optional.absent());
     }
 
-    private void setupOverFlow(final View button, final PlaylistItem playlistItem) {
+    private void setupOverFlow(final OverflowAnchorImageView button, final PlaylistItem playlistItem) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem));
-        ViewUtils.extendTouchArea(button);
+        OverflowButtonBackground.install(button);
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {

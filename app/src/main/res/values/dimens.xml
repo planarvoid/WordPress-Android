@@ -49,6 +49,7 @@
     <dimen name="playlist_header_height">120dp</dimen>
     <dimen name="playlist_header_padding">16dp</dimen>
     <dimen name="playlist_action_bar_padding">8dp</dimen>
+    <dimen name="playlist_item_overflow_menu_padding">14dp</dimen>
 
     <dimen name="collections_playlist_track_size">44dp</dimen>
 

@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/collections_playlist_item_container"
     xmlns:sc="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/collections_playlist_item"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clipToPadding="false"
     android:clipChildren="false"
-    android:layout_marginLeft="0dp"
-    android:layout_marginStart="0dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginBottom="16dp"
-    android:foreground="?attr/selectableItemBackground">
+    android:clipToPadding="false">
 
     <RelativeLayout
+        android:id="@+id/collections_playlist_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
         android:clipToPadding="false"
         tools:ignore="UselessParent">
 
@@ -64,8 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
-            android:layout_toLeftOf="@+id/overflow_button"
-            android:layout_marginRight="4dp" />
+            android:layout_marginRight="24dp" />
 
         <LinearLayout
             android:id="@+id/indicator_views"
@@ -109,15 +106,13 @@
 
         </LinearLayout>
 
-        <com.soundcloud.android.view.OverflowAnchorImageView
-            android:id="@+id/overflow_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="1dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/ic_playlist_menu"
-            android:background="?attr/selectableItemBackground" />
     </RelativeLayout>
+
+    <com.soundcloud.android.view.OverflowAnchorImageView
+        android:id="@+id/overflow_button"
+        style="@style/PlaylistItem.OverflowButton"
+        android:layout_gravity="bottom|right|end"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp" />
 
 </FrameLayout>

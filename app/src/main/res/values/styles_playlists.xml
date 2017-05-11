@@ -86,4 +86,13 @@
         <item name="android:scaleType">fitStart</item>
     </style>
 
+    <style name="PlaylistItem" />
+
+    <style name="PlaylistItem.OverflowButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:src">@drawable/ic_playlist_menu</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
 </resources>
