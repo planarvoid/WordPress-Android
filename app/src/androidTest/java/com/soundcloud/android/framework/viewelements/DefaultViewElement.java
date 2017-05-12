@@ -233,7 +233,8 @@ public class DefaultViewElement extends ViewElement {
         return isFullyOnScreen(getVisibleRect(), getRect());
     }
 
-    private Rect getRect() {
+    @Override
+    public Rect getRect() {
         return new Rect(getLocation()[0],
                         getLocation()[1],
                         getLocation()[0] + view.getWidth(),

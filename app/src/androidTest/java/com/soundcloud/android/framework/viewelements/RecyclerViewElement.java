@@ -1,6 +1,7 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.AdapterElement;
 
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +27,11 @@ public class RecyclerViewElement extends AdapterElement {
 
     public AdapterElement scrollToTop() {
         getTestDriver().scrollToPosition(recyclerView, 0);
+        return this;
+    }
+
+    public AdapterElement scrollHorizontallyToItem(With with) {
+        getTestDriver().scrollToFind(with, () -> getTestDriver().scrollHorizontallyInElement(RecyclerViewElement.this));
         return this;
     }
 

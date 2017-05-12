@@ -8,6 +8,7 @@ import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.OfflineStateButton;
 
+import android.graphics.Rect;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewParent;
@@ -38,6 +39,8 @@ public abstract class ViewElement {
     public abstract ViewElement getChildAt(int index);
 
     public abstract void click();
+
+    public abstract Rect getRect();
 
     public abstract void longClick();
 

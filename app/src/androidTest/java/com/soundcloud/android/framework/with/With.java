@@ -41,6 +41,10 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithTextContaining(text);
     }
 
+    public static With textContaining(@StringRes int textId) {
+        return new WithTextContaining(resources.getString(textId));
+    }
+
     public static With textMatching(Pattern regexPattern) {
         return new WithTextMatching(regexPattern);
     }

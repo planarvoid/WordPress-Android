@@ -10,6 +10,7 @@ import com.robotium.solo.Solo;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import io.reactivex.functions.Action;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -18,6 +19,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -82,7 +84,7 @@ public class Han {
         Thread thread = new Thread(runnable, "activityListenerThread");
         thread.start();
     }
-    
+
     public ViewElement findOnScreenElement(With findBy) {
         return viewFetcher.findOnScreenElement(findBy);
     }
@@ -91,38 +93,35 @@ public class Han {
         return viewFetcher.findOnScreenElements(with);
     }
 
-    public  ViewElement findOnScreenElementWithPopulatedText(With id) {
+    public ViewElement findOnScreenElementWithPopulatedText(With id) {
         return viewFetcher.findOnScreenElement(With.and(new With.WithPopulatedText(), id));
     }
 
-    public ViewElement scrollToItem(With with) {
+    public ViewElement scrollToFind(With with, Action scrollMethod) {
         ViewElement viewElement = findOnScreenElement(with);
         for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
-            scrollDown();
+            try {
+                scrollMethod.run();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not perform scrolling action", e);
+            }
             viewElement = findOnScreenElement(with);
-
         }
+        return viewElement;
+    }
+
+    public ViewElement scrollToItem(With with) {
+        ViewElement viewElement = scrollToFind(with, this::scrollDown);
         viewElement.dragFullyOnScreenVertical();
         return viewElement;
     }
 
     public ViewElement scrollToItemInRecyclerView(With with) {
-        ViewElement viewElement = findOnScreenElement(with);
-        for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
-            scrollDownRecyclerView();
-            viewElement = findOnScreenElement(with);
-        }
-        return viewElement;
+        return scrollToFind(with, this::scrollDownRecyclerView);
     }
 
     public ViewElement swipeToItem(int direction, With with) {
-        ViewElement viewElement = findOnScreenElement(with);
-        for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
-            swipeHorizontal(direction);
-            viewElement = findOnScreenElement(with);
-        }
-
-        return viewElement;
+        return scrollToFind(with, () -> swipeHorizontal(direction));
     }
 
     public void typeText(String text) {
@@ -237,6 +236,14 @@ public class Han {
         } else if (side == Solo.RIGHT) {
             drag(0, x, y, y, steps);
         }
+    }
+
+    public void scrollHorizontallyInElement(ViewElement element) {
+        Rect rect = element.getRect();
+        final float fromX = rect.centerX();
+        final float scrollingDistance = rect.width() / 3;
+        final float toX = fromX - scrollingDistance;
+        drag(fromX, toX, rect.centerY(), rect.centerY(), 1);
     }
 
     public void scrollVertical(int fromY, int toY) {
