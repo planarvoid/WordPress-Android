@@ -16,6 +16,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -130,7 +131,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Test
     public void onUpsellStartsUpsellFlow() {
         listener.onUpsell(context(), Urn.forTrack(123));
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test

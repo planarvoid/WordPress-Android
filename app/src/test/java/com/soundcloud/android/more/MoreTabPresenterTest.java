@@ -26,6 +26,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -224,7 +225,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onUpsellClicked(new View(context()));
 
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 

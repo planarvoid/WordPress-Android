@@ -31,6 +31,7 @@ import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRendere
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -339,7 +340,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick());
     }
 

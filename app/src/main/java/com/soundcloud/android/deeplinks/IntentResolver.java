@@ -13,6 +13,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -270,7 +271,7 @@ public class IntentResolver {
     private void showUpgradeScreen(Context context, String referrer) {
         if (featureOperations.upsellHighTier()) {
             trackForegroundEvent(referrer, Screen.CONVERSION);
-            navigator.openUpgradeOnMain(context);
+            navigator.openUpgradeOnMain(context, UpsellContext.DEFAULT);
         } else {
             openFallback(context, referrer);
         }

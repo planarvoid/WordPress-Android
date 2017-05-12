@@ -26,6 +26,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -390,7 +391,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER, Screen.CONVERSION);
-        verify(navigator).openUpgradeOnMain(context);
+        verify(navigator).openUpgradeOnMain(context, UpsellContext.DEFAULT);
     }
 
     @Test

@@ -13,6 +13,7 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.tracks.PlaylistTrackItemRendererFactory;
@@ -165,7 +166,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.goToUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigator.openUpgrade(getContext())),
+                         .subscribe(urn -> navigator.openUpgrade(getContext(), UpsellContext.OFFLINE)),
 
                 presenter.onRepostResult()
                          .observeOn(AndroidSchedulers.mainThread())

@@ -1,6 +1,7 @@
 package com.soundcloud.android.downgrade;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -168,7 +170,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
-        verify(navigator).openUpgradeOnMain(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
         verify(activity).finish();
     }
 
@@ -204,7 +206,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(downgradeResult);
         subject.onCompleted();
 
-        verify(navigator).openUpgradeOnMain(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }
 
     @Test
@@ -271,7 +273,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         success.onNext(downgradeResult);
         success.onCompleted();
 
-        verify(navigator).openUpgradeOnMain(any(Activity.class));
+        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }
 
     @Test

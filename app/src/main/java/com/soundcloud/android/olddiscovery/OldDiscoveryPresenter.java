@@ -13,6 +13,7 @@ import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurementsFactory;
 import com.soundcloud.android.olddiscovery.recommendations.RecommendationBucketRendererFactory;
 import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationListener;
 import com.soundcloud.android.olddiscovery.recommendations.TrackRecommendationPlaybackInitiator;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -95,7 +96,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.DEFAULT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryClick());
     }
 

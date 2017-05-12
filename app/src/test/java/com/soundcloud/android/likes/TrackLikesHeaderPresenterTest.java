@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.inOrder;
@@ -33,6 +34,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItemAdapter;
@@ -355,7 +357,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onUpsell();
 
-        verify(navigator).openUpgrade(any(Activity.class));
+        verify(navigator).openUpgrade(any(Activity.class), eq(UpsellContext.OFFLINE));
     }
 
     @Test

@@ -12,6 +12,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
@@ -216,7 +217,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public void navigateToHelp() {
-        navigator.openUpgrade(getContext());
+        navigator.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override

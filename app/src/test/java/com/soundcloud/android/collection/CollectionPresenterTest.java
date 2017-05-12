@@ -24,6 +24,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -308,7 +309,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.OFFLINE);
     }
 
     @Test

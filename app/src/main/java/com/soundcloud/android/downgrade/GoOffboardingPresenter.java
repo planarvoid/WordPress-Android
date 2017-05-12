@@ -8,6 +8,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -164,7 +165,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:
-                    navigator.openUpgradeOnMain(fragment.getContext());
+                    navigator.openUpgradeOnMain(fragment.getContext(), UpsellContext.DEFAULT);
                     eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forResubscribeClick());
                     view.reset();
                     fragment.getActivity().finish();

@@ -19,6 +19,7 @@ import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -276,7 +277,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onUpsellClicked(View view) {
-        navigator.openUpgrade(view.getContext());
+        navigator.openUpgrade(view.getContext(), UpsellContext.DEFAULT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsClick());
     }
 

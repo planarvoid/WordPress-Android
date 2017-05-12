@@ -41,6 +41,7 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesDialogPresenter;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlayableWithReposter;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -348,7 +349,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test

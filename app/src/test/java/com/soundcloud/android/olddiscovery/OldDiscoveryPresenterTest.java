@@ -22,6 +22,7 @@ import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StartStationHandler;
@@ -195,7 +196,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
     public void handlesUpsellItemClicked() {
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
     }
 

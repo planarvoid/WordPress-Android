@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -319,7 +320,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     public void onPremiumContentHelpClicked(Context context) {
         searchTracker.trackResultsUpsellClick(searchType);
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override
@@ -331,6 +332,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     public void onUpsellClicked(Context context) {
         searchTracker.trackPremiumResultsUpsellClick();
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 }

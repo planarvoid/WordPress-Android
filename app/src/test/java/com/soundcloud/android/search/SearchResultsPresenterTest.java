@@ -23,6 +23,7 @@ import com.soundcloud.android.configuration.experiments.SearchPlayRelatedTracksC
 import com.soundcloud.android.configuration.experiments.TopResultsConfig;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -212,7 +213,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeSubscription() {
         presenter.onPremiumContentHelpClicked(context());
 
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test
@@ -311,7 +312,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false, SearchType.TRACKS, true);
         presenter.onUpsellClicked(context());
 
-        verify(navigator).openUpgrade(context());
+        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test

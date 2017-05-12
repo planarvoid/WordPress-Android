@@ -22,6 +22,7 @@ import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.RxUtils;
@@ -239,7 +240,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     @Override
     public void handleUpsell(Context context) {
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.OFFLINE);
         eventBus.publish(EventQueue.TRACKING,
                          UpgradeFunnelEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(),
                                                                  playlistUrn));

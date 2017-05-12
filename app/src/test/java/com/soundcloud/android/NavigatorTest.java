@@ -25,14 +25,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.discovery.systemplaylist.SystemPlaylist;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
-import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
-import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
-import com.soundcloud.android.olddiscovery.charts.ChartActivity;
-import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
-import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -43,9 +36,16 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
+import com.soundcloud.android.olddiscovery.PlaylistDiscoveryActivity;
+import com.soundcloud.android.olddiscovery.charts.AllGenresActivity;
+import com.soundcloud.android.olddiscovery.charts.AllGenresPresenter;
+import com.soundcloud.android.olddiscovery.charts.ChartActivity;
+import com.soundcloud.android.olddiscovery.charts.ChartTracksFragment;
+import com.soundcloud.android.olddiscovery.recommendations.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -198,14 +198,15 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openUpgrade() {
-        navigator.openUpgrade(activityContext);
+        navigator.openUpgrade(activityContext, UpsellContext.OFFLINE);
 
-        assertThat(activityContext).nextStartedIntent().opensActivity(ConversionActivity.class);
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(ConversionActivity.class);
     }
 
     @Test
     public void openUpgradeFromDeeplink() {
-        navigator.openUpgradeOnMain(activityContext);
+        navigator.openUpgradeOnMain(activityContext, UpsellContext.DEFAULT);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ConversionActivity.class);
     }

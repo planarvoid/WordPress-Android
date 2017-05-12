@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.utils.ScTextUtils.isEmail;
+
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.VisualPrestitialActivity;
@@ -40,6 +42,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.RemoteSignInWebViewActivity;
 import com.soundcloud.android.payments.ConversionActivity;
 import com.soundcloud.android.payments.ProductChoiceActivity;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -84,8 +87,6 @@ import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.utils.ScTextUtils.isEmail;
 
 public class Navigator {
 
@@ -151,14 +152,14 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openUpgrade(Context context) {
-        context.startActivity(createConversionIntent(context));
+    public void openUpgrade(Context context, UpsellContext upsellContext) {
+        context.startActivity(createConversionIntent(context, upsellContext));
     }
 
-    public void openUpgradeOnMain(Context context) {
+    public void openUpgradeOnMain(Context context, UpsellContext upsellContext) {
         TaskStackBuilder.create(context)
                         .addNextIntent(createHomeIntent(context))
-                        .addNextIntent(createConversionIntent(context))
+                        .addNextIntent(createConversionIntent(context, upsellContext))
                         .startActivities();
     }
 
@@ -599,8 +600,10 @@ public class Navigator {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
-    private Intent createConversionIntent(Context context) {
-        return new Intent(context, ConversionActivity.class);
+    private Intent createConversionIntent(Context context, UpsellContext upsellContext) {
+        final Intent intent = new Intent(context, ConversionActivity.class);
+        upsellContext.addTo(intent);
+        return intent;
     }
 
     private Intent createProductChoiceIntent(Context context, Plan plan) {

@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -52,6 +53,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
+        Log.d(ConversionPresenter.class.getSimpleName(), "Context for conversion screen: " + UpsellContext.from(activity.getIntent()));
         view.setupContentView(activity, this);
         if (isMidTierUser()) {
             view.setMidTierCopy();

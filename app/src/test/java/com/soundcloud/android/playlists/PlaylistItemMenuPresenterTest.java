@@ -26,6 +26,7 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.settings.ChangeStorageLocationActivity;
@@ -121,7 +122,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlistItem);
         presenter.handleUpsell(context);
 
-        verify(navigator).openUpgrade(context);
+        verify(navigator).openUpgrade(context, UpsellContext.OFFLINE);
     }
 
     @Test

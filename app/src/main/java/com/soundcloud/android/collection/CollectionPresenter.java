@@ -18,6 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperties;
 import com.soundcloud.android.offline.OfflinePropertiesProvider;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.OfflineItem;
@@ -205,7 +206,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void onUpsell(Context context) {
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.OFFLINE);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forCollectionClick());
     }
 

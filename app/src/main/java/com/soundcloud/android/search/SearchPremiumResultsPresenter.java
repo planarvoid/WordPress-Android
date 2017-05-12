@@ -18,6 +18,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -137,7 +138,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     @Override
     public void onUpsellClicked(Context context) {
         searchTracker.trackPremiumResultsUpsellClick();
-        navigator.openUpgrade(context);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override

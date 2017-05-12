@@ -23,6 +23,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -212,7 +213,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onUpsell() {
-        navigator.openUpgrade(fragment.getActivity());
+        navigator.openUpgrade(fragment.getActivity(), UpsellContext.OFFLINE);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesClick());
     }
 
