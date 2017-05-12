@@ -19,7 +19,7 @@ public class UpsellContextTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsDefaultUpsellContextIfNotAbsent() {
+    public void defaultUpsellContextIfAbsent() {
         assertThat(UpsellContext.from(new Intent())).isEqualTo(UpsellContext.DEFAULT);
     }
 
