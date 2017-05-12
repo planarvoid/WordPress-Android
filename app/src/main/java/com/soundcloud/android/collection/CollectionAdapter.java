@@ -3,15 +3,15 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketRenderer;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.UpdatableRecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
+public class CollectionAdapter extends UpdatableRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
     private final UpsellItemCellRenderer upsellItemCellRenderer;
@@ -35,11 +35,6 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
         this.playHistoryBucketRenderer = playHistoryBucketRenderer;
         this.recentlyPlayedBuckerRenderer = recentlyPlayedBucketRenderer;
 
-    }
-
-    void setItem(int position, CollectionItem item) {
-        getItems().set(position, item);
-        notifyItemChanged(position);
     }
 
     void detach() {

@@ -1,14 +1,14 @@
 package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.UpdatableRecyclerItemAdapter;
 
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistsAdapter extends PagingRecyclerItemAdapter<PlaylistCollectionItem, RecyclerItemAdapter.ViewHolder>
+public class PlaylistsAdapter extends UpdatableRecyclerItemAdapter<PlaylistCollectionItem, RecyclerItemAdapter.ViewHolder>
         implements PlaylistHeaderRenderer.OnSettingsClickListener, PlaylistRemoveFilterRenderer.OnRemoveFilterListener {
 
     private Listener listener;
@@ -45,11 +45,6 @@ public class PlaylistsAdapter extends PagingRecyclerItemAdapter<PlaylistCollecti
         if (listener != null) {
             listener.onRemoveFilterClicked();
         }
-    }
-
-    void setItem(int position, PlaylistCollectionItem item) {
-        getItems().set(position, item);
-        notifyItemChanged(position);
     }
 
     public void setListener(Listener listener) {

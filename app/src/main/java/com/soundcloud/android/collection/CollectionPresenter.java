@@ -67,13 +67,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         }
     };
 
-    private final Action1<MyCollection> clearOnNext = new Action1<MyCollection>() {
-        @Override
-        public void call(MyCollection myCollection) {
-            adapter.clear();
-        }
-    };
-
     @VisibleForTesting
     final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
             new Func1<MyCollection, Iterable<CollectionItem>>() {
@@ -193,8 +186,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
         final Observable<MyCollection> collections =
                 collectionOperations.updatedCollections().observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext),
-                                      toCollectionItems)
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()), toCollectionItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -224,8 +216,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private void refreshCollections() {
         final Observable<MyCollection> source = collectionOperations.collections()
-                                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                                    .doOnNext(clearOnNext);
+                                                                    .observeOn(AndroidSchedulers.mainThread());
         retryWith(CollectionBinding
                           .from(source, toCollectionItems)
                           .withAdapter(adapter).build());
@@ -246,7 +237,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private void removeItem(int position) {
         adapter.removeItem(position);
-        adapter.notifyItemRemoved(position);
     }
 
     private void showError() {
@@ -286,7 +276,6 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private class OnCollectionLoadedAction implements Action1<MyCollection> {
         @Override
         public void call(MyCollection myCollection) {
-            adapter.clear();
             subscribeForUpdates();
             if (myCollection.hasError()) {
                 showError();
