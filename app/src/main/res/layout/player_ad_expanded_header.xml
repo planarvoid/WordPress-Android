@@ -18,7 +18,17 @@
         style="@style/AdButton.WhyAds"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_centerInParent="true"
         android:text="@string/ads_why_ads" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/advertisement"
+        style="@style/AdButton.WhyAds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        android:text="@string/ads_advertisement" />
 
 </RelativeLayout>

@@ -205,6 +205,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
 
         final RoundedColorButton ctaButton;
         final View whyAds;
+        final View advertisement;
 
         final Iterable<View> skipDisableViews;
         boolean isSkippable;
@@ -221,9 +222,10 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
             this.previewArtworkOverlay = adView.findViewById(R.id.preview_artwork_overlay);
             this.previewContainer = adView.findViewById(R.id.preview_container);
             this.previewTitle = (TextView) adView.findViewById(R.id.preview_title);
-            this.previewArtwork = ((ImageView) adView.findViewById(R.id.preview_artwork));
+            this.previewArtwork = (ImageView) adView.findViewById(R.id.preview_artwork);
             this.ctaButton = (RoundedColorButton) adView.findViewById(R.id.cta_button);
             this.whyAds = adView.findViewById(R.id.why_ads);
+            this.advertisement = adView.findViewById(R.id.advertisement);
 
             skipDisableViews = Iterables.filter(Arrays.asList(previousButton, nextButton), presentInConfig);
         }

@@ -337,7 +337,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         private List<View> getAllFadeableElementViews() {
-            return Arrays.asList(whyAds, ctaButton, previewContainer, videoOverlayContainer);
+            return Arrays.asList(whyAds, advertisement, ctaButton, previewContainer, videoOverlayContainer);
         }
     }
 }
