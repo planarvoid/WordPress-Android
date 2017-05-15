@@ -189,7 +189,16 @@ def staticAnalysisStage() {
 }
 
 def reportingStage(def isSuccess, def error) {
+  def status
+  if (isSuccess) {
+    status = "SUCCESS"
+  } else {
+    status = "FAILED"
+  }
+
   if (isPr()) {
+    sh "./scripts/pr_slack_status.sh $status"
+
     def emailSubject = "$ghprbSourceBranch"
     if (isSuccess) {
       emailSubject = "🚀 " + emailSubject + " can be merged!"
@@ -205,12 +214,6 @@ def reportingStage(def isSuccess, def error) {
     }
 
   } else {
-    def status
-    if (isSuccess) {
-      status = "SUCCESS"
-    } else {
-      status = "FAILED"
-    }
 
     sh "./scripts/update_master_status_in_slack.sh $status"
 
