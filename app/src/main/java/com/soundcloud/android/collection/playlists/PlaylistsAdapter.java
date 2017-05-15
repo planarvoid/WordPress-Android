@@ -1,12 +1,16 @@
 package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.presentation.ListDiffUtilCallback;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.UpdatableRecyclerItemAdapter;
+import com.soundcloud.java.objects.MoreObjects;
 
+import android.support.v7.util.DiffUtil;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PlaylistsAdapter extends UpdatableRecyclerItemAdapter<PlaylistCollectionItem, RecyclerItemAdapter.ViewHolder>
         implements PlaylistHeaderRenderer.OnSettingsClickListener, PlaylistRemoveFilterRenderer.OnRemoveFilterListener {
@@ -64,5 +68,21 @@ public class PlaylistsAdapter extends UpdatableRecyclerItemAdapter<PlaylistColle
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getType();
+    }
+
+    @Override
+    protected DiffUtil.Callback createDiffUtilCallback(List<PlaylistCollectionItem> oldList, List<PlaylistCollectionItem> newList) {
+        return new ListDiffUtilCallback<PlaylistCollectionItem>(oldList, newList) {
+            @Override
+            protected boolean areItemsTheSame(PlaylistCollectionItem oldItem, PlaylistCollectionItem newItem) {
+                if (oldItem.getType() == PlaylistCollectionItem.TYPE_PLAYLIST && newItem.getType() == PlaylistCollectionItem.TYPE_PLAYLIST) {
+                    final PlaylistCollectionPlaylistItem oldPlaylist = (PlaylistCollectionPlaylistItem) oldItem;
+                    final PlaylistCollectionPlaylistItem newPlaylist = (PlaylistCollectionPlaylistItem) newItem;
+                    return MoreObjects.equal(oldPlaylist.getUrn(), newPlaylist.getUrn());
+                } else {
+                    return MoreObjects.equal(oldItem, newItem);
+                }
+            }
+        };
     }
 }

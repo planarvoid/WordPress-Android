@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucketItem> {
@@ -88,17 +89,17 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     public void bindItemView(int position, View bucketView, List<PlayHistoryBucketItem> list) {
         final List<TrackItem> listeningHistory = list.get(position).getListeningHistory();
 
-        adapter.clear();
+        List<PlayHistoryItem> items = new ArrayList<>();
 
         if (listeningHistory.isEmpty()) {
-            adapter.addItem(PlayHistoryItemEmpty.create());
+            items.add(PlayHistoryItemEmpty.create());
         } else {
             for (TrackItem trackItem : listeningHistory) {
-                adapter.addItem(PlayHistoryItemTrack.create(trackItem));
+                items.add(PlayHistoryItemTrack.create(trackItem));
             }
         }
 
-        adapter.notifyDataSetChanged();
+        adapter.replaceItems(items);
     }
 
     @OnClick(R.id.play_history_view_all)

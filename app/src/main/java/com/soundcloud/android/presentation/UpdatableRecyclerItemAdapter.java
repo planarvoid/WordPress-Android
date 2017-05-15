@@ -5,13 +5,13 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Special subclass of {@link RecyclerItemAdapter} which is supposed to be used in pages without pagination.
+ * Special subclass of {@link RecyclerItemAdapter} which is intended to be used in pages without pagination.
  * Note that it is not allowed to clear the adapter manually thus calling {@link UpdatableRecyclerItemAdapter#clear()} ha no effect.
  * If you wish to do so just emit an empty list in the source observable.
+ *
  * @param <ItemT>
  * @param <VH>
  */
@@ -26,6 +26,7 @@ public abstract class UpdatableRecyclerItemAdapter<ItemT, VH extends RecyclerVie
     }
 
     @Override
+    @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
     public void clear() {
         // We are relying on DiffUtils so there is no need to clear the adapter.
         // AK calls this method in the CollectionViewPresenter class so we can't throw an exception here.
@@ -59,45 +60,20 @@ public abstract class UpdatableRecyclerItemAdapter<ItemT, VH extends RecyclerVie
 
     @Override
     public void onNext(Iterable<ItemT> items) {
-        final List<ItemT> oldList = getItems();
-        final ArrayList<ItemT> newList = newArrayList(items);
+        replaceItems(newArrayList(items));
+    }
 
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemsDiffUtilCallback<>(oldList, newList));
+    public void replaceItems(List<ItemT> newItems) {
+        final List<ItemT> oldItems = getItems();
+
+        final DiffUtil.Callback callback = createDiffUtilCallback(oldItems, newItems);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(callback);
 
         getItems().clear();
-        getItems().addAll(newList);
+        getItems().addAll(newItems);
 
         diffResult.dispatchUpdatesTo(this);
     }
 
-    private static final class ItemsDiffUtilCallback<ItemT> extends DiffUtil.Callback {
-
-        private final List<ItemT> oldList;
-        private final List<ItemT> newList;
-
-        ItemsDiffUtilCallback(List<ItemT> oldList, List<ItemT> newList) {
-            this.oldList = oldList;
-            this.newList = newList;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return oldList.size();
-        }
-
-        @Override
-        public int getNewListSize() {
-            return newList.size();
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
-        }
-    }
+    protected abstract DiffUtil.Callback createDiffUtilCallback(List<ItemT> oldList, List<ItemT> newList);
 }

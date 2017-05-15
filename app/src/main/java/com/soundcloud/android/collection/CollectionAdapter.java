@@ -3,13 +3,17 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketRenderer;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.presentation.ListDiffUtilCallback;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.presentation.UpdatableRecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
+import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class CollectionAdapter extends UpdatableRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
 
@@ -40,6 +44,18 @@ public class CollectionAdapter extends UpdatableRecyclerItemAdapter<CollectionIt
     void detach() {
         recentlyPlayedBuckerRenderer.detach();
         playHistoryBucketRenderer.detach();
+    }
+
+    @NonNull
+    @Override
+    protected DiffUtil.Callback createDiffUtilCallback(List<CollectionItem> oldList, List<CollectionItem> newList) {
+        return new ListDiffUtilCallback<CollectionItem>(oldList, newList) {
+            @Override
+            protected boolean areItemsTheSame(CollectionItem oldItem, CollectionItem newItem) {
+                // Here is safe to consider the item type as an id, since buckets are not duplicated
+                return oldItem.getType() == newItem.getType();
+            }
+        };
     }
 
     @Override

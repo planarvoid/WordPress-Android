@@ -7,17 +7,21 @@ import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
+import com.soundcloud.android.presentation.ListDiffUtilCallback;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.presentation.UpdatableRecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
+import com.soundcloud.java.objects.MoreObjects;
 
+import android.support.v7.util.DiffUtil;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
-class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, RecyclerItemAdapter.ViewHolder>
+class PlayHistoryAdapter extends UpdatableRecyclerItemAdapter<PlayHistoryItem, RecyclerItemAdapter.ViewHolder>
         implements PlayingTrackAware {
 
     private final PlayHistoryTrackRenderer trackRenderer;
@@ -53,11 +57,6 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
         }
     }
 
-    void setItem(int position, PlayHistoryItem item) {
-        getItems().set(position, item);
-        notifyItemChanged(position);
-    }
-
     @Override
     protected ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
@@ -74,5 +73,21 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Recy
 
     public void setTrackClickListener(TrackItemRenderer.Listener listener) {
         this.trackRenderer.setListener(listener);
+    }
+
+    @Override
+    protected DiffUtil.Callback createDiffUtilCallback(List<PlayHistoryItem> oldList, List<PlayHistoryItem> newList) {
+        return new ListDiffUtilCallback<PlayHistoryItem>(oldList, newList) {
+            @Override
+            protected boolean areItemsTheSame(PlayHistoryItem oldItem, PlayHistoryItem newItem) {
+                if (oldItem.getKind() == PlayHistoryTrack && newItem.getKind() == PlayHistoryTrack) {
+                    final PlayHistoryItemTrack oldTrack = (PlayHistoryItemTrack) oldItem;
+                    final PlayHistoryItemTrack newTrack = (PlayHistoryItemTrack) newItem;
+                    return MoreObjects.equal(oldTrack.getUrn(), newTrack.getUrn());
+                } else {
+                    return oldItem.getKind() == newItem.getKind();
+                }
+            }
+        };
     }
 }
