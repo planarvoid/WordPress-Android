@@ -21,7 +21,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    public CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
+    CastContextWrapper provideCastContext(GooglePlayServicesWrapper googlePlayServicesWrapper, Context context) {
         try {
             if (isCastEnabled(googlePlayServicesWrapper, context)) {
                 return new DefaultCastContextWrapper(CastContext.getSharedInstance(context));
@@ -35,7 +35,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context,
+    CastConnectionHelper provideCastConnectionHelper(Context context,
                                                             Lazy<CastContextWrapper> castContext,
                                                             GooglePlayServicesWrapper gpsWrapper) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
@@ -50,7 +50,7 @@ public class CastModule {
 
     @Provides
     @Singleton
-    public CastPlayer provideCastPlayer(PlayQueueManager playQueueManager,
+    CastPlayer provideCastPlayer(PlayQueueManager playQueueManager,
                                         EventBus eventBus,
                                         CastProtocol castProtocol,
                                         PlaySessionStateProvider playSessionStateProvider,

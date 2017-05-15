@@ -3,7 +3,6 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.PrestitialAdsController;
-import com.soundcloud.android.cast.DefaultCastSessionController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
@@ -11,7 +10,6 @@ import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.lightcycle.LightCycle;
-import dagger.Lazy;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -22,7 +20,6 @@ import javax.inject.Inject;
 public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
-    @Inject Lazy<DefaultCastSessionController> castSessionController;
     @Inject Navigator navigator;
     @Inject FeatureFlags featureFlags;
     @Inject ShortcutController shortcutController;
@@ -92,14 +89,7 @@ public class MainActivity extends PlayerActivity {
     protected void onPostResume() {
         super.onPostResume();
         fetchFeatureFlags();
-        castSessionController.get().onResume(this);
         shortcutController.createShortcuts();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        castSessionController.get().onPause(this);
     }
 
     @Override

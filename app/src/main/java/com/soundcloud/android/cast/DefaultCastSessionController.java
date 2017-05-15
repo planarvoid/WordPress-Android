@@ -11,8 +11,6 @@ import com.soundcloud.android.cast.api.CastProtocol;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.utils.Log;
 
-import android.support.v7.app.AppCompatActivity;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -30,29 +28,20 @@ public class DefaultCastSessionController extends SimpleCastSessionManagerListen
     private boolean wasPlayingBeforeServiceStopped;
 
     @Inject
-    public DefaultCastSessionController(PlaybackServiceController serviceController,
-                                        AdsOperations adsOperations,
-                                        DefaultCastPlayer castPlayer,
-                                        CastContextWrapper castContext,
-                                        CastConnectionHelper castConnectionHelper,
-                                        PlaySessionStateProvider playSessionStateProvider,
-                                        CastProtocol castProtocol) {
+    DefaultCastSessionController(PlaybackServiceController serviceController,
+                                 AdsOperations adsOperations,
+                                 DefaultCastPlayer castPlayer,
+                                 CastContextWrapper castContext,
+                                 CastConnectionHelper castConnectionHelper,
+                                 PlaySessionStateProvider playSessionStateProvider,
+                                 CastProtocol castProtocol) {
         this.serviceController = serviceController;
         this.adsOperations = adsOperations;
         this.castPlayer = castPlayer;
         this.castContext = castContext;
-
         this.castConnectionHelper = castConnectionHelper;
         this.playSessionStateProvider = playSessionStateProvider;
         this.castProtocol = castProtocol;
-    }
-
-    public void onResume(AppCompatActivity activity) {
-        castContext.onActivityResumed(activity);
-    }
-
-    public void onPause(AppCompatActivity activity) {
-        castContext.onActivityPaused(activity);
     }
 
     public void startListening() {

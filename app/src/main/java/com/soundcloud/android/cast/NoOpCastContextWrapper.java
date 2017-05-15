@@ -5,7 +5,6 @@ import com.google.android.gms.cast.framework.CastStateListener;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 class NoOpCastContextWrapper implements CastContextWrapper {
@@ -21,17 +20,7 @@ class NoOpCastContextWrapper implements CastContextWrapper {
     }
 
     @Override
-    public void onActivityResumed(AppCompatActivity activity) {
-        // no - op
-    }
-
-    @Override
     public void addSessionManagerListener(SessionManagerListener sessionManagerListener) {
-        // no - op
-    }
-
-    @Override
-    public void onActivityPaused(AppCompatActivity activity) {
         // no - op
     }
 

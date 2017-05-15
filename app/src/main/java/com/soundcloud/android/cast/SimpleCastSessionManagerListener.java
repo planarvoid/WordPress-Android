@@ -8,7 +8,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.support.annotation.CallSuper;
 
-public class SimpleCastSessionManagerListener implements SessionManagerListener<CastSession> {
+class SimpleCastSessionManagerListener implements SessionManagerListener<CastSession> {
 
     private static final String TAG = "CastSessionManager";
 

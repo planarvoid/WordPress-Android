@@ -9,10 +9,9 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
-public class DefaultCastContextWrapper implements CastContextWrapper {
+class DefaultCastContextWrapper implements CastContextWrapper {
 
     private final CastContext context;
 
@@ -26,18 +25,8 @@ public class DefaultCastContextWrapper implements CastContextWrapper {
     }
 
     @Override
-    public void onActivityPaused(AppCompatActivity activity) {
-        context.onActivityPaused(activity);
-    }
-
-    @Override
     public boolean onDispatchVolumeKeyEventBeforeJellyBean(KeyEvent event) {
         return context.onDispatchVolumeKeyEventBeforeJellyBean(event);
-    }
-
-    @Override
-    public void onActivityResumed(AppCompatActivity activity) {
-        context.onActivityResumed(activity);
     }
 
     @Override
