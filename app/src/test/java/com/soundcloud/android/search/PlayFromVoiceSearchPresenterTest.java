@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -49,7 +48,6 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Mock private Random random;
     @Mock private Navigator navigator;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     private TestEventBus eventBus;
     private PlayFromVoiceSearchPresenter presenter;
@@ -64,7 +62,6 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
                                                      playbackFeedbackHelper,
                                                      navigator,
                                                      eventBus,
-                                                     miniplayerExperiment,
                                                      performanceMetricsEngine);
     }
 

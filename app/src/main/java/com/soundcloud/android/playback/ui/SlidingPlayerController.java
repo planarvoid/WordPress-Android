@@ -12,7 +12,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.status.StatusBarColorController;
@@ -48,7 +47,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final StatusBarColorController statusBarColorController;
-    private final MiniplayerStorage miniplayerStorage;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
     private SlidingUpPanelLayout slidingPanel;
@@ -65,12 +63,10 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public SlidingPlayerController(PlayQueueManager playQueueManager,
                                    EventBus eventBus,
                                    StatusBarColorController statusBarColorController,
-                                   MiniplayerStorage miniplayerStorage,
                                    PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.statusBarColorController = statusBarColorController;
-        this.miniplayerStorage = miniplayerStorage;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -124,7 +120,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void manualCollapse() {
-        miniplayerStorage.setMinimizedPlayerManually();
         collapse();
     }
 
@@ -327,11 +322,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onPanelCollapsed() {
         statusBarColorController.onPlayerCollapsed();
         notifyCollapsedState();
-
-        if (wasDragged) {
-            miniplayerStorage.setMinimizedPlayerManually();
-        }
-
         trackPlayerSlide(UIEvent.fromPlayerClose(wasDragged));
     }
 

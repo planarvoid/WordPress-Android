@@ -6,7 +6,6 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -36,7 +35,6 @@ public class StartStationPresenter {
     private final EventBus eventBus;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final PlaySessionOriginScreenProvider screenProvider;
-    private final MiniplayerExperiment miniplayerExperiment;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private Subscription subscription = RxUtils.invalidSubscription();
 
@@ -45,7 +43,6 @@ public class StartStationPresenter {
                                  StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
                                  EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper,
                                  PlaySessionOriginScreenProvider screenProvider,
-                                 MiniplayerExperiment miniplayerExperiment,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
@@ -53,7 +50,6 @@ public class StartStationPresenter {
         this.eventBus = eventBus;
         this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.screenProvider = screenProvider;
-        this.miniplayerExperiment = miniplayerExperiment;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -76,7 +72,7 @@ public class StartStationPresenter {
                 .flatMap(toPlaybackResult(discoverySource, position))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackFeedbackHelper,
                                                                 getLoadingDialogPresenter(context),
-                                                                miniplayerExperiment, performanceMetricsEngine));
+                                                                performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -107,7 +103,7 @@ public class StartStationPresenter {
                 .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackFeedbackHelper,
                                                                 getLoadingDialogPresenter(context),
-                                                                miniplayerExperiment, performanceMetricsEngine));
+                                                                performanceMetricsEngine));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
@@ -149,9 +145,8 @@ public class StartStationPresenter {
                                          EventBus eventBus,
                                          PlaybackFeedbackHelper playbackFeedbackHelper,
                                          DelayedLoadingDialogPresenter delayedLoadingDialogPresenter,
-                                         MiniplayerExperiment miniplayerExperiment,
                                          PerformanceMetricsEngine performanceMetricsEngine) {
-            super(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
+            super(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;
         }

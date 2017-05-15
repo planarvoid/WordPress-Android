@@ -3,11 +3,9 @@ package com.soundcloud.android.playback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -22,33 +20,20 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
     private TestEventBus eventBus;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Mock private MiniplayerExperiment miniplayerExperiment;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        subscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
+        subscriber = new ExpandPlayerSubscriber(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
     }
 
     @Test
-    public void expandsPlayerOnPlaybackResultSuccessAndExperimentSaysSo() {
-        when(miniplayerExperiment.canExpandPlayer()).thenReturn(true);
-
+    public void expandsPlayerOnPlaybackResultSuccess() {
         subscriber.onNext(PlaybackResult.success());
 
         Robolectric.flushForegroundThreadScheduler();
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).isTrue();
-    }
-
-    @Test
-    public void showsPlayerOnPlaybackResultSuccessAndExperimentSaysSo() {
-        when(miniplayerExperiment.canExpandPlayer()).thenReturn(false);
-
-        subscriber.onNext(PlaybackResult.success());
-
-        Robolectric.flushForegroundThreadScheduler();
-        assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).isTrue();
     }
 
     @Test
@@ -70,18 +55,7 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
     }
 
     @Test
-    public void clearsPerformanceMetricsWhenPlayerIsJustShown() {
-        when(miniplayerExperiment.canExpandPlayer()).thenReturn(false);
-
-        subscriber.onNext(PlaybackResult.success());
-
-        verify(performanceMetricsEngine).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);
-    }
-
-    @Test
-    public void clearsPerformanceMetricsWhenPlayerIsExpanded() {
-        when(miniplayerExperiment.canExpandPlayer()).thenReturn(true);
-
+    public void doesNotClearPerformanceMetricsWhenPlayerIsExpanded() {
         subscriber.onNext(PlaybackResult.success());
 
         verify(performanceMetricsEngine, never()).clearMeasuring(MetricType.TIME_TO_EXPAND_PLAYER);

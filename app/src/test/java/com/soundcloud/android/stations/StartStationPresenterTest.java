@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -37,7 +36,6 @@ public class StartStationPresenterTest extends AndroidUnitTest {
     @Mock PlaySessionOriginScreenProvider screenProvider;
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock DelayedLoadingDialogPresenter dialogPresenter;
-    @Mock MiniplayerExperiment miniplayerExperiment;
     @Mock PerformanceMetricsEngine performanceMetricsEngine;
 
     private final Screen screen = Screen.SEARCH_MAIN;
@@ -62,7 +60,6 @@ public class StartStationPresenterTest extends AndroidUnitTest {
                                               eventBus,
                                               playbackFeedbackHelper,
                                               screenProvider,
-                                              miniplayerExperiment,
                                               performanceMetricsEngine);
     }
 

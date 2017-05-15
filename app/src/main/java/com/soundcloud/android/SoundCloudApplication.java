@@ -36,7 +36,6 @@ import com.soundcloud.android.offline.OfflineStorageOperations;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
-import com.soundcloud.android.playback.MiniplayerStorage;
 import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -127,7 +126,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject GooglePlayServicesWrapper googlePlayServicesWrapper;
     @Inject LikesStateProvider likesStateProvider;
     @Inject RepostsStateProvider repostsStateProvider;
-    @Inject MiniplayerStorage miniplayerStorage;
     @Inject FollowingStateProvider followingStateProvider;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject ApplicationStartupMeterFactory applicationStartupMeterFactory;
@@ -252,8 +250,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
-
-        miniplayerStorage.clear();
     }
 
     private void initializePreInjectionObjects() {

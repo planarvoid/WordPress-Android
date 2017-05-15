@@ -53,7 +53,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     @Mock private PlayerFragment playerFragment;
     @Mock private ActionBar actionBar;
     @Mock private Window window;
-    @Mock private MiniplayerStorage miniplayerStorage;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -62,7 +61,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, miniplayerStorage, performanceMetricsEngine);
+        controller = new SlidingPlayerController(playQueueManager, eventBus, statusBarColorController, performanceMetricsEngine);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
@@ -231,14 +230,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setsMiniplayerClosedManuallyWhenCollapsePlayerManuallyEventIsReceived() {
-        controller.onResume(activity);
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayerManually());
-
-        verify(miniplayerStorage).setMinimizedPlayerManually();
-    }
-
-    @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
         controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
@@ -275,16 +266,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         UIEvent expected = UIEvent.fromPlayerClose(true);
         assertThat(event.kind()).isEqualTo(expected.kind());
         assertThat(event.trigger().get()).isEqualTo(expected.trigger().get());
-    }
-
-    @Test
-    public void setsMiniplayerClosedManuallyInStorageAfterDragging() {
-        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
-        touchListener.onTouch(slidingPanel, MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
-
-        controller.onPanelCollapsed();
-
-        verify(miniplayerStorage).setMinimizedPlayerManually();
     }
 
     @Test

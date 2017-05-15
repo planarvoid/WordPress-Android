@@ -6,7 +6,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.experiments.MiniplayerExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -44,7 +43,6 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final Navigator navigator;
     private final EventBus eventBus;
-    private final MiniplayerExperiment miniplayerExperiment;
     private PerformanceMetricsEngine performanceMetricsEngine;
     private Context activityContext;
 
@@ -74,7 +72,6 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                                  PlaybackFeedbackHelper playbackFeedbackHelper,
                                  Navigator navigator,
                                  EventBus eventBus,
-                                 MiniplayerExperiment miniplayerExperiment,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
@@ -82,7 +79,6 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.navigator = navigator;
         this.eventBus = eventBus;
-        this.miniplayerExperiment = miniplayerExperiment;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -144,7 +140,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         private final String query;
 
         public PlayFromQuerySubscriber(EventBus eventBus, PlaybackFeedbackHelper playbackFeedbackHelper, String query) {
-            super(eventBus, playbackFeedbackHelper, miniplayerExperiment, performanceMetricsEngine);
+            super(eventBus, playbackFeedbackHelper, performanceMetricsEngine);
             this.query = query;
         }
 
