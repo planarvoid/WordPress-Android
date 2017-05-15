@@ -590,9 +590,19 @@
   <string name="facebook_creator_invites_title">Convidar amigos para ouvir a faixa mais recente na SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists e álbums</string>
+  <string name="collections_playlists_separate_header">Playlists</string>
+  <string name="collections_albums_header">Álbuns</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">playlist</item>
+    <item quantity="other">%d playlists</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">álbum</item>
+    <item quantity="other">%d álbuns</item>
+  </plurals>
   <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Playlists e albums</item>
-    <item quantity="other">%d playlists e albums</item>
+    <item quantity="one">Playlists e álbuns</item>
+    <item quantity="other">%d playlists e álbuns</item>
   </plurals>
   <string name="collections_your_liked_tracks">Faixas curtidas</string>
   <string name="track_likes_title">Faixas curtidas</string>
@@ -916,7 +926,7 @@ vão aparecer aqui.</string>
   <string name="playback_upsell_button_trial">Experimente o SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">O upload</string>
-  <string name="new_for_you_intro">Novo na SoundCloud. Selecionado para você.</string>
+  <string name="new_for_you_intro">Faixas recém-postadas. Apenas para você.</string>
   <string name="new_for_you_action">Ver playlist</string>
   <string name="system_playlist_duration">%1$d faixas, %2$s</string>
   <string name="system_playlist_updated_at">%s atualizado</string>
@@ -999,4 +1009,7 @@ vão aparecer aqui.</string>
   <string name="suggested_creators_relation_liked">Você curtiu recentemente a faixa</string>
   <string name="suggested_creators_relation_reposted">Você republicou recentemente a faixa</string>
   <string name="suggested_creators_relation_curated">Você adicionou recentemente a faixa deles a uma playlist</string>
+  <string name="remote_signin_activity_title">Activar</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Enviar relatório de erros</string>
 </resources>

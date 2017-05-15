@@ -589,10 +589,8 @@
   <string name="facebook_creator_invites_title">Invita a tus amigos a escuchar tus pistas más recientes en SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Listas y álbumes</string>
-  <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Listas y álbumes</item>
-    <item quantity="other">%d listas y álbumes</item>
-  </plurals>
+  <string name="collections_playlists_separate_header">Listas</string>
+  <string name="collections_albums_header">Álbumes</string>
   <string name="collections_your_liked_tracks">Pistas que te gustan</string>
   <string name="track_likes_title">Pistas que te gustan</string>
   <string name="collections_options_header_filters">Filtros</string>
@@ -743,7 +741,9 @@
   <string name="offline_update_completed_message">Listo para escuchar en modo sin conexión</string>
   <string name="offline_update_storage_limit_reached_title">Se ha alcanzado el límite de almacenamiento</string>
   <string name="offline_update_storage_limit_reached_message">Toca aquí para ver la configuración de almacenamiento</string>
+  <string name="offline_update_requested">Preparando la descarga</string>
   <string name="offline_update_in_progress">Guardando en modo sin conexión</string>
+  <string name="offline_update_completed">Guardado sin conexión</string>
   <string name="offline_likes_dialog_title">Guarda tus Me gusta sin conexión</string>
   <string name="offline_likes_dialog_message">Tus Me gusta actuales y futuros se guardarán en modo sin conexión para poder escucharlos sin conexión wifi o de datos.</string>
   <string name="make_offline_available">Guardar sin conexión</string>
@@ -912,7 +912,7 @@
   <string name="playback_upsell_button_trial">Prueba SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">La subida</string>
-  <string name="new_for_you_intro">Novedades de SoundCloud escogidas para ti.</string>
+  <string name="new_for_you_intro">Pistas recién posteadas. Solo para ti.</string>
   <string name="new_for_you_action">Ver lista</string>
   <string name="system_playlist_duration">%1$d pistas, %2$s</string>
   <string name="system_playlist_updated_at">Actualizado %s</string>
@@ -995,4 +995,7 @@
   <string name="suggested_creators_relation_liked">Hace poco indicaste que te gustó su pista</string>
   <string name="suggested_creators_relation_reposted">Hace poco reposteaste su pista</string>
   <string name="suggested_creators_relation_curated">Hace poco añadiste su pista a una lista</string>
+  <string name="remote_signin_activity_title">Activar</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Notificar error</string>
 </resources>

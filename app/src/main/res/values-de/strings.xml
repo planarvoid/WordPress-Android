@@ -589,9 +589,19 @@
   <string name="facebook_creator_invites_title">Mach Freunde auf deinen neuesten Track auf SoundCloud aufmerksam</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists &amp; Alben</string>
+  <string name="collections_playlists_separate_header"> Playlists</string>
+  <string name="collections_albums_header">Alben</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlist</item>
+    <item quantity="other">%d Playlists</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">Album</item>
+    <item quantity="other">%d Alben</item>
+  </plurals>
   <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Playlists &amp; Alben</item>
-    <item quantity="other">%d Playlists &amp; Alben</item>
+    <item quantity="one">Playlists und Alben</item>
+    <item quantity="other">%d Playlists und Alben</item>
   </plurals>
   <string name="collections_your_liked_tracks">Likes</string>
   <string name="track_likes_title">Likes</string>
@@ -743,7 +753,9 @@
   <string name="offline_update_completed_message">Bereit für Offline-Wiedergabe</string>
   <string name="offline_update_storage_limit_reached_title">Speicherbegrenzung erreicht</string>
   <string name="offline_update_storage_limit_reached_message">Zum Anzeigen der Speichereinstellungen hier tippen</string>
+  <string name="offline_update_requested">Download wird vorbereitet</string>
   <string name="offline_update_in_progress">Wird offline gespeichert</string>
+  <string name="offline_update_completed">Offline gespeichert</string>
   <string name="offline_likes_dialog_title">Speichere deine Likes offline</string>
   <string name="offline_likes_dialog_message">Hiermit kannst du deine aktuellen und künftigen Likes offline speichern, um sie dir auch ohne WLAN bzw. Datenverbindung anzuhören.</string>
   <string name="make_offline_available">Offline speichern</string>
@@ -912,7 +924,7 @@
   <string name="playback_upsell_button_trial">SoundCloud Go+ testen</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">Der Upload</string>
-  <string name="new_for_you_intro">Neu bei SoundCloud. Für dich ausgewählt.</string>
+  <string name="new_for_you_intro">Neu gepostete Tracks, nur für dich.</string>
   <string name="new_for_you_action">Playlist anzeigen</string>
   <string name="system_playlist_duration">%1$d Tracks, %2$s</string>
   <string name="system_playlist_updated_at">aktualisiert am %s</string>
@@ -991,8 +1003,11 @@
   <string name="suggested_creators">Vorgeschlagene Künstler</string>
   <string name="suggested_creators_blurb">Folge deinen Lieblingskünstlern, um keine neuen Tracks zu verpassen.</string>
   <string name="suggested_creators_recent_posts">Aktuelle Posts</string>
-  <string name="suggested_creators_relation_listened_to">Du hast dir kürzlich einen Track dieses Künstlers angehört.</string>
-  <string name="suggested_creators_relation_liked">Du hast kürzlich einen Track dieses Künstlers mit „Gefällt mir“ markiert. </string>
-  <string name="suggested_creators_relation_reposted">Du hast kürzlich einen Track dieses Künstlers repostet.</string>
-  <string name="suggested_creators_relation_curated">Du hast kürzlich einen Track dieses Künstlers zu deiner Playlist hinzugefügt.</string>
+  <string name="suggested_creators_relation_listened_to">Du hast dir kürzlich einen Track dieses Nutzers angehört.</string>
+  <string name="suggested_creators_relation_liked">Du hast kürzlich einen Track dieses Nutzers mit „Gefällt mir“ markiert. </string>
+  <string name="suggested_creators_relation_reposted">Du hast kürzlich einen Track dieses Nutzers repostet.</string>
+  <string name="suggested_creators_relation_curated">Du hast kürzlich einen Track dieses Nutzers zu deiner Playlist hinzugefügt.</string>
+  <string name="remote_signin_activity_title">Aktivieren</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Fehlerbericht senden</string>
 </resources>

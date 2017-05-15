@@ -589,9 +589,19 @@
   <string name="facebook_creator_invites_title">Nodig vrienden uit om naar je nieuwste track op SoundCloud te luisteren</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Afspeellijsten &amp; albums</string>
+  <string name="collections_playlists_separate_header">Afspeellijsten</string>
+  <string name="collections_albums_header">Albums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">afspeellijst</item>
+    <item quantity="other">%d afspeellijsten</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">album</item>
+    <item quantity="other">%d albums</item>
+  </plurals>
   <plurals name="collections_playlists_and_albums_header_plural">
     <item quantity="one">Afspeellijsten en albums</item>
-    <item quantity="other">%d afspeellijsten &amp; albums</item>
+    <item quantity="other">%d afspeellijsten en albums</item>
   </plurals>
   <string name="collections_your_liked_tracks">Gelikete tracks</string>
   <string name="track_likes_title">Gelikete tracks</string>
@@ -743,7 +753,9 @@
   <string name="offline_update_completed_message">Klaar voor offline luisteren</string>
   <string name="offline_update_storage_limit_reached_title">Opslaglimiet bereikt</string>
   <string name="offline_update_storage_limit_reached_message">Tik hier om opslaginstellingen weer te geven</string>
+  <string name="offline_update_requested">Download voorbereiden</string>
   <string name="offline_update_in_progress">Offline opslaan</string>
+  <string name="offline_update_completed">Offline opgeslagen</string>
   <string name="offline_likes_dialog_title">Je likes offline opslaan</string>
   <string name="offline_likes_dialog_message">Hiermee worden je huidige en toekomstige likes offline opgeslagen zodat je zonder wifi of gegevensverbinding kunt luisteren.</string>
   <string name="make_offline_available">Offline opslaan</string>
@@ -912,7 +924,7 @@
   <string name="playback_upsell_button_trial">Probeer SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">De upload</string>
-  <string name="new_for_you_intro">Nieuw bij SoundCloud. Speciaal voor jou geselecteerd.</string>
+  <string name="new_for_you_intro">Recent geposte tracks. Speciaal voor jou.</string>
   <string name="new_for_you_action">Afspeellijst weergeven</string>
   <string name="system_playlist_duration">%1$d tracks, %2$s</string>
   <string name="system_playlist_updated_at">%s bijgewerkt</string>
@@ -995,4 +1007,7 @@
   <string name="suggested_creators_relation_liked">Je hebt onlangs een track van deze artiest geliket</string>
   <string name="suggested_creators_relation_reposted">Je hebt onlangs een track van deze artiest gerepost</string>
   <string name="suggested_creators_relation_curated">Je hebt deze artiest onlangs toegevoegd in een afspeellijst</string>
+  <string name="remote_signin_activity_title">Activeren</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">bugrapport versturen</string>
 </resources>

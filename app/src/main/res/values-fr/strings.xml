@@ -594,8 +594,18 @@
   <string name="facebook_creator_invites_title">Invitez des amis à écouter vos derniers titres sur SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists et albums</string>
+  <string name="collections_playlists_separate_header">Playlists</string>
+  <string name="collections_albums_header">Albums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">playlist</item>
+    <item quantity="other">%d playlists</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">album</item>
+    <item quantity="other">%d albums</item>
+  </plurals>
   <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Playlists et albums</item>
+    <item quantity="one">Playlist et album</item>
     <item quantity="other">%d playlists et albums</item>
   </plurals>
   <string name="collections_your_liked_tracks">Favoris</string>
@@ -919,7 +929,7 @@
   <string name="playback_upsell_button_trial">Essayez SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">L\'upload</string>
-  <string name="new_for_you_intro">Nouveauté SoundCloud idéale pour vous.</string>
+  <string name="new_for_you_intro">Titres récemment postés, spécialement pour vous.</string>
   <string name="new_for_you_action">Afficher la playlist</string>
   <string name="system_playlist_duration">%1$d titres, %2$s</string>
   <string name="system_playlist_updated_at">%s mis à jour</string>
@@ -1002,4 +1012,7 @@
   <string name="suggested_creators_relation_liked">Vous avez récemment aimé leur titre</string>
   <string name="suggested_creators_relation_reposted">Vous avez récemment reposté leur titre</string>
   <string name="suggested_creators_relation_curated">Vous avez récemment ajouté leur titre à une playlist</string>
+  <string name="remote_signin_activity_title">Activer</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Envoyer des rapports d\'erreurs</string>
 </resources>
