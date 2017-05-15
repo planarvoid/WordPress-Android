@@ -3,7 +3,7 @@ timestamps {
     try {
       stage('Checkout') {
         node('chaos-slave') {
-          checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android.git']]])
+          checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
 
           def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
           env.PIPELINE_VERSION = BUILD_NUMBER + '-' + gitCommit
