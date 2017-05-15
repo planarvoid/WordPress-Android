@@ -1,11 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.playlists.LegacyPlaylistHeaderRenderer;
-import com.soundcloud.android.collection.playlists.NewPlaylistHeaderRenderer;
-import com.soundcloud.android.collection.playlists.PlaylistHeaderRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import dagger.Module;
 import dagger.Provides;
 
@@ -22,17 +17,6 @@ public class PlaylistsModule {
     @Provides
     boolean showFullscreenPlaylistDetails(Resources resources) {
         return resources.getBoolean(R.bool.show_fullscreen_playlist_details);
-    }
-
-    @Provides
-    public PlaylistHeaderRenderer providePlaylistCollectionHeaderRenderer(FeatureFlags featureFlags,
-                                                                          LegacyPlaylistHeaderRenderer headerRenderer,
-                                                                          NewPlaylistHeaderRenderer newHeaderRenderer) {
-        if (featureFlags.isEnabled(Flag.FILTER_COLLECTIONS)) {
-            return newHeaderRenderer;
-        } else {
-            return headerRenderer;
-        }
     }
 
 }

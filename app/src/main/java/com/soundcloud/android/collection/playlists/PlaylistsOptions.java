@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection.playlists;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.java.strings.Strings;
 
 @AutoValue
 public abstract class PlaylistsOptions {
@@ -16,7 +15,6 @@ public abstract class PlaylistsOptions {
             .showOfflineOnly(false)
             .entities(Entities.PLAYLISTS_AND_ALBUMS)
             .sortByTitle(false)
-            .textFilter(Strings.EMPTY)
             .build();
 
     public static final PlaylistsOptions OFFLINE_ONLY = new AutoValue_PlaylistsOptions.Builder()
@@ -25,7 +23,6 @@ public abstract class PlaylistsOptions {
             .showOfflineOnly(true)
             .entities(Entities.PLAYLISTS_AND_ALBUMS)
             .sortByTitle(false)
-            .textFilter(Strings.EMPTY)
             .build();
 
     public static Builder builder() {
@@ -35,8 +32,7 @@ public abstract class PlaylistsOptions {
                 .showLikes(false)
                 .showOfflineOnly(false)
                 .entities(Entities.PLAYLISTS_AND_ALBUMS)
-                .sortByTitle(false)
-                .textFilter(Strings.EMPTY);
+                .sortByTitle(false);
     }
 
     public static Builder builder(PlaylistsOptions options) {
@@ -46,8 +42,7 @@ public abstract class PlaylistsOptions {
                 .showLikes(options.showLikes())
                 .showOfflineOnly(options.showOfflineOnly())
                 .entities(options.entities())
-                .sortByTitle(options.sortByTitle())
-                .textFilter(options.textFilter());
+                .sortByTitle(options.sortByTitle());
     }
 
     public abstract boolean showLikes();
@@ -60,8 +55,6 @@ public abstract class PlaylistsOptions {
 
     public abstract boolean sortByTitle();
 
-    public abstract String textFilter();
-
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder showLikes(boolean enabled);
@@ -73,8 +66,6 @@ public abstract class PlaylistsOptions {
         public abstract Builder entities(Entities entities);
 
         public abstract Builder sortByTitle(boolean enabled);
-
-        public abstract Builder textFilter(String query);
 
         public abstract PlaylistsOptions build();
     }

@@ -56,13 +56,11 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
     private PlaylistsPresenter presenter;
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private FilterHeaderPresenterFactory filterHeaderPresenterFactory;
     @Mock private MyPlaylistsOperations myPlaylistsOperations;
     @Mock private CollectionOptionsStorage collectionOptionsStorage;
     @Mock private PlaylistOptionsPresenter optionsPresenter;
     @Mock private PlaylistsAdapter adapter;
     @Mock private Fragment fragment;
-    @Mock private FilterHeaderPresenter myPlaylistHeaderPresenter;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
@@ -81,8 +79,6 @@ public class PlaylistsPresenterTest extends AndroidUnitTest {
 
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
-        when(filterHeaderPresenterFactory.create(any(FilterHeaderPresenter.Listener.class), anyInt())).thenReturn(
-                myPlaylistHeaderPresenter);
         presenter = new PlaylistsPresenter(
                 swipeRefreshAttacher,
                 myPlaylistsOperations,

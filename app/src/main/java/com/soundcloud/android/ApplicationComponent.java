@@ -17,7 +17,6 @@ import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.playhistory.PlayHistoryFragment;
-import com.soundcloud.android.collection.playlists.NewPlaylistsFragment;
 import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsFragment;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
@@ -241,7 +240,6 @@ public interface ApplicationComponent {
     //PlaylistModule
     void inject(PlaylistsActivity playlistsActivity);
     void inject(PlaylistsFragment playlistsFragment);
-    void inject(NewPlaylistsFragment playlistsFragment);
     void inject(PlaylistDetailActivity playlistDetailActivity);
     void inject(PlaylistDetailFragment playlistDetailFragment);
     void inject(AddToPlaylistDialogFragment addToPlaylistDialogFragment);

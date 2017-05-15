@@ -42,7 +42,6 @@ import com.soundcloud.android.view.adapters.LikeEntityListSubscriber;
 import com.soundcloud.android.view.adapters.RepostEntityListSubscriber;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -52,7 +51,6 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -68,7 +66,7 @@ import java.util.List;
 import java.util.Set;
 
 class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionItem>, PlaylistCollectionItem>
-        implements PlaylistsAdapter.Listener, PlaylistOptionsPresenter.Listener, FilterHeaderPresenter.Listener {
+        implements PlaylistsAdapter.Listener, PlaylistOptionsPresenter.Listener {
 
     private final SwipeRefreshAttacher swipeRefreshAttacher;
     private final MyPlaylistsOperations myPlaylistsOperations;
@@ -143,11 +141,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     @Override
-    public void onFilterQuery(String query) {
-        refreshWithNewOptions(PlaylistsOptions.builder(currentOptions).textFilter(query).build());
-    }
-
-    @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
@@ -201,11 +194,6 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     @Override
-    public void onFilterOptionsClicked(Context context) {
-        optionsPresenter.showOptions(context, this, currentOptions);
-    }
-
-    @Override
     public void onPlaylistSettingsClicked(View view) {
         optionsPresenter.showOptions(view.getContext(), this, currentOptions);
     }
@@ -219,13 +207,9 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     @Override
     public void onOptionsUpdated(PlaylistsOptions options) {
         collectionOptionsStorage.store(options);
-        refreshWithNewOptions(options);
-        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
-    }
-
-    private void refreshWithNewOptions(PlaylistsOptions options) {
         currentOptions = buildPlaylistOptionsWithFilters(options);
         refreshCollections();
+        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
     }
 
     private PlaylistsOptions buildPlaylistOptionsWithFilters(PlaylistsOptions options) {
@@ -233,8 +217,7 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private boolean isCurrentlyFiltered() {
-        return Strings.isNotBlank(currentOptions.textFilter())
-                || currentOptions.showOfflineOnly()
+        return currentOptions.showOfflineOnly()
                 || (currentOptions.showLikes() && !currentOptions.showPosts())
                 || (!currentOptions.showLikes() && currentOptions.showPosts());
     }

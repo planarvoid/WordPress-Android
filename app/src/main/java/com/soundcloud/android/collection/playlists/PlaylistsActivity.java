@@ -5,13 +5,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
@@ -91,15 +89,7 @@ public class PlaylistsActivity extends PlayerActivity {
 
     private void attachFragment() {
         getSupportFragmentManager().beginTransaction()
-                                   .replace(R.id.container, createFragment())
+                                   .replace(R.id.container, PlaylistsFragment.create(entities()))
                                    .commit();
-    }
-
-    private Fragment createFragment() {
-        if (featureFlags.isEnabled(Flag.FILTER_COLLECTIONS)) {
-            return NewPlaylistsFragment.create(entities());
-        } else {
-            return PlaylistsFragment.create(entities());
-        }
     }
 }
