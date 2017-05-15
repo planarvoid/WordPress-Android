@@ -26,14 +26,14 @@ public class AppboyInAppMessageListenerTest extends AndroidUnitTest {
 
     @Test
     public void discardsMessageIfDisplayPrestitialFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
 
         assertThat(listener.beforeInAppMessageDisplayed(iInAppMessage)).isEqualTo(InAppMessageOperation.DISCARD);
     }
 
     @Test
     public void displaysMessageIfDisplayPrestitialFeatureFlagIsOff() {
-        when(featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(false);
 
         assertThat(listener.beforeInAppMessageDisplayed(iInAppMessage)).isEqualTo(InAppMessageOperation.DISPLAY_NOW);
     }

@@ -33,10 +33,25 @@ class ApiPrestitialAd extends ModelCollection<ApiAdWrapper> implements AdsCollec
         return Optional.absent();
     }
 
+    private Optional<SponsoredSessionAd.ApiModel> sponsoredSession() {
+        for (ApiAdWrapper adWrapper : this) {
+            if (adWrapper.sponsoredSession().isPresent()) {
+                return adWrapper.sponsoredSession();
+            }
+        }
+        return Optional.absent();
+    }
+
+
     @Override
     public AdsReceived toAdsReceived() {
-        final Urn displayUrn = visualPrestitial().isPresent() ? visualPrestitial().get().adUrn() : Urn.NOT_SET;
-        return AdsReceived.forPrestitalAds(displayUrn);
+        final Urn displayUrn = visualPrestitial().isPresent()
+                               ? visualPrestitial().get().adUrn()
+                               : Urn.NOT_SET;
+        final Urn sponsoredSessionUrn = sponsoredSession().isPresent()
+                                        ? sponsoredSession().get().adUrn()
+                                        : Urn.NOT_SET;
+        return AdsReceived.forPrestitalAds(displayUrn, sponsoredSessionUrn);
     }
 
     @Override
@@ -46,6 +61,9 @@ class ApiPrestitialAd extends ModelCollection<ApiAdWrapper> implements AdsCollec
         for (ApiAdWrapper wrapper : collection) {
             if (wrapper.visualPrestitial().isPresent()) {
                 msg.append(" display");
+            } else if (wrapper.sponsoredSession().isPresent()) {
+                msg.append(" sponsored session w/ length: ");
+                msg.append(wrapper.sponsoredSession().get().adFreeMinutes());
             }
         }
         return msg.toString();
@@ -55,6 +73,8 @@ class ApiPrestitialAd extends ModelCollection<ApiAdWrapper> implements AdsCollec
         for (ApiAdWrapper wrapper : collection) {
             if (wrapper.visualPrestitial().isPresent()) {
                 return Optional.of(VisualPrestitialAd.create(wrapper.visualPrestitial().get()));
+            } else if (wrapper.sponsoredSession().isPresent()) {
+                return Optional.of(SponsoredSessionAd.create(wrapper.sponsoredSession().get()));
             }
         }
         return Optional.absent();

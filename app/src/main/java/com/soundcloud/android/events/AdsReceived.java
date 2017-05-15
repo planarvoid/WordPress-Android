@@ -13,6 +13,7 @@ public class AdsReceived {
     private static final String INTERSTITIAL_AD_KEY = "interstitial";
     private static final String APP_INSTALL_AD_KEY = "app_install";
     private static final String DISPLAY_AD_KEY = "display";
+    private static final String SPONSORED_SESSION_AD_KEY = "sponsored_session";
 
     private static final String URN_KEY = "urn";
     private static final String URNS_KEY = "urns";
@@ -34,8 +35,9 @@ public class AdsReceived {
                                 .put(VIDEO_AD_KEY, videoAds);
     }
 
-    public static AdsReceived forPrestitalAds(Urn displayUrn) {
-        return new AdsReceived().put(DISPLAY_AD_KEY, displayUrn);
+    public static AdsReceived forPrestitalAds(Urn displayUrn, Urn sponsoredSessionUrn) {
+        return new AdsReceived().put(DISPLAY_AD_KEY, displayUrn)
+                                .put(SPONSORED_SESSION_AD_KEY, sponsoredSessionUrn);
     }
 
     private AdsReceived put(String key, Urn adUrn) {

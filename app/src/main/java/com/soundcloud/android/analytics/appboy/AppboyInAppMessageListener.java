@@ -26,7 +26,7 @@ public class AppboyInAppMessageListener implements IInAppMessageManagerListener 
 
     @Override
     public InAppMessageOperation beforeInAppMessageDisplayed(IInAppMessage iInAppMessage) {
-        if (featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)) {
+        if (featureFlags.isEnabled(Flag.PRESTITIAL)) {
             // TODO: More advanced logic coming soon to handle prestitial ad request state
             return InAppMessageOperation.DISCARD;
         } else {

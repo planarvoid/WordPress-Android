@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.ads.AdFixtures.apiVisualPrestitialAd;
 import static com.soundcloud.android.ads.AdFixtures.getApiAudioAd;
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
@@ -488,7 +489,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void prestitialAdReturnsEmptyObservableIfFeatureFlagIsOff() {
-        when(featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(false);
         final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
 
         final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
@@ -499,9 +500,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void prestitialAdMakesRequestAndReturnsAdDataWhenFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)).thenReturn(true);
-        final ApiPrestitialAd prestitial = AdFixtures.apiPrestitialAd();
+    public void prestitialAdMakesRequestAndReturnsDisplayPrestitialWhenFeatureFlagIsOn() {
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
+        final ApiPrestitialAd prestitial = apiVisualPrestitialAd();
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                         .thenReturn(Observable.just(prestitial));
         final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
@@ -516,8 +517,25 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void prestitialAdMakesRequestAndReturnsSponsoredSessionWhenFeatureFlagIsOn() {
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
+        final ApiPrestitialAd prestitial = AdFixtures.apiSponsoredSessionAd();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
+                .thenReturn(Observable.just(prestitial));
+        final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
+
+        final TestSubscriber<AdData> subscriber = new TestSubscriber<>();
+        adsOperations.prestitialAd(requestData).subscribe(subscriber);
+
+        final Optional<AdData> expectedAdData = prestitial.toAdData();
+        assertThat(expectedAdData.isPresent()).isTrue();
+        subscriber.assertValue(expectedAdData.get());
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdRequestEvent.class);
+    }
+
+    @Test
     public void prestitialAdMakesRequestAndReturnsNothingWhenNonSupportedAdDataAndFeatureFlagIsOn() {
-        when(featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.PRESTITIAL)).thenReturn(true);
         final ApiPrestitialAd prestitial = new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiAudioAd())));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPrestitialAd.class)))
                 .thenReturn(Observable.just(prestitial));

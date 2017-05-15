@@ -153,6 +153,19 @@ public class AdFixtures {
                                                   Arrays.asList("visual_click1", "visual_click2"));
     }
 
+    public static SponsoredSessionAd.ApiModel getApiSponsoredSession() {
+        return SponsoredSessionAd.ApiModel.create(Urn.forAd("ads", "123"),
+                                                  60,
+                                                  getApiVideoAd(),
+                                                  SponsoredSessionAd.OptInCard.create(
+                                                          Urn.NOT_SET,
+                                                          "http://image-url.com",
+                                                          "http://clickthrough.com",
+                                                          Arrays.asList("sponsored_session_impression1","sponsored_session_impression2"),
+                                                          Arrays.asList("sponsored_session_click1","sponsored_session_click2")
+                                                  ));
+    }
+
     static AudioAd.ApiModel getApiAudioAd() {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
     }
@@ -361,7 +374,11 @@ public class AdFixtures {
                                                 ApiAdWrapper.create(getApiVideoAd())));
     }
 
-    static ApiPrestitialAd apiPrestitialAd() {
+    static ApiPrestitialAd apiVisualPrestitialAd() {
         return new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiVisualPrestitial())));
+    }
+
+    static ApiPrestitialAd apiSponsoredSessionAd() {
+        return new ApiPrestitialAd(Collections.singletonList(ApiAdWrapper.create(getApiSponsoredSession())));
     }
 }

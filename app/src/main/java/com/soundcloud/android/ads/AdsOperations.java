@@ -88,7 +88,7 @@ public class AdsOperations {
     }
 
     public Observable<AdData> prestitialAd(AdRequestData requestData) {
-        if (featureFlags.isEnabled(Flag.DISPLAY_PRESTITIAL)) {
+        if (featureFlags.isEnabled(Flag.PRESTITIAL)) {
             final String endpoint = ApiEndpoints.PRESTITIALS.path();
             return apiClientRx.mappedResponse(buildApiRequest(endpoint, requestData), ApiPrestitialAd.class)
                               .subscribeOn(scheduler)
