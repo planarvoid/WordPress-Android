@@ -1,0 +1,20 @@
+import com.soundcloud.android.model.Urn;
+
+CREATE TABLE discovery_card (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    single_selection_card_id INTEGER,
+    multiple_selection_card_id INTEGER
+  );
+
+selectAll:
+SELECT single_content_selection_card.*, multiple_content_selection_card.*
+FROM discovery_card
+LEFT JOIN single_content_selection_card ON discovery_card.single_selection_card_id == single_content_selection_card._id
+LEFT JOIN multiple_content_selection_card ON discovery_card.multiple_selection_card_id == multiple_content_selection_card._id;
+
+deleteAll:
+DELETE FROM discovery_card;
+
+insertRow:
+INSERT INTO discovery_card(single_selection_card_id, multiple_selection_card_id)
+VALUES (?, ?);

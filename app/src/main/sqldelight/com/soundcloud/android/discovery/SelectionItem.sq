@@ -1,0 +1,29 @@
+import com.soundcloud.android.model.Urn;
+
+CREATE TABLE selection_item (
+    _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    card_id INTEGER NOT NULL,
+    urn TEXT AS Urn,
+    artwork_url_template TEXT,
+    count INTEGER,
+    short_title TEXT,
+    short_subtitle TEXT,
+    web_link TEXT,
+    app_link TEXT
+  );
+
+selectAll:
+SELECT *
+FROM selection_item;
+
+selectForDiscoveryCards:
+SELECT selection_item.*
+FROM discovery_card
+LEFT JOIN selection_item ON (discovery_card.multiple_selection_card_id == selection_item.card_id OR discovery_card.single_selection_card_id == selection_item.card_id);
+
+deleteAll:
+DELETE FROM selection_item;
+
+insertRow:
+INSERT INTO selection_item(urn, card_id, artwork_url_template, count, short_title, short_subtitle, web_link, app_link)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);

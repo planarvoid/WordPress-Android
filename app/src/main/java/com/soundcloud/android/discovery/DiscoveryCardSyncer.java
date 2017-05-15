@@ -18,15 +18,15 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
     private final LocaleFormatter localeFormatter;
     private final ExperimentOperations experimentOperations;
     private final ApiClient apiClient;
-    private final DiscoveryStorage discoveryStorage;
+    private final DiscoveryWritableStorage discoveryWritableStorage;
 
     @Inject
     DiscoveryCardSyncer(ApiClient apiClient,
-                        DiscoveryStorage discoveryStorage,
+                        DiscoveryWritableStorage discoveryWritableStorage,
                         LocaleFormatter localeFormatter,
                         ExperimentOperations experimentOperations) {
         this.apiClient = apiClient;
-        this.discoveryStorage = discoveryStorage;
+        this.discoveryWritableStorage = discoveryWritableStorage;
         this.localeFormatter = localeFormatter;
         this.experimentOperations = experimentOperations;
     }
@@ -38,6 +38,7 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
         experimentOperations.getSerializedActiveVariants().ifPresent(activeVariants -> builder.addQueryParam(PARAM_EXPERIMENT, activeVariants));
         final ApiRequest apiRequest = builder.forPrivateApi().build();
         final ModelCollection<ApiDiscoveryCard> apiDiscoveryCards = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiDiscoveryCard>>() {});
-        return discoveryStorage.store(apiDiscoveryCards);
+        discoveryWritableStorage.store(apiDiscoveryCards);
+        return true;
     }
 }

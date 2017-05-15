@@ -38,6 +38,8 @@ import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.creators.upload.Uploader;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.DiscoveryFragment;
+import com.soundcloud.android.discovery.DiscoveryReadableStorage;
+import com.soundcloud.android.discovery.DiscoveryWritableStorage;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistActivity;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistFragment;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
@@ -378,4 +380,6 @@ public interface ApplicationComponent {
     
     // For testing purpose
     PlaylistDetailsPresenterFactory playlistDetailsPresenterFactory();
+    DiscoveryReadableStorage discoveryReadableStorage();
+    DiscoveryWritableStorage discoveryWritableStorage();
 }

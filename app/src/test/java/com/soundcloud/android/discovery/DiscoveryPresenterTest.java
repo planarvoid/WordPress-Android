@@ -12,7 +12,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,8 +40,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapter, navigator, discoveryOperations);
-        when(discoveryOperations.discoveryCards()).thenReturn(Observable.just(emptyList()));
-        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Observable.just(emptyList()));
+        when(discoveryOperations.discoveryCards()).thenReturn(Single.just(emptyList()));
+        when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(emptyList()));
     }
 
     @Test
