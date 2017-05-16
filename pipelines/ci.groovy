@@ -137,7 +137,7 @@ def compileAndAcceptanceTestStage() {
     }
     try {
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.RUNNING)
-      gradle 'runLollipopTests'
+      gradle 'runMarshmallowTests'
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.SUCCESS)
     } catch (e) {
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.ERROR)

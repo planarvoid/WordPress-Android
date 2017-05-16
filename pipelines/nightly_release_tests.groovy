@@ -17,7 +17,7 @@ timestamps {
           unstash 'repository'
           env.BUILD_TYPE = 'preRelease'
           try {
-            gradle 'buildPreRelease assembleAcceptanceTest runLollipopTestsRelease'
+            gradle 'buildPreRelease assembleAcceptanceTest runMarshmallowTestsRelease'
           } finally {
             junit 'results/xml/*.xml'
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'index.html', reportName: 'Test results'])

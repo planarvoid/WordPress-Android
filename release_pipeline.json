@@ -70,7 +70,7 @@
           },
           {
             "acceptance_tests": {
-              "cmd": "BUILD_TYPE=preRelease ./gradlew runLollipopTestsRelease",
+              "cmd": "BUILD_TYPE=preRelease ./gradlew runMarshmallowTestsRelease",
               "test-reports": "results/xml/*.xml",
               "plugins": {
                 "htmlReports": [

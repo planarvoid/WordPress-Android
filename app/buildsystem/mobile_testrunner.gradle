@@ -125,3 +125,16 @@ task runLollipopTestsRelease(dependsOn: extractHtmlTemplates) {
     testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
   }
 }
+
+task runMarshmallowTestsRelease(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def excludeAnnotations = [
+            "com.soundcloud.android.framework.annotation.Ignore",
+            "com.soundcloud.android.framework.annotation.AdsTest",
+            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
+            "com.soundcloud.android.framework.annotation.PaymentTest"
+    ] as String[]
+
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, systemProperties, null, null, null)
+  }
+}
