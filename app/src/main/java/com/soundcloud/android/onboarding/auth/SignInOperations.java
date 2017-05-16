@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.auth;
 
 import static android.util.Log.INFO;
-import static com.soundcloud.android.creators.record.jni.VorbisConstants.getString;
 import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 
@@ -86,7 +85,7 @@ public class SignInOperations {
             SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
             if (!addAccount(loginResponse, token, signupVia)) {
                 ErrorUtils.handleSilentException(new AddAccountException());
-                return AuthTaskResult.failure(getString(R.string.authentication_login_error_message));
+                return AuthTaskResult.failure(context.getString(R.string.authentication_login_error_message));
             }
 
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.authComplete());
@@ -111,7 +110,7 @@ public class SignInOperations {
             DeviceManagement deviceManagement = configurationOperations.forceRegisterDevice(token);
             if (deviceManagement.isUnauthorized()) {
                 // Still unauthorized after force register. Fail with generic error to avoid looping.
-                return Optional.of(AuthTaskResult.failure(getString(R.string.error_server_problems_message)));
+                return Optional.of(AuthTaskResult.failure(context.getString(R.string.error_server_problems_message)));
             }
         } else {
             DeviceManagement deviceManagement = configurationOperations.registerDevice(token);

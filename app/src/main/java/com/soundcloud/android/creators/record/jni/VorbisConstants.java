@@ -95,7 +95,7 @@ public enum VorbisConstants {
         this.code = code;
     }
 
-    public static String getString(int code) {
+    static String getString(int code) {
         for (VorbisConstants c : values()) {
             if (c.code == code) {
                 return c.name();

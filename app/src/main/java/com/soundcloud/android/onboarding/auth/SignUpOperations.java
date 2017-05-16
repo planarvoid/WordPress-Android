@@ -1,7 +1,5 @@
 package com.soundcloud.android.onboarding.auth;
 
-import static com.soundcloud.android.creators.record.jni.VorbisConstants.getString;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
@@ -73,9 +71,9 @@ public class SignUpOperations {
             AuthResponse authResponse = performRequest(bundle);
             return AuthTaskResult.success(authResponse, SignupVia.API);
         } catch (TokenRetrievalException e) {
-            return AuthTaskResult.failure(getString(R.string.signup_scope_revoked));
+            return AuthTaskResult.failure(applicationContext.getString(R.string.signup_scope_revoked));
         } catch (ApiMapperException e) {
-            return AuthTaskResult.failure(getString(R.string.authentication_signup_error_message));
+            return AuthTaskResult.failure(applicationContext.getString(R.string.authentication_signup_error_message));
         } catch (IOException e) {
             return AuthTaskResult.failure(e);
         } catch (SignupError signupError) {
