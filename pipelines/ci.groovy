@@ -128,7 +128,12 @@ def compileAndAcceptanceTestStage() {
   try {
     try {
       updateGitHub(Builds.BUILD, Status.RUNNING)
-      gradle 'clean assembleDebugApk assembleAcceptanceTest'
+      if (isReleasePr()) {
+        setBuildType 'preRelease'
+        gradle 'buildPreReleasePR'
+      } else {
+        gradle 'buildDebugPR'
+      }
       updateGitHub(Builds.BUILD, Status.SUCCESS)
     } catch (e) {
       updateGitHub(Builds.BUILD, Status.ERROR)
@@ -137,14 +142,18 @@ def compileAndAcceptanceTestStage() {
     }
     try {
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.RUNNING)
-      gradle 'runMarshmallowTests'
+      if (isReleasePr()) {
+        gradle 'runMarshmallowTestsRelease'
+      } else {
+        gradle 'runMarshmallowTests'
+      }
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.SUCCESS)
     } catch (e) {
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.ERROR)
       throw e
     }
   } finally {
-    archiveArtifacts artifacts: "app/build/outputs/apk/soundcloud-android-*-${env.PIPELINE_VERSION}-debug-*.apk", onlyIfSuccessful: true
+    archiveArtifacts artifacts: "app/build/outputs/apk/soundcloud-android-*-${env.PIPELINE_VERSION}-*.apk", onlyIfSuccessful: true
     junit 'results/xml/*.xml'
     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'index.html', reportName: 'Test Results'])
     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'collection_index.html', reportName: 'Test Collection Results'])
@@ -185,7 +194,7 @@ def staticAnalysisStage() {
   pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/pmd/pmd.xml', unHealthy: ''
   checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/checkstyle/checkstyle.xml', unHealthy: ''
   findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'app/build/reports/findbugs/findbugs.xml', unHealthy: ''
-  androidLint canComputeNew: false, defaultEncoding: '', failedTotalHigh: '0', failedTotalNormal: '0', healthy: '', pattern: 'app/build/reports/lint-results-prodDebug.xml', unHealthy: ''
+  androidLint canComputeNew: false, defaultEncoding: '', failedTotalHigh: '0', failedTotalNormal: '0', healthy: '', pattern: 'app/build/reports/lint-results-*.xml', unHealthy: ''
 }
 
 def reportingStage(def isSuccess, def error) {
@@ -232,12 +241,20 @@ def reportingStage(def isSuccess, def error) {
 
 def updateGitHub(Builds task, Status status) {
   if (isPr()) {
-    sh "./scripts/update_pr_status.sh \"$ghprbActualCommit\" -s \"${status.status}\" -d \"${status.message}\" -c \"${task.name}\" -t \"$JENKINS_URL\""
+    sh "./scripts/update_pr_status.sh \"$ghprbActualCommit\" -s \"${status.status}\" -d \"${status.message}\" -c \"${task.name}\" -t \"$BUILD_URL\""
   }
 }
 
 def isPr() {
   return env.ghprbPullId ? true : false
+}
+
+def isReleasePr() {
+  return isPr() && "release".equalsIgnoreCase(env.ghprbTargetBranch)
+}
+
+def setBuildType(String buildType) {
+  env.BUILD_TYPE = buildType
 }
 
 def gradle(String tasks) {

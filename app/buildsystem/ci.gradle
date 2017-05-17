@@ -68,6 +68,10 @@ task buildDebug(dependsOn: ['assembleDebugApk', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 
+task buildDebugPR(dependsOn: ['assembleDebugApk', 'assembleAcceptanceTest']) {
+  description = 'Assembles Debug build for PR build.'
+}
+
 task buildPR(dependsOn: ['assembleDebugApk', 'staticAnalysisChanged']) {
   description = 'Assembles Debug build and performs static analysis of changed files for CI.'
 }
@@ -129,6 +133,10 @@ task buildPreRelease(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreRe
                                  'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
+task buildPreReleasePR(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper', 'assembleAcceptanceTest']) {
+  description = 'Assembles Release (without ProGuard!) build for PR build.'
+}
+
 assemblePreReleaseWrapper.mustRunAfter('versionizePreRelease')
 
 task assembleReleaseWrapper(dependsOn: 'assembleProdRelease')
@@ -182,6 +190,9 @@ task headsup(type: Exec) {
 task assembleAcceptanceTest(dependsOn: ["assembleProd${project.('buildType').capitalize()}AndroidTest"]) {
   description = 'Assembles the Test application.'
 }
+
+assembleAcceptanceTest.mustRunAfter('assemblePreReleaseWrapper')
+assembleAcceptanceTest.mustRunAfter('assembleDebugApk')
 
 task runAcceptanceTests(dependsOn: ['assembleAcceptanceTest', 'connectedAndroidTest']) {
   description 'Installs and runs the tests for Debug build on connected devices.'
