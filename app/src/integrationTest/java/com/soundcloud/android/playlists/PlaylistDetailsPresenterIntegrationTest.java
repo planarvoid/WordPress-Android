@@ -16,6 +16,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.hamcrest.TestAsyncState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Supplier;
@@ -107,6 +108,7 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
     }
 
     @Test
+    @Ignore
     public void editTrackList() {
         final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);
         final PlaylistDetailsPresenter presenter = createPresenter();
