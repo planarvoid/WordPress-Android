@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -11,6 +12,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -33,6 +35,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private View button;
     @Mock private MenuItem menuItem;
+    @Mock private ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
 
     private PlaylistItem playlist = ModelFixtures.playlistItem();
     private PlaylistItemMenuRenderer renderer;
@@ -48,7 +51,8 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 accountOperations,
                                                 screenProvider,
                                                 eventBus,
-                                                featureOperations);
+                                                featureOperations,
+                                                changeLikeToSaveExperimentMenuHelper);
     }
 
     @Test
@@ -77,9 +81,19 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldGetLikeActionTitle() {
+        PlaylistItem playlistItem = buildPlaylistWithUserLike(true);
+
+        renderer.render(playlistItem);
+
+        verify(changeLikeToSaveExperimentMenuHelper).getTitleForLikeAction(anyBoolean());
+        verify(popupMenuWrapper).setItemVisible(R.id.add_to_likes, true);
+    }
+
+    @Test
     public void showOfflineDownloadOptionWhenNotMarkedForOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem playlistItem = buildPlaylist(false);
+        PlaylistItem playlistItem = buildPlaylistWithMarkedForOffline(false);
 
         renderer.render(playlistItem);
 
@@ -91,7 +105,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Test
     public void showOfflineRemovalOptionWhenMarkedForOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        PlaylistItem playlistItem = buildPlaylist(true);
+        PlaylistItem playlistItem = buildPlaylistWithMarkedForOffline(true);
 
         renderer.render(playlistItem);
 
@@ -106,7 +120,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
         when(featureOperations.upsellOfflineContent()).thenReturn(true);
         when(menuItem.isVisible()).thenReturn(true);
         when(screenProvider.getLastScreenTag()).thenReturn("screen-tag");
-        PlaylistItem playlistItem = buildPlaylist(false);
+        PlaylistItem playlistItem = buildPlaylistWithMarkedForOffline(false);
 
         renderer.render(playlistItem);
 
@@ -119,7 +133,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     public void hideAllOfflineContentOptionsWhenOfflineContentAndUpsellContentAreDisabled() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
-        PlaylistItem playlistItem = buildPlaylist(true);
+        PlaylistItem playlistItem = buildPlaylistWithMarkedForOffline(true);
 
         renderer.render(playlistItem);
 
@@ -128,8 +142,12 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
         verify(popupMenuWrapper).setItemVisible(R.id.upsell_offline_content, false);
     }
 
-    private PlaylistItem buildPlaylist(boolean markedForDownload) {
-        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(Optional.of(markedForDownload)).build();
+    private PlaylistItem buildPlaylistWithMarkedForOffline(boolean markedForOffline) {
+        return ModelFixtures.playlistItemBuilder().isMarkedForOffline(Optional.of(markedForOffline)).build();
+    }
+
+    private PlaylistItem buildPlaylistWithUserLike(boolean userLike) {
+        return ModelFixtures.playlistItemBuilder().isUserLike(userLike).build();
     }
 
 }

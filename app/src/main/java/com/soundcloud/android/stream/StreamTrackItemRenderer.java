@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -27,23 +28,26 @@ class StreamTrackItemRenderer implements CellRenderer<TrackStreamItem> {
     private final TrackItemMenuPresenter menuPresenter;
     private final StreamCardViewPresenter streamCardViewPresenter;
     private final CardEngagementsPresenter engagementsPresenter;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     public StreamTrackItemRenderer(CondensedNumberFormatter numberFormatter,
                                    TrackItemMenuPresenter menuPresenter,
                                    CardEngagementsPresenter engagementsPresenter,
-                                   StreamCardViewPresenter streamCardViewPresenter) {
+                                   StreamCardViewPresenter streamCardViewPresenter,
+                                   ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.streamCardViewPresenter = streamCardViewPresenter;
         this.engagementsPresenter = engagementsPresenter;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext())
                                                 .inflate(R.layout.stream_track_card, parent, false);
-        inflatedView.setTag(new StreamItemViewHolder(inflatedView));
+        inflatedView.setTag(new StreamItemViewHolder(inflatedView, changeLikeToSaveExperiment.isEnabled()));
         return inflatedView;
     }
 

@@ -8,19 +8,19 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.stream.StreamItemViewHolder;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagementClickListener;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +41,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Mock View view;
     @Mock ScreenProvider screenProvider;
     @Mock EventTracker eventTracker;
+    @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock FeedbackController feedbackController;
     @Captor ArgumentCaptor<CardEngagementClickListener> listenerCaptor;
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -55,7 +57,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         presenter = new CardEngagementsPresenter(
-                numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker);
+                numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker, changeLikeToSaveExperiment, feedbackController);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isUserLike())).thenReturn(testSubject);

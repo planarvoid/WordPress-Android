@@ -77,7 +77,7 @@
     </style>
 
     <style name="PlayerLikeBase.PlayerLike">
-        <item name="android:background">@drawable/btn_player_like</item>
+        <item name="android:background">@drawable/btn_player_like_or_add_selector</item>
         <item name="android:paddingLeft">36dp</item>
         <item name="android:layout_marginRight">@dimen/player_like_margin_right</item>
     </style>

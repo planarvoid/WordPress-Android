@@ -7,6 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -17,6 +18,7 @@ import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.support.annotation.Nullable;
@@ -27,29 +29,35 @@ import java.util.concurrent.TimeUnit;
 
 public class CardEngagementsPresenter {
 
+    private final CondensedNumberFormatter numberFormatter;
+    private final LikeOperations likeOperations;
+    private final RepostOperations repostOperations;
+    private final AccountOperations accountOperations;
+    private final EventTracker eventTracker;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final FeedbackController feedbackController;
+
     public interface CardEngagementClickListener {
         void onLikeClick(View likeButton);
 
         void onRepostClick(View repostButton);
     }
 
-    private final CondensedNumberFormatter numberFormatter;
-    private final LikeOperations likeOperations;
-    private final RepostOperations repostOperations;
-    private final AccountOperations accountOperations;
-    private final EventTracker eventTracker;
-
     @Inject
     CardEngagementsPresenter(CondensedNumberFormatter numberFormatter,
                              LikeOperations likeOperations,
                              RepostOperations repostOperations,
                              AccountOperations accountOperations,
-                             EventTracker eventTracker) {
+                             EventTracker eventTracker,
+                             ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                             FeedbackController feedbackController) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
         this.eventTracker = eventTracker;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.feedbackController = feedbackController;
     }
 
     public void bind(final CardViewHolder viewHolder,
@@ -100,7 +108,7 @@ public class CardEngagementsPresenter {
         final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));
+                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController));
 
         eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,
                                                                      contextMetadata,

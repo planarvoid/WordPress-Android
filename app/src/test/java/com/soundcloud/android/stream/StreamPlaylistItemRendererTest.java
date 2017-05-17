@@ -7,6 +7,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -36,6 +37,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private StreamCardViewPresenter cardViewPresenter;
     @Mock private CardEngagementsPresenter engagementsPresenter;
     @Mock private StreamPlaylistItemRenderer.StreamPlaylistViewHolder viewHolder;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private final PlaylistItem playlistItem = ModelFixtures.playlistItem();
     private Date createdAt = new Date();
@@ -52,7 +54,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         itemView.setTag(viewHolder);
 
         renderer = new StreamPlaylistItemRenderer(
-                menuPresenter, cardViewPresenter, engagementsPresenter, resources());
+                menuPresenter, cardViewPresenter, engagementsPresenter, resources(), changeLikeToSaveExperiment);
     }
 
     @Test

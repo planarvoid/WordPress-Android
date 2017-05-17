@@ -6,6 +6,7 @@ import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
@@ -49,15 +50,18 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
     private final SimpleBlurredImageLoader simpleBlurredImageLoader;
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     StationInfoHeaderRenderer(StationInfoClickListener listener,
                               @Provided SimpleBlurredImageLoader simpleBlurredImageLoader,
                               @Provided Resources resources,
-                              @Provided ImageOperations imageOperations) {
+                              @Provided ImageOperations imageOperations,
+                              @Provided ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.clickListener = listener;
         this.simpleBlurredImageLoader = simpleBlurredImageLoader;
         this.imageOperations = imageOperations;
         this.resources = resources;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
@@ -80,9 +84,12 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         playButton.setOnClickListener(playButtonClickListener);
 
         final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
+        final boolean selected = changeLikeToSaveExperiment.isEnabled();
+        likeButton.setSelected(selected);
+        likeButton.setTextOn(selected ? null : resources.getString(R.string.btn_unlike));
+        likeButton.setTextOff(selected ? null : resources.getString(R.string.btn_like));
         likeButton.setChecked(info.isLiked());
         likeButton.setOnCheckedChangeListener(toggleLikeListener);
-
     }
 
     private void bindTextViews(StationInfoHeader info, View itemView) {

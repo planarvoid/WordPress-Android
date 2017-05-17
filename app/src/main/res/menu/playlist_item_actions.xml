@@ -6,7 +6,8 @@
         android:title="@string/play_next" />
     <item
         android:id="@+id/add_to_likes"
-        android:title="@string/btn_like" />
+        android:title="@string/btn_like"
+        android:visible="false" />
     <item
         android:id="@+id/toggle_repost"
         android:title="@string/repost"

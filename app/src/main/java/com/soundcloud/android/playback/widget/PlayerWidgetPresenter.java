@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -34,15 +35,19 @@ class PlayerWidgetPresenter {
 
     private final AppWidgetManager appWidgetManager;
     private final ImageOperations imageOperations;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private Subscription artworkSubscription = RxUtils.invalidSubscription();
 
     @Nullable private WidgetItem widgetItem;
 
     @Inject
-    PlayerWidgetPresenter(AppWidgetManager appWidgetManager, ImageOperations imageOperations) {
+    PlayerWidgetPresenter(AppWidgetManager appWidgetManager,
+                          ImageOperations imageOperations,
+                          ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.appWidgetManager = appWidgetManager;
         this.imageOperations = imageOperations;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     void updateForVideoAd(final Context context) {
@@ -59,7 +64,7 @@ class PlayerWidgetPresenter {
 
     void updatePlayState(Context context, boolean isPlaying) {
         if (widgetItem != null) {
-            PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
+            PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder(changeLikeToSaveExperiment)
                     .forIsPlaying(widgetItem, isPlaying)
                     .build(context);
             pushUpdate(remoteViews);
@@ -92,13 +97,13 @@ class PlayerWidgetPresenter {
     }
 
     private void updateRemoveViews(Context context) {
-        pushUpdate(new PlayerWidgetRemoteViewsBuilder()
+        pushUpdate(new PlayerWidgetRemoteViewsBuilder(changeLikeToSaveExperiment)
                            .forItem(widgetItem)
                            .build(context));
     }
 
     private void updateRemoveViews(Context context, Bitmap artwork) {
-        PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
+        PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder(changeLikeToSaveExperiment)
                 .forItem(widgetItem)
                 .forArtwork(artwork)
                 .build(context);

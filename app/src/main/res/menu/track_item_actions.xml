@@ -9,7 +9,8 @@
         android:title="@string/stations_start_track_station" />
     <item
         android:id="@+id/add_to_likes"
-        android:title="@string/btn_like" />
+        android:title="@string/btn_like"
+        android:visible="false" />
     <item
         android:id="@+id/add_to_playlist"
         android:title="@string/add_to_playlist" />

@@ -15,8 +15,10 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.LikesStatusEvent.LikeStatus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -29,7 +31,9 @@ import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +66,9 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock FragmentActivity activity;
     @Mock AccountOperations accountOperations;
     @Mock EventTracker tracker;
+    @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+    @Mock FeedbackController feedbackController;
 
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -101,7 +108,10 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                playQueueManager,
                                                playbackInitiator,
                                                playbackFeedbackHelper,
-                                               tracker);
+                                               tracker,
+                                               changeLikeToSaveExperiment,
+                                               changeLikeToSaveExperimentMenuHelper,
+                                               feedbackController);
     }
 
     @Test
@@ -114,6 +124,17 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         assertThat(likeObservable.hasObservers()).isTrue();
+    }
+
+    @Test
+    public void shouldGetLikeActionTitle() {
+        final boolean isUserLike = true;
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(trackItem.updatedWithLike(LikeStatus.create(trackItem.getUrn(), isUserLike))));
+
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(changeLikeToSaveExperimentMenuHelper).getTitleForLikeAction(isUserLike);
+        verify(popupMenuWrapper).setItemVisible(R.id.add_to_likes, true);
     }
 
     @Test

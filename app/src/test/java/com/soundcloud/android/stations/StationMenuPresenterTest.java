@@ -7,8 +7,10 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import org.junit.Before;
@@ -27,6 +29,8 @@ public class StationMenuPresenterTest extends AndroidUnitTest {
     @Mock private StationMenuRendererFactory stationMenuRenderFactory;
     @Mock private StationMenuRenderer stationMenuRenderer;
     @Mock private View button;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock private FeedbackController feedbackController;
 
     private StationMenuPresenter presenter;
 
@@ -37,7 +41,7 @@ public class StationMenuPresenterTest extends AndroidUnitTest {
         when(stationsOperations.toggleStationLike(any(Urn.class), anyBoolean()))
                 .thenReturn(Observable.empty());
 
-        presenter = new StationMenuPresenter(context(), stationMenuRenderFactory, stationsOperations);
+        presenter = new StationMenuPresenter(context(), stationMenuRenderFactory, stationsOperations, changeLikeToSaveExperiment, feedbackController);
 
         when(stationMenuRenderFactory.create(presenter, button)).thenReturn(stationMenuRenderer);
     }

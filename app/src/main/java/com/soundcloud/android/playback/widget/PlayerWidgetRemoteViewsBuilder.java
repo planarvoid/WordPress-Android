@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.widget;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
@@ -8,13 +9,16 @@ import android.graphics.Bitmap;
 
 class PlayerWidgetRemoteViewsBuilder {
 
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+
     private Optional<WidgetItem> optionalItem;
     private Optional<Boolean> optionalIsPlaying;
     private Optional<Bitmap> optionalArtwork;
 
-    PlayerWidgetRemoteViewsBuilder() {
+    PlayerWidgetRemoteViewsBuilder(ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         optionalItem = Optional.absent();
         optionalIsPlaying = Optional.absent();
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     public PlayerWidgetRemoteViews build(Context context) {
@@ -54,15 +58,18 @@ class PlayerWidgetRemoteViewsBuilder {
     }
 
     private void setLikeProperties(PlayerWidgetRemoteViews widgetRemoteView, WidgetItem item) {
-        final boolean isLikeable = item.isUserLike().isPresent();
-        widgetRemoteView.setLikeShown(isLikeable);
-        if (isLikeable) {
-            boolean isUserLike = item.isUserLike().get();
-            widgetRemoteView.setImageViewResource(R.id.btn_like, isUserLike
-                                                                 ?
-                                                                 R.drawable.widget_like_orange :
-                                                                 R.drawable.widget_like_grey);
-        }
+        widgetRemoteView.setLikeShown(item.isUserLike().isPresent());
+        item.isUserLike().ifPresent(isUserLike -> {
+            if (changeLikeToSaveExperiment.isEnabled()) {
+                widgetRemoteView.setImageViewResource(R.id.btn_like, isUserLike
+                                                                     ? R.drawable.ic_widget_added_to_collection
+                                                                     : R.drawable.ic_widget_add_to_collection);
+            } else {
+                widgetRemoteView.setImageViewResource(R.id.btn_like, isUserLike
+                                                                     ? R.drawable.widget_like_orange
+                                                                     : R.drawable.widget_like_grey);
+            }
+        });
     }
 
     private void setPlaybackStatus(PlayerWidgetRemoteViews widgetRemoteView) {

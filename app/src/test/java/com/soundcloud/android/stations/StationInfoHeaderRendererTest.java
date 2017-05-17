@@ -8,13 +8,16 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,6 +29,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +39,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private StationInfoAdapter.StationInfoClickListener listener;
     @Mock private SimpleBlurredImageLoader simpleBlurredImageLoader;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private View itemView;
     private StationInfoHeaderRenderer renderer;
@@ -44,7 +49,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.station_info_view, new FrameLayout(context()), false);
-        renderer = new StationInfoHeaderRenderer(listener, simpleBlurredImageLoader, resources(), imageOperations);
+        renderer = new StationInfoHeaderRenderer(listener, simpleBlurredImageLoader, resources(), imageOperations, changeLikeToSaveExperiment);
     }
 
     @Test
@@ -93,11 +98,38 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
         assertEquals(actual.toString(), expectedDesc);
     }
 
+    @Test
+    public void bindLikeButtonShouldShowOnAndOffTextWhenNotSelected() {
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(station));
+
+        renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
+
+        assertThat(toggleButton(R.id.toggle_like)).isNotSelected();
+        Assertions.assertThat(toggleButton(R.id.toggle_like).getTextOn()).isEqualTo("Unlike");
+        Assertions.assertThat(toggleButton(R.id.toggle_like).getTextOff()).isEqualTo("Like");
+    }
+
+    @Test
+    public void bindLikeButtonShouldNotShowOnAndOffTextWhenSelected() {
+        when(changeLikeToSaveExperiment.isEnabled()).thenReturn(true);
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(station));
+
+        renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
+
+        assertThat(toggleButton(R.id.toggle_like)).isSelected();
+        Assertions.assertThat(toggleButton(R.id.toggle_like).getTextOn()).isNull();
+        Assertions.assertThat(toggleButton(R.id.toggle_like).getTextOff()).isNull();
+    }
+
     private TextView textView(@IdRes int id) {
         return (TextView) itemView.findViewById(id);
     }
 
     private ImageView imageView(@IdRes int id) {
         return (ImageView) itemView.findViewById(id);
+    }
+
+    private ToggleButton toggleButton(@IdRes int id) {
+        return (ToggleButton) itemView.findViewById(id);
     }
 }

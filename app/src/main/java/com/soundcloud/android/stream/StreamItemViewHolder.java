@@ -45,8 +45,9 @@ public class StreamItemViewHolder implements CardViewHolder {
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
 
-    public StreamItemViewHolder(View view) {
+    public StreamItemViewHolder(View view, boolean selected) {
         ButterKnife.bind(this, view);
+        likeButton.setSelected(selected);
     }
 
     @OnClick(R.id.toggle_like)

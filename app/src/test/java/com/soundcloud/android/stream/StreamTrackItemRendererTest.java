@@ -7,6 +7,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -34,6 +35,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     @Mock private StreamItemViewHolder viewHolder;
     @Mock private CardEngagementsPresenter engagementsPresenter;
     @Mock private StreamCardViewPresenter headerViewPresenter;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
     private final TrackItem postedTrack = ModelFixtures.trackItem();
@@ -48,7 +50,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         itemView = layoutInflater.inflate(R.layout.stream_track_card, new FrameLayout(context()), false);
         itemView.setTag(viewHolder);
 
-        renderer = new StreamTrackItemRenderer(numberFormatter, null, engagementsPresenter, headerViewPresenter);
+        renderer = new StreamTrackItemRenderer(numberFormatter, null, engagementsPresenter, headerViewPresenter, changeLikeToSaveExperiment);
     }
 
     @Test

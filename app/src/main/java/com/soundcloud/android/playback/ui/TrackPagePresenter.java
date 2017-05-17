@@ -14,6 +14,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayerStripController;
 import com.soundcloud.android.cast.CastPlayerStripControllerFactory;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
@@ -85,6 +86,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final CastButtonInstaller castButtonInstaller;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private final SlideAnimationHelper slideHelper = new SlideAnimationHelper();
 
@@ -105,7 +107,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                        CastConnectionHelper castConnectionHelper,
                        CastButtonInstaller castButtonInstaller,
                        Resources resources,
-                       PlayerUpsellImpressionController upsellImpressionController) {
+                       PlayerUpsellImpressionController upsellImpressionController,
+                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -123,6 +126,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.castButtonInstaller = castButtonInstaller;
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
@@ -195,9 +199,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.artworkController.setFullDuration(fullDuration);
         holder.waveformController.setDurations(playableDuration, fullDuration);
 
-        likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount(),
-                                         R.drawable.ic_player_liked, R.drawable.ic_player_like);
+        updateLikeCount(holder.likeToggle, trackState.getLikeCount());
 
+        holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(urn);
         holder.shareButton.setTag(urn);
@@ -210,6 +214,17 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         setClickListener(this, holder.onClickViews);
         updateCastData(trackView, false);
+    }
+
+    private void updateLikeCount(ToggleButton likeToggle, int likeCount) {
+        final boolean enabled = changeLikeToSaveExperiment.isEnabled();
+        final int drawableLiked = enabled
+                                  ? R.drawable.ic_player_added_to_collection
+                                  : R.drawable.ic_player_liked;
+        final int drawableUnliked = enabled
+                                    ? R.drawable.ic_player_add_to_collection
+                                    : R.drawable.ic_player_like;
+        likeButtonPresenter.setLikeCount(likeToggle, likeCount, drawableLiked, drawableUnliked);
     }
 
     private void configurePlayerStates(PlayerTrackState trackState, Urn urn, TrackPageHolder holder) {
@@ -369,6 +384,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.trackContext.setVisibility(View.GONE);
 
+        holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setChecked(false);
         holder.likeToggle.setEnabled(true);
 
@@ -434,10 +450,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     @Override
     public void onPlayableLiked(View trackPage, LikesStatusEvent.LikeStatus likeStatus) {
         final TrackPageHolder holder = getViewHolder(trackPage);
+        holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setChecked(likeStatus.isUserLike());
         if (likeStatus.likeCount().isPresent()) {
-            likeButtonPresenter.setLikeCount(holder.likeToggle, likeStatus.likeCount().get(),
-                                             R.drawable.ic_player_liked, R.drawable.ic_player_like);
+            updateLikeCount(holder.likeToggle, likeStatus.likeCount().get());
         }
     }
 
@@ -718,6 +734,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View.OnClickListener shareClickListener = view -> holder.menuController.handleShare(view.getContext());
 
         holder.shareButton.setOnClickListener(shareClickListener);
+        holder.likeToggle.setSelected(changeLikeToSaveExperiment.isEnabled());
         holder.likeToggle.setOnClickListener(this::updateLikeStatus);
 
         holder.populateViewSets();

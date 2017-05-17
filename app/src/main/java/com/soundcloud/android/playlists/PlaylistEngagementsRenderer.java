@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.DownloadStateRenderer;
@@ -19,7 +20,6 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -42,6 +42,7 @@ class PlaylistEngagementsRenderer {
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
     private final OfflineSettingsOperations offlineSettings;
     private final ConnectionHelper connectionHelper;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     PlaylistEngagementsRenderer(Context context,
@@ -53,7 +54,8 @@ class PlaylistEngagementsRenderer {
                                 AccountOperations accountOperations,
                                 IntroductoryOverlayPresenter introductoryOverlayPresenter,
                                 OfflineSettingsOperations offlineSettings,
-                                ConnectionHelper connectionHelper) {
+                                ConnectionHelper connectionHelper,
+                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.context = context;
         this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
@@ -65,6 +67,7 @@ class PlaylistEngagementsRenderer {
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.offlineSettings = offlineSettings;
         this.connectionHelper = connectionHelper;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     void bind(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
@@ -86,13 +89,13 @@ class PlaylistEngagementsRenderer {
     private void configureLikeButton(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
         ToggleButton likeToggle = ButterKnife.findById(view, R.id.toggle_like);
         likeToggle.setOnClickListener(v -> onEngagementListener.onToggleLike(likeToggle.isChecked()));
-
         updateLikeToggleButton(likeToggle,
                                R.string.accessibility_like_action,
                                R.plurals.accessibility_stats_likes,
                                Optional.of(item.likesCount()),
                                item.isLikedByUser(),
-                               R.string.accessibility_stats_user_liked);
+                               R.string.accessibility_stats_user_liked,
+                               changeLikeToSaveExperiment.isEnabled());
     }
 
     private void configureOverflow(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {
@@ -349,31 +352,43 @@ class PlaylistEngagementsRenderer {
         }
     }
 
-    private void updateLikeToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID,
-                                        Optional<Integer> count, boolean checked, int checkedStringId) {
-        if (button != null) {
-            if (count.isPresent()) {
-                likeButtonPresenter.setLikeCount(button, count.get(), R.drawable.ic_liked, R.drawable.ic_like);
+    private void updateLikeToggleButton(ToggleButton button, int actionStringID, int descriptionPluralID,
+                                        Optional<Integer> countOptional, boolean checked, int checkedStringId, boolean selected) {
+        countOptional.ifPresent(count -> {
+            final int drawableLiked = selected
+                                      ? R.drawable.ic_added_to_collection
+                                      : R.drawable.ic_liked;
+            final int drawableUnliked = selected
+                                        ? R.drawable.ic_add_to_collection
+                                        : R.drawable.ic_like;
+            likeButtonPresenter.setLikeCount(button, count, drawableLiked, drawableUnliked);
+        });
+        button.setSelected(selected);
+        button.setChecked(checked);
+        updateLikeToggleButtonContentDescription(button, actionStringID, descriptionPluralID, countOptional, checked, checkedStringId);
+    }
+
+    private void updateLikeToggleButtonContentDescription(ToggleButton button,
+                                                          int actionStringID,
+                                                          int descriptionPluralID,
+                                                          Optional<Integer> countOptional,
+                                                          boolean checked,
+                                                          int checkedStringId) {
+        if (AndroidUtils.accessibilityFeaturesAvailable(context) && Strings.isBlank(button.getContentDescription())) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append(resources.getString(actionStringID));
+
+            if (countOptional.isPresent() && countOptional.get() >= 0) {
+                builder.append(", ");
+                builder.append(resources.getQuantityString(descriptionPluralID, countOptional.get(), countOptional.get()));
             }
-            button.setChecked(checked);
 
-            if (AndroidUtils.accessibilityFeaturesAvailable(context)
-                    && Strings.isBlank(button.getContentDescription())) {
-                final StringBuilder builder = new StringBuilder();
-                builder.append(resources.getString(actionStringID));
-
-                if (count.isPresent() && count.get() >= 0) {
-                    builder.append(", ");
-                    builder.append(resources.getQuantityString(descriptionPluralID, count.get(), count.get()));
-                }
-
-                if (checked) {
-                    builder.append(", ");
-                    builder.append(resources.getString(checkedStringId));
-                }
-
-                button.setContentDescription(builder.toString());
+            if (checked) {
+                builder.append(", ");
+                builder.append(resources.getString(checkedStringId));
             }
+
+            button.setContentDescription(builder.toString());
         }
     }
 

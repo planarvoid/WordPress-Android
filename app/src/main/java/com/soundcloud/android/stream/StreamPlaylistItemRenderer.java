@@ -2,6 +2,7 @@ package com.soundcloud.android.stream;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
@@ -27,23 +28,26 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final StreamCardViewPresenter cardViewPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     public StreamPlaylistItemRenderer(PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                       StreamCardViewPresenter cardViewPresenter,
                                       CardEngagementsPresenter cardEngagementsPresenter,
-                                      Resources resources) {
+                                      Resources resources,
+                                      ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.cardEngagementsPresenter = cardEngagementsPresenter;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.cardViewPresenter = cardViewPresenter;
         this.resources = resources;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext())
                                                 .inflate(R.layout.stream_playlist_card, parent, false);
-        inflatedView.setTag(new StreamPlaylistViewHolder(inflatedView));
+        inflatedView.setTag(new StreamPlaylistViewHolder(inflatedView, changeLikeToSaveExperiment.isEnabled()));
         return inflatedView;
     }
 
@@ -89,8 +93,8 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistStreamItem> {
         private final TextView trackCount;
         private final TextView tracksView;
 
-        public StreamPlaylistViewHolder(View view) {
-            super(view);
+        public StreamPlaylistViewHolder(View view, boolean selected) {
+            super(view, selected);
             trackCount = ButterKnife.findById(view, R.id.track_count);
             tracksView = ButterKnife.findById(view, R.id.tracks_text);
         }

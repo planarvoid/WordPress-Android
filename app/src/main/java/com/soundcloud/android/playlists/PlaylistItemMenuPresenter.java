@@ -11,6 +11,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -29,6 +30,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.share.SharePresenter;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -59,6 +61,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final AccountOperations accountOperations;
     private final EntityItemCreator entityItemCreator;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final FeedbackController feedbackController;
 
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
@@ -85,7 +89,9 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
                                      AccountOperations accountOperations,
                                      EntityItemCreator entityItemCreator,
-                                     OfflineSettingsStorage offlineSettingsStorage) {
+                                     OfflineSettingsStorage offlineSettingsStorage,
+                                     ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                                     FeedbackController feedbackController) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.playlistOperations = playlistOperations;
@@ -102,6 +108,8 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.accountOperations = accountOperations;
         this.entityItemCreator = entityItemCreator;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.feedbackController = feedbackController;
     }
 
     public void show(View button, PlaylistItem playlist) {
@@ -211,7 +219,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         boolean addLike = !playlist.isUserLike();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike));
+                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController));
 
         eventTracker.trackEngagement(
                 UIEvent.fromToggleLike(addLike,
@@ -262,7 +270,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .doOnNext(ignored -> saveOffline())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike));
+                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController));
     }
 
     private void saveOffline() {

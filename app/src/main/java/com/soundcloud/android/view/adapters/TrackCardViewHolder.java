@@ -9,6 +9,7 @@ import butterknife.OnClick;
 import butterknife.Optional;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -42,15 +43,18 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
     private final ImageOperations imageOperations;
     private final Navigator navigator;
     private final Resources resources;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     TrackCardViewHolder(View view,
                         ImageOperations imageOperations,
                         Navigator navigator,
-                        Resources resources) {
+                        Resources resources,
+                        ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         super(view);
         this.imageOperations = imageOperations;
         this.navigator = navigator;
         this.resources = resources;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         ButterKnife.bind(this, view);
     }
 
@@ -58,6 +62,7 @@ class TrackCardViewHolder extends RecyclerView.ViewHolder implements CardViewHol
     public void showLikeStats(String likesCount, boolean isUserLike) {
         likeButton.setTextOn(likesCount);
         likeButton.setTextOff(likesCount);
+        likeButton.setSelected(changeLikeToSaveExperiment.isEnabled());
         likeButton.setChecked(isUserLike);
     }
 

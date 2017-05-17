@@ -31,15 +31,15 @@ public class ChangeLikeToSaveExperiment {
         this.experimentOperations = experimentOperations;
     }
 
-    public boolean isControlPlusTooltip() {
-        return VARIANT_CONTROL_PLUS_TOOLTIP.equals(getVariant());
+    public boolean isEnabled() {
+        return isSaveInCopy() || isSaveInCopyPlusTooltip();
     }
 
-    public boolean isSaveInCopy() {
+    private boolean isSaveInCopy() {
         return VARIANT_SAVE_IN_COPY.equals(getVariant());
     }
 
-    public boolean isSaveInCopyPlusTooltip() {
+    private boolean isSaveInCopyPlusTooltip() {
         return VARIANT_SAVE_IN_COPY_PLUS_TOOLTIP.equals(getVariant());
     }
 

@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -36,6 +37,7 @@ import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.android.testsupport.annotations.Issue;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -75,6 +77,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistItemMenuRendererFactory playlistMenuRenderFactory;
     @Mock private PlaylistItemMenuRenderer playlistMenuRenderer;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    @Mock private FeedbackController feedbackController;
 
     @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -111,7 +115,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   playlistMenuRenderFactory,
                                                   accountOperations,
                                                   ModelFixtures.entityItemCreator(),
-                                                  offlineSettingsStorage);
+                                                  offlineSettingsStorage,
+                                                  changeLikeToSaveExperiment,
+                                                  feedbackController);
         when(playlistMenuRenderFactory.create(presenter, button)).thenReturn(playlistMenuRenderer);
     }
 

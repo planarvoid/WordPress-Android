@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -18,6 +19,16 @@ import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
 class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
+
+    private final Listener listener;
+    private final AccountOperations accountOperations;
+    private final ScreenProvider screenProvider;
+    private final EventBus eventBus;
+    private final FeatureOperations featureOperations;
+    private final ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+
+    private PopupMenuWrapper menu;
+    private PlaylistItem playlist;
 
     interface Listener {
 
@@ -41,26 +52,20 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
 
     }
 
-    private final Listener listener;
-    private final AccountOperations accountOperations;
-    private final ScreenProvider screenProvider;
-    private final EventBus eventBus;
-    private final FeatureOperations featureOperations;
-    private PopupMenuWrapper menu;
-    private PlaylistItem playlist;
-
     PlaylistItemMenuRenderer(Listener listener,
                              View button,
                              @Provided PopupMenuWrapper.Factory popupMenuWrapperFactory,
                              @Provided AccountOperations accountOperations,
                              @Provided ScreenProvider screenProvider,
                              @Provided EventBus eventBus,
-                             @Provided FeatureOperations featureOperations) {
+                             @Provided FeatureOperations featureOperations,
+                             @Provided ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper) {
         this.listener = listener;
         this.accountOperations = accountOperations;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
+        this.changeLikeToSaveExperimentMenuHelper = changeLikeToSaveExperimentMenuHelper;
 
         this.menu = popupMenuWrapperFactory.build(button.getContext(), button);
         menu.inflate(R.menu.playlist_item_actions);
@@ -97,10 +102,8 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void updateLikeActionTitle(boolean isLiked) {
-        final MenuItem item = menu.findItem(R.id.add_to_likes);
-        item.setTitle(isLiked
-                      ? R.string.btn_unlike
-                      : R.string.btn_like);
+        menu.setItemText(R.id.add_to_likes, changeLikeToSaveExperimentMenuHelper.getTitleForLikeAction(isLiked));
+        menu.setItemVisible(R.id.add_to_likes, true);
     }
 
     private void updateRepostActionTitle(boolean isReposted) {

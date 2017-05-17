@@ -59,8 +59,6 @@
             android:id="@+id/toggle_like"
             style="@style/Cards.ToggleButton"
             android:drawableLeft="@drawable/ic_toggle_player_like_states"
-            android:textOff="@string/btn_like"
-            android:textOn="@string/btn_unlike"
             android:textAllCaps="false" />
     </LinearLayout>
 

@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
@@ -32,6 +33,8 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final Navigator navigator;
     private final Resources resources;
     private final ScreenProvider screenProvider;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+
     private int layoutResource = R.layout.default_track_card;
 
     @Inject
@@ -41,7 +44,8 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                       ImageOperations imageOperations,
                       Navigator navigator,
                       Resources resources,
-                      ScreenProvider screenProvider) {
+                      ScreenProvider screenProvider,
+                      ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.engagementsPresenter = engagementsPresenter;
@@ -49,12 +53,13 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         this.navigator = navigator;
         this.resources = resources;
         this.screenProvider = screenProvider;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false);
-        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigator, resources));
+        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigator, resources, changeLikeToSaveExperiment));
         return inflatedView;
     }
 

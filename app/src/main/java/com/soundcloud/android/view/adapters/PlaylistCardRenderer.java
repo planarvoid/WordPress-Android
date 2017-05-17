@@ -6,6 +6,7 @@ import butterknife.OnClick;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
@@ -42,6 +43,8 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
     private final ScreenProvider screenProvider;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+
     private int layoutResource = R.layout.default_playlist_card;
 
     @Inject
@@ -49,13 +52,15 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
                                 Navigator navigator, ImageOperations imageOperations,
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 CardEngagementsPresenter cardEngagementsPresenter,
-                                ScreenProvider screenProvider) {
+                                ScreenProvider screenProvider,
+                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.resources = resources;
         this.navigator = navigator;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.cardEngagementsPresenter = cardEngagementsPresenter;
         this.screenProvider = screenProvider;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
@@ -63,7 +68,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         final View inflatedView =
                 LayoutInflater.from(parent.getContext())
                               .inflate(layoutResource, parent, false);
-        inflatedView.setTag(new PlaylistViewHolder(inflatedView));
+        inflatedView.setTag(new PlaylistViewHolder(inflatedView, changeLikeToSaveExperiment));
         return inflatedView;
     }
 
@@ -131,7 +136,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     }
 
     @VisibleForTesting
-    public static class PlaylistViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
+    static class PlaylistViewHolder extends RecyclerView.ViewHolder implements CardViewHolder {
 
         @BindView(R.id.track_count) TextView trackCount;
         @BindView(R.id.tracks_text) TextView tracksView;
@@ -149,10 +154,13 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         @BindView(R.id.toggle_repost)
         ToggleButton repostButton;
 
+        private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+
         private CardEngagementClickListener clickListener;
 
-        public PlaylistViewHolder(View view) {
+        PlaylistViewHolder(View view, ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
             super(view);
+            this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
             ButterKnife.bind(this, view);
         }
 
@@ -160,6 +168,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         public void showLikeStats(String countString, boolean liked) {
             likeButton.setTextOn(countString);
             likeButton.setTextOff(countString);
+            likeButton.setSelected(changeLikeToSaveExperiment.isEnabled());
             likeButton.setChecked(liked);
         }
 

@@ -14,6 +14,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
@@ -36,12 +37,13 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     @Mock private AppWidgetManager appWidgetManager;
     @Mock private ImageOperations imageOperations;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private PlayerWidgetPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new PlayerWidgetPresenter(appWidgetManager, imageOperations);
+        presenter = new PlayerWidgetPresenter(appWidgetManager, imageOperations, changeLikeToSaveExperiment);
     }
 
     @Test

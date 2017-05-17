@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.associations.RepostOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -28,7 +29,9 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -60,6 +63,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
     private final EventTracker eventTracker;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+    private final FeedbackController feedbackController;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -74,13 +80,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private EventContextMetadata eventContextMetadata;
 
     public interface RemoveTrackListener {
-        RemoveTrackListener EMPTY = new RemoveTrackListener() {
-            @Override
-            public void onPlaylistTrackRemoved(Urn track) {
-
-            }
-        };
-
+        RemoveTrackListener EMPTY = ignored -> {};
         void onPlaylistTrackRemoved(Urn track);
     }
 
@@ -99,7 +99,10 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
                            PlaybackFeedbackHelper playbackFeedbackHelper,
-                           EventTracker eventTracker) {
+                           EventTracker eventTracker,
+                           ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                           ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper,
+                           FeedbackController feedbackController) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -115,6 +118,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.playbackInitiator = playbackInitiator;
         this.playbackFeedbackHelper = playbackFeedbackHelper;
         this.eventTracker = eventTracker;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.changeLikeToSaveExperimentMenuHelper = changeLikeToSaveExperimentMenuHelper;
+        this.feedbackController = feedbackController;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -200,7 +206,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         trackSubscription = trackItemRepository
                 .track(track.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new TrackSubscriber(menu));
+                .subscribe(new TrackSubscriber(menu, changeLikeToSaveExperimentMenuHelper));
     }
 
     @Override
@@ -302,7 +308,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final boolean addLike = !track.isUserLike();
         likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(context, addLike));
+                      .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController));
 
         trackLike(addLike);
     }
@@ -318,9 +324,11 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     private static class TrackSubscriber extends DefaultSubscriber<TrackItem> {
         private final PopupMenuWrapper menu;
+        private final ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
 
-        TrackSubscriber(PopupMenuWrapper menu) {
+        TrackSubscriber(PopupMenuWrapper menu, ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper) {
             this.menu = menu;
+            this.changeLikeToSaveExperimentMenuHelper = changeLikeToSaveExperimentMenuHelper;
         }
 
         @Override
@@ -330,13 +338,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         }
 
         private void updateLikeActionTitle(boolean isLiked) {
-            final MenuItem item = menu.findItem(R.id.add_to_likes);
-            if (isLiked) {
-                item.setTitle(R.string.btn_unlike);
-            } else {
-                item.setTitle(R.string.btn_like);
-            }
+            menu.setItemText(R.id.add_to_likes, changeLikeToSaveExperimentMenuHelper.getTitleForLikeAction(isLiked));
             menu.setItemEnabled(R.id.add_to_likes, true);
+            menu.setItemVisible(R.id.add_to_likes, true);
         }
 
         private void updateRepostActionTitle(boolean isReposted) {

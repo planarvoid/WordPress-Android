@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -31,6 +32,7 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
     @Mock PlaylistItemMenuPresenter playlistMenuPresenter;
     @Mock CardEngagementsPresenter cardEngagementsPresenter;
     @Mock ScreenProvider screenProvider;
+    @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private PlaylistCardRenderer renderer;
 
@@ -41,7 +43,8 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
                                             imageOperations,
                                             playlistMenuPresenter,
                                             cardEngagementsPresenter,
-                                            screenProvider);
+                                            screenProvider,
+                                            changeLikeToSaveExperiment);
     }
 
     @Test
