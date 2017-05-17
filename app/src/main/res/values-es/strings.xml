@@ -626,7 +626,7 @@
   <string name="collections_recently_played_playlist">lista</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
-  <string name="collections_upsell_title">Hazte con SoundCloud Go+</string>
+  <string name="collections_upsell_title">Hazte con SoundCloud Go</string>
   <string name="collections_upsell_body">Escucha las pistas que te han gustado, tus listas, y tus álbumes sin conexión y sin anuncios</string>
   <string name="collections_recently_played_clear_action">Borrar las pistas escuchadas recientemente</string>
   <string name="collections_recently_played_clear_dialog_title">¿Deseas borrar las pistas escuchadas recientemente?</string>
@@ -659,7 +659,7 @@
   <string name="more_subscription_check">¿Ya estás suscrito? Compruébalo</string>
   <string name="more_subscription_check_not_subscribed">No estás suscrito</string>
   <string name="more_subscription_check_error">No se pudo verificar tu suscripción</string>
-  <string name="more_upsell">Pásate a SoundCloud Go+</string>
+  <string name="more_upsell">Pásate a SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s una lista</string>
   <string name="stream_track_header_text">%1$s %2$s una pista</string>
@@ -682,12 +682,12 @@
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Suscribirse</string>
-  <string name="conversion_title">Descubre más con nuestros planes SoundCloud Go</string>
-  <string name="conversion_title_mt">Descubre todavía más con SoundCloud Go+</string>
+  <string name="conversion_title_ht">Descubre más con nuestros planes SoundCloud Go</string>
+  <string name="conversion_title_upgrade">Descubre todavía más con SoundCloud Go+</string>
   <string name="conversion_price">%s / mes</string>
   <string name="conversion_price_promo">%1$s por %2$s</string>
-  <string name="conversion_description">Hazte con la mayor colección de pistas en streaming del planeta, sin conexión, sin anuncios y sin vistas previas</string>
-  <string name="conversion_description_mt">Desbloquea todas las vistas previas y accede a más de 150 millones de pistas de artistas emergentes y grandes discográficas</string>
+  <string name="conversion_description_ht">Hazte con la mayor colección de pistas en streaming del planeta, sin conexión, sin anuncios y sin vistas previas</string>
+  <string name="conversion_description_upgrade">Desbloquea todas las vistas previas y accede a más de 150 millones de pistas de artistas emergentes y grandes discográficas</string>
   <string name="conversion_buy_loading">Cargando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Comienza tu periodo de prueba gratuito de %d días</string>
   <string name="conversion_buy_no_trial">Mejorar la cuenta</string>

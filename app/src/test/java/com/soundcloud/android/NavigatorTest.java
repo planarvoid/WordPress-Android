@@ -216,7 +216,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProductChoiceOnMain(activityContext, Plan.MID_TIER);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ProductChoiceActivity.class)
-                                   .containsExtra(Navigator.EXTRA_PRODUCT_CHOICE_PLAN, Plan.MID_TIER);
+                                   .containsExtra(ProductChoiceActivity.DEFAULT_PLAN, Plan.MID_TIER);
     }
 
     @Test

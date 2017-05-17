@@ -5,11 +5,11 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -39,6 +39,8 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private AvailableWebProducts products = AvailableWebProducts.empty();
     private AppCompatActivity activity;
 
+    private UpsellContext upsellContext =  UpsellContext.DEFAULT;
+
     @Inject
     ConversionPresenter(WebPaymentOperations operations,
                         ConversionView view,
@@ -53,16 +55,38 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     @Override
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
-        Log.d(ConversionPresenter.class.getSimpleName(), "Context for conversion screen: " + UpsellContext.from(activity.getIntent()));
+        upsellContext = UpsellContext.from(activity.getIntent());
         view.setupContentView(activity, this);
-        if (isMidTierUser()) {
-            view.setMidTierCopy();
-        }
+        configureCopy();
         if (bundle != null && bundle.getParcelable(LOADED_PRODUCTS) != null) {
             products = bundle.getParcelable(LOADED_PRODUCTS);
             displayProducts();
         } else {
             loadProducts();
+        }
+    }
+
+    private void configureCopy() {
+        if (isMidTierUser()) {
+            view.setText(R.string.tier_plus, R.string.conversion_title_upgrade, R.string.conversion_description_upgrade);
+        } else {
+            setCopyFromUpsellContext();
+        }
+    }
+
+    private void setCopyFromUpsellContext() {
+        switch (upsellContext) {
+            case ADS:
+                view.setText(R.string.tier_go, R.string.conversion_title_ads_focus, R.string.conversion_description_mt);
+                break;
+            case OFFLINE:
+                view.setText(R.string.tier_go, R.string.conversion_title_offline_focus, R.string.conversion_description_mt);
+                break;
+            case PREMIUM_CONTENT:
+                view.setText(R.string.tier_plus, R.string.conversion_title_ht, R.string.conversion_description_ht);
+                break;
+            default:
+                view.setText(R.string.tier_go, R.string.conversion_title_mt, R.string.conversion_description_mt);
         }
     }
 
@@ -78,18 +102,30 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void displayProducts() {
-        if (products.highTier().isPresent()) {
-            displayPrimaryProduct(products.highTier().get());
-            if (shouldShowPlanChoice()) {
-                view.enableMorePlans(products.midTier().get().getPrice());
-            }
+        if (canPurchaseMidTier() && upsellContext != UpsellContext.PREMIUM_CONTENT) {
+            enableMidTierPurchase();
+        } else if (products.highTier().isPresent()) {
+            enableHighTierPurchase();
         } else {
             view.showRetryState();
         }
     }
 
-    private boolean shouldShowPlanChoice() {
+    private void enableMidTierPurchase() {
+        displayPrimaryProduct(products.midTier().get());
+        view.enableMoreForHighTier();
+    }
+
+    private void enableHighTierPurchase() {
+        displayPrimaryProduct(products.highTier().get());
+        if (products.midTier().isPresent()) {
+            view.enableMoreForMidTier(products.midTier().get().getPrice());
+        }
+    }
+
+    private boolean canPurchaseMidTier() {
         return products.midTier().isPresent()
+                && products.highTier().isPresent()
                 && !isMidTierUser();
     }
 
@@ -136,6 +172,9 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     public void onMoreProducts() {
         final Intent intent = new Intent(activity, ProductChoiceActivity.class);
         intent.putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, products);
+        if (upsellContext != UpsellContext.PREMIUM_CONTENT) {
+            intent.putExtra(ProductChoiceActivity.DEFAULT_PLAN, Plan.HIGH_TIER);
+        }
         activity.startActivity(intent);
         activity.finish();
     }

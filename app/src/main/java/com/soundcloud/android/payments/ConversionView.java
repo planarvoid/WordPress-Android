@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.view.LoadingButton;
 
 import android.content.res.Resources;
+import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,6 +24,7 @@ class ConversionView {
 
     private FragmentManager fragmentManager;
 
+    @BindView(R.id.conversion_plan) TextView plan;
     @BindView(R.id.conversion_title) TextView title;
     @BindView(R.id.conversion_description) TextView description;
     @BindView(R.id.conversion_buy) LoadingButton buyButton;
@@ -47,9 +49,10 @@ class ConversionView {
         setupListener(listener);
     }
 
-    void setMidTierCopy() {
-        title.setText(R.string.conversion_title_mt);
-        description.setText(R.string.conversion_description_mt);
+    void setText(@StringRes int planName, @StringRes int titleCopy, @StringRes int descriptionCopy) {
+        plan.setText(planName);
+        title.setText(titleCopy);
+        description.setText(descriptionCopy);
     }
 
     private void setupListener(final Listener listener) {
@@ -130,8 +133,13 @@ class ConversionView {
         buyButton.setRetry();
     }
 
-    void enableMorePlans(String midTierPrice) {
+    void enableMoreForMidTier(String midTierPrice) {
         moreButton.setText(resources.getString(R.string.conversion_mt_plan, midTierPrice));
+        moreButton.setVisibility(View.VISIBLE);
+    }
+
+    void enableMoreForHighTier() {
+        moreButton.setText(R.string.conversion_ht_plan);
         moreButton.setVisibility(View.VISIBLE);
     }
 

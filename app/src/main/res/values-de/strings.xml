@@ -626,7 +626,7 @@
   <string name="collections_recently_played_playlist">Playlist</string>
   <string name="collections_recently_played_album">Album</string>
   <string name="collections_recently_played_profile">Profil</string>
-  <string name="collections_upsell_title">Hol dir SoundCloud Go+</string>
+  <string name="collections_upsell_title">Hol dir SoundCloud Go</string>
   <string name="collections_upsell_body">Hör dir deine Likes, Playlists und Alben offline und ohne Werbung an</string>
   <string name="collections_recently_played_clear_action">Kürzlich gespielte Inhalte löschen</string>
   <string name="collections_recently_played_clear_dialog_title">Kürzlich gespielte Inhalte löschen?</string>
@@ -659,7 +659,7 @@
   <string name="more_subscription_check">Vielleicht bist du schon Abonnent? Hier erfährst du’s.</string>
   <string name="more_subscription_check_not_subscribed">Du hast kein Abonnement</string>
   <string name="more_subscription_check_error">Dein Abonnement konnte nicht bestätigt werden</string>
-  <string name="more_upsell">Upgrade auf SoundCloud Go+</string>
+  <string name="more_upsell">Upgrade auf SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s hat eine Playlist %2$s</string>
   <string name="stream_track_header_text">%1$s hat einen Track %2$s</string>
@@ -682,12 +682,12 @@
   <string name="notification_username_started_following_you">folgt dir</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonnieren</string>
-  <string name="conversion_title">Mehr entdecken mit unseren SoundCloud Go-Abos</string>
-  <string name="conversion_title_mt">Noch mehr entdecken mit SoundCloud Go+</string>
+  <string name="conversion_title_ht">Mehr entdecken mit unseren SoundCloud Go-Abos</string>
+  <string name="conversion_title_upgrade">Noch mehr entdecken mit SoundCloud Go+</string>
   <string name="conversion_price">%s/Monat</string>
   <string name="conversion_price_promo">%1$s für %2$s</string>
-  <string name="conversion_description">Du erhältst Zugriff auf die Offline-Wiedergabe, werbefreie Tracks in voller Länge und die größte Track-Sammlung zum Streamen auf der ganzen Welt</string>
-  <string name="conversion_description_mt">Gib alle Vorschauen frei und erhalte Zugriff auf mehr als 150 Millionen Tracks von  aufsteigenden und bei den großen Labels etablierten Künstlern.</string>
+  <string name="conversion_description_ht">Du erhältst Zugriff auf die Offline-Wiedergabe, werbefreie Tracks in voller Länge und die größte Track-Sammlung zum Streamen auf der ganzen Welt</string>
+  <string name="conversion_description_upgrade">Gib alle Vorschauen frei und erhalte Zugriff auf mehr als 150 Millionen Tracks von  aufsteigenden und bei den großen Labels etablierten Künstlern.</string>
   <string name="conversion_buy_loading">Laden…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Jetzt %d Tage kostenlos testen</string>
   <string name="conversion_buy_no_trial">Upgrade jetzt durchführen</string>

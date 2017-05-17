@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.robolectric.shadows.ShadowDialog;
 import rx.Observable;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
@@ -55,8 +57,18 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void enablePurchaseOnProductLoad() {
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+    public void enableMidTierPurchaseOnProductLoad() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showDetails("$1", 30);
+    }
+
+    @Test
+    public void enableHighTierPurchaseOnProductLoad() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
 
@@ -100,17 +112,47 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(view, never()).setMidTierCopy();
+        verify(view).setText(R.string.tier_go, R.string.conversion_title_mt, R.string.conversion_description_mt);
     }
 
     @Test
-    public void useAlternativeCopyForMidTierUser() {
+    public void useUpgradeFocusedCopyForMidTierUser() {
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
 
         presenter.onCreate(activity, null);
 
-        verify(view).setMidTierCopy();
+        verify(view).setText(R.string.tier_plus, R.string.conversion_title_upgrade, R.string.conversion_description_upgrade);
+    }
+
+    @Test
+    public void useAdFocusedCopyForAdUpsellContext() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.ADS);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setText(R.string.tier_go, R.string.conversion_title_ads_focus, R.string.conversion_description_mt);
+    }
+
+    @Test
+    public void useOfflineFocusedCopyForOfflineUpsellContext() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.OFFLINE);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setText(R.string.tier_go, R.string.conversion_title_offline_focus, R.string.conversion_description_mt);
+    }
+
+    @Test
+    public void useHighTierFocusedCopyForPremiumContentUpsellContext() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.PREMIUM_CONTENT);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setText(R.string.tier_plus, R.string.conversion_title_ht, R.string.conversion_description_ht);
     }
 
     @Test
@@ -184,14 +226,39 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void moreProductsButtonEnabledWhenUserIsFreeTierAndMidTierIsAvailable() {
+    public void moreButtonEnabledForMidTierPlan() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.PREMIUM_CONTENT);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showDetails("$2", 30);
+        verify(view).enableMoreForMidTier("$1");
+    }
+
+    @Test
+    public void moreButtonNotEnabledForMidTierPlanWhenUnavailable() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        setUpsellContext(UpsellContext.PREMIUM_CONTENT);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showDetails("$2", 30);
+        verify(view, never()).enableMoreForMidTier(anyString());
+        verify(view, never()).enableMoreForHighTier();
+    }
+
+    @Test
+    public void moreButtonEnabledForHighTierPlan() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
 
         presenter.onCreate(activity, null);
 
-        verify(view).showDetails("$2", 30);
-        verify(view).enableMorePlans("$1");
+        verify(view).showDetails("$1", 30);
+        verify(view).enableMoreForHighTier();
     }
 
     @Test
@@ -214,6 +281,25 @@ public class ConversionPresenterTest extends AndroidUnitTest {
                 .nextStartedIntent()
                 .containsExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, DEFAULT)
                 .opensActivity(ProductChoiceActivity.class);
+    }
+
+    @Test
+    public void moreProductsCallbackOpensSelectionScreenOnHighTierPage() {
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        presenter.onCreate(activity, null);
+        presenter.onMoreProducts();
+
+        Assertions.assertThat(activity)
+                  .nextStartedIntent()
+                  .containsExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS)
+                  .containsExtra(ProductChoiceActivity.DEFAULT_PLAN, Plan.HIGH_TIER)
+                  .opensActivity(ProductChoiceActivity.class);
+    }
+
+    private void setUpsellContext(UpsellContext upsellContext) {
+        Intent intent = new Intent();
+        upsellContext.addTo(intent);
+        activity.setIntent(intent);
     }
 
     private void assertDialogMessage(String message) {

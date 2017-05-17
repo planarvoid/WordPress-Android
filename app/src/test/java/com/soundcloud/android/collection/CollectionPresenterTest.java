@@ -248,7 +248,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void shouldAddUpsellWhenEnabledAndOnboardingDisabled() {
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
-        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+        when(featureOperations.upsellBothTiers()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 
@@ -281,7 +281,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void shouldEmitImpressionEventWhenUpsellAdded() {
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
-        when(featureOperations.upsellOfflineContent()).thenReturn(true);
+        when(featureOperations.upsellBothTiers()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 

@@ -628,7 +628,7 @@ vão aparecer aqui.</string>
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
-  <string name="collections_upsell_title">Obter SoundCloud Go+</string>
+  <string name="collections_upsell_title">Obter SoundCloud Go</string>
   <string name="collections_upsell_body">Ouça suas curtidas, playlists e álbuns offline e sem anúncios</string>
   <string name="collections_recently_played_clear_action">Limpar músicas reproduzidas recentemente</string>
   <string name="collections_recently_played_clear_dialog_title">Limpar músicas reproduzidas recentemente?</string>
@@ -661,7 +661,7 @@ vão aparecer aqui.</string>
   <string name="more_subscription_check">Já está inscrito? Verifique agora</string>
   <string name="more_subscription_check_not_subscribed">Você não está inscrito</string>
   <string name="more_subscription_check_error">Não foi possível verificar sua assinatura</string>
-  <string name="more_upsell">Atualizar para o SoundCloud Go+</string>
+  <string name="more_upsell">Atualizar para o SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s uma playlist</string>
   <string name="stream_track_header_text">%1$s %2$s uma faixa</string>
@@ -684,12 +684,12 @@ vão aparecer aqui.</string>
   <string name="notification_username_started_following_you">começou a seguir você</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Inscrever</string>
-  <string name="conversion_title">Descubra mais com os planos do SoundCloud Go</string>
-  <string name="conversion_title_mt">Descubra ainda mais com o SoundCloud Go+</string>
+  <string name="conversion_title_ht">Descubra mais com os planos do SoundCloud Go</string>
+  <string name="conversion_title_upgrade">Descubra ainda mais com o SoundCloud Go+</string>
   <string name="conversion_price">%s / mês</string>
   <string name="conversion_price_promo">%1$s para %2$s</string>
-  <string name="conversion_description">Tenha opções de músicas offline, sem anúncios ou visualizações, e a maior coleção de faixas de streaming em qualquer lugar do planeta</string>
-  <string name="conversion_description_mt">Desbloqueie todas as visualizações e obtenha acesso a mais de 150 milhões de faixas de artistas que estão surgindo e de grandes selos</string>
+  <string name="conversion_description_ht">Tenha opções de músicas offline, sem anúncios ou visualizações, e a maior coleção de faixas de streaming em qualquer lugar do planeta</string>
+  <string name="conversion_description_upgrade">Desbloqueie todas as visualizações e obtenha acesso a mais de 150 milhões de faixas de artistas que estão surgindo e de grandes selos</string>
   <string name="conversion_buy_loading">Carregando…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Comece sua avaliação grátis de %d dias</string>
   <string name="conversion_buy_no_trial">Faz o upgrade agora</string>

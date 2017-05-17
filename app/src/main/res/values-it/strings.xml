@@ -626,7 +626,7 @@
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profilo</string>
-  <string name="collections_upsell_title">Passa a SoundCloud Go+</string>
+  <string name="collections_upsell_title">Passa a SoundCloud Go</string>
   <string name="collections_upsell_body">Ascolta i tuoi preferiti, playlist e album offline e senza pubblicità</string>
   <string name="collections_recently_played_clear_action">Cancella gli ascolti recenti</string>
   <string name="collections_recently_played_clear_dialog_title">Cancellare gli ascolti recenti?</string>
@@ -659,7 +659,7 @@
   <string name="more_subscription_check">Già iscritto? Controllalo subito</string>
   <string name="more_subscription_check_not_subscribed">Non sei iscritto</string>
   <string name="more_subscription_check_error">Impossibile verificare l\'abbonamento</string>
-  <string name="more_upsell">Passa a SoundCloud Go+</string>
+  <string name="more_upsell">Passa a SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s una playlist</string>
   <string name="stream_track_header_text">%1$s %2$s una traccia </string>
@@ -682,12 +682,12 @@
   <string name="notification_username_started_following_you">ha iniziato a seguirti</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abbonati</string>
-  <string name="conversion_title">Scopri di più con i nostri piani SoundCloud Go</string>
-  <string name="conversion_title_mt">Scopri di più con SoundCloud Go+</string>
+  <string name="conversion_title_ht">Scopri di più con i nostri piani SoundCloud Go</string>
+  <string name="conversion_title_upgrade">Scopri di più con SoundCloud Go+</string>
   <string name="conversion_price">%s al mese</string>
   <string name="conversion_price_promo">%1$s per %2$s</string>
-  <string name="conversion_description">Ascolto offline, nessuna pubblicità né anteprima e accesso alla più vasta libreria di tracce in streaming al mondo </string>
-  <string name="conversion_description_mt">Sblocca tutte le anteprime e accedi a oltre 150 milioni di tracce di artisti famosi ed emergenti </string>
+  <string name="conversion_description_ht">Ascolto offline, nessuna pubblicità né anteprima e accesso alla più vasta libreria di tracce in streaming al mondo </string>
+  <string name="conversion_description_upgrade">Sblocca tutte le anteprime e accedi a oltre 150 milioni di tracce di artisti famosi ed emergenti </string>
   <string name="conversion_buy_loading">Caricamento…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Inizia la prova gratuita di %d giorni</string>
   <string name="conversion_buy_no_trial">Aggiorna subito</string>

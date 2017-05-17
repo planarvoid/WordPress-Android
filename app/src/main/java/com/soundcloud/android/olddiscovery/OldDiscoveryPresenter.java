@@ -96,7 +96,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(context, UpsellContext.DEFAULT);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryClick());
     }
 

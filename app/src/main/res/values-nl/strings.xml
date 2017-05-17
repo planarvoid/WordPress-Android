@@ -626,7 +626,7 @@
   <string name="collections_recently_played_playlist">afspeellijst</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profiel</string>
-  <string name="collections_upsell_title">Abonneer je op SoundCloud Go+</string>
+  <string name="collections_upsell_title">Abonneer je op SoundCloud Go</string>
   <string name="collections_upsell_body">Luister naar je likes, afspeellijsten en albums, offline en reclamevrij</string>
   <string name="collections_recently_played_clear_action">Lijst met recent afgespeelde tracks wissen</string>
   <string name="collections_recently_played_clear_dialog_title">Lijst met recent afgespeelde tracks wissen?</string>
@@ -659,7 +659,7 @@
   <string name="more_subscription_check">Ben je al abonnee? Ga nu kijken</string>
   <string name="more_subscription_check_not_subscribed">Je bent niet geabonneerd</string>
   <string name="more_subscription_check_error">Je abonnement kon niet worden geverifieerd</string>
-  <string name="more_upsell">Upgraden naar SoundCloud Go+</string>
+  <string name="more_upsell">Upgraden naar SoundCloud Go</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s een afspeellijst</string>
   <string name="stream_track_header_text">%1$s %2$s een track</string>
@@ -682,12 +682,12 @@
   <string name="notification_username_started_following_you">is begonnen je te volgen</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Abonneren</string>
-  <string name="conversion_title">Ontdek meer met onze SoundCloud Go-abonnementen</string>
-  <string name="conversion_title_mt">Ontdek nog meer met SoundCloud Go+</string>
+  <string name="conversion_title_ht">Ontdek meer met onze SoundCloud Go-abonnementen</string>
+  <string name="conversion_title_upgrade">Ontdek nog meer met SoundCloud Go+</string>
   <string name="conversion_price">%s per maand</string>
   <string name="conversion_price_promo">%1$s voor %2$s</string>
-  <string name="conversion_description">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie streamingtracks ter wereld</string>
-  <string name="conversion_description_mt">Ontgrendel alle previews en krijg toegang tot meer dan 150 miljoen tracks van zowel aanstormende artiesten als grote namen</string>
+  <string name="conversion_description_ht">Profiteer van offline luisteren, geen reclames of previews en de grootste collectie streamingtracks ter wereld</string>
+  <string name="conversion_description_upgrade">Ontgrendel alle previews en krijg toegang tot meer dan 150 miljoen tracks van zowel aanstormende artiesten als grote namen</string>
   <string name="conversion_buy_loading">Laden…</string>
   <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Start je gratis proefabonnement van %d dagen</string>
   <string name="conversion_buy_no_trial">Upgrade nu</string>

@@ -11,6 +11,7 @@ import javax.inject.Inject;
 public class ProductChoiceActivity extends LoggedInActivity {
 
     static final String AVAILABLE_PRODUCTS = "available_products";
+    public static final String DEFAULT_PLAN = "product_choice_plan";
 
     @Inject @LightCycle ProductChoicePresenter presenter;
 

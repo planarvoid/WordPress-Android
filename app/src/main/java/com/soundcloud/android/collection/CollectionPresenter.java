@@ -76,7 +76,9 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
                     if (collectionOptionsStorage.isOnboardingEnabled()) {
                         return collectionWithOnboarding(collectionItems);
-                    } else if (featureOperations.upsellOfflineContent() && collectionOptionsStorage.isUpsellEnabled()) {
+                    } else if (!featureOperations.isOfflineContentEnabled()
+                            && featureOperations.upsellBothTiers()
+                            && collectionOptionsStorage.isUpsellEnabled()) {
                         return collectionWithUpsell(collectionItems);
                     } else {
                         return collectionItems;

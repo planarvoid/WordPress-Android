@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
@@ -68,7 +67,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
     @Test
     public void scrollsToHighTierPlan() {
         activity.setIntent(new Intent().putExtra(ProductChoiceActivity.AVAILABLE_PRODUCTS, BOTH_PLANS)
-                                       .putExtra(Navigator.EXTRA_PRODUCT_CHOICE_PLAN, Plan.HIGH_TIER));
+                                       .putExtra(ProductChoiceActivity.DEFAULT_PLAN, Plan.HIGH_TIER));
         activity.setContentView(R.layout.product_choice_activity);
 
         presenter.onCreate(activity, null);

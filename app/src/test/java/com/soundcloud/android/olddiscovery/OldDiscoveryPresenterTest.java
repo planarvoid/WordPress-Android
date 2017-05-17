@@ -196,7 +196,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
     public void handlesUpsellItemClicked() {
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
+        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
     }
 

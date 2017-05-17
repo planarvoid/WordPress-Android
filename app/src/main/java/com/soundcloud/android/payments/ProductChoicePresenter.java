@@ -1,7 +1,5 @@
 package com.soundcloud.android.payments;
 
-import static com.soundcloud.android.Navigator.EXTRA_PRODUCT_CHOICE_PLAN;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
@@ -71,10 +69,9 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private Plan getInitialPlan() {
-        if (activity.getIntent().hasExtra(EXTRA_PRODUCT_CHOICE_PLAN)) {
-            return (Plan) activity.getIntent().getSerializableExtra(EXTRA_PRODUCT_CHOICE_PLAN);
+        if (activity.getIntent().hasExtra(ProductChoiceActivity.DEFAULT_PLAN)) {
+            return (Plan) activity.getIntent().getSerializableExtra(ProductChoiceActivity.DEFAULT_PLAN);
         }
-
         return Plan.MID_TIER;
     }
 

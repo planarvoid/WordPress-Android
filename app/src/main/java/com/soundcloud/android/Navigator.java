@@ -97,7 +97,6 @@ public class Navigator {
             | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
-    public static final String EXTRA_PRODUCT_CHOICE_PLAN = "product_choice_plan";
     public static final String EXTRA_CHECKOUT_PLAN = "checkout_plan";
 
     protected final EventTracker eventTracker;
@@ -607,7 +606,8 @@ public class Navigator {
     }
 
     private Intent createProductChoiceIntent(Context context, Plan plan) {
-        return new Intent(context, ProductChoiceActivity.class).putExtra(EXTRA_PRODUCT_CHOICE_PLAN, plan);
+        return new Intent(context, ProductChoiceActivity.class)
+                .putExtra(ProductChoiceActivity.DEFAULT_PLAN, plan);
     }
 
     private Intent createResolveIntent(Context context, Uri uri) {
