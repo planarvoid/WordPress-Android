@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
@@ -15,7 +16,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.java.checks.Preconditions;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -35,20 +35,23 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final ImageOperations imageOperations;
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
-    public CollectionPreviewRenderer(Navigator navigator,
-                                     Resources resources,
-                                     FeatureOperations featureOperations,
-                                     ImageOperations imageOperations,
-                                     PerformanceMetricsEngine performanceMetricsEngine,
-                                     FeatureFlags featureFlags) {
+    CollectionPreviewRenderer(Navigator navigator,
+                              Resources resources,
+                              FeatureOperations featureOperations,
+                              ImageOperations imageOperations,
+                              PerformanceMetricsEngine performanceMetricsEngine,
+                              FeatureFlags featureFlags,
+                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.navigator = navigator;
         this.resources = resources;
         this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
         this.featureFlags = featureFlags;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
@@ -71,16 +74,80 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         navigator.openPlaylistsAndAlbumsCollection(activity);
     }
 
-    private void setupStationsView(CollectionPreviewView stationsView) {
-        stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
-        stationsView.setVisibility(View.VISIBLE);
-        stationsView.setOnClickListener(this::onGoToStationsClick);
-    }
-
     @VisibleForTesting
     void onGoToStationsClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
         navigator.openLikedStations(v.getContext());
+    }
+
+    private CollectionPreviewView getLikesPreviewView(View view) {
+        return (CollectionPreviewView) view.findViewById(R.id.collection_likes_preview);
+    }
+
+    @Override
+    public void bindItemView(int position, View view, List<CollectionItem> list) {
+        checkArgument(view.getContext() instanceof Activity);
+        Activity activity = (Activity) view.getContext();
+        PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
+        bindLikesView(item.getLikes(), view);
+
+        item.getPlaylistsAndAlbums().ifPresent(playlistsAndAlbums -> {
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick(activity));
+            if (changeLikeToSaveExperiment.isEnabled()) {
+                playlistsPreviewView.removeIcon();
+            }
+            setThumbnails(playlistsAndAlbums, playlistsPreviewView);
+        });
+
+        item.getPlaylists().ifPresent(playlists -> {
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigator.openPlaylistsCollection(activity));
+            if (changeLikeToSaveExperiment.isEnabled()) {
+                playlistsPreviewView.removeIcon();
+            }
+            setThumbnails(playlists, playlistsPreviewView);
+        });
+
+        item.getAlbums().ifPresent(albums -> {
+            CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigator.openAlbumsCollection(activity));
+            if (changeLikeToSaveExperiment.isEnabled()) {
+                albumsPreviewView.removeIcon();
+            }
+            setThumbnails(albums, albumsPreviewView);
+        });
+
+        item.getStations().ifPresent(stationRecords -> {
+            CollectionPreviewView stationsView = setupStationsView(view);
+            if (changeLikeToSaveExperiment.isEnabled()) {
+                stationsView.removeIcon();
+            }
+            setThumbnails(stationRecords, stationsView);
+        });
+    }
+
+    private void bindLikesView(LikesItem likes, View view) {
+        final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
+        if (changeLikeToSaveExperiment.isEnabled()) {
+            likesPreviewView.setTitle(resources.getString(R.string.collections_tracks_header));
+            likesPreviewView.removeIcon();
+        }
+        setThumbnails(likes.trackPreviews(), likesPreviewView);
+        setLikesDownloadProgressIndicator(likes, view);
+    }
+
+    private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
+        previewView.refreshThumbnails(imageOperations, imageResources,
+                                      resources.getInteger(R.integer.collection_preview_thumbnail_count));
+    }
+
+    private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
+        final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
+            downloadProgressIcon.setVisibility(View.GONE);
+        } else {
+            downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
+                                          ? likes.offlineState()
+                                          : OfflineState.NOT_OFFLINE, false);
+        }
     }
 
     private CollectionPreviewView setupPlaylistsView(View parent, @StringRes int titleRes, View.OnClickListener onClickListener) {
@@ -102,61 +169,11 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         return albumsView;
     }
 
-    private CollectionPreviewView getStationsPreviewView(View view) {
-        return (CollectionPreviewView) view.findViewById(R.id.collection_stations_preview);
-    }
-
-    private CollectionPreviewView getLikesPreviewView(View view) {
-        return (CollectionPreviewView) view.findViewById(R.id.collection_likes_preview);
-    }
-
-    @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
-        checkArgument(view.getContext() instanceof Activity);
-        Activity activity = (Activity) view.getContext();
-        PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
-        bindLikesView(item.getLikes(), view);
-
-        item.getStations().ifPresent(stationRecords -> {
-            setThumbnails(stationRecords, getStationsPreviewView(view));
-            setupStationsView(getStationsPreviewView(view));
-        });
-
-        item.getPlaylistsAndAlbums().ifPresent(playlistsAndAlbums -> {
-            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick(activity));
-            setThumbnails(playlistsAndAlbums, playlistsPreviewView);
-        });
-
-        item.getPlaylists().ifPresent(playlists -> {
-            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigator.openPlaylistsCollection(activity));
-            setThumbnails(playlists, playlistsPreviewView);
-        });
-
-        item.getAlbums().ifPresent(albums -> {
-            CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigator.openAlbumsCollection(activity));
-            setThumbnails(albums, albumsPreviewView);
-        });
-    }
-
-    private void bindLikesView(LikesItem likes, View view) {
-        final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
-        setThumbnails(likes.trackPreviews(), likesPreviewView);
-        setLikesDownloadProgressIndicator(likes, view);
-    }
-
-    private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
-        previewView.refreshThumbnails(imageOperations, imageResources,
-                                      resources.getInteger(R.integer.collection_preview_thumbnail_count));
-    }
-
-    private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
-        final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            downloadProgressIcon.setVisibility(View.GONE);
-        } else {
-            downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
-                                          ? likes.offlineState()
-                                          : OfflineState.NOT_OFFLINE, false);
-        }
+    private CollectionPreviewView setupStationsView(View parent) {
+        final CollectionPreviewView stationsView = (CollectionPreviewView) parent.findViewById(R.id.collection_stations_preview);
+        stationsView.setTitle(resources.getString(R.string.stations_collection_title_liked_stations));
+        stationsView.setVisibility(View.VISIBLE);
+        stationsView.setOnClickListener(this::onGoToStationsClick);
+        return stationsView;
     }
 }

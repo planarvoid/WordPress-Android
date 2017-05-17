@@ -2,6 +2,9 @@ package com.soundcloud.android.configuration.experiments;
 
 import static com.soundcloud.android.configuration.experiments.ExperimentOperations.LISTENING_LAYER;
 
+import com.soundcloud.android.collection.CollectionNavigationTarget;
+import com.soundcloud.android.collection.SaveCollectionNavigationTarget;
+import com.soundcloud.android.main.BaseNavigationTarget;
 import com.soundcloud.groupie.ActiveExperiment;
 import com.soundcloud.groupie.ExperimentConfiguration;
 
@@ -29,6 +32,12 @@ public class ChangeLikeToSaveExperiment {
     @Inject
     ChangeLikeToSaveExperiment(ExperimentOperations experimentOperations) {
         this.experimentOperations = experimentOperations;
+    }
+
+    public BaseNavigationTarget navigationTarget() {
+        return isSaveInCopy() || isSaveInCopyPlusTooltip()
+               ? new SaveCollectionNavigationTarget()
+               : new CollectionNavigationTarget();
     }
 
     public boolean isEnabled() {

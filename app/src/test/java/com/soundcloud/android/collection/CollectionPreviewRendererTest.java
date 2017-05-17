@@ -6,6 +6,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -27,12 +28,19 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
     @Mock private View view;
     @Mock private Activity activity;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private CollectionPreviewRenderer collectionPreviewRenderer;
 
     @Before
     public void setUp() throws Exception {
-        collectionPreviewRenderer = new CollectionPreviewRenderer(navigator, resources, featureOperations, imageOperations, performanceMetricsEngine, featureFlags);
+        collectionPreviewRenderer = new CollectionPreviewRenderer(navigator,
+                                                                  resources,
+                                                                  featureOperations,
+                                                                  imageOperations,
+                                                                  performanceMetricsEngine,
+                                                                  featureFlags,
+                                                                  changeLikeToSaveExperiment);
     }
 
     @Test

@@ -58,6 +58,12 @@ public class CollectionPreviewView extends FrameLayout {
         }
     }
 
+    public void removeIcon() {
+        if (titleEnabled) {
+            title.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        }
+    }
+
     @VisibleForTesting
     public CollectionPreviewView(Context context,
                                  @Nullable Drawable previewIconOverlay) {

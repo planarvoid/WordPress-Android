@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.collection.CollectionNavigationTarget;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
@@ -11,14 +11,17 @@ import javax.inject.Inject;
 
 public class NavigationModelFactory {
 
-
-    private DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
-    private DiscoveryConfiguration discoveryConfiguration;
+    private final DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
+    private final DiscoveryConfiguration discoveryConfiguration;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
-    public NavigationModelFactory(DefaultHomeScreenConfiguration defaultHomeScreenConfiguration, DiscoveryConfiguration discoveryConfiguration) {
+    NavigationModelFactory(DefaultHomeScreenConfiguration defaultHomeScreenConfiguration,
+                           DiscoveryConfiguration discoveryConfiguration,
+                           ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.defaultHomeScreenConfiguration = defaultHomeScreenConfiguration;
         this.discoveryConfiguration = discoveryConfiguration;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     public NavigationModel build() {
@@ -26,14 +29,14 @@ public class NavigationModelFactory {
             return new NavigationModel(
                     discoveryConfiguration.navigationTarget(),
                     new StreamNavigationTarget(false),
-                    new CollectionNavigationTarget(),
+                    changeLikeToSaveExperiment.navigationTarget(),
                     new MoreNavigationTarget());
         }
 
         return new NavigationModel(
                 new StreamNavigationTarget(true),
                 new OldDiscoveryNavigationTarget(),
-                new CollectionNavigationTarget(),
+                changeLikeToSaveExperiment.navigationTarget(),
                 new MoreNavigationTarget());
 
     }

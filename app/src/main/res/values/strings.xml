@@ -663,6 +663,7 @@
     </plurals>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
+    <string name="collections_tracks_header">Tracks</string>
     <string name="collections_options_header_filters">Filters</string>
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_created">Created</string>

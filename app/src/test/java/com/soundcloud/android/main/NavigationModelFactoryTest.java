@@ -3,6 +3,7 @@ package com.soundcloud.android.main;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.discovery.DiscoveryNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
@@ -18,12 +19,13 @@ public class NavigationModelFactoryTest {
 
     @Mock DefaultHomeScreenConfiguration defaultHomeScreenConfiguration;
     @Mock DiscoveryConfiguration discoveryConfiguration;
+    @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private NavigationModelFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        factory = new NavigationModelFactory(defaultHomeScreenConfiguration, discoveryConfiguration);
+        factory = new NavigationModelFactory(defaultHomeScreenConfiguration, discoveryConfiguration, changeLikeToSaveExperiment);
     }
 
     @Test
