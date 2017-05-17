@@ -5,17 +5,15 @@ import static butterknife.ButterKnife.findById;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
 
-import android.content.res.Resources;
 import android.support.annotation.IdRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -24,13 +22,11 @@ import java.util.List;
 class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private final ImageOperations imageOperations;
-    private final Resources resources;
     private final Navigator navigator;
 
     @Inject
-    SelectionItemRenderer(ImageOperations imageOperations, Resources resources, Navigator navigator) {
+    SelectionItemRenderer(ImageOperations imageOperations, Navigator navigator) {
         this.imageOperations = imageOperations;
-        this.resources = resources;
         this.navigator = navigator;
     }
 
@@ -66,8 +62,8 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
     }
 
     private void bindImage(View view, SelectionItem selectionItem) {
-        final ImageView artwork = findById(view, R.id.artwork);
-        imageOperations.displayWithPlaceholder(String.valueOf(selectionItem.hashCode()), selectionItem.artworkUrlTemplate(), ApiImageSize.getFullImageSize(resources), artwork);
+        final StyledImageView styledImageView = findById(view, R.id.artwork);
+        styledImageView.showWithPlaceholder(selectionItem.artworkUrlTemplate(), selectionItem.artworkStyle(), String.valueOf(selectionItem.hashCode()), imageOperations);
     }
 
     private void bindTitle(View view, Optional<String> title) {

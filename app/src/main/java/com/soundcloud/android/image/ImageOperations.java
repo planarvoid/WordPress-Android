@@ -264,7 +264,15 @@ public class ImageOperations {
                                              ApiImageSize apiImageSize,
                                              ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
-        displayCircularInAdapterView(imageResource.getUrn(), apiImageSize, imageView, imageUrl, notFoundListener);
+        displayCircularInAdapterView(imageResource.getUrn().toString(), apiImageSize, imageView, imageUrl, notFoundListener);
+    }
+
+    public void displayCircularInAdapterView(String cacheKey,
+                                             Optional<String> imageUrlTemplate,
+                                             ApiImageSize apiImageSize,
+                                             ImageView imageView) {
+        final String imageUrl = buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize);
+        displayCircularInAdapterView(cacheKey, apiImageSize, imageView, imageUrl, notFoundListener);
     }
 
     public Observable<Palette> displayCircularInAdapterViewAndGeneratePalette(final ImageResource imageResource,
@@ -274,7 +282,7 @@ public class ImageOperations {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
                 final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
-                displayCircularInAdapterView(imageResource.getUrn(),
+                displayCircularInAdapterView(imageResource.getUrn().toString(),
                                              apiImageSize,
                                              imageView,
                                              imageUrl,
@@ -290,16 +298,16 @@ public class ImageOperations {
     @Deprecated // use the ImageResource variant instead
     public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
-        displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl, notFoundListener);
+        displayCircularInAdapterView(urn.toString(), apiImageSize, imageView, imageUrl, notFoundListener);
     }
 
-    private void displayCircularInAdapterView(Urn urn,
+    private void displayCircularInAdapterView(String cacheKey,
                                               ApiImageSize apiImageSize,
                                               ImageView imageView,
                                               String imageUrl,
                                               ImageLoadingListener listener) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
-        final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(urn,
+        final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(cacheKey,
                                                                                       imageAware.getWidth(),
                                                                                       imageAware.getHeight());
         imageLoader.displayImage(
@@ -361,7 +369,6 @@ public class ImageOperations {
                                        buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
-    @Deprecated
     private void displayCircularWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final DisplayImageOptions options = ImageOptionsFactory.placeholderCircular(
@@ -384,11 +391,11 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayCircularWithPlaceholder(String cacheKey, Optional<String> imageUrl,
+    public void displayCircularWithPlaceholder(String cacheKey, Optional<String> imageUrlTemplate,
                                                ApiImageSize apiImageSize,
                                                ImageView imageView) {
         displayCircularWithPlaceholder(cacheKey, imageView,
-                                       buildUrlIfNotPreviouslyMissing(imageUrl, apiImageSize));
+                                       buildUrlIfNotPreviouslyMissing(imageUrlTemplate, apiImageSize));
     }
 
     public void displayInPlayer(ImageResource imageResource,

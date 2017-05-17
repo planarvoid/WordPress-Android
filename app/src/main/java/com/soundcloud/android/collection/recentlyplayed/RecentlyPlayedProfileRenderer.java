@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
+import static butterknife.ButterKnife.findById;
+
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -10,21 +12,21 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.users.UserMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -34,7 +36,6 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final Resources resources;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
@@ -42,14 +43,12 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
 
     RecentlyPlayedProfileRenderer(boolean fixedWidth,
                                   @Provided ImageOperations imageOperations,
-                                  @Provided Resources resources,
                                   @Provided Navigator navigator,
                                   @Provided ScreenProvider screenProvider,
                                   @Provided EventBus eventBus,
                                   @Provided UserMenuPresenter userMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.resources = resources;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
@@ -90,12 +89,8 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     }
 
     private void setImage(View view, ImageResource imageResource) {
-        final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
-        imageOperations.displayCircularInAdapterView(imageResource, getImageSize(), artwork);
-    }
-
-    private ApiImageSize getImageSize() {
-        return ApiImageSize.getFullImageSize(resources);
+        final StyledImageView styledImageView = findById(view, R.id.artwork);
+        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.CIRCULAR), imageResource.getUrn().toString(), imageOperations);
     }
 
     private View.OnClickListener goToUserProfile(final RecentlyPlayedPlayableItem user) {

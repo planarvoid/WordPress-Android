@@ -14,34 +14,18 @@
         android:clipToPadding="false"
         tools:ignore="UselessParent">
 
-        <FrameLayout
-            android:id="@+id/artwork_container"
+        <com.soundcloud.android.image.StyledImageView
+            android:id="@+id/artwork"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            tools:layout_height="150dp">
-
-            <ImageView
-                android:id="@+id/artwork"
-                style="@style/Stations.ItemArtwork"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                tools:background="@color/ad_default_background" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_station_indicator" />
-        </FrameLayout>
+            android:layout_height="wrap_content"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Carousel.ItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/artwork_container"
+            android:layout_below="@id/artwork"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="4dp" />
 
         <com.soundcloud.android.view.CustomFontTextView

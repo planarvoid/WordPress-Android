@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
@@ -69,6 +70,7 @@ public class DiscoveryWritableStorage {
         insertRow.bind(selectionItem.urn().orNull(),
                        cardId,
                        selectionItem.artworkUrlTemplate().orNull(),
+                       selectionItem.artworkStyle().transform(ImageStyle::toIdentifier).orNull(),
                        selectionItem.count().transform(Long::valueOf).orNull(),
                        selectionItem.shortTitle().orNull(),
                        selectionItem.shortSubtitle().orNull(),

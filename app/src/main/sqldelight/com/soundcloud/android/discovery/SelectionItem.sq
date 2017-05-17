@@ -5,6 +5,7 @@ CREATE TABLE selection_item (
     card_id INTEGER NOT NULL,
     urn TEXT AS Urn,
     artwork_url_template TEXT,
+    artwork_style TEXT,
     count INTEGER,
     short_title TEXT,
     short_subtitle TEXT,
@@ -25,5 +26,5 @@ deleteAll:
 DELETE FROM selection_item;
 
 insertRow:
-INSERT INTO selection_item(urn, card_id, artwork_url_template, count, short_title, short_subtitle, web_link, app_link)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO selection_item(urn, card_id, artwork_url_template, artwork_style, count, short_title, short_subtitle, web_link, app_link)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);

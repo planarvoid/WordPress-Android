@@ -32,6 +32,7 @@ final class DiscoveryCardMapper {
     private static SelectionItem map(ApiSelectionItem apiSelectionItem) {
         return SelectionItem.create(apiSelectionItem.urn(),
                                     apiSelectionItem.artworkUrlTemplate(),
+                                    apiSelectionItem.artworkStyle(),
                                     apiSelectionItem.count(),
                                     apiSelectionItem.shortTitle(),
                                     apiSelectionItem.shortSubtitle(),

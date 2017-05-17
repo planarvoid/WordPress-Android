@@ -4,18 +4,18 @@ import static butterknife.ButterKnife.findById;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -24,13 +24,11 @@ import java.util.List;
 public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     protected final ImageOperations imageOperations;
-    protected final Resources resources;
     private PlaylistListener playlistListener;
 
     @Inject
-    CarouselPlaylistItemRenderer(ImageOperations imageOperations, Resources resources) {
+    CarouselPlaylistItemRenderer(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
-        this.resources = resources;
     }
 
     @Override
@@ -73,8 +71,8 @@ public class CarouselPlaylistItemRenderer implements CellRenderer<PlaylistItem> 
     }
 
     private void setImage(View view, ImageResource imageResource) {
-        final ImageView artwork = findById(view, R.id.artwork);
-        imageOperations.displayInAdapterView(imageResource, ApiImageSize.getFullImageSize(resources), artwork);
+        final StyledImageView styledImageView = findById(view, R.id.artwork);
+        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), imageResource.getUrn().toString(), imageOperations);
     }
 
     private void setTrackCount(View view, PlaylistItem playlist) {

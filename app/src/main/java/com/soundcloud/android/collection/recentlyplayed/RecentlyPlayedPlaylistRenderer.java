@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
+import static butterknife.ButterKnife.findById;
+
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -9,21 +11,21 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -35,7 +37,6 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final Resources resources;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
@@ -44,7 +45,6 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
-                                   @Provided Resources resources,
                                    @Provided Navigator navigator,
                                    @Provided ScreenProvider screenProvider,
                                    @Provided EventBus eventBus,
@@ -52,7 +52,6 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
                                    @Provided PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.resources = resources;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
@@ -94,17 +93,13 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     }
 
     private void setImage(View view, ImageResource imageResource) {
-        final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
-        imageOperations.displayInAdapterView(imageResource, getImageSize(), artwork);
+        final StyledImageView styledImageView = findById(view, R.id.artwork);
+        styledImageView.showWithoutPlaceholder(imageResource.getImageUrlTemplate(), Optional.of(ImageStyle.SQUARE), imageResource.getUrn().toString(), imageOperations);
     }
 
     private void setTrackCount(View view, RecentlyPlayedPlayableItem playlist) {
         final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
         trackCount.setText(String.valueOf(playlist.getTrackCount()));
-    }
-
-    private ApiImageSize getImageSize() {
-        return ApiImageSize.getFullImageSize(resources);
     }
 
     private View.OnClickListener goToPlaylist(final RecentlyPlayedPlayableItem playlist) {

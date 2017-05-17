@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ class Fixtures {
     private static int idCounter = 0;
 
     private static final String ARTWORK = "https://i1.sndcdn.com/artworks-000148470532-wq5g7k-{size}.jpg";
+    private static final ImageStyle ARTWORK_STYLE = ImageStyle.STATION;
     private static final int TRACK_COUNT = 9;
     private static final String SHORT_TITLE = "Chill Playlist";
     private static final String URN_VALUE = "soundcloud:playlists:%d";
@@ -80,7 +82,7 @@ class Fixtures {
     }
 
     private static ApiSelectionItem expectedPlaylist() {
-        return ApiSelectionItem.create(incrementalUrn(URN_VALUE), ARTWORK, TRACK_COUNT, SHORT_TITLE, SHORT_SUBTITLE, WEB_LINK, APP_LINK);
+        return ApiSelectionItem.create(incrementalUrn(URN_VALUE), ARTWORK, ARTWORK_STYLE, TRACK_COUNT, SHORT_TITLE, SHORT_SUBTITLE, WEB_LINK, APP_LINK);
     }
 
     private static Urn incrementalUrn(String urnValue) {

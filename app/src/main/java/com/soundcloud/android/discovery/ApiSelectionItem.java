@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
@@ -13,6 +14,8 @@ abstract class ApiSelectionItem {
     abstract Optional<Urn> urn();
 
     abstract Optional<String> artworkUrlTemplate();
+
+    abstract Optional<ImageStyle> artworkStyle();
 
     abstract Optional<Integer> count();
 
@@ -27,6 +30,7 @@ abstract class ApiSelectionItem {
     @JsonCreator
     static ApiSelectionItem create(@JsonProperty("urn") @Nullable Urn urn,
                                    @JsonProperty("artwork_url_template") @Nullable String artworkUrlTemplate,
+                                   @JsonProperty("artwork_style") @Nullable ImageStyle artworkStyle,
                                    @JsonProperty("count") @Nullable Integer count,
                                    @JsonProperty("short_title") @Nullable String shortTitle,
                                    @JsonProperty("short_subtitle") @Nullable String shortSubtitle,
@@ -35,6 +39,7 @@ abstract class ApiSelectionItem {
         return new AutoValue_ApiSelectionItem(
                 Optional.fromNullable(urn),
                 Optional.fromNullable(artworkUrlTemplate),
+                Optional.fromNullable(artworkStyle),
                 Optional.fromNullable(count),
                 Optional.fromNullable(shortTitle),
                 Optional.fromNullable(shortSubtitle),

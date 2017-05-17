@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Collections.BucketCarouselCard"
     android:id="@+id/carousel_playlist_item"
@@ -15,13 +14,10 @@
         android:clipToPadding="false"
         tools:ignore="UselessParent">
 
-        <com.soundcloud.android.view.CircularBorderImageView
+        <com.soundcloud.android.image.StyledImageView
             android:id="@+id/artwork"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cbiv_borderColor="@color/user_image_border_color"
-            app:cbiv_borderWidth="@dimen/user_image_border_width" />
+            android:layout_height="wrap_content"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
@@ -29,6 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/artwork"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="4dp" />
 
         <com.soundcloud.android.view.CustomFontTextView

@@ -42,7 +42,7 @@ public class DiscoveryReadableStorageTest
     }
 
     private void initSelectionItemTable(Long cardId, Urn selectionItemUrn) {
-        final DbModel.SelectionItem selectionItem = DbModel.SelectionItem.CREATOR.create(1, cardId, selectionItemUrn, null, null, null, null, null, null);
+        final DbModel.SelectionItem selectionItem = DbModel.SelectionItem.CREATOR.create(1, cardId, selectionItemUrn, null, null, null, null, null, null, null);
         when(discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL_FOR_DISCOVERY_CARDS, DbModel.SelectionItem.MAPPER)).thenReturn(Single.just(Lists.newArrayList(selectionItem)));
     }
 

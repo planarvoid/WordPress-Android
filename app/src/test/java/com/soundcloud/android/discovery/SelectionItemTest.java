@@ -65,6 +65,6 @@ public class SelectionItemTest {
     }
 
     private SelectionItem selectionItemWithLinks(Optional<String> appLink, Optional<String> webLink) {
-        return SelectionItem.create(absent(), absent(), absent(), absent(), absent(), appLink, webLink);
+        return SelectionItem.create(absent(), absent(), absent(), absent(), absent(), absent(), appLink, webLink);
     }
 }
