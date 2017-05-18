@@ -3,8 +3,6 @@ package com.soundcloud.android.playlists;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
-import java.util.List;
-
 class PlaylistDetailsInputs {
     final BehaviorSubject<Boolean> editMode;
     final PublishSubject<Void> refresh;
@@ -24,11 +22,9 @@ class PlaylistDetailsInputs {
     final PublishSubject<Boolean> like;
     final PublishSubject<Boolean> repost;
     final PublishSubject<PlaylistDetailTrackItem> playFromTrack;
-    final PublishSubject<List<PlaylistDetailTrackItem>> tracklistUpdated;
 
     public static PlaylistDetailsInputs create() {
         return new PlaylistDetailsInputs(BehaviorSubject.create(false),
-                                         PublishSubject.create(),
                                          PublishSubject.create(),
                                          PublishSubject.create(),
                                          PublishSubject.create(),
@@ -65,8 +61,7 @@ class PlaylistDetailsInputs {
                           PublishSubject<Void> headerPlayClicked,
                           PublishSubject<Boolean> like,
                           PublishSubject<Boolean> repost,
-                          PublishSubject<PlaylistDetailTrackItem> playFromTrack,
-                          PublishSubject<List<PlaylistDetailTrackItem>> tracklistUpdated) {
+                          PublishSubject<PlaylistDetailTrackItem> playFromTrack) {
         this.editMode = editMode;
         this.refresh = refresh;
         this.playNext = playNext;
@@ -85,11 +80,6 @@ class PlaylistDetailsInputs {
         this.like = like;
         this.repost = repost;
         this.playFromTrack = playFromTrack;
-        this.tracklistUpdated = tracklistUpdated;
-    }
-
-    void actionUpdateTrackList(List<PlaylistDetailTrackItem> playlistDetailTrackItems) {
-        this.tracklistUpdated.onNext(playlistDetailTrackItems);
     }
 
     void onCreatorClicked() {

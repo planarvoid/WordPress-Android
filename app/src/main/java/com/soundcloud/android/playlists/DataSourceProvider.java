@@ -7,6 +7,8 @@ import static rx.Observable.concat;
 import static rx.Observable.just;
 import static rx.Observable.merge;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -30,13 +32,18 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.functions.Func1;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@AutoFactory(allowSubclasses = true)
 class DataSourceProvider {
 
     @VisibleForTesting
@@ -51,16 +58,20 @@ class DataSourceProvider {
     private final ProfileApiMobile profileApiMobile;
     private final SyncInitiator syncInitiator;
     private final PublishSubject<PartialState> refreshStateSubject = PublishSubject.create();
+    private final BehaviorSubject<PlaylistWithExtrasState> data = BehaviorSubject.create();
+    private final BehaviorSubject<Urn> latestUrn;
+    private CompositeSubscription subscription;
 
     @Inject
-    DataSourceProvider(PlaylistRepository playlistRepository,
-                       TrackRepository trackRepository,
-                       EventBus eventBus,
-                       OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
-                       AccountOperations accountOperations,
-                       MyPlaylistsOperations myPlaylistsOperations,
-                       ProfileApiMobile profileApiMobile,
-                       SyncInitiator syncInitiator) {
+    DataSourceProvider(Urn initialUrn,
+                       @Provided PlaylistRepository playlistRepository,
+                       @Provided TrackRepository trackRepository,
+                       @Provided EventBus eventBus,
+                       @Provided OtherPlaylistsByUserConfig otherPlaylistsByUserConfig,
+                       @Provided AccountOperations accountOperations,
+                       @Provided MyPlaylistsOperations myPlaylistsOperations,
+                       @Provided ProfileApiMobile profileApiMobile,
+                       @Provided SyncInitiator syncInitiator) {
         this.playlistRepository = playlistRepository;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
@@ -68,34 +79,57 @@ class DataSourceProvider {
         this.accountOperations = accountOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.profileApiMobile = profileApiMobile;
+
+        // we store the latest urn in this subject, as it may change (when a local playlist is pushed)
+        latestUrn = BehaviorSubject.create(initialUrn);
         this.syncInitiator = syncInitiator;
     }
 
-    Observable<PlaylistWithExtrasState> dataWith(Urn playlistUrn, PublishSubject<Void> refresh) {
-        final Observable<Urn> pageSequenceStarters = Observable.merge(
-                refreshIntent(playlistUrn(playlistUrn), refresh), // the user refreshed
-                playlistUrn(playlistUrn) // initial load, or the urn changed
+    public void connect(PublishSubject<Void> refresh) {
+        // two things that can result in a new paging sequence. When either emits, start over
+        Observable<Urn> pageSequenceStarters = Observable.merge(
+                refreshIntent(refresh), // the user refreshed
+                latestUrn // initial load, or the urn changed
         );
-        return pageSequenceStarters
-                .switchMap(
-                        urn -> Observable.merge(
-                                refreshStateSubject, // refresh state
-                                playlistWithExtras(urn) // current load
+
+        subscription = new CompositeSubscription();
+        subscription.addAll(
+
+                // keep up with URN updates when we push to the server
+                urnChanged().subscribe(latestUrn),
+
+                // the actual output
+                pageSequenceStarters
+                        .switchMap(
+                                urn -> Observable.merge(
+                                        refreshStateSubject, // refresh state
+                                        playlistWithExtras(urn) // current load
+                                )
                         )
-                )
-                .scan(
-                        PlaylistWithExtrasState.initialState(),
-                        (oldState, partialState) -> partialState.newState(oldState)
-                );
+                        .scan(
+                                PlaylistWithExtrasState.initialState(),
+                                (oldState, partialState) -> partialState.newState(oldState)
+                        )
+                        .subscribe(data)
+        );
     }
 
+    public void disconnect() {
+        subscription.unsubscribe();
+    }
+
+    public BehaviorSubject<PlaylistWithExtrasState> data() {
+        return data;
+    }
+
+    @NonNull
     private Observable<PartialState> playlistWithExtras(Urn urn) {
         return RxJava.toV1Observable(playlistRepository.withUrn(urn))
                      .flatMap(this::emissions)
                      .onErrorReturn(LoadingError::new);
     }
 
-    private Observable<Urn> refreshIntent(Observable<Urn> latestUrn, PublishSubject<Void> refresh) {
+    private Observable<Urn> refreshIntent(PublishSubject<Void> refresh) {
         return latestUrn.compose(Transformers.takeWhen(refresh))
                         .flatMap(urn -> syncInitiator.syncPlaylist(urn)
                                                      .map(syncJobResult -> urn)
@@ -109,18 +143,14 @@ class DataSourceProvider {
                 just(playlist),
                 tracks(playlist.urn()).map(Optional::of),
                 otherPlaylistsByUser(playlist).onErrorResumeNext(Observable.just(Collections.emptyList())),
-                (updatedPlaylist, trackList, otherPlaylistsOpt) -> new PartialState.PlaylistWithExtrasLoaded(updatedPlaylist, trackList, otherPlaylistsOpt, isOwner(updatedPlaylist))
-        ).cast(PartialState.class).startWith(new PartialState.PlaylistWithExtrasLoaded(playlist, Optional.absent(), Collections.emptyList(), isOwner(playlist)));
-    }
-
-    private boolean isOwner(Playlist playlist) {
-        return accountOperations.isLoggedInUser(playlist.creatorUrn());
+                PartialState.PlaylistWithExtrasLoaded::new
+        ).cast(PartialState.class).startWith(new PartialState.PlaylistWithExtrasLoaded(playlist, Optional.absent(), Collections.emptyList()));
     }
 
     private Observable<List<Playlist>> otherPlaylistsByUser(Playlist playlist) {
         if (!otherPlaylistsByUserConfig.isEnabled()) {
             return Observable.just(Collections.emptyList());
-        } else if (isOwner(playlist)) {
+        } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
             return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build())
                                         .map(playlistsWithExclusion(playlist));
         } else {
@@ -154,22 +184,18 @@ class DataSourceProvider {
                 .switchMap(ignored -> RxJava.toV1Observable(trackRepository.forPlaylist(urn, STALE_TIME_MILLIS)));
     }
 
+    @NonNull
     private Observable<PlaylistChangedEvent> tracklistChanges(Urn urn) {
         return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
                        .filter(event -> event.changeMap().containsKey(urn))
                        .filter(event -> event.kind() == PlaylistChangedEvent.Kind.TRACK_ADDED || event.kind() == PlaylistChangedEvent.Kind.TRACK_REMOVED);
     }
 
-    private Observable<Urn> playlistUrn(Urn initialUrn) {
-        if (initialUrn.isLocal()) {
-            return just(initialUrn);
-        } else {
-            return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
-                           .filter(event -> event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER)
-                           .filter(event -> event.changeMap().containsKey(initialUrn))
-                           .map(event -> ((PlaylistEntityChangedEvent) event).changeMap().get(initialUrn).urn())
-                           .startWith(initialUrn);
-        }
+    private Observable<Urn> urnChanged() {
+        return eventBus.queue(EventQueue.PLAYLIST_CHANGED)
+                       .filter(event -> event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER)
+                       .filter(event -> event.changeMap().containsKey(latestUrn.getValue()))
+                       .map(event -> ((PlaylistEntityChangedEvent) event).changeMap().get(latestUrn.getValue()).urn());
 
     }
 }

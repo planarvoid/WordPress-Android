@@ -10,7 +10,6 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -78,8 +77,8 @@ class EditPlaylistCommand
                     Urn playlistUrn = input.playlistUrn;
                     if (toUpdate.contains(trackUrn)) {
                         step(propeller.update(Table.PlaylistTracks, buildPlaylistTrackUpdateContentValues(i),
-                                              Filter.filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
-                                                    .whereEq(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())));
+                                              Filter.filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID,playlistUrn.getNumericId())
+                                                    .whereEq(TableColumns.PlaylistTracks.TRACK_ID,trackUrn.getNumericId())));
                     } else {
                         ContentValues contentValues = buildPlaylistTrackAdditionContentValues(playlistUrn.getNumericId(), trackUrn.getNumericId(), i);
                         step(propeller.insert(Table.PlaylistTracks, contentValues));
@@ -113,18 +112,13 @@ class EditPlaylistCommand
     }
 
     private ContentValues getContentValuesForPlaylistsTable(EditPlaylistCommandParams input) {
-        final ContentValuesBuilder builder = ContentValuesBuilder
-                .values()
-                .put(Tables.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
-                .put(Tables.Sounds.TRACK_COUNT, input.trackList.size());
-
-        if(input.playlistTitle.isPresent()) {
-            builder.put(Tables.Sounds.TITLE, input.playlistTitle.get());
-        }
-        if(input.isPrivate.isPresent()) {
-            builder.put(Tables.Sounds.SHARING, input.isPrivate.get() ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value());
-        }
-        return builder.get();
+        return ContentValuesBuilder.values()
+                                   .put(Tables.Sounds.TITLE, input.playlistTitle)
+                                   .put(Tables.Sounds.SHARING,
+                                        input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
+                                   .put(Tables.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
+                                   .put(Tables.Sounds.TRACK_COUNT, input.trackList.size())
+                                   .get();
     }
 
     private ContentValues buildPlaylistTrackUpdateContentValues(int position) {
@@ -150,21 +144,14 @@ class EditPlaylistCommand
 
     static final class EditPlaylistCommandParams {
         final Urn playlistUrn;
-        final Optional<String> playlistTitle;
-        final Optional<Boolean> isPrivate;
+        final String playlistTitle;
+        final boolean isPrivate;
         final List<Urn> trackList;
 
         EditPlaylistCommandParams(final Urn playlistUrn, String playlistTitle, boolean isPrivate, List<Urn> trackList) {
             this.playlistUrn = playlistUrn;
-            this.playlistTitle = Optional.of(playlistTitle);
-            this.isPrivate = Optional.of(isPrivate);
-            this.trackList = trackList;
-        }
-
-        EditPlaylistCommandParams(final Urn playlistUrn, List<Urn> trackList) {
-            this.playlistUrn = playlistUrn;
-            this.playlistTitle = Optional.absent();
-            this.isPrivate = Optional.absent();
+            this.playlistTitle = playlistTitle;
+            this.isPrivate = isPrivate;
             this.trackList = trackList;
         }
     }

@@ -81,19 +81,19 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private List<Track> trackItems = singletonList(track1);
     private List<Track> updatedTrackItems = asList(track1, track2);
     //
-    private PlaylistWithExtras initialAlbumWithoutTracks = PlaylistWithExtras.create(album, absent(), emptyList(), false);
-    private PlaylistWithExtras initialAlbumWithTracks = PlaylistWithExtras.create(album, of(trackItems), emptyList(), false);
-    private PlaylistWithExtras initialAlbumWithTrackAndOtherExtras = PlaylistWithExtras.create(album, of(trackItems), singletonList(otherAlbum), false);
-    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, absent(), emptyList(), false);
-    private PlaylistWithExtras initialPlaylistWithTracks = PlaylistWithExtras.create(playlist, of(trackItems), emptyList(), false);
-    private PlaylistWithExtras initialPlaylistWithUpdatedTracks = PlaylistWithExtras.create(playlist, of(updatedTrackItems), emptyList(), false);
-    private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, of(trackItems), singletonList(otherPlaylist), false);
-    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist, absent(), emptyList(), false);
-    private PlaylistWithExtras updatedPlaylistWithTracks = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), emptyList(), false);
-    private PlaylistWithExtras updatedPlaylistWithTracksAndOtherExtras = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist), false);
-    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, absent(), false);
-    private PlaylistWithExtras pushedPlaylistWithTracks = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), emptyList(), false);
-    private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist), false);
+    private PlaylistWithExtras initialAlbumWithoutTracks = PlaylistWithExtras.create(album, absent(), emptyList());
+    private PlaylistWithExtras initialAlbumWithTracks = PlaylistWithExtras.create(album, of(trackItems), emptyList());
+    private PlaylistWithExtras initialAlbumWithTrackAndOtherExtras = PlaylistWithExtras.create(album, of(trackItems), singletonList(otherAlbum));
+    private PlaylistWithExtras initialPlaylistWithoutTracks = PlaylistWithExtras.create(playlist, absent(), emptyList());
+    private PlaylistWithExtras initialPlaylistWithTracks = PlaylistWithExtras.create(playlist, of(trackItems), emptyList());
+    private PlaylistWithExtras initialPlaylistWithUpdatedTracks = PlaylistWithExtras.create(playlist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras initialPlaylistWithTrackAndOtherExtras = PlaylistWithExtras.create(playlist, of(trackItems), singletonList(otherPlaylist));
+    private PlaylistWithExtras updatedPlaylistWithoutTracks = PlaylistWithExtras.create(updatedPlaylist, absent(), emptyList());
+    private PlaylistWithExtras updatedPlaylistWithTracks = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras updatedPlaylistWithTracksAndOtherExtras = PlaylistWithExtras.create(updatedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
+    private PlaylistWithExtras pushedPlaylistWithoutTracks = PlaylistWithExtras.create(pushedPlaylist, absent());
+    private PlaylistWithExtras pushedPlaylistWithTracks = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), emptyList());
+    private PlaylistWithExtras pushedPlaylistWithExtras = PlaylistWithExtras.create(pushedPlaylist, of(updatedTrackItems), singletonList(otherPlaylist));
     //
     private SingleSubject<List<Track>> tracklistSubject;
     private PublishSubject<ModelCollection<ApiPlaylistPost>> otherUserOtherPlaylists = PublishSubject.create();
@@ -104,8 +104,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     //
     @Before
     public void setUp() throws Exception {
-        ShadowLog.stream = System.out;
         tracklistSubject = SingleSubject.create();
+        ShadowLog.stream = System.out;
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist));
         when(playlistRepository.withUrn(pushedPlaylist.urn())).thenReturn(Maybe.just(pushedPlaylist));
 
@@ -120,30 +120,33 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
         when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(true);
 
-        dataSourceProvider = new DataSourceProvider(
-                playlistRepository,
-                trackRepository,
-                eventBus,
-                otherPlaylistsByUserConfig,
-                accountOperations,
-                myPlaylistOperations,
-                profileApiMobile,
-                syncInitiator);
+        dataSourceProvider = new DataSourceProvider(playlist.urn(),
+                                                    playlistRepository,
+                                                    trackRepository,
+                                                    eventBus,
+                                                    otherPlaylistsByUserConfig,
+                                                    accountOperations,
+                                                    myPlaylistOperations,
+                                                    profileApiMobile,
+                                                    syncInitiator);
     }
 
     @Test
     public void emitsInitialPlaylistMetadataWithoutTracks() throws Exception {
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
-        dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test()
-                          .assertValues(
-                                  PlaylistWithExtrasState.initialState(),
-                                  PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build()
-                          );
+
+        test.assertValues(
+                PlaylistWithExtrasState.initialState(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build()
+        );
     }
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracks() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
 
@@ -156,7 +159,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void emitsInitialPlaylistMetadataThenErrorForTracks() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onError(apiRequestException);
         otherUserOtherPlaylists.onNext(userPlaylistCollection); // this should be ignored as we do not show this without tracks
@@ -171,7 +175,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylists() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
@@ -188,7 +193,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylistsFiltered() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
         otherUserOtherPlaylists.onNext(userPlaylistCollectionWithExtraAlbum);
@@ -210,17 +216,18 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         when(trackRepository.forPlaylist(album.urn(), STALE_TIME_MILLIS)).thenReturn(tracklistSubject);
 
 
-        dataSourceProvider = new DataSourceProvider(
-                playlistRepository,
-                trackRepository,
-                eventBus,
-                otherPlaylistsByUserConfig,
-                accountOperations,
-                myPlaylistOperations,
-                profileApiMobile,
-                syncInitiator);
+        dataSourceProvider = new DataSourceProvider(album.urn(),
+                                                    playlistRepository,
+                                                    trackRepository,
+                                                    eventBus,
+                                                    otherPlaylistsByUserConfig,
+                                                    accountOperations,
+                                                    myPlaylistOperations,
+                                                    profileApiMobile,
+                                                    syncInitiator);
 
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(album.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
         otherUserOtherPlaylists.onNext(userAlbumsCollection);
@@ -237,12 +244,10 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylistsForLoggedInUser() throws Exception {
-        final PlaylistWithExtras initialPlaylist = initialPlaylistWithoutTracks.toBuilder().isLoggedInUserOwner(true).build();
-        final PlaylistWithExtras playlistWithOther = initialPlaylistWithTrackAndOtherExtras.toBuilder().isLoggedInUserOwner(true).build();
-
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
 
+        dataSourceProvider.connect(refreshSubject);
         List<Playlist> myPlaylists = asList(playlist, otherPlaylist); // current playlist should be filtered out
 
         tracklistSubject.onSuccess(trackItems);
@@ -250,19 +255,17 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
         test.assertValues(
                 PlaylistWithExtrasState.initialState(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylist)).build(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(playlistWithOther)).build()
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTrackAndOtherExtras)).build()
         );
     }
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracksAndOtherPlaylistsForLoggedInUserWithOnePlaylist() throws Exception {
-        final PlaylistWithExtras playlistWithoutTracks = initialPlaylistWithoutTracks.toBuilder().isLoggedInUserOwner(true).build();
-        final PlaylistWithExtras.Builder playlistWithTracks = initialPlaylistWithTracks.toBuilder().isLoggedInUserOwner(true);
-
         when(accountOperations.isLoggedInUser(playlist.creatorUrn())).thenReturn(true);
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
 
+        dataSourceProvider.connect(refreshSubject);
         List<Playlist> myPlaylists = Collections.singletonList(playlist); // current playlist should be filtered out
 
         tracklistSubject.onSuccess(trackItems);
@@ -270,14 +273,15 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
         test.assertValues(
                 PlaylistWithExtrasState.initialState(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(playlistWithoutTracks)).build(),
-                PlaylistWithExtrasState.builder().playlistWithExtras(of(playlistWithTracks.build())).build()
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
+                PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithTracks)).build()
         );
     }
 
     @Test
     public void emitsInitialPlaylistMetadataWithEverythingIfWeHaveOtherPlaylistsBeforeTracksCome() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
         tracklistSubject.onSuccess(trackItems);
@@ -291,7 +295,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
 
     @Test
     public void emitsInitialPlaylistMetadataThenTracksAndIgnoresErrorOnOtherPlaylists() throws Exception {
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
         otherUserOtherPlaylists.onError(apiRequestException); // this should be ignored as we do not show this without tracks
@@ -309,7 +314,8 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     @Test
     public void emitsInitialPlaylistMetadataThenTracksWhenOtherPlaylistsByUserIsDisabled() throws Exception {
         when(otherPlaylistsByUserConfig.isEnabled()).thenReturn(false);
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
         tracklistSubject.onSuccess(trackItems);
 
@@ -326,21 +332,18 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         when(trackRepository.forPlaylist(pushedPlaylist.urn(), STALE_TIME_MILLIS)).thenReturn(Single.just(trackItems), Single.just(updatedTrackItems));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist), Maybe.just(updatedPlaylist));
 
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
-        // 0, 1
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
-        tracklistSubject.onSuccess(trackItems); // 3
-        otherUserOtherPlaylists.onNext(userPlaylistCollection); // 4
+        otherUserOtherPlaylists.onNext(userPlaylistCollection);
 
-        refreshSubject.onNext(null); // 5
+        refreshSubject.onNext(null);
 
         syncResultSubject.onNext(TestSyncJobResults.successWithChange());
         syncResultSubject.onCompleted();
 
-        tracklistSubject.onSuccess(updatedTrackItems); // 6
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
 
-        System.out.println(test.getOnNextEvents());
         test.assertValues(
                 PlaylistWithExtrasState.initialState(),
                 PlaylistWithExtrasState.builder().playlistWithExtras(of(initialPlaylistWithoutTracks)).build(),
@@ -361,14 +364,14 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         when(trackRepository.forPlaylist(pushedPlaylist.urn(), STALE_TIME_MILLIS)).thenReturn(Single.just(updatedTrackItems));
         when(playlistRepository.withUrn(playlist.urn())).thenReturn(Maybe.just(playlist), Maybe.just(updatedPlaylist));
 
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+        dataSourceProvider.connect(refreshSubject);
 
-        tracklistSubject.onSuccess(trackItems);
+
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
 
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(playlist.urn(), pushedPlaylist));
 
-        tracklistSubject.onSuccess(updatedTrackItems);
         otherUserOtherPlaylists.onNext(userPlaylistCollection);
 
         test.assertValues(
@@ -385,7 +388,9 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     @Test
     public void reEmitsTracklistWhenItemAdded() throws Exception {
         when(trackRepository.forPlaylist(playlist.urn(), STALE_TIME_MILLIS)).thenReturn(Single.just(trackItems), Single.just(updatedTrackItems));
-        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.dataWith(playlist.urn(), refreshSubject).test();
+        AssertableSubscriber<PlaylistWithExtrasState> test = dataSourceProvider.data().test();
+
+        dataSourceProvider.connect(refreshSubject);
 
         PlaylistTrackCountChangedEvent trackAdded = fromTrackAddedToPlaylist(playlist.urn(), 2);
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, trackAdded);

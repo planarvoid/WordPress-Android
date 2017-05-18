@@ -97,8 +97,8 @@ abstract class PlaylistWithExtrasState {
 
             private final PlaylistWithExtras playlistWithExtras;
 
-            PlaylistWithExtrasLoaded(Playlist playlist, Optional<List<Track>> trackList, List<Playlist> otherPlaylistsOpt, boolean isOwner) {
-                this.playlistWithExtras = PlaylistWithExtras.create(playlist, trackList, otherPlaylistsOpt, isOwner);
+            PlaylistWithExtrasLoaded(Playlist playlist, Optional<List<Track>> trackList, List<Playlist> otherPlaylistsOpt) {
+                this.playlistWithExtras = PlaylistWithExtras.create(playlist, trackList, otherPlaylistsOpt);
             }
 
             @Override

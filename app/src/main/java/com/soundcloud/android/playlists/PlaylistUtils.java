@@ -33,11 +33,6 @@ class PlaylistUtils {
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 
-    static String getDuration(List<TrackItem> tracks) {
-        final long duration = getCombinedTrackDurations(tracks);
-        return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
-    }
-
     static long getCombinedTrackDurations(List<TrackItem> tracks) {
         long duration = 0;
         for (TrackItem track : tracks) {

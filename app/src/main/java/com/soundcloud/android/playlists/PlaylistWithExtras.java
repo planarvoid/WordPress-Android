@@ -10,16 +10,15 @@ import java.util.List;
 @AutoValue
 abstract class PlaylistWithExtras {
 
-    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, boolean isOwner) {
-        return create(playlist, tracks, Collections.emptyList(), isOwner);
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks) {
+        return create(playlist,tracks, Collections.emptyList());
     }
 
-    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, List<Playlist> otherPlaylistsByCreator, boolean isOwner) {
+    static PlaylistWithExtras create(Playlist playlist, Optional<List<Track>> tracks, List<Playlist> otherPlaylistsByCreator) {
         return  new AutoValue_PlaylistWithExtras.Builder()
                 .playlist(playlist)
                 .tracks(tracks)
                 .otherPlaylistsByCreator(otherPlaylistsByCreator)
-                .isLoggedInUserOwner(isOwner)
                 .build();
     }
 
@@ -28,8 +27,6 @@ abstract class PlaylistWithExtras {
     abstract Optional<List<Track>> tracks();
 
     abstract List<Playlist> otherPlaylistsByCreator();
-
-    abstract boolean isLoggedInUserOwner();
 
     public abstract Builder toBuilder();
 
@@ -41,8 +38,6 @@ abstract class PlaylistWithExtras {
         abstract Builder tracks(Optional<List<Track>> value);
 
         abstract Builder otherPlaylistsByCreator(List<Playlist> value);
-
-        abstract Builder isLoggedInUserOwner(boolean value);
 
         abstract PlaylistWithExtras build();
 
