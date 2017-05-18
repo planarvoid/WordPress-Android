@@ -80,14 +80,14 @@ tasks.withType(FindBugs) {
   }
 }
 
-task findbugs(type: FindBugs) {
+task findbugs(type: FindBugs, dependsOn: "assembleProd${project.('buildType').capitalize()}") {
   description 'Uses static analysis to look for bugs in Java code.'
 
   include includeSrcPatternApplication
   include includeSrcPatternApi
 }
 
-task findbugsChanged(type: FindBugs) {
+task findbugsChanged(type: FindBugs, dependsOn: "assembleProd${project.('buildType').capitalize()}") {
   description 'Uses static analysis to look for bugs in changed Java code.' +
           'The target branch to compare with can optionally be specified with build parameter \'branch\'.'
 

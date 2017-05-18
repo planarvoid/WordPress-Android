@@ -182,7 +182,7 @@ def staticAnalysisStage() {
   if (isPr()) {
     try {
       updateGitHub(Builds.STATIC_ANALYSIS, Status.RUNNING)
-      gradle 'clean staticAnalysisChanged violationCommentsToGitHub'
+      gradle 'clean runStaticAnalysisAndReportViolationsToGitHub'
       updateGitHub(Builds.STATIC_ANALYSIS, Status.SUCCESS)
     } catch (e) {
       updateGitHub(Builds.STATIC_ANALYSIS, Status.ERROR)

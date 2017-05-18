@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Primary -->
+    <color name="white">#ffffff</color>
+    <color name="snow">#f8f8f8</color>
+    <color name="mist">#f2f2f2</color>
+    <color name="silver">#e5e5e5</color>
+    <color name="platinum">#cccccc</color>
+    <color name="ash">#999999</color>
+    <color name="charcoal">#666666</color>
+    <color name="raven">#333333</color>
+    <color name="scarlet">#ff3300</color>
+    <color name="soundcloud_orange">#ff5500</color>
+    <color name="amber">#ff7700</color>
+    <color name="peach">#ffbf99</color>
+
+    <!-- Specialized colors -->
+    <color name="cornflower">#3388dd</color>
+    <color name="black">#000000</color>
+    <color name="milkglass">#1A000000</color>
+    <color name="smoke">#CC000000</color>
+
+    <!-- Promoted content -->
+    <color name="mint">#e5f3f3</color>
+    <color name="teal">#009090</color>
+
+    <!-- Social -->
+    <color name="facebook_blue">#3b5998</color>
+    <color name="google_blue">#4285f4</color>
+
+    <!-- Placeholder gradients colors -->
+    <color name="aubergine">#846170</color>
+    <color name="slate">#70929c</color>
+    <color name="greige">#8e8485</color>
+    <color name="salmon">#e6846e</color>
+    <color name="purple">#7d02a1</color>
+
+</resources>

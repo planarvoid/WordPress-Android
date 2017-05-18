@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="ak_recycler_view" type="id"/>
+
+    <!-- for progress list items -->
+    <item name="ak_list_progress" type="id"/>
+    <item name="ak_list_retry" type="id"/>
+
+    <!-- empty view -->
+    <item name="ak_emptyview_progress" type="id"/>
+    <item name="ak_emptyview_holder" type="id"/>
+    <item name="ak_emptyview_image" type="id"/>
+    <item name="ak_emptyview_error_image" type="id"/>
+    <item name="ak_emptyview_message" type="id"/>
+    <item name="ak_emptyview_error_message1" type="id"/>
+    <item name="ak_emptyview_error_message2" type="id"/>
+    <item name="ak_emptyview_error_message3" type="id"/>
+    <item name="ak_emptyview_link" type="id"/>
+    <item name="ak_emptyview_btn_action" type="id"/>
+    <item name="ak_emptyview_btn_retry" type="id"/>
+    <item name="ak_error_view" type="id"/>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ak_retry">Tentar novamente</string>
+    <string name="ak_error_soundcloud_no_response">O SoundCloud não está respondendo</string>
+    <string name="ak_error_no_internet">Sem conexão com a Internet</string>
+    <string name="ak_error_connect_and_try_again">Conecte-se e tente novamente.</string>
+    <string name="ak_error_pager_failed">Erro de carregamento. Toque e tente novamente</string>
+</resources>

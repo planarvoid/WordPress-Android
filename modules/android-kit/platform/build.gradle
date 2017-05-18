@@ -1,0 +1,56 @@
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion rootProject.ext.androidCompileSdkVersion
+  buildToolsVersion rootProject.ext.androidBuildToolsVersion
+
+  defaultConfig {
+    targetSdkVersion rootProject.ext.androidTargetSdkVersion
+    minSdkVersion rootProject.ext.androidMinSdkVersion
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
+  testOptions {
+    unitTests.returnDefaultValues = true
+
+    // This allows us see tests execution progress in the output on the CI.
+    unitTests.all {
+      testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat 'full'
+      }
+    }
+  }
+
+  dependencies {
+    provided libraries.dagger
+    provided libraries.crashlytics
+
+    compile libraries.androidKitCore
+    compile (libraries.lightCycle) {
+      exclude group: 'com.android.support', module: 'preference-v7'
+    }
+    compile libraries.androidSupportAnnotations
+    compile libraries.androidRecyclerView
+    compile libraries.rxAndroid
+    compile libraries.rxJava
+    compile libraries.rxJava2
+    compile libraries.rxJavaInterop
+
+    testCompile unitTestLibraries.junit
+    testCompile unitTestLibraries.mockito
+    testCompile unitTestLibraries.assertj
+    testCompile unitTestLibraries.equalsVerifier
+    testCompile unitTestLibraries.robolectric
+  }
+}

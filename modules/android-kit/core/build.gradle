@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+dependencies {
+  compile libraries.intellijAnnotations
+
+  compile libraries.rxJava
+  compile libraries.rxJava2
+  compile libraries.rxJavaInterop
+
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.mockito
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.equalsVerifier
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7

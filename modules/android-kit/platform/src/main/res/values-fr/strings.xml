@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ak_retry">Réessayer</string>
+    <string name="ak_error_soundcloud_no_response">SoundCloud ne répond pas.</string>
+    <string name="ak_error_no_internet">Pas d\'internet.</string>
+    <string name="ak_error_connect_and_try_again">Connectez-vous et réessayez.</string>
+    <string name="ak_error_pager_failed">Erreur de chargement. Appuyez pour réessayer</string>
+</resources>

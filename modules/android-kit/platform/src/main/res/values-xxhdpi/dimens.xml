@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ak_list_divider_vertical_width">2px</dimen>
+    <dimen name="ak_list_divider_horizontal_height">2px</dimen>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ak_number_suffixes">
+        <item>""</item>
+        <item>@string/ak_number_suffix_k</item>
+        <item>@string/ak_number_suffix_m</item>
+        <item>@string/ak_number_suffix_b</item>
+    </string-array>
+</resources>

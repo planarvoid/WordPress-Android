@@ -2,3 +2,4 @@ include ':app'
 
 include ':modules:groupie:groupie-compiler', ':modules:groupie:groupie-annotation', ':modules:groupie:groupie'
 include ':modules:mrlocallocal'
+include ':modules:android-kit:core', ':modules:android-kit:platform'

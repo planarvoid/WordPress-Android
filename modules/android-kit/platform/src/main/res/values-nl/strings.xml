@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ak_retry">Opnieuw proberen</string>
+    <string name="ak_error_soundcloud_no_response">SoundCloud reageert niet.</string>
+    <string name="ak_error_no_internet">Geen Internet.</string>
+    <string name="ak_error_connect_and_try_again">Maak verbinding en probeer het nog eens.</string>
+    <string name="ak_error_pager_failed">Laadfout. Tik om het nog eens te proberen</string>
+</resources>

@@ -29,8 +29,7 @@ task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lintProd${proj
   description = 'Performs static analysis of code.'
 }
 
-task staticAnalysisChanged(dependsOn: ['checkstyleChanged', 'findbugsChanged', 'pmdChanged', "lintProd${project.('buildType').capitalize()}",
-                                "assembleProd${project.('buildType').capitalize()}"]) {
+task staticAnalysisChanged(dependsOn: ['checkstyleChanged', 'pmdChanged', 'findbugsChanged', "lintProd${project.('buildType').capitalize()}"]) {
   description = 'Performs static analysis of changed code.'
 }
 
@@ -54,7 +53,11 @@ if (System.env.containsKey('JENKINS_URL')) {
             ["ANDROIDLINT", "app/build/reports", ".*/lint-.*\\.xml\$"]
     ]
   }
-  violationCommentsToGitHub.mustRunAfter('staticAnalysis')
+  violationCommentsToGitHub.mustRunAfter('staticAnalysisChanged')
+
+  task runStaticAnalysisAndReportViolationsToGitHub(dependsOn: ['staticAnalysisChanged', 'violationCommentsToGitHub']) {
+    description = 'Performs static analysis on a PR build and reports all issues to the PR via GitHub comments.'
+  }
 }
 
 // *********************************************************************************************************************

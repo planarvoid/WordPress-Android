@@ -232,10 +232,10 @@ dependencies {
   compile libraries.firebaseAnalytics
 
   /* Unit tests */
+  testCompile libraries.androidSupportAnnotations
   testCompile unitTestLibraries.junit
   testCompile unitTestLibraries.assertj
   testCompile unitTestLibraries.assertjAndroid
-  testCompile unitTestLibraries.androidSupportAnnotations
   testCompile unitTestLibraries.mockito
   testCompile unitTestLibraries.robolectric
   testCompile unitTestLibraries.robolectricSupport

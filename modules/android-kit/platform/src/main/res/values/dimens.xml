@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="empty_message_margin_left_right">20dp</dimen>
+    <dimen name="ak_list_divider_vertical_width">1px</dimen>
+    <dimen name="ak_list_divider_horizontal_height">1px</dimen>
+    <dimen name="ak_grid_divider_top_bottom_inset">8dp</dimen>
+    <dimen name="ak_grid_divider_left_right_inset">0dp</dimen>
+</resources>

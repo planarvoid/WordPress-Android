@@ -5,6 +5,9 @@
         <ignore path="build/generated/res/resValues/**/*" />
     </issue>
 
+    <!-- Ignored as part of the android-kit pull in. Remove once https://soundcloud.atlassian.net/browse/DROID-1318 is done! -->
+    <issue id="IconMissingDensityFolder" severity="ignore"/>
+
     <!-- auto/value uses GWT related annotations about which we don't care -->
     <issue id="InvalidPackage">
         <ignore path="**/com.google.auto.value/**/*"/>

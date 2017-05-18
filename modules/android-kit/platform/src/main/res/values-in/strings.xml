@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ak_retry">Coba lagi</string>
+    <string name="ak_error_soundcloud_no_response">SoundCloud tidak merespons.</string>
+    <string name="ak_error_no_internet">Tidak ada Internet.</string>
+    <string name="ak_error_connect_and_try_again">Hubungkan dan coba lagi.</string>
+    <string name="ak_error_pager_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
+</resources>

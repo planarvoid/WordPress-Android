@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        tools:ignore="UselessParent">
+
+        <ProgressBar
+            android:id="@id/ak_list_progress"
+            android:indeterminateOnly="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@id/ak_list_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            style="@style/Ak.EmptyViewContent"
+            android:text="@string/ak_error_pager_failed"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

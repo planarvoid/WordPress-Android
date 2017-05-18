@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ak_retry">إعادة المحاولة</string>
+    <string name="ak_error_soundcloud_no_response">SoundCloud لا يستجيب.</string>
+    <string name="ak_error_no_internet">لا يوجد إنترنت.</string>
+    <string name="ak_error_connect_and_try_again">اتصل وحاول مرة أخرى.</string>
+    <string name="ak_error_pager_failed">خطأ في التحميل. انقر لإعادة المحاولة</string>
+</resources>
