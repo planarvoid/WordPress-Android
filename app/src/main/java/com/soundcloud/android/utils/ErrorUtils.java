@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorThrowable;
 
+import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 
 import java.io.BufferedReader;
@@ -30,7 +32,7 @@ import java.util.Map;
 
 public final class ErrorUtils {
 
-    public static final String ERROR_CONTEXT_TAG = "error-context";
+    private static final String ERROR_CONTEXT_TAG = "error-context";
 
     private ErrorUtils() {
         // not to be instantiated.
@@ -40,6 +42,16 @@ public final class ErrorUtils {
         final StringWriter callsiteTrace = new StringWriter();
         callsiteToken.printStackTrace(new PrintWriter(callsiteTrace));
         handleThrowable(t, callsiteTrace.toString());
+    }
+
+    /**
+     * Ensures that errors thrown are thrown on the main thread. This allows us to crash
+     * the app when it's the right time to do so (Fail Fast), and ensures we capture bug
+     * reports in Fabric as opposed to the app silently dying without alerting us.
+     */
+    public static void handleThrowableOnMainThread(Throwable t, Class<?> errorContext, Context context) {
+        final Handler handler = new Handler(context.getMainLooper());
+        handler.post(() -> ErrorUtils.handleThrowable(t, errorContext.getCanonicalName()));
     }
 
     public static void handleThrowable(Throwable t, Class<?> context) {
