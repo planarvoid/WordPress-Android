@@ -1,7 +1,9 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.MultiMap;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -23,6 +25,19 @@ public class DiscoveryReadableStorage {
 
     Single<List<DbModel.SelectionItem>> selectionItems() {
         return discoveryDatabase.selectList(DbModel.SelectionItem.FACTORY.selectAll(), DbModel.SelectionItem.FACTORY.selectAllMapper());
+    }
+
+    public Maybe<SystemPlaylistEntity> systemPlaylistEntity(final Urn urn) {
+        final Maybe<DbModel.SystemPlaylist> systemPlaylistMaybe = discoveryDatabase.selectList(DbModel.SystemPlaylist.FACTORY.selectByUrn(urn),
+                                                                                               DbModel.SystemPlaylist.FACTORY.selectByUrnMapper())
+                                                                                   .filter(systemPlaylists -> !systemPlaylists.isEmpty())
+                                                                                   .map(systemPlaylists -> systemPlaylists.get(0));
+
+        final Maybe<List<Urn>> trackUrns = discoveryDatabase.selectList(DbModel.SystemPlaylistsTracks.FACTORY.selectTrackUrnsForSystemPlaylistUrn(urn),
+                                                                        DbModel.SystemPlaylistsTracks.FACTORY.selectTrackUrnsForSystemPlaylistUrnMapper())
+                                                            .toMaybe();
+
+        return systemPlaylistMaybe.zipWith(trackUrns, DbModelMapper::mapSystemPlaylist);
     }
 
     Observable<List<DiscoveryCard>> liveDiscoveryCards() {

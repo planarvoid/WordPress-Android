@@ -1,7 +1,6 @@
 package com.soundcloud.android.discovery.systemplaylist;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,13 +13,13 @@ import com.soundcloud.android.olddiscovery.newforyou.NewForYou;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.java.optional.Optional;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import android.content.res.Resources;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -105,6 +104,22 @@ public class SystemPlaylistMapperTest {
         assertThat(result.description()).isEqualTo(NEW_FOR_YOU_DESCRIPTION);
         assertThat(result.artworkUrlTemplate().isPresent()).isFalse();
         assertThat(result.tracks()).hasSize(0);
+    }
+
+    @Test
+    public void mapSystemPlaylistEntity() throws Exception {
+        final Optional<Urn> queryUrn = Optional.of(Urn.forSystemPlaylist(456L));
+        final SystemPlaylistEntity systemPlaylistEntity = SystemPlaylistEntity.create(URN, queryUrn, TITLE, DESCRIPTION, new ArrayList<>(), LAST_UPDATED, ARTWORK_URL_TEMPLATE);
+
+        final SystemPlaylist result = SystemPlaylistMapper.map(systemPlaylistEntity, TRACKS);
+
+        assertThat(result.urn()).isEqualTo(URN);
+        assertThat(result.queryUrn()).isEqualTo(queryUrn);
+        assertThat(result.lastUpdated()).isEqualTo(LAST_UPDATED);
+        assertThat(result.title()).isEqualTo(TITLE);
+        assertThat(result.description()).isEqualTo(DESCRIPTION);
+        assertThat(result.artworkUrlTemplate()).isEqualTo(ARTWORK_URL_TEMPLATE);
+        assertThat(result.tracks()).isEqualTo(TRACKS);
     }
 
 }

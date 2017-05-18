@@ -8,8 +8,23 @@ final class DbModel {
 
     private static final UrnAdapter URN_ADAPTER = new UrnAdapter();
     private static final StringListAdapter STRING_LIST_ADAPTER = new StringListAdapter();
+    private static final DateAdapter DATE_ADAPTER = new DateAdapter();
 
     private DbModel() {
+    }
+
+    @AutoValue
+    public abstract static class SystemPlaylist implements SystemPlaylistModel {
+        static final SystemPlaylistModel.Creator<SystemPlaylist> CREATOR = AutoValue_DbModel_SystemPlaylist::new;
+
+        static final SystemPlaylistModel.Factory<SystemPlaylist> FACTORY = new SystemPlaylistModel.Factory<>(CREATOR, URN_ADAPTER, URN_ADAPTER, DATE_ADAPTER);
+    }
+
+    @AutoValue
+    abstract static class SystemPlaylistsTracks implements SystemPlaylistsTracksModel {
+        static final SystemPlaylistsTracksModel.Creator<SystemPlaylistsTracks> CREATOR = AutoValue_DbModel_SystemPlaylistsTracks::new;
+
+        static final SystemPlaylistsTracksModel.Factory<SystemPlaylistsTracks> FACTORY = new SystemPlaylistsTracksModel.Factory<>(CREATOR, URN_ADAPTER, URN_ADAPTER);
     }
 
     @AutoValue

@@ -815,9 +815,9 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openLink(activityContext, "email@address.com");
 
         assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_SENDTO)
-                .containsUri(Uri.parse("mailto:"))
-                .containsExtra(Intent.EXTRA_EMAIL, new String[] { "email@address.com" });
+                                   .containsAction(Intent.ACTION_SENDTO)
+                                   .containsUri(Uri.parse("mailto:"))
+                                   .containsExtra(Intent.EXTRA_EMAIL, new String[]{"email@address.com"});
     }
 
     @Test
@@ -825,9 +825,9 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openLink(activityContext, "soundcloud://search");
 
         assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_VIEW)
-                .containsUri(Uri.parse("soundcloud://search"))
-                .opensActivity(ResolveActivity.class);
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(Uri.parse("soundcloud://search"))
+                                   .opensActivity(ResolveActivity.class);
     }
 
     @Test
@@ -835,9 +835,9 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openLink(activityContext, "http://soundcloud.com/search");
 
         assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_VIEW)
-                .containsUri(Uri.parse("http://soundcloud.com/search"))
-                .opensActivity(ResolveActivity.class);
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(Uri.parse("http://soundcloud.com/search"))
+                                   .opensActivity(ResolveActivity.class);
     }
 
     @Test
@@ -845,7 +845,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openLink(activityContext, "http://facebook.com/whatever");
 
         assertThat(activityContext).nextStartedIntent()
-                .containsAction(Intent.ACTION_VIEW)
-                .containsUri(Uri.parse("http://facebook.com/whatever"));
+                                   .containsAction(Intent.ACTION_VIEW)
+                                   .containsUri(Uri.parse("http://facebook.com/whatever"));
     }
 }

@@ -1,7 +1,8 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;
@@ -10,7 +11,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.Collection;
 import java.util.List;
 
-public final class DbModelMapper {
+final class DbModelMapper {
     private DbModelMapper() {
     }
 
@@ -24,6 +25,17 @@ public final class DbModelMapper {
 
     static List<DiscoveryCard> mapDiscoveryCardsWithSelectionItems(List<DbModel.FullDiscoveryCard> fullDiscoveryCards, MultiMap<Urn, DbModel.SelectionItem> selectionItemsMultiMap) {
         return Lists.transform(fullDiscoveryCards, fullDiscoveryCard -> mapDiscoveryCard(fullDiscoveryCard, selectionItemsMultiMap));
+    }
+
+    static SystemPlaylistEntity mapSystemPlaylist(DbModel.SystemPlaylist systemPlaylist, List<Urn> trackUrns) {
+        return SystemPlaylistEntity.create(systemPlaylist.urn(),
+                                           Optional.fromNullable(systemPlaylist.query_urn()),
+                                           Optional.fromNullable(systemPlaylist.title()),
+                                           Optional.fromNullable(systemPlaylist.description()),
+                                           trackUrns,
+                                           Optional.fromNullable(systemPlaylist.last_updated()),
+                                           Optional.fromNullable(systemPlaylist.artwork_url_template())
+        );
     }
 
     private static DiscoveryCard mapDiscoveryCard(DbModel.FullDiscoveryCard fullDiscoveryCard, MultiMap<Urn, DbModel.SelectionItem> selectionItems) {

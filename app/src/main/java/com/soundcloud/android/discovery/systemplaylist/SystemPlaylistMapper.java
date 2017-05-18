@@ -9,6 +9,8 @@ import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 
+import java.util.List;
+
 final class SystemPlaylistMapper {
 
     static SystemPlaylist map(ApiSystemPlaylist apiSystemPlaylist) {
@@ -32,6 +34,18 @@ final class SystemPlaylistMapper {
                 newForYou.tracks(),
                 Optional.of(newForYou.lastUpdate()),
                 Optional.absent()
+        );
+    }
+
+    static SystemPlaylist map(SystemPlaylistEntity systemPlaylistEntity, List<Track> tracks) {
+        return SystemPlaylist.create(
+                systemPlaylistEntity.urn(),
+                systemPlaylistEntity.queryUrn(),
+                systemPlaylistEntity.title(),
+                systemPlaylistEntity.description(),
+                tracks,
+                systemPlaylistEntity.lastUpdated(),
+                systemPlaylistEntity.artworkUrlTemplate()
         );
     }
 

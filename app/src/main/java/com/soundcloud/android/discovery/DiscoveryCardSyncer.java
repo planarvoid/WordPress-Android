@@ -38,7 +38,7 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
         experimentOperations.getSerializedActiveVariants().ifPresent(activeVariants -> builder.addQueryParam(PARAM_EXPERIMENT, activeVariants));
         final ApiRequest apiRequest = builder.forPrivateApi().build();
         final ModelCollection<ApiDiscoveryCard> apiDiscoveryCards = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiDiscoveryCard>>() {});
-        discoveryWritableStorage.store(apiDiscoveryCards);
+        discoveryWritableStorage.storeDiscoveryCards(apiDiscoveryCards);
         return true;
     }
 }

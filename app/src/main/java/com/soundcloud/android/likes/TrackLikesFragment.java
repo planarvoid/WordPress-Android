@@ -31,7 +31,8 @@ public class TrackLikesFragment extends LightCycleSupportFragment<TrackLikesFrag
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }

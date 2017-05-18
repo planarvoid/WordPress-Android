@@ -7,6 +7,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.experiments.NewForYouConfig;
 import com.soundcloud.android.configuration.experiments.PlaylistDiscoveryConfig;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.ChartBucket;
 import com.soundcloud.android.olddiscovery.charts.ChartsBucketItem;
 import com.soundcloud.android.olddiscovery.charts.ChartsOperations;
@@ -17,7 +18,6 @@ import com.soundcloud.android.olddiscovery.recommendations.RecommendedTracksOper
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsOperations;
 import com.soundcloud.android.olddiscovery.welcomeuser.WelcomeUserItem;
 import com.soundcloud.android.olddiscovery.welcomeuser.WelcomeUserOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;

@@ -1,0 +1,27 @@
+import com.soundcloud.android.model.Urn;
+import java.util.Date;
+
+CREATE TABLE system_playlist (
+    urn TEXT AS Urn NOT NULL PRIMARY KEY,
+    query_urn TEXT AS Urn,
+    title TEXT,
+    description TEXT,
+    artwork_url_template TEXT,
+    last_updated INTEGER AS Date
+);
+
+selectAll:
+SELECT *
+FROM system_playlist;
+
+selectByUrn:
+SELECT *
+FROM system_playlist
+WHERE urn = ?;
+
+deleteAll:
+DELETE FROM system_playlist;
+
+insertRow:
+INSERT INTO system_playlist(urn, query_urn, title, description, artwork_url_template, last_updated)
+VALUES (?, ?, ?, ?, ?, ?);

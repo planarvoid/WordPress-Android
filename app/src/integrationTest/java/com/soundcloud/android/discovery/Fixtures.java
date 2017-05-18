@@ -1,12 +1,16 @@
 package com.soundcloud.android.discovery;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -93,4 +97,12 @@ class Fixtures {
         idCounter++;
         return idCounter;
     }
+
+    static final ApiSystemPlaylist SYSTEM_PLAYLIST = ApiSystemPlaylist.create(Urn.forSystemPlaylist(123L),
+                                                                              Optional.of(1),
+                                                                              Optional.of(new Date(123)),
+                                                                              Optional.of("title"),
+                                                                              Optional.of("description"),
+                                                                              Optional.of("http://fancy.jpg"),
+                                                                              new ModelCollection<>(Collections.singletonList(new ApiTrack(Urn.forTrack(123L)))));
 }

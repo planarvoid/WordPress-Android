@@ -27,7 +27,7 @@ public abstract class SystemPlaylist {
 
     public abstract Optional<Date> lastUpdated();
 
-    static SystemPlaylist create(Urn urn, Optional<Urn> queryUrn, Optional<String> title, Optional<String> description, List<Track> tracks, Optional<Date> lastUpdated, Optional<String> artworkUrlTemplate) {
+    public static SystemPlaylist create(Urn urn, Optional<Urn> queryUrn, Optional<String> title, Optional<String> description, List<Track> tracks, Optional<Date> lastUpdated, Optional<String> artworkUrlTemplate) {
         return new AutoValue_SystemPlaylist(urn, queryUrn, title, description, artworkUrlTemplate, tracks, lastUpdated);
     }
 

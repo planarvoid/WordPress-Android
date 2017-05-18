@@ -23,6 +23,8 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(DbModel.SingleContentSelectionCard.CREATE_TABLE);
         sqLiteDatabase.execSQL(DbModel.MultipleContentSelectionCard.CREATE_TABLE);
         sqLiteDatabase.execSQL(DbModel.DiscoveryCard.CREATE_TABLE);
+        sqLiteDatabase.execSQL(DbModel.SystemPlaylist.CREATE_TABLE);
+        sqLiteDatabase.execSQL(DbModel.SystemPlaylistsTracks.CREATE_TABLE);
     }
 
     @Override

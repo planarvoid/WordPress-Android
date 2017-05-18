@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.discovery.systemplaylist.ApiSystemPlaylist;
+import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistEntity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
@@ -86,6 +89,26 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
         discoveryWritableStorage.insertApiDiscoveryCards(Fixtures.discoveryCards(2));
         test.awaitCount(2);
         test.assertValueCount(2);
+    }
+
+    @Test
+    public void insertAndReadSystemPlaylist() throws Exception {
+        ApiSystemPlaylist playlist = Fixtures.SYSTEM_PLAYLIST;
+        discoveryWritableStorage.storeSystemPlaylist(playlist);
+        final SystemPlaylistEntity systemPlaylistEntity = discoveryReadableStorage.systemPlaylistEntity(playlist.urn()).test().assertValueCount(1).values().get(0);
+
+        assertThat(systemPlaylistEntity).isEqualTo(map(playlist));
+    }
+
+    private SystemPlaylistEntity map(ApiSystemPlaylist apiSystemPlaylist) {
+        return SystemPlaylistEntity.create(
+                apiSystemPlaylist.urn(),
+                apiSystemPlaylist.tracks().getQueryUrn(),
+                apiSystemPlaylist.title(),
+                apiSystemPlaylist.description(),
+                apiSystemPlaylist.tracks().transform(ApiTrack::getUrn).getCollection(),
+                apiSystemPlaylist.lastUpdated(),
+                apiSystemPlaylist.artworkUrlTemplate());
     }
 
     @Override

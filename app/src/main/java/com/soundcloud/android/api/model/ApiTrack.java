@@ -43,10 +43,9 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     private Optional<Boolean> subMidTier = Optional.absent();
     private Optional<Boolean> subHighTier = Optional.absent();
 
-
     public ApiTrack() { /* for Deserialization */ }
 
-    ApiTrack(Urn urn) {
+    public ApiTrack(Urn urn) {
         this.urn = urn;
     }
 

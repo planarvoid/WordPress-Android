@@ -30,6 +30,7 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,7 +99,7 @@ public class SystemPlaylistPresenterTest extends AndroidUnitTest {
     public void setUp() {
         Mockito.reset(bundle);
         when(systemPlaylistAdapterFactory.create(any(SystemPlaylistHeaderRenderer.Listener.class), any(TrackItemRenderer.Listener.class))).thenReturn(systemPlaylistAdapter);
-        when(systemPlaylistOperations.fetchSystemPlaylist(URN)).thenReturn(Single.just(SYSTEM_PLAYLIST));
+        when(systemPlaylistOperations.fetchSystemPlaylist(URN)).thenReturn(Maybe.just(SYSTEM_PLAYLIST));
         when(newForYouOperations.newForYou()).thenReturn(Single.just(NEW_FOR_YOU));
         when(resources.getString(eq(R.string.system_playlist_duration), any(Object.class), any(Object.class))).thenReturn(METADATA);
         when(resources.getQuantityString(eq(R.plurals.elapsed_seconds_ago), any(Integer.class), any(Integer.class))).thenReturn(LAST_UPDATED.get());

@@ -12,19 +12,19 @@ import java.util.Date;
 
 @AutoValue
 public abstract class ApiSystemPlaylist {
-    abstract Urn urn();
+    public abstract Urn urn();
 
-    abstract Optional<Integer> trackCount();
+    public abstract Optional<Integer> trackCount();
 
-    abstract Optional<Date> lastUpdated();
+    public abstract Optional<Date> lastUpdated();
 
-    abstract Optional<String> title();
+    public abstract Optional<String> title();
 
-    abstract Optional<String> description();
+    public abstract Optional<String> description();
 
-    abstract Optional<String> artworkUrlTemplate();
+    public abstract Optional<String> artworkUrlTemplate();
 
-    abstract ModelCollection<ApiTrack> tracks();
+    public abstract ModelCollection<ApiTrack> tracks();
 
     @JsonCreator
     public static ApiSystemPlaylist create(@JsonProperty("urn") Urn urn,
