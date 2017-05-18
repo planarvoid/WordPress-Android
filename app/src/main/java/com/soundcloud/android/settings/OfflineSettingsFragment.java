@@ -99,16 +99,12 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private void setupChangeStorageLocation() {
         Preference preference = findPreference(OFFLINE_CHANGE_STORAGE_LOCATION);
-        if (isChangeStorageLocationSupported() && shouldShowChangeStorageLocationPreference()) {
+        if (applicationProperties.canChangeOfflineContentLocation() && shouldShowChangeStorageLocationPreference()) {
             preference.setSummary(getChangeStorageLocationSummary());
             preference.setOnPreferenceClickListener(this);
         } else {
             getPreferenceScreen().removePreference(preference);
         }
-    }
-
-    private boolean isChangeStorageLocationSupported() {
-        return featureFlags.isEnabled(Flag.OFFLINE_CONTENT_LOCATION) && applicationProperties.canChangeOfflineContentLocation();
     }
 
     private boolean shouldShowChangeStorageLocationPreference() {
