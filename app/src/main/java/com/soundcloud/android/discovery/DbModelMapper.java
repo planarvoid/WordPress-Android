@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
@@ -13,28 +14,28 @@ public final class DbModelMapper {
     private DbModelMapper() {
     }
 
-    static MultiMap<Long, DbModel.SelectionItem> toMultiMap(List<DbModel.SelectionItem> list) {
-        final MultiMap<Long, DbModel.SelectionItem> multiMap = new ListMultiMap<>();
+    static MultiMap<Urn, DbModel.SelectionItem> toMultiMap(List<DbModel.SelectionItem> list) {
+        final MultiMap<Urn, DbModel.SelectionItem> multiMap = new ListMultiMap<>();
         for (DbModel.SelectionItem selectionItem : list) {
-            multiMap.put(selectionItem.card_id(), selectionItem);
+            multiMap.put(selectionItem.selection_urn(), selectionItem);
         }
         return multiMap;
     }
 
-    static List<DiscoveryCard> mapDiscoveryCardsWithSelectionItems(List<DbModel.FullDiscoveryCard> fullDiscoveryCards, MultiMap<Long, DbModel.SelectionItem> selectionItems1) {
-        return Lists.transform(fullDiscoveryCards, fullDiscoveryCard -> mapDiscoveryCard(fullDiscoveryCard, selectionItems1));
+    static List<DiscoveryCard> mapDiscoveryCardsWithSelectionItems(List<DbModel.FullDiscoveryCard> fullDiscoveryCards, MultiMap<Urn, DbModel.SelectionItem> selectionItemsMultiMap) {
+        return Lists.transform(fullDiscoveryCards, fullDiscoveryCard -> mapDiscoveryCard(fullDiscoveryCard, selectionItemsMultiMap));
     }
 
-    private static DiscoveryCard mapDiscoveryCard(DbModel.FullDiscoveryCard fullDiscoveryCard, MultiMap<Long, DbModel.SelectionItem> selectionItems1) {
+    private static DiscoveryCard mapDiscoveryCard(DbModel.FullDiscoveryCard fullDiscoveryCard, MultiMap<Urn, DbModel.SelectionItem> selectionItems) {
         if (fullDiscoveryCard.single_content_selection_card() != null) {
-            final DbModel.SingleContentSelectionCard singleContentSelectionCard = fullDiscoveryCard.single_content_selection_card();
-            final Collection<DbModel.SelectionItem> itemForCard = selectionItems1.get(singleContentSelectionCard._id());
+            final DbModel.SingleContentSelectionCard selectionCard = fullDiscoveryCard.single_content_selection_card();
+            final Collection<DbModel.SelectionItem> itemForCard = selectionItems.get(selectionCard.urn());
             final DbModel.SelectionItem selectionItem = itemForCard.iterator().next();
-            return mapSingleContentSelectionCard(singleContentSelectionCard, selectionItem);
+            return mapSingleContentSelectionCard(selectionCard, selectionItem);
         } else if (fullDiscoveryCard.multiple_content_selection_card() != null) {
-            final DbModel.MultipleContentSelectionCard singleContentSelectionCard = fullDiscoveryCard.multiple_content_selection_card();
-            final Collection<DbModel.SelectionItem> itemsForCard = selectionItems1.get(singleContentSelectionCard._id());
-            return mapMultipleContentSelectionCard(singleContentSelectionCard, itemsForCard);
+            final DbModel.MultipleContentSelectionCard selectionCard = fullDiscoveryCard.multiple_content_selection_card();
+            final Collection<DbModel.SelectionItem> itemsForCard = selectionItems.get(selectionCard.urn());
+            return mapMultipleContentSelectionCard(selectionCard, itemsForCard);
         } else {
             throw new IllegalArgumentException("Unexpected card type");
         }

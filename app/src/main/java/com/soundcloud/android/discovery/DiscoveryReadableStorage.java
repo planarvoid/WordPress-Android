@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.MultiMap;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -29,16 +30,16 @@ public class DiscoveryReadableStorage {
                                                                                                                    DiscoveryCardModel.TABLE_NAME,
                                                                                                                    DbModel.DiscoveryCard.FACTORY.selectAll().statement);
 
-        final Observable<MultiMap<Long, DbModel.SelectionItem>> selectionItemsObservable = discoveryDatabase.observeList(DbModel.SelectionItem.FACTORY.selectAllMapper(),
-                                                                                                                         SelectionItemModel.TABLE_NAME,
-                                                                                                                         DbModel.SelectionItem.FACTORY.selectAll().statement)
-                                                                                                            .map(DbModelMapper::toMultiMap);
+        final Observable<MultiMap<Urn, DbModel.SelectionItem>> selectionItemsObservable = discoveryDatabase.observeList(DbModel.SelectionItem.FACTORY.selectAllMapper(),
+                                                                                                                        SelectionItemModel.TABLE_NAME,
+                                                                                                                        DbModel.SelectionItem.FACTORY.selectAll().statement)
+                                                                                                           .map(DbModelMapper::toMultiMap);
         return Observable.combineLatest(discoveryCardsObservable, selectionItemsObservable, DbModelMapper::mapDiscoveryCardsWithSelectionItems).distinct();
     }
 
     Single<List<DiscoveryCard>> discoveryCards() {
         final Single<List<DbModel.FullDiscoveryCard>> discoCards = discoveryDatabase.selectList(DbModel.DiscoveryCard.SELECT_ALL, DbModel.FullDiscoveryCard.MAPPER);
-        final Single<MultiMap<Long, DbModel.SelectionItem>> selectionItems = discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL_FOR_DISCOVERY_CARDS, DbModel.SelectionItem.MAPPER)
+        final Single<MultiMap<Urn, DbModel.SelectionItem>> selectionItems = discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL, DbModel.SelectionItem.MAPPER)
                                                                                               .map(DbModelMapper::toMultiMap);
         return discoCards.zipWith(selectionItems, DbModelMapper::mapDiscoveryCardsWithSelectionItems);
 

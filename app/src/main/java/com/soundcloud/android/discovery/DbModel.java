@@ -35,9 +35,9 @@ final class DbModel {
     abstract static class SelectionItem implements SelectionItemModel {
         static final SelectionItemModel.Creator<SelectionItem> CREATOR = AutoValue_DbModel_SelectionItem::new;
 
-        static final SelectionItemModel.Factory<SelectionItem> FACTORY = new SelectionItemModel.Factory<>(CREATOR, URN_ADAPTER);
+        static final SelectionItemModel.Factory<SelectionItem> FACTORY = new SelectionItemModel.Factory<>(CREATOR, URN_ADAPTER, URN_ADAPTER);
 
-        static final SqlDelightStatement SELECT_ALL_FOR_DISCOVERY_CARDS = FACTORY.selectForDiscoveryCards();
+        static final SqlDelightStatement SELECT_ALL = FACTORY.selectAll();
 
         static final RowMapper<SelectionItem> MAPPER = FACTORY.selectAllMapper();
     }

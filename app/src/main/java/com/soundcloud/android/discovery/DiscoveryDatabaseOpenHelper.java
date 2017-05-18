@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 @Singleton
 public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     @Inject
     DiscoveryDatabaseOpenHelper(Context context) {
@@ -26,6 +26,25 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        try {
+            db.beginTransaction();
+            recreateDb(db);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Drops and recreates all discovery tables
+     * @param db
+     */
+    private void recreateDb(SQLiteDatabase db) {
+        db.execSQL(DbModel.SelectionItem.DROPTABLE);
+        db.execSQL(DbModel.SingleContentSelectionCard.DROPTABLE);
+        db.execSQL(DbModel.MultipleContentSelectionCard.DROPTABLE);
+        db.execSQL(DbModel.DiscoveryCard.DROPTABLE);
+        onCreate(db);
     }
 }

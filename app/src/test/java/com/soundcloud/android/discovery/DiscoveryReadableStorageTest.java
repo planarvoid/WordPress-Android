@@ -31,7 +31,7 @@ public class DiscoveryReadableStorageTest
         final long cardId = 1;
         initDiscoveryCardTable(cardUrn, cardId);
         final Urn selectionItemUrn = new Urn("soundcloud:playlist:123");
-        initSelectionItemTable(cardId, selectionItemUrn);
+        initSelectionItemTable(cardUrn, selectionItemUrn);
 
         final List<DiscoveryCard> discoveryCards = discoveryReadableStorage.discoveryCards().test().assertValueCount(1).values().get(0);
 
@@ -41,9 +41,9 @@ public class DiscoveryReadableStorageTest
         assertThat(singleContentSelectionCard.selectionUrn()).isEqualTo(cardUrn);
     }
 
-    private void initSelectionItemTable(Long cardId, Urn selectionItemUrn) {
-        final DbModel.SelectionItem selectionItem = DbModel.SelectionItem.CREATOR.create(1, cardId, selectionItemUrn, null, null, null, null, null, null, null);
-        when(discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL_FOR_DISCOVERY_CARDS, DbModel.SelectionItem.MAPPER)).thenReturn(Single.just(Lists.newArrayList(selectionItem)));
+    private void initSelectionItemTable(Urn cardUrn, Urn selectionItemUrn) {
+        final DbModel.SelectionItem selectionItem = DbModel.SelectionItem.CREATOR.create(1, cardUrn, selectionItemUrn, null, null, null, null, null, null, null);
+        when(discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL, DbModel.SelectionItem.MAPPER)).thenReturn(Single.just(Lists.newArrayList(selectionItem)));
     }
 
     private void initDiscoveryCardTable(Urn cardUrn, long cardId) {

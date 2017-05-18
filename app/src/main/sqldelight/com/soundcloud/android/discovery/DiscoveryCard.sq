@@ -15,6 +15,9 @@ LEFT JOIN multiple_content_selection_card ON discovery_card.multiple_selection_c
 deleteAll:
 DELETE FROM discovery_card;
 
+dropTable:
+DROP TABLE discovery_card;
+
 insertRow:
 INSERT INTO discovery_card(single_selection_card_id, multiple_selection_card_id)
 VALUES (?, ?);

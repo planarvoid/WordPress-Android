@@ -28,6 +28,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
     private static final String SUBTITLE = "subtitle";
     private static final String WEB_LINK = "subtitle";
     private static final String APP_LINK = "subtitle";
+    private static final Urn SELECTION_URN = Urn.forSystemPlaylist(1);
     private DiscoveryReadableStorage discoveryReadableStorage;
     private DiscoveryWritableStorage discoveryWritableStorage;
 
@@ -40,7 +41,8 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
     @Test
     public void insertAndReadSelectionItems() throws Exception {
-        final long itemId = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(new Urn("soundcloud:system_playlist:123"), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK), 2);
+        final long itemId = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(Urn.forSystemPlaylist(123), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK),
+                                                                         SELECTION_URN);
 
         final List<DbModel.SelectionItem> selectionItems = discoveryReadableStorage.selectionItems().test().assertValueCount(1).values().get(0);
         assertThat(selectionItems).hasSize(1);
@@ -49,12 +51,14 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
 
     @Test
     public void insertAndReadSelectionItemsFromLiveObservable() throws Exception {
-        final long itemId1 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(new Urn("soundcloud:system_playlist:123"), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK), 2);
+        final long itemId1 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(Urn.forSystemPlaylist(123), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK),
+                                                                          SELECTION_URN);
         final TestObserver<List<DbModel.SelectionItem>> test = discoveryReadableStorage.liveSelectionItems().test();
         test.awaitCount(1);
         test.assertValueCount(1);
         assertThat(test.values().get(0).get(0)._id()).isEqualTo(itemId1);
-        final long itemId2 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(new Urn("soundcloud:system_playlist:124"), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK), 2);
+        final long itemId2 = discoveryWritableStorage.insertSelectionItem(ApiSelectionItem.create(Urn.forSystemPlaylist(124), ARTWORK, ARTWORK_STYLE, COUNT, TITLE, SUBTITLE, WEB_LINK, APP_LINK),
+                                                                          SELECTION_URN);
         test.awaitCount(2);
         test.assertValueCount(2);
         assertThat(test.values().get(1).get(0)._id()).isEqualTo(itemId1);

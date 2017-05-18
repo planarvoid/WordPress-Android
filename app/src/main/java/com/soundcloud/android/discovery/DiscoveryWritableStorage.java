@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -50,7 +51,7 @@ public class DiscoveryWritableStorage {
                        card.socialProof().orNull(),
                        card.socialProofAvatarUrlTemplates().orNull());
         final long cardId = discoveryDatabase.insert(DbModel.SingleContentSelectionCard.TABLE_NAME, insertRow.program);
-        insertSelectionItem(card.selectionItem(), cardId);
+        insertSelectionItem(card.selectionItem(), card.selectionUrn());
         return cardId;
     }
 
@@ -60,15 +61,15 @@ public class DiscoveryWritableStorage {
         insertRow.bind(card.selectionUrn(), card.selectionItems().getQueryUrn().orNull(), card.style().orNull(), card.title().orNull(), card.description().orNull());
         final long cardId = discoveryDatabase.insert(DbModel.MultipleContentSelectionCard.TABLE_NAME, insertRow.program);
         for (ApiSelectionItem apiSelectionItem : card.selectionItems().getCollection()) {
-            insertSelectionItem(apiSelectionItem, cardId);
+            insertSelectionItem(apiSelectionItem, card.selectionUrn());
         }
         return cardId;
     }
 
-    long insertSelectionItem(ApiSelectionItem selectionItem, long cardId) {
+    long insertSelectionItem(ApiSelectionItem selectionItem, Urn cardUrn) {
         final DbModel.SelectionItem.InsertRow insertRow = new SelectionItemModel.InsertRow(discoveryDatabase.writableDatabase(), DbModel.SelectionItem.FACTORY);
         insertRow.bind(selectionItem.urn().orNull(),
-                       cardId,
+                       cardUrn,
                        selectionItem.artworkUrlTemplate().orNull(),
                        selectionItem.artworkStyle().transform(ImageStyle::toIdentifier).orNull(),
                        selectionItem.count().transform(Long::valueOf).orNull(),

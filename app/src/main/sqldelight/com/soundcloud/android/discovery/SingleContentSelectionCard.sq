@@ -15,6 +15,9 @@ CREATE TABLE single_content_selection_card (
 deleteAll:
 DELETE FROM single_content_selection_card;
 
+dropTable:
+DROP TABLE single_content_selection_card;
+
 insertRow:
 INSERT INTO single_content_selection_card(urn, query_urn, style, title, description, social_proof, social_proof_avatar_urls)
 VALUES (?, ?, ?, ?, ?, ?, ?);
