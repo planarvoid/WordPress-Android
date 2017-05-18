@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/collection_recently_played_item_padding"
-    android:clipChildren="false"
-    android:clipToPadding="false"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <include layout="@layout/carousel_playlist_item" />
+    <include
+        layout="@layout/carousel_playlist_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/collection_recently_played_item_padding" />
+
+    <com.soundcloud.android.view.OverflowAnchorImageView
+        android:id="@+id/overflow_button"
+        style="@style/Collections.RecentlyPlayedOverflowMenuButton" />
 
 </FrameLayout>

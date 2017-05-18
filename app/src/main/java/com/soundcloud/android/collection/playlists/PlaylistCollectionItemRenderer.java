@@ -10,6 +10,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.OverflowButtonBackground;
 import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 
@@ -81,7 +82,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
 
     private void setupOverFlow(final OverflowAnchorImageView button, final PlaylistItem playlistItem) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem));
-        OverflowButtonBackground.install(button);
+        OverflowButtonBackground.install(button, R.dimen.playlist_item_overflow_menu_padding);
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {

@@ -18,7 +18,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationMenuPresenter;
+import com.soundcloud.android.utils.OverflowButtonBackground;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -71,13 +73,13 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayab
         setTitle(view, station.getTitle());
         setType(view, getStationType(station));
         view.setOnClickListener(goToStation(station));
-        setupOverflow(view.findViewById(R.id.overflow_button), station);
+        setupOverflow(findById(view, R.id.overflow_button), station);
     }
 
-    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem station) {
+    private void setupOverflow(final OverflowAnchorImageView button, final RecentlyPlayedPlayableItem station) {
         button.setOnClickListener(v -> stationMenuPresenter.show(button, station.getUrn()));
-
-        ViewUtils.extendTouchArea(button);
+        OverflowButtonBackground.install(button, R.dimen.collection_recently_played_item_overflow_menu_padding);
+        ViewUtils.extendTouchArea(button, R.dimen.collection_recently_played_item_overflow_menu_touch_expansion);
     }
 
     private void setTitle(View view, String title) {

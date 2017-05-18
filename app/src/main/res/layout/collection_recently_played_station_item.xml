@@ -1,51 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/carousel_playlist_item"
-    style="@style/Collections.BucketCarouselCard"
+<RelativeLayout android:id="@+id/carousel_playlist_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
     android:foreground="?attr/selectableItemBackground">
 
-    <RelativeLayout
+    <com.soundcloud.android.image.StyledImageView
+        android:id="@+id/artwork"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        tools:ignore="UselessParent">
+        android:layout_height="wrap_content"/>
 
-        <com.soundcloud.android.image.StyledImageView
-            android:id="@+id/artwork"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/title"
+        style="@style/Carousel.ItemTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/artwork"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="4dp" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/title"
-            style="@style/Carousel.ItemTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/artwork"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="4dp" />
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/secondary_text"
+        style="@style/Carousel.ItemArtist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginRight="4dp" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/secondary_text"
-            style="@style/Carousel.ItemArtist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/title"
-            android:layout_marginRight="4dp" />
-
-        <com.soundcloud.android.view.OverflowAnchorImageView
-            android:id="@+id/overflow_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="1dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/ic_playlist_menu"
-            android:background="?attr/selectableItemBackground" />
-
-    </RelativeLayout>
-
-</FrameLayout>
+</RelativeLayout>

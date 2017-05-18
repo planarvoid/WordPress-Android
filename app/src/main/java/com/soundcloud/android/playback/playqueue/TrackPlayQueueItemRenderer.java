@@ -131,7 +131,7 @@ class TrackPlayQueueItemRenderer implements CellRenderer<TrackPlayQueueUIItem> {
     }
 
     private void setupOverFlow(final TrackPlayQueueUIItem item, final ImageView overflowButton, final int position) {
-        ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
+        ViewUtils.extendTouchArea(overflowButton);
         overflowButton.setSelected(false);
         if (item.getPlayState() == PlayState.COMING_UP) {
             overflowButton.setImageResource(R.drawable.ic_drag_handle_medium_dark_gray_24dp);

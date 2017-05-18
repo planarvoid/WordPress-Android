@@ -20,7 +20,9 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.users.UserMenuPresenter;
+import com.soundcloud.android.utils.OverflowButtonBackground;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -72,16 +74,16 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
         setTitle(view, user.getTitle());
         setImage(view, user);
         view.setOnClickListener(goToUserProfile(user));
-        setupOverflow(view.findViewById(R.id.overflow_button), user, position);
+        setupOverflow(findById(view, R.id.overflow_button), user, position);
     }
 
-    private void setupOverflow(final View button, final RecentlyPlayedPlayableItem user, final int position) {
+    private void setupOverflow(final OverflowAnchorImageView button, final RecentlyPlayedPlayableItem user, final int position) {
         button.setOnClickListener(v -> userMenuPresenter.show(button, user.getUrn(), EventContextMetadata.builder()
                                                                                                  .pageName(screenProvider.getLastScreen().get())
                                                                                                  .module(Module.create(Module.RECENTLY_PLAYED, position))
                                                                                                  .build()));
-
-        ViewUtils.extendTouchArea(button, 8); // todo: use default ViewUtils.extendTouchArea
+        OverflowButtonBackground.install(button, R.dimen.collection_recently_played_item_overflow_menu_padding);
+        ViewUtils.extendTouchArea(button, R.dimen.collection_recently_played_item_overflow_menu_touch_expansion);
     }
 
     private void setTitle(View view, String title) {

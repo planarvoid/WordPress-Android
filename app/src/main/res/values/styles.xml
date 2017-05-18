@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Toolbar.Title" parent="TextAppearance.Widget.ScAppCompat.Toolbar.Title">
         <item name="android:textColor">@color/charcoal</item>
@@ -340,5 +340,21 @@
         <item name="android:background">@drawable/btn_header_play</item>
         <item name="android:visibility">gone</item>
     </style>
+
+    <style name="Collections.RecentlyPlayedOverflowMenuButton">
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:layout_gravity">bottom|end|right</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:src">@drawable/ic_playlist_menu</item>
+    </style>
+
+    <style name="Collections.RecentlyPlayedCarouselOverflowMenuButton" parent="Collections.RecentlyPlayedOverflowMenuButton">
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginEnd" tools:targetApi="17">8dp</item>
+    </style>
+
 
 </resources>

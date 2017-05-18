@@ -19,7 +19,9 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.OverflowButtonBackground;
 import com.soundcloud.android.utils.ViewUtils;
+import com.soundcloud.android.view.OverflowAnchorImageView;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -32,8 +34,6 @@ import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlayableItem> {
-
-    private static final int TOUCH_DELEGATE_DP = 8;
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
@@ -79,8 +79,9 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         setType(view, playlist.isAlbum()
                       ? R.string.collections_recently_played_album
                       : R.string.collections_recently_played_playlist);
-        view.setOnClickListener(goToPlaylist(playlist));
-        setupOverFlow(view.findViewById(R.id.overflow_button), playlist);
+
+        findById(view, R.id.carousel_playlist_item).setOnClickListener(goToPlaylist(playlist));
+        setupOverFlow(findById(view, R.id.overflow_button), playlist);
         playlistItemIndicatorsView.setupView(view, playlist.isPrivate(), playlist.isLiked(), playlist.getOfflineState());
     }
 
@@ -98,7 +99,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     }
 
     private void setTrackCount(View view, RecentlyPlayedPlayableItem playlist) {
-        final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
+        final TextView trackCount = findById(view, R.id.track_count);
         trackCount.setText(String.valueOf(playlist.getTrackCount()));
     }
 
@@ -111,9 +112,10 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         };
     }
 
-    private void setupOverFlow(final View button, final RecentlyPlayedPlayableItem playlistItem) {
+    private void setupOverFlow(final OverflowAnchorImageView button, final RecentlyPlayedPlayableItem playlistItem) {
         button.setOnClickListener(v -> playlistItemMenuPresenter.show(button, playlistItem.getUrn()));
-        ViewUtils.extendTouchArea(button, TOUCH_DELEGATE_DP);
+        OverflowButtonBackground.install(button, R.dimen.collection_recently_played_item_overflow_menu_padding);
+        ViewUtils.extendTouchArea(button, R.dimen.collection_recently_played_item_overflow_menu_touch_expansion);
     }
 
 }

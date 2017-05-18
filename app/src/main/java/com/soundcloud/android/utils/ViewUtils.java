@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.R;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.functions.Consumer;
 
@@ -8,6 +9,7 @@ import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.annotation.DimenRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
@@ -19,8 +21,6 @@ import java.util.Iterator;
 import java.util.Stack;
 
 public final class ViewUtils {
-
-    private static final int DEFAULT_TOUCH_DELEGATE_DP = 8;
 
     public static int dpToPx(Context context, int dp) {
         return dpToPx(context.getResources(), dp);
@@ -42,7 +42,7 @@ public final class ViewUtils {
     public static void setTouchClickable(View view, View.OnClickListener listener) {
         view.setClickable(true);
         view.setOnClickListener(listener);
-        extendTouchArea(view, 10);
+        extendTouchArea(view);
     }
 
     public static void unsetTouchClickable(View view) {
@@ -51,11 +51,11 @@ public final class ViewUtils {
     }
 
     public static void extendTouchArea(final View delegate) {
-        extendTouchArea(delegate, DEFAULT_TOUCH_DELEGATE_DP);
+        extendTouchArea(delegate, R.dimen.default_touch_extension);
     }
 
-    public static void extendTouchArea(final View delegate, int extendDp) {
-        final int extendPx = dpToPx(delegate.getContext(), extendDp);
+    public static void extendTouchArea(final View delegate, @DimenRes int extendDimenRes) {
+        final int extendPx = delegate.getContext().getResources().getDimensionPixelSize(extendDimenRes);
         final View parent = (View) delegate.getParent();
         parent.post(() -> {
             final Rect r = new Rect();

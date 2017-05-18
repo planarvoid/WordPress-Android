@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrackItem> {
-    private static final int EXTEND_DRAG_HANDLE_DP = 12;
     private final PlaylistTrackItemRenderer playlistTrackItemRenderer;
 
     @Inject
@@ -61,7 +60,7 @@ class PlaylistDetailTrackViewRenderer implements CellRenderer<PlaylistDetailTrac
         ViewFetcher.overflow(view).setVisibility(View.GONE);
         ViewFetcher.preview(view).setVisibility(View.GONE);
         ViewFetcher.hideDuration(view);
-        ViewUtils.extendTouchArea(handle, EXTEND_DRAG_HANDLE_DP);
+        ViewUtils.extendTouchArea(handle, R.dimen.playlist_drag_handler_touch_extension);
     }
 
 
