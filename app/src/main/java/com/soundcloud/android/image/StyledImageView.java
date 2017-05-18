@@ -41,20 +41,20 @@ public class StyledImageView extends FrameLayout {
             case SQUARE:
                 displaySquare(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
-                circularArtwork.setVisibility(INVISIBLE);
-                stationIndicator.setVisibility(INVISIBLE);
+                circularArtwork.setVisibility(GONE);
+                stationIndicator.setVisibility(GONE);
                 break;
             case CIRCULAR:
                 displayCircular(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
                 circularArtwork.setVisibility(VISIBLE);
-                squareArtwork.setVisibility(INVISIBLE);
-                stationIndicator.setVisibility(INVISIBLE);
+                squareArtwork.setVisibility(GONE);
+                stationIndicator.setVisibility(GONE);
                 break;
             case STATION:
                 displaySquare(imageUrlTemplate, cacheKey, imageOperations, usePlaceholder);
                 squareArtwork.setVisibility(VISIBLE);
                 stationIndicator.setVisibility(VISIBLE);
-                circularArtwork.setVisibility(INVISIBLE);
+                circularArtwork.setVisibility(GONE);
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unknown ImageType %s", imageStyle.get()));
