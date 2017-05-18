@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.Configuration;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -148,7 +149,9 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     private void setupUpsell(MoreView moreView) {
         if (featureOperations.upsellHighTier()) {
-            moreView.showHighTierUpsell();
+            moreView.showUpsell(featureOperations.getCurrentPlan() == Plan.MID_TIER
+                                ? R.string.more_upsell_mt
+                                : R.string.more_upsell);
         }
     }
 

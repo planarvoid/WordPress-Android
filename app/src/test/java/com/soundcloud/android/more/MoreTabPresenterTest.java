@@ -1,6 +1,7 @@
 package com.soundcloud.android.more;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -308,7 +309,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView, never()).setSubscriptionTier(anyString());
-        verify(moreView, never()).showHighTierUpsell();
+        verify(moreView, never()).showUpsell(anyInt());
         verify(moreView, never()).showOfflineSettings();
     }
 
@@ -320,7 +321,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_free));
-        verify(moreView).showHighTierUpsell();
+        verify(moreView).showUpsell(R.string.more_upsell);
         verify(moreView, never()).showOfflineSettings();
     }
 
@@ -334,7 +335,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_go));
-        verify(moreView).showHighTierUpsell();
+        verify(moreView).showUpsell(R.string.more_upsell_mt);
         verify(moreView).showOfflineSettings();
     }
 
@@ -347,7 +348,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         verify(moreView, never()).showRestoreSubscription();
         verify(moreView).setSubscriptionTier(resources().getString(R.string.tier_plus));
-        verify(moreView, never()).showHighTierUpsell();
+        verify(moreView, never()).showUpsell(anyInt());
         verify(moreView).showOfflineSettings();
     }
 

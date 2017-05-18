@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainPagerAdapter;
 
 import android.content.res.Resources;
+import android.support.annotation.StringRes;
 import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ class MoreView implements MainPagerAdapter.ScrollContent {
     @BindView(R.id.more_offline_sync_settings_link) View offlineSettingsView;
     @BindView(R.id.more_report_bug) View reportBug;
     @BindView(R.id.more_upsell_block) View upsell;
+    @BindView(R.id.more_upsell) TextView upsellText;
     @BindView(R.id.more_subscription_block) View subscriptionBlock;
     @BindView(R.id.more_subscription_tier) TextView tier;
     @BindView(R.id.more_restore_subscription_block) View restoreBlock;
@@ -76,7 +78,8 @@ class MoreView implements MainPagerAdapter.ScrollContent {
         subscriptionBlock.setVisibility(View.VISIBLE);
     }
 
-    void showHighTierUpsell() {
+    void showUpsell(@StringRes int upsellTextId) {
+        upsellText.setText(upsellTextId);
         upsell.setVisibility(View.VISIBLE);
     }
 

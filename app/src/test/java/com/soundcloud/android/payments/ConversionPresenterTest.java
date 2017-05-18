@@ -262,6 +262,19 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void moreButtonNotEnabledForHighTierWhenUserIsMidTier() {
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        setUpsellContext(UpsellContext.PREMIUM_CONTENT);
+
+        presenter.onCreate(activity, null);
+
+        verify(view).showDetails("$2", 30);
+        verify(view, never()).enableMoreForMidTier(anyString());
+        verify(view, never()).enableMoreForHighTier();
+    }
+
+    @Test
     public void loadingFailsIfOnlyMidTierIsAvailable() {
         when(paymentOperations.products()).thenReturn(Observable.just(INVALID));
 

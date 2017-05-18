@@ -208,7 +208,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void onUpsell(Context context) {
-        navigator.openUpgrade(context, UpsellContext.OFFLINE);
+        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forCollectionClick());
     }
 

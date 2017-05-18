@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -40,6 +41,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private AppCompatActivity activity;
 
     private UpsellContext upsellContext =  UpsellContext.DEFAULT;
+    private Optional<WebProduct> primaryProduct = Optional.absent();
 
     @Inject
     ConversionPresenter(WebPaymentOperations operations,
@@ -118,7 +120,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void enableHighTierPurchase() {
         displayPrimaryProduct(products.highTier().get());
-        if (products.midTier().isPresent()) {
+        if (canPurchaseMidTier()) {
             view.enableMoreForMidTier(products.midTier().get().getPrice());
         }
     }
@@ -134,6 +136,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void displayPrimaryProduct(WebProduct product) {
+        primaryProduct = Optional.of(product);
         if (product.hasPromo()) {
             displayPromo(product);
         } else {
@@ -161,8 +164,8 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     @Override
     public void onPurchasePrimary() {
-        if (products.highTier().isPresent()) {
-            attemptWebCheckout(products.highTier().get());
+        if (primaryProduct.isPresent()) {
+            attemptWebCheckout(primaryProduct.get());
         } else {
             loadProducts();
         }
