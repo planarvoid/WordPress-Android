@@ -1,9 +1,8 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.SoundCloudApplication;
 import org.jetbrains.annotations.NotNull;
-
-import android.support.compat.BuildConfig;
 
 public final class Log {
     public static final String ADS_TAG = "ScAds";
