@@ -1,150 +1,70 @@
 package com.soundcloud.android.ads;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PrestitialAdImpressionEvent;
-import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.DefaultImageListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class VisualPrestitialPresenterTest extends AndroidUnitTest {
 
-    @Mock Navigator navigator;
-    @Mock AdViewabilityController viewabilityController;
-    @Mock VisualPrestitialView view;
-    @Mock AppCompatActivity activity;
+    @Mock ImageOperations imageOperations;
+    @Mock PrestitialActivity activity;
+    @Mock VisualPrestitialPresenter.Listener listener;
 
-    @Mock Bundle bundle;
-    @Mock Intent intent;
-    @Mock ImageView imageView;
-
-    private TestEventBus eventBus;
     private VisualPrestitialPresenter presenter;
+    private ViewPager viewPager;
+    private ViewGroup view;
+    private VisualPrestitialAd ad;
 
     @Before
     public void setUp() {
-        eventBus = new TestEventBus();
-        presenter = new VisualPrestitialPresenter(view,
-                                                  viewabilityController,
-                                                  navigator,
-                                                  eventBus);
-        when(activity.getIntent()).thenReturn(intent);
-        when(intent.getExtras()).thenReturn(bundle);
+        presenter = new VisualPrestitialPresenter(imageOperations);
+        viewPager = new ViewPager(context());
+        view = (ViewGroup) LayoutInflater.from(context()).inflate(R.layout.visual_prestitial, viewPager, false);
+        ad = AdFixtures.visualPrestitialAd();
     }
 
     @Test
-    public void finishesActivityWhenThereIsNoAdInBundleOnCreate() {
-        when(bundle.containsKey(VisualPrestitialActivity.EXTRA_AD)).thenReturn(false);
-        presenter.onCreate(activity, null);
+    public void displaysPrestitialAdImageOnSetupWithVisualPresitialAdListener() {
+        presenter.setupContentView(view, ad, listener);
+        final Urn adUrn = ad.adUrn();
+        final String imageUrl = ad.imageUrl();
 
-        verify(activity).finish();
+        verify(imageOperations).displayAdImage(eq(adUrn),
+                                               eq(imageUrl),
+                                               any(ImageView.class),
+                                               any(DefaultImageListener.class));
     }
 
     @Test
-    public void setsUpViewOnCreateWhenParcelContainsVisualPrestitialAd() {
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-        when(bundle.containsKey(VisualPrestitialActivity.EXTRA_AD)).thenReturn(true);
-        when(bundle.getParcelable(VisualPrestitialActivity.EXTRA_AD)).thenReturn(ad);
+    public void finishesActivityOnClickOfContinueButton(){
+        presenter.setupContentView(view, ad, listener);
 
-        presenter.onCreate(activity, null);
+        view.findViewById(R.id.btn_continue).performClick();
 
-        verify(view).setupContentView(activity, ad, presenter);
+        verify(listener).onContinueClick();
     }
 
     @Test
-    public void finishesActivityWhenParcelDoesNotContainsVisualPrestitialAd() {
-        when(bundle.containsKey(VisualPrestitialActivity.EXTRA_AD)).thenReturn(true);
-        when(bundle.getParcelable(VisualPrestitialActivity.EXTRA_AD)).thenReturn(new FakeAd());
+    public void notifiesListenerOfClickThrough(){
+        presenter.setupContentView(view, ad, listener);
 
-        presenter.onCreate(activity, null);
+        final ImageView imageView = (ImageView) view.findViewById(R.id.ad_image_view);
+        imageView.performClick();
 
-        verifyZeroInteractions(view);
-        verify(activity).finish();
-    }
-
-    @Test
-    public void navigatesToClickThroughUrlOnClickThrough() {
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-        final View imageView = new View(context());
-
-        presenter.onClickThrough(activity, imageView, ad);
-
-        verify(navigator).openAdClickthrough(context(), ad.clickthroughUrl());
-    }
-
-    @Test
-    public void publishesUIEventOnClickThrough() {
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-        final View imageView = new View(context());
-
-        presenter.onClickThrough(activity, imageView, ad);
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
-    }
-
-    @Test
-    public void finishesActivityOnClickThrough() {
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-        final View imageView = new View(context());
-
-        presenter.onClickThrough(activity, imageView, ad);
-
-        verify(activity).finish();
-    }
-
-    @Test
-    public void publishesImpressionOnImageLoadComplete(){
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-
-        presenter.onImageLoadComplete(ad, imageView);
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
-    }
-
-    @Test
-    public void startsViewabilityTrackingOnImageLoadComplete(){
-        VisualPrestitialAd ad = AdFixtures.visualPrestitialAd();
-
-        presenter.onImageLoadComplete(ad, imageView);
-
-        verify(viewabilityController).startDisplayTracking(imageView, ad);
-    }
-
-    @Test
-    public void stopsViewabilityTrackingOnDestroy(){
-        presenter.onDestroy(activity);
-
-        verify(viewabilityController).stopDisplayTracking();
-    }
-
-    private class FakeAd extends AdData implements Parcelable {
-        @Override
-        public int describeContents() { return 0; }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) { /* no-op */ }
-
-        @Override
-        public Urn adUrn() { return null; }
-
-        @Override
-        public MonetizationType monetizationType() { return null; }
+        verify(listener).onClickThrough(imageView, ad);
     }
 }

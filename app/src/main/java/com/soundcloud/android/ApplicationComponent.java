@@ -4,7 +4,7 @@ import com.soundcloud.android.accounts.LogoutFragment;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.activities.ActivitiesFragment;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
-import com.soundcloud.android.ads.VisualPrestitialActivity;
+import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastMediaIntentReceiver;
@@ -221,7 +221,7 @@ public interface ApplicationComponent {
     void inject(DevDrawerFragment devDrawerFragment);
     void inject(FullImageDialog fullImageDialog);
     void inject(FullScreenVideoActivity fullScreenVideoActivity);
-    void inject(VisualPrestitialActivity visualPrestitialActivity);
+    void inject(PrestitialActivity prestitialActivity);
 
     //Cast
     void inject(CastRedirectActivity castRedirectActivity);

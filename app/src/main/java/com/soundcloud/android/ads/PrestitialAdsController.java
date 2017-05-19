@@ -18,7 +18,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootActivity> {
 
     private final AdsOperations adsOperations;
@@ -28,6 +30,8 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     private RootActivity activity;
     private Subscription subscriber = RxUtils.invalidSubscription();
+
+    private Optional<AdData> currentAd = Optional.absent();
 
     @Inject
     PrestitialAdsController(AdsOperations adsOperations,
@@ -64,8 +68,13 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     @Override
     public void onDestroy(RootActivity activity) {
+        currentAd = Optional.absent();
         this.activity = null;
         super.onDestroy(activity);
+    }
+
+    Optional<AdData> getCurrentAd() {
+        return currentAd;
     }
 
     private void fetchPrestitialAdIfNecessary(Intent intent) {
@@ -86,11 +95,10 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
         @Override
         public void onNext(AdData data) {
-            if (data instanceof VisualPrestitialAd) {
-                final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
-                eventBus.publish(EventQueue.TRACKING, event);
-                navigator.openVisualPrestitital(activity, (VisualPrestitialAd) data);
-            }
+            final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
+            currentAd = Optional.of(data);
+            eventBus.publish(EventQueue.TRACKING, event);
+            navigator.openPrestititalAd(activity);
         }
     }
 }

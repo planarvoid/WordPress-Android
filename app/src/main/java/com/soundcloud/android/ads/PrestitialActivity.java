@@ -10,13 +10,11 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class VisualPrestitialActivity extends LoggedInActivity {
+public class PrestitialActivity extends LoggedInActivity {
 
-    public static final String EXTRA_AD = "EXTRA_AD";
+    @Inject @LightCycle PrestitialPresenter presenter;
 
-    @Inject @LightCycle VisualPrestitialPresenter presenter;
-
-    public VisualPrestitialActivity() {
+    public PrestitialActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -37,6 +35,6 @@ public class VisualPrestitialActivity extends LoggedInActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.visual_prestitial);
+        super.setContentView(R.layout.prestitial);
     }
 }

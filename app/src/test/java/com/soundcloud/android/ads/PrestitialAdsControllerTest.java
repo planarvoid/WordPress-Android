@@ -12,7 +12,6 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.RootActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -79,7 +78,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onCreate(activity, null);
 
-        verify(navigator).openVisualPrestitital(activity, prestitial);
+        verify(navigator).openPrestititalAd(activity);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
     }
 
@@ -91,19 +90,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onCreate(activity, null);
 
-        verify(navigator, never()).openVisualPrestitital(any(Context.class), any(VisualPrestitialAd.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-    }
-
-    @Test
-    public void willNotLaunchPrestitialIfPrestitialsFetchReturnsNonVisualPrestitialAd() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.just(AdFixtures.getAudioAd(Urn.forTrack(123))));
-
-        controller.onCreate(activity, null);
-
-        verify(navigator, never()).openVisualPrestitital(any(Context.class), any(VisualPrestitialAd.class));
+        verify(navigator, never()).openPrestititalAd(any(Context.class));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
     }
 
@@ -141,7 +128,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onNewIntent(activity, intent);
 
-        verify(navigator, times(1)).openVisualPrestitital(activity, prestitial);
+        verify(navigator, times(1)).openPrestititalAd(activity);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
     }
 }

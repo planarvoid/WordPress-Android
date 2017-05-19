@@ -22,6 +22,10 @@ public class AdFixtures {
         return VisualPrestitialAd.create(getApiVisualPrestitial());
     }
 
+    public static SponsoredSessionAd sponsoredSessionAd() {
+        return SponsoredSessionAd.create(getApiSponsoredSession());
+    }
+
     public static InterstitialAd getInterstitialAd(Urn monetizableUrn) {
         final InterstitialAd interstitial = InterstitialAd.create(getApiInterstitial(), monetizableUrn);
         interstitial.setMonetizableTitle("dubstep anthem");

@@ -113,7 +113,7 @@
             android:theme="@style/Theme.SoundCloud.Translucent"
             android:screenOrientation="landscape" />
 
-        <activity android:name=".ads.VisualPrestitialActivity"
+        <activity android:name=".ads.PrestitialActivity"
             android:theme="@style/Theme.SoundCloud.NoActionBar"
             android:screenOrientation="portrait" />
 

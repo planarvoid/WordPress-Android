@@ -2,8 +2,7 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
-import com.soundcloud.android.ads.VisualPrestitialActivity;
-import com.soundcloud.android.ads.VisualPrestitialAd;
+import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
@@ -138,10 +137,8 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openVisualPrestitital(Context context, VisualPrestitialAd prestitial) {
-        Intent intent = new Intent(context, VisualPrestitialActivity.class)
-                .putExtra(VisualPrestitialActivity.EXTRA_AD, prestitial);
-        context.startActivity(intent);
+    public void openPrestititalAd(Context context) {
+        context.startActivity(new Intent(context, PrestitialActivity.class));
     }
 
     public void openAdClickthrough(Context context, Uri clickUrl) {

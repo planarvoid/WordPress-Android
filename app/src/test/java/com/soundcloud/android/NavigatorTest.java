@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
-import com.soundcloud.android.ads.VisualPrestitialActivity;
+import com.soundcloud.android.ads.PrestitialActivity;
 import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -190,10 +190,9 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openVisualPrestitial() {
         final VisualPrestitialAd ad = VisualPrestitialAd.create(AdFixtures.getApiVisualPrestitial());
-        navigator.openVisualPrestitital(activityContext, ad);
+        navigator.openPrestititalAd(activityContext);
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(VisualPrestitialActivity.EXTRA_AD, ad)
-                                   .opensActivity(VisualPrestitialActivity.class);
+                                   .opensActivity(PrestitialActivity.class);
     }
 
     @Test
