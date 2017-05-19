@@ -24,7 +24,7 @@ public class SystemPlaylistAdapterTest extends AndroidUnitTest {
     private static final TrackItem FIRST_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(0));
     private static final TrackItem SECOND_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(1));
     private static final TrackItem THIRD_TRACK_ITEM = ModelFixtures.trackItem(TRACKS.get(2));
-    private static final Urn URN = Urn.forSystemPlaylist(123L);
+    private static final Urn URN = Urn.forSystemPlaylist("123");
     private static final Optional<String> TITLE = Optional.of("Title");
     private static final Optional<String> DESCRIPTION = Optional.of("Description");
     private static final Optional<String> ARTWORK_URL = Optional.of("https://cool.artwork/url.jpg");

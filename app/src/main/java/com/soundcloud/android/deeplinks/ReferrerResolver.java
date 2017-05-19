@@ -3,6 +3,7 @@ package com.soundcloud.android.deeplinks;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.ComponentName;
@@ -14,7 +15,8 @@ import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
-class ReferrerResolver {
+@SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+public class ReferrerResolver {
 
     private static final String FACEBOOK_PKG_NAME = "com.facebook.application.";
     private static final String TWITTER_PKG_NAME = "com.twitter.android";
@@ -39,7 +41,7 @@ class ReferrerResolver {
         // for dagger
     }
 
-    String getReferrerFromIntent(Intent intent, Resources resources) {
+    public String getReferrerFromIntent(Intent intent, Resources resources) {
         try {
             if (containsParameter(intent, PARAM_REF)) {
                 return extractParam(intent, PARAM_REF);
@@ -57,12 +59,11 @@ class ReferrerResolver {
                 return Referrer.GOOGLE_CRAWLER.value();
             } else if (isBrowserIntent(intent)) {
                 return referrerFromBrowser(intent);
-            } else {
-                return Referrer.OTHER.value();
             }
-        } catch (ClassCastException exception) {
-            return Referrer.OTHER.value();
+        } catch (ClassCastException e) {
+            Log.e("Referrer could not be extracted from intent: " + intent, e);
         }
+        return Referrer.OTHER.value();
     }
 
     private boolean containsParameter(Intent intent, String param) {

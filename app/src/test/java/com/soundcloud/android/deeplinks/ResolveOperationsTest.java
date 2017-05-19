@@ -1,26 +1,34 @@
 package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Completable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
 
 import android.net.Uri;
 
@@ -31,71 +39,111 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
     private ResolveOperations operations;
 
-    @Mock private ApiClient apiClient;
+    @Mock private ApiClientRxV2 apiClient;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
 
-    private Scheduler scheduler = Schedulers.immediate();
+    private Scheduler scheduler = Schedulers.trampoline();
 
     @Before
     public void setUp() throws Exception {
-        operations = new ResolveOperations(apiClient, scheduler,
-                                           storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+        operations = new ResolveOperations(apiClient,
+                                           scheduler,
+                                           storeTracksCommand,
+                                           storePlaylistsCommand,
+                                           storeUsersCommand);
     }
 
     @Test
     public void fetchesResourceViaResolveEndpoint() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/skrillex");
+        String uri = "http://soundcloud.com/skrillex";
         ApiResolvedResource resolvedResource = resolvedTrack();
-        mockResolutionFor(uri.toString(), resolvedResource);
+        mockResolutionFor(uri, resolvedResource);
 
         operations.resolve(uri).test()
-                .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
-                .assertCompleted();
+                  .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
+                  .assertComplete();
     }
 
     @Test
     public void shouldReportUnsupportedResourcesAsError() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/unsupported-by-android");
+        String uri = "http://soundcloud.com/unsupported-by-android";
         ApiResolvedResource resolvedResource = unsupportedResource();
-        mockResolutionFor(uri.toString(), resolvedResource);
+        mockResolutionFor(uri, resolvedResource);
 
         operations.resolve(uri).test()
-                  .assertValue(ResolveResult.error(uri, null))
-                  .assertCompleted();
+                  .assertValue(ResolveResult.error(Uri.parse(uri), null))
+                  .assertComplete();
     }
 
     @Test
     public void shouldReportExceptionWithError() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/exceptiontime");
-        final IOException ioException = new IOException();
-        when(apiClient.fetchMappedResponse(
-                argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", uri.toString())),
-                eq(ApiResolvedResource.class))).thenThrow(ioException);
+        String uri = "http://soundcloud.com/exceptiontime";
+        when(apiClient.mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", uri)),
+                eq(ApiResolvedResource.class))).thenReturn(Single.error(new IOException()));
 
-        operations.resolve(uri).test()
-                .assertValue(ResolveResult.error(uri, ioException))
-                .assertCompleted();
+        ResolveResult resolveResult = operations.resolve(uri).test()
+                                                .assertValueCount(1)
+                                                .assertComplete()
+                                                .values().get(0);
+        assertThat(resolveResult.success()).isFalse();
+        assertThat(resolveResult.exception().get()).isInstanceOf(IOException.class);
     }
 
     @Test
     public void followsClickTrackingUrlsThenResolvesUrlQuery() throws Exception {
-        Uri uri = Uri.parse(
-                "http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music");
+        String uri =
+                "http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music";
         ApiResolvedResource resolvedResource = resolvedTrack();
+        when(apiClient.ignoreResultRequest(any(ApiRequest.class))).thenReturn(Completable.complete());
         mockResolutionFor("http://soundcloud.com/skrillex/music", resolvedResource);
 
         operations.resolve(uri).test()
                   .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
-                  .assertCompleted();
+                  .assertComplete();
+    }
+
+    @Test
+    public void failsFollowClickTrackingUrlsThenResolvesUrlQuery() throws Exception {
+        String uri =
+                "http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music";
+        ApiResolvedResource resolvedResource = resolvedTrack();
+        when(apiClient.ignoreResultRequest(any(ApiRequest.class))).thenReturn(Completable.error(new IOException()));
+        mockResolutionFor("http://soundcloud.com/skrillex/music", resolvedResource);
+
+        operations.resolve(uri).test()
+                  .assertValue(ResolveResult.succes(resolvedResource.getOptionalTrack().get().getUrn()))
+                  .assertComplete();
+    }
+
+    @Test
+    public void failsFollowClickTrackingUrlsThenFailsResolveUrlQuery() throws Exception {
+        String uri =
+                "http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music";
+        ApiResolvedResource resolvedResource = resolvedTrack();
+        IOException exception = new IOException();
+        when(apiClient.ignoreResultRequest(any(ApiRequest.class))).thenReturn(Completable.error(exception));
+        String followUrl = "http://soundcloud.com/skrillex/music";
+        when(apiClient.mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", followUrl)),
+                eq(ApiResolvedResource.class))).thenReturn(Single.error(exception));
+
+        ResolveResult resolveResult = operations.resolve(uri).test()
+                                                .assertComplete()
+                                                .assertValueCount(1)
+                                                .values()
+                                                .get(0);
+        assertThat(resolveResult.success()).isFalse();
+        assertThat(resolveResult.uri().orNull()).isEqualTo(Uri.parse(followUrl));
     }
 
     @Test
     public void storesTrack() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/skrillex/ye");
+        String uri = "http://soundcloud.com/skrillex/ye";
         ApiResolvedResource resolvedResource = resolvedTrack();
-        mockResolutionFor(uri.toString(), resolvedResource);
+        mockResolutionFor(uri, resolvedResource);
 
         operations.resolve(uri).test();
 
@@ -104,9 +152,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
     @Test
     public void storesPlaylist() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/skrillex/sets/yo");
+        String uri = "http://soundcloud.com/skrillex/sets/yo";
         ApiResolvedResource resolvedResource = resolvedPlaylist();
-        mockResolutionFor(uri.toString(), resolvedResource);
+        mockResolutionFor(uri, resolvedResource);
 
         operations.resolve(uri).test();
 
@@ -115,9 +163,9 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
     @Test
     public void storesUser() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/skrillex");
+        String uri = "http://soundcloud.com/skrillex";
         ApiResolvedResource resolvedResource = resolvedUser();
-        mockResolutionFor(uri.toString(), resolvedResource);
+        mockResolutionFor(uri, resolvedResource);
 
         operations.resolve(uri).test();
 
@@ -141,8 +189,8 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     }
 
     private void mockResolutionFor(String url, ApiResolvedResource resolvedResource) throws Exception {
-        when(apiClient.fetchMappedResponse(
+        when(apiClient.mappedResponse(
                 argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", url)),
-                eq(ApiResolvedResource.class))).thenReturn(resolvedResource);
+                eq(ApiResolvedResource.class))).thenReturn(Single.just(resolvedResource));
     }
 }

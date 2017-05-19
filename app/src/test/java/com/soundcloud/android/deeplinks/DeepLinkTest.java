@@ -31,6 +31,13 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldLinkExternalToUnknown() throws Exception {
+        assertDeeplink(DeepLink.UNKNOWN, "http://www.google.com");
+        assertDeeplink(DeepLink.UNKNOWN, "mailto:sctest@soundcloud.com");
+        assertDeeplink(DeepLink.UNKNOWN, "sctest@soundcloud.com");
+    }
+
+    @Test
     public void shouldFlagEmailConfirmationUrlsAsWebView() {
         assertDeeplink(DeepLink.WEB_VIEW, "https://soundcloud.com/emails/123456789abcdef");
     }
@@ -116,6 +123,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.CHARTS, "soundcloud://charts");
         assertDeeplink(DeepLink.TRACK_ENTITY, "soundcloud://tracks/123");
         assertDeeplink(DeepLink.PLAYLIST_ENTITY, "soundcloud://playlists/123");
+        assertDeeplink(DeepLink.SYSTEM_PLAYLIST_ENTITY, "soundcloud://system-playlists/123");
         assertDeeplink(DeepLink.USER_ENTITY, "soundcloud://users/123");
         assertDeeplink(DeepLink.SHARE_APP, "soundcloud://share/app");
         assertDeeplink(DeepLink.SYSTEM_SETTINGS, "soundcloud://open-notification-settings");

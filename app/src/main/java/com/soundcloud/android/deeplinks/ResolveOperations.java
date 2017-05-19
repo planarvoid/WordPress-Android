@@ -1,7 +1,7 @@
 package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
@@ -10,8 +10,8 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -22,15 +22,16 @@ import java.io.IOException;
 import java.util.Collections;
 
 class ResolveOperations {
-    private final ApiClient apiClient;
+
+    private final ApiClientRxV2 apiClient;
     private final Scheduler scheduler;
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
 
     @Inject
-    ResolveOperations(ApiClient apiClient,
-                      @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+    ResolveOperations(ApiClientRxV2 apiClient,
+                      @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                       StoreTracksCommand storeTracksCommand,
                       StorePlaylistsCommand storePlaylistsCommand,
                       StoreUsersCommand storeUsersCommand) {
@@ -41,51 +42,45 @@ class ResolveOperations {
         this.storeUsersCommand = storeUsersCommand;
     }
 
-    public Observable<ResolveResult> resolve(@NonNull final Uri originalUri) {
-        return Observable.<ResolveResult>create(subscriber -> {
-            Uri uri = followClickTrackingUrl(originalUri);
-            try {
-                ApiResolvedResource resolvedResource = resolveResource(uri.toString());
-                final Urn urn = resolvedResource.getUrn();
-                if (Urn.NOT_SET.equals(urn)) {
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(ResolveResult.error(uri, null));
-                        subscriber.onCompleted();
-                    }
-                } else {
-                    storeResource(resolvedResource);
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(ResolveResult.succes(urn));
-                        subscriber.onCompleted();
-                    }
-                }
-            } catch (ApiRequestException | IOException | ApiMapperException e) {
-                if (!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(ResolveResult.error(uri, e));
-                    subscriber.onCompleted();
-                }
-            }
-        }).subscribeOn(scheduler);
+    Single<ResolveResult> resolve(@NonNull final String target) {
+        final Uri originalUri = Uri.parse(target);
+        return followClickTrackingUrl(originalUri)
+                .flatMap(uri -> Single.zip(
+                        Single.just(uri),
+                        resolveResource(uri.toString()),
+                        (uri1, resolvedUrn) -> {
+                            if (Urn.NOT_SET.equals(resolvedUrn)) {
+                                return ResolveResult.error(uri1, null);
+                            } else {
+                                return ResolveResult.succes(resolvedUrn);
+                            }
+                        }).onErrorReturn(e -> ResolveResult.error(uri, new IOException(e)))
+                )
+                .subscribeOn(scheduler);
     }
 
-    private ApiResolvedResource resolveResource(@NonNull String identifier)
+    private Single<Urn> resolveResource(@NonNull String identifier)
             throws ApiRequestException, IOException, ApiMapperException {
+        return resolveViaApi(identifier).doOnSuccess(this::storeResource)
+                                        .map(ApiResolvedResource::getUrn);
+    }
+
+    private Single<ApiResolvedResource> resolveViaApi(@NonNull String identifier) {
         ApiRequest request = ApiRequest.get(ApiEndpoints.RESOLVE_ENTITY.path())
                                        .forPrivateApi()
                                        .addQueryParam("identifier", identifier)
                                        .build();
-
-        return apiClient.fetchMappedResponse(request, ApiResolvedResource.class);
+        return apiClient.mappedResponse(request, ApiResolvedResource.class);
     }
 
-    @NonNull
-    private Uri followClickTrackingUrl(@NonNull Uri uri) {
+    private Single<Uri> followClickTrackingUrl(@NonNull Uri uri) {
         if (DeepLink.isClickTrackingUrl(uri)) {
             // Just hit the click tracking url and extract the url
-            apiClient.fetchResponse(ApiRequest.get(uri.toString()).forPublicApi().build());
-            return DeepLink.extractClickTrackingRedirectUrl(uri);
+            return apiClient.ignoreResultRequest(ApiRequest.get(uri.toString()).forPublicApi().build())
+                            .toSingleDefault(DeepLink.extractClickTrackingRedirectUrl(uri))
+                            .onErrorReturn(throwable -> DeepLink.extractClickTrackingRedirectUrl(uri));
         } else {
-            return uri;
+            return Single.just(uri);
         }
     }
 

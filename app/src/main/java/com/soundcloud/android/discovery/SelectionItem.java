@@ -1,7 +1,9 @@
 package com.soundcloud.android.discovery;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ViewUtils;
@@ -40,8 +42,8 @@ abstract class SelectionItem {
     }
 
     @Nullable
-    OnClickListener onClickListener(Navigator navigator) {
+    OnClickListener onClickListener(NavigationDelegate navigationDelegate, Screen screen) {
         return appLink().or(webLink()).<OnClickListener>transform(
-                link -> view -> navigator.openLink(ViewUtils.getFragmentActivity(view), link)).orNull();
+                link -> view -> navigationDelegate.navigateTo(NavigationTarget.forNavigation(ViewUtils.getFragmentActivity(view), link, webLink(), screen))).orNull();
     }
 }

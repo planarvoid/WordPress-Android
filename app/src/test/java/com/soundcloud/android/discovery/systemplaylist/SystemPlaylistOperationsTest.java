@@ -35,8 +35,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class SystemPlaylistOperationsTest extends AndroidUnitTest {
-    private static final Urn URN = Urn.forSystemPlaylist(123L);
-    private static final Urn TRACK_URN = Urn.forSystemPlaylist(456L);
+    private static final Urn URN = Urn.forSystemPlaylist("123");
+    private static final Urn TRACK_URN = Urn.forTrack(456L);
 
 
     @Mock private ApiClientRxV2 apiClient;

@@ -26,7 +26,7 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class SystemPlaylistMapperTest {
 
-    private static final Urn URN = Urn.forSystemPlaylist(123L);
+    private static final Urn URN = Urn.forSystemPlaylist("123");
     private static final Optional<Integer> TRACK_COUNT = Optional.of(10);
     private static final Optional<Date> LAST_UPDATED = Optional.of(new Date(123456L));
     private static final Optional<String> TITLE = Optional.of("Title 1");
@@ -108,7 +108,7 @@ public class SystemPlaylistMapperTest {
 
     @Test
     public void mapSystemPlaylistEntity() throws Exception {
-        final Optional<Urn> queryUrn = Optional.of(Urn.forSystemPlaylist(456L));
+        final Optional<Urn> queryUrn = Optional.of(Urn.forSystemPlaylist("456"));
         final SystemPlaylistEntity systemPlaylistEntity = SystemPlaylistEntity.create(URN, queryUrn, TITLE, DESCRIPTION, new ArrayList<>(), LAST_UPDATED, ARTWORK_URL_TEMPLATE);
 
         final SystemPlaylist result = SystemPlaylistMapper.map(systemPlaylistEntity, TRACKS);

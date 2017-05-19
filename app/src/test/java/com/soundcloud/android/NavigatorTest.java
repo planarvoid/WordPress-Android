@@ -517,7 +517,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensSystemPlaylist() {
-        final Urn urn = Urn.forSystemPlaylist(123L);
+        final Urn urn = Urn.forSystemPlaylist("123");
         navigator.openSystemPlaylist(activityContext, urn, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
@@ -812,7 +812,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openLinkWorksForEmails() {
-        navigator.openLink(activityContext, "email@address.com");
+        navigator.openEmail(activityContext, "email@address.com");
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_SENDTO)
@@ -821,28 +821,8 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void openLinkWorksForSupportedAppLinks() {
-        navigator.openLink(activityContext, "soundcloud://search");
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(Uri.parse("soundcloud://search"))
-                                   .opensActivity(ResolveActivity.class);
-    }
-
-    @Test
-    public void openLinkWorksForSupportedWebLinks() {
-        navigator.openLink(activityContext, "http://soundcloud.com/search");
-
-        assertThat(activityContext).nextStartedIntent()
-                                   .containsAction(Intent.ACTION_VIEW)
-                                   .containsUri(Uri.parse("http://soundcloud.com/search"))
-                                   .opensActivity(ResolveActivity.class);
-    }
-
-    @Test
     public void openLinkFallsBackToAndroidForUnrecognisedLinks() {
-        navigator.openLink(activityContext, "http://facebook.com/whatever");
+        navigator.openExternal(activityContext, Uri.parse("http://facebook.com/whatever"));
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_VIEW)

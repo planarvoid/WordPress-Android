@@ -18,7 +18,7 @@ public class ResolveBrokenLinkTest extends ResolveBaseTest {
     }
 
     public void testShouldLandOnStreamIfCannotResolveDeeplink() {
-        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_loading_url)));
+        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_unknown_navigation)));
         assertThat(new StreamScreen(solo), is(visible()));
     }
 

@@ -13,8 +13,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -36,6 +40,7 @@ import rx.Observable;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -69,6 +74,8 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private SocialMediaLinkItem socialMediaLink;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
+    @Mock private ScreenProvider screenProvider;
+    @Mock private NavigationDelegate navigationDelegate;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
     @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
     private CondensedNumberFormatter numberFormatter;
@@ -94,10 +101,11 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
         when(profileOperations.userProfileInfo(USER_URN)).thenReturn(Observable.empty());
+        when(screenProvider.getLastScreen()).thenReturn(Screen.USER_INFO);
 
         when(resources.getStringArray(R.array.ak_number_suffixes)).thenReturn(new String[]{"", "K", "M", "B"});
         numberFormatter = CondensedNumberFormatter.create(Locale.GERMAN, resources);
-        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator);
+        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator, navigationDelegate, screenProvider);
     }
 
     @Test
@@ -220,7 +228,11 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
         listenerCaptor.getValue().onLinkClicked(socialMediaLink);
 
-        verify(navigator).openLink(fragment.getActivity(), url);
+        ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
+        verify(navigationDelegate).navigateTo(navigationTargetArgumentCaptor.capture());
+        final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
+        assertThat(resultNavigationTarget.target()).isEqualTo(url);
+        assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.USER_INFO);
     }
 
     @Test

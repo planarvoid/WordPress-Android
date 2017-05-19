@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.utils.ScTextUtils.isEmail;
-
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
 import com.soundcloud.android.ads.VisualPrestitialActivity;
@@ -88,6 +86,7 @@ import android.support.v4.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public class Navigator {
 
     private static final int NO_FLAGS = 0;
@@ -264,27 +263,15 @@ public class Navigator {
         context.startActivity(intent);
     }
 
-    public void openLink(Activity activity, String link) {
-        if (isEmail(link)) {
-            openEmail(activity, link);
-        } else {
-            openUri(activity, Uri.parse(link));
-        }
-    }
-
-    private void openEmail(Activity activity, String emailAddress) {
+    public void openEmail(Activity activity, String emailAddress) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
         intent.putExtra(Intent.EXTRA_EMAIL, new String[] { emailAddress });
         activity.startActivity(intent);
     }
 
-    public void openUri(Context context, Uri uri) {
-        if (ResolveActivity.accept(uri, context.getResources())) {
-            context.startActivity(new Intent(Intent.ACTION_VIEW, uri, context, ResolveActivity.class));
-        } else {
-            context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
-        }
+    public void openExternal(Activity activity, Uri uri) {
+        activity.startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
     public void legacyOpenProfile(Context context, Urn user, Screen screen) {

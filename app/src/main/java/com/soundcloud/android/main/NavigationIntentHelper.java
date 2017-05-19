@@ -6,17 +6,19 @@ import android.net.Uri;
 
 final class NavigationIntentHelper {
 
-    public static boolean shouldGoToStream(Uri data) {
+    static boolean shouldGoToStream(Uri data) {
         final DeepLink link = DeepLink.fromUri(data);
         return link.equals(DeepLink.HOME) || link.equals(DeepLink.STREAM);
     }
 
-    public static boolean shouldGoToSearch(Uri data) {
+    static boolean shouldGoToSearch(Uri data) {
         return DeepLink.fromUri(data).equals(DeepLink.SEARCH);
     }
 
-    public static boolean resolvesToNavigationItem(Uri data) {
+    static boolean resolvesToNavigationItem(Uri data) {
         return shouldGoToStream(data) || shouldGoToSearch(data);
     }
 
+    private NavigationIntentHelper() {
+    }
 }

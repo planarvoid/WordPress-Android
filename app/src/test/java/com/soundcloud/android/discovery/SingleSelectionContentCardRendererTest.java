@@ -1,13 +1,17 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.java.optional.Optional;
@@ -32,7 +36,8 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private DiscoveryCard.SingleContentSelectionCard card;
     @Mock private SelectionItem selectionItem;
-    @Mock private Navigator navigator;
+    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private ScreenProvider screenProvider;
     @Mock private OnClickListener onClickListener;
 
     private SingleSelectionContentCardRenderer renderer;
@@ -40,7 +45,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources, navigator);
+        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources, navigationDelegate, screenProvider);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(card.title()).thenReturn(Optional.of("title"));
@@ -204,7 +209,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsClickHandlingFromSelectionItem() {
-        when(selectionItem.onClickListener(navigator)).thenReturn(onClickListener);
+        when(selectionItem.onClickListener(eq(navigationDelegate), any())).thenReturn(onClickListener);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
         itemView.performClick();

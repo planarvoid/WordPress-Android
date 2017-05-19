@@ -1,5 +1,6 @@
 package com.soundcloud.android.deeplinks;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
@@ -10,30 +11,38 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.main.NavigationResult;
+import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.CheckResult;
 import android.widget.Toast;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
+@SuppressWarnings("PMD.GodClass")
 public class IntentResolver {
 
     private final ResolveOperations resolveOperations;
@@ -41,304 +50,359 @@ public class IntentResolver {
     private final PlaybackServiceController serviceController;
     private final PlaybackInitiator playbackInitiator;
     private final PlayQueueManager playQueueManager;
-    private final ReferrerResolver referrerResolver;
     private final EventBus eventBus;
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
     private final ChartsUriResolver chartsUriResolver;
     private final SignInOperations signInOperations;
+    private final LocalEntityUriResolver localEntityUriResolver;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
+                   LocalEntityUriResolver localEntityUriResolver,
                    AccountOperations accountOperations,
                    PlaybackServiceController serviceController,
                    PlaybackInitiator playbackInitiator,
                    PlayQueueManager playQueueManager,
-                   ReferrerResolver referrerResolver,
                    EventBus eventBus,
                    Navigator navigator,
                    FeatureOperations featureOperations,
                    ChartsUriResolver chartsUriResolver,
-                   SignInOperations signInOperations) {
+                   SignInOperations signInOperations,
+                   Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
         this.playbackInitiator = playbackInitiator;
         this.playQueueManager = playQueueManager;
-        this.referrerResolver = referrerResolver;
         this.eventBus = eventBus;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
         this.chartsUriResolver = chartsUriResolver;
         this.signInOperations = signInOperations;
+        this.localEntityUriResolver = localEntityUriResolver;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
-    void handleIntent(Intent intent, Context context) {
-        final Uri uri = intent.getData();
-        final String referrer = getReferrer(context, intent);
-        if (uri == null || Strings.isBlank(uri.toString())) {
-            showHomeScreen(context, referrer);
+    @CheckResult
+    public Single<NavigationResult> resolveNavigationResult(NavigationTarget navigationTarget) {
+        String target = navigationTarget.target();
+        if (Strings.isNullOrEmpty(target)) {
+            return showHomeScreen(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
         } else {
-            final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(uri);
-            final DeepLink deepLink = DeepLink.fromUri(hierarchicalUri);
-            if (shouldShowLogInMessage(deepLink, referrer)) {
-                trackForegroundEvent(referrer);
-                showOnboardingForUri(context, hierarchicalUri);
+            final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.target()));
+            NavigationTarget newTarget = navigationTarget.toBuilder().target(hierarchicalUri.toString()).build();
+            if (localEntityUriResolver.canResolveLocally(newTarget.target())) {
+                return resolveLocal(navigationTarget, newTarget);
+            } else if (localEntityUriResolver.isKnownDeeplink(newTarget.target())) {
+                return resolveDeeplink(hierarchicalUri, newTarget);
             } else {
-                handleDeepLink(context, hierarchicalUri, deepLink, referrer);
+                return resolveTarget(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
             }
         }
     }
 
-    private void handleDeepLink(Context context, Uri uri, DeepLink deepLink, String referrer) {
-        switch (deepLink) {
-            case HOME:
-            case STREAM:
-                showHomeScreen(context, referrer);
-                break;
-            case RECORD:
-                showRecordScreen(context, referrer);
-                break;
-            case DISCOVERY:
-                showDiscoveryScreen(context, referrer);
-                break;
-            case TRACK_RECOMMENDATIONS:
-                showTrackRecommendationsScreen(context, referrer);
-                break;
-            case CHARTS:
-                showCharts(context, uri, referrer);
-                break;
-            case CHARTS_ALL_GENRES:
-                showAllGenresCharts(context, uri, referrer);
-                break;
-            case SEARCH:
-                showSearchScreen(context, uri, referrer);
-                break;
-            case WEB_VIEW:
-                startWebView(context, uri, referrer);
-                break;
-            case SOUNDCLOUD_GO_PLUS_UPSELL:
-                showUpgradeScreen(context, referrer);
-                break;
-            case SOUNDCLOUD_GO_BUY:
-                showMidTierCheckoutScreen(context, referrer);
-                break;
-            case SOUNDCLOUD_GO_PLUS_BUY:
-                showHighTierCheckoutScreen(context, referrer);
-                break;
-            case SOUNDCLOUD_GO_CHOICE:
-                showProductChoiceScreen(context, referrer, Plan.MID_TIER);
-                break;
-            case SOUNDCLOUD_GO_PLUS_CHOICE:
-                showProductChoiceScreen(context, referrer, Plan.HIGH_TIER);
-                break;
-            case OFFLINE_SETTINGS:
-                showOfflineSettingsScreen(context, referrer);
-                break;
-            case NOTIFICATION_PREFERENCES:
-                showNotificationPreferencesScreen(context, referrer);
-                break;
-            case COLLECTION:
-                showCollectionScreen(context, referrer);
-                break;
-            case SHARE_APP:
-                shareApp(context, uri, referrer);
-                break;
-            case SYSTEM_SETTINGS:
-                showSystemSettings(context);
-                break;
-            case REMOTE_SIGN_IN:
-                startWebViewForRemoteSignIn(context, uri, referrer);
-                break;
-            default:
-                resolve(context, uri, referrer);
+    @CheckResult
+    private Single<NavigationResult> resolveDeeplink(Uri hierarchicalUri, NavigationTarget newTarget) {
+        final DeepLink deepLink = DeepLink.fromUri(hierarchicalUri);
+        if (shouldShowLogInMessage(deepLink, newTarget.referrer())) {
+            return showOnboardingForDeeplink(newTarget).map(action -> NavigationResult.create(newTarget, action));
+        } else {
+            return handleDeepLink(newTarget, deepLink).map(action -> NavigationResult.create(newTarget, action));
         }
     }
 
-    private void startWebViewForRemoteSignIn(Context context, Uri uri, String referrer) {
-        Uri target;
-        if (DeepLink.isWebScheme(uri)) {
-            target = signInOperations.generateRemoteSignInUri(uri.getPath());
+    @CheckResult
+    private Single<NavigationResult> resolveLocal(NavigationTarget navigationTarget, NavigationTarget newTarget) {
+        return localEntityUriResolver.resolve(newTarget.target())
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .flatMap(urn -> startActivityForResource(navigationTarget, urn).map(action -> NavigationResult.create(navigationTarget, action, urn)));
+    }
+
+    @CheckResult
+    private Single<Action> showOnboardingForDeeplink(NavigationTarget navigationTarget) {
+        return showOnboardingForUri(navigationTarget)
+                .doOnSuccess(ignore -> trackForegroundEvent(navigationTarget));
+    }
+
+    @CheckResult
+    private Single<Action> handleResolveResult(ResolveResult resolveResult, NavigationTarget navigationTarget) {
+        if (resolveResult.success() && localEntityUriResolver.canResolveLocally(resolveResult.urn().get())) {
+            return startActivityForResource(navigationTarget, resolveResult.urn().get());
+        } else {
+            return handleUnsuccessfulResolve(navigationTarget, resolveResult);
+        }
+    }
+
+    @CheckResult
+    private Single<Action> handleUnsuccessfulResolve(NavigationTarget navigationTarget, ResolveResult resolveResult) {
+        final Optional<String> errorUrl = resolveResult.uri().transform(Uri::toString);
+        final NavigationTarget fallbackAwareTaget = navigationTarget.toBuilder().fallback(navigationTarget.fallback().or(errorUrl)).build();
+        if (shouldRetryWithFallback(fallbackAwareTaget)) {
+            return resolveNavigationResult(fallbackAwareTaget.toBuilder()
+                                                             .target(fallbackAwareTaget.fallback().get())
+                                                             .fallback(Optional.absent())
+                                                             .build())
+                    .map(NavigationResult::action);
+        } else {
+            trackForegroundEvent(fallbackAwareTaget);
+            Optional<Exception> exception = resolveResult.exception();
+            if (exception.isPresent() && !ErrorUtils.isNetworkError(exception.get())) {
+                ErrorUtils.handleSilentException("unable to load deeplink:" + errorUrl, exception.get());
+                reportFailedToResolveDeeplink(fallbackAwareTaget);
+            }
+            return launchApplicationWithMessage(fallbackAwareTaget, R.string.error_unknown_navigation);
+        }
+    }
+
+    @CheckResult
+    private Single<Action> handleDeepLink(NavigationTarget navigationTarget, DeepLink deepLink) {
+        switch (deepLink) {
+            case HOME:
+            case STREAM:
+                return showHomeScreen(navigationTarget);
+            case RECORD:
+                return showRecordScreen(navigationTarget);
+            case DISCOVERY:
+                return showDiscoveryScreen(navigationTarget);
+            case TRACK_RECOMMENDATIONS:
+                return showTrackRecommendationsScreen(navigationTarget);
+            case CHARTS:
+                return showCharts(navigationTarget);
+            case CHARTS_ALL_GENRES:
+                return showAllGenresCharts(navigationTarget);
+            case SEARCH:
+                return showSearchScreen(navigationTarget);
+            case WEB_VIEW:
+                return startWebView(navigationTarget);
+            case SOUNDCLOUD_GO_PLUS_UPSELL:
+                return showUpgradeScreen(navigationTarget);
+            case SOUNDCLOUD_GO_BUY:
+                return showMidTierCheckoutScreen(navigationTarget);
+            case SOUNDCLOUD_GO_PLUS_BUY:
+                return showHighTierCheckoutScreen(navigationTarget);
+            case SOUNDCLOUD_GO_CHOICE:
+                return showProductChoiceScreen(navigationTarget, Plan.MID_TIER);
+            case SOUNDCLOUD_GO_PLUS_CHOICE:
+                return showProductChoiceScreen(navigationTarget, Plan.HIGH_TIER);
+            case OFFLINE_SETTINGS:
+                return showOfflineSettingsScreen(navigationTarget);
+            case NOTIFICATION_PREFERENCES:
+                return showNotificationPreferencesScreen(navigationTarget);
+            case COLLECTION:
+                return showCollectionScreen(navigationTarget);
+            case SHARE_APP:
+                return shareApp(navigationTarget);
+            case SYSTEM_SETTINGS:
+                return showSystemSettings(navigationTarget);
+            case REMOTE_SIGN_IN:
+                return startWebViewForRemoteSignIn(navigationTarget);
+            case UNKNOWN:
+                return startExternal(navigationTarget);
+            default:
+                return resolveTarget(navigationTarget);
+        }
+    }
+
+    @CheckResult
+    private Single<Action> startExternal(NavigationTarget navigationTarget) {
+        trackForegroundEvent(navigationTarget);
+        String target = navigationTarget.target();
+        Preconditions.checkNotNull(target, "Covered by #resolve");
+        Uri targetUri = Uri.parse(target);
+        final String identifier = Optional.fromNullable(targetUri.getAuthority()).or(targetUri.getPath());
+        if (ScTextUtils.isEmail(identifier)) {
+            return Single.just(() -> navigator.openEmail(navigationTarget.activity(), identifier));
+        } else {
+            return Single.just(() -> navigator.openExternal(navigationTarget.activity(), navigationTarget.targetUri()));
+        }
+    }
+
+    @CheckResult
+    private Single<Action> startWebViewForRemoteSignIn(NavigationTarget navigationTarget) {
+        final Uri target;
+        if (DeepLink.isWebScheme(navigationTarget.targetUri())) {
+            target = signInOperations.generateRemoteSignInUri(navigationTarget.targetUri().getPath());
         } else {
             target = signInOperations.generateRemoteSignInUri();
         }
 
-        trackForegroundEvent(referrer);
-        navigator.openRemoteSignInWebView(context, target);
+        return Single.<Action>just(() -> navigator.openRemoteSignInWebView(navigationTarget.activity(), target))
+                .doOnSuccess(t -> trackForegroundEvent(navigationTarget));
     }
 
-    private boolean shouldShowLogInMessage(DeepLink deepLink, String referrer) {
-        if (deepLink.requiresLoggedInUser()) {
-            if (deepLink.requiresResolve()) {
-                return false;
-            } else if (isCrawler(referrer)) {
-                loginCrawler();
-            } else if (!accountOperations.isUserLoggedIn()) {
-                return true;
-            }
-        }
-        return false;
+    @CheckResult
+    private Single<Action> resolveTarget(NavigationTarget navigationTarget) {
+        String target = navigationTarget.target();
+        Preconditions.checkNotNull(target, "Covered by #resolve");
+        return resolveOperations.resolve(target)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .flatMap(result -> handleResolveResult(result, navigationTarget));
     }
 
-    private void resolve(Context context, Uri uri, String referrer) {
-        resolveOperations.resolve(uri)
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(fetchSubscriber(context, uri, referrer));
+    @CheckResult
+    private Single<Action> startWebView(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openWebView(navigationTarget.activity(), navigationTarget.targetUri());
+        });
     }
 
-    private DefaultSubscriber<ResolveResult> fetchSubscriber(final Context context, final Uri uri, final String referrer) {
-        return new DefaultSubscriber<ResolveResult>() {
-            @Override
-            public void onNext(ResolveResult resolveResult) {
-                if (resolveResult.success()) {
-                    startActivityForResource(context, resolveResult.urn().get(), uri, referrer);
-                } else {
-                    handleError(resolveResult);
-                }
-            }
-
-            private void handleError(ResolveResult resolveResult) {
-                Optional<Uri> errorUri = resolveResult.uri();
-                Uri resolvedUri = errorUri.isPresent() ? errorUri.get() : uri;
-                DeepLink deepLink = DeepLink.fromUri(resolvedUri);
-
-                if (DeepLink.WEB_VIEW.equals(deepLink)) {
-                    startWebView(context, resolvedUri, referrer);
-                } else {
-                    trackForegroundEvent(referrer);
-                    launchApplicationWithMessage(context, R.string.error_loading_url);
-
-                    Optional<Exception> exception = resolveResult.exception();
-                    if (exception.isPresent() && !ErrorUtils.isNetworkError(exception.get())) {
-                        ErrorUtils.handleSilentException("unable to load deeplink:" + errorUri.get(), exception.get());
-                        reportFailedToResolveDeeplink(referrer);
-                    }
-                }
-            }
-        };
+    @CheckResult
+    private Single<Action> showHomeScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            accountOperations.clearCrawler();
+            trackForegroundEvent(navigationTarget);
+            navigator.openStream(navigationTarget.activity(), navigationTarget.screen());
+        });
     }
 
-    private void reportSuccessfulDeeplink(String referrer) {
-        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolvedDeeplink(referrer));
+    @CheckResult
+    private Single<Action> showDiscoveryScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openDiscovery(navigationTarget.activity(), navigationTarget.screen());
+        });
     }
 
-    private void reportFailedToResolveDeeplink(String referrer) {
-        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolutionFailure(referrer));
+    @CheckResult
+    private Single<Action> showTrackRecommendationsScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openViewAllRecommendations(navigationTarget.activity());
+        });
     }
 
-    private void startWebView(Context context, Uri uri, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openWebView(context, uri);
+    @CheckResult
+    private Single<Action> showCharts(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            ChartDetails chartDetails = chartsUriResolver.resolveUri(navigationTarget.targetUri());
+            navigator.openChart(navigationTarget.activity(), chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
+        });
     }
 
-    private void showHomeScreen(Context context, String referrer) {
-        accountOperations.clearCrawler();
-        trackForegroundEvent(referrer);
-        navigator.openStream(context, Screen.DEEPLINK);
+    @CheckResult
+    private Single<Action> showAllGenresCharts(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.targetUri()));
+        });
     }
 
-    private void showDiscoveryScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openDiscovery(context, Screen.DEEPLINK);
+    @CheckResult
+    private Single<Action> showSearchScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openSearch(navigationTarget.activity(), navigationTarget.targetUri(), navigationTarget.screen());
+        });
     }
 
-    private void showTrackRecommendationsScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openViewAllRecommendations(context);
+    @CheckResult
+    private Single<Action> showRecordScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openRecord(navigationTarget.activity(), navigationTarget.screen());
+        });
     }
 
-    private void showCharts(Context context, Uri uri, String referrer) {
-        trackForegroundEvent(referrer);
-        ChartDetails chartDetails = chartsUriResolver.resolveUri(uri);
-        navigator.openChart(context, chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
-    }
-
-    private void showAllGenresCharts(Context context, Uri uri, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openAllGenres(context, AllGenresUriResolver.resolveUri(uri));
-    }
-
-    private void showSearchScreen(Context context, Uri uri, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openSearch(context, uri, Screen.DEEPLINK);
-    }
-
-    private void showRecordScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openRecord(context, Screen.DEEPLINK);
-    }
-
-    private void showUpgradeScreen(Context context, String referrer) {
+    @CheckResult
+    private Single<Action> showUpgradeScreen(NavigationTarget navigationTarget) {
         if (featureOperations.upsellHighTier()) {
-            trackForegroundEvent(referrer, Screen.CONVERSION);
-            navigator.openUpgradeOnMain(context, UpsellContext.DEFAULT);
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget.withScreen(Screen.CONVERSION));
+                navigator.openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
+            });
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void showProductChoiceScreen(Context context, String referrer, Plan plan) {
+    @CheckResult
+    private Single<Action> showProductChoiceScreen(NavigationTarget navigationTarget, Plan plan) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
-            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
-            openFallback(context, referrer);
+            return openFallback(navigationTarget)
+                    .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellBothTiers()) {
-            trackForegroundEvent(referrer, Screen.CONVERSION);
-            navigator.openProductChoiceOnMain(context, plan);
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget.withScreen(Screen.CONVERSION));
+                navigator.openProductChoiceOnMain(navigationTarget.activity(), plan);
+            });
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void showMidTierCheckoutScreen(Context context, String referrer) {
+    @CheckResult
+    private Single<Action> showMidTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (featureOperations.getCurrentPlan().isGoPlan()) {
-            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
-            openFallback(context, referrer);
+            return openFallback(navigationTarget)
+                    .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellBothTiers()) {
-            trackForegroundEvent(referrer, Screen.CHECKOUT);
-            navigator.openDirectCheckout(context, Plan.MID_TIER);
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT));
+                navigator.openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
+            });
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void showHighTierCheckoutScreen(Context context, String referrer) {
+    @CheckResult
+    private Single<Action> showHighTierCheckoutScreen(NavigationTarget navigationTarget) {
         if (Plan.HIGH_TIER == featureOperations.getCurrentPlan()) {
-            Toast.makeText(context, R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT).show();
-            openFallback(context, referrer);
+            return openFallback(navigationTarget)
+                    .doOnSuccess(__ -> AndroidUtils.showToast(navigationTarget.activity(), R.string.product_choice_error_already_subscribed, Toast.LENGTH_SHORT));
         } else if (featureOperations.upsellHighTier()) {
-            trackForegroundEvent(referrer, Screen.CHECKOUT);
-            navigator.openDirectCheckout(context, Plan.HIGH_TIER);
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT));
+                navigator.openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+            });
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void showOfflineSettingsScreen(Context context, String referrer) {
+    @CheckResult
+    private Single<Action> showOfflineSettingsScreen(NavigationTarget navigationTarget) {
         if (featureOperations.isOfflineContentEnabled()) {
-            trackForegroundEvent(referrer, Screen.SETTINGS_OFFLINE);
-            navigator.openOfflineSettings(context);
+            return Single.just(() -> {
+                trackForegroundEvent(navigationTarget.withScreen(Screen.SETTINGS_OFFLINE));
+                navigator.openOfflineSettings(navigationTarget.activity());
+            });
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void openFallback(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openStream(context, Screen.DEEPLINK);
+    @CheckResult
+    private Single<Action> openFallback(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openStream(navigationTarget.activity(), navigationTarget.screen());
+        });
     }
 
-    private void showNotificationPreferencesScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openNotificationPreferencesFromDeeplink(context);
+    @CheckResult
+    private Single<Action> showNotificationPreferencesScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openNotificationPreferencesFromDeeplink(navigationTarget.activity());
+        });
     }
 
-
-    private void showCollectionScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer);
-        navigator.openCollection(context);
+    @CheckResult
+    private Single<Action> showCollectionScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigator.openCollection(navigationTarget.activity());
+        });
     }
 
-    private void shareApp(Context context, Uri uri, String referrer) {
+    @CheckResult
+    private Single<Action> shareApp(NavigationTarget navigationTarget) {
+        final Uri uri = Uri.parse(navigationTarget.target());
         final String title = uri.getQueryParameter("title");
         final String text = uri.getQueryParameter("text");
         final String path = uri.getQueryParameter("path");
@@ -349,81 +413,97 @@ public class IntentResolver {
             intent.putExtra(Intent.EXTRA_SUBJECT, title);
             intent.putExtra(Intent.EXTRA_TEXT, textToShare);
             intent.setType("message/rfc822");
-            context.startActivity(Intent.createChooser(intent, title));
+            return Single.just(() -> navigationTarget.activity().startActivity(Intent.createChooser(intent, title)));
         } else {
-            openFallback(context, referrer);
+            return openFallback(navigationTarget);
         }
     }
 
-    private void showSystemSettings(Context context) {
+    @CheckResult
+    private Single<Action> showSystemSettings(NavigationTarget navigationTarget) {
         final Intent intent = new Intent();
         intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setData(Uri.parse("package:" + context.getPackageName()));
+        intent.setData(Uri.parse("package:" + navigationTarget.activity().getPackageName()));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        context.startActivity(intent);
+        return Single.just(() -> navigationTarget.activity().startActivity(intent));
     }
 
-    private void startActivityForResource(Context context, Urn urn, Uri uri, String referrer) {
-        if (isCrawler(referrer)) {
+    @CheckResult
+    private Single<Action> startActivityForResource(NavigationTarget navigationTarget, Urn urn) {
+        if (isCrawler(navigationTarget.referrer())) {
             loginCrawler();
         }
 
+        final Single<Action> resultSingle;
         if (accountOperations.isUserLoggedIn()) {
-            navigateToResource(context, urn);
+            resultSingle = navigateToResource(navigationTarget, urn);
         } else {
-            showOnboardingForUri(context, uri);
+            resultSingle = showOnboardingForUri(navigationTarget);
         }
 
-        trackForegroundEventForResource(urn, referrer);
-        reportSuccessfulDeeplink(referrer);
+        return resultSingle
+                .doOnSuccess(__ -> {
+                    trackForegroundEventForResource(navigationTarget, urn);
+                    reportSuccessfulDeeplink(navigationTarget);
+                });
     }
 
-    private void navigateToResource(final Context context, final Urn urn) {
+    @CheckResult
+    private Single<Action> navigateToResource(NavigationTarget navigationTarget, final Urn urn) {
         if (urn.isTrack()) {
-            playbackInitiator.startPlayback(urn, Screen.DEEPLINK)
-                             .observeOn(AndroidSchedulers.mainThread())
-                             .subscribe(new PlaybackSubscriber(context));
+            return startPlayback(navigationTarget, urn);
         } else if (urn.isUser()) {
-            navigator.legacyOpenProfile(context, urn, Screen.DEEPLINK);
+            return Single.just(() -> navigator.legacyOpenProfile(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else if (urn.isPlaylist()) {
-            navigator.legacyOpenPlaylist(context, urn, Screen.DEEPLINK);
+            return Single.just(() -> navigator.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+        } else if (urn.isSystemPlaylist()) {
+            return Single.just(() -> navigator.openSystemPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else {
-            throw new IllegalArgumentException("Unrecognized resolved resource: " + urn);
+            ErrorUtils.handleSilentException(new IllegalArgumentException("Trying to navigate to unsupported urn: " + urn + " in version: " + BuildConfig.VERSION_CODE));
+            return Single.never();
         }
     }
 
-    private class PlaybackSubscriber extends DefaultSubscriber<PlaybackResult> {
-        private final Context context;
+    @CheckResult
+    private Single<Action> startPlayback(NavigationTarget navigationTarget, Urn urn) {
+        return RxJava.toV2Single(playbackInitiator.startPlayback(urn, navigationTarget.screen()))
+                     .observeOn(AndroidSchedulers.mainThread())
+                     .flatMap(playbackResult -> {
+                         if (navigationTarget.screen() == Screen.DEEPLINK) {
+                             if (playbackResult.isSuccess()) {
+                                 return Single.just(() -> navigator.openStreamWithExpandedPlayer(navigationTarget.activity(), navigationTarget.screen()));
+                             } else {
+                                 return launchApplicationWithMessage(navigationTarget, R.string.error_loading_url);
+                             }
+                         } else {
+                             return Single.just(() -> expandPlayerSubscriberProvider.get().onNext(playbackResult));
+                         }
+                     });
+    }
 
-        PlaybackSubscriber(Context context) {
-            this.context = context;
-        }
+    @CheckResult
+    private Single<Action> showOnboardingForUri(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            AndroidUtils.showToast(navigationTarget.activity(), R.string.error_toast_user_not_logged_in);
+            navigator.openOnboarding(navigationTarget.activity(), Uri.parse(navigationTarget.target()), navigationTarget.screen());
+        });
+    }
 
-        @Override
-        public void onNext(PlaybackResult playbackResult) {
-            if (playbackResult.isSuccess()) {
-                navigator.openStreamWithExpandedPlayer(context, Screen.DEEPLINK);
-            } else {
-                launchApplicationWithMessage(context, R.string.error_loading_url);
+    @CheckResult
+    private Single<Action> launchApplicationWithMessage(NavigationTarget navigationTarget, int messageId) {
+        return Single.just(() -> {
+            AndroidUtils.showToast(navigationTarget.activity(), messageId);
+            if (navigationTarget.screen() == Screen.DEEPLINK) {
+                navigator.openLauncher(navigationTarget.activity());
             }
-        }
+        });
     }
 
-    private void showOnboardingForUri(Context context, Uri uri) {
-        AndroidUtils.showToast(context, R.string.error_toast_user_not_logged_in);
-        navigator.openOnboarding(context, uri, Screen.DEEPLINK);
-    }
-
-    private void launchApplicationWithMessage(Context context, int messageId) {
-        AndroidUtils.showToast(context, messageId);
-        navigator.openLauncher(context);
-    }
-
-    private boolean isCrawler(String referrer) {
-        return Referrer.GOOGLE_CRAWLER.value().equals(referrer);
+    private boolean isCrawler(Optional<String> referrer) {
+        return Referrer.GOOGLE_CRAWLER.value().equals(referrer.orNull());
     }
 
     private void loginCrawler() {
@@ -432,20 +512,39 @@ public class IntentResolver {
         playQueueManager.clearAll(); // do not leave previous played tracks visible for crawlers
     }
 
-    private String getReferrer(Context context, Intent intent) {
-        return referrerResolver.getReferrerFromIntent(intent, context.getResources());
+    private boolean shouldShowLogInMessage(DeepLink deepLink, Optional<String> referrer) {
+        if (!deepLink.requiresLoggedInUser()) {
+            return false;
+        }
+        if (deepLink.requiresResolve()) {
+            return false;
+        } else if (isCrawler(referrer)) {
+            loginCrawler();
+            return false;
+        } else if (!accountOperations.isUserLoggedIn()) {
+            return true;
+        }
+        return false;
     }
 
-    private void trackForegroundEventForResource(Urn urn, String referrer) {
-        trackForegroundEvent(ForegroundEvent.open(Screen.DEEPLINK, referrer, urn));
+    private boolean shouldRetryWithFallback(NavigationTarget navigationTarget) {
+        return navigationTarget.fallback().isPresent() && !navigationTarget.fallback().get().equals(navigationTarget.target());
     }
 
-    private void trackForegroundEvent(String referrer) {
-        trackForegroundEvent(referrer, Screen.DEEPLINK);
+    private void trackForegroundEventForResource(NavigationTarget navigationTarget, Urn urn) {
+        navigationTarget.referrer().ifPresent(referrer -> trackForegroundEvent(ForegroundEvent.open(navigationTarget.screen(), referrer, urn)));
     }
 
-    private void trackForegroundEvent(String referrer, Screen screen) {
-        trackForegroundEvent(ForegroundEvent.open(screen, referrer));
+    private void trackForegroundEvent(NavigationTarget navigationTarget) {
+        navigationTarget.referrer().ifPresent(referrer -> trackForegroundEvent(ForegroundEvent.open(navigationTarget.screen(), referrer)));
+    }
+
+    private void reportSuccessfulDeeplink(NavigationTarget navigationTarget) {
+        navigationTarget.referrer().ifPresent(referrer -> eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolvedDeeplink(referrer)));
+    }
+
+    private void reportFailedToResolveDeeplink(NavigationTarget navigationTarget) {
+        navigationTarget.referrer().ifPresent(referrer -> eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolutionFailure(referrer)));
     }
 
     private void trackForegroundEvent(ForegroundEvent event) {

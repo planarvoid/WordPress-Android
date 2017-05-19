@@ -1,11 +1,11 @@
 package com.soundcloud.android.discovery;
 
-
 import static butterknife.ButterKnife.findById;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
@@ -22,12 +22,14 @@ import java.util.List;
 class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
+    private final NavigationDelegate navigationDelegate;
+    private final ScreenProvider screenProvider;
 
     @Inject
-    SelectionItemRenderer(ImageOperations imageOperations, Navigator navigator) {
+    SelectionItemRenderer(ImageOperations imageOperations, NavigationDelegate navigationDelegate, ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
+        this.navigationDelegate = navigationDelegate;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -91,6 +93,6 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
     }
 
     private void bindClickHandling(View view, final SelectionItem selectionItem) {
-        view.setOnClickListener(selectionItem.onClickListener(navigator));
+        view.setOnClickListener(selectionItem.onClickListener(navigationDelegate, screenProvider.getLastScreen()));
     }
 }

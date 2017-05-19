@@ -161,6 +161,7 @@
     <string name="error_unauthorized_message">We’re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
     <string name="error_unauthorized_title">Account error</string>
     <string name="error_loading_url">There was a problem loading that URL.</string>
+    <string name="error_unknown_navigation">Oops. We’re lost.</string>
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again soon.</string>
     <!-- signup scope was revoked on server side -->

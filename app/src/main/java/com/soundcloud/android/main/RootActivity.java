@@ -11,6 +11,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
 import com.soundcloud.lightcycle.LightCycles;
+import io.reactivex.disposables.CompositeDisposable;
 import rx.Observable;
 
 import android.os.Bundle;
@@ -27,6 +28,10 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     @Inject @LightCycle ForceUpdateLightCycle forceUpdateLightCycle;
     @Inject ConfigurationUpdateLightCycle configurationUpdateLightCycle;
     @Inject ItalianExperiment italianExperiment;
+    @Inject NavigationDelegate navigationDelegate;
+    @Inject NavigationDelegate_ObserverFactory navigationDelegateObserverFactory;
+
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     public RootActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -41,7 +46,20 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
         super.onCreate(savedInstanceState);
     }
 
-    abstract public Screen getScreen();
+    public abstract Screen getScreen();
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        disposable.add(navigationDelegate.listenToNavigation()
+                                         .subscribeWith(navigationDelegateObserverFactory.create()));
+    }
+
+    @Override
+    protected void onPause() {
+        disposable.clear();
+        super.onPause();
+    }
 
     public Optional<ReferringEvent> getReferringEvent() {
         return screenTracker.referringEventProvider.getReferringEvent();

@@ -3,24 +3,22 @@ package com.soundcloud.android.olddiscovery;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.deeplinks.ReferrerResolver;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.strings.Strings;
 
+import android.app.Activity;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
 @AutoFactory(allowSubclasses = true)
 class SearchIntentResolver {
-
-    interface DeepLinkListener {
-        void onDeepLinkExecuted(String searchQuery);
-    }
 
     @VisibleForTesting
     static final String ACTION_PLAY_FROM_SEARCH = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
@@ -30,22 +28,24 @@ class SearchIntentResolver {
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
     private final DeepLinkListener listener;
-    private final Navigator navigator;
+    private final NavigationDelegate navigationDelegate;
+    private final ReferrerResolver referrerResolver;
     private final SearchTracker tracker;
 
-    SearchIntentResolver(DeepLinkListener listener, @Provided Navigator navigator, @Provided SearchTracker tracker) {
+    SearchIntentResolver(DeepLinkListener listener, @Provided NavigationDelegate navigationDelegate, @Provided ReferrerResolver referrerResolver, @Provided SearchTracker tracker) {
         this.listener = listener;
-        this.navigator = navigator;
+        this.navigationDelegate = navigationDelegate;
+        this.referrerResolver = referrerResolver;
         this.tracker = tracker;
     }
 
-    void handle(Context context, Intent intent) {
+    void handle(Activity activity, Intent intent) {
         if (isInterceptedSearchAction(intent)) {
             searchFromDeepLink(intent.getStringExtra(SearchManager.QUERY));
         } else if (isInterceptedSearchUrl(intent)) {
             searchFromDeepLink(intent.getData().getQueryParameter(INTENT_URL_QUERY_PARAM));
         } else if (isInterceptedUri(intent)) {
-            handleUri(context, intent);
+            handleUri(activity, intent);
         } else {
             tracker.trackMainScreenEvent();
         }
@@ -69,16 +69,21 @@ class SearchIntentResolver {
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH);
     }
 
-    private void handleUri(Context context, Intent intent) {
+    private void handleUri(Activity activity, Intent intent) {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
             searchFromDeepLink(Uri.decode(intent.getData().getLastPathSegment()));
         } else if (content != Content.UNKNOWN) {
-            navigator.openUri(context, intent.getData());
+            final String referrer = referrerResolver.getReferrerFromIntent(intent, activity.getResources());
+            navigationDelegate.navigateTo(NavigationTarget.forDeeplink(activity, intent.getDataString(), referrer));
         }
     }
 
     private void searchFromDeepLink(String query) {
         listener.onDeepLinkExecuted(query.trim());
+    }
+
+    interface DeepLinkListener {
+        void onDeepLinkExecuted(String searchQuery);
     }
 }

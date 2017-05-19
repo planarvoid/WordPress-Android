@@ -146,8 +146,14 @@ public class UrnTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildSystemPlaylistUrns() {
-        final Urn urn = Urn.forSystemPlaylist(123L);
-        assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlist:123"));
+        final Urn urn = Urn.forSystemPlaylist("123");
+        assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlists:123"));
+    }
+
+    @Test
+    public void shouldBuildSystemPlaylistUrnsWithNestedUrn() {
+        final Urn urn = Urn.forSystemPlaylist("the-upload:soundcloud:users:183");
+        assertThat(urn).isEqualTo(new Urn("soundcloud:system-playlists:the-upload:soundcloud:users:183"));
     }
 
     @Test

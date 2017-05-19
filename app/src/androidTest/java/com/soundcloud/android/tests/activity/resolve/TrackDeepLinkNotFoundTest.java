@@ -13,7 +13,7 @@ public class TrackDeepLinkNotFoundTest extends ResolveBaseTest {
     }
 
     public void testResolveUnknownUrlShouldShowErrorLoadingUrl() {
-        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_loading_url)));
+        assertTrue(waiter.expectToastWithText(toastObserver, resourceString(R.string.error_unknown_navigation)));
     }
 
     @Override

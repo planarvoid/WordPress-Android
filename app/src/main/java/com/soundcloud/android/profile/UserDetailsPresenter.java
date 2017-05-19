@@ -2,7 +2,10 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -23,6 +26,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
+import javax.inject.Inject;
 import java.util.List;
 
 class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
@@ -35,20 +39,27 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private final UserDetailsView userDetailsView;
     private final CondensedNumberFormatter numberFormatter;
     private final Navigator navigator;
+    private final NavigationDelegate navigationDelegate;
+    private final ScreenProvider screenProvider;
 
     private Urn userUrn;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private Observable<UserProfileInfo> userDetailsObservable;
     private UserProfileInfo userProfileInfo;
 
+    @Inject
     UserDetailsPresenter(UserProfileOperations profileOperations,
                          UserDetailsView userDetailsView,
                          CondensedNumberFormatter numberFormatter,
-                         Navigator navigator) {
+                         Navigator navigator,
+                         NavigationDelegate navigationDelegate,
+                         ScreenProvider screenProvider) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
         this.numberFormatter = numberFormatter;
         this.navigator = navigator;
+        this.navigationDelegate = navigationDelegate;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -68,7 +79,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
             public void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem) {
-                navigator.openLink(fragment.getActivity(), socialMediaLinkItem.url());
+                navigationDelegate.navigateTo(NavigationTarget.forNavigation(fragment.getActivity(), socialMediaLinkItem.url(), Optional.absent(), screenProvider.getLastScreen()));
             }
 
             @Override

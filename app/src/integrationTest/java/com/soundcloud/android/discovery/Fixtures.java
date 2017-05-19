@@ -98,7 +98,7 @@ class Fixtures {
         return idCounter;
     }
 
-    static final ApiSystemPlaylist SYSTEM_PLAYLIST = ApiSystemPlaylist.create(Urn.forSystemPlaylist(123L),
+    static final ApiSystemPlaylist SYSTEM_PLAYLIST = ApiSystemPlaylist.create(Urn.forSystemPlaylist("123"),
                                                                               Optional.of(1),
                                                                               Optional.of(new Date(123)),
                                                                               Optional.of("title"),

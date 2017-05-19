@@ -69,7 +69,7 @@ public final class Urn extends ContentStringHelper<Urn> {
         return new Urn(namespace, UrnCollection.PLAYLISTS, id);
     }
 
-    public static Urn forSystemPlaylist(long id) {
+    public static Urn forSystemPlaylist(String id) {
         return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.SYSTEM_PLAYLIST, id);
     }
 
@@ -119,8 +119,11 @@ public final class Urn extends ContentStringHelper<Urn> {
     }
 
     public boolean isPlaylist() {
-        return (isSoundCloud() || isLocal())
-                && collection == UrnCollection.PLAYLISTS;
+        return collection == UrnCollection.PLAYLISTS && (isSoundCloud() || isLocal());
+    }
+
+    public boolean isSystemPlaylist() {
+        return collection == UrnCollection.SYSTEM_PLAYLIST && isSoundCloud();
     }
 
     public boolean isLocal() {
@@ -155,6 +158,10 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public long getNumericId() {
         return longId;
+    }
+
+    UrnCollection getCollection() {
+        return collection;
     }
 
     public String getStringId() {

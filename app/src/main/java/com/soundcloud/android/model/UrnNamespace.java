@@ -13,7 +13,7 @@ public enum UrnNamespace {
         this.value = value;
     }
 
-    String value() {
+    public String value() {
         return value;
     }
 

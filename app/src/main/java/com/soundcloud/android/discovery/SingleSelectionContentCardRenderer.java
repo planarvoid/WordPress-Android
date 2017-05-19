@@ -1,9 +1,10 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
 
@@ -21,13 +22,15 @@ import java.util.List;
 class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final Navigator navigator;
+    private final NavigationDelegate navigationDelegate;
+    private final ScreenProvider screenProvider;
 
     @Inject
-    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources, Navigator navigator) {
+    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources, NavigationDelegate navigationDelegate, ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.navigator = navigator;
+        this.navigationDelegate = navigationDelegate;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -101,6 +104,6 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
     }
 
     private void bindClickHandling(View view, final SelectionItem selectionItem) {
-        view.setOnClickListener(selectionItem.onClickListener(navigator));
+        view.setOnClickListener(selectionItem.onClickListener(navigationDelegate, screenProvider.getLastScreen()));
     }
 }

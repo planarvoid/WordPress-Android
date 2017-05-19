@@ -2,6 +2,8 @@ package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 
@@ -12,7 +14,8 @@ import javax.inject.Inject;
 
 public class ResolveActivity extends RootActivity {
 
-    @Inject IntentResolver intentResolver;
+    @Inject ReferrerResolver referrerResolver;
+    @Inject NavigationDelegate navigationDelegate;
 
     public ResolveActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -36,13 +39,13 @@ public class ResolveActivity extends RootActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        intentResolver.handleIntent(getIntent(), this);
-        finish();
+        final Uri uri = getIntent().getData();
+        final String referrer = referrerResolver.getReferrerFromIntent(getIntent(), getResources());
+        navigationDelegate.navigateTo(NavigationTarget.forDeeplink(this, uri.toString(), referrer));
     }
 
     @Override
     protected boolean receiveConfigurationUpdates() {
         return false;
     }
-
 }

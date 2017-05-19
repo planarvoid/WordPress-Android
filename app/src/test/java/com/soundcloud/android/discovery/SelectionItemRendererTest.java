@@ -1,14 +1,17 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageStyle;
+import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -27,7 +30,8 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Mock private SelectionItem selectionItem;
     @Mock private ImageOperations imageOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private ScreenProvider screenProvider;
     @Mock private OnClickListener onClickListener;
 
     private SelectionItemRenderer renderer;
@@ -35,7 +39,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SelectionItemRenderer(imageOperations, navigator);
+        renderer = new SelectionItemRenderer(imageOperations, navigationDelegate, screenProvider);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(selectionItem.shortTitle()).thenReturn(Optional.of("title"));
@@ -123,7 +127,7 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsClickHandlingFromSelectionItem() {
-        when(selectionItem.onClickListener(navigator)).thenReturn(onClickListener);
+        when(selectionItem.onClickListener(eq(navigationDelegate), any())).thenReturn(onClickListener);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
         itemView.performClick();

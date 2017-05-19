@@ -3,7 +3,9 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -27,7 +29,9 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
     @Inject UserProfileOperations profileOperations;
     @Inject CondensedNumberFormatter numberFormatter;
     @Inject Navigator navigator;
-    @LightCycle UserDetailsPresenter userDetailsPresenter;
+    @Inject NavigationDelegate navigationDelegate;
+    @Inject ScreenProvider screenProvider;
+    @Inject @LightCycle UserDetailsPresenter userDetailsPresenter;
 
     public static UserDetailsFragment create(Urn userUrn,
                                              SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -42,7 +46,6 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator);
     }
 
     @Override

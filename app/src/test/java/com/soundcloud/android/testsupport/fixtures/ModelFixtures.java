@@ -133,7 +133,7 @@ public class ModelFixtures {
     }
 
     public static ApiSystemPlaylist apiSystemPlaylist() {
-        return ApiSystemPlaylist.create(Urn.forSystemPlaylist(123L),
+        return ApiSystemPlaylist.create(Urn.forSystemPlaylist("123"),
                                         Optional.of(1),
                                         Optional.of(new Date(123)),
                                         Optional.of("title"),

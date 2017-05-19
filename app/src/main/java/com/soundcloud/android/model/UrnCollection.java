@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import android.support.annotation.NonNull;
 
-enum UrnCollection {
+public enum UrnCollection {
     TRACKS("tracks"),
     USERS("users"),
     PLAYLISTS("playlists"),
@@ -15,7 +15,7 @@ enum UrnCollection {
     SOUNDS("sounds"),
     GENRES("genres"),
     NEW_FOR_YOU("newforyou"),
-    SYSTEM_PLAYLIST("system-playlist"),
+    SYSTEM_PLAYLIST("system-playlists"),
     UNKNOWN("unknown");
 
     private static final String STATIONS_REGEX = "[\\w-]+-stations";
@@ -30,7 +30,11 @@ enum UrnCollection {
         return value;
     }
 
-    static UrnCollection from(@NonNull String part) {
+    public static UrnCollection from(Urn urn) {
+        return urn.getCollection();
+    }
+
+    public static UrnCollection from(@NonNull String part) {
         for (UrnCollection collection : UrnCollection.values()) {
             if (collection.value().equals(part)) {
                 return collection;

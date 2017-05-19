@@ -31,10 +31,12 @@ public enum DeepLink {
     CHARTS_ALL_GENRES,
     TRACK_ENTITY,
     PLAYLIST_ENTITY,
+    SYSTEM_PLAYLIST_ENTITY,
     USER_ENTITY,
     SHARE_APP,
     SYSTEM_SETTINGS,
-    REMOTE_SIGN_IN;
+    REMOTE_SIGN_IN,
+    UNKNOWN;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
@@ -48,6 +50,7 @@ public enum DeepLink {
                        ENTITY,
                        TRACK_ENTITY,
                        PLAYLIST_ENTITY,
+                       SYSTEM_PLAYLIST_ENTITY,
                        USER_ENTITY,
                        SOUNDCLOUD_GO_PLUS_UPSELL,
                        SOUNDCLOUD_GO_BUY,
@@ -65,7 +68,8 @@ public enum DeepLink {
             EnumSet.of(ENTITY,
                        TRACK_ENTITY,
                        USER_ENTITY,
-                       PLAYLIST_ENTITY);
+                       PLAYLIST_ENTITY,
+                       SYSTEM_PLAYLIST_ENTITY);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -94,7 +98,7 @@ public enum DeepLink {
         } else if (isWebScheme(uri)) {
             return fromWebScheme(uri);
         } else {
-            return ENTITY;
+            return UNKNOWN;
         }
     }
 
@@ -197,6 +201,8 @@ public enum DeepLink {
                 return USER_ENTITY;
             case "playlists":
                 return PLAYLIST_ENTITY;
+            case "system-playlists":
+                return SYSTEM_PLAYLIST_ENTITY;
             case "share_app":
                 return SHARE_APP;
             case "share":
@@ -215,7 +221,8 @@ public enum DeepLink {
 
     public static boolean isWebScheme(Uri uri) {
         return uri.isHierarchical()
-                && ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()));
+                && ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                && (uri.getHost() != null && uri.getHost().contains("soundcloud.com"));
     }
 
     private static DeepLink fromWebScheme(Uri uri) {
@@ -270,6 +277,8 @@ public enum DeepLink {
                 return SHARE_APP;
             case "/open-notification-settings":
                 return SYSTEM_SETTINGS;
+            case "/system-playlists":
+                return SYSTEM_PLAYLIST_ENTITY;
             default:
                 if (isRemoteSignIn(uri)) {
                     return REMOTE_SIGN_IN;
