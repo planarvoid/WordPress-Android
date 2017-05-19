@@ -148,6 +148,18 @@ public class ApiRequestTest extends AndroidUnitTest {
         assertThat(contentRequest.getParts()).containsExactly(part1, part2);
     }
 
+    @Test
+    public void shouldNotSendAuthorizationTokenForAutocomplete() {
+        ApiRequest request = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE).forPrivateApi().build();
+        assertThat(request.sendAuthorizationToken()).isFalse();
+    }
+
+    @Test
+    public void shouldSendAuthorizationTokenOnGenericRequest() {
+        ApiRequest request = validRequest(URI_PATH).build();
+        assertThat(request.sendAuthorizationToken()).isTrue();
+    }
+
     private ApiRequest.Builder validRequest(String uri) {
         return ApiRequest.get(uri).forPrivateApi();
     }

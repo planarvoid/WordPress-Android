@@ -27,7 +27,6 @@ public class ApiResponse {
     private final String responseBody;
     @Nullable private ApiRequestException failure;
 
-    @VisibleForTesting
     public ApiResponse(ApiRequest request, int statusCode, String responseBody) {
         this.statusCode = statusCode;
         this.responseBody = responseBody;

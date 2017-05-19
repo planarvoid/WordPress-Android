@@ -138,7 +138,7 @@ public class ApiClient {
         }
 
         // user identifiers
-        if (accountOperations.getSoundCloudToken().valid()) {
+        if (request.sendAuthorizationToken() && accountOperations.getSoundCloudToken().valid()) {
             builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
         }
         builder.header(ApiHeaders.UDID, deviceHelper.getUdid());

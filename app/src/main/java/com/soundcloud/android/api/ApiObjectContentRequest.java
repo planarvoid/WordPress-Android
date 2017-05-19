@@ -11,10 +11,14 @@ public class ApiObjectContentRequest extends ApiRequest {
 
     private final Object content;
 
-    ApiObjectContentRequest(Uri uri, String method, Boolean isPrivate,
+    ApiObjectContentRequest(Uri uri,
+                            String method,
+                            Boolean isPrivate,
                             @NotNull MultiMap<String, String> queryParams,
-                            @NotNull Map<String, String> headers, Object content) {
-        super(uri, method, isPrivate, queryParams, headers);
+                            @NotNull Map<String, String> headers,
+                            Object content,
+                            boolean sendAuthorizationToken) {
+        super(uri, method, isPrivate, queryParams, headers, sendAuthorizationToken);
         this.content = content;
     }
 

@@ -37,9 +37,14 @@ public class ApiRequest {
     private final Boolean isPrivate;
     private final MultiMap<String, String> queryParams;
     private final Map<String, String> headers;
+    private final boolean sendAuthorizationToken;
 
     public static Builder get(String uri) {
         return new Builder(uri, HTTP_GET);
+    }
+
+    public static Builder get(ApiEndpoints apiEndpoints) {
+        return new Builder(apiEndpoints, HTTP_GET);
     }
 
     public static Builder post(String uri) {
@@ -54,14 +59,13 @@ public class ApiRequest {
         return new Builder(uri, HTTP_DELETE);
     }
 
-    ApiRequest(Uri uri, String method,
-               Boolean isPrivate, MultiMap<String, String> queryParams,
-               Map<String, String> headers) {
+    ApiRequest(Uri uri, String method, Boolean isPrivate, MultiMap<String, String> queryParams, Map<String, String> headers, boolean sendAuthorizationToken) {
         this.uri = uri;
         this.httpMethod = method;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
         this.headers = headers;
+        this.sendAuthorizationToken = sendAuthorizationToken;
     }
 
     public Uri getUri() {
@@ -78,6 +82,10 @@ public class ApiRequest {
 
     public boolean isPrivate() {
         return isPrivate;
+    }
+
+    public boolean sendAuthorizationToken() {
+        return sendAuthorizationToken;
     }
 
     @NotNull
@@ -126,23 +134,32 @@ public class ApiRequest {
         private Object content;
         private List<FormPart> formParts;
         private ProgressListener progressListener;
+        private final boolean sendAuthorizationToken;
+
+        public Builder(ApiEndpoints apiEndpoints, String methodName) {
+            this(apiEndpoints.path(), methodName, apiEndpoints.acceptsUserAuthorization());
+        }
 
         public Builder(String uri, String methodName) {
+            this(uri, methodName, true);
+        }
+
+        private Builder(String uri, String methodName, boolean sendAuthorizationToken) {
             this.parameters = UriUtils.getQueryParameters(uri);
             this.uri = UriUtils.clearQueryParams(Uri.parse(uri));
             this.httpMethod = methodName;
             this.headers = new HashMap<>();
+            this.sendAuthorizationToken = sendAuthorizationToken;
         }
 
         public ApiRequest build() {
             checkNotNull(isPrivate, "Must specify api mode");
             if (content != null) {
-                return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content);
+                return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content, sendAuthorizationToken);
             } else if (formParts != null) {
-                return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers,
-                                               formParts, progressListener);
+                return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers, formParts, progressListener, sendAuthorizationToken);
             } else {
-                return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers);
+                return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers, sendAuthorizationToken);
             }
         }
 

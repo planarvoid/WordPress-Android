@@ -44,6 +44,7 @@ public class ApiClientTest extends AndroidUnitTest {
     private static final String URL = "http://path/to/resource";
     private static final String JSON_DATA = "{}";
     private static final String CLIENT_ID = "testClientId";
+    private static final String OAUTH_TOKEN = "OAuth 12345";
 
     private ApiClient apiClient;
 
@@ -67,7 +68,7 @@ public class ApiClientTest extends AndroidUnitTest {
         when(adIdHelper.getAdId()).thenReturn(Optional.of("my-adid"));
         when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
-        when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
+        when(oAuth.getAuthorizationHeaderValue()).thenReturn(OAUTH_TOKEN);
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(localeFormatter.getLocale()).thenReturn(Optional.of("fr-CA"));
@@ -207,7 +208,18 @@ public class ApiClientTest extends AndroidUnitTest {
 
         apiClient.fetchResponse(request);
 
-        assertThat(httpRequestCaptor.getValue().headers("Authorization")).containsExactly("OAuth 12345");
+        assertThat(httpRequestCaptor.getValue().headers("Authorization")).containsExactly(OAUTH_TOKEN);
+    }
+
+    @Test
+    public void shouldNotAddOAuthHeaderWhenEndpointDoesntAcceptIt() throws Exception {
+        ApiRequest request = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+        when(apiUrlBuilder.build()).thenReturn(URL);
+
+        apiClient.fetchResponse(request);
+
+        assertThat(httpRequestCaptor.getValue().headers("Authorization")).doesNotContain(OAUTH_TOKEN);
     }
 
     @Test

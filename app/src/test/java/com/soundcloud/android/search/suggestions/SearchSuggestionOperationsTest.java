@@ -21,6 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
+import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -93,6 +94,22 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final List<List<SuggestionItem>> onNextEvents = suggestionsResultSubscriber.getOnNextEvents();
         assertThat(onNextEvents.get(0)).isEqualTo(firstItem);
         assertThat(onNextEvents.get(1)).isEqualTo(allItems);
+    }
+
+    @Test
+    public void doesNotSendAuthorizationHeaderWithAutocompleteRequest() {
+        List<SearchSuggestion> localSuggestions = getLocalSuggestions();
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, USER_URN, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        final Optional<String> variant = Optional.of("variant123");
+        when(localizedAutocompletionsExperiment.variantName()).thenReturn(variant);
+
+        final Autocompletion autocompletion = Autocompletion.create("query", "output");
+        final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
+        requestMatcher.withoutHeader(HttpHeaders.AUTHORIZATION);
+
+        operations.suggestionsFor(SEARCH_QUERY).test();
+
+        verify(apiClientRx).mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken));
     }
 
     @Test
