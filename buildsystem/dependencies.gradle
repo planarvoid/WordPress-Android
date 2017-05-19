@@ -18,7 +18,7 @@ ext {
   propellerVersion = '0.72'
   findBugsVersion = '3.0.0'
   skippyVersion = '6.3.0'
-  flipperVersion = '0.0.108'
+  flipperVersion = '1.0.3'
   mockitoVersion = '2.7.22'
   libraries = [
           // Annotation processors / Annotations
