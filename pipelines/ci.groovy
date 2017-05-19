@@ -143,9 +143,11 @@ def compileAndAcceptanceTestStage() {
     try {
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.RUNNING)
       if (isReleasePr()) {
-        gradle 'runMarshmallowTestsRelease'
+        gradle 'runMarshmallowTestsReleasePr'
+      } else if (isPr()) {
+        gradle 'runMarshmallowTestsPr'
       } else {
-        gradle 'runMarshmallowTests'
+        gradle 'runMarshmallowTestsMaster'
       }
       updateGitHub(Builds.ACCEPTANCE_TESTS, Status.SUCCESS)
     } catch (e) {

@@ -49,92 +49,114 @@ def testRunner() {
           applicationPackage(), testPackage(), toolsPackages())
 }
 
-def systemProperties = [
-        //"log.tag.Propeller": "DEBUG", -- too noisy
-        "log.tag.ApiClient"            : "DEBUG",
-        "log.tag.PublicApi"            : "DEBUG",
-        "log.tag.ApiSyncer"            : "DEBUG",
-        "log.tag.Timeline"             : "DEBUG",
-        "log.tag.SC_ANDROID_TEST"      : "DEBUG",
-        "log.tag.BUG_4503"             : "DEBUG",
-        "log.tag.EventTrackingManager" : "DEBUG",
-        "log.tag.MrLoggaVerifier"      : "DEBUG",
-        "log.tag.Configuration"        : "DEBUG",
-        "log.tag.TestRunner"           : "DEBUG",
-        "log.tag.PlaybackService"      : "DEBUG",
-        "log.tag.ScAds"                : "DEBUG",
-        "log.tag.SoundCloudApplication": "DEBUG",
-        "log.tag.OfflineTests"         : "DEBUG",
-        "log.tag.ActivityLifeCycle"    : "DEBUG"
-]
-def lollipopLabel = new Label("Lollipop")
-def marshmallowLabel = new Label("Marshmallow")
+static def systemPropertiesForBuildType(buildType) {
+  def systemProperties = [
+          //'log.tag.Propeller': 'DEBUG', -- too noisy
+          'log.tag.ApiClient'            : 'DEBUG',
+          'log.tag.PublicApi'            : 'DEBUG',
+          'log.tag.ApiSyncer'            : 'DEBUG',
+          'log.tag.Timeline'             : 'DEBUG',
+          'log.tag.SC_ANDROID_TEST'      : 'DEBUG',
+          'log.tag.EventTrackingManager' : 'DEBUG',
+          'log.tag.Configuration'        : 'DEBUG',
+          'log.tag.TestRunner'           : 'DEBUG',
+          'log.tag.PlaybackService'      : 'DEBUG',
+          'log.tag.ScAds'                : 'DEBUG',
+          'log.tag.SoundCloudApplication': 'DEBUG',
+          'log.tag.OfflineTests'         : 'DEBUG',
+          'log.tag.ActivityLifeCycle'    : 'DEBUG',
+          'buildType'                    : buildType
+  ]
 
+  if (System.env.containsKey('ghprbPullId')) {
+    systemProperties.put("Pull Request ID",  System.env.ghprbPullId)
+  }
 
-task runListOfTests(dependsOn: extractHtmlTemplates) {
+  return systemProperties
+}
+
+def lollipopLabel = new Label('Lollipop')
+def marshmallowLabel = new Label('Marshmallow')
+
+def excludeAnnotations = [
+        'com.soundcloud.android.framework.annotation.Ignore',
+        'com.soundcloud.android.framework.annotation.GoogleAccountTest',
+        'com.soundcloud.android.framework.annotation.PaymentTest'
+] as String[]
+
+def excludeAnnotationsRelease = [
+        'com.soundcloud.android.framework.annotation.AdsTest'
+] as String[]
+excludeAnnotationsRelease = excludeAnnotationsRelease + excludeAnnotations as String []
+
+task runMarshmallowTestsMaster(dependsOn: extractHtmlTemplates) {
   doLast {
-    def tests = [
-            new Test("com.soundcloud.android.tests.stream.StreamTest", "testPlayAndPauseTrackFromStream"),
-    ] as Test[]
+    def masterSystemProperties = systemPropertiesForBuildType('Android Listeners Master')
 
-    testRunner().runTests(lollipopLabel, null, null, systemProperties, null, null, tests)
+    testRunner().runTests(lollipopLabel, null, excludeAnnotations, masterSystemProperties, null, null, null)
   }
 }
 
-task runTestClass(dependsOn: extractHtmlTemplates) {
+task runMarshmallowTestsPr(dependsOn: extractHtmlTemplates) {
   doLast {
-    def classFilter = "com.soundcloud.android.tests.stream.StreamTest"
+    def prSystemProperties = systemPropertiesForBuildType('Android Listeners PR')
 
-    testRunner().runTests(lollipopLabel, null, null, systemProperties, classFilter, null, null)
-  }
-}
-
-task runLollipopTests(dependsOn: extractHtmlTemplates) {
-  doLast {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
-            "com.soundcloud.android.framework.annotation.PaymentTest"
-    ] as String[]
-
-    testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
-  }
-}
-
-task runMarshmallowTests(dependsOn: extractHtmlTemplates) {
-  doLast {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
-            "com.soundcloud.android.framework.annotation.PaymentTest"
-    ] as String[]
-
-    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, systemProperties, null, null, null)
-  }
-}
-
-task runLollipopTestsRelease(dependsOn: extractHtmlTemplates) {
-  doLast {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.AdsTest",
-            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
-            "com.soundcloud.android.framework.annotation.PaymentTest"
-    ] as String[]
-
-    testRunner().runTests(lollipopLabel, null, excludeAnnotations, systemProperties, null, null, null)
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, prSystemProperties, null, null, null)
   }
 }
 
 task runMarshmallowTestsRelease(dependsOn: extractHtmlTemplates) {
   doLast {
-    def excludeAnnotations = [
-            "com.soundcloud.android.framework.annotation.Ignore",
-            "com.soundcloud.android.framework.annotation.AdsTest",
-            "com.soundcloud.android.framework.annotation.GoogleAccountTest",
-            "com.soundcloud.android.framework.annotation.PaymentTest"
-    ] as String[]
+    def releaseSystemProperties = systemPropertiesForBuildType('Android Listeners Release')
+    
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotationsRelease, releaseSystemProperties, null, null, null)
+  }
+}
 
-    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, systemProperties, null, null, null)
+task runMarshmallowTestsReleasePr(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def releasePrSystemProperties = systemPropertiesForBuildType('Android Listeners Release PR')
+
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotationsRelease, releasePrSystemProperties, null, null, null)
+  }
+}
+
+// Local build tasks
+
+def localBuildSystemProperties = systemPropertiesForBuildType('Android Listeners Local Build')
+
+task runListOfTests(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def tests = [
+            new Test('com.soundcloud.android.tests.stream.StreamTest', 'testStreamLoadsNextPage'),
+    ] as Test[]
+
+    testRunner().runTests(marshmallowLabel, null, null, localBuildSystemProperties, null, null, tests)
+  }
+}
+
+task runTestClass(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def classFilter = 'com.soundcloud.android.tests.stream.StreamTest'
+
+    testRunner().runTests(marshmallowLabel, null, null, localBuildSystemProperties, classFilter, null, null)
+  }
+}
+
+// Lollipop tasks
+
+task runLollipopTests(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def lollipopSystemProperties = systemPropertiesForBuildType('Android Listeners Lolliop Build')
+
+    testRunner().runTests(lollipopLabel, null, excludeAnnotations, lollipopSystemProperties, null, null, null)
+  }
+}
+
+task runLollipopTestsRelease(dependsOn: extractHtmlTemplates) {
+  doLast {
+    def lollipopSystemProperties = systemPropertiesForBuildType('Android Listeners Lolliop Release Build')
+
+    testRunner().runTests(lollipopLabel, null, excludeAnnotationsRelease, lollipopSystemProperties, null, null, null)
   }
 }
