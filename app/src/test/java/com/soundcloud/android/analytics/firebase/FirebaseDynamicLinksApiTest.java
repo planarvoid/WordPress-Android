@@ -46,6 +46,7 @@ public class FirebaseDynamicLinksApiTest extends AndroidUnitTest {
         when(httpClient.newCall(request.capture())).thenReturn(call);
         when(call.execute()).thenAnswer(invocation -> new Response.Builder()
                 .protocol(Protocol.HTTP_2)
+                .message("")
                 .request(request.getValue())
                 .code(200)
                 .body(body("{\"shortLink\":\"http://bar\"}"))
@@ -60,6 +61,7 @@ public class FirebaseDynamicLinksApiTest extends AndroidUnitTest {
         when(httpClient.newCall(request.capture())).thenReturn(call);
         when(call.execute()).thenAnswer(invocation -> new Response.Builder()
                 .protocol(Protocol.HTTP_2)
+                .message("")
                 .request(request.getValue())
                 .code(500)
                 .body(body("{}"))

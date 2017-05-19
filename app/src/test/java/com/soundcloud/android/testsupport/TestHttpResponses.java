@@ -5,11 +5,9 @@ import okhttp3.Protocol;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import java.io.IOException;
-
 public final class TestHttpResponses {
 
-    public static Response.Builder response(int code) throws IOException {
+    public static Response.Builder response(int code) {
         return response(code,
                         ResponseBody.create(MediaType.parse("text"), "<test response body>"));
     }
@@ -17,6 +15,7 @@ public final class TestHttpResponses {
     public static Response.Builder response(int code, ResponseBody responseBody) {
         return new Response.Builder()
                 .protocol(Protocol.HTTP_1_1)
+                .message("")
                 .code(code)
                 .request(TestHttpRequests.stub())
                 .body(responseBody);
@@ -25,6 +24,7 @@ public final class TestHttpResponses {
     public static Response.Builder jsonResponse(int code, String jsonBody) {
         return new Response.Builder()
                 .protocol(Protocol.HTTP_1_1)
+                .message("")
                 .code(code)
                 .request(TestHttpRequests.stub())
                 .body(ResponseBody.create(MediaType.parse("application/json"), jsonBody));
