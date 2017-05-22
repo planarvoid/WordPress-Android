@@ -256,4 +256,13 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         assertThat(data.payload.get("exp_android_listening")).isEqualTo(12345);
     }
 
+    @Test
+    public void addsLatencyAsLong() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v1", CLIENT_ID, "1234", "4321", 12345, "conn-type", VERSION);
+
+        data.latency(1000L);
+
+        assertThat(data.payload.get("latency")).isEqualTo(1000L);
+    }
+
 }

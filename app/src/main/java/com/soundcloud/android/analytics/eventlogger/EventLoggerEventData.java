@@ -406,7 +406,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData latency(long latency) {
-        addToPayload(LATENCY, String.valueOf(latency));
+        addToPayload(LATENCY, latency);
         return this;
     }
 
