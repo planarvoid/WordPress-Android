@@ -20,7 +20,6 @@ public class PlayQueueViewTest {
     @Mock PlayQueueAdapter playQueueAdapter;
     @Mock PlayQueueSwipeToRemoveCallbackFactory playQueueSwipeToRemoveCallbackFactory;
     @Mock FeedbackController feedbackController;
-    @Mock TopPaddingDecorator topPaddingDecorator;
     @Mock SmoothScrollLinearLayoutManager smoothScrollLinearLayoutManager;
     @Mock PerformanceMetricsEngine performanceMetricsEngine;
     @Mock ToggleButton toggleButton;
@@ -33,7 +32,6 @@ public class PlayQueueViewTest {
                                           playQueueAdapter,
                                           playQueueSwipeToRemoveCallbackFactory,
                                           feedbackController,
-                                          topPaddingDecorator,
                                           smoothScrollLinearLayoutManager,
                                           performanceMetricsEngine);
     }

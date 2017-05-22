@@ -56,6 +56,7 @@ class PlayQueuePresenter {
     private Optional<UndoHolder> undoHolder = Optional.absent();
     private List<PlayQueueUIItem> items = new ArrayList<>();
     private boolean resetUI = true;
+    private boolean magicBoxClicked = false;
 
     @Inject
     PlayQueuePresenter(PlayQueueManager playQueueManager,
@@ -103,27 +104,27 @@ class PlayQueuePresenter {
 
     private void setUpPlaybackStream() {
         subscriptions.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .skip(1)
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(event -> items)
-                .subscribe(new PlayQueueSubscriber()));
+                                  .skip(1)
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .map(event -> items)
+                                  .subscribe(new PlayQueueSubscriber()));
     }
 
     private void setUpRebuildStream() {
         subscriptions.add(rebuildSubject.map(ignored -> items)
-                .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
-                .doOnNext(newItems -> items = newItems)
-                .doOnNext(items -> setNowPlaying())
-                .subscribe(new PlayQueueSubscriber()));
+                                        .flatMap(items -> Observable.zip(createTracksFromItems(items), createTitlesFromItems(items), playQueueUIItemMapper))
+                                        .doOnNext(newItems -> items = newItems)
+                                        .doOnNext(items -> setNowPlaying())
+                                        .subscribe(new PlayQueueSubscriber()));
     }
 
     Observable<List<TrackAndPlayQueueItem>> createTracksFromItems(List<PlayQueueUIItem> playQueueUIItems) {
         return Observable.just(playQueueUIItems)
-                .map(items -> Iterables.filter(items, input -> input.isTrack()))
-                .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
-                    TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
-                    return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
-                })));
+                         .map(items -> Iterables.filter(items, input -> input.isTrack()))
+                         .map(trackItems -> Lists.newArrayList(Iterables.transform(trackItems, input -> {
+                             TrackPlayQueueUIItem item = (TrackPlayQueueUIItem) input;
+                             return new TrackAndPlayQueueItem(item.getTrackItem(), (TrackQueueItem) item.getPlayQueueItem());
+                         })));
     }
 
     public void undoClicked() {
@@ -143,9 +144,7 @@ class PlayQueuePresenter {
     }
 
     void onNextClick() {
-        if (playQueueView.isPresent()) {
-            playQueueView.get().scrollTo(getScrollPosition(), true);
-        }
+        playQueueView.ifPresent(view -> view.scrollTo(getCurrentPlayQueueItemPosition(), true));
     }
 
     public void trackClicked(int listPosition) {
@@ -172,19 +171,18 @@ class PlayQueuePresenter {
         }
     }
 
-    private int getScrollPosition() {
 
-        int currentPlayQueuePosition = getAdapterPosition(playQueueManager.getCurrentPlayQueueItem());
+    private int getMagicBoxPosition() {
+        return Iterables.indexOf(items, PlayQueueUIItem::isMagicBox);
+    }
 
-        if (currentPlayQueuePosition > 0) {
-            currentPlayQueuePosition -= 1;
-        } else if (currentPlayQueuePosition < 2) {
-            return 0;
-        } else {
-            return currentPlayQueuePosition - 2;
-        }
+    private int getPlayQueueItemPosition(PlayQueueItem playQueueItem) {
+        final int adapterPosition = getAdapterPosition(playQueueItem);
+        return Math.max(adapterPosition, 0); //be defensive in case the item is not there
+    }
 
-        return currentPlayQueuePosition;
+    private int getCurrentPlayQueueItemPosition() {
+        return getPlayQueueItemPosition(playQueueManager.getCurrentPlayQueueItem());
     }
 
     void repeatClicked() {
@@ -322,6 +320,7 @@ class PlayQueuePresenter {
     }
 
     void magicBoxClicked() {
+        magicBoxClicked = true;
         playQueueManager.moveToNextRecommendationItem();
     }
 
@@ -397,16 +396,19 @@ class PlayQueuePresenter {
 
         @Override
         public void onNext(List<PlayQueueUIItem> items) {
-            if (playQueueView.isPresent()) {
+            playQueueView.ifPresent(view -> {
                 setNowPlaying();
-                playQueueView.get().setItems(items);
+                view.setItems(items);
                 if (resetUI) {
-                    playQueueView.get().scrollTo(getScrollPosition(), false);
-                    playQueueView.get().removeLoadingIndicator();
+                    view.scrollTo(getCurrentPlayQueueItemPosition(), false);
+                    view.removeLoadingIndicator();
                     resetUI = false;
                     endMeasurePlayQueueOperation(MetricType.PLAY_QUEUE_LOAD, items.size());
+                } else if (magicBoxClicked) {
+                    view.scrollTo(getMagicBoxPosition(), false);
+                    magicBoxClicked = false;
                 }
-            }
+            });
         }
     }
 

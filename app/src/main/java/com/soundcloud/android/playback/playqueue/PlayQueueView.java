@@ -30,7 +30,6 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueAdapter playQueueAdapter;
     private final PlayQueueSwipeToRemoveCallback swipeToRemoveCallback;
     private final FeedbackController feedbackController;
-    private final TopPaddingDecorator topPaddingDecorator;
     private final SmoothScrollLinearLayoutManager layoutManager;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
@@ -46,13 +45,11 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
                          PlayQueueAdapter playQueueAdapter,
                          PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                          FeedbackController feedbackController,
-                         TopPaddingDecorator topPaddingDecorator,
                          SmoothScrollLinearLayoutManager layoutManager,
                          PerformanceMetricsEngine performanceMetricsEngine) {
         this.playQueuePresenter = playQueuePresenter;
         this.playQueueAdapter = playQueueAdapter;
         this.feedbackController = feedbackController;
-        this.topPaddingDecorator = topPaddingDecorator;
         this.layoutManager = layoutManager;
         this.performanceMetricsEngine = performanceMetricsEngine;
         swipeToRemoveCallback = swipeToRemoveCallbackFactory.create(playQueuePresenter);
@@ -70,7 +67,6 @@ public class PlayQueueView extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(playQueueAdapter);
         recyclerView.setHasFixedSize(false);
-        recyclerView.addItemDecoration(topPaddingDecorator, 0);
         recyclerView.setItemAnimator(buildItemAnimator());
         recyclerView.addOnScrollListener(new PositionScrollListener());
 

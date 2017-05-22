@@ -4,7 +4,6 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import dagger.Module;
 import dagger.Provides;
 
-import android.content.Context;
 import android.os.Build;
 
 @Module
@@ -18,10 +17,4 @@ public class PlayQueueModule {
             return new NoOpArtworkView();
         }
     }
-
-    @Provides
-    public TopPaddingDecorator providesTopPaddingDecorator(Context context) {
-        return new TopPaddingDecorator(context);
-    }
-
 }
