@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 @Singleton
 public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     @Inject
     DiscoveryDatabaseOpenHelper(Context context) {

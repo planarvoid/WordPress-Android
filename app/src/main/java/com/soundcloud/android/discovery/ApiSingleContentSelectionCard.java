@@ -26,7 +26,7 @@ abstract class ApiSingleContentSelectionCard {
 
     abstract ApiSelectionItem selectionItem();
 
-    abstract Optional<List<String>> socialProofAvatarUrlTemplates();
+    abstract List<String> socialProofAvatarUrlTemplates();
 
     @JsonCreator
     static ApiSingleContentSelectionCard create(@JsonProperty("selection_urn") Urn selectionUrn,
@@ -36,7 +36,7 @@ abstract class ApiSingleContentSelectionCard {
                                                 @JsonProperty("description") @Nullable String description,
                                                 @JsonProperty("social_proof") @Nullable String socialProof,
                                                 @JsonProperty("selection_item") ApiSelectionItem selectionItem,
-                                                @JsonProperty("social_proof_avatar_url_templates") @Nullable List<String> socialProofAvatarUrlTemplates) {
+                                                @JsonProperty("social_proof_avatar_url_templates") List<String> socialProofAvatarUrlTemplates) {
         return new AutoValue_ApiSingleContentSelectionCard(selectionUrn,
                                                        Optional.fromNullable(queryUrn),
                                                        Optional.fromNullable(style),
@@ -44,6 +44,6 @@ abstract class ApiSingleContentSelectionCard {
                                                        Optional.fromNullable(description),
                                                        Optional.fromNullable(socialProof),
                                                        selectionItem,
-                                                       Optional.fromNullable(socialProofAvatarUrlTemplates));
+                                                       socialProofAvatarUrlTemplates);
     }
 }

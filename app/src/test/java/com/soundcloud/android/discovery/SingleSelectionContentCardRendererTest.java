@@ -52,7 +52,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
         when(card.description()).thenReturn(Optional.of("description"));
         when(card.selectionItem()).thenReturn(selectionItem);
         when(card.socialProof()).thenReturn(Optional.of("social proof"));
-        when(card.socialProofAvatarUrlTemplates()).thenReturn(Optional.absent());
+        when(card.socialProofAvatarUrlTemplates()).thenReturn(Collections.emptyList());
         when(selectionItem.count()).thenReturn(Optional.of(1));
         when(resources.getDisplayMetrics()).thenReturn(new DisplayMetricsStub(50, 50));
     }
@@ -124,7 +124,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsSocialProofWhenPresent() {
-        when(card.socialProofAvatarUrlTemplates()).thenReturn(Optional.of(Arrays.asList("link1", "link2")));
+        when(card.socialProofAvatarUrlTemplates()).thenReturn(Arrays.asList("link1", "link2"));
         when(resources.getConfiguration()).thenReturn(new Configuration());
         View container = itemView.findViewById(R.id.single_card_social_proof_container);
         TextView socialProofText = (TextView) container.findViewById(R.id.single_card_social_proof);
@@ -142,7 +142,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindSocialProofAvatarsWhenListIsEmpty() {
-        when(card.socialProofAvatarUrlTemplates()).thenReturn(Optional.of(Collections.emptyList()));
+        when(card.socialProofAvatarUrlTemplates()).thenReturn(Collections.emptyList());
         View container = itemView.findViewById(R.id.single_card_social_proof_container);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
@@ -190,7 +190,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void doesNotBindSocialProofTextWhenNotPresent() {
-        when(card.socialProofAvatarUrlTemplates()).thenReturn(Optional.of(Arrays.asList("link1", "link2")));
+        when(card.socialProofAvatarUrlTemplates()).thenReturn(Arrays.asList("link1", "link2"));
         when(card.socialProof()).thenReturn(Optional.absent());
         when(resources.getConfiguration()).thenReturn(new Configuration());
         View container = itemView.findViewById(R.id.single_card_social_proof_container);

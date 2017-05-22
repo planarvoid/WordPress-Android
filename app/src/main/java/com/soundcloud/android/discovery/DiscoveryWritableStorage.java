@@ -74,7 +74,7 @@ public class DiscoveryWritableStorage {
                        card.title().orNull(),
                        card.description().orNull(),
                        card.socialProof().orNull(),
-                       card.socialProofAvatarUrlTemplates().orNull());
+                       card.socialProofAvatarUrlTemplates());
         final long cardId = discoveryDatabase.insert(DbModel.SingleContentSelectionCard.TABLE_NAME, insertRow.program);
         insertSelectionItem(card.selectionItem(), card.selectionUrn());
         return cardId;

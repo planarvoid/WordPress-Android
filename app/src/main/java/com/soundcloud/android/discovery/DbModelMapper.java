@@ -61,7 +61,7 @@ final class DbModelMapper {
                                                                Optional.fromNullable(singleContentSelectionCard.description()),
                                                                mapSelectionItem(selectionItem),
                                                                Optional.fromNullable(singleContentSelectionCard.social_proof()),
-                                                               Optional.fromNullable(singleContentSelectionCard.social_proof_avatar_urls()));
+                                                               singleContentSelectionCard.social_proof_avatar_urls());
     }
 
     private static DiscoveryCard.MultipleContentSelectionCard mapMultipleContentSelectionCard(DbModel.MultipleContentSelectionCard singleContentSelectionCard,

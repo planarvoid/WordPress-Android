@@ -65,7 +65,7 @@ abstract class DiscoveryCard {
 
         abstract Optional<String> socialProof();
 
-        abstract Optional<List<String>> socialProofAvatarUrlTemplates();
+        abstract List<String> socialProofAvatarUrlTemplates();
 
         static SingleContentSelectionCard create(Urn selectionUrn,
                                                  Optional<Urn> queryUrn,
@@ -74,7 +74,7 @@ abstract class DiscoveryCard {
                                                  Optional<String> description,
                                                  SelectionItem selectionItem,
                                                  Optional<String> socialProof,
-                                                 Optional<List<String>> socialProofAvatarUrlTemplates) {
+                                                 List<String> socialProofAvatarUrlTemplates) {
             return new AutoValue_DiscoveryCard_SingleContentSelectionCard(Kind.SINGLE_CONTENT_SELECTION_CARD,
                     selectionUrn,
                     style,

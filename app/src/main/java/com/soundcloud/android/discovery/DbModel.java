@@ -1,13 +1,14 @@
 package com.soundcloud.android.discovery;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.squareup.sqldelight.RowMapper;
 import com.squareup.sqldelight.SqlDelightStatement;
 
 final class DbModel {
 
     private static final UrnAdapter URN_ADAPTER = new UrnAdapter();
-    private static final StringListAdapter STRING_LIST_ADAPTER = new StringListAdapter();
+    private static final StringListAdapter STRING_LIST_ADAPTER = new StringListAdapter(new JacksonJsonTransformer());
     private static final DateAdapter DATE_ADAPTER = new DateAdapter();
 
     private DbModel() {

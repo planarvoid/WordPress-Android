@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {
@@ -80,13 +79,13 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
     }
 
     private boolean bindSocialProofAvatars(View container, DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard) {
-        List<String> imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates().or(new ArrayList<>());
+        List<String> imageUrls = singleContentSelectionCard.socialProofAvatarUrlTemplates();
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_1, imageUrls, 0);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_2, imageUrls, 1);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_3, imageUrls, 2);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_4, imageUrls, 3);
         bindSocialProofUserArtwork(container, R.id.single_card_user_artwork_5, imageUrls, 4);
-        return singleContentSelectionCard.socialProofAvatarUrlTemplates().isPresent();
+        return !imageUrls.isEmpty();
     }
 
     private void bindSocialProofUserArtwork(View itemView, int resId, List<String> userArtworkUrls, int position) {

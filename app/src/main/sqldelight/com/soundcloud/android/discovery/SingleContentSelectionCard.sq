@@ -9,7 +9,7 @@ CREATE TABLE single_content_selection_card (
     title TEXT,
     description TEXT,
     social_proof TEXT,
-    social_proof_avatar_urls TEXT AS List<String>
+    social_proof_avatar_urls TEXT AS List<String> NOT NULL
   );
 
 deleteAll:
