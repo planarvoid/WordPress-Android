@@ -27,8 +27,10 @@ import rx.Subscription;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// AdPlayer is used for playback of ads outside of the play session (a.k.a "The Player")
+// Example: Video ads in the stream
 @Singleton
-class InlayAdPlayer implements Player.PlayerListener {
+class AdPlayer implements Player.PlayerListener {
 
     private final EventBus eventBus;
     private final AdViewabilityController adViewabilityController;
@@ -49,13 +51,13 @@ class InlayAdPlayer implements Player.PlayerListener {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    InlayAdPlayer(MediaPlayerAdapter mediaPlayerAdapter,
-                  EventBus eventBus,
-                  AdViewabilityController adViewabilityController,
-                  InlayAdAnalyticsController analyticsController,
-                  InlayAdStateProvider inlayAdStateProvider,
-                  PlaySessionController playSessionController,
-                  CurrentDateProvider currentDateProvider) {
+    AdPlayer(MediaPlayerAdapter mediaPlayerAdapter,
+             EventBus eventBus,
+             AdViewabilityController adViewabilityController,
+             InlayAdAnalyticsController analyticsController,
+             InlayAdStateProvider inlayAdStateProvider,
+             PlaySessionController playSessionController,
+             CurrentDateProvider currentDateProvider) {
         this.eventBus = eventBus;
         this.adViewabilityController = adViewabilityController;
         this.analyticsController = analyticsController;
@@ -210,7 +212,7 @@ class InlayAdPlayer implements Player.PlayerListener {
 
     @Override
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
-        Log.d(Log.ADS_TAG, String.format("InlayAdPlayer: Muted: %s, %s", isPlayerMuted, stateTransition.toString()));
+        Log.d(Log.ADS_TAG, String.format("AdPlayer: Muted: %s, %s", isPlayerMuted, stateTransition.toString()));
         lastState = stateTransition;
 
         if (lastState.playbackEnded() || lastState.wasError()) {

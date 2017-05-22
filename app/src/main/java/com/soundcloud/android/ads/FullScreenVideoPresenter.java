@@ -34,7 +34,7 @@ import java.lang.ref.WeakReference;
 class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements FullScreenVideoView.Listener {
 
     private final FullScreenVideoView view;
-    private final InlayAdPlayer adPlayer;
+    private final AdPlayer adPlayer;
     private final InlayAdStateProvider stateProvider;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
@@ -54,7 +54,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
                              InlayAdStateProvider stateProvider,
                              StreamAdsController streamAdsController,
                              CurrentDateProvider dateProvider,
-                             InlayAdPlayer adPlayer,
+                             AdPlayer adPlayer,
                              EventBus eventBus,
                              Navigator navigator) {
         view.setListener(this);

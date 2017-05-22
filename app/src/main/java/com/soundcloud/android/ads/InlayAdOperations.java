@@ -26,10 +26,10 @@ import java.util.Date;
 class InlayAdOperations {
 
     private final EventBus eventBus;
-    private final Lazy<InlayAdPlayer> inlayAdPlayer;
+    private final Lazy<AdPlayer> inlayAdPlayer;
 
     @Inject
-    InlayAdOperations(EventBus eventBus, Lazy<InlayAdPlayer> inlayAdPlayer) {
+    InlayAdOperations(EventBus eventBus, Lazy<AdPlayer> inlayAdPlayer) {
         this.eventBus = eventBus;
         this.inlayAdPlayer = inlayAdPlayer;
     }
@@ -62,25 +62,25 @@ class InlayAdOperations {
 
     private static class VideoPlaybackSubscriber extends DefaultSubscriber<InlayAdEvent> {
 
-        private final InlayAdPlayer inlayAdPlayer;
+        private final AdPlayer adPlayer;
 
-        VideoPlaybackSubscriber(InlayAdPlayer inlayAdPlayer) {
-            this.inlayAdPlayer = inlayAdPlayer;
+        VideoPlaybackSubscriber(AdPlayer adPlayer) {
+            this.adPlayer = adPlayer;
         }
 
         @Override
         public void onNext(InlayAdEvent event) {
             if (event instanceof OnScreen) {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
-                inlayAdPlayer.autoplay(videoAd);
-            } else if (event instanceof NoVideoOnScreen && inlayAdPlayer.isPlaying()) {
+                adPlayer.autoplay(videoAd);
+            } else if (event instanceof NoVideoOnScreen && adPlayer.isPlaying()) {
                 final boolean shouldMute = ((NoVideoOnScreen) event).shouldMute();
-                inlayAdPlayer.autopause(shouldMute);
+                adPlayer.autopause(shouldMute);
             } else if (event instanceof ToggleVolume) {
-                inlayAdPlayer.toggleVolume();
+                adPlayer.toggleVolume();
             } else if (event instanceof TogglePlayback) {
                 final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
-                inlayAdPlayer.togglePlayback(videoAd);
+                adPlayer.togglePlayback(videoAd);
             }
         }
     }

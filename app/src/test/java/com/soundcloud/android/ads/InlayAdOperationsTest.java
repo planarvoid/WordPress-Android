@@ -29,13 +29,13 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     private InlayAdOperations.OnScreenAndImageLoaded filter;
 
     @Mock InlayAdHelper inlayAdHelper;
-    @Mock InlayAdPlayer inlayAdPlayer;
+    @Mock AdPlayer adPlayer;
 
     TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        operations = new InlayAdOperations(eventBus, InjectionSupport.lazyOf(inlayAdPlayer));
+        operations = new InlayAdOperations(eventBus, InjectionSupport.lazyOf(adPlayer));
         filter = new InlayAdOperations.OnScreenAndImageLoaded(inlayAdHelper);
     }
 
@@ -83,54 +83,54 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
     
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreen() {
-        when(inlayAdPlayer.isPlaying()).thenReturn(false);
+        when(adPlayer.isPlaying()).thenReturn(false);
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).autoplay(videoAd);
+        verify(adPlayer).autoplay(videoAd);
     }
 
     @Test
     public void playsInlayAdPlayerWhenPlayerForVideoOnScreenEvenIfPlayerAlreadyPlaying() {
-        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+        when(adPlayer.isPlaying()).thenReturn(true);
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.OnScreen.create(12, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).autoplay(videoAd);
+        verify(adPlayer).autoplay(videoAd);
     }
 
     @Test
     public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreenWithMuteTrue() {
-        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+        when(adPlayer.isPlaying()).thenReturn(true);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), true));
 
-        verify(inlayAdPlayer).autopause(true);
+        verify(adPlayer).autopause(true);
     }
 
     @Test
     public void pausesInlayAdPlayerWhenPlayerIsPlayingForNoVideoOnScreenWithMuteFalse() {
-        when(inlayAdPlayer.isPlaying()).thenReturn(true);
+        when(adPlayer.isPlaying()).thenReturn(true);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), false));
 
-        verify(inlayAdPlayer).autopause(false);
+        verify(adPlayer).autopause(false);
     }
 
     @Test
     public void doesNotPauseInlayAdPlayerWhenPlayerNotPlayingForNoVideoOnScreen() {
-        when(inlayAdPlayer.isPlaying()).thenReturn(false);
+        when(adPlayer.isPlaying()).thenReturn(false);
 
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(new Date(999), true));
 
-        verify(inlayAdPlayer, never()).autopause(anyBoolean());
+        verify(adPlayer, never()).autopause(anyBoolean());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.ToggleVolume.create(0, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).toggleVolume();
+        verify(adPlayer).toggleVolume();
     }
 
     @Test
@@ -151,7 +151,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, event);
 
-        verifyZeroInteractions(inlayAdPlayer);
+        verifyZeroInteractions(adPlayer);
         verifyZeroInteractions(inlayAdHelper);
     }
 
@@ -162,6 +162,6 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         operations.subscribe(inlayAdHelper);
         eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.TogglePlayback.create(0, videoAd, new Date(999)));
 
-        verify(inlayAdPlayer).togglePlayback(videoAd);
+        verify(adPlayer).togglePlayback(videoAd);
     }
 }

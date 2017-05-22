@@ -53,7 +53,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;
-    @Mock private InlayAdPlayer inlayAdPlayer;
+    @Mock private AdPlayer adPlayer;
     @Mock private RecyclerView recycler;
     @Mock private StreamAdapter adapter;
     @Mock private StaggeredGridLayoutManager layoutManager;
@@ -70,7 +70,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
                                                  inlayAdOperations,
                                                  inlayAdHelperFactory,
                                                  stateProvider,
-                                                 lazyOf(inlayAdPlayer),
+                                                 lazyOf(adPlayer),
                                                  featureOperations,
                                                  dateProvider,
                                                  eventBus));

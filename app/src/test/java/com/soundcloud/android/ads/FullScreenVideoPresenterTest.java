@@ -35,7 +35,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     private final static VideoAd VIDEO_AD = AdFixtures.getVideoAd(Urn.forTrack(123L));
 
     @Mock FullScreenVideoView videoView;
-    @Mock InlayAdPlayer inlayAdPlayer;
+    @Mock AdPlayer adPlayer;
     @Mock InlayAdStateProvider stateProvider;
     @Mock CurrentDateProvider dateProvider;
     @Mock StreamAdsController controller;
@@ -50,16 +50,16 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, inlayAdPlayer, eventBus, navigator);
+        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigator);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
         intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
 
         when(activity.getIntent()).thenReturn(intent);
-        when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(VIDEO_AD));
         when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.absent());
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
-        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.adUrn())));
+        when(adPlayer.lastPosition(VIDEO_AD)).thenReturn(Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.adUrn())));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     public void onDestroyCallsOnScreenSizeChangeOnViewabilityController() {
         final Optional<PlaybackProgress> progressOne = Optional.of(new PlaybackProgress(10, 20, VIDEO_AD.adUrn()));
         final Optional<PlaybackProgress> progressTwo = Optional.of(new PlaybackProgress(20, 20, VIDEO_AD.adUrn()));
-        when(inlayAdPlayer.lastPosition(VIDEO_AD)).thenReturn(progressOne, progressTwo);
+        when(adPlayer.lastPosition(VIDEO_AD)).thenReturn(progressOne, progressTwo);
         presenter.onCreate(activity, null);
         presenter.onDestroy(activity);
 
@@ -163,7 +163,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateForNoAdWillFinishActivity() {
-        when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.absent());
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.absent());
         presenter.onCreate(activity, null);
 
         verify(videoView, never()).setupContentView(activity, VIDEO_AD);
@@ -172,7 +172,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateForOtherAdWillFinishActivity() {
-        when(inlayAdPlayer.getCurrentAd()).thenReturn(Optional.of(AdFixtures.getVideoAd(Urn.forAd("321", "abc"), Urn.forTrack(123L))));
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(AdFixtures.getVideoAd(Urn.forAd("321", "abc"), Urn.forTrack(123L))));
         presenter.onCreate(activity, null);
 
         verify(videoView, never()).setupContentView(activity, VIDEO_AD);

@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 
 import java.util.Date;
 
-public class InlayAdPlayerTest extends AndroidUnitTest {
+public class AdPlayerTest extends AndroidUnitTest {
     private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(1L);
     private static final VideoAdPlaybackItem VIDEO_ITEM = VideoAdPlaybackItem.create(VIDEO_AD, 0L, 0L);
     private static final boolean NOT_USER_INITIATED = false;
@@ -50,14 +50,14 @@ public class InlayAdPlayerTest extends AndroidUnitTest {
     @Mock AdViewabilityController adViewabilityController;
 
     private TestEventBus eventBus;
-    private InlayAdPlayer player;
+    private AdPlayer player;
 
     @Before
     public void setUp() {
         when(currentDateProvider.getCurrentDate()).thenReturn(new Date(999));
         eventBus = new TestEventBus();
-        player = new InlayAdPlayer(adapter, eventBus, adViewabilityController, analyticsController,
-                                   stateProvider, playSessionController, currentDateProvider);
+        player = new AdPlayer(adapter, eventBus, adViewabilityController, analyticsController,
+                              stateProvider, playSessionController, currentDateProvider);
     }
 
     @Test

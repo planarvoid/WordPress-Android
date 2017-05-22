@@ -44,7 +44,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     private final InlayAdOperations inlayAdOperations;
     private final InlayAdHelperFactory inlayAdHelperFactory;
     private final InlayAdStateProvider stateProvider;
-    private final Lazy<InlayAdPlayer> inlayAdPlayer;
+    private final Lazy<AdPlayer> inlayAdPlayer;
     private final FeatureOperations featureOperations;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
@@ -71,7 +71,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
                                InlayAdOperations inlayAdOperations,
                                InlayAdHelperFactory inlayAdHelperFactory,
                                InlayAdStateProvider inlayAdStateProvider,
-                               Lazy<InlayAdPlayer> inlayAdPlayer,
+                               Lazy<AdPlayer> inlayAdPlayer,
                                FeatureOperations featureOperations,
                                CurrentDateProvider dateProvider,
                                EventBus eventBus) {
