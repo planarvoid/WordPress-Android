@@ -1,6 +1,9 @@
 package com.soundcloud.android.playlists;
 
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.reverse;
 import static java.util.Collections.emptyList;
@@ -14,8 +17,8 @@ import com.soundcloud.android.BaseIntegrationTest;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.hamcrest.TestAsyncState;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.Supplier;
@@ -29,12 +32,15 @@ import org.junit.runner.RunWith;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest {
+
+    private static final String PLAYLIST_TWO_TRACKS = "playlist-two-tracks.json";
 
     public PlaylistDetailsPresenterIntegrationTest() {
         super(TestUser.playlistUser);
@@ -77,7 +83,11 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
 
     @Test
     public void showPlaylistWithTracks() {
-        final Urn playlistUrn = Urn.forPlaylist(123L);
+        final long id = 123L;
+        final String requestUrl = ApiEndpoints.PLAYLIST_WITH_TRACKS.path(Urn.forPlaylist(id));
+        addMockedResponse(requestUrl, PLAYLIST_TWO_TRACKS);
+
+        final Urn playlistUrn = Urn.forPlaylist(id);
         final PlaylistDetailsPresenter presenter = createPresenter(playlistUrn);
         final Screen screen = new Screen(presenter);
 
@@ -86,12 +96,17 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         screen.assertLastState(this::lastPlaylistUrn, is(playlistUrn));
         screen.assertLastState(AsyncViewModel::isRefreshing, is(false));
         screen.assertLastState(state -> state.data().get().tracks(), not(empty()));
+
+        verify(getRequestedFor(urlPathEqualTo(requestUrl)));
     }
 
     @Test
-    @Ignore
-    public void editTrackList() {
-        final Urn playlistWith2Tracks = Urn.forPlaylist(116114846L);
+    public void editTrackList() throws IOException {
+        final long id = 116114846L;
+        final String requestUrl = ApiEndpoints.PLAYLIST_WITH_TRACKS.path(Urn.forPlaylist(id));
+        addMockedResponse(requestUrl, PLAYLIST_TWO_TRACKS);
+
+        final Urn playlistWith2Tracks = Urn.forPlaylist(id);
         final PlaylistDetailsPresenter presenter = createPresenter(playlistWith2Tracks);
         final Screen screen = new Screen(presenter);
 
@@ -106,6 +121,8 @@ public class PlaylistDetailsPresenterIntegrationTest extends BaseIntegrationTest
         presenter.actionUpdateTrackList(updatedTrackList);
 
         screen.assertLastState(state -> state.data().get().tracks(), is(updatedTrackList));
+
+        verify(getRequestedFor(urlPathEqualTo(requestUrl)));
     }
 
     private PlaylistDetailsPresenter createPresenter(Urn playlistUrn) {

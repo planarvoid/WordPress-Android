@@ -113,6 +113,7 @@ android {
     }
 
     androidTest {
+      assets.srcDirs 'src/integrationTest/assets'
       java.srcDirs 'src/integrationTest/java'
     }
   }

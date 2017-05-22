@@ -1,0 +1,166 @@
+{
+  "playlist": {
+    "urn": "soundcloud:playlists:116114846",
+    "title": "DO NOT REMOVE",
+    "created_at": "2015/06/12 18:41:22 +0000",
+    "duration": 4028588,
+    "permalink_url": "https://soundcloud.com/mike-smiechowy/sets/do-not-remove",
+    "artwork_url": "",
+    "track_count": 2,
+    "sharing": "private",
+    "user_tags": [],
+    "_embedded": {
+      "stats": {
+        "likes_count": 0,
+        "reposts_count": 0
+      },
+      "user": {
+        "urn": "soundcloud:users:50749473",
+        "permalink": "mike-smiechowy",
+        "username": "Majig Mike",
+        "first_name": "Mike",
+        "last_name": "Smiechowy",
+        "avatar_url": "https://i1.sndcdn.com/avatars-000076097136-hli4yk-large.jpg",
+        "city": "Berlin",
+        "country": "Germany",
+        "country_code": "DE",
+        "tracks_count": 9,
+        "followers_count": 10,
+        "followings_count": 16,
+        "verified": false,
+        "is_pro": false,
+        "avatar_url_template": "https://i1.sndcdn.com/avatars-000076097136-hli4yk-{size}.jpg",
+        "station_urns": ["soundcloud:artist-stations:50749473"],
+        "created_at": "2013/07/10 13:03:32 +0000"
+      }
+    },
+    "is_album": false,
+    "set_type": "",
+    "release_date": "",
+    "artwork_url_template": "https://i1.sndcdn.com/artworks-000135550770-xdptsy-{size}.jpg"
+  },
+  "tracks": {
+    "collection": [{
+      "monetizable": false,
+      "snipped": false,
+      "blocked": false,
+      "syncable": true,
+      "ad_supported": false,
+      "sub_mid_tier": false,
+      "sub_high_tier": false,
+      "monetization_model": "NOT_APPLICABLE",
+      "policy": "ALLOW",
+      "urn": "soundcloud:tracks:232256872",
+      "title": "Jens Lewandowski - Tonboutique Records Minicast 010",
+      "created_at": "2015/11/09 13:22:44 +0000",
+      "duration": 3794300,
+      "full_duration": 3794300,
+      "snip_duration": 30000,
+      "commentable": true,
+      "genre": "Jens Lewandowski",
+      "sharing": "public",
+      "waveform_url": "https://wis.sndcdn.com/9bWYn0LJlzAt_m.json",
+      "permalink_url": "https://soundcloud.com/tonboutique-records/jens-lewandowski-tonboutique",
+      "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:232256872/streams/https",
+      "user_tags": ["minimal", "techno", "jens", "lewandowski", "supdub", "berlin", "alfred", "heinrichs", "tech", "house", "deep", "electro", "edm", "dance", "music", "musik", "club", "charlotte", "favela", "fusion", "münster", "tonboutique", "records", "maxon", "andiz"],
+      "station_urns": ["soundcloud:track-stations:232256872"],
+      "description": "Crispy & exclusive minimal techno set from Supdub (Berlin) artist Jens Lewandowski. \n\nhttps://www.facebook.com/TonboutiqueRecords\nhttps://www.facebook.com/jens.lewandowski.eu",
+      "artwork_url_template": "https://i1.sndcdn.com/artworks-000135550770-xdptsy-{size}.jpg",
+      "_embedded": {
+        "stats": {
+          "playback_count": 12071,
+          "comments_count": 18,
+          "reposts_count": 121,
+          "likes_count": 614
+        },
+        "user": {
+          "urn": "soundcloud:users:51011848",
+          "permalink": "tonboutique-records",
+          "username": "Tonboutique Records",
+          "first_name": "Askim /",
+          "last_name": "Norway",
+          "avatar_url": "https://i1.sndcdn.com/avatars-000103617760-etma3b-large.jpg",
+          "city": "Münster",
+          "country": "Germany",
+          "country_code": "DE",
+          "tracks_count": 71,
+          "followers_count": 1059,
+          "followings_count": 821,
+          "verified": false,
+          "is_pro": false,
+          "description": "\"Without music, life would be a mistake\"  (Friedrich Nietzsche)\n\n\"Music is the language of passion\" (Richard Wagner)\n\n\"It's not only about skills or a technical procedure...it's about the transfer of a feeling from yourself to the audience at the right time and the right place...this depends on the mixture between ability and coincidence\"  \n(Maxon / Head of Tonboutique Records)",
+          "avatar_url_template": "https://i1.sndcdn.com/avatars-000103617760-etma3b-{size}.jpg",
+          "station_urns": ["soundcloud:artist-stations:51011848"],
+          "visual_url_template": "https://i1.sndcdn.com/visuals-000051011848-WYBJQt-{size}.jpg",
+          "created_at": "2013/07/13 06:12:25 +0000"
+        }
+      },
+      "_links": {
+        "related": {
+          "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:232256872/related"
+        }
+      }
+    }, {
+      "monetizable": false,
+      "snipped": false,
+      "blocked": false,
+      "syncable": true,
+      "ad_supported": false,
+      "sub_mid_tier": false,
+      "sub_high_tier": false,
+      "monetization_model": "NOT_APPLICABLE",
+      "policy": "ALLOW",
+      "urn": "soundcloud:tracks:140822175",
+      "title": "05 J. Cole - Revenge Of The Dreamers",
+      "created_at": "2014/03/22 08:26:34 +0000",
+      "duration": 234288,
+      "full_duration": 234288,
+      "snip_duration": 30000,
+      "commentable": true,
+      "genre": "Dreamville",
+      "sharing": "public",
+      "waveform_url": "https://wis.sndcdn.com/s2YoUYixNAQo_m.json",
+      "permalink_url": "https://soundcloud.com/dreamvillerecords/05-j-cole-revenge-of-the",
+      "stream_url": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:140822175/streams/https",
+      "user_tags": ["J Cole", "Bas", "Omen", "SMFiends", "Hip Hop", "Interscope", "Dreamers", "Treasure"],
+      "station_urns": ["soundcloud:track-stations:140822175"],
+      "description": "",
+      "artwork_url_template": "https://i1.sndcdn.com/artworks-000074253462-2ck1b6-{size}.jpg",
+      "_embedded": {
+        "stats": {
+          "playback_count": 944763,
+          "comments_count": 35,
+          "reposts_count": 2112,
+          "likes_count": 17575
+        },
+        "user": {
+          "urn": "soundcloud:users:20985819",
+          "permalink": "dreamvillerecords",
+          "username": "Dreamville",
+          "first_name": "Dreamville Records",
+          "last_name": "",
+          "avatar_url": "https://i1.sndcdn.com/avatars-000068437283-lci4le-large.jpg",
+          "city": "Dreamville",
+          "country": "United States",
+          "country_code": "US",
+          "tracks_count": 49,
+          "followers_count": 136855,
+          "followings_count": 5,
+          "verified": false,
+          "is_pro": false,
+          "description": "",
+          "avatar_url_template": "https://i1.sndcdn.com/avatars-000068437283-lci4le-{size}.jpg",
+          "station_urns": ["soundcloud:artist-stations:20985819"],
+          "visual_url_template": "https://i1.sndcdn.com/visuals-000020985819-OqjcZL-{size}.jpg",
+          "created_at": "2012/07/27 03:14:01 +0000"
+        }
+      },
+      "_links": {
+        "related": {
+          "href": "https://api-mobile-alpha.soundcloud.com/tracks/soundcloud:tracks:140822175/related"
+        }
+      }
+    }],
+    "_links": {}
+  }
+}

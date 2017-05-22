@@ -6,8 +6,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.soundcloud.android.framework.helpers.AssetHelper.readBodyOfFile;
 import static com.soundcloud.android.tests.NetworkMappings.addDefaultMapping;
+import static org.junit.Assert.assertFalse;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -21,6 +24,8 @@ import com.soundcloud.android.tests.NetworkMappings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+
+import android.content.res.Resources;
 
 public class BaseIntegrationTest {
     @Rule public WireMockRule wireMockRule = new WireMockRule(config());
@@ -69,6 +74,14 @@ public class BaseIntegrationTest {
 
     private void login() throws Exception {
         AccountAssistant.loginWith(getTargetContext(), user);
+    }
+
+    public void addMockedResponse(String url, String file) {
+        final Resources resources = getInstrumentation().getContext().getResources();
+        final String body = readBodyOfFile(resources, file);
+
+        assertFalse(body.isEmpty());
+        wireMockRule.addStubMapping(stubFor(any(urlPathEqualTo(url)).willReturn(aResponse().withBody(body))));
     }
 
     public void unrespondingNetwork() {
