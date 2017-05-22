@@ -39,6 +39,7 @@ import rx.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class PlaybackInitiatorTest extends AndroidUnitTest {
 
@@ -94,6 +95,40 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueSkipsBlockedItems() throws Exception {
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        final Map<Urn, Boolean> blockedTracks = Collections.singletonMap(TRACK1, true);
+
+        when(policyOperations.blockedStatuses()).thenReturn(urns -> Observable.just(blockedTracks));
+
+        playbackInitiator.playTracks(tracksToPlay, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        final PlayQueue playQueueFromUrns = TestPlayQueue.fromUrns(playSessionSource,
+                                                                   blockedTracks,
+                                                                   TRACK1, TRACK2, TRACK3);
+        assertPlayNewQueue(playSessionController, playQueueFromUrns, TRACK2, 1, playSessionSource);
+    }
+
+    @Test
+    public void playQueueAtBeginningIfAllTracksAreBlocked() throws Exception {
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK1, TRACK1);
+        final Map<Urn, Boolean> blockedTracks = Collections.singletonMap(TRACK1, true);
+
+        when(policyOperations.blockedStatuses()).thenReturn(urns -> Observable.just(blockedTracks));
+
+        playbackInitiator.playTracks(tracksToPlay, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
+
+        final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
+        final PlayQueue playQueueFromUrns = TestPlayQueue.fromUrns(playSessionSource,
+                                                                   blockedTracks,
+                                                                   TRACK1, TRACK1, TRACK1);
+
+        assertPlayNewQueue(playSessionController, playQueueFromUrns, TRACK1, 0, playSessionSource);
+    }
+
+
+    @Test
     public void playTrackFixWrongStartingPosition() {
         // This issue has been here forever and we don't know the root cause.
         // This is needed to fix a crash in the context the of the new PQ explicit items feature too.
@@ -105,7 +140,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
-        assertPlayNewQueue(playSessionController, TestPlayQueue.fromUrns(playSessionSource, TRACK1), TRACK1, wrongStartPosition, playSessionSource);
+        assertPlayNewQueue(playSessionController, TestPlayQueue.fromUrns(playSessionSource, TRACK1), TRACK1, 0, playSessionSource);
     }
 
     @Test
@@ -358,7 +393,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                 .playTracks(Observable.<Urn>empty().toList(), TRACK1, 2, new PlaySessionSource(ORIGIN_SCREEN))
                 .subscribe(observer);
 
-        verify(playSessionController).playNewQueue(any(PlayQueue.class),
+        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class),
                                                    any(Urn.class),
                                                    anyInt(),
                                                    any(PlaySessionSource.class));

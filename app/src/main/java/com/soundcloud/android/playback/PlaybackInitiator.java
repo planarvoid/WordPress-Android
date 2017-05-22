@@ -15,6 +15,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
+import android.support.annotation.NonNull;
+
 import javax.inject.Inject;
 import java.util.List;
 
@@ -34,14 +36,6 @@ public class PlaybackInitiator {
         this.playSessionController = playSessionController;
         this.policyOperations = policyOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
-    }
-
-    public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
-        return playTracks(trackUrns, trackUrns.get(position), position, playSessionSource);
-    }
-
-    public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, Urn trackUrn, int position, PlaySessionSource playSessionSource) {
-        return playTracks(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource);
     }
 
     public Observable<PlaybackResult> startPlayback(Urn trackUrn, Screen screen) {
@@ -73,8 +67,11 @@ public class PlaybackInitiator {
         return playTracks(urns, initialTrack, position, playSessionSource);
     }
 
+    public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
+        return playTracks(Observable.just(trackUrns), trackUrns.get(position), position, playSessionSource);
+    }
 
-    public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int initialPosition, PlaySessionSource playSessionSource) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             playSessionController.playCurrent();
             return Observable.just(PlaybackResult.success());
@@ -82,10 +79,33 @@ public class PlaybackInitiator {
             return allTracks.doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource))
                             .flatMap(policyOperations.blockedStatuses())
                             .zipWith(allTracks, (blockedUrns, urns) -> PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns))
-                            .map(addExplicitContentFromCurrentPlayQueue(position, initialTrack))
-                            .flatMap(playQueue -> playSessionController.playNewQueue(playQueue, initialTrack, position, playSessionSource))
+                            .map(addExplicitContentFromCurrentPlayQueue(initialPosition, initialTrack))
+                            .flatMap(playNewQueue(initialTrack, initialPosition, playSessionSource))
                             .observeOn(AndroidSchedulers.mainThread());
         }
+    }
+
+    @NonNull
+    private Func1<PlayQueue, Observable<? extends PlaybackResult>> playNewQueue(final Urn initialTrack, final int initialPosition, final PlaySessionSource playSessionSource) {
+        return playQueue -> {
+
+            int positionOfFirstPlayable = PlaybackUtils.correctInitialPosition(playQueue, initialPosition, initialTrack);
+            Urn urnOfFirstPlayable = initialTrack;
+
+            List<PlayQueueItem> items = playQueue.items();
+            for (int i = positionOfFirstPlayable; i < items.size(); i++) {
+                PlayQueueItem playQueueItem = items.get(i);
+                if (playQueueItem.isTrack()) {
+                    if (!((TrackQueueItem) playQueueItem).isBlocked()) {
+                        positionOfFirstPlayable = i;
+                        urnOfFirstPlayable = playQueueItem.getUrn();
+                        break;
+                    }
+                }
+            }
+
+            return playSessionController.playNewQueue(playQueue, urnOfFirstPlayable, positionOfFirstPlayable, playSessionSource);
+        };
     }
 
     private void startMeasuringPlaybackStarted(PlaySessionSource playSessionSource) {
