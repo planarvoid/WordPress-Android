@@ -591,10 +591,8 @@
   <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists &amp; albums</string>
-  <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Playlists &amp; albums</item>
-    <item quantity="other">%d playlists &amp; albums</item>
-  </plurals>
+  <string name="collections_playlists_separate_header">Playlists</string>
+  <string name="collections_albums_header">Albums</string>
   <string name="collections_your_liked_tracks">Liked tracks</string>
   <string name="track_likes_title">Liked tracks</string>
   <string name="collections_options_header_filters">Filters</string>
@@ -916,7 +914,6 @@
   <string name="playback_upsell_button_trial">Try SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">The Upload</string>
-  <string name="new_for_you_intro">New to SoundCloud. Selected for you.</string>
   <string name="new_for_you_action">See playlist</string>
   <string name="system_playlist_duration">%1$d tracks, %2$s</string>
   <string name="system_playlist_updated_at">Updated %s</string>
@@ -999,4 +996,7 @@
   <string name="suggested_creators_relation_liked">You recently liked their track</string>
   <string name="suggested_creators_relation_reposted">You recently reposted their track</string>
   <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
+  <string name="remote_signin_activity_title">Activate</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Send bug report</string>
 </resources>

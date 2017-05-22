@@ -589,10 +589,8 @@
   <string name="facebook_creator_invites_title">Invita i tuoi amici a ascoltare le tue ultime tracce su SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlist e album</string>
-  <plurals name="collections_playlists_and_albums_header_plural">
-    <item quantity="one">Playlist e album</item>
-    <item quantity="other">%d playlist e album</item>
-  </plurals>
+  <string name="collections_playlists_separate_header">Playlist</string>
+  <string name="collections_albums_header">Album</string>
   <string name="collections_your_liked_tracks">Tracce preferite</string>
   <string name="track_likes_title">Tracce preferite</string>
   <string name="collections_options_header_filters">Filtri</string>
@@ -743,7 +741,9 @@
   <string name="offline_update_completed_message">Pronto per l\'ascolto offline</string>
   <string name="offline_update_storage_limit_reached_title">Limite di archiviazione raggiunto</string>
   <string name="offline_update_storage_limit_reached_message">Tocca qui per visualizzare le impostazioni di archiviazione</string>
+  <string name="offline_update_requested">Preparazione download in corso</string>
   <string name="offline_update_in_progress">Salvataggio offline</string>
+  <string name="offline_update_completed">Salvataggio eseguito offline</string>
   <string name="offline_likes_dialog_title">Salva i tuoi preferiti offline</string>
   <string name="offline_likes_dialog_message">In questo modo i preferiti attuali e futuri verranno salvati offline e potranno essere ascoltati anche senza Wi-Fi o connessione dati.</string>
   <string name="make_offline_available">Salva offline</string>
@@ -914,7 +914,7 @@ Riavvia l\'applicazione.</string>
   <string name="playback_upsell_button_trial">Prova SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">Caricamenti</string>
-  <string name="new_for_you_intro">Le novità di SoundCloud selezionate per te.</string>
+  <string name="new_for_you_intro">Tracce pubblicate di recente. Solo per te.</string>
   <string name="new_for_you_action">Visualizza la playlist</string>
   <string name="system_playlist_duration">%1$d tracce, %2$s</string>
   <string name="system_playlist_updated_at">Aggiornata %s</string>
@@ -997,4 +997,7 @@ Riavvia l\'applicazione.</string>
   <string name="suggested_creators_relation_liked">Hai messo Mi piace a una loro traccia di recente</string>
   <string name="suggested_creators_relation_reposted">Hai ripubblicato una loro traccia di recente</string>
   <string name="suggested_creators_relation_curated">Hai aggiunto una loro traccia a una playlist di recente</string>
+  <string name="remote_signin_activity_title">Attiva</string>
+  <!--Bug report settings tile-->
+  <string name="bug_report_settings_title">Invia il rapporto bug</string>
 </resources>

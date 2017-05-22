@@ -2,9 +2,12 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.utils.DiffUtils.minus;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static io.reactivex.Observable.error;
+import static io.reactivex.Observable.just;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LoadPlaylistTracksCommand;
 import com.soundcloud.android.rx.RxJava;
@@ -18,6 +21,7 @@ import com.soundcloud.java.collections.Iterators;
 import com.soundcloud.java.collections.Lists;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -39,11 +43,11 @@ public class TrackRepository {
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
-                             LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-                             SyncInitiator syncInitiator,
-                             @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
-                             EntitySyncStateStorage entitySyncStateStorage,
-                             CurrentDateProvider currentDateProvider) {
+                           LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+                           SyncInitiator syncInitiator,
+                           @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
+                           EntitySyncStateStorage entitySyncStateStorage,
+                           CurrentDateProvider currentDateProvider) {
         this.trackStorage = trackStorage;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.syncInitiator = syncInitiator;
@@ -96,10 +100,19 @@ public class TrackRepository {
 
     private Single<List<Track>> syncAndLoadPlaylistTracks(Urn playlistUrn) {
         return RxJava.toV2Observable(syncInitiator.syncPlaylist(playlistUrn))
+                     .compose(convertApiRequestExceptionToSyncFailure())
                      .map(SyncJobResult::wasSuccess)
                      .first(false)
                      .observeOn(scheduler)
-                     .flatMap(ignored -> loadPlaylistTracksCommand.toSingle(playlistUrn));
+                     .flatMap(__ -> loadPlaylistTracksCommand.toSingle(playlistUrn));
+    }
+
+    private static ObservableTransformer<SyncJobResult, SyncJobResult> convertApiRequestExceptionToSyncFailure() {
+        return observable -> observable.onErrorResumeNext(
+                throwable -> throwable instanceof ApiRequestException
+                             ? just(SyncJobResult.failure("unknown", ((ApiRequestException) throwable)))
+                             : error(throwable)
+        );
     }
 
     private Function<List<Urn>, Single<Boolean>> syncMissingTracks(final List<Urn> requestedTracks) {
