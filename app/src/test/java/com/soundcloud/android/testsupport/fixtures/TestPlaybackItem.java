@@ -25,6 +25,10 @@ public class TestPlaybackItem {
         return AudioPlaybackItem.create(urn, position, duration, PlaybackType.AUDIO_DEFAULT);
     }
 
+    public static AudioPlaybackItem audioAd() {
+        return audioAd(URN, 0, DURATION);
+    }
+
     public static AudioPlaybackItem audioAd(Urn urn, long position, long duration) {
         return AudioPlaybackItem.create(urn, position, duration, PlaybackType.AUDIO_AD);
     }

@@ -15,7 +15,6 @@ import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
-import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
@@ -39,7 +38,6 @@ import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.flippernative.api.error_message;
 import com.soundcloud.flippernative.api.state_change;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +69,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     private final ConnectionHelper connectionHelper;
     private final LockUtil lockUtil;
     private final CryptoOperations cryptoOperations;
+    private final PerformanceReporter performanceReporter;
 
     @Nullable private volatile String currentStreamUrl;
     @Nullable private PlaybackItem currentPlaybackItem;
@@ -93,7 +92,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                    FlipperFactory flipperFactory,
                    EventBus eventBus,
                    CryptoOperations cryptoOperations,
-                   Context context) {
+                   Context context,
+                   PerformanceReporter performanceReporter) {
         this.accountOperations = accountOperations;
         this.stateHandler = stateChangeHandler;
         this.secureFileStorage = secureFileStorage;
@@ -104,6 +104,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         this.eventBus = eventBus;
         this.flipper = flipperFactory.create(this);
         this.context = context;
+        this.performanceReporter = performanceReporter;
         this.playerListener = PlayerListener.EMPTY;
         this.isSeekPending = false;
         this.cryptoOperations = cryptoOperations;
@@ -234,9 +235,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     @Override
     public void onPerformanceEvent(audio_performance event) {
         try {
-            if (allowPerformanceMeasureEvent()) {
-                reportPerformanceEvent(createPlaybackPerformanceEvent(event));
-            }
+            performanceReporter.report(currentPlaybackItem, event, getPlayerType());
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
         }
@@ -262,24 +261,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     @Override
     public void onSeekingStatusChanged(state_change event) {
-    }
-
-    // TODO: waiting for a Skipper update go provide getHost and getFormat
-    //    private PlaybackPerformanceEvent createPlaybackPerformanceEventFromBufferUnderrun(state_change event) {
-    //        final ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-    //        final PlaybackProtocol playbackProtocol = getPlaybackProtocol();
-    //
-    //        return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(
-    //                uninterruptedPlayTime,
-    //                playbackProtocol,
-    //                PlayerType.FLIPPER,
-    //                currentConnectionType,
-    //                event.getHost().const_get_value(),
-    //                event.getFormat().const_get_value());
-    //    }
-
-    private void reportPerformanceEvent(PlaybackPerformanceEvent event) {
-        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
     @Override
@@ -319,40 +300,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
         }
-    }
-
-    private PlaybackPerformanceEvent createPlaybackPerformanceEvent(audio_performance event) {
-        String eventType = event.getType().const_get_value();
-        PlaybackPerformanceEvent.Builder builder;
-
-        switch (eventType) {
-            case "play":
-                builder = PlaybackPerformanceEvent.timeToPlay(currentPlaybackItem.getPlaybackType());
-                break;
-            case "seek":
-                builder = PlaybackPerformanceEvent.timeToSeek();
-                break;
-            case "cacheUsage":
-                builder = PlaybackPerformanceEvent.cacheUsagePercent();
-                break;
-            case "playlist":
-                builder = PlaybackPerformanceEvent.timeToPlaylist();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected performance metric : " + eventType);
-        }
-
-        return builder
-                .metricValue(event.getLatency().const_get_value())
-                .protocol(PlaybackProtocol.fromValue(event.getProtocol().const_get_value()))
-                .playerType(getPlayerType())
-                .connectionType(connectionHelper.getCurrentConnectionType())
-                .cdnHost(event.getHost().const_get_value())
-                .format(event.getFormat().const_get_value())
-                .bitrate((int) event.getBitrate().const_get_value())
-                .userUrn(accountOperations.getLoggedInUserUrn())
-                .details(Optional.fromNullable(event.getDetails().get_value().toJson()))
-                .build();
     }
 
     private void handleStateChanged(state_change event) {
@@ -521,15 +468,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     private void startPlayback() {
         flipper.play();
-    }
-
-    private boolean allowPerformanceMeasureEvent() {
-        return !isCurrentItemAd();
-    }
-
-
-    private boolean isCurrentItemAd() {
-        return currentPlaybackItem != null && currentPlaybackItem.getPlaybackType() == PlaybackType.AUDIO_AD;
     }
 
     static class StateChangeHandler extends Handler {
