@@ -93,7 +93,7 @@ task runMarshmallowTestsMaster(dependsOn: extractHtmlTemplates) {
   doLast {
     def masterSystemProperties = systemPropertiesForBuildType('Android Listeners Master')
 
-    testRunner().runTests(lollipopLabel, null, excludeAnnotations, masterSystemProperties, null, null, null)
+    testRunner().runTests(marshmallowLabel, null, excludeAnnotations, masterSystemProperties, null, null, null)
   }
 }
 
