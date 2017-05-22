@@ -44,9 +44,9 @@ public final class EventQueue {
                                                                 .replay()
                                                                 .get();
 
-    public static final Queue<InlayAdEvent> INLAY_AD = Queue.of(InlayAdEvent.class)
-                                                            .onError(ON_ERROR)
-                                                            .get();
+    public static final Queue<AdPlaybackEvent> INLAY_AD = Queue.of(AdPlaybackEvent.class)
+                                                               .onError(ON_ERROR)
+                                                               .get();
 
     // accounts + users
     public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class)

@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.main.Screen;
@@ -198,7 +198,7 @@ public class AdPlayerTest extends AndroidUnitTest {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayPlayStateTransition.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlayStateTransition.class);
     }
 
     @Test
@@ -341,7 +341,7 @@ public class AdPlayerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangesAreForwardedToInlayStateProviderController() {
-        final ArgumentCaptor<InlayPlayStateTransition> inlayTransition = ArgumentCaptor.forClass(InlayPlayStateTransition.class);
+        final ArgumentCaptor<AdPlayStateTransition> inlayTransition = ArgumentCaptor.forClass(AdPlayStateTransition.class);
         final PlaybackStateTransition playerTransition = TestPlayerTransitions.playing(VIDEO_AD.adUrn());
 
         this.player.play(VIDEO_AD, NOT_USER_INITIATED);

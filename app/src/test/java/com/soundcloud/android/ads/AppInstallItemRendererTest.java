@@ -7,8 +7,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -109,7 +109,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         }.run();
 
         assertThat(ad.imageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.ImageLoaded.create(42, ad, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, AdPlaybackEvent.ImageLoaded.create(42, ad, CURRENT_DATE));
     }
 
     abstract class RunnableRenderer extends AppInstallItemRenderer implements Runnable {

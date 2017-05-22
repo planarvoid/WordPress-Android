@@ -2,7 +2,7 @@ package com.soundcloud.android.ads;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -16,7 +16,7 @@ public class AdStateProviderTest extends AndroidUnitTest {
 
     private static final String UUID = "111-1111-111";
     private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(Urn.forAd("adserver", "123"));
-    private static final InlayPlayStateTransition TRANSITION = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.playing(), false, new Date(999));
+    private static final AdPlayStateTransition TRANSITION = AdPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.playing(), false, new Date(999));
 
     private AdStateProvider stateProvider;
 

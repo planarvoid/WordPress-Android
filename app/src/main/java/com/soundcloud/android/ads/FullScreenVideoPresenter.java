@@ -1,12 +1,12 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
-import static com.soundcloud.android.events.InlayAdEvent.TogglePlayback;
+import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import static com.soundcloud.android.events.AdPlaybackEvent.TogglePlayback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -93,7 +93,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         }
     }
 
-    private void onInlayStateTransition(Activity activity, InlayPlayStateTransition event) {
+    private void onInlayStateTransition(Activity activity, AdPlayStateTransition event) {
         final PlaybackStateTransition transition = event.stateTransition();
         if (transition.playbackHasStopped())  {
             activity.finish();
@@ -110,8 +110,8 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     public void onResume(AppCompatActivity activity) {
         ad.ifPresent(videoAd -> view.bindVideoSurface(videoAd.uuid(), VideoSurfaceProvider.Origin.FULLSCREEN));
         subscription = eventBus.queue(EventQueue.INLAY_AD)
-                               .filter(InlayAdEvent::forStateTransition)
-                               .cast(InlayPlayStateTransition.class)
+                               .filter(AdPlaybackEvent::forStateTransition)
+                               .cast(AdPlayStateTransition.class)
                                .subscribe(new TransitionSubscriber());
     }
 
@@ -156,9 +156,9 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
         });
     }
 
-    private class TransitionSubscriber extends DefaultSubscriber<InlayPlayStateTransition> {
+    private class TransitionSubscriber extends DefaultSubscriber<AdPlayStateTransition> {
         @Override
-        public void onNext(InlayPlayStateTransition event) {
+        public void onNext(AdPlayStateTransition event) {
             if (hasActivityRef()) {
                onInlayStateTransition(activityRef.get(), event);
             }

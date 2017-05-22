@@ -6,9 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
-import com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -146,7 +146,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.ToggleVolume.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.ToggleVolume.class);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_view).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.TogglePlayback.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.TogglePlayback.class);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_volume_control).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.TogglePlayback.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.TogglePlayback.class);
     }
 
     @Test
@@ -283,7 +283,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void setsPlayStateOnBindIfPreviousStateForAdExists() {
-        final InlayPlayStateTransition transition = InlayPlayStateTransition.create(VIDEO_AD_1, TestPlayerTransitions.playing(), false, new Date(999));
+        final AdPlayStateTransition transition = AdPlayStateTransition.create(VIDEO_AD_1, TestPlayerTransitions.playing(), false, new Date(999));
         when(stateProvider.get(VIDEO_AD_1.uuid())).thenReturn(Optional.of(transition));
 
         renderer.bindItemView(0, adView, ITEMS);

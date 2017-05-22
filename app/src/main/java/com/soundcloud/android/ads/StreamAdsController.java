@@ -4,8 +4,8 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -156,7 +156,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     private void publishNoVideoOnScreenEvent() {
-        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.NoVideoOnScreen.create(dateProvider.getCurrentDate(), false));
+        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.NoVideoOnScreen.create(dateProvider.getCurrentDate(), false));
     }
 
     @Override

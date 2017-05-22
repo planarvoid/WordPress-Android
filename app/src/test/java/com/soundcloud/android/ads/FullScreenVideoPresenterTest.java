@@ -1,13 +1,13 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
-import static com.soundcloud.android.events.InlayAdEvent.TogglePlayback;
+import static com.soundcloud.android.events.AdPlaybackEvent.TogglePlayback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -114,7 +114,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onResume(activity);
 
         final PlaybackStateTransition transition = TestPlayerTransitions.playing();
-        final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
+        final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
         eventBus.publish(EventQueue.INLAY_AD, event);
 
         verify(videoView).setPlayState(transition);
@@ -182,7 +182,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Test
     public void onCreateForwardsLastStateIfPlaybackIsContinuingForVideoToView() {
         final PlaybackStateTransition transition = TestPlayerTransitions.playing();
-        final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
+        final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
         when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.of(event));
 
         presenter.onCreate(activity, null);
@@ -193,7 +193,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Test
     public void onCreateFinishesActivityIfLastStateForVideoIsError() {
         final PlaybackStateTransition transition = TestPlayerTransitions.error(PlayStateReason.ERROR_FAILED);
-        final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
+        final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
         when(stateProvider.get(VIDEO_AD.uuid())).thenReturn(Optional.of(event));
 
         presenter.onCreate(activity, null);

@@ -8,7 +8,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 
 import java.util.Date;
 
-public abstract class InlayAdEvent {
+public abstract class AdPlaybackEvent {
 
     public interface WithAdData {
         int getPosition();
@@ -29,54 +29,54 @@ public abstract class InlayAdEvent {
     }
 
     public boolean forStateTransition() {
-        return this instanceof InlayPlayStateTransition;
+        return this instanceof AdPlayStateTransition;
     }
 
     @AutoValue
-    public abstract static class OnScreen extends InlayAdEvent implements WithAdData {
+    public abstract static class OnScreen extends AdPlaybackEvent implements WithAdData {
         public static OnScreen create(int position, AdData ad, Date at) {
-            return new AutoValue_InlayAdEvent_OnScreen(position, ad, at);
+            return new AutoValue_AdPlaybackEvent_OnScreen(position, ad, at);
         }
     }
 
     @AutoValue
-    public abstract static class ImageLoaded extends InlayAdEvent implements WithAdData {
+    public abstract static class ImageLoaded extends AdPlaybackEvent implements WithAdData {
         public static ImageLoaded create(int position, AppInstallAd ad, Date at) {
-            return new AutoValue_InlayAdEvent_ImageLoaded(position, ad, at);
+            return new AutoValue_AdPlaybackEvent_ImageLoaded(position, ad, at);
         }
     }
 
     @AutoValue
-    public abstract static class NoVideoOnScreen extends InlayAdEvent {
+    public abstract static class NoVideoOnScreen extends AdPlaybackEvent {
         public abstract boolean shouldMute();
 
         public static NoVideoOnScreen create(Date at, boolean shouldMute) {
-            return new AutoValue_InlayAdEvent_NoVideoOnScreen(at, shouldMute);
+            return new AutoValue_AdPlaybackEvent_NoVideoOnScreen(at, shouldMute);
         }
     }
 
     @AutoValue
-    public abstract static class ToggleVolume extends InlayAdEvent implements WithAdData {
+    public abstract static class ToggleVolume extends AdPlaybackEvent implements WithAdData {
         public static ToggleVolume create(int position, AdData ad, Date at) {
-            return new AutoValue_InlayAdEvent_ToggleVolume(position, ad, at);
+            return new AutoValue_AdPlaybackEvent_ToggleVolume(position, ad, at);
         }
     }
 
     @AutoValue
-    public abstract static class TogglePlayback extends InlayAdEvent implements WithAdData {
+    public abstract static class TogglePlayback extends AdPlaybackEvent implements WithAdData {
         public static TogglePlayback create(int position, AdData ad, Date at) {
-            return new AutoValue_InlayAdEvent_TogglePlayback(position, ad, at);
+            return new AutoValue_AdPlaybackEvent_TogglePlayback(position, ad, at);
         }
     }
 
     @AutoValue
-    public abstract static class InlayPlayStateTransition extends InlayAdEvent {
+    public abstract static class AdPlayStateTransition extends AdPlaybackEvent {
         public abstract VideoAd videoAd();
         public abstract PlaybackStateTransition stateTransition();
         public abstract boolean isMuted();
 
-        public static InlayPlayStateTransition create(VideoAd videoAd, PlaybackStateTransition transition, boolean isMuted, Date at) {
-            return new AutoValue_InlayAdEvent_InlayPlayStateTransition(at, videoAd, transition, isMuted);
+        public static AdPlayStateTransition create(VideoAd videoAd, PlaybackStateTransition transition, boolean isMuted, Date at) {
+            return new AutoValue_AdPlaybackEvent_AdPlayStateTransition(at, videoAd, transition, isMuted);
         }
     }
 }

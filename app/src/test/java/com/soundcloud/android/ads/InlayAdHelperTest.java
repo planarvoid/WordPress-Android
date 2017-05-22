@@ -1,8 +1,8 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
-import static com.soundcloud.android.events.InlayAdEvent.NoVideoOnScreen;
-import static com.soundcloud.android.events.InlayAdEvent.OnScreen;
+import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import static com.soundcloud.android.events.AdPlaybackEvent.NoVideoOnScreen;
+import static com.soundcloud.android.events.AdPlaybackEvent.OnScreen;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
@@ -354,7 +353,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setVideoViewVisibility(8, 51);
         inlayAdHelper.subscribe();
 
-        final InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
+        final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
         eventBus.publish(EventQueue.INLAY_AD, event);
 
         verify(videoAdItemRenderer).setPlayState(any(View.class), eq(event.stateTransition()), eq(event.isMuted()));
@@ -366,7 +365,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         setStreamItems(15, TRACK_ITEM);
         inlayAdHelper.subscribe();
 
-        final InlayAdEvent.InlayPlayStateTransition event = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
+        final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
         eventBus.publish(EventQueue.INLAY_AD, event);
 
         verify(videoAdItemRenderer, never()).setPlayState(any(View.class), any(PlaybackStateTransition.class), anyBoolean());

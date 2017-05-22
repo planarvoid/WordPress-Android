@@ -4,9 +4,9 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
-import com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
 import com.soundcloud.android.stream.StreamItem;
@@ -58,8 +58,8 @@ class InlayAdHelper {
 
     Subscription subscribe() {
         return eventBus.queue(EventQueue.INLAY_AD)
-                       .filter(InlayAdEvent::forStateTransition)
-                       .cast(InlayPlayStateTransition.class)
+                       .filter(AdPlaybackEvent::forStateTransition)
+                       .cast(AdPlayStateTransition.class)
                        .subscribe(new InlayStateTransitionSubscriber());
     }
 
@@ -112,9 +112,9 @@ class InlayAdHelper {
 
         if (mostViewableVideo.isPresent()) {
             final VideoOnScreen videoOnScreen = mostViewableVideo.get();
-            publishInlayAdEvent(InlayAdEvent.OnScreen.create(videoOnScreen.position(), videoOnScreen.adData(), now));
+            publishInlayAdEvent(AdPlaybackEvent.OnScreen.create(videoOnScreen.position(), videoOnScreen.adData(), now));
         } else {
-            publishInlayAdEvent(InlayAdEvent.NoVideoOnScreen.create(now, true));
+            publishInlayAdEvent(AdPlaybackEvent.NoVideoOnScreen.create(now, true));
         }
     }
 
@@ -142,11 +142,11 @@ class InlayAdHelper {
 
     private void forAppInstallOnScreen(Date now, int position, AppInstallAd adData) {
         if (!adData.hasReportedImpression()) {
-            publishInlayAdEvent(InlayAdEvent.OnScreen.create(position, adData, now));
+            publishInlayAdEvent(AdPlaybackEvent.OnScreen.create(position, adData, now));
         }
     }
 
-    private void publishInlayAdEvent(InlayAdEvent event) {
+    private void publishInlayAdEvent(AdPlaybackEvent event) {
        eventBus.publish(EventQueue.INLAY_AD, event);
     }
 
@@ -250,12 +250,12 @@ class InlayAdHelper {
         }
     }
 
-    private class InlayStateTransitionSubscriber extends DefaultSubscriber<InlayPlayStateTransition> {
+    private class InlayStateTransitionSubscriber extends DefaultSubscriber<AdPlayStateTransition> {
 
         final HashMap<VideoAd, Integer> positionCache = new HashMap<>(AdConstants.MAX_INLAYS_ON_SCREEN);
 
         @Override
-        public void onNext(InlayPlayStateTransition event) {
+        public void onNext(AdPlayStateTransition event) {
             final VideoAd video = event.videoAd();
 
             if (positionCache.containsKey(video)) {
@@ -271,14 +271,14 @@ class InlayAdHelper {
             }
         }
 
-        private void searchAndForwardTransition(InlayPlayStateTransition transition, VideoAd video) {
+        private void searchAndForwardTransition(AdPlayStateTransition transition, VideoAd video) {
             final boolean cacheSuccessfullyUpdated = updatePositionCache(video);
             if (cacheSuccessfullyUpdated) {
                forwardTransitionToPresenter(transition, positionCache.get(video));
             }
         }
 
-        private void forwardTransitionToPresenter(InlayPlayStateTransition transition, int position) {
+        private void forwardTransitionToPresenter(AdPlayStateTransition transition, int position) {
             final View videoView = layoutManager.findViewByPosition(position);
             if (videoView != null) {
                 videoAdItemRenderer.setPlayState(videoView, transition.stateTransition(), transition.isMuted());

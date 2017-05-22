@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.InlayAdEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -323,7 +323,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     public void onFocusLossWhenForTabChangePublishesNoAdOnScreenEvent() {
         controller.onFocusLoss(true);
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test
@@ -355,7 +355,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         controller.onPause(fragment);
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test
@@ -381,7 +381,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     public void playerExpandEventWillPublishNoAdOnScreenEvent() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(InlayAdEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test

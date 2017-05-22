@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.InlayAdEvent.InlayPlayStateTransition;
-
+import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -225,7 +224,7 @@ class AdPlayer implements Player.PlayerListener {
         if (currentAd.isPresent()) {
             final VideoAd ad = currentAd.get();
             final PlayStateEvent playState = PlayStateEvent.create(stateTransition, stateTransition.getProgress().getDuration());
-            final InlayPlayStateTransition stateEvent = InlayPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
+            final AdPlayStateTransition stateEvent = AdPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
             analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, ad, playState);
             stateProvider.put(ad.uuid(), stateEvent);
             eventBus.publish(EventQueue.INLAY_AD, stateEvent);
