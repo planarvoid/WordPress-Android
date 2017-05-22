@@ -1,27 +1,29 @@
 timestamps {
   ansiColor('xterm') {
     try {
-      stage('Checkout') {
-        node('chaos-slave') {
-          checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
+      timeout(time: 1, unit: 'HOURS') {
+        stage('Checkout') {
+          node('chaos-slave') {
+            checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
 
-          def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
-          env.PIPELINE_VERSION = BUILD_NUMBER + '-' + gitCommit
-          currentBuild.displayName = env.PIPELINE_VERSION
-          stash name: 'repository'
+            def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
+            env.PIPELINE_VERSION = BUILD_NUMBER + '-' + gitCommit
+            currentBuild.displayName = env.PIPELINE_VERSION
+            stash name: 'repository'
+          }
         }
-      }
-      stage('Build and Test') {
-        node('chaos-slave') {
-          deleteDir()
-          unstash 'repository'
-          env.BUILD_TYPE = 'preRelease'
-          try {
-            gradle 'buildPreRelease assembleAcceptanceTest runMarshmallowTestsRelease'
-          } finally {
-            junit 'results/xml/*.xml'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'index.html', reportName: 'Test results'])
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'collection_index.html', reportName: 'Collection Test results'])
+        stage('Build and Test') {
+          node('chaos-slave') {
+            deleteDir()
+            unstash 'repository'
+            env.BUILD_TYPE = 'preRelease'
+            try {
+              gradle 'buildPreRelease assembleAcceptanceTest runMarshmallowTestsRelease'
+            } finally {
+              junit 'results/xml/*.xml'
+              publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'index.html', reportName: 'Test results'])
+              publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'results/', reportFiles: 'collection_index.html', reportName: 'Collection Test results'])
+            }
           }
         }
       }

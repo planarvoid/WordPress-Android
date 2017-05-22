@@ -10,27 +10,29 @@ timestamps {
     def error
 
     try {
-      stage(Stages.CHECKOUT.name) {
-        node(NODE_NAME) {
-          checkoutStage()
-        }
-      }
-      parallel 'compile_and_acceptance_tests': {
-        stage(Stages.COMPILE_AND_UI_TESTS.name) {
+      timeout(time: 1, unit: 'HOURS') {
+        stage(Stages.CHECKOUT.name) {
           node(NODE_NAME) {
-            compileAndAcceptanceTestStage()
+            checkoutStage()
           }
         }
-      }, 'unit_test': {
-        stage(Stages.UNIT_TESTS.name) {
-          node(NODE_NAME) {
-            unitTestStage()
+        parallel 'compile_and_acceptance_tests': {
+          stage(Stages.COMPILE_AND_UI_TESTS.name) {
+            node(NODE_NAME) {
+              compileAndAcceptanceTestStage()
+            }
           }
-        }
-      }, 'checks': {
-        stage(Stages.STATIC_ANALYSIS.name) {
-          node(NODE_NAME) {
-            staticAnalysisStage()
+        }, 'unit_test': {
+          stage(Stages.UNIT_TESTS.name) {
+            node(NODE_NAME) {
+              unitTestStage()
+            }
+          }
+        }, 'checks': {
+          stage(Stages.STATIC_ANALYSIS.name) {
+            node(NODE_NAME) {
+              staticAnalysisStage()
+            }
           }
         }
       }
