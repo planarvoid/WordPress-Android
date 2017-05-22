@@ -130,7 +130,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
         final String trackUrl = buildStreamUrl(playbackItem);
         if (trackUrl.equals(currentStreamUrl)) {
-            seek(fromPos, true);
+            seek(fromPos);
             startPlayback();
         } else {
             initializePlayback(playbackItem, fromPos);
@@ -150,13 +150,11 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     }
 
     @Override
-    public long seek(long position, boolean performSeek) {
-        if (performSeek) {
-            Log.d(TAG, "Seeking to position: " + position);
-            setSeekingState(position);
-            flipper.seek(position);
-            reportProgress(position, duration);
-        }
+    public long seek(long position) {
+        Log.d(TAG, "Seeking to position: " + position);
+        setSeekingState(position);
+        flipper.seek(position);
+        reportProgress(position, duration);
         return position;
     }
 

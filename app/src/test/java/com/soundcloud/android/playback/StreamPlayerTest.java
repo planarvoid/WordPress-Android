@@ -293,8 +293,8 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void seekCallsSeekOnMediaPlayer() {
         instantiateStreamPlaya();
         startsAndFailsPlaybackOnSkippy();
-        streamPlayerWrapper.seek(100, true);
-        verify(mediaPlayerAdapter).seek(100, true);
+        streamPlayerWrapper.seek(100);
+        verify(mediaPlayerAdapter).seek(100);
     }
 
     @Test
@@ -357,8 +357,8 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void seekCallsSeekOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
-        streamPlayerWrapper.seek(100, true);
-        verify(skippyAdapter).seek(100, true);
+        streamPlayerWrapper.seek(100);
+        verify(skippyAdapter).seek(100);
     }
 
     @Test

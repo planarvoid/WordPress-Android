@@ -268,15 +268,13 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public long seek(long position, boolean performSeek) {
-        if (performSeek) {
-            bufferUnderrunListener.onSeek();
-            skippy.seek(position);
+    public long seek(long position) {
+        bufferUnderrunListener.onSeek();
+        skippy.seek(position);
 
-            long duration = skippy.getDuration();
-            if (playerListener != null && duration != 0) {
-                playerListener.onProgressEvent(position, duration);
-            }
+        long duration = skippy.getDuration();
+        if (playerListener != null && duration != 0) {
+            playerListener.onProgressEvent(position, duration);
         }
         return position;
     }

@@ -49,7 +49,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.pause();
             } else if (Action.SEEK.equals(action)) {
                 long seekPosition = getPositionFromIntent(intent);
-                playbackService.seek(seekPosition, true);
+                playbackService.seek(seekPosition);
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
                 if (playbackService.isPlayerPlaying()) {
                     Log.d(getClass().getSimpleName(), "Pausing from audio becoming noisy");

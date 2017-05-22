@@ -472,7 +472,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void onSeekVolumeIsReset() {
         playbackService.onCreate();
 
-        playbackService.seek(123L, true);
+        playbackService.seek(123L);
 
         verify(volumeController).resetVolume();
     }
@@ -481,7 +481,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void onSeekForwardsPositionToMediaSession() {
         playbackService.onCreate();
 
-        playbackService.seek(123L, true);
+        playbackService.seek(123L);
 
         verify(mediaSessionController).onSeek(123L);
     }

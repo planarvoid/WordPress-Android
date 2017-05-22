@@ -221,7 +221,7 @@ public class MediaPlayerAdapter implements
                 publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
                 if (resumePos > 0) {
-                    seek(resumePos, true);
+                    seek(resumePos);
                 }
             } else {
                 setInternalState(PlaybackState.PAUSED);
@@ -520,12 +520,8 @@ public class MediaPlayerAdapter implements
         this.playerListener = playerListener;
     }
 
-    public long seek(long position) {
-        return seek(position, true);
-    }
-
     @Override
-    public long seek(long position, boolean performSeek) {
+    public long seek(long position) {
         if (isSeekable()) {
             if (position < 0) {
                 throw new IllegalArgumentException("Trying to seek before 0");
@@ -537,7 +533,7 @@ public class MediaPlayerAdapter implements
             if (mediaPlayer == null) {
                 return currentPos;
             } else {
-                if (performSeek && position != currentPos) {
+                if (position != currentPos) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "seeking to " + position);
                     }

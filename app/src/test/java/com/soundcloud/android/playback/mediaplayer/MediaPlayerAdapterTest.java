@@ -530,7 +530,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.play(trackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
-        mediaPlayerAdapter.seek(10, true);
+        mediaPlayerAdapter.seek(10);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES);
         verify(mediaPlayer, never()).release();
     }

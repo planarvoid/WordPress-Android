@@ -272,11 +272,11 @@ public class PlaybackService extends Service
         }
     }
 
-    public long seek(long pos, boolean performSeek) {
+    public long seek(long pos) {
         Log.d(TAG, "Seeking to " + pos);
         resetVolume(pos);
         mediaSessionController.onSeek(pos);
-        return streamPlayer.seek(pos, performSeek);
+        return streamPlayer.seek(pos);
     }
 
     public boolean isPlaying() {

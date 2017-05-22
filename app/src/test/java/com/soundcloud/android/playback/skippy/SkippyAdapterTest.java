@@ -296,27 +296,21 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void seekCallsPauseOnSkippyIfPerformSeekTrue() {
-        skippyAdapter.seek(123L, true);
+        skippyAdapter.seek(123L);
         verify(skippy).seek(123L);
-    }
-
-    @Test
-    public void seekDoesNotCallPauseOnSkippyIfPerformSeekFalse() {
-        skippyAdapter.seek(123L, false);
-        verify(skippy, never()).seek(any(Long.class));
     }
 
     @Test
     public void seekCallsOnProgressWithSeekPosition() {
         when(skippy.getDuration()).thenReturn(456L);
-        skippyAdapter.seek(123L, true);
+        skippyAdapter.seek(123L);
         verify(listener).onProgressEvent(123L, 456L);
     }
 
     @Test
     public void seekDoesNotCallOnProgressEventWhenDurationIsZero() {
         when(skippy.getDuration()).thenReturn(0L);
-        skippyAdapter.seek(123L, true);
+        skippyAdapter.seek(123L);
         verify(listener, never()).onProgressEvent(anyLong(), anyLong());
     }
 
