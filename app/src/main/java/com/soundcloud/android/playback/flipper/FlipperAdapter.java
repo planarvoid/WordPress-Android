@@ -312,9 +312,9 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                 ErrorUtils.handleSilentExceptionWithLog(new FlipperException(message.getCategory(), message.getLine(), message.getSourceFile()), message.getErrorMessage());
             }
 
-            final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(), getPlaybackProtocol(), message.getCdn(),
-                                                                    message.getFormat(), message.getBitRate(), currentConnectionType,
-                                                                    getPlayerType());
+            final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(), FlipperPlaybackProtocolMapper.map(message.getStreamingProtocol()), message.getCdn(),
+                    message.getFormat(), message.getBitRate(), currentConnectionType,
+                    getPlayerType());
             eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
@@ -344,7 +344,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
         return builder
                 .metricValue(event.getLatency().const_get_value())
-                .protocol(getPlaybackProtocol())
+                .protocol(PlaybackProtocol.fromValue(event.getProtocol().const_get_value()))
                 .playerType(getPlayerType())
                 .connectionType(connectionHelper.getCurrentConnectionType())
                 .cdnHost(event.getHost().const_get_value())
@@ -353,10 +353,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                 .userUrn(accountOperations.getLoggedInUserUrn())
                 .details(Optional.fromNullable(event.getDetails().get_value().toJson()))
                 .build();
-    }
-
-    private PlaybackProtocol getPlaybackProtocol() {
-        return PlaybackProtocol.HLS;
     }
 
     private void handleStateChanged(state_change event) {
@@ -387,7 +383,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                                                                                dateProvider);
         final String connectionType = connectionHelper.getCurrentConnectionType().getValue();
 
-        transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue())
+        transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, FlipperPlaybackProtocolMapper.map(event.getStreamingProtocol()).getValue())
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, getPlayerType().getValue())
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionType)
                   .addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, TRUE_STRING)
