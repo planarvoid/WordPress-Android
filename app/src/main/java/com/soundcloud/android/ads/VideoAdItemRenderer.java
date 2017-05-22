@@ -31,11 +31,11 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     private final Resources resources;
     private final EventBus eventBus;
-    private final InlayAdStateProvider lastStateProvider;
+    private final AdStateProvider lastStateProvider;
     private final CurrentDateProvider currentDateProvider;
 
     @Inject
-    VideoAdItemRenderer(Resources resources, EventBus eventBus, InlayAdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
+    VideoAdItemRenderer(Resources resources, EventBus eventBus, AdStateProvider stateProvider, CurrentDateProvider currentDateProvider) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.lastStateProvider = stateProvider;

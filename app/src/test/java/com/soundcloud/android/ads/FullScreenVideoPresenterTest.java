@@ -36,7 +36,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
     @Mock FullScreenVideoView videoView;
     @Mock AdPlayer adPlayer;
-    @Mock InlayAdStateProvider stateProvider;
+    @Mock AdStateProvider stateProvider;
     @Mock CurrentDateProvider dateProvider;
     @Mock StreamAdsController controller;
     @Mock AdViewabilityController viewabilityController;

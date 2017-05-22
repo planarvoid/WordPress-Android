@@ -35,7 +35,7 @@ class AdPlayer implements Player.PlayerListener {
     private final EventBus eventBus;
     private final AdViewabilityController adViewabilityController;
     private final InlayAdAnalyticsController analyticsController;
-    private final InlayAdStateProvider stateProvider;
+    private final AdStateProvider stateProvider;
     private final PlaySessionController playSessionController;
     private final Player currentPlayer;
     private final CurrentDateProvider currentDateProvider;
@@ -55,13 +55,13 @@ class AdPlayer implements Player.PlayerListener {
              EventBus eventBus,
              AdViewabilityController adViewabilityController,
              InlayAdAnalyticsController analyticsController,
-             InlayAdStateProvider inlayAdStateProvider,
+             AdStateProvider adStateProvider,
              PlaySessionController playSessionController,
              CurrentDateProvider currentDateProvider) {
         this.eventBus = eventBus;
         this.adViewabilityController = adViewabilityController;
         this.analyticsController = analyticsController;
-        this.stateProvider = inlayAdStateProvider;
+        this.stateProvider = adStateProvider;
         this.playSessionController = playSessionController;
         this.currentDateProvider = currentDateProvider;
         currentPlayer = mediaPlayerAdapter;

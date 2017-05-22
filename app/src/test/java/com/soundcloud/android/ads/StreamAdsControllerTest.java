@@ -49,7 +49,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private InlayAdHelperFactory inlayAdHelperFactory;
     @Mock private InlayAdOperations inlayAdOperations;
-    @Mock private InlayAdStateProvider stateProvider;
+    @Mock private AdStateProvider stateProvider;
     @Mock private FeatureOperations featureOperations;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private InlayAdHelper inlayAdHelper;

@@ -35,7 +35,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     private final FullScreenVideoView view;
     private final AdPlayer adPlayer;
-    private final InlayAdStateProvider stateProvider;
+    private final AdStateProvider stateProvider;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
     private final Navigator navigator;
@@ -51,7 +51,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Inject
     FullScreenVideoPresenter(FullScreenVideoView view,
                              AdViewabilityController adViewabilityController,
-                             InlayAdStateProvider stateProvider,
+                             AdStateProvider stateProvider,
                              StreamAdsController streamAdsController,
                              CurrentDateProvider dateProvider,
                              AdPlayer adPlayer,

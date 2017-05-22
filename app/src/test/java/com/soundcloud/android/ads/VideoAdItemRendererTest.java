@@ -44,7 +44,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private VideoAdItemRenderer.Listener listener;
     @Mock private CurrentDateProvider currentDateProvider;
-    @Mock private InlayAdStateProvider stateProvider;
+    @Mock private AdStateProvider stateProvider;
 
     private TestEventBus eventBus;
     private VideoAdItemRenderer renderer;

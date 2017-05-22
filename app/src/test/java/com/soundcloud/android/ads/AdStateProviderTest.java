@@ -12,17 +12,17 @@ import org.junit.Test;
 
 import java.util.Date;
 
-public class InlayAdStateProviderTest extends AndroidUnitTest {
+public class AdStateProviderTest extends AndroidUnitTest {
 
     private static final String UUID = "111-1111-111";
     private static final VideoAd VIDEO_AD = AdFixtures.getVideoAd(Urn.forAd("adserver", "123"));
     private static final InlayPlayStateTransition TRANSITION = InlayPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.playing(), false, new Date(999));
 
-    private InlayAdStateProvider stateProvider;
+    private AdStateProvider stateProvider;
 
     @Before
     public void setUp() {
-        stateProvider = new InlayAdStateProvider();
+        stateProvider = new AdStateProvider();
     }
 
     @Test

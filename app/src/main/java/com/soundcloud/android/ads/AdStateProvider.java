@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
-class InlayAdStateProvider {
+class AdStateProvider {
 
     private Map<String, InlayPlayStateTransition> states = new ConcurrentHashMap<>(AdConstants.MAX_INLAYS_ON_SCREEN);
 
     @Inject
-    InlayAdStateProvider() {}
+    AdStateProvider() {}
 
     public void put(String uuid, InlayPlayStateTransition state) {
         states.put(uuid, state);
