@@ -34,7 +34,7 @@ class AdPlayer implements Player.PlayerListener {
 
     private final EventBus eventBus;
     private final AdViewabilityController adViewabilityController;
-    private final InlayAdAnalyticsController analyticsController;
+    private final AdAnalyticsController analyticsController;
     private final AdStateProvider stateProvider;
     private final PlaySessionController playSessionController;
     private final Player currentPlayer;
@@ -54,7 +54,7 @@ class AdPlayer implements Player.PlayerListener {
     AdPlayer(MediaPlayerAdapter mediaPlayerAdapter,
              EventBus eventBus,
              AdViewabilityController adViewabilityController,
-             InlayAdAnalyticsController analyticsController,
+             AdAnalyticsController analyticsController,
              AdStateProvider adStateProvider,
              PlaySessionController playSessionController,
              CurrentDateProvider currentDateProvider) {

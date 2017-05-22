@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 
 import javax.inject.Inject;
 
-public class InlayAdAnalyticsController {
+public class AdAnalyticsController {
 
     private final AdSessionAnalyticsDispatcher adAnalyticsDispatcher;
 
@@ -17,7 +17,7 @@ public class InlayAdAnalyticsController {
     private PlayStateEvent playStateEvent = PlayStateEvent.DEFAULT;
 
     @Inject
-    InlayAdAnalyticsController(AdSessionAnalyticsDispatcher adAnalyticsController) {
+    AdAnalyticsController(AdSessionAnalyticsDispatcher adAnalyticsController) {
         this.adAnalyticsDispatcher = adAnalyticsController;
     }
 

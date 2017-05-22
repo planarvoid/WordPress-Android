@@ -45,7 +45,7 @@ public class AdPlayerTest extends AndroidUnitTest {
     @Mock MediaPlayerAdapter adapter;
     @Mock CurrentDateProvider currentDateProvider;
     @Mock PlaySessionController playSessionController;
-    @Mock InlayAdAnalyticsController analyticsController;
+    @Mock AdAnalyticsController analyticsController;
     @Mock AdStateProvider stateProvider;
     @Mock AdViewabilityController adViewabilityController;
 

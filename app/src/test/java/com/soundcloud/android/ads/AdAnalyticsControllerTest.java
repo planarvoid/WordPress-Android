@@ -22,17 +22,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class InlayAdAnalyticsControllerTest extends AndroidUnitTest {
+public class AdAnalyticsControllerTest extends AndroidUnitTest {
 
     private static final VideoAd VIDEO_AD = AdFixtures.getInlayVideoAd(1L);
 
     @Mock private AdSessionAnalyticsDispatcher adDispatcher;
 
-    private InlayAdAnalyticsController analyticsController;
+    private AdAnalyticsController analyticsController;
 
     @Before
     public void setUp() {
-        analyticsController = new InlayAdAnalyticsController(adDispatcher);
+        analyticsController = new AdAnalyticsController(adDispatcher);
     }
 
     @Test
