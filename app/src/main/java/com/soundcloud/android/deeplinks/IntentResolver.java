@@ -198,6 +198,8 @@ public class IntentResolver {
                 return showSystemSettings(navigationTarget);
             case REMOTE_SIGN_IN:
                 return startWebViewForRemoteSignIn(navigationTarget);
+            case THE_UPLOAD:
+                return startTheUpload(navigationTarget);
             case UNKNOWN:
                 return startExternal(navigationTarget);
             default:
@@ -230,6 +232,12 @@ public class IntentResolver {
 
         return Single.<Action>just(() -> navigator.openRemoteSignInWebView(navigationTarget.activity(), target))
                 .doOnSuccess(t -> trackForegroundEvent(navigationTarget));
+    }
+
+    @CheckResult
+    private Single<Action> startTheUpload(NavigationTarget navigationTarget) {
+        return Single.<Action>just(() -> navigator.openNewForYou(navigationTarget.activity()))
+                .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult

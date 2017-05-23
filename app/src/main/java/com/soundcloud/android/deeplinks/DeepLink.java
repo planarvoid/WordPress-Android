@@ -17,6 +17,7 @@ public enum DeepLink {
     DISCOVERY,
     SEARCH,
     RECORD,
+    THE_UPLOAD,
     WEB_VIEW,
     ENTITY,
     SOUNDCLOUD_GO_PLUS_UPSELL,
@@ -47,6 +48,7 @@ public enum DeepLink {
                        DISCOVERY,
                        SEARCH,
                        RECORD,
+                       THE_UPLOAD,
                        ENTITY,
                        TRACK_ENTITY,
                        PLAYLIST_ENTITY,
@@ -136,6 +138,15 @@ public enum DeepLink {
             case "stream":
                 return STREAM;
             case "discover":
+                switch (uri.getPath()) {
+                    case "":
+                    case "/":
+                        return TRACK_RECOMMENDATIONS;
+                    case "/new-tracks-for-you":
+                        return THE_UPLOAD;
+                    default:
+                        return ENTITY;
+                }
             case "suggestedtracks_all":
                 return TRACK_RECOMMENDATIONS;
             case "suggested_tracks":
@@ -158,10 +169,12 @@ public enum DeepLink {
             case "upload":
             case "record":
                 return RECORD;
+            case "the-upload":
+                return THE_UPLOAD;
             case "soundcloudgo":
             case "go":
             case "ht_modal":
-                switch(uri.getPath()) {
+                switch (uri.getPath()) {
                     case "/soundcloudgo":
                         return SOUNDCLOUD_GO_CHOICE;
                     case "/soundcloudgoplus":
@@ -239,6 +252,9 @@ public enum DeepLink {
             case "/suggestedtracks_all":
             case "/suggested_tracks/all":
                 return TRACK_RECOMMENDATIONS;
+            case "/discover/new-tracks-for-you":
+            case "/the-upload":
+                return THE_UPLOAD;
             case "/charts":
                 return CHARTS;
             case "/search":

@@ -106,6 +106,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.RECORD, "soundcloud://record");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover");
+        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover/");
+        assertDeeplink(DeepLink.ENTITY, "soundcloud://discover/unsupported");
         assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://suggestedtracks_all");
         assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discovery");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_PLUS_UPSELL, "soundcloud://soundcloudgo");
@@ -208,6 +210,14 @@ public class DeepLinkTest extends AndroidUnitTest {
 
         assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:music");
         assertDeeplink(DeepLink.CHARTS_ALL_GENRES, "soundcloud://charts:audio");
+    }
+
+    @Test
+    public void shouldHandleTheUploadDeeplinks() throws Exception {
+        assertDeeplink(DeepLink.THE_UPLOAD, "soundcloud://discover/new-tracks-for-you");
+        assertDeeplink(DeepLink.THE_UPLOAD, "https://soundcloud.com/discover/new-tracks-for-you");
+        assertDeeplink(DeepLink.THE_UPLOAD, "https://soundcloud.com/the-upload");
+        assertDeeplink(DeepLink.THE_UPLOAD, "soundcloud://the-upload");
     }
 
     @Test

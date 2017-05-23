@@ -797,6 +797,17 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openExternal(navigationTarget.activity(), Uri.parse(target));
     }
 
+    @Test
+    public void deeplink_shouldGoToTheUpload() throws Exception {
+        String target = "soundcloud://the-upload";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
+        verifyZeroInteractions(resolveOperations);
+        verify(navigator).openNewForYou(navigationTarget.activity());
+    }
 
     // For Navigation
 
@@ -1377,6 +1388,17 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(navigator).openExternal(navigationTarget.activity(), Uri.parse(target));
+    }
+
+    @Test
+    public void navigation_shouldGoToTheUpload() throws Exception {
+        String target = "soundcloud://the-upload";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(navigator).openNewForYou(navigationTarget.activity());
     }
 
     // Fallback Errors
