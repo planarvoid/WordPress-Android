@@ -3,6 +3,8 @@ package com.soundcloud.android.collection.playlists;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,10 +19,12 @@ import javax.inject.Inject;
 public class PlaylistOptionsPresenter {
 
     private final FeatureOperations featureOperations;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
-    public PlaylistOptionsPresenter(FeatureOperations featureOperations) {
+    PlaylistOptionsPresenter(FeatureOperations featureOperations, ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.featureOperations = featureOperations;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     public interface Listener {
@@ -34,6 +38,8 @@ public class PlaylistOptionsPresenter {
         final ToggleButton showOffline = ButterKnife.findById(dialoglayout, R.id.show_offline);
         final RadioButton sortByTitle = ButterKnife.findById(dialoglayout, R.id.sort_by_title);
 
+        showLikes.setTextOn(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_OPTIONS_TOGGLE_LIKES));
+        showLikes.setTextOff(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_OPTIONS_TOGGLE_LIKES));
         showLikes.setChecked(initialOptions.showLikes());
         showPosts.setChecked(initialOptions.showPosts());
         sortByTitle.setChecked(initialOptions.sortByTitle());

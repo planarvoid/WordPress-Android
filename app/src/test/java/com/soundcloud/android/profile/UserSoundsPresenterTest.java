@@ -20,14 +20,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -81,6 +81,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private RecyclerView recyclerView;
     @Mock private SimpleItemAnimator itemAnimator;
     @Mock private PlaySessionOriginScreenProvider screenProvider;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Captor private ArgumentCaptor<Observable<List<PlayableItem>>> argumentCaptor;
 
@@ -95,7 +96,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                                            userSoundsItemMapper, clickListenerFactory, eventBus, resources, screenProvider);
+                                            userSoundsItemMapper, clickListenerFactory, eventBus, resources, screenProvider,
+                                            changeLikeToSaveExperimentStringHelper);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
         doReturn(clickListener).when(clickListenerFactory).create(any(Screen.class), eq(SEARCH_QUERY_SOURCE_INFO));
@@ -134,6 +136,9 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void configuresEmptyViewInOnViewCreatedForOwnProfile() throws Exception {
+        when(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.EMPTY_YOU_SOUNDS_MESSAGE_SECONDARY))
+                .thenReturn(R.string.empty_you_sounds_message_secondary);
+
         EmptyView emptyView = mock(EmptyView.class);
 
         fragmentArgs.putBoolean(UserSoundsFragment.IS_CURRENT_USER, true);

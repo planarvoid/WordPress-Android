@@ -2,8 +2,11 @@ package com.soundcloud.android.activities;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -21,16 +24,18 @@ import android.widget.TextView;
 import java.util.Date;
 
 public class ActivityItemRendererTest extends AndroidUnitTest {
-    @Mock private ImageOperations imageOperations;
-    private View itemView;
 
+    @Mock private ImageOperations imageOperations;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
+    private View itemView;
     private ActivityItemRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.engagement_list_item, new FrameLayout(context()), false);
-        renderer = new ActivityItemRenderer(resources(), imageOperations);
+        renderer = new ActivityItemRenderer(resources(), imageOperations, changeLikeToSaveExperimentStringHelper);
     }
 
     @Test
@@ -54,6 +59,9 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindLikeActivity() {
+        when(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.NOTIFICATION_USERNAME_LIKED_TRACKTITLE))
+                .thenReturn(R.string.notification_username_liked_tracktitle);
+
         final Date fiftyTwoMinutesAgo = new Date(System.currentTimeMillis() - 52 * 60 * 1000);
         final ActivityItem activityItem = ActivityItem.create(
                 fiftyTwoMinutesAgo,

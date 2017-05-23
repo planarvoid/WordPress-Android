@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -24,12 +26,17 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
     private final Context context;
     private final PlayQueueManager playQueueManager;
     private final Resources resources;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
-    PlayQueueUIItemMapper(Context context, PlayQueueManager playQueueManager, Resources resources) {
+    PlayQueueUIItemMapper(Context context,
+                          PlayQueueManager playQueueManager,
+                          Resources resources,
+                          ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.context = context;
         this.playQueueManager = playQueueManager;
         this.resources = resources;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -137,7 +144,7 @@ class PlayQueueUIItemMapper implements Func2<List<TrackAndPlayQueueItem>, Map<Ur
                 case ARTIST_STATION:
                     return resources.getString(R.string.play_queue_header_artist_station, contentTitle);
                 case YOUR_LIKES:
-                    return resources.getString(R.string.play_queue_header_likes);
+                    return resources.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PLAY_QUEUE_HEADER_LIKES));
                 case LISTENING_HISTORY:
                     return resources.getString(R.string.play_queue_header_listening_history);
                 case SUGGESTED_TRACKS:

@@ -18,6 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.TrackLikesPresenter.DataSource;
 import com.soundcloud.android.likes.TrackLikesPresenter.TrackLikesPage;
@@ -78,6 +79,7 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private TrackLikesIntentResolver intentResolver;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private final PublishSubject<TrackLikesPage> likedTracksObservable = PublishSubject.create();
     private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
@@ -102,7 +104,8 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
                                             dataSource,
                                             offlinePropertiesProvider,
                                             featureFlags,
-                                            performanceMetricsEngine);
+                                            performanceMetricsEngine,
+                                            changeLikeToSaveExperimentStringHelper);
         when(dataSource.initialTrackLikes()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.empty());

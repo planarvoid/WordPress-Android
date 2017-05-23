@@ -20,8 +20,6 @@
     <string name="btn_unfollow">Unfollow</string>
     <string name="btn_like">Like</string>
     <string name="btn_unlike">Unlike</string>
-    <string name="btn_add_to_collection">Add to collection</string>
-    <string name="btn_remove_from_collection">Remove from collection</string>
     <string name="btn_save">Save</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -258,9 +256,6 @@
     <string name="like_toast_overflow_action">Saved to your likes</string>
     <string name="unlike_toast_overflow_action">Removed from your likes</string>
     <string name="like_error_toast_overflow_action">Like status was not changed</string>
-    <string name="add_snackbar_overflow_action">Added to your collection</string>
-    <string name="remove_snackbar_overflow_action">Removed from your collection</string>
-    <string name="add_error_snackbar_overflow_action">Collection status was not changed</string>
     <string name="reposted_to_followers">Reposted to your followers</string>
     <string name="unposted_to_followers">Unposted</string>
     <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
@@ -664,7 +659,6 @@
     </plurals>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
-    <string name="collections_tracks_header">Tracks</string>
     <string name="collections_options_header_filters">Filters</string>
     <string name="collections_options_header_sorting">Sorting</string>
     <string name="collections_options_toggle_created">Created</string>
@@ -1116,7 +1110,46 @@
     <string name="suggested_creators_relation_curated">You recently added their track to a playlist</string>
     <string name="remote_signin_activity_title">Activate</string>
 
-    <!-- Bug report settings tile -->
+    <!-- BUG REPORT SETTINGS TILE -->
     <string name="bug_report_settings_title">Send bug report</string>
+
+    <!-- LIKE TO SAVE EXPERIMENT VARIANTS-->
+    <string name="btn_add_to_collection">Add to collection</string>
+    <string name="btn_remove_from_collection">Remove from collection</string>
+    <string name="accessibility_stats_user_added">Added by you</string>
+    <string name="accessibility_add_action">Add</string>
+    <plurals name="accessibility_stats_adds">
+        <item quantity="one">%d Add</item>
+        <item quantity="other">%d Added</item>
+    </plurals>
+    <string name="shortcut_play_tracks">Play tracks</string>
+    <string name="list_empty_you_tracks_message">Add your favorite tracks to hear them again</string>
+    <string name="add_snackbar_overflow_action">Added to my collection</string>
+    <string name="remove_snackbar_overflow_action">Removed from my collection</string>
+    <string name="add_error_snackbar_overflow_action">Track status was not changed</string>
+    <string name="tab_title_user_tracks">TRACKS</string>
+    <string name="recommendation_reason_because_you_added_tracktitle">Because %1$s is in your collection</string>
+    <string name="pref_sync_wifi_only_description_tracks">Only update new tracks etc. over Wi-Fi</string>
+    <string name="added_stations_empty_view_message">You have not added any stations yet</string>
+    <string name="collections_tracks_header">Tracks</string>
+    <string name="track_added_title">Tracks</string>
+    <string name="collections_options_toggle_added">Added</string>
+    <string name="collections_empty_playlists_added">Playlists and albums you have added or created will show up here.</string>
+    <string name="collections_onboarding_title_tracks">Your tracks, playlists, albums and stations.\nAll in one place.</string>
+    <string name="collections_upsell_body_tracks">Listen to your tracks, playlists &amp; albums offline and ad‑free</string>
+    <string name="notification_username_added_tracktitle">added %s</string>
+    <string name="offline_tracks_dialog_title">Save your tracks offline</string>
+    <string name="offline_tracks_dialog_message">This will save your current and future tracks offline so you can listen without Wi-Fi or data connection.</string>
+    <string name="go_onboarding_offline_settings_subtext_tracks">Selecting this will save all your current and future tracks, playlists and albums offline automatically.</string>
+    <string name="pref_offline_offline_collection_description_off_tracks">Turn this on to save all your current and future tracks, playlists and albums offline.</string>
+    <string name="disable_offline_collection_body_tracks">Your new tracks, playlists and albums won’t save automatically anymore and existing saved tracks will be removed from offline listening.</string>
+    <string name="empty_you_sounds_message_secondary_add">Tracks you add, repost or upload will appear here.</string>
+    <string name="user_profile_sounds_header_tracks_in_collection">Tracks in their collection</string>
+    <string name="user_profile_sounds_view_all_tracks_in_collection">View all tracks in their collection</string>
+    <string name="user_profile_sounds_tracks_in_collection_empty">This person doesn’t have any added tracks in their collection yet.</string>
+    <string name="push_notifications_add">Your post was added to a collection</string>
+    <string name="email_notifications_add">Your post was added to a collection</string>
+    <string name="play_queue_header_tracks">From your tracks</string>
+    <string name="suggested_creators_relation_added">You recently added their track to your collection</string>
 
 </resources>

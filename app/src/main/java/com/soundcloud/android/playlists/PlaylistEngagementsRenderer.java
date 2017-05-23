@@ -4,6 +4,8 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.DownloadStateRenderer;
@@ -43,6 +45,7 @@ class PlaylistEngagementsRenderer {
     private final OfflineSettingsOperations offlineSettings;
     private final ConnectionHelper connectionHelper;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     PlaylistEngagementsRenderer(Context context,
@@ -55,7 +58,8 @@ class PlaylistEngagementsRenderer {
                                 IntroductoryOverlayPresenter introductoryOverlayPresenter,
                                 OfflineSettingsOperations offlineSettings,
                                 ConnectionHelper connectionHelper,
-                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
+                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                                ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.context = context;
         this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
@@ -68,6 +72,7 @@ class PlaylistEngagementsRenderer {
         this.offlineSettings = offlineSettings;
         this.connectionHelper = connectionHelper;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     void bind(View view, PlaylistDetailsInputs onEngagementListener, PlaylistDetailsMetadata metadata) {
@@ -90,11 +95,11 @@ class PlaylistEngagementsRenderer {
         ToggleButton likeToggle = ButterKnife.findById(view, R.id.toggle_like);
         likeToggle.setOnClickListener(v -> onEngagementListener.onToggleLike(likeToggle.isChecked()));
         updateLikeToggleButton(likeToggle,
-                               R.string.accessibility_like_action,
-                               R.plurals.accessibility_stats_likes,
+                               changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.ACCESSIBILITY_LIKE_ACTION),
+                               changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.ACCESSIBILITY_STATS_LIKES),
                                Optional.of(item.likesCount()),
                                item.isLikedByUser(),
-                               R.string.accessibility_stats_user_liked,
+                               changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.ACCESSIBILITY_STATS_USER_LIKED),
                                changeLikeToSaveExperiment.isEnabled());
     }
 

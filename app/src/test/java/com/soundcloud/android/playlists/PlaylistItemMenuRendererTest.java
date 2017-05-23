@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -10,9 +9,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -35,7 +35,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private View button;
     @Mock private MenuItem menuItem;
-    @Mock private ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private PlaylistItem playlist = ModelFixtures.playlistItem();
     private PlaylistItemMenuRenderer renderer;
@@ -52,7 +52,7 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
                                                 screenProvider,
                                                 eventBus,
                                                 featureOperations,
-                                                changeLikeToSaveExperimentMenuHelper);
+                                                changeLikeToSaveExperimentStringHelper);
     }
 
     @Test
@@ -82,11 +82,21 @@ public class PlaylistItemMenuRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldGetLikeActionTitle() {
+        PlaylistItem playlistItem = buildPlaylistWithUserLike(false);
+
+        renderer.render(playlistItem);
+
+        verify(changeLikeToSaveExperimentStringHelper).getString(ExperimentString.LIKE);
+        verify(popupMenuWrapper).setItemVisible(R.id.add_to_likes, true);
+    }
+
+    @Test
+    public void shouldGetUnlikeActionTitle() {
         PlaylistItem playlistItem = buildPlaylistWithUserLike(true);
 
         renderer.render(playlistItem);
 
-        verify(changeLikeToSaveExperimentMenuHelper).getTitleForLikeAction(anyBoolean());
+        verify(changeLikeToSaveExperimentStringHelper).getString(ExperimentString.UNLIKE);
         verify(popupMenuWrapper).setItemVisible(R.id.add_to_likes, true);
     }
 

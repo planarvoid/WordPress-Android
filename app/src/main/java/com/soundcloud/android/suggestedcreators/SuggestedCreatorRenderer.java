@@ -4,6 +4,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
@@ -31,6 +33,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final Navigator navigator;
     private final EngagementsTracking engagementsTracking;
     private final ScreenProvider screenProvider;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper,
@@ -38,13 +41,15 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
                              SuggestedCreatorsOperations suggestedCreatorsOperations,
                              Navigator navigator,
                              EngagementsTracking engagementsTracking,
-                             ScreenProvider screenProvider) {
+                             ScreenProvider screenProvider,
+                             ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.profileImageHelper = profileImageHelper;
         this.resources = resources;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.navigator = navigator;
         this.engagementsTracking = engagementsTracking;
         this.screenProvider = screenProvider;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -120,10 +125,11 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     }
 
     private void bindReason(View view, SuggestedCreatorRelation relation) {
+        final int stringResId = changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.SUGGESTED_CREATORS_RELATION_LIKED);
         final String key = "suggested_creators_relation_" + relation.value();
-        final int resourceId = resources.getIdentifier(key,
-                                                       "string",
-                                                       view.getContext().getPackageName());
+        final int resourceId = SuggestedCreatorRelation.LIKED == relation
+                               ? stringResId
+                               : resources.getIdentifier(key, "string", view.getContext().getPackageName());
         final String text = (resourceId != 0) ? resources.getString(resourceId) : "";
         ((TextView) view.findViewById(R.id.suggested_creator_relation)).setText(text);
     }

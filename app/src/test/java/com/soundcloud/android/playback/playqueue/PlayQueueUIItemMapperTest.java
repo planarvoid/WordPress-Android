@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -56,8 +57,9 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
                                                                            .query(Optional.absent())
                                                                            .build();
 
-    @Mock PlayQueueManager playQueueManager;
+    @Mock private PlayQueueManager playQueueManager;
     @Mock private Resources resources;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private PlayQueueUIItemMapper mapper;
 
@@ -67,7 +69,7 @@ public class PlayQueueUIItemMapperTest extends AndroidUnitTest {
         when(resources.getString(anyInt())).thenReturn("your likes");
         when(playQueueManager.isShuffled()).thenReturn(false);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
-        mapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources);
+        mapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources, changeLikeToSaveExperimentStringHelper);
     }
 
     @Test

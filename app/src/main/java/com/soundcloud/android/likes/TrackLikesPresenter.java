@@ -13,6 +13,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -78,6 +80,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private final TrackLikesAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private CompositeSubscription viewLifeCycle;
 
@@ -109,7 +112,8 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         DataSource dataSource,
                         OfflinePropertiesProvider offlinePropertiesProvider,
                         FeatureFlags featureFlags,
-                        PerformanceMetricsEngine performanceMetricsEngine) {
+                        PerformanceMetricsEngine performanceMetricsEngine,
+                        ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackInitiator;
@@ -118,6 +122,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
@@ -182,7 +187,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         ((DefaultItemAnimator) getRecyclerView().getItemAnimator()).setSupportsChangeAnimations(false);
 
         getEmptyView().setImage(R.drawable.empty_like);
-        getEmptyView().setMessageText(R.string.list_empty_you_likes_message);
+        getEmptyView().setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIST_EMPTY_YOU_LIKES_MESSAGE));
         getEmptyView().setBackgroundResource(R.color.page_background);
 
         viewLifeCycle = new CompositeSubscription(

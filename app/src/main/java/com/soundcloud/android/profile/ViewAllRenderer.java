@@ -1,6 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.LayoutInflater;
@@ -11,9 +13,13 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
+class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
+
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
     @Inject
-    public ViewAllRenderer() {
+    ViewAllRenderer(ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
             case UserSoundsTypes.REPOSTS:
                 return R.string.user_profile_sounds_view_all_reposts;
             case UserSoundsTypes.LIKES:
-                return R.string.user_profile_sounds_view_all_likes;
+                return changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.USER_PROFILE_SOUNDS_VIEW_ALL_LIKES);
             default:
                 //Shouldn't ideally land here. Just a safeguard.
                 return R.string.user_profile_sounds_view_all;

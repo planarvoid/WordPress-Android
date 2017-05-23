@@ -2,6 +2,8 @@ package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -19,10 +21,12 @@ import java.util.List;
 public class ShortcutController {
 
     private final Context context;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
-    public ShortcutController(Context context) {
+    public ShortcutController(Context context, ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.context = context;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @SuppressLint("NewApi")
@@ -80,8 +84,8 @@ public class ShortcutController {
         Icon icon = Icon.createWithResource(context, R.drawable.ic_shortcut_collection);
 
         return new ShortcutInfo.Builder(context, Shortcut.PLAY_LIKES.id)
-                .setShortLabel(context.getString(R.string.shortcut_play_likes))
-                .setLongLabel(context.getString(R.string.shortcut_play_likes))
+                .setShortLabel(context.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.SHORTCUT_PLAY_LIKES)))
+                .setLongLabel(context.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.SHORTCUT_PLAY_LIKES)))
                 .setIcon(icon)
                 .setIntent(new Intent(Actions.SHORTCUT_PLAY_LIKES))
                 .build();

@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -37,6 +38,7 @@ public class LikedStationsPresenterTest extends AndroidUnitTest {
     @Mock private EventBus eventBus;
     @Mock private StationsNowPlayingController stationsNowPlayingController;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricArgumentCaptor;
 
@@ -57,7 +59,8 @@ public class LikedStationsPresenterTest extends AndroidUnitTest {
                                                             playQueueManager,
                                                             eventBus,
                                                             stationsNowPlayingController,
-                                                            performanceMetricsEngine);
+                                                            performanceMetricsEngine,
+                                                            changeLikeToSaveExperimentStringHelper);
     }
 
     @Test

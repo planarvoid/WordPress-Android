@@ -1,6 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.LayoutInflater;
@@ -12,8 +14,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 class HeaderRenderer implements CellRenderer<UserSoundsItem> {
+
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
     @Inject
-    public HeaderRenderer() {
+    HeaderRenderer(ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -43,7 +49,7 @@ class HeaderRenderer implements CellRenderer<UserSoundsItem> {
             case UserSoundsTypes.REPOSTS:
                 return R.string.user_profile_sounds_header_reposts;
             case UserSoundsTypes.LIKES:
-                return R.string.user_profile_sounds_header_likes;
+                return changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.USER_PROFILE_SOUNDS_HEADER_LIKES);
             default:
                 throw new IllegalArgumentException("No User Sound Item of the given type");
         }

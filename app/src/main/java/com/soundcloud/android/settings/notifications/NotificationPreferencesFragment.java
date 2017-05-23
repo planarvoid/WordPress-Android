@@ -4,6 +4,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.java.optional.Optional;
@@ -25,6 +27,7 @@ public class NotificationPreferencesFragment extends PreferenceFragment {
 
     @Inject NotificationPreferencesOperations operations;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     public NotificationPreferencesFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -65,7 +68,18 @@ public class NotificationPreferencesFragment extends PreferenceFragment {
     private void setup() {
         getPreferenceManager().setSharedPreferencesName(StorageModule.PREFS_NOTIFICATION_PREFERENCES);
         addPreferencesFromResource(R.xml.notification_preferences);
+        setupLikeToggles();
         setupGroupToggles();
+    }
+
+    private void setupLikeToggles() {
+        NotificationPreferenceType.LIKES.mobileKey().ifPresent(likesMobileKey -> getPreferenceScreen()
+                .findPreference(likesMobileKey)
+                .setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PUSH_NOTIFICATIONS_LIKE)));
+
+        NotificationPreferenceType.LIKES.mailKey().ifPresent(likesMailKey -> getPreferenceScreen()
+                .findPreference(likesMailKey)
+                .setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.EMAIL_NOTIFICATIONS_LIKE)));
     }
 
     private void setupGroupToggles() {

@@ -8,6 +8,8 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
@@ -36,6 +38,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     CollectionPreviewRenderer(Navigator navigator,
@@ -44,7 +47,8 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
                               ImageOperations imageOperations,
                               PerformanceMetricsEngine performanceMetricsEngine,
                               FeatureFlags featureFlags,
-                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
+                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
+                              ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.navigator = navigator;
         this.resources = resources;
         this.featureOperations = featureOperations;
@@ -52,6 +56,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         this.performanceMetricsEngine = performanceMetricsEngine;
         this.featureFlags = featureFlags;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -93,45 +98,41 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
         item.getPlaylistsAndAlbums().ifPresent(playlistsAndAlbums -> {
             CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_header, v -> onGoToPlaylistsAndAlbumsClick(activity));
-            if (changeLikeToSaveExperiment.isEnabled()) {
-                playlistsPreviewView.removeIcon();
-            }
+            removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlistsAndAlbums, playlistsPreviewView);
         });
 
         item.getPlaylists().ifPresent(playlists -> {
             CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigator.openPlaylistsCollection(activity));
-            if (changeLikeToSaveExperiment.isEnabled()) {
-                playlistsPreviewView.removeIcon();
-            }
+            removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlists, playlistsPreviewView);
         });
 
         item.getAlbums().ifPresent(albums -> {
             CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigator.openAlbumsCollection(activity));
-            if (changeLikeToSaveExperiment.isEnabled()) {
-                albumsPreviewView.removeIcon();
-            }
+            removeIconIfNecessary(albumsPreviewView);
             setThumbnails(albums, albumsPreviewView);
         });
 
         item.getStations().ifPresent(stationRecords -> {
             CollectionPreviewView stationsView = setupStationsView(view);
-            if (changeLikeToSaveExperiment.isEnabled()) {
-                stationsView.removeIcon();
-            }
+            removeIconIfNecessary(stationsView);
             setThumbnails(stationRecords, stationsView);
         });
     }
 
     private void bindLikesView(LikesItem likes, View view) {
         final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
-        if (changeLikeToSaveExperiment.isEnabled()) {
-            likesPreviewView.setTitle(resources.getString(R.string.collections_tracks_header));
-            likesPreviewView.removeIcon();
-        }
+        likesPreviewView.setTitle(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_YOUR_LIKED_TRACKS));
+        removeIconIfNecessary(likesPreviewView);
         setThumbnails(likes.trackPreviews(), likesPreviewView);
         setLikesDownloadProgressIndicator(likes, view);
+    }
+
+    private void removeIconIfNecessary(CollectionPreviewView previewView) {
+        if (changeLikeToSaveExperiment.isEnabled()) {
+            previewView.removeIcon();
+        }
     }
 
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {

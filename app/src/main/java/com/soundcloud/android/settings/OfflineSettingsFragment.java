@@ -15,6 +15,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -60,6 +62,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject ConfigurationManager configurationManager;
     @Inject ApplicationProperties applicationProperties;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private CompositeSubscription subscription;
 
@@ -85,6 +88,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
         offlineStorage.setOfflineUsage(offlineUsage);
 
         TwoStatePreference offlineCollection = (TwoStatePreference) findPreference(OFFLINE_COLLECTION);
+        offlineCollection.setSummaryOff(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PREF_OFFLINE_OFFLINE_COLLECTION_DESCRIPTION_OFF));
         offlineCollection.setChecked(offlineContentOperations.isOfflineCollectionEnabled());
         offlineCollection.setOnPreferenceChangeListener(this);
 
@@ -182,7 +186,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_download,
                             R.string.disable_offline_collection_title,
-                            R.string.disable_offline_collection_body).get();
+                            changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.DISABLE_OFFLINE_COLLECTION_BODY))
+                .get();
 
         new AlertDialog.Builder(getActivity())
                 .setView(view)

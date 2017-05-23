@@ -2,6 +2,8 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -20,6 +22,7 @@ import javax.inject.Inject;
 class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<PlayableItem>> {
 
     private final UserProfileOperations operations;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -27,9 +30,11 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<
                        MixedPlayableRecyclerItemAdapter adapter,
                        MixedItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
-                       UserProfileOperations operations) {
+                       UserProfileOperations operations,
+                       ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter, clickListenerFactory, updaterFactory);
         this.operations = operations;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -44,7 +49,7 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
         emptyView.setImage(R.drawable.empty_like);
-        emptyView.setMessageText(R.string.user_profile_sounds_likes_empty);
+        emptyView.setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.USER_PROFILE_SOUNDS_LIKES_EMPTY));
     }
 
     @Override

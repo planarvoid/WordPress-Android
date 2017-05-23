@@ -15,6 +15,7 @@
         android:src="@drawable/collection_empty_playlists" />
 
     <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/collections_empty_playlists"
         style="@style/Collections.PlaylistsEmptyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

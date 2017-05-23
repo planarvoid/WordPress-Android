@@ -6,9 +6,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
-import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -25,7 +26,7 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
-    private final ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private PopupMenuWrapper menu;
     private PlaylistItem playlist;
@@ -59,13 +60,13 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
                              @Provided ScreenProvider screenProvider,
                              @Provided EventBus eventBus,
                              @Provided FeatureOperations featureOperations,
-                             @Provided ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper) {
+                             @Provided ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.listener = listener;
         this.accountOperations = accountOperations;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
-        this.changeLikeToSaveExperimentMenuHelper = changeLikeToSaveExperimentMenuHelper;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
 
         this.menu = popupMenuWrapperFactory.build(button.getContext(), button);
         menu.inflate(R.menu.playlist_item_actions);
@@ -102,7 +103,10 @@ class PlaylistItemMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListe
     }
 
     private void updateLikeActionTitle(boolean isLiked) {
-        menu.setItemText(R.id.add_to_likes, changeLikeToSaveExperimentMenuHelper.getTitleForLikeAction(isLiked));
+        final String addToLikesString = isLiked
+                                        ? changeLikeToSaveExperimentStringHelper.getString(ExperimentString.UNLIKE)
+                                        : changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE);
+        menu.setItemText(R.id.add_to_likes, addToLikesString);
         menu.setItemVisible(R.id.add_to_likes, true);
     }
 

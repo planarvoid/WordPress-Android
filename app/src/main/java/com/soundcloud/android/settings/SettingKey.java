@@ -10,6 +10,7 @@ public class SettingKey {
     public static final String AUTOPLAY_RELATED_ENABLED = "autoplay_related_enabled";
     public static final String ANALYTICS_ENABLED = "analytics_enabled";
     public static final String CLEAR_CACHE = "clearCache";
+    public static final String SYNC_WIFI_ONLY = "syncWifiOnly";
     public static final String VERSION = "version";
     public static final String CRASH_REPORTING_ENABLED = "acra.enable";
 

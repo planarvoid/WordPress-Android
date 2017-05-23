@@ -3,7 +3,8 @@ package com.soundcloud.android.stations;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.view.menu.ChangeLikeToSaveExperimentMenuHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
@@ -14,7 +15,7 @@ import android.view.View;
 class StationMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final Listener listener;
-    private final ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private StationWithTracks station;
     private PopupMenuWrapper menu;
@@ -30,11 +31,11 @@ class StationMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
     StationMenuRenderer(Listener listener,
                         View button,
                         @Provided PopupMenuWrapper.Factory menuFactory,
-                        @Provided ChangeLikeToSaveExperimentMenuHelper changeLikeToSaveExperimentMenuHelper) {
+                        @Provided ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
 
         this.listener = listener;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.menu = menuFactory.build(button.getContext(), button);
-        this.changeLikeToSaveExperimentMenuHelper = changeLikeToSaveExperimentMenuHelper;
         menu.inflate(R.menu.station_item_actions);
         menu.setOnMenuItemClickListener(this);
         menu.setOnDismissListener(this);
@@ -51,7 +52,10 @@ class StationMenuRenderer implements PopupMenuWrapper.PopupMenuWrapperListener {
     }
 
     private void updateLikeActionTitle(boolean isLiked) {
-        menu.setItemText(R.id.add_to_likes, changeLikeToSaveExperimentMenuHelper.getTitleForLikeAction(isLiked));
+        final String addToLikesString = isLiked
+                                        ? changeLikeToSaveExperimentStringHelper.getString(ExperimentString.UNLIKE)
+                                        : changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE);
+        menu.setItemText(R.id.add_to_likes, addToLikesString);
         menu.setItemVisible(R.id.add_to_likes, true);
     }
 

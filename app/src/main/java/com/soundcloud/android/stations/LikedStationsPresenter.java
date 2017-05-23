@@ -8,6 +8,8 @@ import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -51,20 +53,22 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final PerformanceMetricsEngine performanceMetricsEngine;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @LightCycle final StationsNowPlayingController stationsNowPlayingController;
 
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public LikedStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                                  StationsOperations operations,
-                                  StationsAdapter adapter,
-                                  Resources resources,
-                                  PlayQueueManager playQueueManager,
-                                  EventBus eventBus,
-                                  StationsNowPlayingController stationsNowPlayingController,
-                                  PerformanceMetricsEngine performanceMetricsEngine) {
+    LikedStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                           StationsOperations operations,
+                           StationsAdapter adapter,
+                           Resources resources,
+                           PlayQueueManager playQueueManager,
+                           EventBus eventBus,
+                           StationsNowPlayingController stationsNowPlayingController,
+                           PerformanceMetricsEngine performanceMetricsEngine,
+                           ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher, Options.defaults());
         this.operations = operations;
         this.adapter = adapter;
@@ -73,6 +77,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         this.eventBus = eventBus;
         this.stationsNowPlayingController = stationsNowPlayingController;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.stationsNowPlayingController.setAdapter(adapter);
     }
 
@@ -142,7 +147,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
 
     private void configureEmptyView() {
         final EmptyView emptyView = getEmptyView();
-        emptyView.setMessageText(R.string.liked_stations_empty_view_message);
+        emptyView.setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKED_STATIONS_EMPTY_VIEW_MESSAGE));
         emptyView.setImage(R.drawable.empty_collection_stations);
     }
 

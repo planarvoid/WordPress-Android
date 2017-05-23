@@ -1,19 +1,25 @@
 package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
 
 class EmptyPlaylistsRenderer implements CellRenderer<PlaylistCollectionEmptyPlaylistItem> {
 
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
     @Inject
-    public EmptyPlaylistsRenderer() {
+    EmptyPlaylistsRenderer(ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -24,6 +30,7 @@ class EmptyPlaylistsRenderer implements CellRenderer<PlaylistCollectionEmptyPlay
 
     @Override
     public void bindItemView(int position, View view, List<PlaylistCollectionEmptyPlaylistItem> list) {
-        // no-op
+        TextView collectionsEmptyPlaylists = (TextView) view.findViewById(R.id.collections_empty_playlists);
+        collectionsEmptyPlaylists.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_EMPTY_PLAYLISTS));
     }
 }

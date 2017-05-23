@@ -12,6 +12,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -45,10 +47,13 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     @Mock private TrackRecommendationListener listener;
     @Mock private RecommendationRenderer recommendationRenderer;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Before
     public void setUp() {
         when(recommendationRendererFactory.create(listener)).thenReturn(recommendationRenderer);
+        when(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.RECOMMENDATION_REASON_BECAUSE_YOU_LIKED_TRACKTITLE))
+                .thenReturn(R.string.recommendation_reason_because_you_liked_tracktitle);
     }
 
     @Test
@@ -136,7 +141,8 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                                                 listener,
                                                 recommendationRendererFactory,
                                                 navigator,
-                                                performanceMetricsEngine);
+                                                performanceMetricsEngine,
+                                                changeLikeToSaveExperimentStringHelper);
     }
 
     private RecommendationBucketRenderer createDefaultRenderer() {
@@ -144,7 +150,8 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                                                 listener,
                                                 recommendationRendererFactory,
                                                 navigator,
-                                                performanceMetricsEngine);
+                                                performanceMetricsEngine,
+                                                changeLikeToSaveExperimentStringHelper);
     }
 
     private View createItemView(RecommendationBucketRenderer renderer) {

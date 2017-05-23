@@ -1,6 +1,8 @@
 package com.soundcloud.android.activities;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -20,11 +22,15 @@ import java.util.List;
 public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
-    public ActivityItemRenderer(Resources resources, ImageOperations imageOperations) {
+    ActivityItemRenderer(Resources resources,
+                         ImageOperations imageOperations,
+                         ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -60,7 +66,7 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
             case TRACK_LIKE:
             case PLAYLIST_LIKE:
                 titleText = String.format(
-                        resources.getString(R.string.notification_username_liked_tracktitle),
+                        resources.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.NOTIFICATION_USERNAME_LIKED_TRACKTITLE)),
                         activityItem.getPlayableTitle());
                 iconId = R.drawable.stats_likes_grey;
                 break;

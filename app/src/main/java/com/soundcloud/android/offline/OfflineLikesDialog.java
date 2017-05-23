@@ -5,6 +5,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -30,6 +32,7 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
     @Inject OfflineContentOperations offlineOperations;
     @Inject ScreenProvider screenProvider;
     @Inject EventBus eventBus;
+    @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     public OfflineLikesDialog() {
@@ -57,8 +60,9 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
-                .setTitle(R.string.offline_likes_dialog_title)
-                .setMessage(R.string.offline_likes_dialog_message).get();
+                .setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.OFFLINE_LIKES_DIALOG_TITLE))
+                .setMessage(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.OFFLINE_LIKES_DIALOG_MESSAGE))
+                .get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

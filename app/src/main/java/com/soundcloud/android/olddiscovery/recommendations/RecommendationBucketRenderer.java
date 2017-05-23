@@ -7,6 +7,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -34,6 +36,7 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
     private final RecommendationRendererFactory rendererFactory;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final Navigator navigator;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private final TrackRecommendationListener listener;
     private final Map<Long, Parcelable> scrollingState = new HashMap<>();
@@ -43,12 +46,14 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
             TrackRecommendationListener listener,
             @Provided RecommendationRendererFactory rendererFactory,
             @Provided Navigator navigator,
-            @Provided PerformanceMetricsEngine performanceMetricsEngine) {
+            @Provided PerformanceMetricsEngine performanceMetricsEngine,
+            @Provided ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.isViewAllBucket = isViewAllBucket;
         this.listener = listener;
         this.navigator = navigator;
         this.rendererFactory = rendererFactory;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -151,7 +156,8 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
         final String reasonText;
         switch (recommendationBucket.recommendationReason()) {
             case LIKED:
-                reasonText = context.getString(R.string.recommendation_reason_because_you_liked_tracktitle, trackTitle);
+                reasonText = context.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.RECOMMENDATION_REASON_BECAUSE_YOU_LIKED_TRACKTITLE),
+                                               trackTitle);
                 break;
             case PLAYED:
                 reasonText = context.getString(R.string.recommendation_reason_because_you_played_tracktitle, trackTitle);

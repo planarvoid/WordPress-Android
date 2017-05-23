@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -64,6 +65,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
     @Mock private PlaylistExploder playlistExploder;
     @Mock private Resources resources;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Captor private ArgumentCaptor<ArrayList<PlayQueueUIItem>> itemsCaptor;
     @Captor private ArgumentCaptor<PerformanceMetric> performanceMetricCaptor;
@@ -74,7 +76,7 @@ public class PlayQueuePresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        final PlayQueueUIItemMapper playQueueUIItemMapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources);
+        final PlayQueueUIItemMapper playQueueUIItemMapper = new PlayQueueUIItemMapper(context(), playQueueManager, resources, changeLikeToSaveExperimentStringHelper);
 
         presenter = new PlayQueuePresenter(
                 playQueueManager,

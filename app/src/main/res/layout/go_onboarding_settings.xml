@@ -32,6 +32,7 @@
                 android:text="@string/go_onboarding_offline_settings_title" />
 
             <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/subtext"
                 style="@style/GoOnboarding.SettingsSubText"
                 android:layout_width="@dimen/go_onboarding_settings_text_width"
                 android:layout_height="wrap_content"

@@ -2,6 +2,8 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -17,16 +20,18 @@ import java.util.List;
 class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
 
     private final FeatureOperations featureOperations;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
+    @Nullable private Listener listener;
 
     interface Listener {
         void onUpsellClose(int position);
         void onUpsell(Context context);
     }
 
-    @Nullable private Listener listener;
-
-    @Inject UpsellItemCellRenderer(FeatureOperations featureOperations) {
+    @Inject UpsellItemCellRenderer(FeatureOperations featureOperations, ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.featureOperations = featureOperations;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -40,6 +45,9 @@ class UpsellItemCellRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<CollectionItem> items) {
+        TextView description = (TextView) itemView.findViewById(R.id.description);
+        description.setText(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_UPSELL_BODY));
+
         itemView.setEnabled(false);
         if (listener != null) {
             final View.OnClickListener clickListener = v -> {

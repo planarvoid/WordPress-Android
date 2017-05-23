@@ -35,7 +35,7 @@ public class ChangeLikeToSaveExperiment {
     }
 
     public BaseNavigationTarget navigationTarget() {
-        return isSaveInCopy() || isSaveInCopyPlusTooltip()
+        return isEnabled()
                ? new SaveCollectionNavigationTarget()
                : new CollectionNavigationTarget();
     }

@@ -10,6 +10,8 @@ import static com.soundcloud.java.collections.Lists.transform;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
@@ -61,6 +63,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final EventBus eventBus;
     private final Resources resources;
     private final PlaySessionOriginScreenProvider screenProvider;
+    private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
+
     private Urn userUrn;
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription viewLifeCycle;
@@ -76,7 +80,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
                         Resources resources,
-                        PlaySessionOriginScreenProvider screenProvider) {
+                        PlaySessionOriginScreenProvider screenProvider,
+                        ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.user_profile_card_grid_span_count)
                                            .useDividers(Options.DividerMode.NONE)
                                            .build());
@@ -88,6 +93,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.eventBus = eventBus;
         this.resources = resources;
         this.screenProvider = screenProvider;
+        this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
     @Override
@@ -194,7 +200,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
         if (isCurrentUser) {
             emptyView.setMessageText(R.string.empty_you_sounds_message);
-            emptyView.setSecondaryText(R.string.empty_you_sounds_message_secondary);
+            emptyView.setSecondaryText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.EMPTY_YOU_SOUNDS_MESSAGE_SECONDARY));
         } else {
             emptyView.setMessageText(R.string.empty_user_sounds_message);
             displaySecondaryTextForOtherUser();
