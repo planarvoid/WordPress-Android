@@ -55,7 +55,7 @@ class TrackDownloadsStorage {
     }
 
     List<Urn> onlyOfflineTracks(List<Urn> tracks) {
-        List<Urn> result = new ArrayList<>((tracks.size() / DEFAULT_BATCH_SIZE) + 1);
+        List<Urn> result = new ArrayList<>(tracks.size());
         for (List<Urn> batch : Lists.partition(tracks, DEFAULT_BATCH_SIZE)) {
             result.addAll(propeller.query(Query.from(TrackDownloads.TABLE)
                                                .select(TrackDownloads._ID.as(_ID))

@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,6 +9,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LoadOfflinePlaylistsContainingTracksCommandTest extends StorageIntegrationTest {
@@ -23,15 +23,17 @@ public class LoadOfflinePlaylistsContainingTracksCommandTest extends StorageInte
 
     @Test
     public void returnsOfflinePlaylistsForGivenTracks() {
-        testFixtures().insertPlaylistTrack(testFixtures().insertPlaylistMarkedForOfflineSync(), 0);
-        final Urn expectedPlaylist1 = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final Urn expectedPlaylist2 = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final Urn trackForPlaylist1 = testFixtures().insertPlaylistTrack(expectedPlaylist1, 0).getUrn();
-        final Urn trackForPlaylist2 = testFixtures().insertPlaylistTrack(expectedPlaylist2, 0).getUrn();
+        final List<Urn> tracks = new ArrayList<>();
+        final List<Urn> playlists = new ArrayList<>();
 
-        final List<Urn> actual = command.call(asList(trackForPlaylist1, trackForPlaylist2));
+        for (int i = 0; i < 1234; i++) {
+            final Urn playlist = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
+            tracks.add(testFixtures().insertPlaylistTrack(playlist, 0).getUrn());
+            playlists.add(playlist);
+        }
 
-        assertThat(actual).containsExactly(expectedPlaylist1, expectedPlaylist2);
+        final List<Urn> actual = command.call(tracks);
+        assertThat(actual).containsAll(playlists);
     }
 
     @Test
