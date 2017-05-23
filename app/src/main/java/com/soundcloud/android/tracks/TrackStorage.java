@@ -67,6 +67,7 @@ public class TrackStorage {
 
     private static final int MAX_TRACKS_BATCH = 200;
     private static final String SHARING_PRIVATE = "private";
+    private static final TrackUrnMapperV2 TRACK_URN_MAPPER = new TrackUrnMapperV2();
 
     private final PropellerRxV2 propeller;
 
@@ -80,8 +81,8 @@ public class TrackStorage {
     private final Function<List<Urn>, Observable<Urn>> fetchAvailableTrackUrns = new Function<List<Urn>, Observable<Urn>>() {
         @Override
         public Observable<Urn> apply(List<Urn> urns) {
-            return propeller.query(buildAvailableTracksQuery(urns))
-                            .map(new TrackUrnMapperV2());
+            return propeller.queryResult(buildAvailableTracksQuery(urns))
+                            .flatMap(result -> Observable.fromIterable(result.toList(TRACK_URN_MAPPER)));
         }
     };
 

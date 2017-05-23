@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 class ChartsStorage {
+    private static final ChartWithTrackMapper CHART_WITH_TRACK_MAPPER = new ChartWithTrackMapper();
     private final PropellerRxV2 propellerRx;
 
     private static final Function<List<Pair<Chart, TrackArtwork>>, List<Chart>> TO_CHARTS_WITH_TRACKS =
@@ -58,10 +59,8 @@ class ChartsStorage {
                 Charts.BUCKET_TYPE_GLOBAL,
                 Charts.BUCKET_TYPE_FEATURED_GENRES);
         final Query query = chartsWithTracksQuery().where(isFeaturedChart);
-        return propellerRx.query(query)
-                          .map(new ChartWithTrackMapper())
-                          .toList()
-                          .toObservable()
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(CHART_WITH_TRACK_MAPPER))
                           .map(TO_CHARTS_WITH_TRACKS)
                           .map(toChartBucket());
     }
@@ -69,10 +68,8 @@ class ChartsStorage {
     Observable<List<Chart>> genres(ChartCategory chartCategory) {
         final Query query = chartsWithTracksQuery().whereEq(Charts.BUCKET_TYPE, Charts.BUCKET_TYPE_ALL_GENRES)
                                                    .whereEq(Charts.CATEGORY, chartCategory.value());
-        return propellerRx.query(query)
-                          .map(new ChartWithTrackMapper())
-                          .toList()
-                          .toObservable()
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(CHART_WITH_TRACK_MAPPER))
                           .map(TO_CHARTS_WITH_TRACKS);
     }
 
