@@ -3,6 +3,7 @@ package com.soundcloud.android.properties;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
@@ -14,6 +15,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 @Singleton
@@ -79,6 +81,13 @@ public class ApplicationProperties {
         failFastOnMappingExceptions = resources.getBoolean(R.bool.fail_fast_on_mapping_exceptions);
     }
 
+    public static boolean isBetaOrBelow() {
+        List<String> buildTypesBetaAndBelow = Arrays.asList(BuildType.ALPHA.name().toLowerCase(Locale.US),
+                                             BuildType.BETA.name().toLowerCase(Locale.US),
+                                             BuildType.DEBUG.name().toLowerCase(Locale.US));
+        return buildTypesBetaAndBelow.contains(BuildConfig.BUILD_TYPE);
+    }
+
     public boolean isGooglePlusEnabled() {
         return googlePlusEnabled;
     }
@@ -127,7 +136,7 @@ public class ApplicationProperties {
         return isBuildType(BuildType.RELEASE, BuildType.BETA);
     }
 
-    public String getBuildType() {
+    public String getBuildTypeName() {
         return buildType.name();
     }
 

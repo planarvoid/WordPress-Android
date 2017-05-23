@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import static android.util.Log.DEBUG;
 import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CREATE;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
@@ -59,6 +60,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.utils.Log;
@@ -186,7 +188,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     protected void bootApplication() {
         migrationEngine.migrate();
 
-        Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
+        Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildTypeName());
         Log.d(TAG, applicationProperties.toString());
 
         if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
@@ -344,13 +346,16 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @VisibleForTesting
     public boolean addUserAccountAndEnableSync(ApiUser user, Token token, SignupVia via) {
+        ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "entering addUserAccountAndEnableSync");
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time
             syncConfig.enableSyncing(account);
             requestCollectionsSync();
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addUserAccountAndEnableSync: true");
             return true;
         } else {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addUserAccountAndEnableSync: false");
             return false;
         }
     }

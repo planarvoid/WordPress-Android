@@ -1,5 +1,6 @@
 package com.soundcloud.android.accounts;
 
+import static android.util.Log.DEBUG;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.facebook.login.LoginManager;
@@ -19,7 +20,9 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -162,29 +165,61 @@ public class AccountOperations {
      */
     @Nullable
     public Account addOrReplaceSoundCloudAccount(ApiUser user, Token token, SignupVia via) {
+        ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "entering: addOrReplaceSoundCloudAccount");
+        if (user == null) {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "user: null!");
+        } else {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "user: %s", user.getPermalink());
+        }
+        if (token == null) {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "token: null!");
+        } else {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "token valid: %b" +
+                                                 " accessToken empty: %b" +
+                                                 " refreshToken empty: %b" +
+                                                 " scope empty: %b" +
+                                                 " signup empty: %b" +
+                                                 " expiresAt: %d",
+                                         token.valid(), Strings.isNullOrEmpty(token.getAccessToken()),
+                                         Strings.isNullOrEmpty(token.getRefreshToken()),
+                                         Strings.isNullOrEmpty(token.getScope()),
+                                         Strings.isNullOrEmpty(token.getSignup()),
+                                         token.getExpiresAt());
+        }
+
         boolean accountExists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
             if (account.name.equals(user.getPermalink())) {
+                ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "already have SoundCloud account, same account!");
                 accountExists = true; // same username, do not replace account
             } else {
+                ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "already have SoundCloud account, removing account");
                 accountManager.removeAccount(account, null, null);
             }
         }
 
+        ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "accountExists: " + accountExists);
         if (!accountExists) {
-            account = new Account(user.getPermalink(), context.getString(R.string.account_type));
+            String accountType = context.getString(R.string.account_type);
+            String permalink = user.getPermalink();
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "creating account for user: %s of type: %s", permalink, accountType);
+            account = new Account(permalink, accountType);
 
             // workaround for https://code.google.com/p/android/issues/detail?id=210992
             // This is a no-op even if the bug is fixed. Remove upon release of Android N
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "removing account due to the Android N preview issue");
                 accountManager.removeAccountExplicitly(account);
             }
 
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "adding account");
             accountExists = accountManager.addAccountExplicitly(account, null, null);
         }
 
+        ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addAccountExplicitly result: %b", accountExists);
         if (accountExists) {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "storing account data");
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
@@ -192,8 +227,10 @@ public class AccountOperations {
             accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
             loggedInUserUrn = user.getUrn();
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user.getUrn()));
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addOrReplaceSoundCloudAccount returning account");
             return account;
         } else {
+            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addOrReplaceSoundCloudAccount returning: null");
             return null;
         }
     }
