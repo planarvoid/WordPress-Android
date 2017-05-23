@@ -309,7 +309,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
     }
 
     @Test

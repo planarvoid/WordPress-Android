@@ -40,7 +40,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private AvailableWebProducts products = AvailableWebProducts.empty();
     private AppCompatActivity activity;
 
-    private UpsellContext upsellContext =  UpsellContext.DEFAULT;
+    private UpsellContext upsellContext = UpsellContext.DEFAULT;
     private Optional<WebProduct> primaryProduct = Optional.absent();
 
     @Inject

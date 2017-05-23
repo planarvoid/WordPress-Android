@@ -528,10 +528,10 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void upsellsFromMakeOffline() throws Exception {
+    public void upsellsOfflineFromMakeOffline() {
         connect();
 
-        AssertableSubscriber<Urn> goToUpsell = newPlaylistPresenter.goToUpsell().test();
+        AssertableSubscriber<Urn> goToUpsell = newPlaylistPresenter.goToOfflineUpsell().test();
 
         UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistPageClick(playlistUrn);
 
@@ -730,10 +730,10 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void overflowUpsellTracksAndGoesToUpsell() throws Exception {
+    public void overflowUpsellTracksAndGoesToOfflineUpsell() {
         connect();
 
-        AssertableSubscriber<Urn> testSubscriber = newPlaylistPresenter.goToUpsell().test();
+        AssertableSubscriber<Urn> testSubscriber = newPlaylistPresenter.goToOfflineUpsell().test();
 
         inputs.onOverflowUpsell();
 
@@ -744,7 +744,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void overflowFiresUpsellImpression() throws Exception {
+    public void overflowFiresUpsellImpression() {
         connect();
 
         inputs.onOverflowUpsellImpression();

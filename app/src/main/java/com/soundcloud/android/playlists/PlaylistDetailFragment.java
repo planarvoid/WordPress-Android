@@ -161,9 +161,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribe(urn -> navigator.legacyOpenProfile(getActivity(), urn)),
 
-                presenter.goToUpsell()
+                presenter.goToContentUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigator.openUpgrade(getContext(), UpsellContext.OFFLINE)),
+                         .subscribe(ignored -> navigator.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT)),
+
+                presenter.goToOfflineUpsell()
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(ignored -> navigator.openUpgrade(getContext(), UpsellContext.OFFLINE)),
 
                 presenter.onRepostResult()
                          .observeOn(AndroidSchedulers.mainThread())

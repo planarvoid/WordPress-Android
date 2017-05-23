@@ -119,7 +119,8 @@ public class PlaylistDetailsPresenter {
     private final PublishSubject<Pair<Urn, PlaySessionSource>> showDisableOfflineCollectionConfirmation = PublishSubject.create();
     private final PublishSubject<Void> showOfflineStorageErrorDialog = PublishSubject.create();
     private final PublishSubject<SharePresenter.ShareOptions> sharePlaylist = PublishSubject.create();
-    private final PublishSubject<Urn> goToUpsell = PublishSubject.create();
+    private final PublishSubject<Urn> goToContentUpsell = PublishSubject.create();
+    private final PublishSubject<Urn> goToOfflineUpsell = PublishSubject.create();
     private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
     private final BehaviorSubject<PlaylistWithExtrasState> dataSource;
     private final DataSourceProvider dataSourceProvider;
@@ -491,21 +492,21 @@ public class PlaylistDetailsPresenter {
         return models().compose(Transformers.takeWhen(trigger))
                        .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
                        .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick(urn)))
-                       .subscribe(goToUpsell);
+                       .subscribe(goToContentUpsell);
     }
 
     private Subscription actionOnMakeOfflineUpsell(PublishSubject<Void> trigger) {
         return models().compose(Transformers.takeWhen(trigger))
                        .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
                        .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageClick(urn)))
-                       .subscribe(goToUpsell);
+                       .subscribe(goToOfflineUpsell);
     }
 
     private Subscription actionOnOverflowMakeOfflineUpsell(PublishSubject<Void> trigger) {
         return models().compose(Transformers.takeWhen(trigger))
                        .map(playlistWithTracks -> playlistWithTracks.metadata().urn())
                        .doOnNext(urn -> eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistOverflowClick(urn)))
-                       .subscribe(goToUpsell);
+                       .subscribe(goToOfflineUpsell);
     }
 
     private Subscription actionDismissUpsell(PublishSubject<PlaylistDetailUpsellItem> trigger) {
@@ -617,8 +618,12 @@ public class PlaylistDetailsPresenter {
         return showRepostResult;
     }
 
-    PublishSubject<Urn> goToUpsell() {
-        return goToUpsell;
+    PublishSubject<Urn> goToContentUpsell() {
+        return goToContentUpsell;
+    }
+
+    PublishSubject<Urn> goToOfflineUpsell() {
+        return goToOfflineUpsell;
     }
 
     Observable<PlaybackResult.ErrorReason> onPlaybackError() {
