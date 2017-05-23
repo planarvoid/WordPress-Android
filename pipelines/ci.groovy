@@ -2,7 +2,7 @@
 // PIPELINE used to build PRs and master
 // ----------------------------------------------------------------------------------------------------
 
-def NODE_NAME = "chaos-slave"
+def NODE_NAME = "android"
 
 timestamps {
   ansiColor('xterm') {

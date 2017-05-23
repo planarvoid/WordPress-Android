@@ -1,7 +1,7 @@
 timestamps {
 ansiColor('xterm') {
 stage('Checkout') {
-  node('chaos-slave') {
+  node('android') {
     checkout([$class: 'GitSCM', branches: [[name: 'green_master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
 
     def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
@@ -11,7 +11,7 @@ stage('Checkout') {
   }
 }
 stage('Build') {
-    node('chaos-slave') {
+    node('android') {
       deleteDir()
         unstash 'repository'
         sh './scripts/pull_all_translations.sh'
