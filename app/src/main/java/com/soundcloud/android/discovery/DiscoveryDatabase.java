@@ -39,6 +39,8 @@ public class DiscoveryDatabase {
             writableDatabase.execSQL(DbModel.SingleContentSelectionCard.DELETEALL);
             writableDatabase.execSQL(DbModel.MultipleContentSelectionCard.DELETEALL);
             writableDatabase.execSQL(DbModel.DiscoveryCard.DELETEALL);
+            writableDatabase.execSQL(DbModel.SystemPlaylistsTracks.DELETEALL);
+            writableDatabase.execSQL(DbModel.SystemPlaylist.DELETEALL);
         });
     }
 

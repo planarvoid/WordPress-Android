@@ -16,6 +16,9 @@ WHERE system_playlist_urn = ?;
 deleteAll:
 DELETE FROM system_playlists_tracks;
 
+dropTable:
+DROP TABLE system_playlists_tracks;
+
 insertRow:
 INSERT INTO system_playlists_tracks(system_playlist_urn, track_urn)
 VALUES (?, ?);

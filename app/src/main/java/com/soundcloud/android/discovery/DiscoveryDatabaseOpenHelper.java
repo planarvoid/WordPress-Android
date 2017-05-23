@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 @Singleton
 public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     @Inject
     DiscoveryDatabaseOpenHelper(Context context) {
@@ -47,6 +47,8 @@ public class DiscoveryDatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL(DbModel.SingleContentSelectionCard.DROPTABLE);
         db.execSQL(DbModel.MultipleContentSelectionCard.DROPTABLE);
         db.execSQL(DbModel.DiscoveryCard.DROPTABLE);
+        db.execSQL(DbModel.SystemPlaylistsTracks.DROPTABLE);
+        db.execSQL(DbModel.SystemPlaylist.DROPTABLE);
         onCreate(db);
     }
 }

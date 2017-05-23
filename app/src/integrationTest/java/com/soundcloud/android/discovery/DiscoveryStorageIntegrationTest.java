@@ -39,7 +39,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
         super(TestUser.playlistUser);
         discoveryReadableStorage = SoundCloudApplication.getObjectGraph().discoveryReadableStorage();
         discoveryWritableStorage = SoundCloudApplication.getObjectGraph().discoveryWritableStorage();
-        discoveryWritableStorage.cleanUp();
+        discoveryWritableStorage.clearData();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class DiscoveryStorageIntegrationTest extends BaseIntegrationTest {
     @Override
     @After
     public void tearDown() throws Exception {
-        discoveryWritableStorage.cleanUp();
+        discoveryWritableStorage.clearData();
         super.tearDown();
     }
 }

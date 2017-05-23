@@ -13,6 +13,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.deeplinks.ShortcutController;
+import com.soundcloud.android.discovery.DiscoveryWritableStorage;
 import com.soundcloud.android.olddiscovery.OldDiscoveryOperations;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.RecommendedPlaylistsStorage;
 import com.soundcloud.android.gcm.GcmStorage;
@@ -68,6 +69,7 @@ class AccountCleanupAction implements Action0 {
     private final SuggestedCreatorsStorage suggestedCreatorsStorage;
     private final ShortcutController shortcutController;
     private final SecureFileStorage secureFileStorage;
+    private final DiscoveryWritableStorage discoveryWritableStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -92,7 +94,8 @@ class AccountCleanupAction implements Action0 {
                          DatabaseManager databaseManager,
                          SuggestedCreatorsStorage suggestedCreatorsStorage,
                          ShortcutController shortcutController,
-                         SecureFileStorage secureFileStorage) {
+                         SecureFileStorage secureFileStorage,
+                         DiscoveryWritableStorage discoveryWritableStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -119,6 +122,7 @@ class AccountCleanupAction implements Action0 {
         this.suggestedCreatorsStorage = suggestedCreatorsStorage;
         this.shortcutController = shortcutController;
         this.secureFileStorage = secureFileStorage;
+        this.discoveryWritableStorage = discoveryWritableStorage;
     }
 
     @Override
@@ -148,6 +152,7 @@ class AccountCleanupAction implements Action0 {
         gcmStorage.clearTokenForRefresh();
         featureFlagsStorage.clear();
         shortcutController.removeShortcuts();
+        discoveryWritableStorage.clearData();
 
         // Note that the following call simply clears all the SQLite tables.
         // If necessary, shared preferences should be cleared manually.

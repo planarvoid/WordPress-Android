@@ -23,8 +23,13 @@ public class DiscoveryWritableStorage {
         this.discoveryDatabase = discoveryDatabase;
     }
 
+
+    public void clearData() {
+        discoveryDatabase.cleanUp();
+    }
+
     void storeDiscoveryCards(ModelCollection<ApiDiscoveryCard> apiDiscoveryCards) {
-        cleanUp();
+        clearData();
         insertApiDiscoveryCards(filterInvalidCards(apiDiscoveryCards).getCollection());
     }
 
@@ -103,10 +108,6 @@ public class DiscoveryWritableStorage {
                        selectionItem.webLink().orNull(),
                        selectionItem.appLink().orNull());
         return discoveryDatabase.insert(DbModel.SelectionItem.TABLE_NAME, insertRow.program);
-    }
-
-    void cleanUp() {
-        discoveryDatabase.cleanUp();
     }
 
     private ModelCollection<ApiDiscoveryCard> filterInvalidCards(ModelCollection<ApiDiscoveryCard> apiDiscoveryCards) {
