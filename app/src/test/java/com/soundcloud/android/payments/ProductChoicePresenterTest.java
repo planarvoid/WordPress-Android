@@ -13,11 +13,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowToast;
-import rx.Observable;
 
 import android.content.Intent;
 import android.os.Parcelable;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 public class ProductChoicePresenterTest extends AndroidUnitTest {
 
-    private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
+    private static final AvailableWebProducts BOTH_PLANS = AvailableWebProducts.fromList(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
 
     @Mock WebPaymentOperations operations;
     @Mock ProductChoicePagerView pagerView;
@@ -130,7 +130,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadProductsIfIntentDoesNotHaveProducts() {
-        when(operations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(operations.products()).thenReturn(Single.just(BOTH_PLANS));
 
         activity.setIntent(new Intent());
         activity.setContentView(R.layout.product_choice_activity);
@@ -141,7 +141,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadedProductsAreSavedInIntent() {
-        when(operations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(operations.products()).thenReturn(Single.just(BOTH_PLANS));
 
         activity.setIntent(new Intent());
         activity.setContentView(R.layout.product_choice_activity);
@@ -152,7 +152,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     @Test
     public void finishesActivityIfLoadedProductsDoesNotContainBothHighTierAndMidTier() {
-        when(operations.products()).thenReturn(Observable.just(AvailableWebProducts.empty()));
+        when(operations.products()).thenReturn(Single.just(AvailableWebProducts.empty()));
 
         activity.setIntent(new Intent());
         activity.setContentView(R.layout.product_choice_activity);
@@ -165,7 +165,7 @@ public class ProductChoicePresenterTest extends AndroidUnitTest {
 
     @Test
     public void finishesActivityOnErrorWhenLoadingProducts() {
-        when(operations.products()).thenReturn(Observable.error(new IOException("products fetch error")));
+        when(operations.products()).thenReturn(Single.error(new IOException("products fetch error")));
 
         activity.setIntent(new Intent());
         activity.setContentView(R.layout.product_choice_activity);

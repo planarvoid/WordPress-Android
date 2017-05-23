@@ -25,7 +25,11 @@ class AvailableWebProducts implements Parcelable {
         return new AvailableWebProducts(Collections.emptyList());
     }
 
-    AvailableWebProducts(List<WebProduct> products) {
+    static AvailableWebProducts fromList(List<WebProduct> products) {
+        return new AvailableWebProducts(products);
+    }
+
+    private AvailableWebProducts(List<WebProduct> products) {
         for (WebProduct product : products) {
             if (MID_TIER_PLAN_ID.equals(product.getPlanId())) {
                 midTier = Optional.of(product);

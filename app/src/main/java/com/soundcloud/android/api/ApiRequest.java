@@ -1,6 +1,5 @@
 package com.soundcloud.android.api;
 
-
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.api.oauth.OAuth;

@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.android.utils.Log;
@@ -19,8 +19,9 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -66,7 +67,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private Activity activity;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.emptyDisposable();
     private Handler handler = new Handler();
 
     @Inject
@@ -113,10 +114,9 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void fetchProducts() {
-        subscription = paymentOperations.get()
-                                        .products()
+        disposable = paymentOperations.get().products()
                                         .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new WebProductsSubscriber());
+                                        .subscribeWith(new WebProductsObserver());
     }
 
     private void launchWebForm(WebProduct product) {
@@ -184,7 +184,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        subscription.unsubscribe();
+        disposable.dispose();
         cancelTimeout();
         this.activity = null;
     }
@@ -248,9 +248,10 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
-    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
+    private class WebProductsObserver extends DefaultSingleObserver<AvailableWebProducts> {
+
         @Override
-        public void onNext(AvailableWebProducts products) {
+        public void onSuccess(@NonNull AvailableWebProducts products) {
             Optional<WebProduct> highTier = products.highTier();
             Optional<WebProduct> midTier = products.midTier();
             if (shouldLaunchWebFormForProduct(highTier)) {
@@ -260,6 +261,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             } else {
                 setRetryState();
             }
+            super.onSuccess(products);
         }
 
         @Override

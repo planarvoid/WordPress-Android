@@ -16,11 +16,11 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowDialog;
-import rx.Observable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 public class ConversionPresenterTest extends AndroidUnitTest {
 
     private static final AvailableWebProducts DEFAULT = AvailableWebProducts.single(TestProduct.highTier());
-    private static final AvailableWebProducts BOTH_PLANS = new AvailableWebProducts(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
+    private static final AvailableWebProducts BOTH_PLANS = AvailableWebProducts.fromList(Arrays.asList(TestProduct.midTier(), TestProduct.highTier()));
     private static final AvailableWebProducts PROMO = AvailableWebProducts.single(TestProduct.promoHighTier());
     private static final AvailableWebProducts INVALID = AvailableWebProducts.single(TestProduct.midTier());
 
@@ -58,7 +58,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enableMidTierPurchaseOnProductLoad() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
 
         presenter.onCreate(activity, null);
 
@@ -67,7 +67,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enableHighTierPurchaseOnProductLoad() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
@@ -77,7 +77,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void enablePromoPurchaseOnPromoLoad() {
-        when(paymentOperations.products()).thenReturn(Observable.just(PROMO));
+        when(paymentOperations.products()).thenReturn(Single.just(PROMO));
 
         presenter.onCreate(activity, null);
 
@@ -98,7 +98,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void savesLoadedProductsToBundle() {
         Bundle savedInstanceState = new Bundle();
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        when(paymentOperations.products()).thenReturn(Single.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onSaveInstanceState(activity, savedInstanceState);
@@ -108,7 +108,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void useDefaultCopyForFreeUser() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
 
         presenter.onCreate(activity, null);
 
@@ -117,7 +117,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void useUpgradeFocusedCopyForMidTierUser() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
 
         presenter.onCreate(activity, null);
@@ -127,7 +127,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void useAdFocusedCopyForAdUpsellContext() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.ADS);
 
         presenter.onCreate(activity, null);
@@ -137,7 +137,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void useOfflineFocusedCopyForOfflineUpsellContext() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.OFFLINE);
 
         presenter.onCreate(activity, null);
@@ -147,7 +147,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void useHighTierFocusedCopyForPremiumContentUpsellContext() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
@@ -157,7 +157,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void allowsRetryIfProductLoadFails() {
-        when(paymentOperations.products()).thenReturn(Observable.error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Single.error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -166,7 +166,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsPlanConversionErrorDialogForAppleError() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         when(featureOperations.isPlanManageable()).thenReturn(false);
         when(featureOperations.isPlanVendorApple()).thenReturn(true);
 
@@ -178,7 +178,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsPlanConversionErrorDialogForGenericError() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         when(featureOperations.isPlanManageable()).thenReturn(false);
         when(featureOperations.isPlanVendorApple()).thenReturn(false);
 
@@ -190,7 +190,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchaseCallbackPassesProductInfoToCheckout() {
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        when(paymentOperations.products()).thenReturn(Single.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onPurchasePrimary();
@@ -203,7 +203,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchasePublishesUpgradeFunnelEvent() {
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        when(paymentOperations.products()).thenReturn(Single.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onPurchasePrimary();
@@ -215,7 +215,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startPurchaseWithPromoPublishesPromoFunnelEvent() {
-        when(paymentOperations.products()).thenReturn(Observable.just(PROMO));
+        when(paymentOperations.products()).thenReturn(Single.just(PROMO));
         presenter.onCreate(activity, null);
 
         presenter.onPurchasePrimary();
@@ -228,7 +228,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void moreButtonEnabledForMidTierPlan() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
@@ -240,7 +240,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void moreButtonNotEnabledForMidTierPlanWhenUnavailable() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        when(paymentOperations.products()).thenReturn(Single.just(DEFAULT));
         setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
@@ -253,7 +253,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void moreButtonEnabledForHighTierPlan() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
 
         presenter.onCreate(activity, null);
 
@@ -264,7 +264,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void moreButtonNotEnabledForHighTierWhenUserIsMidTier() {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         setUpsellContext(UpsellContext.PREMIUM_CONTENT);
 
         presenter.onCreate(activity, null);
@@ -276,7 +276,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadingFailsIfOnlyMidTierIsAvailable() {
-        when(paymentOperations.products()).thenReturn(Observable.just(INVALID));
+        when(paymentOperations.products()).thenReturn(Single.just(INVALID));
 
         presenter.onCreate(activity, null);
 
@@ -285,7 +285,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void moreProductsCallbackOpensSelectionScreen() {
-        when(paymentOperations.products()).thenReturn(Observable.just(DEFAULT));
+        when(paymentOperations.products()).thenReturn(Single.just(DEFAULT));
         presenter.onCreate(activity, null);
 
         presenter.onMoreProducts();
@@ -298,7 +298,7 @@ public class ConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void moreProductsCallbackOpensSelectionScreenOnHighTierPage() {
-        when(paymentOperations.products()).thenReturn(Observable.just(BOTH_PLANS));
+        when(paymentOperations.products()).thenReturn(Single.just(BOTH_PLANS));
         presenter.onCreate(activity, null);
         presenter.onMoreProducts();
 

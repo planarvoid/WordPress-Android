@@ -9,12 +9,12 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,7 +36,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.emptyDisposable();
     private AvailableWebProducts products = AvailableWebProducts.empty();
     private AppCompatActivity activity;
 
@@ -94,7 +94,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        subscription.unsubscribe();
+        disposable.dispose();
         this.activity = null;
     }
 
@@ -157,9 +157,9 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
     private void loadProducts() {
         view.showLoadingState();
-        subscription = operations.products()
+        disposable = operations.products()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new WebProductsSubscriber());
+                .subscribeWith(new WebProductsObserver());
     }
 
     @Override
@@ -213,11 +213,13 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         dialogFragment.show(activity.getSupportFragmentManager(), PLAN_CONVERSION_ERROR_DIALOG_TAG);
     }
 
-    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
+    private class WebProductsObserver extends DefaultSingleObserver<AvailableWebProducts> {
+
         @Override
-        public void onNext(AvailableWebProducts result) {
+        public void onSuccess(AvailableWebProducts result) {
             products = result;
             displayProducts();
+            super.onSuccess(result);
         }
 
         @Override

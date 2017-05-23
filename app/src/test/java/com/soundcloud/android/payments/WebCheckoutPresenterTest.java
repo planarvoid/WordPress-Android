@@ -19,10 +19,10 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -82,7 +82,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         Intent intent = new Intent();
         intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
         when(activity.getIntent()).thenReturn(intent);
-        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
+        when(paymentOperations.products()).thenReturn(Single.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
 
@@ -94,7 +94,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         Intent intent = new Intent();
         intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.MID_TIER);
         when(activity.getIntent()).thenReturn(intent);
-        when(paymentOperations.products()).thenReturn(Observable.just(MID_TIER));
+        when(paymentOperations.products()).thenReturn(Single.just(MID_TIER));
 
         presenter.onCreate(activity, null);
 
@@ -104,7 +104,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Test
     public void loadingProductCanBeRetriedOnNoExtraCheckoutPlan() {
         when(activity.getIntent()).thenReturn(new Intent());
-        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
+        when(paymentOperations.products()).thenReturn(Single.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
 
@@ -114,7 +114,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Test
     public void loadingProductCanBeRetriedOnIOException() {
         when(activity.getIntent()).thenReturn(new Intent());
-        when(paymentOperations.products()).thenReturn(Observable.error(new IOException()));
+        when(paymentOperations.products()).thenReturn(Single.error(new IOException()));
 
         presenter.onCreate(activity, null);
 
@@ -126,7 +126,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         Intent intent = new Intent();
         intent.putExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
         when(activity.getIntent()).thenReturn(intent);
-        when(paymentOperations.products()).thenReturn(Observable.just(HIGH_TIER));
+        when(paymentOperations.products()).thenReturn(Single.just(HIGH_TIER));
 
         presenter.onCreate(activity, null);
 

@@ -6,31 +6,28 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.reflect.TypeToken;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Collections;
 
 public class WebPaymentOperationsTest extends AndroidUnitTest {
 
+    @Mock private ApiClientRxV2 api;
+
     private WebPaymentOperations operations;
-
-    @Mock ApiClientRx api;
-
-    private TestSubscriber<AvailableWebProducts> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
-        operations = new WebPaymentOperations(api, Schedulers.immediate());
+        operations = new WebPaymentOperations(api, Schedulers.trampoline());
     }
 
     @Test
@@ -38,9 +35,8 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
         WebProduct expected = TestProduct.highTier();
         setupExpectedProductsCall(expected);
 
-        operations.products().subscribe(subscriber);
+        final AvailableWebProducts products = operations.products().test().values().get(0);
 
-        final AvailableWebProducts products = subscriber.getOnNextEvents().get(0);
         assertThat(products.highTier().isPresent()).isTrue();
         assertThat(products.highTier().get()).isEqualTo(expected);
     }
@@ -49,15 +45,14 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
     public void returnsEmptyAvailableProductsIfNoKnownPlansAvailable() {
         setupExpectedProductsCall(TestProduct.unknown());
 
-        operations.products().subscribe(subscriber);
+        final AvailableWebProducts products = operations.products().test().values().get(0);
 
-        final AvailableWebProducts products = subscriber.getOnNextEvents().get(0);
         assertThat(products.highTier().isPresent()).isFalse();
     }
 
     private void setupExpectedProductsCall(WebProduct expected) {
         final ModelCollection<WebProduct> webProducts = new ModelCollection<>(Collections.singletonList(expected));
         when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.WEB_PRODUCTS.path())), any(TypeToken.class)))
-                .thenReturn(Observable.just(webProducts));
+                .thenReturn(Single.just(webProducts));
     }
 }

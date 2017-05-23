@@ -1,14 +1,14 @@
 package com.soundcloud.android.payments;
 
-import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.ApiClientRx;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
+
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.java.reflect.TypeToken;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -17,22 +17,20 @@ public class WebPaymentOperations {
 
     private static final TypeToken<ModelCollection<WebProduct>> PRODUCT_COLLECTION_TOKEN = new TypeToken<ModelCollection<WebProduct>>() {};
 
-    private static final Func1<ModelCollection<WebProduct>, AvailableWebProducts> TO_AVAILABLE_PRODUCTS = webProducts -> new AvailableWebProducts(webProducts.getCollection());
-
-    private final ApiClientRx apiClientRx;
+    private final ApiClientRxV2 apiClient;
     private final Scheduler scheduler;
 
     @Inject
-    public WebPaymentOperations(ApiClientRx apiClientRx,
-                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
-        this.apiClientRx = apiClientRx;
+    public WebPaymentOperations(ApiClientRxV2 apiClient,
+                                @Named(RX_HIGH_PRIORITY) Scheduler scheduler) {
+        this.apiClient = apiClient;
         this.scheduler = scheduler;
     }
 
-    Observable<AvailableWebProducts> products() {
-        return apiClientRx.mappedResponse(webProductRequest(), PRODUCT_COLLECTION_TOKEN)
-                .subscribeOn(scheduler)
-                .map(TO_AVAILABLE_PRODUCTS);
+    Single<AvailableWebProducts> products() {
+        return apiClient.mappedResponse(webProductRequest(), PRODUCT_COLLECTION_TOKEN)
+                        .subscribeOn(scheduler)
+                        .map(response -> AvailableWebProducts.fromList(response.getCollection()));
     }
 
     private ApiRequest webProductRequest() {

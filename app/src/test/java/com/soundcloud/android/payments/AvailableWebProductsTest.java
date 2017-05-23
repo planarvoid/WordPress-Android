@@ -2,10 +2,9 @@ package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,7 +15,7 @@ public class AvailableWebProductsTest {
     @Test
     public void mapsSingleProduct() {
         WebProduct highTier = TestProduct.highTier();
-        final AvailableWebProducts products = new AvailableWebProducts(Collections.singletonList(highTier));
+        final AvailableWebProducts products = AvailableWebProducts.fromList(Collections.singletonList(highTier));
 
         assertThat(products.midTier().isPresent()).isFalse();
         assertThat(products.highTier().get()).isEqualTo(highTier);
@@ -24,7 +23,7 @@ public class AvailableWebProductsTest {
 
     @Test
     public void mapsAllProducts() {
-        final AvailableWebProducts products = new AvailableWebProducts(Arrays.asList(
+        final AvailableWebProducts products = AvailableWebProducts.fromList(Arrays.asList(
                 TestProduct.highTier(),
                 TestProduct.midTier(),
                 TestProduct.unknown()));
@@ -35,7 +34,7 @@ public class AvailableWebProductsTest {
 
     @Test
     public void mapsEmptyProducts() throws Exception {
-        final AvailableWebProducts products = new AvailableWebProducts(Lists.emptyList());
+        final AvailableWebProducts products = AvailableWebProducts.empty();
 
         assertThat(products.midTier().isPresent()).isFalse();
         assertThat(products.highTier().isPresent()).isFalse();

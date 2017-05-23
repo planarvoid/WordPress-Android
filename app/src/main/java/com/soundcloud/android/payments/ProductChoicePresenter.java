@@ -5,13 +5,14 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     private final ProductInfoFormatter formatter;
     private final EventBus eventBus;
 
-    private Subscription subscription = RxUtils.invalidSubscription();
+    private Disposable disposable = RxUtils.emptyDisposable();
     private AppCompatActivity activity;
 
     @Inject
@@ -77,7 +78,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
-        subscription.unsubscribe();
+        disposable.dispose();
         this.activity = null;
     }
 
@@ -96,9 +97,9 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void loadProducts() {
-        subscription = operations.products()
+        disposable = operations.products()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new WebProductsSubscriber());
+                .subscribeWith(new WebProductsObserver());
     }
 
     @Override
@@ -147,15 +148,17 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
         activity.finish();
     }
 
-    private class WebProductsSubscriber extends DefaultSubscriber<AvailableWebProducts> {
+    private class WebProductsObserver extends DefaultSingleObserver<AvailableWebProducts> {
+
         @Override
-        public void onNext(AvailableWebProducts products) {
+        public void onSuccess(@NonNull AvailableWebProducts products) {
             if (products.highTier().isPresent() && products.midTier().isPresent()) {
                 saveProductsInIntent(products);
                 displayProducts(products);
             } else {
                 showErrorAndFinishActivity();
             }
+            super.onSuccess(products);
         }
 
         @Override

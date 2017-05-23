@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.ResourceObserver;
 import io.reactivex.observers.ResourceSingleObserver;
 
@@ -16,12 +17,13 @@ public class DefaultSingleObserver<T> extends ResourceSingleObserver<T> {
     }
 
     @Override
-    public void onSuccess(T t) {
-        // no-op by default.
+    public void onSuccess(@NonNull T t) {
+        errorReporter.handleOnComplete();
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(@NonNull Throwable throwable) {
         errorReporter.handleOnError(throwable);
     }
+
 }
