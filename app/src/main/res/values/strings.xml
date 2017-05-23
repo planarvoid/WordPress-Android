@@ -71,6 +71,9 @@
         <item quantity="one">%s rating</item>
         <item quantity="other">%s ratings</item>
     </plurals>
+    <string name="ads_watch_now">Watch Now</string>
+    <string name="ads_no_thanks">No Thanks</string>
+    <string name="ads_opt_in_text">One ad equals 30 minutes of tracks with no interruptions. Take a Look.</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Forgot your password?</string>

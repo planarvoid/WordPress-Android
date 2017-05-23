@@ -208,4 +208,8 @@
     <color name="welcome_morning">#fffefd</color>
     <color name="welcome_afternoon">#fffffd</color>
 
+    <!-- Prestitials -->
+    <color name="light_grey_border">#d3d3d3</color>
+    <color name="dark_grey_bg">#333333</color>
+
 </resources>

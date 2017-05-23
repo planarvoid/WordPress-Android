@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.SafeViewPager
+    <com.soundcloud.android.ads.NoSwipeViewPager
         android:id="@+id/prestitial_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

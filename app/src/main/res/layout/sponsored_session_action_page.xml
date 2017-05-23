@@ -1,7 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/soundcloud_orange">
+    android:background="@color/dark_grey_bg">
 
-</LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/advertisement_header"
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:layout_height="43dp">
+
+        <View
+            android:id="@+id/player_strip"
+            style="@style/PlayerStrip"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/advertisement"
+            android:textColor="@color/ash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_horizontal"
+            android:text="@string/ads_advertisement"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_group"
+        android:layout_below="@+id/advertisement_header">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:ignore="UselessParent">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/opt_in_text"
+                android:layout_height="84dp"
+                android:layout_width="300dp"
+                android:text="@string/ads_opt_in_text"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2sp"
+                android:gravity="start"
+                android:layout_marginBottom="40dp"
+                android:layout_centerHorizontal="true"
+                android:maxLines="3"/>
+
+            <ImageView
+                android:id="@+id/ad_image_view"
+                android:layout_width="340dp"
+                android:layout_height="285dp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/opt_in_text"
+                android:background="@color/dark_grey_bg"/>
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@id/btn_group"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="75dp"
+        >
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/btn_left"
+            android:layout_height="75dp"
+            android:layout_width="0dp"
+            android:layout_weight=".5"
+            android:text="@string/ads_no_thanks"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+        <View
+            android:layout_width="1dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/light_grey_border"
+            />
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/btn_right"
+            android:layout_height="75dp"
+            android:layout_width="0dp"
+            android:layout_weight=".5"
+            android:text="@string/ads_watch_now"
+            android:gravity="center"
+            android:textColor="@color/soundcloud_orange"
+            android:textSize="20sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -35,6 +35,6 @@ public class PrestitialActivity extends LoggedInActivity {
 
     @Override
     protected void setActivityContentView() {
-        super.setContentView(R.layout.prestitial);
+        super.setContentView(R.layout.sponsored_session_prestitial);
     }
 }

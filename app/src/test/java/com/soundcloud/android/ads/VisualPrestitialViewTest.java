@@ -13,33 +13,29 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
-public class VisualPrestitialPresenterTest extends AndroidUnitTest {
+public class VisualPrestitialViewTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
-    @Mock PrestitialActivity activity;
-    @Mock VisualPrestitialPresenter.Listener listener;
+    @Mock AppCompatActivity activity;
+    @Mock VisualPrestitialView.Listener listener;
 
-    private VisualPrestitialPresenter presenter;
-    private ViewPager viewPager;
-    private ViewGroup view;
+    private VisualPrestitialView view;
     private VisualPrestitialAd ad;
 
     @Before
     public void setUp() {
-        presenter = new VisualPrestitialPresenter(imageOperations);
-        viewPager = new ViewPager(context());
-        view = (ViewGroup) LayoutInflater.from(context()).inflate(R.layout.visual_prestitial, viewPager, false);
+        activity = activity();
+        activity.setContentView(R.layout.visual_prestitial);
+        view = new VisualPrestitialView(imageOperations);
         ad = AdFixtures.visualPrestitialAd();
     }
 
     @Test
     public void displaysPrestitialAdImageOnSetupWithVisualPresitialAdListener() {
-        presenter.setupContentView(view, ad, listener);
+        view.setupContentView(activity, ad, listener);
         final Urn adUrn = ad.adUrn();
         final String imageUrl = ad.imageUrl();
 
@@ -51,18 +47,18 @@ public class VisualPrestitialPresenterTest extends AndroidUnitTest {
 
     @Test
     public void finishesActivityOnClickOfContinueButton(){
-        presenter.setupContentView(view, ad, listener);
+        view.setupContentView(activity, ad, listener);
 
-        view.findViewById(R.id.btn_continue).performClick();
+        view.continueButton.performClick();
 
         verify(listener).onContinueClick();
     }
 
     @Test
     public void notifiesListenerOfClickThrough(){
-        presenter.setupContentView(view, ad, listener);
+        view.setupContentView(activity, ad, listener);
 
-        final ImageView imageView = (ImageView) view.findViewById(R.id.ad_image_view);
+        final ImageView imageView = view.imageView;
         imageView.performClick();
 
         verify(listener).onClickThrough(imageView, ad);

@@ -14,6 +14,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,7 +28,8 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
     @Mock Navigator navigator;
     @Mock AdViewabilityController viewabilityController;
-    @Mock VisualPrestitialPresenter visualPrestitialPresenter;
+    @Mock Lazy<VisualPrestitialView> lazyVisualPrestitialView;
+    @Mock VisualPrestitialView visualPrestitialView;
     @Mock PrestitialAdsController adsController;
     @Mock PrestitialAdapterFactory adapterFactory;
     @Mock PrestitialAdapter adapter;
@@ -36,24 +38,29 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     @Mock ImageView imageView;
 
     private TestEventBus eventBus;
-    private VisualPrestitialAd ad;
+    private VisualPrestitialAd visualPrestitialAd;
+    private SponsoredSessionAd sponsoredSessionAd;
     private AppCompatActivity activity;
     private PrestitialPresenter presenter;
 
     @Before
     public void setUp() {
         activity = activity();
-        activity.setContentView(R.layout.prestitial);
-        ad = AdFixtures.visualPrestitialAd();
+        activity.setContentView(R.layout.sponsored_session_prestitial);
+        visualPrestitialAd = AdFixtures.visualPrestitialAd();
+        sponsoredSessionAd = AdFixtures.sponsoredSessionAd();
         eventBus = new TestEventBus();
         presenter = new PrestitialPresenter(adsController,
                                             viewabilityController,
                                             adapterFactory,
+                                            lazyVisualPrestitialView,
                                             navigator,
                                             eventBus);
-        when(adsController.getCurrentAd()).thenReturn(Optional.of(ad));
+        when(adsController.getCurrentAd()).thenReturn(Optional.of(visualPrestitialAd));
+        when(lazyVisualPrestitialView.get()).thenReturn(visualPrestitialView);
     }
 
+    // TODO:ADS Should we/how can we test the pager adapter setup?
     @Test
     public void finishesActivityOnContinueClick() {
         final AppCompatActivity activitySpy = spy(activity);
@@ -65,12 +72,14 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setsUpViewAndAdapterOnCreateWhenAdIsPresent() {
-        when(adapterFactory.create(ad, presenter)).thenReturn(adapter);
+    public void setsUpViewAndAdapterOnCreateWhenSponsoredSessionAdIsPresent() {
+        when(adsController.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd));
+        when(adapterFactory.create(sponsoredSessionAd, presenter)).thenReturn(adapter);
+        final AppCompatActivity activitySpy = spy(activity);
 
-        presenter.onCreate(activity, null);
+        presenter.onCreate(activitySpy, null);
 
-        assertThat(presenter.pager.getAdapter()).isEqualTo(adapter);
+        verify(activitySpy).setContentView(R.layout.sponsored_session_prestitial);
     }
 
     @Test
@@ -89,9 +98,9 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         final View imageView = new View(context());
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, ad);
+        presenter.onClickThrough(imageView, visualPrestitialAd);
 
-        verify(navigator).openAdClickthrough(context(), ad.clickthroughUrl());
+        verify(navigator).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
     }
 
     @Test
@@ -99,7 +108,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         final View imageView = new View(context());
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, ad);
+        presenter.onClickThrough(imageView, visualPrestitialAd);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
@@ -110,23 +119,23 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         final AppCompatActivity activitySpy = spy(activity);
         presenter.onCreate(activitySpy, null);
 
-        presenter.onClickThrough(imageView, ad);
+        presenter.onClickThrough(imageView, visualPrestitialAd);
 
         verify(activitySpy).finish();
     }
 
     @Test
     public void publishesImpressionOnImageLoadComplete(){
-        presenter.onImageLoadComplete(ad, imageView);
+        presenter.onImageLoadComplete(visualPrestitialAd, imageView);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
     }
 
     @Test
     public void startsViewabilityTrackingOnImageLoadComplete(){
-        presenter.onImageLoadComplete(ad, imageView);
+        presenter.onImageLoadComplete(visualPrestitialAd, imageView);
 
-        verify(viewabilityController).startDisplayTracking(imageView, ad);
+        verify(viewabilityController).startDisplayTracking(imageView, visualPrestitialAd);
     }
 
     @Test

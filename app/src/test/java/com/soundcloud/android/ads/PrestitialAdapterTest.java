@@ -16,38 +16,29 @@ import android.view.ViewGroup;
 
 public class PrestitialAdapterTest extends AndroidUnitTest {
 
-    @Mock VisualPrestitialPresenter presenter;
-    @Mock VisualPrestitialPresenter.Listener listener;
+    @Mock SponsoredSessionCardView sponsoredSessionCardView;
+    @Mock SponsoredSessionCardView.Listener listener;
 
-    private PrestitialAdapter adapterWithSponsoredSession;
-    private PrestitialAdapter adapterWithVisualPrestitial;
-    private VisualPrestitialAd visualPrestitialAd;
+    private PrestitialAdapter adapter;
     private SponsoredSessionAd sponsoredSessionAd;
 
     @Before
     public void setUp() {
-        visualPrestitialAd = AdFixtures.visualPrestitialAd();
         sponsoredSessionAd = AdFixtures.sponsoredSessionAd();
 
-        adapterWithVisualPrestitial = new PrestitialAdapter(visualPrestitialAd, listener, presenter);
-        adapterWithSponsoredSession = new PrestitialAdapter(sponsoredSessionAd, listener, presenter);
+        adapter = new PrestitialAdapter(sponsoredSessionAd, listener, sponsoredSessionCardView) ;
     }
 
     @Test
     public void setsThreePagesForSponsoredSession() {
-        assertThat(adapterWithSponsoredSession.getCount()).isEqualTo(3);
+        assertThat(adapter.getCount()).isEqualTo(3);
     }
 
     @Test
-    public void setsOnePageForVisualPrestitial() {
-        assertThat(adapterWithVisualPrestitial.getCount()).isEqualTo(1);
-    }
-
-    @Test
-    public void setsUpVisualPrestitialViewInViewPager() {
+    public void setsUpOptInCardViewInViewPager() {
         final ViewPager containerSpy = spy(new ViewPager(context()));
-        assertThat(adapterWithVisualPrestitial.instantiateItem(containerSpy, 0)).isNotNull();
-        verify(presenter).setupContentView(any(ViewGroup.class), eq(visualPrestitialAd), eq(listener));
+        assertThat(adapter.instantiateItem(containerSpy, 0)).isNotNull();
+        verify(sponsoredSessionCardView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener));
         verify(containerSpy).addView(any(ViewGroup.class));
     }
 }

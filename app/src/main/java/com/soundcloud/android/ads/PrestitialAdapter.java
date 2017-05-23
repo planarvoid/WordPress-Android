@@ -11,33 +11,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 class PrestitialAdapter extends PagerAdapter {
 
-    private final AdData adData;
-    private final VisualPrestitialPresenter.Listener listener;
-    private final VisualPrestitialPresenter visualPrestitialPresenter;
+    private final SponsoredSessionAd adData;
+    private final SponsoredSessionCardView.Listener listener;
+    private final SponsoredSessionCardView sponsoredSessionCardView;
 
     private List<PrestitialPage> pages;
 
-    PrestitialAdapter(AdData adData,
-                      VisualPrestitialPresenter.Listener listener,
-                      @Provided VisualPrestitialPresenter visualPrestitialPresenter) {
+    PrestitialAdapter(SponsoredSessionAd adData,
+                      SponsoredSessionCardView.Listener listener,
+                      @Provided SponsoredSessionCardView sponsoredSessionCardView) {
         this.adData = adData;
         this.listener = listener;
-        this.visualPrestitialPresenter = visualPrestitialPresenter;
-        configureContent();
-    }
-
-    private void configureContent() {
-        if (adData instanceof SponsoredSessionAd) {
-            pages = Arrays.asList(PrestitialPage.OPT_IN_CARD, PrestitialPage.VIDEO_CARD, PrestitialPage.END_CARD);
-        } else {
-            pages = Collections.singletonList(PrestitialPage.DISPLAY);
-        }
+        this.sponsoredSessionCardView = sponsoredSessionCardView;
+        pages = Arrays.asList(PrestitialPage.OPT_IN_CARD, PrestitialPage.VIDEO_CARD, PrestitialPage.END_CARD);
     }
 
     @Override
@@ -50,12 +41,22 @@ class PrestitialAdapter extends PagerAdapter {
         return bindView(position, container, pages.get(position));
     }
 
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        View view = (View) object;
+        container.removeView(view);
+    }
+
     private ViewGroup bindView(int position, ViewGroup parent, PrestitialPage page) {
         final ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(page.layout, parent, false);
+        parent.addView(view);
         switch (page) {
-            case DISPLAY :
-                visualPrestitialPresenter.setupContentView(view, (VisualPrestitialAd) adData, listener);
-                parent.addView(view);
+            case OPT_IN_CARD:
+                sponsoredSessionCardView.setupContentView(view, adData, listener);
+                break;
+            case VIDEO_CARD:
+                break;
+            case END_CARD:
                 break;
             default:
                 throw new IllegalAccessError("Ad page not supported: " + page + ", pos:" + position);
@@ -71,8 +72,7 @@ class PrestitialAdapter extends PagerAdapter {
     private enum PrestitialPage {
         OPT_IN_CARD(R.layout.sponsored_session_action_page),
         VIDEO_CARD(R.layout.sponsored_session_video_page),
-        END_CARD(R.layout.sponsored_session_action_page),
-        DISPLAY(R.layout.visual_prestitial);
+        END_CARD(R.layout.sponsored_session_action_page);
 
         final int layout;
 
