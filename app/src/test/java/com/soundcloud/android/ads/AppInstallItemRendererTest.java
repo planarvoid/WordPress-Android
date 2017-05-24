@@ -1,13 +1,13 @@
 package com.soundcloud.android.ads;
 
 
-import android.content.res.Resources;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.stream.StreamItem;
@@ -18,19 +18,18 @@ import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 
 public class AppInstallItemRendererTest extends AndroidUnitTest {
 
@@ -109,7 +108,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         }.run();
 
         assertThat(ad.imageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
-        verify(eventBus).publish(EventQueue.INLAY_AD, AdPlaybackEvent.ImageLoaded.create(42, ad, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forImageLoaded(42, ad, CURRENT_DATE));
     }
 
     abstract class RunnableRenderer extends AppInstallItemRenderer implements Runnable {

@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.*;
+
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.google.auto.value.AutoValue;
@@ -112,9 +114,9 @@ class InlayAdHelper {
 
         if (mostViewableVideo.isPresent()) {
             final VideoOnScreen videoOnScreen = mostViewableVideo.get();
-            publishInlayAdEvent(AdPlaybackEvent.OnScreen.create(videoOnScreen.position(), videoOnScreen.adData(), now));
+            publishInlayAdEvent(InlayAdEvent.forOnScreen(videoOnScreen.position(), videoOnScreen.adData(), now));
         } else {
-            publishInlayAdEvent(AdPlaybackEvent.NoVideoOnScreen.create(now, true));
+            publishInlayAdEvent(NoVideoOnScreen.create(now, true));
         }
     }
 
@@ -142,7 +144,7 @@ class InlayAdHelper {
 
     private void forAppInstallOnScreen(Date now, int position, AppInstallAd adData) {
         if (!adData.hasReportedImpression()) {
-            publishInlayAdEvent(AdPlaybackEvent.OnScreen.create(position, adData, now));
+            publishInlayAdEvent(InlayAdEvent.forOnScreen(position, adData, now));
         }
     }
 

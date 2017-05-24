@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
+import static com.soundcloud.android.events.AdPlaybackEvent.NoVideoOnScreen;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
@@ -7,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
@@ -50,9 +51,9 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final AppInstallAd loaded = appInstall();
         loaded.setImageLoadTimeOnce(loadTime);
 
-        assertThat(filter.call(AdPlaybackEvent.OnScreen.create(42, loaded, beforeLoad))).isFalse();
-        assertThat(filter.call(AdPlaybackEvent.OnScreen.create(42, unloaded, afterLoad))).isFalse();
-        assertThat(filter.call(AdPlaybackEvent.OnScreen.create(42, loaded, afterLoad))).isTrue();
+        assertThat(filter.call(InlayAdEvent.forOnScreen(42, loaded, beforeLoad))).isFalse();
+        assertThat(filter.call(InlayAdEvent.forOnScreen(42, unloaded, afterLoad))).isFalse();
+        assertThat(filter.call(InlayAdEvent.forOnScreen(42, loaded, afterLoad))).isTrue();
     }
 
     @Test
@@ -64,8 +65,8 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         when(inlayAdHelper.isOnScreen(onScreen)).thenReturn(true);
         when(inlayAdHelper.isOnScreen(offScreen)).thenReturn(false);
 
-        assertThat(filter.call(AdPlaybackEvent.ImageLoaded.create(onScreen, ad, new Date(1)))).isTrue();
-        assertThat(filter.call(AdPlaybackEvent.ImageLoaded.create(offScreen, ad, new Date(2)))).isFalse();
+        assertThat(filter.call(InlayAdEvent.forImageLoaded(onScreen, ad, new Date(1)))).isTrue();
+        assertThat(filter.call(InlayAdEvent.forImageLoaded(offScreen, ad, new Date(2)))).isFalse();
     }
 
     @Test
@@ -74,7 +75,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final AppInstallAd ad = appInstall();
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.ImageLoaded.create(42, ad, new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forImageLoaded(42, ad, new Date(999)));
 
         InlayAdImpressionEvent impressionEvent = (InlayAdImpressionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(impressionEvent.ad()).isEqualTo(ad.adUrn());
@@ -88,7 +89,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.OnScreen.create(12, videoAd, new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(12, videoAd, new Date(999)));
 
         verify(adPlayer).autoplay(videoAd);
     }
@@ -99,7 +100,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.OnScreen.create(12, videoAd, new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(12, videoAd, new Date(999)));
 
         verify(adPlayer).autoplay(videoAd);
     }
@@ -109,7 +110,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         when(adPlayer.isPlaying()).thenReturn(true);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.NoVideoOnScreen.create(new Date(999), true));
+        eventBus.publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(new Date(999), true));
 
         verify(adPlayer).autopause(true);
     }
@@ -119,7 +120,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         when(adPlayer.isPlaying()).thenReturn(true);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.NoVideoOnScreen.create(new Date(999), false));
+        eventBus.publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(new Date(999), false));
 
         verify(adPlayer).autopause(false);
     }
@@ -129,7 +130,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         when(adPlayer.isPlaying()).thenReturn(false);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.NoVideoOnScreen.create(new Date(999), true));
+        eventBus.publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(new Date(999), true));
 
         verify(adPlayer, never()).autopause(anyBoolean());
     }
@@ -139,7 +140,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.ToggleVolume.create(0, videoAd, new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forToggleVolume(0, videoAd, new Date(999)));
 
         verify(adPlayer).toggleVolume();
     }
@@ -161,7 +162,7 @@ public class InlayAdOperationsTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getInlayVideoAd(1L);
 
         operations.subscribe(inlayAdHelper);
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.TogglePlayback.create(0, videoAd, new Date(999)));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forTogglePlayback(0, videoAd, new Date(999)));
 
         verify(adPlayer).togglePlayback(videoAd);
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.AdPlaybackEvent.TogglePlayback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -105,7 +104,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onTogglePlayClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(TogglePlayback.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
     }
 
     @Test

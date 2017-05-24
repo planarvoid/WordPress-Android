@@ -4,45 +4,83 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.VideoAd;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 
 import java.util.Date;
 
 public abstract class AdPlaybackEvent {
 
-    public interface WithAdData {
-        int getPosition();
-        AdData getAd();
+    public enum Kind {
+        OnScreen,
+        ImageLoaded,
+        NoVideoOnScreen,
+        ToggleVolume,
+        TogglePlayback,
+        AdPlayStateTransition,
+        AdProgressEvent
     }
 
-    public abstract Date getEventTime();
+    public abstract Kind kind();
+
+    public abstract Date eventTime();
 
     public boolean forAppInstall() {
-        return this instanceof WithAdData && ((WithAdData) this).getAd() instanceof AppInstallAd;
+        return this instanceof InlayAdEvent && ((InlayAdEvent) this).getAd() instanceof AppInstallAd;
     }
 
     public boolean forVideoAd() {
-        return (this instanceof WithAdData && ((WithAdData) this).getAd() instanceof VideoAd)
-                || this instanceof NoVideoOnScreen
-                || this instanceof ToggleVolume
-                || this instanceof TogglePlayback;
+        return (this instanceof InlayAdEvent && ((InlayAdEvent) this).getAd() instanceof VideoAd)
+                || isKind(Kind.NoVideoOnScreen);
     }
 
     public boolean forStateTransition() {
-        return this instanceof AdPlayStateTransition;
+        return isKind(Kind.AdPlayStateTransition);
+    }
+
+    public boolean isOnScreen() {
+        return isKind(Kind.OnScreen);
+    }
+
+    public boolean isImageLoaded() {
+        return isKind(Kind.ImageLoaded);
+    }
+
+    public boolean isToggleVolume() {
+        return isKind(Kind.ToggleVolume);
+    }
+
+    public boolean isTogglePlayback() {
+        return isKind(Kind.TogglePlayback);
+    }
+
+    private boolean isKind(Kind kind) {
+       return kind() == kind;
     }
 
     @AutoValue
-    public abstract static class OnScreen extends AdPlaybackEvent implements WithAdData {
-        public static OnScreen create(int position, AdData ad, Date at) {
-            return new AutoValue_AdPlaybackEvent_OnScreen(position, ad, at);
+    public abstract static class InlayAdEvent extends AdPlaybackEvent {
+        public abstract int getPosition();
+        public abstract AdData getAd();
+
+        private static InlayAdEvent create(Kind kind, int position, AdData ad, Date at) {
+            return new AutoValue_AdPlaybackEvent_InlayAdEvent(kind, at, position, ad);
         }
-    }
 
-    @AutoValue
-    public abstract static class ImageLoaded extends AdPlaybackEvent implements WithAdData {
-        public static ImageLoaded create(int position, AppInstallAd ad, Date at) {
-            return new AutoValue_AdPlaybackEvent_ImageLoaded(position, ad, at);
+        public static InlayAdEvent forOnScreen(int position, AdData ad, Date at) {
+            return create(Kind.OnScreen, position, ad, at);
+        }
+
+        public static InlayAdEvent forImageLoaded(int position, AdData ad, Date at) {
+            return create(Kind.ImageLoaded, position, ad, at);
+        }
+
+        public static InlayAdEvent forToggleVolume(int position, AdData ad, Date at) {
+            return create(Kind.ToggleVolume, position, ad, at);
+        }
+
+        public static InlayAdEvent forTogglePlayback(int position, AdData ad, Date at) {
+            return create(Kind.TogglePlayback, position, ad, at);
         }
     }
 
@@ -51,21 +89,7 @@ public abstract class AdPlaybackEvent {
         public abstract boolean shouldMute();
 
         public static NoVideoOnScreen create(Date at, boolean shouldMute) {
-            return new AutoValue_AdPlaybackEvent_NoVideoOnScreen(at, shouldMute);
-        }
-    }
-
-    @AutoValue
-    public abstract static class ToggleVolume extends AdPlaybackEvent implements WithAdData {
-        public static ToggleVolume create(int position, AdData ad, Date at) {
-            return new AutoValue_AdPlaybackEvent_ToggleVolume(position, ad, at);
-        }
-    }
-
-    @AutoValue
-    public abstract static class TogglePlayback extends AdPlaybackEvent implements WithAdData {
-        public static TogglePlayback create(int position, AdData ad, Date at) {
-            return new AutoValue_AdPlaybackEvent_TogglePlayback(position, ad, at);
+            return new AutoValue_AdPlaybackEvent_NoVideoOnScreen(Kind.NoVideoOnScreen, at, shouldMute);
         }
     }
 
@@ -76,7 +100,17 @@ public abstract class AdPlaybackEvent {
         public abstract boolean isMuted();
 
         public static AdPlayStateTransition create(VideoAd videoAd, PlaybackStateTransition transition, boolean isMuted, Date at) {
-            return new AutoValue_AdPlaybackEvent_AdPlayStateTransition(at, videoAd, transition, isMuted);
+            return new AutoValue_AdPlaybackEvent_AdPlayStateTransition(Kind.AdPlayStateTransition, at, videoAd, transition, isMuted);
+        }
+    }
+
+    @AutoValue
+    public abstract static class AdProgressEvent extends AdPlaybackEvent {
+        public abstract VideoAd videoAd();
+        public abstract PlaybackProgress playbackProgress();
+
+        public static AdProgressEvent create(VideoAd videoAd, PlaybackProgress progress, Date at) {
+            return new AutoValue_AdPlaybackEvent_AdProgressEvent(Kind.AdProgressEvent, at, videoAd, progress);
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
 import static com.soundcloud.android.events.AdPlaybackEvent.NoVideoOnScreen;
-import static com.soundcloud.android.events.AdPlaybackEvent.OnScreen;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -243,7 +243,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(10, untracked, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(10, untracked, CURRENT_DATE));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, OnScreen.create(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test

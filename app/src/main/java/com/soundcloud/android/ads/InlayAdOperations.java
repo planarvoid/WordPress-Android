@@ -1,11 +1,7 @@
 package com.soundcloud.android.ads;
 
-import static com.soundcloud.android.events.AdPlaybackEvent.ImageLoaded;
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
 import static com.soundcloud.android.events.AdPlaybackEvent.NoVideoOnScreen;
-import static com.soundcloud.android.events.AdPlaybackEvent.OnScreen;
-import static com.soundcloud.android.events.AdPlaybackEvent.TogglePlayback;
-import static com.soundcloud.android.events.AdPlaybackEvent.ToggleVolume;
-import static com.soundcloud.android.events.AdPlaybackEvent.WithAdData;
 
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -42,10 +38,11 @@ class InlayAdOperations {
     private Subscription trackAppInstallImpressions(InlayAdHelper helper) {
         return eventBus.queue(EventQueue.INLAY_AD)
                        .filter(AdPlaybackEvent::forAppInstall)
+                       .cast(InlayAdEvent.class)
                        .filter(new OnScreenAndImageLoaded(helper))
-                       .cast(WithAdData.class)
+                       .cast(InlayAdEvent.class)
                        .map(event -> {
-                                final long eventTime = ((AdPlaybackEvent) event).getEventTime().getTime();
+                                final long eventTime = event.eventTime().getTime();
                                 final AppInstallAd ad = (AppInstallAd) event.getAd();
                                 ad.setImpressionReported();
                                 return InlayAdImpressionEvent.create(ad, event.getPosition(), eventTime);
@@ -70,16 +67,16 @@ class InlayAdOperations {
 
         @Override
         public void onNext(AdPlaybackEvent event) {
-            if (event instanceof OnScreen) {
-                final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
+            if (event.isOnScreen()) {
+                final VideoAd videoAd = (VideoAd) ((InlayAdEvent) event).getAd();
                 adPlayer.autoplay(videoAd);
             } else if (event instanceof NoVideoOnScreen && adPlayer.isPlaying()) {
                 final boolean shouldMute = ((NoVideoOnScreen) event).shouldMute();
                 adPlayer.autopause(shouldMute);
-            } else if (event instanceof ToggleVolume) {
+            } else if (event.isToggleVolume()) {
                 adPlayer.toggleVolume();
-            } else if (event instanceof TogglePlayback) {
-                final VideoAd videoAd = (VideoAd) ((WithAdData) event).getAd();
+            } else if (event.isTogglePlayback()) {
+                final VideoAd videoAd = (VideoAd) ((InlayAdEvent) event).getAd();
                 adPlayer.togglePlayback(videoAd);
             }
         }
@@ -92,50 +89,50 @@ class InlayAdOperations {
             this.helperRef = new WeakReference<>(helper);
         }
 
-        private AppInstallAd getAppInstall(AdPlaybackEvent event) {
-            return (AppInstallAd) ((WithAdData) event).getAd();
+        private AppInstallAd getAppInstall(InlayAdEvent event) {
+            return (AppInstallAd) event.getAd();
         }
 
         @Override
-        public Boolean call(AdPlaybackEvent event) {
+        public Boolean call(InlayAdEvent event) {
             return !getAppInstall(event).hasReportedImpression() && super.call(event);
         }
 
         @Override
-        public Boolean whenOnScreen(OnScreen event) {
+        public Boolean whenOnScreen(InlayAdEvent event) {
             final Optional<Date> imageLoaded = getAppInstall(event).imageLoadTime();
-            return imageLoaded.isPresent() && imageLoaded.get().before(event.getEventTime());
+            return imageLoaded.isPresent() && imageLoaded.get().before(event.eventTime());
         }
 
         @Override
-        public Boolean whenImageLoaded(ImageLoaded event) {
+        public Boolean whenImageLoaded(InlayAdEvent event) {
             final InlayAdHelper helper = helperRef.get();
             return helper != null && helper.isOnScreen(event.getPosition());
         }
     }
 
     private static abstract class Predicate extends Func<Boolean> {
-        Boolean otherwise(AdPlaybackEvent event) {
+        Boolean otherwise(InlayAdEvent event) {
             return false;
         }
     }
 
-    private static abstract class Func<Out> implements Func1<AdPlaybackEvent, Out> {
+    private static abstract class Func<Out> implements Func1<InlayAdEvent, Out> {
         @Override
-        public Out call(AdPlaybackEvent event) {
-            if (event instanceof OnScreen) {
-                return whenOnScreen((OnScreen) event);
-            } else if (event instanceof ImageLoaded) {
-                return whenImageLoaded((ImageLoaded) event);
+        public Out call(InlayAdEvent event) {
+            if (event.isOnScreen()) {
+                return whenOnScreen(event);
+            } else if (event.isImageLoaded()) {
+                return whenImageLoaded(event);
             } else {
                 return otherwise(event);
             }
         }
 
-        abstract Out whenOnScreen(OnScreen event);
-        abstract Out whenImageLoaded(ImageLoaded event);
+        abstract Out whenOnScreen(InlayAdEvent event);
+        abstract Out whenImageLoaded(InlayAdEvent event);
 
-        Out otherwise(AdPlaybackEvent event) {
+        Out otherwise(InlayAdEvent event) {
             throw new IllegalArgumentException("Unhandled type for event: " + event);
         }
     }

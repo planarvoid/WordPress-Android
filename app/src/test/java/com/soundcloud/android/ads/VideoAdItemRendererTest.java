@@ -6,9 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.AdPlaybackEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -146,7 +145,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.ToggleVolume.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isToggleVolume()).isTrue();
     }
 
     @Test
@@ -157,7 +156,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_view).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.TogglePlayback.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
     }
 
     @Test
@@ -168,7 +167,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_volume_control).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.TogglePlayback.class);
+        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
     }
 
     @Test

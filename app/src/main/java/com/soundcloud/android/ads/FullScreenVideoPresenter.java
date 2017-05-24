@@ -1,7 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.*;
 import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
-import static com.soundcloud.android.events.AdPlaybackEvent.TogglePlayback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
@@ -138,7 +138,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onTogglePlayClick() {
         ad.ifPresent(video -> eventBus.publish(EventQueue.INLAY_AD,
-                                               TogglePlayback.create(Consts.NOT_SET, video, dateProvider.getCurrentDate())));
+                                               InlayAdEvent.forTogglePlayback(Consts.NOT_SET, video, dateProvider.getCurrentDate())));
     }
 
     @Override

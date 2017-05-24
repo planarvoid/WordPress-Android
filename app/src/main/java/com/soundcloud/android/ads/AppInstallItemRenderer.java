@@ -1,9 +1,10 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
@@ -112,7 +113,7 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
             final Date now = dateProvider.getCurrentDate();
             ad.setImageLoadTimeOnce(now);
-            eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.ImageLoaded.create(position, ad, now));
+            eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forImageLoaded(position, ad, now));
         }
 
         @Override public void onLoadingStarted(String imageUri, View view) {}

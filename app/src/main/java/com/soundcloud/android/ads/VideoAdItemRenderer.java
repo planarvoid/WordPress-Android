@@ -1,9 +1,10 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.InlayAdEvent;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.stream.StreamItem;
@@ -89,11 +90,11 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     private void publishVolumeToggle(int position, VideoAd videoAd, Holder holder) {
         holder.previouslyUnmuted = true;
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.ToggleVolume.create(position, videoAd, currentDateProvider.getCurrentDate()));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forToggleVolume(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void publishPlayToggle(int position, VideoAd videoAd) {
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.TogglePlayback.create(position, videoAd, currentDateProvider.getCurrentDate()));
+        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forTogglePlayback(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void bindFooter(VideoAd videoAd, Holder holder) {
