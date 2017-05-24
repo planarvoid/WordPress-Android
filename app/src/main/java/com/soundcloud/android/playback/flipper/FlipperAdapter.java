@@ -13,10 +13,8 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.playback.HlsStreamUrlBuilder;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
-import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -223,32 +221,29 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
     }
 
-    @Override
-    public void onBufferingChanged(state_change event) {
-        try {
-            if (isCurrentStreamUrl(event.getUri())) {
-                final PlayerState currentState = event.getState();
-                if (currentState == PlayerState.Playing) {
-                    final PlayStateReason translatedReason = PlayStateReason.NONE;
-                    final PlaybackState translatedState = event.getBuffering() ?
-                                                          PlaybackState.BUFFERING :
-                                                          PlaybackState.PLAYING;
-                    reportStateTransition(event, translatedState, translatedReason);
-                }
-            }
-        } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
-        }
-    }
-
     private boolean isCurrentStreamUrl(String uri) {
         return uri.equals(currentStreamUrl);
     }
 
     @Override
     public void onStateChanged(state_change event) {
+        Log.i(TAG, "onStateChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
+        handleStateChanged(event);
+    }
+
+    @Override
+    public void onBufferingChanged(state_change event) {
+        Log.i(TAG, "onBufferingChanged() called in " + event.getState().toString() + " with: event = [" + event + "]");
+        handleStateChanged(event);
+    }
+
+    private void handleStateChanged(state_change event) {
         try {
-            handleStateChanged(event);
+            if (isCurrentStreamUrl(event.getUri())) {
+                setProgress(event.getPosition());
+
+                reportStateTransition(event, playbackState(event), playStateReason(event));
+            }
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
         }
@@ -281,23 +276,16 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
                 ErrorUtils.handleSilentExceptionWithLog(new FlipperException(message.getCategory(), message.getLine(), message.getSourceFile()), message.getErrorMessage());
             }
 
-            final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(), FlipperPlaybackProtocolMapper.map(message.getStreamingProtocol()), message.getCdn(),
-                    message.getFormat(), message.getBitRate(), currentConnectionType,
-                    getPlayerType());
+            final PlaybackErrorEvent event = new PlaybackErrorEvent(message.getCategory(),
+                                                                    FlipperPlaybackProtocolMapper.map(message.getStreamingProtocol()),
+                                                                    message.getCdn(),
+                                                                    message.getFormat(),
+                                                                    message.getBitRate(),
+                                                                    currentConnectionType,
+                                                                    getPlayerType());
             eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
         } catch (Throwable t) {
             ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
-        }
-    }
-
-    private void handleStateChanged(state_change event) {
-        Log.i(TAG, "State = " + event.getState().toString());
-        if (isCurrentStreamUrl(event.getUri())) {
-            setProgress(event.getPosition());
-
-            final PlaybackState translatedState = playbackState(event);
-            final PlayStateReason translatedReason = playStateReason(event);
-            reportStateTransition(event, translatedState, translatedReason);
         }
     }
 
