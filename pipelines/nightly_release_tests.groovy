@@ -1,9 +1,15 @@
+
+def NODE_NAME = "android"
+
 timestamps {
   ansiColor('xterm') {
+    def success = true
+    def error
+
     try {
       timeout(time: 1, unit: 'HOURS') {
         stage('Checkout') {
-          node('android') {
+          node(NODE_NAME) {
             checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'git@github.com:soundcloud/android-listeners.git']]])
 
             def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short=7 HEAD').trim()
@@ -29,12 +35,13 @@ timestamps {
           }
         }
       }
+    } catch (exc) {
+      success = false
+      error = exc
     } finally {
       stage('Reporting') {
-        node('chaos-slave') {
-          deleteDir()
-          unstash 'repository'
-          sh './scripts/release_build_of_master_branch_acceptance_tests_report.sh'
+        node(NODE_NAME) {
+          reportingStage(success, error)
         }
       }
     }
@@ -44,5 +51,24 @@ timestamps {
 def gradle(String tasks) {
   withEnv(['GRADLE_OPTS=-Dorg.gradle.daemon=false']) {
     sh "./gradlew " + tasks
+  }
+}
+
+def reportingStage(def isSuccess, def error) {
+  deleteDir()
+  unstash 'repository'
+
+  def status
+  if (isSuccess) {
+    status = "SUCCESS"
+  } else {
+    status = "FAILED"
+  }
+
+  sh "./scripts/release_build_of_master_branch_acceptance_tests_report.sh $status"
+
+  if (!isSuccess) {
+    // to mark build as failed
+    throw error
   }
 }
