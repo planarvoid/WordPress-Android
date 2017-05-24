@@ -8,12 +8,14 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.olddiscovery.OldDiscoveryItem;
 import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -33,14 +35,15 @@ public class ChartsOperations {
         return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
     };
 
-    private final Function<NewSyncOperations.Result, Observable<OldDiscoveryItem>> loadCharts =
-            new Function<NewSyncOperations.Result, Observable<OldDiscoveryItem>>() {
+    private final Function<SyncResult, Single<OldDiscoveryItem>> loadCharts =
+            new Function<SyncResult, Single<OldDiscoveryItem>>() {
                 @Override
-                public Observable<OldDiscoveryItem> apply(@NonNull NewSyncOperations.Result result) throws Exception {
+                public Single<OldDiscoveryItem> apply(@NonNull SyncResult result) throws Exception {
                     return chartsStorage.featuredCharts()
                                         .filter(hasExpectedContent)
                                         .subscribeOn(scheduler)
                                         .switchIfEmpty(NewSyncOperations.emptyResult(result))
+                                        .toSingle()
                                         .map(ChartsBucketItem::from);
                 }
             };
@@ -78,7 +81,7 @@ public class ChartsOperations {
         return chart -> chart.type() == type;
     }
 
-    private Observable<OldDiscoveryItem> load(Observable<NewSyncOperations.Result> source) {
+    private Single<OldDiscoveryItem> load(Single<SyncResult> source) {
         return source.flatMap(loadCharts);
     }
 
@@ -94,12 +97,12 @@ public class ChartsOperations {
         };
     }
 
-    public Observable<OldDiscoveryItem> featuredCharts() {
+    public Single<OldDiscoveryItem> featuredCharts() {
         return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
     }
 
-    public Observable<OldDiscoveryItem> refreshFeaturedCharts() {
-        return load(syncOperations.failSafeSync(Syncable.CHARTS));
+    public Single<OldDiscoveryItem> refreshFeaturedCharts() {
+        return load(syncOperations.sync(Syncable.CHARTS));
     }
 
     Observable<ApiChart<ApiTrack>> tracks(ChartType type, String genre) {
@@ -108,7 +111,7 @@ public class ChartsOperations {
                         .subscribeOn(scheduler);
     }
 
-    Observable<List<Chart>> genresByCategory(ChartCategory chartCategory) {
+    Single<List<Chart>> genresByCategory(ChartCategory chartCategory) {
         return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
                              .flatMap(o -> chartsStorage.genres(chartCategory)
                                                         .subscribeOn(scheduler))

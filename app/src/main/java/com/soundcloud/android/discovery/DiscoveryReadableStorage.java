@@ -52,11 +52,10 @@ public class DiscoveryReadableStorage {
         return Observable.combineLatest(discoveryCardsObservable, selectionItemsObservable, DbModelMapper::mapDiscoveryCardsWithSelectionItems).distinct();
     }
 
-    Single<List<DiscoveryCard>> discoveryCards() {
+    Maybe<List<DiscoveryCard>> discoveryCards() {
         final Single<List<DbModel.FullDiscoveryCard>> discoCards = discoveryDatabase.selectList(DbModel.DiscoveryCard.SELECT_ALL, DbModel.FullDiscoveryCard.MAPPER);
         final Single<MultiMap<Urn, DbModel.SelectionItem>> selectionItems = discoveryDatabase.selectList(DbModel.SelectionItem.SELECT_ALL, DbModel.SelectionItem.MAPPER)
-                                                                                              .map(DbModelMapper::toMultiMap);
-        return discoCards.zipWith(selectionItems, DbModelMapper::mapDiscoveryCardsWithSelectionItems);
-
+                                                                                             .map(DbModelMapper::toMultiMap);
+        return discoCards.zipWith(selectionItems, DbModelMapper::mapDiscoveryCardsWithSelectionItems).filter(list -> !list.isEmpty());
     }
 }

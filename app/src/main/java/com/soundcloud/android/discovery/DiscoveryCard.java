@@ -10,7 +10,8 @@ abstract class DiscoveryCard {
     enum Kind {
         SEARCH_ITEM,
         MULTIPLE_CONTENT_SELECTION_CARD,
-        SINGLE_CONTENT_SELECTION_CARD
+        SINGLE_CONTENT_SELECTION_CARD,
+        EMPTY_CARD
     }
 
     abstract Kind kind();
@@ -20,14 +21,14 @@ abstract class DiscoveryCard {
     }
 
     @AutoValue
-    static abstract class Default extends DiscoveryCard {
+    abstract static class Default extends DiscoveryCard {
         public static DiscoveryCard create(Kind kind) {
             return new AutoValue_DiscoveryCard_Default(kind);
         }
     }
 
     @AutoValue
-    static abstract class MultipleContentSelectionCard extends DiscoveryCard {
+    abstract static class MultipleContentSelectionCard extends DiscoveryCard {
 
         abstract Urn selectionUrn();
 
@@ -49,7 +50,7 @@ abstract class DiscoveryCard {
     }
 
     @AutoValue
-    static abstract class SingleContentSelectionCard extends DiscoveryCard {
+    abstract static class SingleContentSelectionCard extends DiscoveryCard {
 
         abstract Urn selectionUrn();
 
@@ -84,6 +85,16 @@ abstract class DiscoveryCard {
                     selectionItem,
                     socialProof,
                     socialProofAvatarUrlTemplates);
+        }
+    }
+
+    @AutoValue
+    abstract static class EmptyCard extends DiscoveryCard {
+
+        abstract Optional<Throwable> throwable();
+
+        static EmptyCard create(Optional<Throwable> throwable) {
+            return new AutoValue_DiscoveryCard_EmptyCard(Kind.EMPTY_CARD, throwable);
         }
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="empty_card_left_padding">0dp</dimen>
+    <dimen name="empty_card_top_padding">78dp</dimen>
+    <dimen name="empty_card_right_padding">0dp</dimen>
+    <dimen name="empty_card_bottom_padding">0dp</dimen>
+</resources>

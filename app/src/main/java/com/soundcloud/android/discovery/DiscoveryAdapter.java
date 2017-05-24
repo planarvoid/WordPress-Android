@@ -17,10 +17,11 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryCard, RecyclerView.V
     @SuppressWarnings("unchecked")
     @Inject
     DiscoveryAdapter(SearchItemRenderer searchItemRenderer, SingleSelectionContentCardRenderer singleSelectionContentCardRenderer,
-                     MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer) {
+                     MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer, EmptyCardRenderer emptyCardRenderer) {
         super(new CellRendererBinding(DiscoveryCard.Kind.SEARCH_ITEM.ordinal(), searchItemRenderer),
               new CellRendererBinding(DiscoveryCard.Kind.SINGLE_CONTENT_SELECTION_CARD.ordinal(), singleSelectionContentCardRenderer),
-              new CellRendererBinding(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD.ordinal(), multipleContentSelectionCardRenderer));
+              new CellRendererBinding(DiscoveryCard.Kind.MULTIPLE_CONTENT_SELECTION_CARD.ordinal(), multipleContentSelectionCardRenderer),
+              new CellRendererBinding(DiscoveryCard.Kind.EMPTY_CARD.ordinal(), emptyCardRenderer));
         this.searchItemRenderer = searchItemRenderer;
     }
 

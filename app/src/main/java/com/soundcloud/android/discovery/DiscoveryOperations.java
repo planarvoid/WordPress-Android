@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.java.collections.Lists;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
@@ -27,15 +28,13 @@ class DiscoveryOperations {
 
     Single<List<DiscoveryCard>> discoveryCards() {
         return syncOperations.lazySyncIfStale(Syncable.DISCOVERY_CARDS)
-                             .ignoreElements()
-                             .andThen(storage.discoveryCards())
+                             .flatMap(syncResult -> storage.discoveryCards().toSingle(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable()))))
                              .subscribeOn(scheduler);
     }
 
     Single<List<DiscoveryCard>> refreshDiscoveryCards() {
-        return syncOperations.failSafeSync(Syncable.DISCOVERY_CARDS)
-                             .ignoreElements()
-                             .andThen(storage.discoveryCards())
+        return syncOperations.sync(Syncable.DISCOVERY_CARDS)
+                             .flatMap(syncResult -> storage.discoveryCards().toSingle(Lists.newArrayList(DiscoveryCard.EmptyCard.create(syncResult.throwable()))))
                              .subscribeOn(scheduler);
     }
 }

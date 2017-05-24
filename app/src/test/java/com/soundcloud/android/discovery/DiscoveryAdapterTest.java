@@ -18,6 +18,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock SearchItemRenderer searchItemRenderer;
     @Mock SingleSelectionContentCardRenderer singleSelectionContentCardRenderer;
     @Mock MultipleContentSelectionCardRenderer multipleContentSelectionCardRenderer;
+    @Mock EmptyCardRenderer emptyCardRenderer;
     @Mock DiscoveryCard.MultipleContentSelectionCard multipleContentSelectionCard;
     @Mock DiscoveryCard.SingleContentSelectionCard singleContentSelectionCard;
 
@@ -26,7 +27,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        adapter = new DiscoveryAdapter(searchItemRenderer, singleSelectionContentCardRenderer, multipleContentSelectionCardRenderer);
+        adapter = new DiscoveryAdapter(searchItemRenderer, singleSelectionContentCardRenderer, multipleContentSelectionCardRenderer, emptyCardRenderer);
     }
 
     @Test

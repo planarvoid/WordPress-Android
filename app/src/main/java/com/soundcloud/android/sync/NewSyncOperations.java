@@ -1,9 +1,9 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver.fireAndForget;
-import static io.reactivex.Observable.just;
 
-import io.reactivex.Observable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 
@@ -22,35 +22,25 @@ public class NewSyncOperations {
         this.syncerRegistry = syncerRegistry;
     }
 
-    public static <T> Observable<T> emptyResult(Result result) {
-        return result == Result.ERROR ?
-                Observable.error(new SyncFailedException()) :
-                Observable.empty();
+    public static <T> Maybe<T> emptyResult(SyncResult result) {
+        return result.isError() ?
+               Maybe.error(new SyncFailedException()) :
+               Maybe.empty();
     }
 
-    public Observable<Result> sync(Syncable syncable) {
-        return syncInitiator.synchronise(syncable).map(o -> Result.SYNCED);
+    public Single<SyncResult> sync(Syncable syncable) {
+        return syncInitiator.synchronise(syncable)
+                            .map(o -> SyncResult.synced())
+                            .onErrorReturn(SyncResult::error);
     }
 
-    public Observable<Result> failSafeSync(Syncable syncable) {
-        return sync(syncable).onErrorResumeNext(just(Result.ERROR));
-    }
-
-    Observable<Result> syncIfStale(Syncable syncable) {
-        if (isContentStale(syncable)) {
-            return just(Result.NO_OP);
-        } else {
-            return sync(syncable);
-        }
-    }
-
-    public Observable<Result> lazySyncIfStale(Syncable syncable) {
+    public Single<SyncResult> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
             if (!isContentStale(syncable)) {
-                fireAndForget(syncInitiator.synchronise(syncable));
-                return just(Result.SYNCING);
+                fireAndForget(syncInitiator.synchronise(syncable).toObservable());
+                return Single.just(SyncResult.syncing());
             } else {
-                return just(Result.NO_OP);
+                return Single.just(SyncResult.noOp());
             }
         } else {
             return sync(syncable);
@@ -60,9 +50,5 @@ public class NewSyncOperations {
 
     private boolean isContentStale(Syncable syncable) {
         return syncStateStorage.hasSyncedWithin(syncable, syncerRegistry.get(syncable).staleTime());
-    }
-
-    public enum Result {
-        SYNCED, SYNCING, NO_OP, ERROR
     }
 }

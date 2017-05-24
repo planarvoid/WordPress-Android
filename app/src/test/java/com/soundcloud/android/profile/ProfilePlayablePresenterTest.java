@@ -125,7 +125,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
     public void configuresEmptyViewInOnViewCreated() throws Exception {
         presenter.onViewCreated(fragment, fragmentView, null);
 
-        verify(emptyViewBuilder).configure(emptyView);
+        verify(emptyViewBuilder).configure(emptyView, context());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
             @Override
             protected void configureEmptyView(EmptyView emptyView) {
-                emptyViewBuilder.configure(emptyView);
+                emptyViewBuilder.configure(emptyView, context());
             }
 
             @Override

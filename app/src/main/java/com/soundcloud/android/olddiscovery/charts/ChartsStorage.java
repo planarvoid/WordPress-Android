@@ -19,7 +19,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRxV2;
 import com.soundcloud.propeller.rx.RxResultMapperV2;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
 import android.support.annotation.NonNull;
@@ -54,23 +54,25 @@ class ChartsStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<ChartBucket> featuredCharts() {
+    Single<ChartBucket> featuredCharts() {
         final Where isFeaturedChart = filter().whereIn(Charts.BUCKET_TYPE,
-                Charts.BUCKET_TYPE_GLOBAL,
-                Charts.BUCKET_TYPE_FEATURED_GENRES);
+                                                       Charts.BUCKET_TYPE_GLOBAL,
+                                                       Charts.BUCKET_TYPE_FEATURED_GENRES);
         final Query query = chartsWithTracksQuery().where(isFeaturedChart);
         return propellerRx.queryResult(query)
                           .map(result -> result.toList(CHART_WITH_TRACK_MAPPER))
                           .map(TO_CHARTS_WITH_TRACKS)
-                          .map(toChartBucket());
+                          .map(toChartBucket())
+                          .singleOrError();
     }
 
-    Observable<List<Chart>> genres(ChartCategory chartCategory) {
+    Single<List<Chart>> genres(ChartCategory chartCategory) {
         final Query query = chartsWithTracksQuery().whereEq(Charts.BUCKET_TYPE, Charts.BUCKET_TYPE_ALL_GENRES)
                                                    .whereEq(Charts.CATEGORY, chartCategory.value());
         return propellerRx.queryResult(query)
                           .map(result -> result.toList(CHART_WITH_TRACK_MAPPER))
-                          .map(TO_CHARTS_WITH_TRACKS);
+                          .map(TO_CHARTS_WITH_TRACKS)
+                          .singleOrError();
     }
 
     @NonNull
@@ -103,11 +105,11 @@ class ChartsStorage {
         public Pair<Chart, TrackArtwork> map(CursorReader cursorReader) {
             final String genre = cursorReader.getString(Charts.GENRE);
             final Chart chart = Chart.create(cursorReader.getLong(Charts._ID),
-                    ChartType.from(cursorReader.getString(Charts.TYPE)),
-                    ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
-                    cursorReader.getString(Charts.DISPLAY_NAME),
-                    new Urn(genre),
-                    toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
+                                             ChartType.from(cursorReader.getString(Charts.TYPE)),
+                                             ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
+                                             cursorReader.getString(Charts.DISPLAY_NAME),
+                                             new Urn(genre),
+                                             toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
             final TrackArtwork trackArtwork = TrackArtwork.create(
                     Urn.forTrack(cursorReader.getLong(ChartTracks.TRACK_ID)),
                     Optional.fromNullable(cursorReader.getString(ChartTracks.TRACK_ARTWORK)));
