@@ -19,7 +19,10 @@ timestamps {
         parallel 'compile_and_acceptance_tests': {
           stage(Stages.COMPILE_AND_UI_TESTS.name) {
             node(NODE_NAME) {
-              compileAndAcceptanceTestStage()
+              compileStage()
+            }
+            node("chaos-slave") {
+              acceptanceTestStage()
             }
           }
         }, 'unit_test': {
@@ -120,42 +123,47 @@ def checkoutStage() {
 
   }
   currentBuild.displayName = env.PIPELINE_VERSION
-
   stash name: 'repository', useDefaultExcludes: false
 }
 
-def compileAndAcceptanceTestStage() {
+def compileStage() {
   deleteDir()
   unstash 'repository'
+
   try {
-    try {
-      updateGitHub(Builds.BUILD, Status.RUNNING)
-      if (isReleasePr()) {
-        setBuildType 'preRelease'
-        gradle 'buildPreReleasePR'
-      } else {
-        gradle 'buildDebugPR'
-      }
-      updateGitHub(Builds.BUILD, Status.SUCCESS)
-    } catch (e) {
-      updateGitHub(Builds.BUILD, Status.ERROR)
-      updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
-      throw e
+    updateGitHub(Builds.BUILD, Status.RUNNING)
+    if (isReleasePr()) {
+      setBuildType 'preRelease'
+      gradle 'buildPreReleasePR'
+    } else {
+      gradle 'buildDebugPR'
     }
-    try {
-      updateGitHub(Builds.ACCEPTANCE_TESTS, Status.RUNNING)
-      if (isReleasePr()) {
-        gradle 'runMarshmallowTestsReleasePr'
-      } else if (isPr()) {
-        gradle 'runMarshmallowTestsPr'
-      } else {
-        gradle 'runMarshmallowTestsMaster'
-      }
-      updateGitHub(Builds.ACCEPTANCE_TESTS, Status.SUCCESS)
-    } catch (e) {
-      updateGitHub(Builds.ACCEPTANCE_TESTS, Status.ERROR)
-      throw e
+    updateGitHub(Builds.BUILD, Status.SUCCESS)
+  } catch (e) {
+    updateGitHub(Builds.BUILD, Status.ERROR)
+    updateGitHub(Builds.ACCEPTANCE_TESTS, Status.CANCELLED)
+    throw e
+  }
+  // TODO
+  stash name: 'ui-test', useDefaultExcludes: false
+}
+
+def acceptanceTestStage() {
+  deleteDir()
+  unstash 'ui-test'
+  try {
+    updateGitHub(Builds.ACCEPTANCE_TESTS, Status.RUNNING)
+    if (isReleasePr()) {
+      gradle 'runMarshmallowTestsReleasePr'
+    } else if (isPr()) {
+      gradle 'runMarshmallowTestsPr'
+    } else {
+      gradle 'runMarshmallowTestsMaster'
     }
+    updateGitHub(Builds.ACCEPTANCE_TESTS, Status.SUCCESS)
+  } catch (e) {
+    updateGitHub(Builds.ACCEPTANCE_TESTS, Status.ERROR)
+    throw e
   } finally {
     archiveArtifacts artifacts: "app/build/outputs/apk/soundcloud-android-*-${env.PIPELINE_VERSION}-*.apk", onlyIfSuccessful: true
     junit 'results/xml/*.xml'
@@ -186,14 +194,14 @@ def staticAnalysisStage() {
   if (isPr()) {
     try {
       updateGitHub(Builds.STATIC_ANALYSIS, Status.RUNNING)
-      gradle 'clean runStaticAnalysisAndReportViolationsToGitHub'
+      gradle 'runStaticAnalysisAndReportViolationsToGitHub'
       updateGitHub(Builds.STATIC_ANALYSIS, Status.SUCCESS)
     } catch (e) {
       updateGitHub(Builds.STATIC_ANALYSIS, Status.ERROR)
       throw e
     }
   } else {
-    gradle 'clean staticAnalysis'
+    gradle 'staticAnalysis'
   }
   pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/pmd/pmd.xml', unHealthy: ''
   checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'app/build/reports/checkstyle/checkstyle.xml', unHealthy: ''
