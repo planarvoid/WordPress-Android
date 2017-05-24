@@ -3,28 +3,20 @@ package com.soundcloud.android.ads;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.DefaultImageListener;
 import com.soundcloud.android.image.ImageOperations;
 
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-class VisualPrestitialView {
+class VisualPrestitialView extends PrestitialView {
 
     private final ImageOperations imageOperations;
 
     @BindView(R.id.ad_image_view) ImageView imageView;
     @BindView(R.id.btn_continue) View continueButton;
-
-    interface Listener {
-        void onClickThrough(View view, VisualPrestitialAd ad);
-        void onImageLoadComplete(VisualPrestitialAd ad, View imageView);
-        void onContinueClick();
-    }
 
     @Inject
     VisualPrestitialView(ImageOperations imageOperations) {
@@ -34,25 +26,9 @@ class VisualPrestitialView {
     public void setupContentView(AppCompatActivity activity, VisualPrestitialAd ad, Listener listener) {
         ButterKnife.bind(this, activity);
 
-        imageOperations.displayAdImage(ad.adUrn(), ad.imageUrl(), imageView, new VisualPrestitialAdListener(ad, listener));
+        imageOperations.displayAdImage(ad.adUrn(), ad.imageUrl(), imageView, new PrestitialImageCompanionListener(ad, listener));
 
-        continueButton.setOnClickListener(btnView -> listener.onContinueClick());
+        continueButton.setOnClickListener(btnView -> listener.closePrestitial());
         imageView.setOnClickListener(imageView -> listener.onClickThrough(imageView, ad));
-    }
-
-    private final class VisualPrestitialAdListener extends DefaultImageListener {
-
-        private final VisualPrestitialAd ad;
-        private final Listener listener;
-
-        VisualPrestitialAdListener(VisualPrestitialAd ad, Listener listener) {
-            this.ad = ad;
-            this.listener = listener;
-        }
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            listener.onImageLoadComplete(ad, view);
-        }
     }
 }

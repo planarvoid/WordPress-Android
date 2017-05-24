@@ -27,7 +27,8 @@ public class VideoSurfaceProvider implements VideoTextureContainer.Listener {
     public enum Origin {
         FULLSCREEN,
         STREAM,
-        PLAYER
+        PLAYER,
+        PRESTITIAL
     }
 
     final private static int MAX_VIDEO_CONTAINERS = 5;

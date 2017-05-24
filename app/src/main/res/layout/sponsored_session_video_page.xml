@@ -1,7 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/google_blue">
+    android:background="@color/ad_default_background">
 
-</LinearLayout>
+    <View
+        android:id="@+id/player_strip"
+        style="@style/PlayerStrip" />
+
+    <include layout="@layout/player_ad_video_container"/>
+    <include layout="@layout/ad_gradient"/>
+    <include layout="@layout/player_ad_expanded_header"/>
+
+    <FrameLayout
+        android:id="@+id/skip_container"
+        style="@style/SkipContainer"
+        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/player_ad_engagement"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/time_until_skip"
+            style="@style/AdText.NextUp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/skip_ad"
+            style="@style/AdText.NextUp.Skip"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/ads_skip_ad"
+            android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <com.soundcloud.android.view.CircularProgressBar
+        android:id="@+id/video_progress"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_centerInParent="true"/>
+
+    <include layout="@layout/video_play_controls"/>
+
+</RelativeLayout>

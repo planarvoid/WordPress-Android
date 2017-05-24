@@ -19,11 +19,11 @@ import android.widget.ImageView;
 public class VisualPrestitialViewTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
-    @Mock AppCompatActivity activity;
     @Mock VisualPrestitialView.Listener listener;
 
     private VisualPrestitialView view;
     private VisualPrestitialAd ad;
+    private AppCompatActivity activity;
 
     @Before
     public void setUp() {
@@ -51,7 +51,7 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
 
         view.continueButton.performClick();
 
-        verify(listener).onContinueClick();
+        verify(listener).closePrestitial();
     }
 
     @Test

@@ -17,18 +17,26 @@ import java.util.List;
 class PrestitialAdapter extends PagerAdapter {
 
     private final SponsoredSessionAd adData;
-    private final SponsoredSessionCardView.Listener listener;
+    private final PrestitialView.Listener listener;
+
     private final SponsoredSessionCardView sponsoredSessionCardView;
+    private final SponsoredSessionVideoView sponsoredSessionVideoView;
 
     private List<PrestitialPage> pages;
 
     PrestitialAdapter(SponsoredSessionAd adData,
-                      SponsoredSessionCardView.Listener listener,
+                      PrestitialView.Listener listener,
+                      SponsoredSessionVideoView sponsoredSessionVideoView,
                       @Provided SponsoredSessionCardView sponsoredSessionCardView) {
         this.adData = adData;
         this.listener = listener;
         this.sponsoredSessionCardView = sponsoredSessionCardView;
+        this.sponsoredSessionVideoView = sponsoredSessionVideoView;
         pages = Arrays.asList(PrestitialPage.OPT_IN_CARD, PrestitialPage.VIDEO_CARD, PrestitialPage.END_CARD);
+    }
+
+    PrestitialPage getPage(int position) {
+        return pages.get(position);
     }
 
     @Override
@@ -43,24 +51,24 @@ class PrestitialAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        View view = (View) object;
-        container.removeView(view);
+        container.removeView((View) object);
     }
 
     private ViewGroup bindView(int position, ViewGroup parent, PrestitialPage page) {
         final ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(page.layout, parent, false);
-        parent.addView(view);
         switch (page) {
             case OPT_IN_CARD:
                 sponsoredSessionCardView.setupContentView(view, adData, listener);
                 break;
             case VIDEO_CARD:
+                sponsoredSessionVideoView.setupContentView(view, adData, listener);
                 break;
             case END_CARD:
                 break;
             default:
                 throw new IllegalAccessError("Ad page not supported: " + page + ", pos:" + position);
         }
+        parent.addView(view);
         return view;
     }
 
@@ -69,7 +77,7 @@ class PrestitialAdapter extends PagerAdapter {
         return view.equals(object);
     }
 
-    private enum PrestitialPage {
+    enum PrestitialPage {
         OPT_IN_CARD(R.layout.sponsored_session_action_page),
         VIDEO_CARD(R.layout.sponsored_session_video_page),
         END_CARD(R.layout.sponsored_session_action_page);

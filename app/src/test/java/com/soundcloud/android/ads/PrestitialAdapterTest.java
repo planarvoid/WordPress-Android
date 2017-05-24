@@ -17,7 +17,8 @@ import android.view.ViewGroup;
 public class PrestitialAdapterTest extends AndroidUnitTest {
 
     @Mock SponsoredSessionCardView sponsoredSessionCardView;
-    @Mock SponsoredSessionCardView.Listener listener;
+    @Mock SponsoredSessionVideoView sponsoredSessionVideoView;
+    @Mock PrestitialView.Listener listener;
 
     private PrestitialAdapter adapter;
     private SponsoredSessionAd sponsoredSessionAd;
@@ -26,7 +27,7 @@ public class PrestitialAdapterTest extends AndroidUnitTest {
     public void setUp() {
         sponsoredSessionAd = AdFixtures.sponsoredSessionAd();
 
-        adapter = new PrestitialAdapter(sponsoredSessionAd, listener, sponsoredSessionCardView) ;
+        adapter = new PrestitialAdapter(sponsoredSessionAd, listener, sponsoredSessionVideoView, sponsoredSessionCardView) ;
     }
 
     @Test
@@ -39,6 +40,14 @@ public class PrestitialAdapterTest extends AndroidUnitTest {
         final ViewPager containerSpy = spy(new ViewPager(context()));
         assertThat(adapter.instantiateItem(containerSpy, 0)).isNotNull();
         verify(sponsoredSessionCardView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener));
+        verify(containerSpy).addView(any(ViewGroup.class));
+    }
+
+    @Test
+    public void setsUpVideoViewInViewPager() {
+        final ViewPager containerSpy = spy(new ViewPager(context()));
+        assertThat(adapter.instantiateItem(containerSpy, 1)).isNotNull();
+        verify(sponsoredSessionVideoView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener));
         verify(containerSpy).addView(any(ViewGroup.class));
     }
 }
