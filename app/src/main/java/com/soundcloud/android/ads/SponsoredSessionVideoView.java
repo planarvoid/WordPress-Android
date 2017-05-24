@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.utils.ViewUtils.forEach;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
@@ -11,10 +13,12 @@ import android.content.res.Resources;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 
 class SponsoredSessionVideoView extends PrestitialView {
 
@@ -41,6 +45,7 @@ class SponsoredSessionVideoView extends PrestitialView {
 
     private final Resources resources;
     private final AdStateProvider adStateProvider;
+    private Iterable<View> fadingViews = Collections.emptyList();
 
     @Inject
     SponsoredSessionVideoView(Resources resources, AdStateProvider adStateProvider) {
@@ -50,13 +55,24 @@ class SponsoredSessionVideoView extends PrestitialView {
 
     public void setupContentView(View view, SponsoredSessionAd ad, Listener listener) {
         ButterKnife.bind(this, view);
+
         ViewUtils.setGone(Arrays.asList(nextButton, previousButton, playButton, videoOverlay));
-
-        // TODO: setClickListener(this, holder.onClickViews);
+        bindClickListeners(listener);
+        bindVideoTextureView(ad, listener);
         // TODO: setupSkipButton(holder, playerAd);
-        listener.onVideoTextureBind(videoView, viewabilityLayer, ad.video());
-
+        fadingViews = ad.video().isVerticalVideo() ? Arrays.asList(whyAds, advertisement) : fadingViews;
         adStateProvider.get(ad.video().uuid()).ifPresent(transition -> setPlayState(transition.stateTransition()));
+    }
+
+    private void bindVideoTextureView(SponsoredSessionAd ad, Listener listener) {
+        listener.onVideoTextureBind(videoView, viewabilityLayer, ad.video());
+    }
+
+    private void bindClickListeners(Listener listener) {
+        playButton.setOnClickListener(ignored -> listener.onTogglePlayback());
+        videoContainer.setOnClickListener(ignored -> listener.onTogglePlayback());
+        videoOverlay.setOnClickListener(ignored -> listener.onTogglePlayback());
+        whyAds.setOnClickListener(textView -> listener.onWhyAdsClicked(textView.getContext()));
     }
 
     void adjustLayoutForVideo(VideoAd ad) {
@@ -108,8 +124,28 @@ class SponsoredSessionVideoView extends PrestitialView {
         videoOverlay.setVisibility(isPaused ? View.VISIBLE : View.GONE);
         loadingIndicator.setVisibility(stateTransition.isBuffering() ? View.VISIBLE : View.GONE);
 
+        if (stateTransition.isPlayerPlaying()) {
+            setInactiveUI();
+        } else if (stateTransition.isPlayerIdle()) {
+            setActiveUI();
+        }
+
         if (!isVideoViewVisible && videoHadStarted) {
             videoView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void setInactiveUI() {
+        forEach(fadingViews, view -> {
+            view.setAnimation(AnimationUtils.loadAnimation(videoView.getContext(), R.anim.ak_delayed_fade_out));
+            view.setVisibility(View.INVISIBLE);
+        });
+    }
+
+    private void setActiveUI() {
+        forEach(fadingViews, view -> {
+            view.clearAnimation();
+            view.setVisibility(View.VISIBLE);
+        });
     }
 }

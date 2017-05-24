@@ -119,6 +119,40 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         assertThat(view.findViewById(R.id.video_progress)).isGone();
     }
 
+    @Test
+    public void pressingPlayButtonCallsTogglePlaybackOnListener() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+        view.findViewById(R.id.player_play).performClick();
+
+        verify(listener).onTogglePlayback();
+    }
+
+    @Test
+    public void pressingVideoContainerCallsTogglePlaybackOnListener() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+        view.findViewById(R.id.video_container).performClick();
+
+        verify(listener).onTogglePlayback();
+    }
+
+    @Test
+    public void pressingVideoOverlayCallsTogglePlaybackOnListener() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+        view.findViewById(R.id.video_overlay).performClick();
+
+        verify(listener).onTogglePlayback();
+    }
+
+    @Test
+    public void pressingWhyAdsTextCallsOnWhyAdsOnListener() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+        final View whyAdsView = view.findViewById(R.id.why_ads);
+
+        whyAdsView.performClick();
+
+        verify(listener).onWhyAdsClicked(whyAdsView.getContext());
+    }
+
     public AdPlayStateTransition createTransition(VideoAd ad, PlaybackStateTransition transition) {
         return AdPlayStateTransition.create(ad, transition, false, new Date(1L));
     }

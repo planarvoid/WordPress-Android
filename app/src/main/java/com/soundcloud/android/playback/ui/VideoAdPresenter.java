@@ -16,8 +16,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import javax.inject.Inject;
@@ -30,9 +28,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     private enum UIState {
         INITIAL, INACTIVE, PAUSED
     }
-
-    private static final long FADE_OUT_DURATION_MS = 1000L;
-    private static final long FADE_OUT_OFFSET_MS = 2000L;
 
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
@@ -253,21 +248,13 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         return (Holder) videoPage.getTag();
     }
 
-    private Animation fadeOutAnimation(Context context) {
-        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_fade_out);
-        animation.setStartOffset(FADE_OUT_OFFSET_MS);
-        animation.setDuration(FADE_OUT_DURATION_MS);
-        animation.setInterpolator(new AccelerateInterpolator(2.0f));
-        return animation;
-    }
-
     private void setInitialUI(Holder holder) {
         setVisibility(true, holder.fadingViews);
         holder.setUIState(UIState.INITIAL);
     }
 
     private void setInactiveUI(Holder holder, Context context) {
-        setAnimation(holder.fadingViews, fadeOutAnimation(context));
+        setAnimation(holder.fadingViews, AnimationUtils.loadAnimation(context, R.anim.ak_delayed_fade_out));
         holder.setUIState(UIState.INACTIVE);
     }
 

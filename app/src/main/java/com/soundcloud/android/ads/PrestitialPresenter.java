@@ -21,6 +21,7 @@ import dagger.Lazy;
 import rx.Subscription;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +41,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final Lazy<SponsoredSessionVideoView> sponsoredSessionVideoView;
 
     private final VideoSurfaceProvider videoSurfaceProvider;
+    private final WhyAdsDialogPresenter whyAdsDialogPresenter;
     private final AdPlayer adPlayer;
     private final Navigator navigator;
     private final EventBus eventBus;
@@ -55,6 +57,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
                         Lazy<VisualPrestitialView> visualPrestitialView,
                         Lazy<SponsoredSessionVideoView> sponsoredSessionVideoView,
                         VideoSurfaceProvider videoSurfaceProvider,
+                        WhyAdsDialogPresenter whyAdsDialogPresenter,
                         AdPlayer adPlayer,
                         Navigator navigator,
                         EventBus eventBus) {
@@ -64,6 +67,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         this.visualPrestitialView = visualPrestitialView;
         this.sponsoredSessionVideoView = sponsoredSessionVideoView;
         this.videoSurfaceProvider = videoSurfaceProvider;
+        this.whyAdsDialogPresenter = whyAdsDialogPresenter;
         this.adPlayer = adPlayer;
         this.navigator = navigator;
         this.eventBus = eventBus;
@@ -99,6 +103,14 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         pager.addOnPageChangeListener(new SponsoredSessionPageListener(adapter, ad.video()));
         pager.setAdapter(adapter);
         pagerRef = new WeakReference<>(pager);
+    }
+
+    @Override
+    public void onResume(AppCompatActivity activity) {
+        adPlayer.getCurrentAd().ifPresent(ad -> {
+            final SponsoredSessionVideoView videoCardView = sponsoredSessionVideoView.get();
+            onVideoTextureBind(videoCardView.videoView, videoCardView.viewabilityLayer, ad);
+        });
     }
 
     @Override
@@ -156,8 +168,18 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     @Override
+    public void onTogglePlayback() {
+        adPlayer.getCurrentAd().ifPresent(adPlayer::togglePlayback);
+    }
+
+    @Override
     public void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd) {
         videoSurfaceProvider.setTextureView(videoAd.uuid(), Origin.PRESTITIAL, textureView, viewabilityLayer);
+    }
+
+    @Override
+    public void onWhyAdsClicked(Context context) {
+        whyAdsDialogPresenter.show(context);
     }
 
     private <T> void ifRefPresent(WeakReference<T> reference, Consumer<T> consumer) {

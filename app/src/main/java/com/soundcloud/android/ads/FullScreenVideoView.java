@@ -15,20 +15,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 class FullScreenVideoView {
-
-    private static final long FADE_OUT_DURATION = TimeUnit.SECONDS.toMillis(1L);
-    private static final long FADE_OUT_OFFSET = TimeUnit.SECONDS.toMillis(2L);
-    private static final float ACCELLERATOR_FACTOR = 2.0f;
 
     private final VideoSurfaceProvider videoSurfaceProvider;
     private final Resources resources;
@@ -102,13 +96,8 @@ class FullScreenVideoView {
     }
 
     private void setInactiveUI() {
-        final Animation fadeOut = AnimationUtils.loadAnimation(videoView.getContext(), R.anim.abc_fade_out);
-        fadeOut.setStartOffset(FADE_OUT_OFFSET);
-        fadeOut.setDuration(FADE_OUT_DURATION);
-        fadeOut.setInterpolator(new AccelerateInterpolator(ACCELLERATOR_FACTOR));
-
         forEach(fadingViews, view -> {
-            view.setAnimation(fadeOut);
+            view.setAnimation(AnimationUtils.loadAnimation(videoView.getContext(), R.anim.ak_delayed_fade_out));
             view.setVisibility(View.INVISIBLE);
         });
     }

@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin.PRESTI
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -45,6 +46,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     @Mock SponsoredSessionVideoView sponsoredSessionVideoView;
 
     @Mock VideoSurfaceProvider videoSurfaceProvider;
+    @Mock WhyAdsDialogPresenter whyAdsDialogPresenter;
     @Mock AdPlayer adPlayer;
 
     @Mock Intent intent;
@@ -70,6 +72,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
                                             lazyOf(visualPrestitialView),
                                             lazyOf(sponsoredSessionVideoView),
                                             videoSurfaceProvider,
+                                            whyAdsDialogPresenter,
                                             adPlayer,
                                             navigator,
                                             eventBus);
@@ -224,6 +227,50 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         presenter.onDestroy(activity);
 
         verify(videoSurfaceProvider).onConfigurationChange(PRESTITIAL);
+    }
+
+    @Test
+    public void onWhyAdsClickForwardsCallToWhyAdsPresenter() {
+        presenter.onWhyAdsClicked(context());
+
+        verify(whyAdsDialogPresenter).show(context());
+    }
+
+    @Test
+    public void togglePlaybackForwardsCallToAdPlayerIfAdPlayerIsHasBeenSetup() {
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd.video()));
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onTogglePlayback();
+
+        verify(adPlayer).togglePlayback(sponsoredSessionAd.video());
+    }
+
+    @Test
+    public void togglePlaybackDoesNothingIfAdPlayerIsntSetup() {
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.absent());
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onTogglePlayback();
+
+        verify(adPlayer, never()).togglePlayback(sponsoredSessionAd.video());
+    }
+
+    @Test
+    public void onResumeShouldReattachVideoSurfaceIfPlayerIsSetup() {
+        final View viewabilityLayer = mock(View.class);
+        final TextureView textureView = mock(TextureView.class);
+        sponsoredSessionVideoView.viewabilityLayer = viewabilityLayer;
+        sponsoredSessionVideoView.videoView = textureView;
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd.video()));
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onResume(activity);
+
+        verify(videoSurfaceProvider).setTextureView(sponsoredSessionAd.video().uuid(), PRESTITIAL, textureView, viewabilityLayer);
     }
 
     private void setupSponsoredSession() {

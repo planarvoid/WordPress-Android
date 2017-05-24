@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.image.DefaultImageListener;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.TextureView;
 import android.view.View;
@@ -9,11 +10,14 @@ import android.view.View;
 abstract class PrestitialView {
 
     public interface Listener {
-        void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd);
         void onOptInClick();
-        void closePrestitial();
+        void onTogglePlayback();
+        void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd);
+
+        void onWhyAdsClicked(Context context);
         void onClickThrough(View view, AdData ad);
         void onImageLoadComplete(AdData ad, View imageView);
+        void closePrestitial();
     }
 
     final class PrestitialImageCompanionListener extends DefaultImageListener {
