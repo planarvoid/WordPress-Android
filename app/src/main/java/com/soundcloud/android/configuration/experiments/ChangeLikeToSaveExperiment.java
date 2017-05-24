@@ -44,6 +44,14 @@ public class ChangeLikeToSaveExperiment {
         return isSaveInCopy() || isSaveInCopyPlusTooltip();
     }
 
+    public boolean isTooltipEnabled() {
+        return isControlPlusTooltip() || isSaveInCopyPlusTooltip();
+    }
+
+    private boolean isControlPlusTooltip() {
+        return VARIANT_CONTROL_PLUS_TOOLTIP.equals(getVariant());
+    }
+
     private boolean isSaveInCopy() {
         return VARIANT_SAVE_IN_COPY.equals(getVariant());
     }

@@ -101,6 +101,12 @@ class PlaylistEngagementsRenderer {
                                item.isLikedByUser(),
                                changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.ACCESSIBILITY_STATS_USER_LIKED),
                                changeLikeToSaveExperiment.isEnabled());
+
+        if (changeLikeToSaveExperiment.isTooltipEnabled() && !accountOperations.isLoggedInUser(item.creatorUrn())) {
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.ADD_TO_COLLECTION,
+                                                      likeToggle, changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_TITLE),
+                                                      changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION));
+        }
     }
 
     private void configureOverflow(View view, PlaylistDetailsMetadata item, PlaylistDetailsInputs onEngagementListener) {

@@ -1154,5 +1154,9 @@
     <string name="email_notifications_add">Your post was added to a collection</string>
     <string name="play_queue_header_tracks">From your tracks</string>
     <string name="suggested_creators_relation_added">You recently added their track to your collection</string>
+    <string name="like_your_favorite_tracks_title">Like your favorite tracks</string>
+    <string name="like_your_favorite_tracks_description">Tap to save to your collection and show support for your favorite artists.</string>
+    <string name="add_your_favorite_tracks_title">Add to your collection</string>
+    <string name="add_your_favorite_tracks_description">Tap to add tracks, playlists, and albums to your collection.</string>
 
 </resources>

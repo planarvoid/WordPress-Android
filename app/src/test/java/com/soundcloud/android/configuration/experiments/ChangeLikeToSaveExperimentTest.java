@@ -37,7 +37,7 @@ public class ChangeLikeToSaveExperimentTest extends AndroidUnitTest {
     }
 
     @Test
-    public void enabledControl() {
+    public void isEnabled() {
         mockVariant("control");
         assertThat(experiment.isEnabled()).isFalse();
 
@@ -49,6 +49,21 @@ public class ChangeLikeToSaveExperimentTest extends AndroidUnitTest {
 
         mockVariant("save_in_copy_plus_tooltip");
         assertThat(experiment.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void isTooltipEnabled() {
+        mockVariant("control");
+        assertThat(experiment.isTooltipEnabled()).isFalse();
+
+        mockVariant("control_plus_tooltip");
+        assertThat(experiment.isTooltipEnabled()).isTrue();
+
+        mockVariant("save_in_copy");
+        assertThat(experiment.isTooltipEnabled()).isFalse();
+
+        mockVariant("save_in_copy_plus_tooltip");
+        assertThat(experiment.isTooltipEnabled()).isTrue();
     }
 
     private void mockVariant(String variant) {
