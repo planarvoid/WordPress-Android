@@ -440,6 +440,10 @@ public class Navigator {
         context.startActivity(createStreamIntent(screen));
     }
 
+    public void openCollectionAsTopScreen(Context context) {
+        context.startActivity(createCollectionIntent().setFlags(FLAGS_TOP));
+    }
+
     public void openCollectionAsRootScreen(Activity activity) {
         activity.finish();
         activity.startActivity(rootScreen(createCollectionIntent().setFlags(FLAGS_TOP)));

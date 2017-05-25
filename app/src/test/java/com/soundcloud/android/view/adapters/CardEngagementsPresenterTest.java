@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -43,6 +44,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Mock EventTracker eventTracker;
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock FeedbackController feedbackController;
+    @Mock Navigator navigator;
     @Captor ArgumentCaptor<CardEngagementClickListener> listenerCaptor;
     @Captor ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
@@ -57,7 +59,7 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         presenter = new CardEngagementsPresenter(
-                numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker, changeLikeToSaveExperiment, feedbackController);
+                numberFormatter, likeOperations, repostOperations, accountOperations, eventTracker, changeLikeToSaveExperiment, feedbackController, navigator);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(999));
         when(likeOperations.toggleLike(playableItem.getUrn(), !playableItem.isUserLike())).thenReturn(testSubject);

@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
@@ -22,6 +23,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     private final StationMenuRendererFactory rendererFactory;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
+    private final Navigator navigator;
 
     private StationMenuRenderer renderer;
     private Subscription stationSubscription = RxUtils.invalidSubscription();
@@ -31,12 +33,14 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
                          StationMenuRendererFactory rendererFactory,
                          StationsOperations stationsOperations,
                          ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
-                         FeedbackController feedbackController) {
+                         FeedbackController feedbackController,
+                         Navigator navigator) {
         this.context = context;
         this.rendererFactory = rendererFactory;
         this.stationsOperations = stationsOperations;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
+        this.navigator = navigator;
     }
 
     public void show(View button, Urn stationUrn) {
@@ -50,7 +54,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
 
         stationsOperations.toggleStationLike(station.getUrn(), addLike)
                           .observeOn(AndroidSchedulers.mainThread())
-                          .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController));
+                          .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigator));
     }
 
     @Override

@@ -151,6 +151,17 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openCollectionAsTopScreen() {
+        navigator.openCollectionAsTopScreen(appContext);
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                   .containsAction(Actions.COLLECTION);
+    }
+
+    @Test
     public void openCollectionAsRootScreen() {
         navigator.openCollectionAsRootScreen(activityContext);
         assertThat(activityContext).isFinishing();

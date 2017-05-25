@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.java.strings.Strings.EMPTY;
 import static com.soundcloud.java.strings.Strings.isNotBlank;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -36,6 +37,7 @@ public class CardEngagementsPresenter {
     private final EventTracker eventTracker;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
+    private final Navigator navigator;
 
     public interface CardEngagementClickListener {
         void onLikeClick(View likeButton);
@@ -50,7 +52,8 @@ public class CardEngagementsPresenter {
                              AccountOperations accountOperations,
                              EventTracker eventTracker,
                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
-                             FeedbackController feedbackController) {
+                             FeedbackController feedbackController,
+                             Navigator navigator) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
@@ -58,6 +61,7 @@ public class CardEngagementsPresenter {
         this.eventTracker = eventTracker;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
+        this.navigator = navigator;
     }
 
     public void bind(final CardViewHolder viewHolder,
@@ -108,7 +112,7 @@ public class CardEngagementsPresenter {
         final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController));
+                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController, navigator));
 
         eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,
                                                                      contextMetadata,

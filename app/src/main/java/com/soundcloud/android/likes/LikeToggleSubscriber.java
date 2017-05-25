@@ -1,8 +1,12 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.utils.ViewUtils.isContextInstanceOf;
+
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.feedback.Feedback;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 
@@ -14,15 +18,18 @@ public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
     private final boolean likeStatus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
+    private final Navigator navigator;
 
     public LikeToggleSubscriber(Context context,
                                 boolean likeStatus,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
-                                FeedbackController feedbackController) {
+                                FeedbackController feedbackController,
+                                Navigator navigator) {
         this.context = context;
         this.likeStatus = likeStatus;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
+        this.navigator = navigator;
     }
 
     @Override
@@ -35,9 +42,19 @@ public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
     }
 
     private void showAddSnackbar() {
-        feedbackController.showFeedback(Feedback.create(likeStatus
-                                                        ? R.string.add_snackbar_overflow_action
-                                                        : R.string.remove_snackbar_overflow_action));
+        feedbackController.showFeedback(likeStatus
+                                        ? Feedback.create(R.string.add_snackbar_overflow_action,
+                                                                     R.string.btn_view,
+                                                                     v -> navigateToCollection(v.getContext()))
+                                        : Feedback.create(R.string.remove_snackbar_overflow_action));
+    }
+
+    private void navigateToCollection(Context viewContext) {
+        if (isContextInstanceOf(viewContext, MainActivity.class)) {
+            navigator.openCollection(viewContext);
+        } else {
+            navigator.openCollectionAsTopScreen(context);
+        }
     }
 
     private void showLikeToast() {

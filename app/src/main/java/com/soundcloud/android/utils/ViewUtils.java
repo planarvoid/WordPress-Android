@@ -174,6 +174,14 @@ public final class ViewUtils {
         return activityContext;
     }
 
+    public static boolean isContextInstanceOf(Context context, Class<?> activityClass) {
+        if (context instanceof ContextWrapper) {
+            final ContextWrapper contextWrapper = (ContextWrapper) context;
+            return activityClass.isInstance(contextWrapper.getBaseContext());
+        }
+        return activityClass.isInstance(context);
+    }
+
     public static void setGone(Iterable<View> views) {
         forEach(views, view -> {
             view.clearAnimation();
