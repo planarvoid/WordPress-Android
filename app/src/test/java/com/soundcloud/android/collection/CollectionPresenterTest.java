@@ -29,6 +29,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -245,6 +246,37 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldAddOfflineOnboardingWhenEnabled() {
+        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(collectionOptionsStorage.isOfflineOnboardingEnabled()).thenReturn(true);
+
+        presenter.onCreate(fragment, null);
+
+        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+                CollectionItem.OfflineOnboardingCollectionItem.create(),
+                PreviewCollectionItem.forLikesPlaylistsAndStations(
+                        MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
+                RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
+                PlayHistoryBucketItem.create(PLAY_HISTORY)
+        );
+    }
+
+    @Test
+    public void shouldDisableOfflineOnboardingWhenClosed() {
+        presenter.onCollectionsOfflineOnboardingItemClosed(0);
+
+        verify(collectionOptionsStorage).disableOfflineOnboarding();
+    }
+
+    @Test
+    public void shouldRemoveOfflineOnboardingWhenClosed() {
+        presenter.onCollectionsOfflineOnboardingItemClosed(1);
+
+        verify(adapter).removeItem(1);
+    }
+
+    @Test
     public void shouldAddUpsellWhenEnabledAndOnboardingDisabled() {
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
@@ -321,4 +353,5 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         verify(performanceMetricEngine).startMeasuring(MetricType.COLLECTION_LOAD);
         verify(performanceMetricEngine).endMeasuring(MetricType.COLLECTION_LOAD);
     }
+
 }

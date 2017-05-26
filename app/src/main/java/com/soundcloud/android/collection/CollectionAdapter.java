@@ -18,23 +18,27 @@ import java.util.List;
 public class CollectionAdapter extends UpdatableRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
+    private final OfflineOnboardingItemCellRenderer offlineOnboardingItemCellRenderer;
     private final UpsellItemCellRenderer upsellItemCellRenderer;
     private final PlayHistoryBucketRenderer playHistoryBucketRenderer;
     private final RecentlyPlayedBucketRenderer recentlyPlayedBuckerRenderer;
 
     @Inject
     CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
+                      OfflineOnboardingItemCellRenderer offlineOnboardingItemCellRenderer,
                       UpsellItemCellRenderer upsellItemCellRenderer,
                       CollectionPreviewRenderer collectionPreviewRenderer,
                       RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer,
                       PlayHistoryBucketRenderer playHistoryBucketRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_OFFLINE_ONBOARDING, offlineOnboardingItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_UPSELL, upsellItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PREVIEW, collectionPreviewRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayedBucketRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_BUCKET, playHistoryBucketRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
+        this.offlineOnboardingItemCellRenderer = offlineOnboardingItemCellRenderer;
         this.upsellItemCellRenderer = upsellItemCellRenderer;
         this.playHistoryBucketRenderer = playHistoryBucketRenderer;
         this.recentlyPlayedBuckerRenderer = recentlyPlayedBucketRenderer;
@@ -74,6 +78,10 @@ public class CollectionAdapter extends UpdatableRecyclerItemAdapter<CollectionIt
 
     void setOnboardingListener(OnboardingItemCellRenderer.Listener listener) {
         onboardingItemCellRenderer.setListener(listener);
+    }
+
+    void setOfflineOnboardingListener(OfflineOnboardingItemCellRenderer.Listener listener) {
+        offlineOnboardingItemCellRenderer.setListener(listener);
     }
 
     void setUpsellListener(UpsellItemCellRenderer.Listener listener) {

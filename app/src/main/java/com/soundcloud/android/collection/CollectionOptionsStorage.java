@@ -10,7 +10,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class CollectionOptionsStorage {
+
     private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
+    private static final String OFFLINE_ONBOARDING_DISABLED = "OFFLINE_ONBOARDING_DISABLED";
     private static final String UPSELL_DISABLED = "UPSELL_DISABLED";
 
     @VisibleForTesting
@@ -44,6 +46,14 @@ public class CollectionOptionsStorage {
 
     void disableOnboarding() {
         preferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
+    }
+
+    boolean isOfflineOnboardingEnabled() {
+        return !preferences.getBoolean(OFFLINE_ONBOARDING_DISABLED, false);
+    }
+
+    void disableOfflineOnboarding() {
+        preferences.edit().putBoolean(OFFLINE_ONBOARDING_DISABLED, true).apply();
     }
 
     public PlaylistsOptions getLastOrDefault() {

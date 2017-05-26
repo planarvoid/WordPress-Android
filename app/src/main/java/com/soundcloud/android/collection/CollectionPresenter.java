@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
-        implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener, UpsellItemCellRenderer.Listener {
+        implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener, OfflineOnboardingItemCellRenderer.Listener, UpsellItemCellRenderer.Listener {
 
     private static final int FIXED_ITEMS = 5;
 
@@ -74,7 +74,11 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                 @Override
                 public List<CollectionItem> call(MyCollection myCollection) {
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
-                    if (collectionOptionsStorage.isOnboardingEnabled()) {
+                    if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)
+                            && featureOperations.isOfflineContentEnabled()
+                            && collectionOptionsStorage.isOfflineOnboardingEnabled()) {
+                        return collectionWithOfflineOnboarding(collectionItems);
+                    } else if (collectionOptionsStorage.isOnboardingEnabled()) {
                         return collectionWithOnboarding(collectionItems);
                     } else if (!featureOperations.isOfflineContentEnabled()
                             && featureOperations.upsellBothTiers()
@@ -133,6 +137,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
         adapter.setTrackClickListener(this);
         adapter.setOnboardingListener(this);
+        adapter.setOfflineOnboardingListener(this);
         adapter.setUpsellListener(this);
     }
 
@@ -197,6 +202,12 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     @Override
     public void onCollectionsOnboardingItemClosed(int position) {
         collectionOptionsStorage.disableOnboarding();
+        removeItem(position);
+    }
+
+    @Override
+    public void onCollectionsOfflineOnboardingItemClosed(int position) {
+        collectionOptionsStorage.disableOfflineOnboarding();
         removeItem(position);
     }
 
@@ -295,6 +306,10 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private List<CollectionItem> collectionWithOnboarding(List<CollectionItem> collectionItems) {
         return prependItemToCollection(OnboardingCollectionItem.create(), collectionItems);
+    }
+
+    private List<CollectionItem> collectionWithOfflineOnboarding(List<CollectionItem> collectionItems) {
+        return prependItemToCollection(CollectionItem.OfflineOnboardingCollectionItem.create(), collectionItems);
     }
 
     private List<CollectionItem> collectionWithUpsell(List<CollectionItem> collectionItems) {

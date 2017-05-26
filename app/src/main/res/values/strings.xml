@@ -698,6 +698,9 @@
     <string name="collections_recently_played_profile">profile</string>
     <string name="collections_upsell_title">Get SoundCloud Go</string>
     <string name="collections_upsell_body">Listen to your likes, playlists &amp; albums offline and ad‑free</string>
+    <string name="collections_offline_onboarding_title">Save your collection offline</string>
+    <string name="collections_offline_onboarding_body">Don’t limit your listening: tap into your likes or playlists &amp; albums while connected to wi-fi to save your favorite music to your device.</string>
+    <string name="collections_offline_onboarding_body_tracks">Don’t limit your listening: tap into your tracks or playlists &amp; albums while connected to wi-fi to save your favorite music to your device.</string>
 
     <string name="collections_recently_played_clear_action">Clear recently played</string>
     <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>

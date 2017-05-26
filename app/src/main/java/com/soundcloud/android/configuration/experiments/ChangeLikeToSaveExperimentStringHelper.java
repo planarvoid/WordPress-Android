@@ -47,7 +47,8 @@ public class ChangeLikeToSaveExperimentStringHelper {
         PLAY_QUEUE_HEADER_LIKES(R.string.play_queue_header_likes, R.string.play_queue_header_tracks),
         SUGGESTED_CREATORS_RELATION_LIKED(R.string.suggested_creators_relation_liked, R.string.suggested_creators_relation_added),
         LIKE_YOUR_FAVORITE_TRACKS_TITLE(R.string.like_your_favorite_tracks_title, R.string.add_your_favorite_tracks_title),
-        LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION(R.string.like_your_favorite_tracks_description, R.string.add_your_favorite_tracks_description);
+        LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION(R.string.like_your_favorite_tracks_description, R.string.add_your_favorite_tracks_description),
+        COLLECTIONS_OFFLINE_ONBOARDING_BODY(R.string.collections_offline_onboarding_body, R.string.collections_offline_onboarding_body_tracks);
 
         @StringRes private final int likeStringResId;
         @StringRes private final int saveStringResId;

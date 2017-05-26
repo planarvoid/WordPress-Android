@@ -15,6 +15,7 @@ enum Feature {
   NEW_HOME,
   NEW_FOR_YOU_FIRST,
   NEW_FOR_YOU_SECOND,
+  COLLECTION_OFFLINE_ONBOARDING,
   OTHER_PLAYLISTS_BY_CREATOR,
   PROFILE_BANNER,
   SEARCH_TOP_RESULTS,
@@ -47,6 +48,7 @@ android {
     buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.PRESTITIAL.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.WELCOME_USER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.COLLECTION_OFFLINE_ONBOARDING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), UNDER_DEVELOPMENT
@@ -66,6 +68,7 @@ android {
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.COLLECTION_OFFLINE_ONBOARDING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW

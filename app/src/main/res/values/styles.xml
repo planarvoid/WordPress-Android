@@ -240,6 +240,8 @@
         <item name="android:background">@color/page_background</item>
     </style>
 
+    <style name="OnboardingListItemNotification" />
+
     <style name="OnboardingListItemNotification.Title" parent="OnboardingListItemNotificationCenteredText">
         <item name="android:textColor">@color/raven</item>
         <item name="android:textSize">16sp</item>
@@ -250,6 +252,13 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/dialog_subtext</item>
         <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <style name="OnboardingListItemNotification.Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginBottom">20dp</item>
     </style>
 
     <style name="OnboardingListItemNotificationCenteredText" parent="TextAppearance.ScAppCompat.Large">
