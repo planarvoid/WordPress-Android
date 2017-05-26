@@ -121,7 +121,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void enableHighTierPurchase() {
         displayPrimaryProduct(products.highTier().get());
         if (canPurchaseMidTier()) {
-            view.enableMoreForMidTier(products.midTier().get().getPrice());
+            view.enableMoreForMidTier(products.midTier().get().getPriceData().format());
         }
     }
 
@@ -145,13 +145,17 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void displayPromo(WebProduct product) {
-        checkNotNull(product.getPromoPrice());
-        view.showPromo(product.getPromoPrice().get(), product.getPromoDays(), product.getPrice());
+        checkNotNull(product.getPromoPriceData());
+        view.showPromo(product.getPromoPriceData().get().format(), product.getPromoDays(), product.getPriceData().format());
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionPromoImpression());
     }
 
     private void displayDefault(WebProduct product) {
-        view.showDetails(product.getDiscountPrice().or(product.getPrice()), product.getTrialDays());
+        if (product.getDiscountPriceData().isPresent()) {
+            view.showDetails(product.getDiscountPriceData().get().format(), product.getTrialDays());
+        } else {
+            view.showDetails(product.getPriceData().format(), product.getTrialDays());
+        }
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forConversionBuyButtonImpression());
     }
 
@@ -224,6 +228,7 @@ class ConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
 
         @Override
         public void onError(Throwable e) {
+            e.printStackTrace();
             view.showRetryState();
         }
     }

@@ -42,10 +42,12 @@ class ProductInfoFormatter {
 
     String configuredPrice(WebProduct product) {
         if (product.hasPromo()) {
-            checkNotNull(product.getPromoPrice());
-            return promoPricing(product.getPromoDays(), product.getPromoPrice().get());
+            checkNotNull(product.getPromoPriceData());
+            return promoPricing(product.getPromoDays(), product.getPromoPriceData().get().format());
+        } else if (product.getDiscountPriceData().isPresent()) {
+            return monthlyPricing(product.getDiscountPriceData().get().format());
         } else {
-            return monthlyPricing(product.getDiscountPrice().or(product.getPrice()));
+            return monthlyPricing(product.getPriceData().format());
         }
     }
 
@@ -57,7 +59,7 @@ class ProductInfoFormatter {
 
     String configuredRestrictionsText(WebProduct product) {
         if (product.hasPromo()) {
-            return resources.getString(R.string.conversion_restrictions_promo, product.getPrice());
+            return resources.getString(R.string.conversion_restrictions_promo, product.getPriceData().format());
         } else {
             return resources.getString(R.string.conversion_restrictions);
         }

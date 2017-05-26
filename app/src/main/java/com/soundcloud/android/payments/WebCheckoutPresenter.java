@@ -163,10 +163,10 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
         switch (Plan.fromId(product.getPlanId())) {
             case MID_TIER:
-                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forMidTierSub(product.getRawPrice(), product.getRawCurrency()));
+                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forMidTierSub(product.getPriceData().decimalString(), product.getPriceData().currency()));
                 break;
             case HIGH_TIER:
-                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
+                eventBus.publish(EventQueue.TRACKING, PurchaseEvent.forHighTierSub(product.getPriceData().decimalString(), product.getPriceData().currency()));
                 break;
             default:
                 ErrorUtils.handleSilentException(new IllegalStateException("Dropping purchase tracking event: failed to resolve tier from product"));
@@ -207,7 +207,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         final Uri.Builder builder = Uri.parse(PAYMENT_FORM_BASE_URL)
                                        .buildUpon()
                                        .appendQueryParameter(OAUTH_TOKEN_KEY, token)
-                                       .appendQueryParameter(PRICE_KEY, product.getPrice())
+                                       .appendQueryParameter(PRICE_KEY, product.getPriceData().format())
                                        .appendQueryParameter(TRIAL_DAYS_KEY, Integer.toString(product.getTrialDays()))
                                        .appendQueryParameter(EXPIRY_DATE_KEY, product.getExpiryDate())
                                        .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
@@ -223,21 +223,21 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void appendDiscount(WebProduct product, Uri.Builder builder) {
-        if (product.getDiscountPrice().isPresent()) {
-            builder.appendQueryParameter(DISCOUNT_PRICE_KEY, product.getDiscountPrice().get());
+        if (product.getDiscountPriceData().isPresent()) {
+            builder.appendQueryParameter(DISCOUNT_PRICE_KEY, product.getDiscountPriceData().get().format());
         }
     }
 
     private void appendPromo(WebProduct product, Uri.Builder builder) {
         if (product.hasPromo()) {
             builder.appendQueryParameter(PROMO_DAYS_KEY, Integer.toString(product.getPromoDays()));
-            builder.appendQueryParameter(PROMO_PRICE_KEY, product.getPromoPrice().get());
+            builder.appendQueryParameter(PROMO_PRICE_KEY, product.getPromoPriceData().get().format());
         }
     }
 
     private void appendProratedPrice(WebProduct product, Uri.Builder builder) {
-        if (product.getProratedPrice().isPresent()) {
-            builder.appendQueryParameter(PRORATED_PRICE_KEY, product.getProratedPrice().get());
+        if (product.getProratedPriceData().isPresent()) {
+            builder.appendQueryParameter(PRORATED_PRICE_KEY, product.getProratedPriceData().get().format());
         }
     }
 

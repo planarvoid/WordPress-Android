@@ -129,7 +129,7 @@ class ProductChoicePresenter extends DefaultActivityLightCycle<AppCompatActivity
     @Override
     public void onRestrictionsClick(WebProduct product) {
         if (product.hasPromo()) {
-            showDialog(ConversionRestrictionsDialog.createForPromo(formatter.promoDuration(product.getPromoDays()), product.getPromoPrice().get(), product.getPrice()));
+            showDialog(ConversionRestrictionsDialog.createForPromo(formatter.promoDuration(product.getPromoDays()), product.getPromoPriceData().get().format(), product.getPriceData().format()));
         } else if (product.getTrialDays() > 0) {
             showDialog(ConversionRestrictionsDialog.createForTrial(product.getTrialDays()));
         } else {
