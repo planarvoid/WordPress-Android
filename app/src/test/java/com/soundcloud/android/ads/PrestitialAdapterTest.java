@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class PrestitialAdapterTest extends AndroidUnitTest {
     public void setsUpOptInCardViewInViewPager() {
         final ViewPager containerSpy = spy(new ViewPager(context()));
         assertThat(adapter.instantiateItem(containerSpy, 0)).isNotNull();
-        verify(sponsoredSessionCardView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener));
+        verify(sponsoredSessionCardView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener), eq(PrestitialPage.OPT_IN_CARD));
         verify(containerSpy).addView(any(ViewGroup.class));
     }
 
@@ -48,6 +49,14 @@ public class PrestitialAdapterTest extends AndroidUnitTest {
         final ViewPager containerSpy = spy(new ViewPager(context()));
         assertThat(adapter.instantiateItem(containerSpy, 1)).isNotNull();
         verify(sponsoredSessionVideoView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener));
+        verify(containerSpy).addView(any(ViewGroup.class));
+    }
+
+    @Test
+    public void setsUpEndCardViewInViewPager() {
+        final ViewPager containerSpy = spy(new ViewPager(context()));
+        assertThat(adapter.instantiateItem(containerSpy, 2)).isNotNull();
+        verify(sponsoredSessionCardView).setupContentView(any(ViewGroup.class), eq(sponsoredSessionAd), eq(listener), eq(PrestitialPage.END_CARD));
         verify(containerSpy).addView(any(ViewGroup.class));
     }
 }

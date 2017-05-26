@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.TextureView;
@@ -79,12 +81,11 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         when(adsController.getCurrentAd()).thenReturn(Optional.of(visualPrestitialAd));
     }
 
-    // TODO:ADS Should we/how can we test the pager adapter setup?
     @Test
     public void finishesActivityOnContinueClick() {
         presenter.onCreate(activity, null);
 
-        presenter.closePrestitial();
+        presenter.onContinueClick();
 
         verify(activity).finish();
     }
@@ -273,12 +274,53 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         verify(videoSurfaceProvider).setTextureView(sponsoredSessionAd.video().uuid(), PRESTITIAL, textureView, viewabilityLayer);
     }
 
+    @Test
+    public void onOptionOneClickForOptInCardEndsActivity() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(0);
+
+        presenter.onOptionOneClick(PrestitialPage.OPT_IN_CARD, sponsoredSessionAd, context());
+
+        verify(activity).finish();
+    }
+
+    @Test
+    public void onOptionOneClickForEndCardOpensClickthrough() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(2);
+
+        presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, context());
+
+        verify(navigator).openAdClickthrough(context(), Uri.parse(sponsoredSessionAd.optInCard().clickthroughUrl()));
+    }
+
+    @Test
+    public void onOptionTwoClickForOptInCardAdvancesPages() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(0);
+
+        presenter.onOptionTwoClick(PrestitialPage.OPT_IN_CARD, sponsoredSessionAd);
+
+        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        assertThat(pager.getCurrentItem()).isEqualTo(1);
+    }
+
+    @Test
+    public void onOptionTwoClickForEndCardEndsActivity() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(2);
+
+        presenter.onOptionTwoClick(PrestitialPage.END_CARD, sponsoredSessionAd);
+
+        verify(activity).finish();
+    }
+
     private void setupSponsoredSession() {
         when(adapterFactory.create(sponsoredSessionAd, presenter, sponsoredSessionVideoView)).thenReturn(adapter);
         when(adapter.getCount()).thenReturn(3);
-        when(adapter.getPage(0)).thenReturn(PrestitialAdapter.PrestitialPage.OPT_IN_CARD);
-        when(adapter.getPage(1)).thenReturn(PrestitialAdapter.PrestitialPage.VIDEO_CARD);
-        when(adapter.getPage(2)).thenReturn(PrestitialAdapter.PrestitialPage.END_CARD);
+        when(adapter.getPage(0)).thenReturn(PrestitialPage.OPT_IN_CARD);
+        when(adapter.getPage(1)).thenReturn(PrestitialPage.VIDEO_CARD);
+        when(adapter.getPage(2)).thenReturn(PrestitialPage.END_CARD);
         when(adsController.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd));
     }
 

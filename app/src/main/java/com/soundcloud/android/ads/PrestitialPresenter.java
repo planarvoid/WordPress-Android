@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 
 import com.soundcloud.android.Navigator;
@@ -22,6 +23,7 @@ import rx.Subscription;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -138,13 +140,17 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         });
     }
 
+    private void endActivity() {
+        ifRefPresent(activityRef, Activity::finish);
+    }
+
     @Override
     public void onClickThrough(View view, AdData ad) {
         if (ad instanceof VisualPrestitialAd) {
             final VisualPrestitialAd visualAd = (VisualPrestitialAd) ad;
             navigator.openAdClickthrough(view.getContext(), visualAd.clickthroughUrl());
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(visualAd));
-            closePrestitial();
+            endActivity();
         }
     }
 
@@ -158,13 +164,26 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     @Override
-    public void closePrestitial() {
-        ifRefPresent(activityRef, Activity::finish);
+    public void onOptionOneClick(PrestitialPage page, SponsoredSessionAd ad, Context context) {
+        if (page == PrestitialPage.OPT_IN_CARD) {
+            endActivity();
+        } else {
+            navigator.openAdClickthrough(context, Uri.parse(ad.optInCard().clickthroughUrl()));
+        }
     }
 
     @Override
-    public void onOptInClick() {
-        advanceToNextPage();
+    public void onOptionTwoClick(PrestitialPage page, SponsoredSessionAd ad) {
+        if (page == PrestitialPage.OPT_IN_CARD) {
+            advanceToNextPage();
+        } else {
+            endActivity();
+        }
+    }
+
+    @Override
+    public void onContinueClick() {
+        endActivity();
     }
 
     @Override

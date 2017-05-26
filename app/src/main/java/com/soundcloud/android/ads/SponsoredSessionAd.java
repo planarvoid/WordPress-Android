@@ -11,7 +11,7 @@ import java.util.List;
 public abstract class SponsoredSessionAd extends AdData {
 
     public static SponsoredSessionAd create(ApiModel apiModel) {
-        final MonetizationType monetizationType = MonetizationType.PRESTITIAL;
+        final MonetizationType monetizationType = MonetizationType.SPONSORED_SESSION;
         return new AutoValue_SponsoredSessionAd(apiModel.adUrn(),
                                                 monetizationType,
                                                 apiModel.adFreeMinutes(),

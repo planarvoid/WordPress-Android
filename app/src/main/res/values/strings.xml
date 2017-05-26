@@ -73,7 +73,10 @@
     </plurals>
     <string name="ads_watch_now">Watch Now</string>
     <string name="ads_no_thanks">No Thanks</string>
-    <string name="ads_opt_in_text">One ad equals 30 minutes of tracks with no interruptions. Take a Look.</string>
+    <string name="ads_learn_more">Learn More</string>
+    <string name="ads_opt_in_text">One ad equals %s minutes of tracks with no interruptions. Take a Look.</string>
+    <string name="ads_start_session">Start Session</string>
+    <string name="ads_sponsored_session_unlocked">You’ve unlocked your ad-free listening session.</string>
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">Forgot your password?</string>

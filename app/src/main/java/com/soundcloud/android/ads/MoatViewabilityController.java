@@ -173,6 +173,8 @@ public class MoatViewabilityController {
             return "video-inlay";
         } else if (monetizationType.equals(AdData.MonetizationType.PRESTITIAL.key())) {
             return "prestitial";
+        } else if (monetizationType.equals(AdData.MonetizationType.SPONSORED_SESSION.key())) {
+            return "sponsored_session";
         } else {
             return "interstitial";
         }

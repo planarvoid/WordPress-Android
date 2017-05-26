@@ -51,7 +51,7 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
 
         view.continueButton.performClick();
 
-        verify(listener).closePrestitial();
+        verify(listener).onContinueClick();
     }
 
     @Test

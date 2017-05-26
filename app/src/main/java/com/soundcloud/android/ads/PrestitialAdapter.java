@@ -2,9 +2,11 @@ package com.soundcloud.android.ads;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.StringRes;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,12 +60,11 @@ class PrestitialAdapter extends PagerAdapter {
         final ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(page.layout, parent, false);
         switch (page) {
             case OPT_IN_CARD:
-                sponsoredSessionCardView.setupContentView(view, adData, listener);
+            case END_CARD:
+                sponsoredSessionCardView.setupContentView(view, adData, listener, page);
                 break;
             case VIDEO_CARD:
                 sponsoredSessionVideoView.setupContentView(view, adData, listener);
-                break;
-            case END_CARD:
                 break;
             default:
                 throw new IllegalAccessError("Ad page not supported: " + page + ", pos:" + position);
@@ -78,14 +79,23 @@ class PrestitialAdapter extends PagerAdapter {
     }
 
     enum PrestitialPage {
-        OPT_IN_CARD(R.layout.sponsored_session_action_page),
-        VIDEO_CARD(R.layout.sponsored_session_video_page),
-        END_CARD(R.layout.sponsored_session_action_page);
+        OPT_IN_CARD(R.layout.sponsored_session_action_page, R.string.ads_opt_in_text, R.string.ads_no_thanks, R.string.ads_watch_now),
+        VIDEO_CARD(R.layout.sponsored_session_video_page, Consts.NOT_SET, Consts.NOT_SET, Consts.NOT_SET),
+        END_CARD(R.layout.sponsored_session_action_page, R.string.ads_sponsored_session_unlocked, R.string.ads_learn_more, R.string.ads_start_session);
 
         final int layout;
+        final int description;
+        final int optionOne;
+        final int optionTwo;
 
-        PrestitialPage(@LayoutRes int layout) {
+        PrestitialPage(@LayoutRes int layout,
+                       @StringRes int description,
+                       @StringRes int optionOne,
+                       @StringRes int optionTwo) {
             this.layout = layout;
+            this.description = description;
+            this.optionOne = optionOne;
+            this.optionTwo = optionTwo;
         }
     }
 }

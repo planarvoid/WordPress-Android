@@ -12,7 +12,8 @@ public abstract class AdData {
         AUDIO("audio_ad"),
         VIDEO("video_ad"),
         INLAY("mobile_inlay"),
-        PRESTITIAL("prestitial");
+        PRESTITIAL("prestitial"),
+        SPONSORED_SESSION("sponsored_session");
 
         private final String key;
 

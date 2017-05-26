@@ -70,37 +70,34 @@
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_height="75dp"
-        >
+        android:layout_height="75dp">
+
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/btn_left"
             android:layout_height="75dp"
             android:layout_width="0dp"
             android:layout_weight=".5"
-            android:text="@string/ads_no_thanks"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:ellipsize="end"
-            android:maxLines="1" />
+            android:maxLines="1"/>
+
         <View
             android:layout_width="1dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            android:background="@color/light_grey_border"
-            />
+            android:background="@color/light_grey_border"/>
+
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/btn_right"
             android:layout_height="75dp"
             android:layout_width="0dp"
             android:layout_weight=".5"
-            android:text="@string/ads_watch_now"
             android:gravity="center"
             android:textColor="@color/soundcloud_orange"
             android:textSize="20sp"
             android:ellipsize="end"
-            android:maxLines="1"
-            />
+            android:maxLines="1"/>
     </LinearLayout>
-
 </RelativeLayout>
