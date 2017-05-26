@@ -3,6 +3,7 @@ package com.soundcloud.android.collection;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -29,14 +30,17 @@ public class PlaylistItemIndicatorsView {
     private final FeatureFlags featureFlags;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final ConnectionHelper connectionHelper;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     PlaylistItemIndicatorsView(FeatureFlags featureFlags,
                                OfflineSettingsOperations offlineSettingsOperations,
-                               ConnectionHelper connectionHelper) {
+                               ConnectionHelper connectionHelper,
+                               ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.featureFlags = featureFlags;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.connectionHelper = connectionHelper;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     public void setupView(View view, boolean isPrivate, boolean isLiked, Optional<OfflineState> offlineState) {
@@ -59,7 +63,9 @@ public class PlaylistItemIndicatorsView {
             showOfflineIndicator(offlineState.get());
         } else {
             offlineIndicator.setState(OfflineState.NOT_OFFLINE, true);
-            likeIndicator.setVisibility(isLiked ? View.VISIBLE : View.GONE);
+            likeIndicator.setVisibility(shouldShowLikeIndicator(isLiked)
+                                        ? View.VISIBLE
+                                        : View.GONE);
         }
     }
 
@@ -83,6 +89,12 @@ public class PlaylistItemIndicatorsView {
 
     private void setupOldOfflineAndLikeIndicators(boolean isLiked, Optional<OfflineState> offlineState) {
         oldOfflineIndicator.setState(offlineState.or(OfflineState.NOT_OFFLINE), false);
-        likeIndicator.setVisibility(isLiked ? View.VISIBLE : View.GONE);
+        likeIndicator.setVisibility(shouldShowLikeIndicator(isLiked)
+                                    ? View.VISIBLE
+                                    : View.GONE);
+    }
+
+    private boolean shouldShowLikeIndicator(boolean isLiked) {
+        return isLiked && !changeLikeToSaveExperiment.isEnabled();
     }
 }

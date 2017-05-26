@@ -3,6 +3,7 @@ package com.soundcloud.android.likes;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -36,7 +37,7 @@ public class TrackLikesActivity extends PlayerActivity {
             attachFragment();
         }
 
-        setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ChangeLikeToSaveExperimentStringHelper.ExperimentString.TRACK_LIKES_TITLE));
+        setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.TRACK_LIKES_TITLE));
     }
 
     @Override

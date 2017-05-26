@@ -41,6 +41,7 @@ public class ChangeLikeToSaveExperimentStringHelper {
         USER_PROFILE_SOUNDS_HEADER_LIKES(R.string.user_profile_sounds_header_likes, R.string.user_profile_sounds_header_tracks_in_collection),
         USER_PROFILE_SOUNDS_VIEW_ALL_LIKES(R.string.user_profile_sounds_view_all_likes, R.string.user_profile_sounds_view_all_tracks_in_collection),
         USER_PROFILE_SOUNDS_LIKES_EMPTY(R.string.user_profile_sounds_likes_empty, R.string.user_profile_sounds_tracks_in_collection_empty),
+        USER_LIKES_LABEL(R.string.user_likes_label, R.string.user_tracks_label),
         PUSH_NOTIFICATIONS_LIKE(R.string.push_notifications_like, R.string.push_notifications_add),
         EMAIL_NOTIFICATIONS_LIKE(R.string.email_notifications_like, R.string.email_notifications_add),
         PLAY_QUEUE_HEADER_LIKES(R.string.play_queue_header_likes, R.string.play_queue_header_tracks),

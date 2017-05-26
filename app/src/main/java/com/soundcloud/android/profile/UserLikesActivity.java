@@ -3,6 +3,8 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -18,6 +20,7 @@ public class UserLikesActivity extends PlayerActivity {
     public static final String EXTRA_USER_URN = "userUrn";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+    @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     public UserLikesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -35,6 +38,8 @@ public class UserLikesActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             attachFragment();
         }
+
+        setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.USER_LIKES_LABEL));
     }
 
     @Override

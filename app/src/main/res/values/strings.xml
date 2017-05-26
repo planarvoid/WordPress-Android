@@ -1150,6 +1150,7 @@
     <string name="user_profile_sounds_header_tracks_in_collection">Tracks in their collection</string>
     <string name="user_profile_sounds_view_all_tracks_in_collection">View all tracks in their collection</string>
     <string name="user_profile_sounds_tracks_in_collection_empty">This person doesn’t have any added tracks in their collection yet.</string>
+    <string name="user_tracks_label">Tracks</string>
     <string name="push_notifications_add">Your post was added to a collection</string>
     <string name="email_notifications_add">Your post was added to a collection</string>
     <string name="play_queue_header_tracks">From your tracks</string>
