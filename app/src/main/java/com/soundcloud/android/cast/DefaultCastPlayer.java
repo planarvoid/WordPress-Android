@@ -1,7 +1,7 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.cast.api.CastProtocol.TAG;
-import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
+import static com.soundcloud.android.playback.PlaybackUtils.correctStartPosition;
 
 import com.soundcloud.android.cast.api.CastPlayQueue;
 import com.soundcloud.android.cast.api.CastProtocol;
@@ -143,7 +143,7 @@ class DefaultCastPlayer implements CastPlayer, CastProtocol.Listener {
         return Observable.fromCallable(() -> {
             playStateReporter.reportPlayingReset(initialTrackUrn);
             PlayQueue slicedPlayQueue = queueSlicer.slice(playQueue.getTrackItemUrns(), playQueue.getTrackItemUrns().indexOf(initialTrackUrn));
-            playQueueManager.setNewPlayQueue(slicedPlayQueue, playSessionSource, correctInitialPosition(slicedPlayQueue, 0, initialTrackUrn));
+            playQueueManager.setNewPlayQueue(slicedPlayQueue, playSessionSource, correctStartPosition(slicedPlayQueue, 0, initialTrackUrn, playSessionSource));
             return PlaybackResult.success();
         }).subscribeOn(AndroidSchedulers.mainThread());
     }

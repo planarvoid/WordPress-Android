@@ -79,7 +79,7 @@ public class PlaybackInitiator {
             return allTracks.doOnSubscribe(() -> startMeasuringPlaybackStarted(playSessionSource))
                             .flatMap(policyOperations.blockedStatuses())
                             .zipWith(allTracks, (blockedUrns, urns) -> PlayQueue.fromTrackUrnList(urns, playSessionSource, blockedUrns))
-                            .map(addExplicitContentFromCurrentPlayQueue(initialPosition, initialTrack))
+                            .map(addExplicitContentFromCurrentPlayQueue(initialPosition, initialTrack, playSessionSource))
                             .flatMap(playNewQueue(initialTrack, initialPosition, playSessionSource))
                             .observeOn(AndroidSchedulers.mainThread());
         }
@@ -89,7 +89,7 @@ public class PlaybackInitiator {
     private Func1<PlayQueue, Observable<? extends PlaybackResult>> playNewQueue(final Urn initialTrack, final int initialPosition, final PlaySessionSource playSessionSource) {
         return playQueue -> {
 
-            int positionOfFirstPlayable = PlaybackUtils.correctInitialPosition(playQueue, initialPosition, initialTrack);
+            int positionOfFirstPlayable = PlaybackUtils.correctStartPosition(playQueue, initialPosition, initialTrack, playSessionSource);
             Urn urnOfFirstPlayable = initialTrack;
 
             List<PlayQueueItem> items = playQueue.items();
@@ -147,10 +147,10 @@ public class PlaybackInitiator {
                         .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Func1<PlayQueue, PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition, Urn initialTrack) {
+    private Func1<PlayQueue, PlayQueue> addExplicitContentFromCurrentPlayQueue(final int startPosition, Urn initialTrack, PlaySessionSource playSessionSource) {
         return playQueueItems -> {
             final List<PlayQueueItem> explicitQueueItems = playQueueManager.getUpcomingExplicitQueueItems();
-            final int updatedInitialPosition = PlaybackUtils.correctInitialPosition(playQueueItems, startPosition, initialTrack);
+            final int updatedInitialPosition = PlaybackUtils.correctStartPosition(playQueueItems, startPosition, initialTrack, playSessionSource);
             if (playQueueItems.size() <= updatedInitialPosition) {
                 playQueueItems.insertAllItems(updatedInitialPosition, explicitQueueItems);
             } else {
