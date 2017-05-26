@@ -3,6 +3,7 @@ package com.soundcloud.android.presentation;
 import com.soundcloud.rx.Pager;
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import rx.Observable;
 import rx.Observer;
@@ -35,9 +36,32 @@ public class CollectionBinding<SourceT, ItemT> {
         });
     }
 
+    public static <ItemT, T extends Iterable<ItemT>> Builder<T, ItemT, T> fromV2(Single<T> source) {
+        return fromV2(source, new Function<T, Iterable<ItemT>>() {
+            @Override
+            public Iterable<ItemT> apply(T itemTS) throws Exception {
+                return itemTS;
+            }
+        });
+    }
+
     public static <SourceT, ItemT, T extends Iterable<ItemT>> Builder<SourceT, ItemT, T> fromV2(
             io.reactivex.Observable<SourceT> source, final Function<SourceT, ? extends Iterable<ItemT>> transformer) {
-        return new Builder<>(RxJavaInterop.toV1Observable(source, BackpressureStrategy.DROP), new Func1<SourceT, Iterable<ItemT>>() {
+        return new Builder<>(RxJavaInterop.toV1Observable(source, BackpressureStrategy.ERROR), new Func1<SourceT, Iterable<ItemT>>() {
+            @Override
+            public Iterable<ItemT> call(SourceT sourceT) {
+                try {
+                    return transformer.apply(sourceT);
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        });
+    }
+
+    public static <SourceT, ItemT, T extends Iterable<ItemT>> Builder<SourceT, ItemT, T> fromV2(
+            Single<SourceT> source, final Function<SourceT, ? extends Iterable<ItemT>> transformer) {
+        return new Builder<>(RxJavaInterop.toV1Observable(source.toObservable(), BackpressureStrategy.ERROR), new Func1<SourceT, Iterable<ItemT>>() {
             @Override
             public Iterable<ItemT> call(SourceT sourceT) {
                 try {
