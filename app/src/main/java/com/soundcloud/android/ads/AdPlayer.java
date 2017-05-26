@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.AdProgressEvent;
+
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -238,6 +240,8 @@ class AdPlayer implements Player.PlayerListener {
             final Urn urn = adData.adUrn();
             lastProgress = new PlaybackProgress(progress, duration, urn);
             analyticsController.onProgressEvent(adData, PlaybackProgressEvent.create(lastProgress, urn));
+            final AdProgressEvent progressEvent = AdProgressEvent.create(adData, lastProgress, currentDateProvider.getCurrentDate());
+            eventBus.publish(EventQueue.INLAY_AD, progressEvent);
         }
     }
 

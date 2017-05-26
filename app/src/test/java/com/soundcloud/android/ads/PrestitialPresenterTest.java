@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.AdProgressEvent;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin.PRESTITIAL;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,9 +18,11 @@ import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -180,6 +183,17 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void progressEventsAreForwardedToVideoView() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        final PlaybackProgress progress = TestPlaybackProgress.getPlaybackProgress(10, 100);
+        eventBus.publish(EventQueue.INLAY_AD, AdProgressEvent.create(sponsoredSessionAd.video(),progress, new Date(1)));
+
+        verify(sponsoredSessionVideoView).setProgress(progress);
+    }
+
+    @Test
     public void pagerIsAdvancedWhenVideoFinishes() {
         setupSponsoredSession();
         setSponsoredSessionPage(1);
@@ -235,6 +249,18 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         presenter.onWhyAdsClicked(context());
 
         verify(whyAdsDialogPresenter).show(context());
+    }
+
+    @Test
+    public void onSkipAdPausesVideoAndAdvancesPage() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onSkipAd();
+
+        verify(adPlayer).pause();
+        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        assertThat(pager.getCurrentItem()).isEqualTo(2);
     }
 
     @Test

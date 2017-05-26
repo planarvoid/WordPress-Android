@@ -1,15 +1,16 @@
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
+import static com.soundcloud.android.events.AdPlaybackEvent.*;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdPlaybackEvent;
-import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.rx.RxUtils;
@@ -197,6 +198,12 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     @Override
+    public void onSkipAd() {
+        adPlayer.pause();
+        advanceToNextPage();
+    }
+
+    @Override
     public void onWhyAdsClicked(Context context) {
         whyAdsDialogPresenter.show(context);
     }
@@ -232,19 +239,23 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
             sponsoredSessionVideoView.get().adjustLayoutForVideo(videoAd);
             adPlayer.play(videoAd, true);
             subscription = eventBus.queue(EventQueue.INLAY_AD)
-                                   .filter(AdPlaybackEvent::forStateTransition)
-                                   .cast(AdPlayStateTransition.class)
+                                   .filter(event -> event.forStateTransition() || event.forAdProgressEvent())
                                    .subscribe(new AdTransitionSubscriber());
         }
     }
 
-    private class AdTransitionSubscriber extends DefaultSubscriber<AdPlayStateTransition> {
+    private class AdTransitionSubscriber extends DefaultSubscriber<AdPlaybackEvent> {
         @Override
-        public void onNext(AdPlayStateTransition transition) {
-            final PlaybackStateTransition stateTransition = transition.stateTransition();
-            sponsoredSessionVideoView.get().setPlayState(stateTransition);
-            if (stateTransition.playbackEnded()) {
-                advanceToNextPage();
+        public void onNext(AdPlaybackEvent event) {
+            if (event.forAdProgressEvent()) {
+                final PlaybackProgress progress = ((AdProgressEvent) event).playbackProgress();
+                sponsoredSessionVideoView.get().setProgress(progress);
+            } else if (event.forStateTransition()) {
+                final PlaybackStateTransition stateTransition = ((AdPlayStateTransition) event).stateTransition();
+                sponsoredSessionVideoView.get().setPlayState(stateTransition);
+                if (stateTransition.playbackEnded()) {
+                    advanceToNextPage();
+                }
             }
         }
     }

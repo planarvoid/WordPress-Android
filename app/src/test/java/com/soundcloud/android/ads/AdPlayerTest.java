@@ -1,5 +1,6 @@
 package com.soundcloud.android.ads;
 
+import static com.soundcloud.android.events.AdPlaybackEvent.AdProgressEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -352,6 +353,18 @@ public class AdPlayerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void stateChangesArePublishedToEventQueue() {
+        final PlaybackStateTransition playerTransition = TestPlayerTransitions.playing(VIDEO_AD.adUrn());
+
+        this.player.play(VIDEO_AD, NOT_USER_INITIATED);
+        this.player.onPlaystateChanged(playerTransition);
+
+        final AdPlayStateTransition event = (AdPlayStateTransition) eventBus.lastEventOn(EventQueue.INLAY_AD);
+        assertThat(event.forStateTransition()).isTrue();
+        assertThat(event.stateTransition()).isEqualTo(playerTransition);
+    }
+
+    @Test
     public void progressUpdatesAreForwardedToAnalyticsController() {
         ArgumentCaptor<PlaybackProgressEvent> requestData = ArgumentCaptor.forClass(PlaybackProgressEvent.class);
 
@@ -362,6 +375,18 @@ public class AdPlayerTest extends AndroidUnitTest {
         final PlaybackProgress playbackProgress = requestData.getValue().getPlaybackProgress();
         assertThat(playbackProgress.getPosition()).isEqualTo(100);
         assertThat(playbackProgress.getDuration()).isEqualTo(200);
+    }
+
+    @Test
+    public void progressIsPublishedToEventQueue() {
+        player.play(VIDEO_AD, NOT_USER_INITIATED);
+
+        player.onProgressEvent(100, 500);
+
+        final AdProgressEvent event = (AdProgressEvent) eventBus.lastEventOn(EventQueue.INLAY_AD);
+        assertThat(event.forAdProgressEvent()).isTrue();
+        assertThat(event.playbackProgress().getPosition()).isEqualTo(100);
+        assertThat(event.playbackProgress().getDuration()).isEqualTo(500);
     }
 
     @Test

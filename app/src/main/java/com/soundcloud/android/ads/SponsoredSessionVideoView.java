@@ -5,7 +5,9 @@ import static com.soundcloud.android.utils.ViewUtils.forEach;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.CircularProgressBar;
 
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 class SponsoredSessionVideoView extends PrestitialView {
 
@@ -40,7 +43,7 @@ class SponsoredSessionVideoView extends PrestitialView {
     @BindView(R.id.play_controls) View playControlsHolder;
 
     @BindView(R.id.skip_ad) View skipAd;
-    @BindView(R.id.time_until_skip) View timeUntilSkip;
+    @BindView(R.id.time_until_skip) TextView timeUntilSkip;
     @BindView(R.id.advertisement) View advertisement;
 
     private final Resources resources;
@@ -56,10 +59,10 @@ class SponsoredSessionVideoView extends PrestitialView {
     public void setupContentView(View view, SponsoredSessionAd ad, Listener listener) {
         ButterKnife.bind(this, view);
 
-        ViewUtils.setGone(Arrays.asList(nextButton, previousButton, playButton, videoOverlay));
+        ViewUtils.setGone(Arrays.asList(nextButton, previousButton, playButton, videoOverlay, skipAd));
         bindClickListeners(listener);
         bindVideoTextureView(ad, listener);
-        // TODO: setupSkipButton(holder, playerAd);
+
         fadingViews = ad.video().isVerticalVideo() ? Arrays.asList(whyAds, advertisement) : fadingViews;
         adStateProvider.get(ad.video().uuid()).ifPresent(transition -> setPlayState(transition.stateTransition()));
     }
@@ -73,6 +76,7 @@ class SponsoredSessionVideoView extends PrestitialView {
         videoContainer.setOnClickListener(ignored -> listener.onTogglePlayback());
         videoOverlay.setOnClickListener(ignored -> listener.onTogglePlayback());
         whyAds.setOnClickListener(textView -> listener.onWhyAdsClicked(textView.getContext()));
+        skipAd.setOnClickListener(ignored -> listener.onSkipAd());
     }
 
     void adjustLayoutForVideo(VideoAd ad) {
@@ -84,7 +88,6 @@ class SponsoredSessionVideoView extends PrestitialView {
         letterboxBackground.setLayoutParams(layoutParams);
 
         letterboxBackground.setVisibility(ad.isVerticalVideo() ? View.GONE : View.VISIBLE);
-        // TODO: holder.setupFadingInterface(ad.isVerticalVideo());
     }
 
     private LayoutParams adjustedVideoLayoutParams(VideoAd ad) {
@@ -147,5 +150,31 @@ class SponsoredSessionVideoView extends PrestitialView {
             view.clearAnimation();
             view.setVisibility(View.VISIBLE);
         });
+    }
+
+    void setProgress(PlaybackProgress progress) {
+        final int fullDuration = (int) TimeUnit.MILLISECONDS.toSeconds(progress.getDuration());
+        final int skipDuration = Math.min(AdConstants.SPONSORED_SESSION_UNSKIPPABLE_TIME_SECS, fullDuration);
+        final int secondsUntilSkip = skipDuration - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+        final boolean canSkip = secondsUntilSkip <= 0;
+
+        toggleSkip(canSkip);
+        if (secondsUntilSkip > 0) {
+            updateSkipCountDown(secondsUntilSkip, fullDuration);
+        }
+    }
+
+    private void toggleSkip(boolean canSkip) {
+        skipAd.setVisibility(canSkip ? View.VISIBLE : View.GONE);
+        timeUntilSkip.setVisibility(canSkip ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateSkipCountDown(int secondsUntilSkip, int fullDuration) {
+        String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
+        String timerText = fullDuration > AdConstants.SPONSORED_SESSION_UNSKIPPABLE_TIME_SECS
+                           ? resources.getString(R.string.ads_skip_in_time, formattedTime)
+                           : formattedTime;
+
+        timeUntilSkip.setText(timerText);
     }
 }

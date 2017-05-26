@@ -14,4 +14,6 @@ public final class AdConstants {
     static final String CORRELATOR_PARAM = "correlator";
 
     static final int MAX_INLAYS_ON_SCREEN = 3;
+
+    public static final int SPONSORED_SESSION_UNSKIPPABLE_TIME_SECS = 60;
 }

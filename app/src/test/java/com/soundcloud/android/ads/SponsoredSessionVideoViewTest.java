@@ -9,8 +9,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlaybackProgress;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -22,6 +24,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
 
@@ -153,8 +156,77 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
         verify(listener).onWhyAdsClicked(whyAdsView.getContext());
     }
 
+    @Test
+    public void setProgressShouldInitiallySetATimerTo1minute() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 0, 100));
+
+        assertThat(videoView.skipAd).isGone();
+        assertThat(videoView.timeUntilSkip).isVisible();
+        assertThat(videoView.timeUntilSkip).containsText("Skip in: 1 min.");
+    }
+
+    @Test
+    public void setProgressShouldUpdateTimeUntilSkipAccordingToPosition() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 7, 100));
+
+        assertThat(videoView.skipAd).isGone();
+        assertThat(videoView.timeUntilSkip).isVisible();
+        assertThat(videoView.timeUntilSkip).containsText("Skip in: 53 sec.");
+    }
+
+    @Test
+    public void setProgressShouldDisplayEnableSkipAdAfter1minute() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 60, 100));
+
+        assertThat(videoView.timeUntilSkip).isGone();
+        assertThat(videoView.skipAd).isVisible();
+    }
+
+    @Test
+    public void skipAdButtonShouldCallOnSkipAdInListener() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 60, 100));
+
+        videoView.skipAd.performClick();
+
+        verify(listener).onSkipAd();
+    }
+
+
+    @Test
+    public void setProgressForAdsLessThan1minuteShouldInitiallySetTimerToDuration() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 0, 30));
+
+        assertThat(videoView.skipAd).isGone();
+        assertThat(videoView.timeUntilSkip).isVisible();
+        assertThat(videoView.timeUntilSkip).containsText("30 sec.");
+    }
+
+    @Test
+    public void setProgressForAdsLessThan1minuteShouldUpdateTimerToDuration() {
+        videoView.setupContentView(view, SPONSORED_SESSION, listener);
+
+        videoView.setProgress(createProgress(TimeUnit.SECONDS, 17, 30));
+
+        assertThat(videoView.skipAd).isGone();
+        assertThat(videoView.timeUntilSkip).isVisible();
+        assertThat(videoView.timeUntilSkip).containsText("13 sec.");
+    }
+
     public AdPlayStateTransition createTransition(VideoAd ad, PlaybackStateTransition transition) {
         return AdPlayStateTransition.create(ad, transition, false, new Date(1L));
     }
 
+    private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
+        return TestPlaybackProgress.getPlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
+    }
 }

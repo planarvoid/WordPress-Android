@@ -38,6 +38,10 @@ public abstract class AdPlaybackEvent {
         return isKind(Kind.AdPlayStateTransition);
     }
 
+    public boolean forAdProgressEvent() {
+        return isKind(Kind.AdProgressEvent);
+    }
+
     public boolean isOnScreen() {
         return isKind(Kind.OnScreen);
     }

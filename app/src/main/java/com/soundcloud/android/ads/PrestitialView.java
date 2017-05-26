@@ -15,6 +15,7 @@ abstract class PrestitialView {
         void onTogglePlayback();
         void onVideoTextureBind(TextureView textureView, View viewabilityLayer, VideoAd videoAd);
 
+        void onSkipAd();
         void onWhyAdsClicked(Context context);
         void onClickThrough(View view, AdData ad);
         void onImageLoadComplete(AdData ad, View imageView);
