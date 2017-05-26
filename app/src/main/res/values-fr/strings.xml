@@ -610,6 +610,7 @@
   </plurals>
   <string name="collections_your_liked_tracks">Favoris</string>
   <string name="track_likes_title">Favoris</string>
+  <string name="collections_tracks_header">Titres</string>
   <string name="collections_options_header_filters">Filtres</string>
   <string name="collections_options_header_sorting">Tri</string>
   <string name="collections_options_toggle_created">Créé</string>
@@ -674,7 +675,8 @@
   <string name="more_subscription_check">Vous êtes déjà abonné ? Vérifiez-le maintenant</string>
   <string name="more_subscription_check_not_subscribed">Vous n\'êtes pas abonné</string>
   <string name="more_subscription_check_error">Votre abonnement n\'a pas pu être vérifié</string>
-  <string name="more_upsell">Passez à SoundCloud Go</string>
+  <string name="more_upsell">Découvrez SoundCloud Go</string>
+  <string name="more_upsell_mt">Passez à SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s une playlist</string>
   <string name="stream_track_header_text">%1$s %2$s un titre</string>

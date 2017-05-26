@@ -18,6 +18,8 @@
   <string name="btn_unfollow">Unfollow</string>
   <string name="btn_like">Like</string>
   <string name="btn_unlike">Unlike</string>
+  <string name="btn_add_to_collection">Add to collection</string>
+  <string name="btn_remove_from_collection">Remove from collection</string>
   <string name="btn_save">Save</string>
   <string name="email">Email</string>
   <string name="password">Password</string>
@@ -144,6 +146,7 @@
   <string name="error_unauthorized_message">We’re having a problem with your account. Sign back in to SoundCloud to continue using the app.</string>
   <string name="error_unauthorized_title">Account error</string>
   <string name="error_loading_url">There was a problem loading that URL.</string>
+  <string name="error_unknown_navigation">Oops. We’re lost.</string>
   <string name="crop_image_error">There was an error cropping your image.</string>
   <string name="error_server_problems_message">There was a problem processing your request. Please try again soon.</string>
   <!--signup scope was revoked on server side-->
@@ -234,6 +237,9 @@
   <string name="like_toast_overflow_action">Saved to your likes</string>
   <string name="unlike_toast_overflow_action">Removed from your likes</string>
   <string name="like_error_toast_overflow_action">Like status was not changed</string>
+  <string name="add_snackbar_overflow_action">Added to your collection</string>
+  <string name="remove_snackbar_overflow_action">Removed from your collection</string>
+  <string name="add_error_snackbar_overflow_action">Collection status was not changed</string>
   <string name="reposted_to_followers">Reposted to your followers</string>
   <string name="unposted_to_followers">Unposted</string>
   <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
@@ -593,8 +599,21 @@
   <string name="collections_playlists_header">Playlists &amp; albums</string>
   <string name="collections_playlists_separate_header">Playlists</string>
   <string name="collections_albums_header">Albums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">playlist</item>
+    <item quantity="other">%d playlists</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">album</item>
+    <item quantity="other">%d albums</item>
+  </plurals>
+  <plurals name="collections_playlists_and_albums_header_plural">
+    <item quantity="one">Playlists &amp; albums</item>
+    <item quantity="other">%d playlists &amp; albums</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Liked tracks</string>
   <string name="track_likes_title">Liked tracks</string>
+  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filters</string>
   <string name="collections_options_header_sorting">Sorting</string>
   <string name="collections_options_toggle_created">Created</string>
@@ -660,6 +679,7 @@
   <string name="more_subscription_check_not_subscribed">You are not subscribed</string>
   <string name="more_subscription_check_error">Your subscription could not be verified</string>
   <string name="more_upsell">Upgrade to SoundCloud Go</string>
+  <string name="more_upsell_mt">Upgrade to SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
   <string name="stream_track_header_text">%1$s %2$s a track</string>
@@ -682,10 +702,14 @@
   <string name="notification_username_started_following_you">started following you</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Subscribe</string>
+  <string name="conversion_title_mt">Want to listen offline and advert-free?</string>
   <string name="conversion_title_ht">Discover more with our SoundCloud Go plans</string>
   <string name="conversion_title_upgrade">Discover even more with SoundCloud Go+</string>
+  <string name="conversion_title_ads_focus">Want advert-free listening?</string>
+  <string name="conversion_title_offline_focus">Want to listen offline?</string>
   <string name="conversion_price">%s / month</string>
   <string name="conversion_price_promo">%1$s for %2$s</string>
+  <string name="conversion_description_mt">Get the new SoundCloud Go today with offline and advert-free listening</string>
   <string name="conversion_description_ht">Get offline listening, no adverts or previews, and the largest collection of streaming tracks anywhere on the planet</string>
   <string name="conversion_description_upgrade">Unlock all previews and get access to more than 150M tracks from emerging and major label artists</string>
   <string name="conversion_buy_loading">Loading…</string>
@@ -693,6 +717,7 @@
   <string name="conversion_buy_no_trial">Upgrade now</string>
   <string name="conversion_buy_promo">Get it for a limited time</string>
   <string name="conversion_mt_plan">View our %s plan</string>
+  <string name="conversion_ht_plan">Looking for more?</string>
   <string name="conversion_retry_heading">Oops… try again</string>
   <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
   <string name="conversion_retry_button">Try again</string>
@@ -914,6 +939,7 @@
   <string name="playback_upsell_button_trial">Try SoundCloud Go+</string>
   <!--__NEW_FOR_YOU-->
   <string name="new_for_you_title">The Upload</string>
+  <string name="new_for_you_intro">Newly posted tracks. Just for you.</string>
   <string name="new_for_you_action">See playlist</string>
   <string name="system_playlist_duration">%1$d tracks, %2$s</string>
   <string name="system_playlist_updated_at">Updated %s</string>

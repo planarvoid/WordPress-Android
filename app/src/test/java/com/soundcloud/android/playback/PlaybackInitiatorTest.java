@@ -127,7 +127,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         assertPlayNewQueue(playSessionController, playQueueFromUrns, TRACK1, 0, playSessionSource);
     }
 
-
     @Test
     public void playTrackFixWrongStartingPosition() {
         // This issue has been here forever and we don't know the root cause.
@@ -141,6 +140,48 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
 
         assertPlayNewQueue(playSessionController, TestPlayQueue.fromUrns(playSessionSource, TRACK1), TRACK1, 0, playSessionSource);
+    }
+
+    @Test
+    public void playTrackWithIncorrectStartPosition() throws Exception {
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
+
+        playbackInitiator.playTracks(Observable.just(tracksToPlay), TRACK2, 0, playSessionSource)
+                         .subscribe(observer);
+
+        verify(playSessionController).playNewQueue(any(),
+                                                   eq(TRACK2),
+                                                   eq(1),
+                                                   eq(playSessionSource));
+    }
+
+    @Test
+    public void playTrackWithOutOfBoundsInitialPositionAndInitialItemInList() throws Exception {
+        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
+
+        playbackInitiator.playTracks(Observable.just(tracksToPlay), TRACK2, -1, playSessionSource)
+                         .subscribe(observer);
+
+        verify(playSessionController).playNewQueue(any(),
+                                                   eq(TRACK2),
+                                                   eq(1),
+                                                   eq(playSessionSource));
+    }
+
+    @Test
+    public void playTrackWithOutOfBoundsInitialPositionAndInitialItemNotInList() throws Exception {
+        final List<Urn> tracksToPlay = Collections.singletonList(TRACK1);
+        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
+
+        playbackInitiator.playTracks(Observable.just(tracksToPlay), TRACK2, -1, playSessionSource)
+                         .subscribe(observer);
+
+        verify(playSessionController).playNewQueue(any(),
+                                                   eq(TRACK1),
+                                                   eq(0),
+                                                   eq(playSessionSource));
     }
 
     @Test
@@ -385,18 +426,6 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
                                                                    Urn.forPlaylist(1));
         assertPlayNewQueue(playSessionController, expectedPlayQueue,
                            TRACK3, 2, playSessionSource);
-    }
-
-    @Test
-    public void playTracksWithEmptyTrackListDoesNotPlayNewQueue() {
-        playbackInitiator
-                .playTracks(Observable.<Urn>empty().toList(), TRACK1, 2, new PlaySessionSource(ORIGIN_SCREEN))
-                .subscribe(observer);
-
-        verify(playSessionController, never()).playNewQueue(any(PlayQueue.class),
-                                                   any(Urn.class),
-                                                   anyInt(),
-                                                   any(PlaySessionSource.class));
     }
 
     @Test

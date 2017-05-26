@@ -591,8 +591,21 @@
   <string name="collections_playlists_header">Playlist e album</string>
   <string name="collections_playlists_separate_header">Playlist</string>
   <string name="collections_albums_header">Album</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">playlist</item>
+    <item quantity="other">%d playlist</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">album</item>
+    <item quantity="other">%d album</item>
+  </plurals>
+  <plurals name="collections_playlists_and_albums_header_plural">
+    <item quantity="one">Playlist e album</item>
+    <item quantity="other">%d playlist e album</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Tracce preferite</string>
   <string name="track_likes_title">Tracce preferite</string>
+  <string name="collections_tracks_header">Tracce</string>
   <string name="collections_options_header_filters">Filtri</string>
   <string name="collections_options_header_sorting">Ordine</string>
   <string name="collections_options_toggle_created">Creato</string>
@@ -658,6 +671,7 @@
   <string name="more_subscription_check_not_subscribed">Non sei iscritto</string>
   <string name="more_subscription_check_error">Impossibile verificare l\'abbonamento</string>
   <string name="more_upsell">Passa a SoundCloud Go</string>
+  <string name="more_upsell_mt">Passa a SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s una playlist</string>
   <string name="stream_track_header_text">%1$s %2$s una traccia </string>

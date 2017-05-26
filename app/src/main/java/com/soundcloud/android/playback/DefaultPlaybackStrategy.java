@@ -152,10 +152,10 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                                                   final int initialTrackPosition,
                                                   final PlaySessionSource playSessionSource) {
         return Observable.defer(() -> {
-            int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue,
-                                                                                       initialTrackPosition,
-                                                                                       initialTrackUrn,
-                                                                                       playSessionSource);
+            int updatedPosition = PlaybackUtils.correctStartPosition(playQueue,
+                                                                     initialTrackPosition,
+                                                                     initialTrackUrn,
+                                                                     playSessionSource);
             playQueueManager.setNewPlayQueue(playQueue, playSessionSource, updatedPosition);
 
             return Observable.just(PlaybackResult.success());

@@ -35,7 +35,7 @@
   <string name="display_name">Name</string>
   <string name="updated_time">Aktualisiert am %s.</string>
   <string name="posted_time">%s gepostet</string>
-  <string name="plays_and_posted_time">%1$s · Gepostet am %2$s</string>
+  <string name="plays_and_posted_time">%1$s · %2$s gepostet</string>
   <string name="filter">Filter</string>
   <string name="following_zero">Gefolgt von dir</string>
   <!--__ACCESSIBILITY-->
@@ -605,6 +605,7 @@
   </plurals>
   <string name="collections_your_liked_tracks">Likes</string>
   <string name="track_likes_title">Likes</string>
+  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filter</string>
   <string name="collections_options_header_sorting">Sortierung</string>
   <string name="collections_options_toggle_created">Erstellt am</string>
@@ -670,6 +671,7 @@
   <string name="more_subscription_check_not_subscribed">Du hast kein Abonnement</string>
   <string name="more_subscription_check_error">Dein Abonnement konnte nicht bestätigt werden</string>
   <string name="more_upsell">Upgrade auf SoundCloud Go</string>
+  <string name="more_upsell_mt">Upgrade auf SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s hat eine Playlist %2$s</string>
   <string name="stream_track_header_text">%1$s hat einen Track %2$s</string>
