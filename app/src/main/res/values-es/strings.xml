@@ -591,8 +591,21 @@
   <string name="collections_playlists_header">Listas y álbumes</string>
   <string name="collections_playlists_separate_header">Listas</string>
   <string name="collections_albums_header">Álbumes</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">lista</item>
+    <item quantity="other">%d listas</item>
+  </plurals>
+  <plurals name="collections_albums_header_plural">
+    <item quantity="one">álbum</item>
+    <item quantity="other">%d álbumes</item>
+  </plurals>
+  <plurals name="collections_playlists_and_albums_header_plural">
+    <item quantity="one">Listas y álbumes</item>
+    <item quantity="other">%d listas y álbumes</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Pistas que te gustan</string>
   <string name="track_likes_title">Pistas que te gustan</string>
+  <string name="collections_tracks_header">Pistas</string>
   <string name="collections_options_header_filters">Filtros</string>
   <string name="collections_options_header_sorting">Ordenar</string>
   <string name="collections_options_toggle_created">Creado</string>
@@ -658,6 +671,7 @@
   <string name="more_subscription_check_not_subscribed">No estás suscrito</string>
   <string name="more_subscription_check_error">No se pudo verificar tu suscripción</string>
   <string name="more_upsell">Pásate a SoundCloud Go</string>
+  <string name="more_upsell_mt">Pásate a SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s una lista</string>
   <string name="stream_track_header_text">%1$s %2$s una pista</string>
@@ -915,7 +929,7 @@
   <string name="new_for_you_intro">Pistas recién posteadas. Solo para ti.</string>
   <string name="new_for_you_action">Ver lista</string>
   <string name="system_playlist_duration">%1$d pistas, %2$s</string>
-  <string name="system_playlist_updated_at">Actualizado %s</string>
+  <string name="system_playlist_updated_at">Actualizada %s</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Encontramos %1$s resultado de SoundCloud Go+</item>

@@ -605,6 +605,7 @@
   </plurals>
   <string name="collections_your_liked_tracks">Gelikete tracks</string>
   <string name="track_likes_title">Gelikete tracks</string>
+  <string name="collections_tracks_header">Tracks</string>
   <string name="collections_options_header_filters">Filters</string>
   <string name="collections_options_header_sorting">Sorteren</string>
   <string name="collections_options_toggle_created">Aangemaakt</string>
@@ -636,7 +637,7 @@
   <string name="collections_recently_played_playlist">afspeellijst</string>
   <string name="collections_recently_played_album">album</string>
   <string name="collections_recently_played_profile">profiel</string>
-  <string name="collections_upsell_title">Abonneer je op SoundCloud Go</string>
+  <string name="collections_upsell_title">SoundCloud Go downloaden</string>
   <string name="collections_upsell_body">Luister naar je likes, afspeellijsten en albums, offline en reclamevrij</string>
   <string name="collections_recently_played_clear_action">Lijst met recent afgespeelde tracks wissen</string>
   <string name="collections_recently_played_clear_dialog_title">Lijst met recent afgespeelde tracks wissen?</string>
@@ -670,6 +671,7 @@
   <string name="more_subscription_check_not_subscribed">Je bent niet geabonneerd</string>
   <string name="more_subscription_check_error">Je abonnement kon niet worden geverifieerd</string>
   <string name="more_upsell">Upgraden naar SoundCloud Go</string>
+  <string name="more_upsell_mt">Upgraden naar SoundCloud Go+</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s een afspeellijst</string>
   <string name="stream_track_header_text">%1$s %2$s een track</string>
