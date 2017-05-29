@@ -23,6 +23,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.flippernative.api.ErrorReason;
+import com.soundcloud.flippernative.api.PlayerListener;
 import com.soundcloud.flippernative.api.PlayerState;
 import com.soundcloud.flippernative.api.audio_performance;
 import com.soundcloud.flippernative.api.error_message;
@@ -40,7 +41,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 @SuppressWarnings("PMD.AvoidCatchingThrowable")
-public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListener implements Player {
+public class FlipperAdapter extends PlayerListener implements Player {
 
     private static final String TAG = "FlipperAdapter";
     private static final String TRUE_STRING = String.valueOf(true);
@@ -64,7 +65,6 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     // Flipper may send past progress events when seeking, leading to UI glitches.
     // This boolean helps us to workaround this.
     private boolean isSeekPending;
-    private long duration;
     private long progress;
 
     @Inject
@@ -106,6 +106,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
         }
 
         currentPlaybackItem = playbackItem;
+        Log.d(TAG, "play(): " + currentPlaybackItem.getUrn() + " in duration " + currentPlaybackItem.getDuration() + " ]");
         stateHandler.removeMessages(0);
         isSeekPending = false;
         progress = 0;
@@ -122,6 +123,7 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
     @Override
     public void resume(PlaybackItem playbackItem) {
         currentPlaybackItem = playbackItem;
+        Log.d(TAG, "resume() called with: playbackItem = [" + currentPlaybackItem + ", " + currentPlaybackItem.getUrn() + " in duration " + currentPlaybackItem.getDuration() + " ]");
         startPlayback();
     }
 
@@ -132,10 +134,9 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     @Override
     public long seek(long position) {
-        Log.d(TAG, "Seeking to position: " + position);
+        Log.d(TAG, "seek() called with: position = [" + position + "]");
         setSeekingState(position);
         flipper.seek(position);
-        reportProgress(position, duration);
         return position;
     }
 
@@ -251,13 +252,8 @@ public class FlipperAdapter extends com.soundcloud.flippernative.api.PlayerListe
 
     @Override
     public void onDurationChanged(state_change event) {
-        try {
-            if (isCurrentStreamUrl(event.getUri())) {
-                duration = event.getDuration();
-            }
-        } catch (Throwable t) {
-            ErrorUtils.handleThrowableOnMainThread(t, getClass(), context);
-        }
+        // FIXME DO NOT CALL SUPER AS IT WILL CRASH THE APP WHILE SEEKING
+        // FIXME Check JIRA: PLAYBACK-2706
     }
 
     @Override
