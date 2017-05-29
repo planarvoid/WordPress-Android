@@ -21,7 +21,7 @@ deleteAll:
 DELETE FROM selection_item;
 
 dropTable:
-DROP TABLE selection_item;
+DROP TABLE IF EXISTS selection_item;
 
 insertRow:
 INSERT INTO selection_item(urn, selection_urn, artwork_url_template, artwork_style, count, short_title, short_subtitle, web_link, app_link)

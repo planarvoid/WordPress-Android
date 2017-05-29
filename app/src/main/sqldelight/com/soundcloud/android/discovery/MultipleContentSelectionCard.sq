@@ -14,7 +14,7 @@ deleteAll:
 DELETE FROM multiple_content_selection_card;
 
 dropTable:
-DROP TABLE multiple_content_selection_card;
+DROP TABLE IF EXISTS multiple_content_selection_card;
 
 insertRow:
 INSERT INTO multiple_content_selection_card(urn, query_urn, style, title, description)

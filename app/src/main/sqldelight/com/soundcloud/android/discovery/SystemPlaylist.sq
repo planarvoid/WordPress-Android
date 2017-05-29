@@ -23,7 +23,7 @@ deleteAll:
 DELETE FROM system_playlist;
 
 dropTable:
-DROP TABLE system_playlist;
+DROP TABLE IF EXISTS system_playlist;
 
 insertRow:
 INSERT INTO system_playlist(urn, query_urn, title, description, artwork_url_template, last_updated)

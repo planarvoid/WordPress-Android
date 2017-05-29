@@ -16,7 +16,7 @@ deleteAll:
 DELETE FROM discovery_card;
 
 dropTable:
-DROP TABLE discovery_card;
+DROP TABLE IF EXISTS discovery_card;
 
 insertRow:
 INSERT INTO discovery_card(single_selection_card_id, multiple_selection_card_id)
