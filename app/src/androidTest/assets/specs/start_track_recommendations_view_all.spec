@@ -34,7 +34,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: ALLOW
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE
@@ -62,7 +62,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE
@@ -92,7 +92,7 @@ expected_events:
     action: play
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE
@@ -121,7 +121,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE

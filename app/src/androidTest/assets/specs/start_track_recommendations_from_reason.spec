@@ -11,7 +11,7 @@ expected_events:
     client_id: 3152
     action: play_start
     policy: (ALLOW|MONETIZE)
-    player_type: Skippy|MediaPlayer
+    player_type: Flipper|Skippy|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: search:main
     monetization_model: (\w|-)+
@@ -39,7 +39,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: (ALLOW|MONETIZE)
-    player_type: Skippy|MediaPlayer
+    player_type: Flipper|Skippy|MediaPlayer
     consumer_subs_plan: (high_tier|none)
     page_name: search:main
     monetization_model: (\w|-)+

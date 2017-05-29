@@ -32,7 +32,7 @@ expected_events:
     source_version: default
     action: play_start
     policy: (ALLOW|MONETIZE)
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (\w|-)+
     page_name: stations:main
     source_urn: soundcloud:(artist|track)-stations:[0-9]+
@@ -61,7 +61,7 @@ expected_events:
     action: pause
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: (ALLOW|MONETIZE)
-    player_type: Skippy
+    player_type: Flipper|Skippy
     consumer_subs_plan: (\w|-)+
     page_name: stations:main
     source_urn: soundcloud:(artist|track)-stations:[0-9]+

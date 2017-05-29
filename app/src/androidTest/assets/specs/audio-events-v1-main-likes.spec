@@ -14,7 +14,7 @@ expected_events:
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+
-    player_type: Skippy|MediaPlayer
+    player_type: Flipper|Skippy|MediaPlayer
     action: pause
     client_id: '3152'
     page_name: collection:likes

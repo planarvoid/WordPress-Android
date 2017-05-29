@@ -175,7 +175,7 @@ expected_events:
     ts: '[0-9]+'
     track_owner: soundcloud:users:[0-9]+
     policy: ALLOW
-    player_type: Skippy|MediaPlayer
+    player_type: Flipper|Skippy|MediaPlayer
     consumer_subs_plan: none|high_tier
     monetization_model: (\w|-)+
     protocol: hls|https

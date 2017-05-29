@@ -10,7 +10,7 @@ expected_events:
     client_id: 3152
     source_version: default
     action: play_start
-    player_type: (MediaPlayer|Skippy)
+    player_type: (Flipper|MediaPlayer|Skippy)
     consumer_subs_plan: high_tier
     page_name: stations:main
     source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
@@ -38,7 +38,7 @@ expected_events:
     client_id: 3152
     source_version: default
     action: pause
-    player_type: (MediaPlayer|Skippy)
+    player_type: (Flipper|MediaPlayer|Skippy)
     consumer_subs_plan: high_tier
     page_name: stations:main
     source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
@@ -66,7 +66,7 @@ expected_events:
     client_id: 3152
     source_version: default
     action: play_start
-    player_type: (MediaPlayer|Skippy)
+    player_type: (Flipper|MediaPlayer|Skippy)
     consumer_subs_plan: high_tier
     page_name: stations:main
     source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
@@ -95,7 +95,7 @@ expected_events:
     client_id: 3152
     source_version: default
     action: pause
-    player_type: (MediaPlayer|Skippy)
+    player_type: (Flipper|MediaPlayer|Skippy)
     consumer_subs_plan: high_tier
     page_name: stations:main
     source_urn: soundcloud:[a-zA-Z]+-stations:[0-9]+
