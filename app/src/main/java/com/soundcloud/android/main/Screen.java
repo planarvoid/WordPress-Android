@@ -74,7 +74,7 @@ public enum Screen {
     PLAY_QUEUE("play_queue:main"),
 
     // discover / new home
-    DISCOVER("discover::main"),
+    DISCOVER("discovery:main"),
 
     // TODO (REC-1174): Set proper trackingTag for system playlists
     SYSTEM_PLAYLIST("foo"),

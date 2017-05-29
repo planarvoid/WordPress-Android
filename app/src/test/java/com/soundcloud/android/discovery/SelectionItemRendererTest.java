@@ -1,8 +1,6 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,12 +12,13 @@ import com.soundcloud.android.image.ImageStyle;
 import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,14 +31,15 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private NavigationDelegate navigationDelegate;
     @Mock private ScreenProvider screenProvider;
-    @Mock private OnClickListener onClickListener;
+
+    private final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
 
     private SelectionItemRenderer renderer;
     private View itemView;
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SelectionItemRenderer(imageOperations, navigationDelegate, screenProvider);
+        renderer = new SelectionItemRenderer(imageOperations, selectionItemPublishSubject);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(selectionItem.shortTitle()).thenReturn(Optional.of("title"));
@@ -127,12 +127,12 @@ public class SelectionItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsClickHandlingFromSelectionItem() {
-        when(selectionItem.onClickListener(eq(navigationDelegate), any())).thenReturn(onClickListener);
-
         renderer.bindItemView(0, itemView, Collections.singletonList(selectionItem));
+        final TestObserver<SelectionItem> testObserver = selectionItemPublishSubject.test();
+
         itemView.performClick();
 
-        verify(onClickListener).onClick(itemView);
+        testObserver.assertValue(selectionItem);
     }
 
 }

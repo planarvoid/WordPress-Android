@@ -59,22 +59,24 @@ final class DbModelMapper {
                                                                Optional.fromNullable(singleContentSelectionCard.style()),
                                                                Optional.fromNullable(singleContentSelectionCard.title()),
                                                                Optional.fromNullable(singleContentSelectionCard.description()),
-                                                               mapSelectionItem(selectionItem),
+                                                               mapSelectionItem(singleContentSelectionCard.urn(), selectionItem),
                                                                Optional.fromNullable(singleContentSelectionCard.social_proof()),
                                                                singleContentSelectionCard.social_proof_avatar_urls());
     }
 
-    private static DiscoveryCard.MultipleContentSelectionCard mapMultipleContentSelectionCard(DbModel.MultipleContentSelectionCard singleContentSelectionCard,
+    private static DiscoveryCard.MultipleContentSelectionCard mapMultipleContentSelectionCard(DbModel.MultipleContentSelectionCard multipleContentSelectionCard,
                                                                                               Collection<DbModel.SelectionItem> selectionItems) {
-        return DiscoveryCard.MultipleContentSelectionCard.create(singleContentSelectionCard.urn(),
-                                                                 Optional.fromNullable(singleContentSelectionCard.style()),
-                                                                 Optional.fromNullable(singleContentSelectionCard.title()),
-                                                                 Optional.fromNullable(singleContentSelectionCard.description()),
-                                                                 Lists.transform(Lists.newArrayList(selectionItems), DbModelMapper::mapSelectionItem));
+        return DiscoveryCard.MultipleContentSelectionCard.create(multipleContentSelectionCard.urn(),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.query_urn()),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.style()),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.title()),
+                                                                 Optional.fromNullable(multipleContentSelectionCard.description()),
+                                                                 Lists.transform(Lists.newArrayList(selectionItems), item -> DbModelMapper.mapSelectionItem(multipleContentSelectionCard.urn(), item)));
     }
 
-    private static SelectionItem mapSelectionItem(DbModel.SelectionItem selectionItem) {
+    private static SelectionItem mapSelectionItem(Urn selectionUrn, DbModel.SelectionItem selectionItem) {
         return SelectionItem.create(Optional.fromNullable(selectionItem.urn()),
+                                    selectionUrn,
                                     Optional.fromNullable(selectionItem.artwork_url_template()),
                                     Optional.fromNullable(selectionItem.artwork_style()).transform(ImageStyle::fromIdentifier),
                                     Optional.fromNullable(selectionItem.count()).transform(Long::intValue),

@@ -1,12 +1,9 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
@@ -15,6 +12,7 @@ import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,7 +20,6 @@ import org.mockito.Mock;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,14 +35,13 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     @Mock private SelectionItem selectionItem;
     @Mock private NavigationDelegate navigationDelegate;
     @Mock private ScreenProvider screenProvider;
-    @Mock private OnClickListener onClickListener;
 
     private SingleSelectionContentCardRenderer renderer;
     private View itemView;
 
     @Before
     public void setUp() throws Exception {
-        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources, navigationDelegate, screenProvider);
+        renderer = new SingleSelectionContentCardRenderer(imageOperations, resources);
         itemView = renderer.createItemView(new LinearLayout(context()));
 
         when(card.title()).thenReturn(Optional.of("title"));
@@ -56,7 +52,6 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
         when(selectionItem.count()).thenReturn(Optional.of(1));
         when(resources.getDisplayMetrics()).thenReturn(new DisplayMetricsStub(50, 50));
     }
-
 
     @Test
     public void bindsTitleWhenPresent() {
@@ -209,11 +204,11 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsClickHandlingFromSelectionItem() {
-        when(selectionItem.onClickListener(eq(navigationDelegate), any())).thenReturn(onClickListener);
-
         renderer.bindItemView(0, itemView, Collections.singletonList(card));
+        final TestObserver<SelectionItem> testObserver = renderer.selectionItemClick().test();
+
         itemView.performClick();
 
-        verify(onClickListener).onClick(itemView);
+        testObserver.assertValue(selectionItem);
     }
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.discovery.DiscoveryCard.MultipleContentSelectionCa
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -15,8 +16,8 @@ class SelectionItemAdapter extends RecyclerItemAdapter<SelectionItem, RecyclerVi
 
     private Optional<Urn> selectionUrn = Optional.absent();
 
-    SelectionItemAdapter(@Provided SelectionItemRenderer selectionItemRenderer) {
-        super(selectionItemRenderer);
+    SelectionItemAdapter(@Provided SelectionItemRendererFactory selectionItemRendererFactory, PublishSubject<SelectionItem> selectionItemClickListener) {
+        super(selectionItemRendererFactory.create(selectionItemClickListener));
     }
 
     public Optional<Urn> selectionUrn() {

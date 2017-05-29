@@ -6,6 +6,8 @@ import com.soundcloud.android.discovery.DiscoveryCard.MultipleContentSelectionCa
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -26,10 +28,16 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
 
     private final Map<Urn, Parcelable> scrollingState = new HashMap<>();
     private final SelectionItemAdapterFactory selectionItemAdapterFactory;
+    private final PublishSubject<SelectionItem> selectionItemInCardClickListener;
 
     @Inject
     MultipleContentSelectionCardRenderer(SelectionItemAdapterFactory selectionItemAdapterFactory) {
         this.selectionItemAdapterFactory = selectionItemAdapterFactory;
+        this.selectionItemInCardClickListener = PublishSubject.create();
+    }
+
+    Observable<SelectionItem> selectionItemClick() {
+        return selectionItemInCardClickListener;
     }
 
     @Override
@@ -42,7 +50,7 @@ class MultipleContentSelectionCardRenderer implements CellRenderer<MultipleConte
 
     private void initCarousel(View cardView, RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
-        final SelectionItemAdapter adapter = selectionItemAdapterFactory.create();
+        final SelectionItemAdapter adapter = selectionItemAdapterFactory.create(selectionItemInCardClickListener);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));

@@ -1,27 +1,44 @@
 package com.soundcloud.android.discovery;
 
 
+import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_APP_LINK;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_CONTENT_SELECTION_CARD;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_SELECTION_ITEM;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.MULTI_WEB_LINK;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.SEARCH_ITEM;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_APP_LINK;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_CONTENT_SELECTION_CARD;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_SELECTION_ITEM;
+import static com.soundcloud.android.discovery.DiscoveryFixtures.SINGLE_WEB_LINK;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.Lists;
 import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observer;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DiscoveryPresenterTest extends AndroidUnitTest {
@@ -30,24 +47,25 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Bundle bundle;
     @Mock private Navigator navigator;
     @Mock private DiscoveryAdapter adapter;
+    @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Observer<Iterable<DiscoveryCard>> itemObserver;
-    @Mock private Activity activity;
     @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private DiscoveryTrackingManager discoveryTrackingManager;
+
+    private static final Screen SCREEN = Screen.DISCOVER;
 
     private DiscoveryPresenter presenter;
+    private final FragmentActivity activity = activity();
 
     @Before
     public void setUp() {
-        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapter, navigator, discoveryOperations);
+        when(adapterFactory.create(any(DiscoveryPresenter.class))).thenReturn(adapter);
+        presenter = new DiscoveryPresenter(swipeRefreshAttacher, adapterFactory, navigator, discoveryOperations, navigationDelegate, discoveryTrackingManager);
         when(discoveryOperations.discoveryCards()).thenReturn(Single.just(emptyList()));
         when(discoveryOperations.refreshDiscoveryCards()).thenReturn(Single.just(emptyList()));
-    }
-
-    @Test
-    public void onCreateSetsSearchListener() {
-        presenter.onCreate(fragment, bundle);
-        verify(adapter).setSearchListener(presenter);
+        when(fragment.getActivity()).thenReturn(activity);
     }
 
     @Test
@@ -81,5 +99,35 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         final EmptyView.Status result = presenter.handleError(exception);
 
         assertThat(result).isEqualTo(EmptyView.Status.ERROR);
+    }
+
+    @Test
+    public void navigatesAndTracksSingleSelectionItemClick() {
+        final ArrayList<DiscoveryCard> cards = Lists.newArrayList(SEARCH_ITEM, SINGLE_CONTENT_SELECTION_CARD, MULTI_CONTENT_SELECTION_CARD);
+        when(adapter.getItems()).thenReturn(cards);
+        final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
+        when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
+
+        presenter.onStart(fragment);
+
+        selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
+
+        verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
+        verify(navigationDelegate).navigateTo(eq(NavigationTarget.forNavigation(activity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN)));
+    }
+
+    @Test
+    public void navigatesAndTracksMultiSelectionItemClick() {
+        final ArrayList<DiscoveryCard> cards = Lists.newArrayList(SEARCH_ITEM, SINGLE_CONTENT_SELECTION_CARD, MULTI_CONTENT_SELECTION_CARD);
+        when(adapter.getItems()).thenReturn(cards);
+        final PublishSubject<SelectionItem> selectionItemPublishSubject = PublishSubject.create();
+        when(adapter.selectionItemClick()).thenReturn(selectionItemPublishSubject);
+
+        presenter.onStart(fragment);
+
+        selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
+
+        verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
+        verify(navigationDelegate).navigateTo(eq(NavigationTarget.forNavigation(activity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN)));
     }
 }

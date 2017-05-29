@@ -1,5 +1,7 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.model.Urn;
+
 final class DiscoveryCardMapper {
 
     private DiscoveryCardMapper() {
@@ -9,19 +11,24 @@ final class DiscoveryCardMapper {
     static DiscoveryCard map(ApiDiscoveryCard apiDiscoveryCard) {
         if (apiDiscoveryCard.multipleContentSelectionCard().isPresent()) {
             final ApiMultipleContentSelectionCard apiMultipleContentSelectionCard = apiDiscoveryCard.multipleContentSelectionCard().get();
-            return DiscoveryCard.MultipleContentSelectionCard.create(apiMultipleContentSelectionCard.selectionUrn(),
+            final Urn selectionUrn = apiMultipleContentSelectionCard.selectionUrn();
+            return DiscoveryCard.MultipleContentSelectionCard.create(selectionUrn,
+                                                                     apiMultipleContentSelectionCard.selectionItems().getQueryUrn(),
                                                                      apiMultipleContentSelectionCard.style(),
                                                                      apiMultipleContentSelectionCard.title(),
                                                                      apiMultipleContentSelectionCard.description(),
-                                                                     apiMultipleContentSelectionCard.selectionItems().transform(DiscoveryCardMapper::map).getCollection());
+                                                                     apiMultipleContentSelectionCard.selectionItems()
+                                                                                                    .transform(item -> DiscoveryCardMapper.map(selectionUrn, item))
+                                                                                                    .getCollection());
         } else if (apiDiscoveryCard.singleContentSelectionCard().isPresent()) {
             final ApiSingleContentSelectionCard apiSingleContentSelectionCard = apiDiscoveryCard.singleContentSelectionCard().get();
-            return DiscoveryCard.SingleContentSelectionCard.create(apiSingleContentSelectionCard.selectionUrn(),
+            final Urn selectionUrn = apiSingleContentSelectionCard.selectionUrn();
+            return DiscoveryCard.SingleContentSelectionCard.create(selectionUrn,
                                                                    apiSingleContentSelectionCard.queryUrn(),
                                                                    apiSingleContentSelectionCard.style(),
                                                                    apiSingleContentSelectionCard.title(),
                                                                    apiSingleContentSelectionCard.description(),
-                                                                   map(apiSingleContentSelectionCard.selectionItem()),
+                                                                   map(selectionUrn, apiSingleContentSelectionCard.selectionItem()),
                                                                    apiSingleContentSelectionCard.socialProof(),
                                                                    apiSingleContentSelectionCard.socialProofAvatarUrlTemplates());
         } else {
@@ -29,8 +36,9 @@ final class DiscoveryCardMapper {
         }
     }
 
-    private static SelectionItem map(ApiSelectionItem apiSelectionItem) {
+    private static SelectionItem map(Urn selectionUrn, ApiSelectionItem apiSelectionItem) {
         return SelectionItem.create(apiSelectionItem.urn(),
+                                    selectionUrn,
                                     apiSelectionItem.artworkUrlTemplate(),
                                     apiSelectionItem.artworkStyle(),
                                     apiSelectionItem.count(),

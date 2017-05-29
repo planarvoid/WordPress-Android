@@ -1,12 +1,12 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -16,20 +16,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final NavigationDelegate navigationDelegate;
-    private final ScreenProvider screenProvider;
+    private final PublishSubject<SelectionItem> selectionItemPublishSubject;
 
     @Inject
-    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources, NavigationDelegate navigationDelegate, ScreenProvider screenProvider) {
+    SingleSelectionContentCardRenderer(ImageOperations imageOperations, Resources resources) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.navigationDelegate = navigationDelegate;
-        this.screenProvider = screenProvider;
+        this.selectionItemPublishSubject = PublishSubject.create();
     }
 
     @Override
@@ -44,7 +43,11 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         bindText(view, R.id.single_card_description, singleContentSelectionCard.description());
         bindSelectionItem(view, R.id.single_card_artwork, singleContentSelectionCard.selectionItem());
         bindSocialProof(view, singleContentSelectionCard);
-        bindClickHandling(view, singleContentSelectionCard.selectionItem());
+        bindClickHandling(view, singleContentSelectionCard);
+    }
+
+    Observable<SelectionItem> selectionItemClick() {
+        return selectionItemPublishSubject;
     }
 
     private void bindText(View parentView, int resource, Optional<String> value) {
@@ -102,7 +105,7 @@ class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.S
         }
     }
 
-    private void bindClickHandling(View view, final SelectionItem selectionItem) {
-        view.setOnClickListener(selectionItem.onClickListener(navigationDelegate, screenProvider.getLastScreen()));
+    private void bindClickHandling(View view, final DiscoveryCard.SingleContentSelectionCard selectionCard) {
+        view.setOnClickListener(clicked -> selectionItemPublishSubject.onNext(selectionCard.selectionItem()));
     }
 }

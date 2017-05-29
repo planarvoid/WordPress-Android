@@ -20,6 +20,10 @@ abstract class DiscoveryCard {
         return DiscoveryCard.Default.create(Kind.SEARCH_ITEM);
     }
 
+    boolean hasSelectionUrn(Urn selectionUrn) {
+        return false;
+    }
+
     @AutoValue
     abstract static class Default extends DiscoveryCard {
         public static DiscoveryCard create(Kind kind) {
@@ -32,6 +36,8 @@ abstract class DiscoveryCard {
 
         abstract Urn selectionUrn();
 
+        abstract Optional<Urn> queryUrn();
+
         abstract Optional<String> style();
 
         abstract Optional<String> title();
@@ -41,11 +47,17 @@ abstract class DiscoveryCard {
         abstract List<SelectionItem> selectionItems();
 
         static MultipleContentSelectionCard create(Urn selectionUrn,
+                                                   Optional<Urn> queryUrn,
                                                    Optional<String> style,
                                                    Optional<String> title,
                                                    Optional<String> description,
                                                    List<SelectionItem> selectionItems) {
-            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, style, title, description, selectionItems);
+            return new AutoValue_DiscoveryCard_MultipleContentSelectionCard(Kind.MULTIPLE_CONTENT_SELECTION_CARD, selectionUrn, queryUrn, style, title, description, selectionItems);
+        }
+
+        @Override
+        boolean hasSelectionUrn(Urn selectionUrn) {
+            return selectionUrn().equals(selectionUrn);
         }
     }
 
@@ -85,6 +97,11 @@ abstract class DiscoveryCard {
                     selectionItem,
                     socialProof,
                     socialProofAvatarUrlTemplates);
+        }
+
+        @Override
+        boolean hasSelectionUrn(Urn selectionUrn) {
+            return selectionUrn().equals(selectionUrn);
         }
     }
 

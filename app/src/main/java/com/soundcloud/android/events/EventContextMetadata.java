@@ -14,6 +14,8 @@ public abstract class EventContextMetadata {
         return new AutoValue_EventContextMetadata.Builder()
                 .isFromOverflow(false)
                 .clickSource(Optional.absent())
+                .queryPosition(Optional.absent())
+                .queryUrn(Optional.absent())
                 .pageUrn(Urn.NOT_SET);
     }
 
@@ -38,6 +40,10 @@ public abstract class EventContextMetadata {
 
     public abstract Optional<String> clickSource();
 
+    public abstract Optional<Urn> queryUrn();
+
+    public abstract Optional<Integer> queryPosition();
+
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder pageName(String pageName);
@@ -55,6 +61,10 @@ public abstract class EventContextMetadata {
         public abstract Builder isFromOverflow(boolean isFromOverflow);
 
         public abstract Builder clickSource(Optional<String> clickSource);
+
+        public abstract Builder queryUrn(Optional<Urn> queryUrn);
+
+        public abstract Builder queryPosition(Optional<Integer> queryPosition);
 
         public abstract EventContextMetadata build();
     }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import io.reactivex.subjects.PublishSubject;
 
 import android.view.View;
 import android.widget.LinearLayout;
@@ -23,13 +25,12 @@ public class MultipleContentSelectionCardRendererTest extends AndroidUnitTest {
     @Mock SelectionItemAdapterFactory selectionItemAdapterFactory;
     @Mock SelectionItemAdapter adapter;
     @Mock DiscoveryCard.MultipleContentSelectionCard card;
-
     private View itemView;
     private MultipleContentSelectionCardRenderer renderer;
 
     @Before
     public void setUp() {
-        when(selectionItemAdapterFactory.create()).thenReturn(adapter);
+        when(selectionItemAdapterFactory.create(any(PublishSubject.class))).thenReturn(adapter);
         when(adapter.selectionUrn()).thenReturn(Optional.of(Urn.NOT_SET));
         when(card.title()).thenReturn(Optional.of("title"));
         when(card.description()).thenReturn(Optional.of("description"));

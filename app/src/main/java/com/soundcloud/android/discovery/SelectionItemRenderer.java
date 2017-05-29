@@ -2,13 +2,14 @@ package com.soundcloud.android.discovery;
 
 import static butterknife.ButterKnife.findById;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.image.StyledImageView;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.annotation.IdRes;
 import android.view.LayoutInflater;
@@ -16,20 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory
 class SelectionItemRenderer implements CellRenderer<SelectionItem> {
 
     private final ImageOperations imageOperations;
-    private final NavigationDelegate navigationDelegate;
-    private final ScreenProvider screenProvider;
+    private final PublishSubject<SelectionItem> selectionItemClickListener;
 
-    @Inject
-    SelectionItemRenderer(ImageOperations imageOperations, NavigationDelegate navigationDelegate, ScreenProvider screenProvider) {
+    SelectionItemRenderer(@Provided ImageOperations imageOperations,
+                          PublishSubject<SelectionItem> selectionItemClickListener) {
         this.imageOperations = imageOperations;
-        this.navigationDelegate = navigationDelegate;
-        this.screenProvider = screenProvider;
+        this.selectionItemClickListener = selectionItemClickListener;
     }
 
     @Override
@@ -93,6 +92,6 @@ class SelectionItemRenderer implements CellRenderer<SelectionItem> {
     }
 
     private void bindClickHandling(View view, final SelectionItem selectionItem) {
-        view.setOnClickListener(selectionItem.onClickListener(navigationDelegate, screenProvider.getLastScreen()));
+        view.setOnClickListener(clicked -> selectionItemClickListener.onNext(selectionItem));
     }
 }

@@ -33,6 +33,7 @@ public class DiscoveryOperationsTest {
     private final Syncable discoveryCardsSyncable = Syncable.DISCOVERY_CARDS;
 
     private SelectionItem selectionItem = SelectionItem.create(Optional.absent(),
+                                                               Urn.forSystemPlaylist("upload"),
                                                                Optional.absent(),
                                                                Optional.absent(),
                                                                Optional.absent(),
@@ -43,6 +44,7 @@ public class DiscoveryOperationsTest {
 
     private final DiscoveryCard.MultipleContentSelectionCard multiCard =
             DiscoveryCard.MultipleContentSelectionCard.create(Urn.forSystemPlaylist("123"),
+                                                              Optional.absent(),
                                                               Optional.absent(),
                                                               Optional.absent(),
                                                               Optional.absent(),
