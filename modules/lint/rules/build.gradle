@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+jar {
+  manifest {
+    attributes 'Manifest-Version': 1.0
+    attributes 'Lint-Registry': 'com.soundcloud.android.lint.rules.SoundCloudIssueRegistry'
+  }
+}
+
+configurations {
+  lintChecks
+}
+
+dependencies {
+  def libraries = rootProject.ext.libraries
+  def unitTestLibraries = rootProject.ext.unitTestLibraries
+
+  lintChecks files(jar)
+  compile libraries.lintApi
+  testCompile unitTestLibraries.lintTests
+  testCompile unitTestLibraries.junit
+}
+
+sourceSets {
+  main.resources.srcDir 'src/main/java'
+  test.resources.srcDir 'src/test/java'
+}
+
+test {
+  maxParallelForks = Runtime.runtime.availableProcessors() / 2
+}

@@ -40,6 +40,7 @@ android {
     compile (libraries.lightCycle) {
       exclude group: 'com.android.support', module: 'preference-v7'
     }
+    compile libraries.lintlib
     compile libraries.androidSupportAnnotations
     compile libraries.androidRecyclerView
     compile libraries.rxAndroid

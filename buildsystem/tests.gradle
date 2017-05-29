@@ -2,7 +2,8 @@ task runUnitTests(dependsOn: [':app:runUnitTests',
                               ':modules:groupie:groupie-compiler:test',
                               ':modules:mrlocallocal:test',
                               ':modules:android-kit:core:test',
-                              ':modules:android-kit:platform:test']) {
+                              ':modules:android-kit:platform:test',
+                              ':modules:lint:rules:test']) {
 
 }
 

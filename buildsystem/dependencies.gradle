@@ -44,6 +44,7 @@ ext {
           soundCloudVorbisEncoder      : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
           groupieCompiler              : project(':modules:groupie:groupie-compiler'),
           groupie                      : project(':modules:groupie:groupie'),
+          lintlib                      : project(':modules:lint:lib'),
 
           // Analytics / tracking
           comscore                     : "com.comscore:comscore:3.1508.28",
@@ -102,7 +103,8 @@ ext {
 
           // static analysis
           checkstyle                   : "com.puppycrawl.tools:checkstyle:7.6.1",
-          checkstyleSevntu             : "com.github.sevntu.checkstyle:sevntu-checks:1.23.1"
+          checkstyleSevntu             : "com.github.sevntu.checkstyle:sevntu-checks:1.23.1",
+          lintApi                      : "com.android.tools.lint:lint-api:$androidSupportVersion"
   ]
 
 
@@ -123,7 +125,8 @@ ext {
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
-          compileTesting                  : 'com.google.testing.compile:compile-testing:0.10'
+          compileTesting                  : 'com.google.testing.compile:compile-testing:0.10',
+          lintTests                       : "com.android.tools.lint:lint-tests:$androidSupportVersion"
   ]
 
   acceptanceTestLibraries = [

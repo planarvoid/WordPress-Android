@@ -179,6 +179,7 @@ dependencies {
     exclude group: 'com.android.support', module: 'preference-v7'
   }
   compile libraries.groupie
+  compile libraries.lintlib
 
   /* 3rd Party Libraries */
   compile libraries.comscore
