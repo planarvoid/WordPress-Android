@@ -5,10 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.main.NavigationDelegate;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RefreshableScreen;
-import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
@@ -25,11 +23,8 @@ public class UserDetailsFragment extends LightCycleSupportFragment<UserDetailsFr
         implements RefreshableScreen {
 
     @Inject LeakCanaryWrapper leakCanaryWrapper;
-    @Inject UserDetailsView userDetailsView;
     @Inject UserProfileOperations profileOperations;
-    @Inject CondensedNumberFormatter numberFormatter;
     @Inject Navigator navigator;
-    @Inject NavigationDelegate navigationDelegate;
     @Inject ScreenProvider screenProvider;
     @Inject @LightCycle UserDetailsPresenter userDetailsPresenter;
 
