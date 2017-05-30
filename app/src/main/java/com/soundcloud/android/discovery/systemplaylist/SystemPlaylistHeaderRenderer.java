@@ -59,6 +59,9 @@ class SystemPlaylistHeaderRenderer implements CellRenderer<SystemPlaylistItem.He
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && item.image().isPresent()) {
             simpleBlurredImageLoader.displayBlurredArtwork(item.image().get(), blurredArtworkView);
         }
+        else {
+            imageOperations.displayPlaceholder(String.valueOf(item.hashCode()), blurredArtworkView);
+        }
     }
 
     private void bindPlayButton(View itemView) {
