@@ -199,7 +199,7 @@ public class AdPlayerTest extends AndroidUnitTest {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlayStateTransition.class);
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK)).isInstanceOf(AdPlayStateTransition.class);
     }
 
     @Test
@@ -359,7 +359,7 @@ public class AdPlayerTest extends AndroidUnitTest {
         this.player.play(VIDEO_AD, NOT_USER_INITIATED);
         this.player.onPlaystateChanged(playerTransition);
 
-        final AdPlayStateTransition event = (AdPlayStateTransition) eventBus.lastEventOn(EventQueue.INLAY_AD);
+        final AdPlayStateTransition event = (AdPlayStateTransition) eventBus.lastEventOn(EventQueue.AD_PLAYBACK);
         assertThat(event.forStateTransition()).isTrue();
         assertThat(event.stateTransition()).isEqualTo(playerTransition);
     }
@@ -383,7 +383,7 @@ public class AdPlayerTest extends AndroidUnitTest {
 
         player.onProgressEvent(100, 500);
 
-        final AdProgressEvent event = (AdProgressEvent) eventBus.lastEventOn(EventQueue.INLAY_AD);
+        final AdProgressEvent event = (AdProgressEvent) eventBus.lastEventOn(EventQueue.AD_PLAYBACK);
         assertThat(event.forAdProgressEvent()).isTrue();
         assertThat(event.playbackProgress().getPosition()).isEqualTo(100);
         assertThat(event.playbackProgress().getDuration()).isEqualTo(500);

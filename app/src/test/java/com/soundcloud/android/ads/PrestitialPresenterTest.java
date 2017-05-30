@@ -177,7 +177,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(1);
 
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.playing();
-        eventBus.publish(EventQueue.INLAY_AD, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
+        eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
 
         verify(sponsoredSessionVideoView).setPlayState(stateTransition);
     }
@@ -188,7 +188,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(1);
 
         final PlaybackProgress progress = TestPlaybackProgress.getPlaybackProgress(10, 100);
-        eventBus.publish(EventQueue.INLAY_AD, AdProgressEvent.create(sponsoredSessionAd.video(),progress, new Date(1)));
+        eventBus.publish(EventQueue.AD_PLAYBACK, AdProgressEvent.create(sponsoredSessionAd.video(), progress, new Date(1)));
 
         verify(sponsoredSessionVideoView).setProgress(progress);
     }
@@ -199,7 +199,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(1);
 
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.complete();
-        eventBus.publish(EventQueue.INLAY_AD, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
+        eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
 
         ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
         assertThat(pager.getCurrentItem()).isEqualTo(2);

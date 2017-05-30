@@ -156,7 +156,7 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
     }
 
     private void publishNoVideoOnScreenEvent() {
-        eventBus.publish(EventQueue.INLAY_AD, AdPlaybackEvent.NoVideoOnScreen.create(dateProvider.getCurrentDate(), false));
+        eventBus.publish(EventQueue.AD_PLAYBACK, AdPlaybackEvent.NoVideoOnScreen.create(dateProvider.getCurrentDate(), false));
     }
 
     @Override

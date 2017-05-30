@@ -59,7 +59,7 @@ class InlayAdHelper {
     }
 
     Subscription subscribe() {
-        return eventBus.queue(EventQueue.INLAY_AD)
+        return eventBus.queue(EventQueue.AD_PLAYBACK)
                        .filter(AdPlaybackEvent::forStateTransition)
                        .cast(AdPlayStateTransition.class)
                        .subscribe(new InlayStateTransitionSubscriber());
@@ -149,7 +149,7 @@ class InlayAdHelper {
     }
 
     private void publishInlayAdEvent(AdPlaybackEvent event) {
-       eventBus.publish(EventQueue.INLAY_AD, event);
+       eventBus.publish(EventQueue.AD_PLAYBACK, event);
     }
 
     public boolean isOnScreen(int position) {

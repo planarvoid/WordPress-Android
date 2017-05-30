@@ -145,7 +145,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
 
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isToggleVolume()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK).isToggleVolume()).isTrue();
     }
 
     @Test
@@ -156,7 +156,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_view).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK).isTogglePlayback()).isTrue();
     }
 
     @Test
@@ -167,7 +167,7 @@ public class VideoAdItemRendererTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_volume_control).performClick();
         adView.findViewById(R.id.video_view).performClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK).isTogglePlayback()).isTrue();
     }
 
     @Test

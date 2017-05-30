@@ -113,7 +113,7 @@ public class AppInstallItemRenderer extends AdItemRenderer {
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
             final Date now = dateProvider.getCurrentDate();
             ad.setImageLoadTimeOnce(now);
-            eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forImageLoaded(position, ad, now));
+            eventBus.publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(position, ad, now));
         }
 
         @Override public void onLoadingStarted(String imageUri, View view) {}

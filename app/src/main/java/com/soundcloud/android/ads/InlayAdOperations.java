@@ -36,7 +36,7 @@ class InlayAdOperations {
     }
 
     private Subscription trackAppInstallImpressions(InlayAdHelper helper) {
-        return eventBus.queue(EventQueue.INLAY_AD)
+        return eventBus.queue(EventQueue.AD_PLAYBACK)
                        .filter(AdPlaybackEvent::forAppInstall)
                        .cast(InlayAdEvent.class)
                        .filter(new OnScreenAndImageLoaded(helper))
@@ -51,7 +51,7 @@ class InlayAdOperations {
     }
 
     private Subscription handleVideoAdPlayback() {
-        return eventBus.queue(EventQueue.INLAY_AD)
+        return eventBus.queue(EventQueue.AD_PLAYBACK)
                        .filter(AdPlaybackEvent::forVideoAd)
                        .observeOn(AndroidSchedulers.mainThread())
                        .subscribe(new VideoPlaybackSubscriber(inlayAdPlayer.get()));

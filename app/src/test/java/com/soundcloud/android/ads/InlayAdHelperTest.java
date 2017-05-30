@@ -243,7 +243,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(10, untracked, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forOnScreen(10, untracked, CURRENT_DATE));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forOnScreen(8, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test
@@ -293,7 +293,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forOnScreen(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forOnScreen(9, VIDEO_AD_ITEM.getAdData().get(), CURRENT_DATE));
     }
 
     @Test
@@ -305,7 +305,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE, true));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, NoVideoOnScreen.create(CURRENT_DATE, true));
     }
 
     @Test
@@ -315,7 +315,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
 
         inlayAdHelper.onChangeToAdsOnScreen(DO_NOT_REBIND_VIDEO_VIEWS);
 
-        verify(eventBus).publish(EventQueue.INLAY_AD, NoVideoOnScreen.create(CURRENT_DATE, true));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, NoVideoOnScreen.create(CURRENT_DATE, true));
     }
 
     @Test
@@ -354,7 +354,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         inlayAdHelper.subscribe();
 
         final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
-        eventBus.publish(EventQueue.INLAY_AD, event);
+        eventBus.publish(EventQueue.AD_PLAYBACK, event);
 
         verify(videoAdItemRenderer).setPlayState(any(View.class), eq(event.stateTransition()), eq(event.isMuted()));
     }
@@ -366,7 +366,7 @@ public class InlayAdHelperTest extends AndroidUnitTest {
         inlayAdHelper.subscribe();
 
         final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, TestPlayerTransitions.idle(), true, new Date(999));
-        eventBus.publish(EventQueue.INLAY_AD, event);
+        eventBus.publish(EventQueue.AD_PLAYBACK, event);
 
         verify(videoAdItemRenderer, never()).setPlayState(any(View.class), any(PlaybackStateTransition.class), anyBoolean());
     }

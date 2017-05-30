@@ -309,7 +309,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.onFocusGain();
 
         verify(inlayAdHelper).onChangeToAdsOnScreen(true);
-        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.AD_PLAYBACK)).isEmpty();
     }
 
     @Test
@@ -323,7 +323,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
     public void onFocusLossWhenForTabChangePublishesNoAdOnScreenEvent() {
         controller.onFocusLoss(true);
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test
@@ -331,7 +331,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.setFullscreenEnabled();
         controller.onFocusLoss(true);
 
-        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.AD_PLAYBACK)).isEmpty();
         verify(inlayAdHelper, never()).onChangeToAdsOnScreen(anyBoolean());
     }
 
@@ -355,7 +355,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         controller.onPause(fragment);
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
 
         controller.onPause(fragment);
 
-        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.AD_PLAYBACK)).isEmpty();
     }
 
     @Test
@@ -374,21 +374,21 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         controller.setFullscreenEnabled();
         controller.onPause(fragment);
 
-        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.AD_PLAYBACK)).isEmpty();
     }
 
     @Test
     public void playerExpandEventWillPublishNoAdOnScreenEvent() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK)).isInstanceOf(AdPlaybackEvent.NoVideoOnScreen.class);
     }
 
     @Test
     public void playerCollapseEventDoesntPublishAnyInlayEvent() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        assertThat(eventBus.eventsOn(EventQueue.INLAY_AD)).isEmpty();
+        assertThat(eventBus.eventsOn(EventQueue.AD_PLAYBACK)).isEmpty();
     }
 
     @Test

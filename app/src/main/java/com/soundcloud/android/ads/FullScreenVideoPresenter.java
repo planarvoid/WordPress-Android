@@ -109,7 +109,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onResume(AppCompatActivity activity) {
         ad.ifPresent(videoAd -> view.bindVideoSurface(videoAd.uuid(), VideoSurfaceProvider.Origin.FULLSCREEN));
-        subscription = eventBus.queue(EventQueue.INLAY_AD)
+        subscription = eventBus.queue(EventQueue.AD_PLAYBACK)
                                .filter(AdPlaybackEvent::forStateTransition)
                                .cast(AdPlayStateTransition.class)
                                .subscribe(new TransitionSubscriber());
@@ -137,7 +137,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Override
     public void onTogglePlayClick() {
-        ad.ifPresent(video -> eventBus.publish(EventQueue.INLAY_AD,
+        ad.ifPresent(video -> eventBus.publish(EventQueue.AD_PLAYBACK,
                                                InlayAdEvent.forTogglePlayback(Consts.NOT_SET, video, dateProvider.getCurrentDate())));
     }
 

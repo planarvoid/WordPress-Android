@@ -104,7 +104,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onTogglePlayClick();
 
-        assertThat(eventBus.lastEventOn(EventQueue.INLAY_AD).isTogglePlayback()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.AD_PLAYBACK).isTogglePlayback()).isTrue();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
 
         final PlaybackStateTransition transition = TestPlayerTransitions.playing();
         final AdPlayStateTransition event = AdPlayStateTransition.create(VIDEO_AD, transition, false, new Date(999));
-        eventBus.publish(EventQueue.INLAY_AD, event);
+        eventBus.publish(EventQueue.AD_PLAYBACK, event);
 
         verify(videoView).setPlayState(transition);
     }

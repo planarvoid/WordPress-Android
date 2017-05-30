@@ -90,11 +90,11 @@ public class VideoAdItemRenderer extends AdItemRenderer {
 
     private void publishVolumeToggle(int position, VideoAd videoAd, Holder holder) {
         holder.previouslyUnmuted = true;
-        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forToggleVolume(position, videoAd, currentDateProvider.getCurrentDate()));
+        eventBus.publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forToggleVolume(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void publishPlayToggle(int position, VideoAd videoAd) {
-        eventBus.publish(EventQueue.INLAY_AD, InlayAdEvent.forTogglePlayback(position, videoAd, currentDateProvider.getCurrentDate()));
+        eventBus.publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forTogglePlayback(position, videoAd, currentDateProvider.getCurrentDate()));
     }
 
     private void bindFooter(VideoAd videoAd, Holder holder) {

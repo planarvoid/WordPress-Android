@@ -245,7 +245,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         private void onVideoPageSelect() {
             sponsoredSessionVideoView.get().adjustLayoutForVideo(videoAd);
             adPlayer.play(videoAd, true);
-            subscription = eventBus.queue(EventQueue.INLAY_AD)
+            subscription = eventBus.queue(EventQueue.AD_PLAYBACK)
                                    .filter(event -> event.forStateTransition() || event.forAdProgressEvent())
                                    .subscribe(new AdTransitionSubscriber());
         }

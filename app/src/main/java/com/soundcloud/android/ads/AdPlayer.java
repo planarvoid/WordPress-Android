@@ -229,7 +229,7 @@ class AdPlayer implements Player.PlayerListener {
             final AdPlayStateTransition stateEvent = AdPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
             analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, ad, playState);
             stateProvider.put(ad.uuid(), stateEvent);
-            eventBus.publish(EventQueue.INLAY_AD, stateEvent);
+            eventBus.publish(EventQueue.AD_PLAYBACK, stateEvent);
         }
     }
 
@@ -241,7 +241,7 @@ class AdPlayer implements Player.PlayerListener {
             lastProgress = new PlaybackProgress(progress, duration, urn);
             analyticsController.onProgressEvent(adData, PlaybackProgressEvent.create(lastProgress, urn));
             final AdProgressEvent progressEvent = AdProgressEvent.create(adData, lastProgress, currentDateProvider.getCurrentDate());
-            eventBus.publish(EventQueue.INLAY_AD, progressEvent);
+            eventBus.publish(EventQueue.AD_PLAYBACK, progressEvent);
         }
     }
 

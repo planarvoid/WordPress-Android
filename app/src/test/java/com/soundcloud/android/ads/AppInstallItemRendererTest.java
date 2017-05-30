@@ -108,7 +108,7 @@ public class AppInstallItemRendererTest extends AndroidUnitTest {
         }.run();
 
         assertThat(ad.imageLoadTime()).isEqualTo(Optional.of(CURRENT_DATE));
-        verify(eventBus).publish(EventQueue.INLAY_AD, InlayAdEvent.forImageLoaded(42, ad, CURRENT_DATE));
+        verify(eventBus).publish(EventQueue.AD_PLAYBACK, InlayAdEvent.forImageLoaded(42, ad, CURRENT_DATE));
     }
 
     abstract class RunnableRenderer extends AppInstallItemRenderer implements Runnable {
