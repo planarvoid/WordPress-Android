@@ -286,6 +286,30 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPauseShouldPausePlaybackIfPlayerIsPlaying() {
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd.video()));
+        when(adPlayer.isPlaying()).thenReturn(true);
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onPause(activity);
+
+        verify(adPlayer).pause();
+    }
+
+    @Test
+    public void onPauseShouldDoNothingIfPlayerIsntPlaying() {
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd.video()));
+        when(adPlayer.isPlaying()).thenReturn(false);
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onPause(activity);
+
+        verify(adPlayer, never()).pause();
+    }
+
+    @Test
     public void onResumeShouldReattachVideoSurfaceIfPlayerIsSetup() {
         final View viewabilityLayer = mock(View.class);
         final TextureView textureView = mock(TextureView.class);

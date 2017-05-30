@@ -37,4 +37,9 @@ public class PrestitialActivity extends LoggedInActivity {
     protected void setActivityContentView() {
         super.setContentView(R.layout.sponsored_session_prestitial);
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }

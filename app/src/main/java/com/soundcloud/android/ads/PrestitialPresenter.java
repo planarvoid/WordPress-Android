@@ -109,6 +109,13 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     @Override
+    public void onPause(AppCompatActivity host) {
+        if (adPlayer.isPlaying()) {
+            adPlayer.pause();
+        }
+    }
+
+    @Override
     public void onResume(AppCompatActivity activity) {
         adPlayer.getCurrentAd().ifPresent(ad -> {
             final SponsoredSessionVideoView videoCardView = sponsoredSessionVideoView.get();
