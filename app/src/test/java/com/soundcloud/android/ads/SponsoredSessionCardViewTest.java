@@ -37,7 +37,7 @@ public class SponsoredSessionCardViewTest extends AndroidUnitTest {
     public void descriptionTextForOptInCardGetsSetupWithAdFreeListeningTime() {
         cardView.setupContentView(view, SPONSORED_SESSION_AD, listener, PrestitialPage.OPT_IN_CARD);
 
-        assertThat(((TextView) view.findViewById(R.id.opt_in_text)).getText()).isEqualTo("One ad equals 60 minutes of tracks with no interruptions. Take a Look.");
+        assertThat(((TextView) view.findViewById(R.id.opt_in_text)).getText()).isEqualTo("Put a pause on ads: watch this video and unlock 60-minutes of nonstop music");
     }
 
     @Test

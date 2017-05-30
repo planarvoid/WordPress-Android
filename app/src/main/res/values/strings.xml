@@ -74,7 +74,7 @@
     <string name="ads_watch_now">Watch Now</string>
     <string name="ads_no_thanks">No Thanks</string>
     <string name="ads_learn_more">Learn More</string>
-    <string name="ads_opt_in_text">One ad equals %s minutes of tracks with no interruptions. Take a Look.</string>
+    <string name="ads_opt_in_text">Put a pause on ads: watch this video and unlock %s-minutes of nonstop music</string>
     <string name="ads_start_session">Start Session</string>
     <string name="ads_sponsored_session_unlocked">You’ve unlocked your ad-free listening session.</string>
 
