@@ -68,6 +68,7 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.squareup.leakcanary.LeakCanary;
 import dagger.Lazy;
+import io.reactivex.plugins.RxJavaPlugins;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
@@ -158,6 +159,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         initializePreInjectionObjects();
         setUpCrashReportingIfNeeded();
+        setupRxErrorHandling();
         initializeFirebase();
 
         applicationComponent.inject(this);
@@ -323,6 +325,22 @@ public class SoundCloudApplication extends MultiDexApplication {
                                        .detectAll()
                                        .penaltyLog()
                                        .build());
+    }
+
+    // If an item is added to an Observer that has been disposed, RxJava2 will propagate the error to the
+    // Uncaught Exception Handler. By default this crashes our app. These errors happen when we don't
+    // properly wrap a non-RX api with an Rx Api. For example, converting our non-Rx API calls into
+    // Observables / Singles.
+    //
+    // Generally speaking, these aren't critical errors that should crash our app, but they are code
+    // smells that should be fixed. In RxJava1, no error was thrown, so these underlying issues were
+    // never exposed.
+    private void setupRxErrorHandling() {
+        if (!applicationProperties.isDevelopmentMode()) {
+            RxJavaPlugins.setErrorHandler(e -> {
+                ErrorUtils.handleSilentException("RxError", e);
+            });
+        }
     }
 
     private boolean isReportingCrashes() {
