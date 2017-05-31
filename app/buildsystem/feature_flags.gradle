@@ -29,7 +29,8 @@ enum Feature {
   SEARCH_PLAY_RELATED_TRACKS,
   ALIGNED_USER_INFO,
   RECOMMENDED_PLAYLISTS,
-  DYNAMIC_LINK_SHARING;
+  DYNAMIC_LINK_SHARING,
+  FIREBASE_PERFORMANCE_MONITORING;
 }
 
 android {
@@ -56,6 +57,7 @@ android {
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
@@ -75,6 +77,7 @@ android {
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -97,6 +100,7 @@ android {
       buildConfigField FLAG, Feature.ALIGNED_USER_INFO.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -112,6 +116,7 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
     }
 
     release {
@@ -125,6 +130,7 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
     }
   }
 }

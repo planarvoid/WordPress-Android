@@ -3,15 +3,15 @@ package com.soundcloud.android.utils;
 import com.soundcloud.java.optional.Optional;
 
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
 /**
  * Dummy activity do replace the dependency of other OS or library activites like when selecting a user account from the system.
  */
-public class TestGplusRegistrationActivity extends AppCompatActivity {
+public class TestGplusRegistrationActivity extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

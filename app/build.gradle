@@ -51,6 +51,7 @@ buildscript {
     classpath 'com.fernandocejas.frodo:frodo-plugin:0.8.2'
     classpath 'me.tatarka:gradle-retrolambda:3.6.1'
     classpath 'com.squareup.sqldelight:gradle-plugin:0.6.1'
+    classpath 'com.google.firebase:firebase-plugins:1.1.0'
   }
 }
 
@@ -232,6 +233,7 @@ dependencies {
   compile libraries.firebaseConfig
   compile libraries.firebaseMessaging
   compile libraries.firebaseAnalytics
+  compile libraries.firebasePerformance
 
   /* Unit tests */
   testCompile libraries.androidSupportAnnotations
@@ -274,3 +276,6 @@ dependencies {
 //ADD THIS AT THE BOTTOM
 //https://firebase.google.com/docs/android/setup
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'
+
+

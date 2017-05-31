@@ -34,7 +34,7 @@ public class PerformanceMetricsEngine {
     private final ConcurrentHashMap<MetricType, List<PerformanceMetric>> metricTypeList = new ConcurrentHashMap<>();
 
     @Inject
-    PerformanceMetricsEngine(EventBus eventBus) {
+    PerformanceMetricsEngine( EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

@@ -8,6 +8,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.perf.FirebasePerformance;
 import com.moat.analytics.mobile.scl.MoatAnalytics;
 import com.moat.analytics.mobile.scl.MoatOptions;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -49,6 +50,7 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -167,6 +169,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             Stetho.initializeWithDefaults(this);
         }
 
+        initializePerformanceMonitoring();
         bootApplication();
 
         performanceMetricsEngine.endMeasuringFrom(appOnCreateMetric);
@@ -177,6 +180,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         // http://stackoverflow.com/questions/37585090/leakcanary-crashes-with-googles-firebase
         final FirebaseOptions options = FirebaseOptions.fromResource(this);
         FirebaseApp.initializeApp(this, options);
+    }
+
+    private void initializePerformanceMonitoring() {
+        FirebasePerformance.getInstance().setPerformanceCollectionEnabled(featureFlags.isEnabled(Flag.FIREBASE_PERFORMANCE_MONITORING));
     }
 
     protected ApplicationComponent buildApplicationComponent() {
