@@ -1,4 +1,3 @@
-
 def NODE_NAME = "android"
 
 timestamps {
@@ -19,13 +18,18 @@ timestamps {
           }
         }
         stage('Build and Test') {
-          node('android') {
+          node(NODE_NAME) {
             deleteDir()
             unstash 'repository'
             env.BUILD_TYPE = 'preRelease'
+            gradle 'clean'
+            gradle 'buildPreRelease assembleAcceptanceTest'
+            stash name: 'ui-test', useDefaultExcludes: false
+          }
+          node('chaos-slave') {
             try {
-              gradle 'clean'
-              gradle 'buildPreRelease assembleAcceptanceTest'
+              deleteDir()
+              unstash 'ui-test'
               gradle 'runMarshmallowTestsRelease'
             } finally {
               junit 'results/xml/*.xml'
