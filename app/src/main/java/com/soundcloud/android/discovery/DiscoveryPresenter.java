@@ -72,7 +72,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     @Override
     public void onStop(Fragment fragment) {
-        disposable.dispose();
+        disposable.clear();
         super.onStop(fragment);
     }
 
