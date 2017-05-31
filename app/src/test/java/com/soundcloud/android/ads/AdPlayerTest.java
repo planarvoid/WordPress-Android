@@ -104,13 +104,31 @@ public class AdPlayerTest extends AndroidUnitTest {
     @Test
     public void autoplayWhenAdIsNewAdShouldPlayNewAd() {
         final VideoAd ad = AdFixtures.getVideoAd(Urn.forAd("123", "ABC"), Urn.forTrack(123));
-        final VideoAdPlaybackItem item = VideoAdPlaybackItem.create(ad, 0L, 0L);
+        final VideoAdPlaybackItem item = VideoAdPlaybackItem.create(ad, 0L, 1L);
 
         player.play(VIDEO_AD, false);
         player.autoplay(ad);
 
         verify(adapter, times(2)).stopForTrackTransition();
         verify(adapter).play(VIDEO_ITEM);
+        verify(adapter).play(item);
+    }
+
+    @Test
+    public void videoIsInitiallyMutedForInlayAds() {
+        final VideoAd ad = AdFixtures.getInlayVideoAd(1L);
+        player.play(ad, false);
+        final VideoAdPlaybackItem item = VideoAdPlaybackItem.create(ad, 0L, 0L);
+
+        verify(adapter).play(item);
+    }
+
+    @Test
+    public void videoIsNotMutedForSponsoredSessions() {
+        final VideoAd ad = AdFixtures.sponsoredSessionAd().video();
+        player.play(ad, false);
+        final VideoAdPlaybackItem item = VideoAdPlaybackItem.create(ad, 0L, 1L);
+
         verify(adapter).play(item);
     }
 

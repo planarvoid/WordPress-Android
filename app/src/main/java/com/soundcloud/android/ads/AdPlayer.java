@@ -80,13 +80,15 @@ class AdPlayer implements Player.PlayerListener {
     }
 
     void play(VideoAd ad, boolean isUserInitiated) {
-        final PlaybackItem playbackItem = VideoAdPlaybackItem.create(ad, 0L, 0.0f);
+        final boolean isInlay = ad.monetizationType() == AdData.MonetizationType.INLAY;
+        final float initialVolume = isInlay ? 0.0f : 1.0f;
+        final PlaybackItem playbackItem = VideoAdPlaybackItem.create(ad, 0L, initialVolume);
         if (isCurrentAd(ad) && wasPaused(playbackItem.getUrn())) {
             pausePlaySessionIfNeeded();
             setUserInitiated(isUserInitiated);
             currentPlayer.resume(playbackItem);
         } else if (!isCurrentAd(ad)) {
-            isPlayerMuted = true; // Inlay ads begin muted
+            isPlayerMuted = isInlay; // Inlay ads begin muted
             currentAd = Optional.of(ad);
             setUserInitiated(isUserInitiated);
 
