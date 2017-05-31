@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
@@ -40,7 +40,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     @Inject EventBus eventBus;
     @Inject ImageOperations imageOperations;
     @Inject TrackInfoPresenter presenter;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private Observable<TrackItem> loadTrack;
@@ -111,7 +111,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             final View view = getView();
             final Urn trackUrn = trackItem.getUrn();
             final TrackInfoCommentClickListener commentClickListener =
-                    new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigator);
+                    new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigationExecutor);
             presenter.bind(view, trackItem, commentClickListener);
 
             if (trackItem.description().isPresent()) {
@@ -134,7 +134,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         private final CollapseDelayHandler collapseDelayHandler;
         private final EventBus eventBus;
         private final Urn trackurn;
-        private final Navigator navigator;
+        private final NavigationExecutor navigationExecutor;
 
         private static class CollapseDelayHandler extends Handler {
             private EventBus eventBus;
@@ -152,8 +152,8 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         public TrackInfoCommentClickListener(TrackInfoFragment fragment,
                                              EventBus eventBus,
                                              Urn trackurn,
-                                             Navigator navigator) {
-            this.navigator = navigator;
+                                             NavigationExecutor navigationExecutor) {
+            this.navigationExecutor = navigationExecutor;
             this.trackInfoFragmentRef = new WeakReference<>(fragment);
             this.eventBus = eventBus;
             this.trackurn = trackurn;
@@ -184,7 +184,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             return new DefaultSubscriber<PlayerUIEvent>() {
                 @Override
                 public void onNext(PlayerUIEvent args) {
-                    navigator.openTrackComments(context, trackurn);
+                    navigationExecutor.openTrackComments(context, trackurn);
                 }
             };
         }

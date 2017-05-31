@@ -1,4 +1,4 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRxV2;
@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.model.Urn;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;

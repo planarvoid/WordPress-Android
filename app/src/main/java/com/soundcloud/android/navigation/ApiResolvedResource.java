@@ -1,4 +1,4 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

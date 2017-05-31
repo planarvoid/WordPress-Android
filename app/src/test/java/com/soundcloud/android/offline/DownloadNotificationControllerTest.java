@@ -8,10 +8,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -47,7 +48,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
     @Mock private Notification notification;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private FeatureFlags featureFlags;
 
     private DownloadNotificationController notificationController;
@@ -66,7 +67,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
                 notificationManager,
                 notificationBuilderProvider,
                 resources(),
-                navigator,
+                navigationExecutor,
                 featureFlags);
     }
 
@@ -77,7 +78,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         reset(notificationBuilder);
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
-        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_cloud);
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
@@ -94,7 +95,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         reset(notificationBuilder);
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
-        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_download_completed);
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
@@ -180,7 +181,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
-        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -213,7 +214,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
 
-        verify(navigator, times(3)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -246,7 +247,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadError(failedDownloadState);
 
-        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -263,7 +264,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         when(notificationBuilder.build()).thenReturn(notification);
         notificationController.onDownloadSuccess(successfulDownloadState);
 
-        verify(navigator, times(2)).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -279,7 +280,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         DownloadState result = DownloadState.disconnectedNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
-        verify(navigator).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -294,7 +295,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         DownloadState result = DownloadState.invalidNetworkError(downloadRequest);
         notificationController.onConnectionError(result, true);
 
-        verify(navigator).createPendingCollectionIntent(eq(context()));
+        verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
         verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

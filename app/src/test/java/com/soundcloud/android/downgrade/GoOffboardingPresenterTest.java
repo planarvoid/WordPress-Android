@@ -7,7 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.PendingPlanOperations;
@@ -36,7 +36,7 @@ import java.io.IOException;
 public class GoOffboardingPresenterTest extends AndroidUnitTest {
 
     @Mock private Fragment fragment;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private PlanChangeOperations planChangeOperations;
     @Mock private AppCompatActivity activity;
@@ -52,7 +52,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         when(fragment.getContext()).thenReturn(activity);
         when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.FREE_TIER);
         view = new GoOffboardingViewStub();
-        presenter = new GoOffboardingPresenter(navigator, pendingPlanOperations, planChangeOperations, view, eventBus);
+        presenter = new GoOffboardingPresenter(navigationExecutor, pendingPlanOperations, planChangeOperations, view, eventBus);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onContinueClicked();
 
         assertThat(view.isContinueButtonWaiting).isFalse();
-        verify(navigator).openHomeAsRootScreen(any(Activity.class));
+        verify(navigationExecutor).openHomeAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -92,11 +92,11 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, new View(context()), null);
         presenter.onContinueClicked();
 
-        verify(navigator, never()).openStream(any(Activity.class), any(Screen.class));
+        verify(navigationExecutor, never()).openStream(any(Activity.class), any(Screen.class));
         subject.onNext(downgradeResult);
         subject.onCompleted();
 
-        verify(navigator).openHomeAsRootScreen(any(Activity.class));
+        verify(navigationExecutor).openHomeAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -170,7 +170,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         assertThat(view.isResubscribeButtonWaiting).isFalse();
-        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
+        verify(navigationExecutor).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
         verify(activity).finish();
     }
 
@@ -206,7 +206,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(downgradeResult);
         subject.onCompleted();
 
-        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
+        verify(navigationExecutor).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }
 
     @Test
@@ -273,7 +273,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         success.onNext(downgradeResult);
         success.onCompleted();
 
-        verify(navigator).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
+        verify(navigationExecutor).openUpgradeOnMain(any(Activity.class), eq(UpsellContext.DEFAULT));
     }
 
     @Test

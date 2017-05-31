@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 class SingleSelectionContentCardRenderer implements CellRenderer<DiscoveryCard.SingleContentSelectionCard> {

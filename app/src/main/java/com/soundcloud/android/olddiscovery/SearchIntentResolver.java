@@ -5,8 +5,8 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.deeplinks.ReferrerResolver;
-import com.soundcloud.android.main.NavigationDelegate;
-import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -28,13 +28,13 @@ class SearchIntentResolver {
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
     private final DeepLinkListener listener;
-    private final NavigationDelegate navigationDelegate;
+    private final Navigator navigator;
     private final ReferrerResolver referrerResolver;
     private final SearchTracker tracker;
 
-    SearchIntentResolver(DeepLinkListener listener, @Provided NavigationDelegate navigationDelegate, @Provided ReferrerResolver referrerResolver, @Provided SearchTracker tracker) {
+    SearchIntentResolver(DeepLinkListener listener, @Provided Navigator navigator, @Provided ReferrerResolver referrerResolver, @Provided SearchTracker tracker) {
         this.listener = listener;
-        this.navigationDelegate = navigationDelegate;
+        this.navigator = navigator;
         this.referrerResolver = referrerResolver;
         this.tracker = tracker;
     }
@@ -75,7 +75,7 @@ class SearchIntentResolver {
             searchFromDeepLink(Uri.decode(intent.getData().getLastPathSegment()));
         } else if (content != Content.UNKNOWN) {
             final String referrer = referrerResolver.getReferrerFromIntent(intent, activity.getResources());
-            navigationDelegate.navigateTo(NavigationTarget.forDeeplink(activity, intent.getDataString(), referrer));
+            navigator.navigateTo(NavigationTarget.forExternalDeeplink(activity, intent.getDataString(), referrer));
         }
     }
 

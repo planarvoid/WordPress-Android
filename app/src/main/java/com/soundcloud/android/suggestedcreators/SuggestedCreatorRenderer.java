@@ -1,6 +1,6 @@
 package com.soundcloud.android.suggestedcreators;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -30,7 +30,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private final ProfileImageHelper profileImageHelper;
     private final Resources resources;
     private final SuggestedCreatorsOperations suggestedCreatorsOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EngagementsTracking engagementsTracking;
     private final ScreenProvider screenProvider;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
@@ -39,14 +39,14 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     SuggestedCreatorRenderer(ProfileImageHelper profileImageHelper,
                              Resources resources,
                              SuggestedCreatorsOperations suggestedCreatorsOperations,
-                             Navigator navigator,
+                             NavigationExecutor navigationExecutor,
                              EngagementsTracking engagementsTracking,
                              ScreenProvider screenProvider,
                              ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.profileImageHelper = profileImageHelper;
         this.resources = resources;
         this.suggestedCreatorsOperations = suggestedCreatorsOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.engagementsTracking = engagementsTracking;
         this.screenProvider = screenProvider;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
@@ -99,9 +99,9 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
     private void bindArtistName(View view, final User creator, final int position) {
         final TextView textView = (TextView) view.findViewById(R.id.suggested_creator_artist);
         textView.setText(creator.username());
-        textView.setOnClickListener(v -> navigator.openProfile(v.getContext(),
-                                                       creator.urn(),
-                                                       UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))));
+        textView.setOnClickListener(v -> navigationExecutor.openProfile(v.getContext(),
+                                                                        creator.urn(),
+                                                                        UIEvent.fromNavigation(creator.urn(), buildEventContextMetadata(position))));
     }
 
     private EventContextMetadata buildEventContextMetadata(int position) {

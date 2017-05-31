@@ -1,6 +1,6 @@
 package com.soundcloud.android.search.topresults;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.performance.MetricKey;
@@ -12,6 +12,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
@@ -47,6 +49,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Inject TopResultsPresenter presenter;
     @Inject TopResultsAdapterFactory adapterFactory;
     @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject PlaybackFeedbackHelper playbackFeedbackHelper;
     @Inject SearchTracker searchTracker;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
@@ -190,34 +193,34 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Override
     public void navigateToPlaylist(GoToItemArgs args) {
-        navigator.openPlaylist(getContext(),
-                               args.itemUrn(),
-                               Screen.SEARCH_EVERYTHING,
-                               args.searchQuerySourceInfo(),
-                               null, // top results cannot be promoted *yet
-                               UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
+        navigationExecutor.openPlaylist(getContext(),
+                                        args.itemUrn(),
+                                        Screen.SEARCH_EVERYTHING,
+                                        args.searchQuerySourceInfo(),
+                                        null, // top results cannot be promoted *yet
+                                        UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
     }
 
     @Override
     public void navigateToUser(GoToItemArgs args) {
-        navigator.openProfile(getContext(),
-                              args.itemUrn(),
-                              Screen.SEARCH_EVERYTHING,
-                              UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
+        navigationExecutor.openProfile(getContext(),
+                                       args.itemUrn(),
+                                       Screen.SEARCH_EVERYTHING,
+                                       UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
     }
 
     @Override
     public void navigateToViewAll(TopResultsViewAllArgs args) {
-        navigator.openSearchViewAll(getContext(),
-                                    getApiQuery(),
-                                    args.queryUrn(),
-                                    args.kind(),
-                                    args.isPremium());
+        navigator.navigateTo(NavigationTarget.forSearchViewAll(getActivity(),
+                                                               args.queryUrn(),
+                                                               getApiQuery(),
+                                                               args.kind(),
+                                                               args.isPremium()));
     }
 
     @Override
     public void navigateToHelp() {
-        navigator.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override

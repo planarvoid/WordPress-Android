@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.feedback.Feedback;
@@ -38,7 +38,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     @Mock private AppCompatActivity activity;
     @Mock private View player;
     @Mock private FeedbackController feedbackController;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Captor private ArgumentCaptor<Feedback> feedbackArgumentCaptor;
 
     private final TestEventBus eventBus = new TestEventBus();
@@ -51,7 +51,7 @@ public class CommentControllerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         track = PlayableFixtures.fromApiTrack();
 
-        controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigator);
+        controller = new CommentController(eventBus, InjectionSupport.lazyOf(commentOperations), feedbackController, navigationExecutor);
         controller.onCreate(activity, null);
     }
 

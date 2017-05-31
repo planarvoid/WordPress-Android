@@ -1,9 +1,10 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.LocalEntityUriResolver;
 import org.junit.Before;
 import org.junit.Test;
 

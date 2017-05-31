@@ -12,7 +12,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.performance.MetricKey;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
@@ -45,7 +45,7 @@ public class OnboardActivityTest extends AndroidUnitTest {
     @Mock private Intent intent;
     @Mock private ConfigurationManager configurationManager;
     @Mock private BugReporter bugReporter;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private LoginManager facebookLoginManager;
     @Mock private CallbackManager facebookCallbackManager;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
@@ -64,7 +64,7 @@ public class OnboardActivityTest extends AndroidUnitTest {
         activity = new OnboardActivityWithSettableBundle(configurationManager,
                                                          bugReporter,
                                                          eventBus,
-                                                         navigator,
+                                                         navigationExecutor,
                                                          facebookSdk,
                                                          facebookLoginManager,
                                                          facebookCallbackManager,
@@ -184,14 +184,14 @@ public class OnboardActivityTest extends AndroidUnitTest {
         public OnboardActivityWithSettableBundle(ConfigurationManager configurationManager,
                                                  BugReporter bugReporter,
                                                  EventBus eventBus,
-                                                 Navigator navigator,
+                                                 NavigationExecutor navigationExecutor,
                                                  FacebookSdk facebookSdk,
                                                  LoginManager facebookLoginManager,
                                                  CallbackManager facebookCallbackManager,
                                                  PerformanceMetricsEngine performanceMetricsEngine,
                                                  LoginTaskFragment.Factory loginTaskFragmentFactory,
                                                  GooglePlusSignInTaskFragment.Factory googlePlusSignInTaskFragmentFactory) {
-            super(configurationManager, bugReporter, eventBus, navigator, facebookSdk,
+            super(configurationManager, bugReporter, eventBus, navigationExecutor, facebookSdk,
                   facebookLoginManager, facebookCallbackManager, performanceMetricsEngine,
                   loginTaskFragmentFactory, googlePlusSignInTaskFragmentFactory);
         }

@@ -8,7 +8,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -30,17 +30,17 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final TrackRecommendationListener listener;
 
     RecommendationRenderer(TrackRecommendationListener listener,
                            @Provided ImageOperations imageOperations,
                            @Provided TrackItemMenuPresenter trackItemMenuPresenter,
-                           @Provided Navigator navigator) {
+                           @Provided NavigationExecutor navigationExecutor) {
         this.listener = listener;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -79,7 +79,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(VISIBLE);
-            artist.setOnClickListener(v -> navigator.legacyOpenProfile(artist.getContext(), creatorUrn));
+            artist.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(artist.getContext(), creatorUrn));
         }
     }
 

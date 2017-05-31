@@ -2,7 +2,7 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -50,7 +50,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     };
 
     private final UserRecyclerItemAdapter adapter;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private Screen screen;
     private CompositeSubscription updateFollowingsSubscription;
 
@@ -61,14 +61,14 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                           UserRecyclerItemAdapter adapter,
                           MyProfileOperations profileOperations,
                           FollowingOperations followingOperations,
-                          EntityItemCreator entityItemCreator, Navigator navigator) {
+                          EntityItemCreator entityItemCreator, NavigationExecutor navigationExecutor) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.profileOperations = profileOperations;
         this.followingOperations = followingOperations;
         this.entityItemCreator = entityItemCreator;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -141,7 +141,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
                                                                         .module(Module.create(Module.USER_FOLLOWING, position))
                                                                         .build();
 
-        navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadata));
+        navigationExecutor.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadata));
     }
 
     @Override

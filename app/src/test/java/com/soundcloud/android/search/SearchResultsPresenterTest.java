@@ -9,7 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -70,7 +70,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
     @Mock private TrackItemRenderer trackItemRenderer;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private SearchTracker searchTracker;
     @Mock private ScreenProvider screenProvider;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
@@ -103,7 +103,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                adapter,
                                                clickListenerFactory,
                                                eventBus,
-                                               navigator,
+                                               navigationExecutor,
                                                searchTracker,
                                                screenProvider,
                                                searchPlayQueueFilter,
@@ -201,19 +201,19 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
-        verify(navigator).openSearchPremiumContentResults(eq(context()),
-                                                          anyString(),
-                                                          any(SearchType.class),
-                                                          eq(premiumItemsSource),
-                                                          eq(nextHref),
-                                                          eq(QUERY_URN));
+        verify(navigationExecutor).openSearchPremiumContentResults(eq(context()),
+                                                                   anyString(),
+                                                                   any(SearchType.class),
+                                                                   eq(premiumItemsSource),
+                                                                   eq(nextHref),
+                                                                   eq(QUERY_URN));
     }
 
     @Test
     public void shouldOpenUpgradeSubscription() {
         presenter.onPremiumContentHelpClicked(context());
 
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test
@@ -312,7 +312,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false, SearchType.TRACKS, true);
         presenter.onUpsellClicked(context());
 
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test
@@ -365,7 +365,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
                                                adapter,
                                                clickListenerFactory,
                                                eventBus,
-                                               navigator,
+                                               navigationExecutor,
                                                searchTracker,
                                                screenProvider,
                                                new SearchPlayQueueFilter(playRelatedTracksConfig),

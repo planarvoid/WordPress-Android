@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -54,7 +54,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     @Mock private MixedItemClickListener.Factory clickListenerFactory;
     @Mock private MixedItemClickListener clickListener;
     @Mock private FeatureOperations featureOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private SearchTracker searchTracker;
     @Mock private SearchPlayQueueFilter searchPlayQueueFilter;
@@ -75,7 +75,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
                                                       adapter,
                                                       clickListenerFactory,
                                                       featureOperations,
-                                                      navigator,
+                                                      navigationExecutor,
                                                       eventBus,
                                                       searchTracker,
                                                       searchPlayQueueFilter);
@@ -125,7 +125,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
     public void shouldOpenUpgradeSubscription() {
         presenter.onUpsellClicked(context());
 
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -54,7 +54,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final PlayQueueHelper playQueueHelper;
     private final EventTracker eventTracker;
     private final PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory;
@@ -83,7 +83,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
                                      ScreenProvider screenProvider,
                                      FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations,
-                                     Navigator navigator,
+                                     NavigationExecutor navigationExecutor,
                                      PlayQueueHelper playQueueHelper,
                                      EventTracker eventTracker,
                                      PlaylistItemMenuRendererFactory playlistItemMenuRendererFactory,
@@ -101,7 +101,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.playQueueHelper = playQueueHelper;
         this.eventTracker = eventTracker;
         this.playlistItemMenuRendererFactory = playlistItemMenuRendererFactory;
@@ -219,7 +219,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         boolean addLike = !playlist.isUserLike();
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigator));
+                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(
                 UIEvent.fromToggleLike(addLike,
@@ -248,7 +248,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
 
     @Override
     public void handleUpsell(Context context) {
-        navigator.openUpgrade(context, UpsellContext.OFFLINE);
+        navigationExecutor.openUpgrade(context, UpsellContext.OFFLINE);
         eventBus.publish(EventQueue.TRACKING,
                          UpgradeFunnelEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(),
                                                                  playlistUrn));
@@ -270,7 +270,7 @@ public class PlaylistItemMenuPresenter implements PlaylistItemMenuRenderer.Liste
         likeOperations.toggleLike(playlistUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .doOnNext(ignored -> saveOffline())
-                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigator));
+                      .subscribe(new LikeToggleSubscriber(appContext, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
     }
 
     private void saveOffline() {

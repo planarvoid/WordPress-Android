@@ -1,9 +1,9 @@
 package com.soundcloud.android.stations;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
@@ -23,7 +23,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
     private final StationMenuRendererFactory rendererFactory;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     private StationMenuRenderer renderer;
     private Subscription stationSubscription = RxUtils.invalidSubscription();
@@ -34,13 +34,13 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
                          StationsOperations stationsOperations,
                          ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                          FeedbackController feedbackController,
-                         Navigator navigator) {
+                         NavigationExecutor navigationExecutor) {
         this.context = context;
         this.rendererFactory = rendererFactory;
         this.stationsOperations = stationsOperations;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     public void show(View button, Urn stationUrn) {
@@ -54,7 +54,7 @@ public class StationMenuPresenter implements StationMenuRenderer.Listener {
 
         stationsOperations.toggleStationLike(station.getUrn(), addLike)
                           .observeOn(AndroidSchedulers.mainThread())
-                          .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigator));
+                          .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
     }
 
     @Override

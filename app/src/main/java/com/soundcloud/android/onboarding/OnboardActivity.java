@@ -13,7 +13,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.performance.MetricKey;
@@ -194,7 +194,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject OAuth oauth;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject GooglePlayServicesWrapper playServicesWrapper;
@@ -207,7 +207,7 @@ public class OnboardActivity extends FragmentActivity
     OnboardActivity(ConfigurationManager configurationManager,
                     BugReporter bugReporter,
                     EventBus eventBus,
-                    Navigator navigator,
+                    NavigationExecutor navigationExecutor,
                     FacebookSdk facebookSdk,
                     LoginManager facebookLoginManager,
                     CallbackManager facebookCallbackManager,
@@ -217,7 +217,7 @@ public class OnboardActivity extends FragmentActivity
         this.configurationManager = configurationManager;
         this.bugReporter = bugReporter;
         this.eventBus = eventBus;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.facebookSdk = facebookSdk;
         this.facebookLoginManager = facebookLoginManager;
         this.facebookCallbackManager = facebookCallbackManager;
@@ -575,7 +575,7 @@ public class OnboardActivity extends FragmentActivity
                                   .putExtra(SignupVia.EXTRA, via.name));
 
             if (deepLinkUri.isPresent()) {
-                navigator.openResolveForUri(this, deepLinkUri.get());
+                navigationExecutor.openResolveForUri(this, deepLinkUri.get());
             } else {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }

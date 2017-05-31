@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.olddiscovery.recommendedplaylists.CarouselPlaylistItemRenderer;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -25,17 +25,17 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
 
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     OtherPlaylistsByUserAdapter(@Provided CarouselPlaylistItemRenderer renderer,
                                 @Provided ScreenProvider screenProvider,
                                 @Provided EventBus eventBus,
-                                @Provided Navigator navigator) {
+                                @Provided NavigationExecutor navigationExecutor) {
         super(renderer);
         renderer.setPlaylistListener(this);
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     void setOtherPlaylistsByUser(PlaylistDetailOtherPlaylistsItem otherPlaylistsItem) {
@@ -59,7 +59,7 @@ class OtherPlaylistsByUserAdapter extends RecyclerItemAdapter<PlaylistItem, Recy
         final EventContextMetadata eventContextMetadata = getEventContextMetadata(module, screen);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromMorePlaylistsByUser(playlistUrn, eventContextMetadata));
-        navigator.openPlaylist(context, playlistUrn, screen, event);
+        navigationExecutor.openPlaylist(context, playlistUrn, screen, event);
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

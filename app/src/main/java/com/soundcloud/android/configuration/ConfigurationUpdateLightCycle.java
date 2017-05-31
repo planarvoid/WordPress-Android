@@ -1,6 +1,6 @@
 package com.soundcloud.android.configuration;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -16,18 +16,18 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
 
     private final ConfigurationManager configurationManager;
     private final PendingPlanOperations pendingPlanOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     ConfigurationUpdateLightCycle(ConfigurationManager configurationManager,
                                   PendingPlanOperations pendingPlanOperations,
-                                  Navigator navigator,
+                                  NavigationExecutor navigationExecutor,
                                   EventBus eventBus) {
         this.configurationManager = configurationManager;
         this.pendingPlanOperations = pendingPlanOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
     }
 
@@ -35,9 +35,9 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
     public void onStart(AppCompatActivity activity) {
         subscription = eventBus.subscribe(EventQueue.USER_PLAN_CHANGE, new PlanChangeSubscriber(activity));
         if (pendingPlanOperations.isPendingUpgrade()) {
-            navigator.resetForAccountUpgrade(activity);
+            navigationExecutor.resetForAccountUpgrade(activity);
         } else if (pendingPlanOperations.isPendingDowngrade()) {
-            navigator.resetForAccountDowngrade(activity);
+            navigationExecutor.resetForAccountDowngrade(activity);
         } else {
             configurationManager.requestConfigurationUpdate();
         }
@@ -59,9 +59,9 @@ public class ConfigurationUpdateLightCycle extends DefaultActivityLightCycle<App
         @Override
         public void onNext(UserPlanChangedEvent event) {
             if (isUpgradeEvent(event)) {
-                navigator.resetForAccountUpgrade(activity);
+                navigationExecutor.resetForAccountUpgrade(activity);
             } else if (isDowngradeEvent(event)) {
-                navigator.resetForAccountDowngrade(activity);
+                navigationExecutor.resetForAccountDowngrade(activity);
             }
         }
     }

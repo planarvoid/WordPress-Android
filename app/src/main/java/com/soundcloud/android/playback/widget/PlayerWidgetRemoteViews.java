@@ -1,11 +1,12 @@
 package com.soundcloud.android.playback.widget;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -82,9 +83,9 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
         if (userUrn.isPresent()) {
             setOnClickPendingIntent(R.id.user_txt,
-                                    Navigator.openProfileFromWidget(context,
-                                                                    userUrn.get(),
-                                                                    PENDING_INTENT_REQUEST_CODE));
+                                    PendingIntentFactory.openProfileFromWidget(context,
+                                                                               userUrn.get(),
+                                                                               PENDING_INTENT_REQUEST_CODE));
         }
     }
 

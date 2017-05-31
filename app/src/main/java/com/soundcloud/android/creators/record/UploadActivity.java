@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -23,7 +23,7 @@ public class UploadActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject RecordingOperations operations;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     public UploadActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -74,7 +74,7 @@ public class UploadActivity extends LoggedInActivity {
                     recording.artwork_path = new File(artwork.getPath());
                 }
 
-                navigator.openRecord(UploadActivity.this, recording);
+                navigationExecutor.openRecord(UploadActivity.this, recording);
             }
 
             @Override

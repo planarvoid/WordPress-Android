@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -43,7 +43,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
     @Mock private ActivitiesOperations operations;
     @Mock private ActivitiesAdapter adapter;
     @Mock private TrackRepository trackRepository;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private View itemView;
     @Mock private NewItemsIndicator newItemsIndicator;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
@@ -56,7 +56,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
                 operations,
                 adapter,
                 trackRepository,
-                navigator,
+                navigationExecutor,
                 newItemsIndicator,
                 performanceMetricsEngine);
 
@@ -82,7 +82,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).legacyOpenProfile(context(), activity.getUrn());
+        verify(navigationExecutor).legacyOpenProfile(context(), activity.getUrn());
     }
 
     @Test
@@ -135,7 +135,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openTrackComments(context(), track.urn());
+        verify(navigationExecutor).openTrackComments(context(), track.urn());
     }
 
     @Test

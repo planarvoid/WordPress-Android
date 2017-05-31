@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -29,7 +29,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Screen screen;
 
@@ -38,12 +38,12 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
                            SwipeRefreshAttacher swipeRefreshAttacher,
                            UserProfileOperations profileOperations,
                            UserRecyclerItemAdapter adapter,
-                           Navigator navigator) {
+                           NavigationExecutor navigationExecutor) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -101,7 +101,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
             eventContextMetadataBuilder.pageName(screen.get());
         }
 
-        navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
+        navigationExecutor.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
     }
 
     @Override

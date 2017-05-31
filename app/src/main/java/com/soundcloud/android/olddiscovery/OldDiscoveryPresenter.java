@@ -2,7 +2,7 @@ package com.soundcloud.android.olddiscovery;
 
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -49,7 +49,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final OldDiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private final StartStationHandler startStationPresenter;
     private final DiscoveryMeasurements discoveryMeasurements;
@@ -62,7 +62,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
                           OldDiscoveryAdapterFactory adapterFactory,
                           RecommendationBucketRendererFactory recommendationBucketRendererFactory,
                           ImagePauseOnScrollListener imagePauseOnScrollListener,
-                          Navigator navigator,
+                          NavigationExecutor navigationExecutor,
                           EventBus eventBus,
                           StartStationHandler startStationPresenter,
                           TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator,
@@ -76,7 +76,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
         this.discoveryMeasurements = discoveryMeasurementsFactory.create();
         this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.startStationPresenter = startStationPresenter;
         this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
@@ -96,7 +96,7 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forDiscoveryClick());
     }
 
@@ -135,12 +135,12 @@ class OldDiscoveryPresenter extends RecyclerViewPresenter<List<OldDiscoveryItem>
 
     @Override
     public void onSearchClicked(Context context) {
-        navigator.openSearch((Activity) context);
+        navigationExecutor.openSearch((Activity) context);
     }
 
     @Override
     public void onTagSelected(Context context, String tag) {
-        navigator.openPlaylistDiscoveryTag(context, tag);
+        navigationExecutor.openPlaylistDiscoveryTag(context, tag);
     }
 
     @Override

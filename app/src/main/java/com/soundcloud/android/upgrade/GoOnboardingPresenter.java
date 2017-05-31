@@ -2,7 +2,7 @@ package com.soundcloud.android.upgrade;
 
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
@@ -28,7 +28,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         USER_NO_ACTION, USER_CLICKED_START
     }
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final PendingPlanOperations pendingPlanOperations;
     private final PlanChangeOperations planChangeOperations;
     private final GoOnboardingView view;
@@ -42,12 +42,12 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator,
+    GoOnboardingPresenter(NavigationExecutor navigationExecutor,
                           PendingPlanOperations pendingPlanOperations,
                           PlanChangeOperations planChangeOperations,
                           GoOnboardingView view,
                           EventBus eventBus) {
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.pendingPlanOperations = pendingPlanOperations;
         this.planChangeOperations = planChangeOperations;
         this.view = view;
@@ -172,7 +172,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public Strategy proceed() {
             if (context == StrategyContext.USER_CLICKED_START) {
-                navigator.openCollectionAsRootScreen(activity);
+                navigationExecutor.openCollectionAsRootScreen(activity);
                 eventBus.publish(EventQueue.TRACKING,
                                  OfflineInteractionEvent.fromOnboardingStart());
                 view.reset();

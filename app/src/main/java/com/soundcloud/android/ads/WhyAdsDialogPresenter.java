@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
@@ -16,13 +16,13 @@ import javax.inject.Inject;
 
 public class WhyAdsDialogPresenter {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final FeatureOperations featureOperations;
     private final EventBus eventBus;
 
     @Inject
-    public WhyAdsDialogPresenter(Navigator navigator, FeatureOperations featureOperations, EventBus eventBus) {
-        this.navigator = navigator;
+    public WhyAdsDialogPresenter(NavigationExecutor navigationExecutor, FeatureOperations featureOperations, EventBus eventBus) {
+        this.navigationExecutor = navigationExecutor;
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
     }
@@ -48,7 +48,7 @@ public class WhyAdsDialogPresenter {
     private void configureForUpsell(final Context context, CustomFontViewBuilder view, AlertDialog.Builder dialog) {
         dialog.setView(view.setMessage(R.string.ads_why_ads_upsell_dialog_message).get())
               .setPositiveButton(R.string.upsell_remove_ads, (dialog11, which) -> {
-                  navigator.openUpgrade(context, UpsellContext.ADS);
+                  navigationExecutor.openUpgrade(context, UpsellContext.ADS);
                   eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forWhyAdsClick());
               })
               .setNegativeButton(android.R.string.ok, null);

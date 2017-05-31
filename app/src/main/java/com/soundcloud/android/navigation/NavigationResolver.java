@@ -1,18 +1,19 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.deeplinks.AllGenresUriResolver;
+import com.soundcloud.android.deeplinks.ChartDetails;
+import com.soundcloud.android.deeplinks.ChartsUriResolver;
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.main.NavigationResult;
-import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
@@ -42,8 +43,8 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-@SuppressWarnings("PMD.GodClass")
-public class IntentResolver {
+@SuppressWarnings({"PMD.GodClass", "RestrictedApi"})
+public class NavigationResolver {
 
     private final ResolveOperations resolveOperations;
     private final AccountOperations accountOperations;
@@ -51,7 +52,7 @@ public class IntentResolver {
     private final PlaybackInitiator playbackInitiator;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final FeatureOperations featureOperations;
     private final ChartsUriResolver chartsUriResolver;
     private final SignInOperations signInOperations;
@@ -59,25 +60,25 @@ public class IntentResolver {
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Inject
-    IntentResolver(ResolveOperations resolveOperations,
-                   LocalEntityUriResolver localEntityUriResolver,
-                   AccountOperations accountOperations,
-                   PlaybackServiceController serviceController,
-                   PlaybackInitiator playbackInitiator,
-                   PlayQueueManager playQueueManager,
-                   EventBus eventBus,
-                   Navigator navigator,
-                   FeatureOperations featureOperations,
-                   ChartsUriResolver chartsUriResolver,
-                   SignInOperations signInOperations,
-                   Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    NavigationResolver(ResolveOperations resolveOperations,
+                       LocalEntityUriResolver localEntityUriResolver,
+                       AccountOperations accountOperations,
+                       PlaybackServiceController serviceController,
+                       PlaybackInitiator playbackInitiator,
+                       PlayQueueManager playQueueManager,
+                       EventBus eventBus,
+                       NavigationExecutor navigationExecutor,
+                       FeatureOperations featureOperations,
+                       ChartsUriResolver chartsUriResolver,
+                       SignInOperations signInOperations,
+                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceController = serviceController;
         this.playbackInitiator = playbackInitiator;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.featureOperations = featureOperations;
         this.chartsUriResolver = chartsUriResolver;
         this.signInOperations = signInOperations;
@@ -89,7 +90,11 @@ public class IntentResolver {
     public Single<NavigationResult> resolveNavigationResult(NavigationTarget navigationTarget) {
         String target = navigationTarget.target();
         if (Strings.isNullOrEmpty(target)) {
-            return showHomeScreen(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+            if (navigationTarget.deeplink().isPresent()) {
+                return handleDeepLink(navigationTarget, navigationTarget.deeplink().get()).map(action -> NavigationResult.create(navigationTarget, action));
+            } else {
+                return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+            }
         } else {
             final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.target()));
             NavigationTarget newTarget = navigationTarget.toBuilder().target(hierarchicalUri.toString()).build();
@@ -161,7 +166,7 @@ public class IntentResolver {
         switch (deepLink) {
             case HOME:
             case STREAM:
-                return showHomeScreen(navigationTarget);
+                return showStream(navigationTarget);
             case RECORD:
                 return showRecordScreen(navigationTarget);
             case DISCOVERY:
@@ -174,6 +179,8 @@ public class IntentResolver {
                 return showAllGenresCharts(navigationTarget);
             case SEARCH:
                 return showSearchScreen(navigationTarget);
+            case SEARCH_RESULTS_VIEW_ALL:
+                return showSearchResultViewAllScreen(navigationTarget);
             case WEB_VIEW:
                 return startWebView(navigationTarget);
             case SOUNDCLOUD_GO_PLUS_UPSELL:
@@ -202,6 +209,8 @@ public class IntentResolver {
                 return startTheUpload(navigationTarget);
             case UNKNOWN:
                 return startExternal(navigationTarget);
+            case ACTIVITIES:
+                return showActivities(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
@@ -215,10 +224,18 @@ public class IntentResolver {
         Uri targetUri = Uri.parse(target);
         final String identifier = Optional.fromNullable(targetUri.getAuthority()).or(targetUri.getPath());
         if (ScTextUtils.isEmail(identifier)) {
-            return Single.just(() -> navigator.openEmail(navigationTarget.activity(), identifier));
+            return Single.just(() -> navigationExecutor.openEmail(navigationTarget.activity(), identifier));
         } else {
-            return Single.just(() -> navigator.openExternal(navigationTarget.activity(), navigationTarget.targetUri()));
+            return Single.just(() -> navigationExecutor.openExternal(navigationTarget.activity(), navigationTarget.targetUri()));
         }
+    }
+
+    @CheckResult
+    private Single<Action> showActivities(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationExecutor.openActivities(navigationTarget.activity());
+        });
     }
 
     @CheckResult
@@ -230,13 +247,13 @@ public class IntentResolver {
             target = signInOperations.generateRemoteSignInUri();
         }
 
-        return Single.<Action>just(() -> navigator.openRemoteSignInWebView(navigationTarget.activity(), target))
+        return Single.<Action>just(() -> navigationExecutor.openRemoteSignInWebView(navigationTarget.activity(), target))
                 .doOnSuccess(t -> trackForegroundEvent(navigationTarget));
     }
 
     @CheckResult
     private Single<Action> startTheUpload(NavigationTarget navigationTarget) {
-        return Single.<Action>just(() -> navigator.openNewForYou(navigationTarget.activity()))
+        return Single.<Action>just(() -> navigationExecutor.openNewForYou(navigationTarget.activity()))
                 .doOnSuccess(__ -> trackForegroundEvent(navigationTarget));
     }
 
@@ -253,16 +270,16 @@ public class IntentResolver {
     private Single<Action> startWebView(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openWebView(navigationTarget.activity(), navigationTarget.targetUri());
+            navigationExecutor.openWebView(navigationTarget.activity(), navigationTarget.targetUri());
         });
     }
 
     @CheckResult
-    private Single<Action> showHomeScreen(NavigationTarget navigationTarget) {
+    private Single<Action> showStream(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             accountOperations.clearCrawler();
             trackForegroundEvent(navigationTarget);
-            navigator.openStream(navigationTarget.activity(), navigationTarget.screen());
+            navigationExecutor.openStream(navigationTarget.activity(), navigationTarget.screen());
         });
     }
 
@@ -270,7 +287,7 @@ public class IntentResolver {
     private Single<Action> showDiscoveryScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openDiscovery(navigationTarget.activity(), navigationTarget.screen());
+            navigationExecutor.openDiscovery(navigationTarget.activity(), navigationTarget.screen());
         });
     }
 
@@ -278,7 +295,7 @@ public class IntentResolver {
     private Single<Action> showTrackRecommendationsScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openViewAllRecommendations(navigationTarget.activity());
+            navigationExecutor.openViewAllRecommendations(navigationTarget.activity());
         });
     }
 
@@ -287,7 +304,7 @@ public class IntentResolver {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
             ChartDetails chartDetails = chartsUriResolver.resolveUri(navigationTarget.targetUri());
-            navigator.openChart(navigationTarget.activity(), chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
+            navigationExecutor.openChart(navigationTarget.activity(), chartDetails.genre(), chartDetails.type(), chartDetails.category(), chartDetails.title().or(""));
         });
     }
 
@@ -295,7 +312,7 @@ public class IntentResolver {
     private Single<Action> showAllGenresCharts(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.targetUri()));
+            navigationExecutor.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.targetUri()));
         });
     }
 
@@ -303,7 +320,15 @@ public class IntentResolver {
     private Single<Action> showSearchScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openSearch(navigationTarget.activity(), navigationTarget.targetUri(), navigationTarget.screen());
+            navigationExecutor.openSearch(navigationTarget.activity(), navigationTarget.targetUri(), navigationTarget.screen());
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showSearchResultViewAllScreen(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationExecutor.openSearchViewAll(navigationTarget);
         });
     }
 
@@ -311,7 +336,7 @@ public class IntentResolver {
     private Single<Action> showRecordScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openRecord(navigationTarget.activity(), navigationTarget.screen());
+            navigationExecutor.openRecord(navigationTarget.activity(), navigationTarget.screen());
         });
     }
 
@@ -320,7 +345,7 @@ public class IntentResolver {
         if (featureOperations.upsellHighTier()) {
             return Single.just(() -> {
                 trackForegroundEvent(navigationTarget.withScreen(Screen.CONVERSION));
-                navigator.openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
+                navigationExecutor.openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
             });
         } else {
             return openFallback(navigationTarget);
@@ -335,7 +360,7 @@ public class IntentResolver {
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(() -> {
                 trackForegroundEvent(navigationTarget.withScreen(Screen.CONVERSION));
-                navigator.openProductChoiceOnMain(navigationTarget.activity(), plan);
+                navigationExecutor.openProductChoiceOnMain(navigationTarget.activity(), plan);
             });
         } else {
             return openFallback(navigationTarget);
@@ -350,7 +375,7 @@ public class IntentResolver {
         } else if (featureOperations.upsellBothTiers()) {
             return Single.just(() -> {
                 trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT));
-                navigator.openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
+                navigationExecutor.openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
             });
         } else {
             return openFallback(navigationTarget);
@@ -365,7 +390,7 @@ public class IntentResolver {
         } else if (featureOperations.upsellHighTier()) {
             return Single.just(() -> {
                 trackForegroundEvent(navigationTarget.withScreen(Screen.CHECKOUT));
-                navigator.openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+                navigationExecutor.openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
             });
         } else {
             return openFallback(navigationTarget);
@@ -377,7 +402,7 @@ public class IntentResolver {
         if (featureOperations.isOfflineContentEnabled()) {
             return Single.just(() -> {
                 trackForegroundEvent(navigationTarget.withScreen(Screen.SETTINGS_OFFLINE));
-                navigator.openOfflineSettings(navigationTarget.activity());
+                navigationExecutor.openOfflineSettings(navigationTarget.activity());
             });
         } else {
             return openFallback(navigationTarget);
@@ -388,7 +413,7 @@ public class IntentResolver {
     private Single<Action> openFallback(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openStream(navigationTarget.activity(), navigationTarget.screen());
+            navigationExecutor.openStream(navigationTarget.activity(), navigationTarget.screen());
         });
     }
 
@@ -396,7 +421,7 @@ public class IntentResolver {
     private Single<Action> showNotificationPreferencesScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openNotificationPreferencesFromDeeplink(navigationTarget.activity());
+            navigationExecutor.openNotificationPreferencesFromDeeplink(navigationTarget.activity());
         });
     }
 
@@ -404,7 +429,7 @@ public class IntentResolver {
     private Single<Action> showCollectionScreen(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigator.openCollection(navigationTarget.activity());
+            navigationExecutor.openCollection(navigationTarget.activity());
         });
     }
 
@@ -464,11 +489,11 @@ public class IntentResolver {
         if (urn.isTrack()) {
             return startPlayback(navigationTarget, urn);
         } else if (urn.isUser()) {
-            return Single.just(() -> navigator.legacyOpenProfile(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return Single.just(() -> navigationExecutor.legacyOpenProfile(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else if (urn.isPlaylist()) {
-            return Single.just(() -> navigator.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return Single.just(() -> navigationExecutor.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else if (urn.isSystemPlaylist()) {
-            return Single.just(() -> navigator.openSystemPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+            return Single.just(() -> navigationExecutor.openSystemPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else {
             ErrorUtils.handleSilentException(new IllegalArgumentException("Trying to navigate to unsupported urn: " + urn + " in version: " + BuildConfig.VERSION_CODE));
             return Single.never();
@@ -482,7 +507,7 @@ public class IntentResolver {
                      .flatMap(playbackResult -> {
                          if (navigationTarget.screen() == Screen.DEEPLINK) {
                              if (playbackResult.isSuccess()) {
-                                 return Single.just(() -> navigator.openStreamWithExpandedPlayer(navigationTarget.activity(), navigationTarget.screen()));
+                                 return Single.just(() -> navigationExecutor.openStreamWithExpandedPlayer(navigationTarget.activity(), navigationTarget.screen()));
                              } else {
                                  return launchApplicationWithMessage(navigationTarget, R.string.error_loading_url);
                              }
@@ -496,7 +521,7 @@ public class IntentResolver {
     private Single<Action> showOnboardingForUri(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             AndroidUtils.showToast(navigationTarget.activity(), R.string.error_toast_user_not_logged_in);
-            navigator.openOnboarding(navigationTarget.activity(), Uri.parse(navigationTarget.target()), navigationTarget.screen());
+            navigationExecutor.openOnboarding(navigationTarget.activity(), Uri.parse(navigationTarget.target()), navigationTarget.screen());
         });
     }
 
@@ -505,7 +530,7 @@ public class IntentResolver {
         return Single.just(() -> {
             AndroidUtils.showToast(navigationTarget.activity(), messageId);
             if (navigationTarget.screen() == Screen.DEEPLINK) {
-                navigator.openLauncher(navigationTarget.activity());
+                navigationExecutor.openLauncher(navigationTarget.activity());
             }
         });
     }

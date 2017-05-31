@@ -5,7 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -39,7 +39,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Mock CurrentDateProvider dateProvider;
     @Mock StreamAdsController controller;
     @Mock AdViewabilityController viewabilityController;
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
 
     @Mock AppCompatActivity activity;
 
@@ -49,7 +49,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigator);
+        presenter = new FullScreenVideoPresenter(videoView, viewabilityController, stateProvider, controller, dateProvider, adPlayer, eventBus, navigationExecutor);
 
         final Intent intent = new Intent(context(), FullScreenVideoActivity.class);
         intent.putExtra(FullScreenVideoActivity.EXTRA_AD_URN, VIDEO_AD.adUrn());
@@ -75,7 +75,7 @@ public class FullScreenVideoPresenterTest extends AndroidUnitTest {
         presenter.onLearnMoreClick(context());
 
         final Uri clickThroughUrl = Uri.parse(VIDEO_AD.clickThroughUrl());
-        verify(navigator).openAdClickthrough(context(), clickThroughUrl);
+        verify(navigationExecutor).openAdClickthrough(context(), clickThroughUrl);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }

@@ -2,7 +2,7 @@ package com.soundcloud.android.downgrade;
 
 import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.PendingPlanOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeOperations;
@@ -28,7 +28,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         USER_NO_ACTION, USER_CONTINUE, USER_RESUBSCRIBE
     }
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final PlanChangeOperations planChangeOperations;
     private final GoOffboardingView view;
     private final EventBus eventBus;
@@ -41,12 +41,12 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     private StrategyContext context;
 
     @Inject
-    GoOffboardingPresenter(Navigator navigator,
+    GoOffboardingPresenter(NavigationExecutor navigationExecutor,
                            PendingPlanOperations pendingPlanOperations,
                            PlanChangeOperations planChangeOperations,
                            GoOffboardingView view,
                            EventBus eventBus) {
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.planChangeOperations = planChangeOperations;
         this.view = view;
         this.eventBus = eventBus;
@@ -161,11 +161,11 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         public Strategy proceed() {
             switch (context) {
                 case USER_CONTINUE:
-                    navigator.openHomeAsRootScreen(fragment.getActivity());
+                    navigationExecutor.openHomeAsRootScreen(fragment.getActivity());
                     view.reset();
                     return this;
                 case USER_RESUBSCRIBE:
-                    navigator.openUpgradeOnMain(fragment.getContext(), UpsellContext.DEFAULT);
+                    navigationExecutor.openUpgradeOnMain(fragment.getContext(), UpsellContext.DEFAULT);
                     eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forResubscribeClick());
                     view.reset();
                     fragment.getActivity().finish();

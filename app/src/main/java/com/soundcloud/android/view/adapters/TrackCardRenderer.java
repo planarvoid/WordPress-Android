@@ -2,7 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -30,7 +30,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final TrackItemMenuPresenter menuPresenter;
     private final CardEngagementsPresenter engagementsPresenter;
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final Resources resources;
     private final ScreenProvider screenProvider;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
@@ -42,7 +42,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                       TrackItemMenuPresenter menuPresenter,
                       CardEngagementsPresenter engagementsPresenter,
                       ImageOperations imageOperations,
-                      Navigator navigator,
+                      NavigationExecutor navigationExecutor,
                       Resources resources,
                       ScreenProvider screenProvider,
                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
@@ -50,7 +50,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         this.menuPresenter = menuPresenter;
         this.engagementsPresenter = engagementsPresenter;
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.resources = resources;
         this.screenProvider = screenProvider;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
@@ -59,7 +59,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false);
-        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigator, resources, changeLikeToSaveExperiment));
+        inflatedView.setTag(new TrackCardViewHolder(inflatedView, imageOperations, navigationExecutor, resources, changeLikeToSaveExperiment));
         return inflatedView;
     }
 

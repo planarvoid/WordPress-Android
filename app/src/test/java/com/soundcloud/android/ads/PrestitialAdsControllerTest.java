@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
@@ -25,7 +25,7 @@ import android.content.Intent;
 
 public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
     @Mock AdsOperations adsOperations;
     @Mock PlaySessionStateProvider playSessionStateProvider;
 
@@ -40,7 +40,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         controller = new PrestitialAdsController(adsOperations,
                                                  playSessionStateProvider,
-                                                 navigator,
+                                                 navigationExecutor,
                                                  eventBus);
 
         when(activity.getIntent()).thenReturn(intent);
@@ -78,7 +78,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onCreate(activity, null);
 
-        verify(navigator).openPrestititalAd(activity);
+        verify(navigationExecutor).openPrestititalAd(activity);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
     }
 
@@ -90,7 +90,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onCreate(activity, null);
 
-        verify(navigator, never()).openPrestititalAd(any(Context.class));
+        verify(navigationExecutor, never()).openPrestititalAd(any(Context.class));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
     }
 
@@ -128,7 +128,7 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
         controller.onNewIntent(activity, intent);
 
-        verify(navigator, times(1)).openPrestititalAd(activity);
+        verify(navigationExecutor, times(1)).openPrestititalAd(activity);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
     }
 }

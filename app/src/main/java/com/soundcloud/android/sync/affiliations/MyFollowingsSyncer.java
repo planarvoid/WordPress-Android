@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.affiliations;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClient;
@@ -13,6 +13,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -203,19 +204,19 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     @VisibleForTesting
     static class FollowErrorNotificationBuilder {
         private final Context context;
-        private final Navigator navigator;
+        private final NavigationExecutor navigationExecutor;
 
         @Inject
-        FollowErrorNotificationBuilder(Context context, Navigator navigator) {
+        FollowErrorNotificationBuilder(Context context, NavigationExecutor navigationExecutor) {
             this.context = context;
-            this.navigator = navigator;
+            this.navigationExecutor = navigationExecutor;
         }
 
         Notification buildBlockedFollowNotification(Urn userUrn, String userName) {
             String title = context.getString(R.string.follow_blocked_title);
             String content = context.getString(R.string.follow_blocked_content_username, userName);
             String contentLong = context.getString(R.string.follow_blocked_content_long_username, userName);
-            return buildNotification(title, content, contentLong, navigator.openProfileFromNotification(context, userUrn));
+            return buildNotification(title, content, contentLong, PendingIntentFactory.openProfileFromNotification(context, userUrn));
         }
 
         Notification buildUnknownAgeNotification(Urn userUrn, String userName) {
@@ -233,7 +234,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
             String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username,
                                                    String.valueOf(age),
                                                    userName);
-            return buildNotification(title, content, contentLong, navigator.openProfileFromNotification(context, userUrn));
+            return buildNotification(title, content, contentLong, PendingIntentFactory.openProfileFromNotification(context, userUrn));
         }
 
         private Notification buildNotification(String title,

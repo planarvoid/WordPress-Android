@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -30,18 +30,18 @@ import javax.inject.Inject;
 class TrackPageListener extends PageListener {
     private final PlayQueueManager playQueueManager;
     private final LikeOperations likeOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EngagementsTracking engagementsTracking;
 
     @Inject
     public TrackPageListener(PlaySessionController playSessionController,
                              PlayQueueManager playQueueManager,
-                             EventBus eventBus, LikeOperations likeOperations, Navigator navigator,
+                             EventBus eventBus, LikeOperations likeOperations, NavigationExecutor navigationExecutor,
                              EngagementsTracking engagementsTracking) {
         super(playSessionController, eventBus);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.engagementsTracking = engagementsTracking;
     }
 
@@ -56,7 +56,7 @@ class TrackPageListener extends PageListener {
     }
 
     public void onUpsell(final Context activityContext, final Urn trackUrn) {
-        navigator.openUpgrade(activityContext, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(activityContext, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlayerClick(trackUrn));
     }
 
@@ -85,7 +85,7 @@ class TrackPageListener extends PageListener {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                navigator.legacyOpenProfile(activityContext, userUrn);
+                navigationExecutor.legacyOpenProfile(activityContext, userUrn);
             }
         };
     }

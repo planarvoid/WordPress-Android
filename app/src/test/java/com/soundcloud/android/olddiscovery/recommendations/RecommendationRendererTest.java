@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
@@ -40,7 +40,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
     @Mock private RecommendationsAdapter adapter;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private TrackRecommendationListener listener;
     @Mock private FeatureFlags flags;
     private View itemView;
@@ -50,7 +50,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(activity());
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigator);
+        renderer = new RecommendationRenderer(listener, imageOperations, trackItemMenuPresenter, navigationExecutor);
         final Recommendation recommendation = RecommendationsFixtures.createNonHighTierRecommendation(SEED_TRACK.getUrn());
         recommendedTrack = recommendation.getTrack();
         final Recommendation goRecommendation = RecommendationsFixtures.createHighTierRecommendation(SEED_TRACK.getUrn());
@@ -124,7 +124,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         View artistName = itemView.findViewById(R.id.recommendation_artist);
         artistName.performClick();
-        verify(navigator).legacyOpenProfile(artistName.getContext(), recommendedTrack.creatorUrn());
+        verify(navigationExecutor).legacyOpenProfile(artistName.getContext(), recommendedTrack.creatorUrn());
     }
 
 }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.comments;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.events.EntityMetadata;
@@ -30,7 +30,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
 
     private final Lazy<CommentsOperations> commentsOperationsLazy;
     private final FeedbackController feedbackController;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -40,11 +40,11 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
     public CommentController(EventBus eventBus,
                              Lazy<CommentsOperations> commentsOperationsLazy,
                              FeedbackController feedbackController,
-                             Navigator navigator) {
+                             NavigationExecutor navigationExecutor) {
         this.eventBus = eventBus;
         this.commentsOperationsLazy = commentsOperationsLazy;
         this.feedbackController = feedbackController;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class CommentController extends DefaultActivityLightCycle<AppCompatActivi
             return new DefaultSubscriber<PlayerUIEvent>() {
                 @Override
                 public void onNext(PlayerUIEvent args) {
-                    navigator.openTrackComments(context, trackUrn);
+                    navigationExecutor.openTrackComments(context, trackUrn);
                 }
             };
         }

@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
@@ -41,7 +41,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     private final PlaybackInitiator playbackInitiator;
     private final Random random;
     private final PlaybackFeedbackHelper playbackFeedbackHelper;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private PerformanceMetricsEngine performanceMetricsEngine;
     private Context activityContext;
@@ -70,14 +70,14 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
                                  PlaybackInitiator playbackInitiator,
                                  Random random,
                                  PlaybackFeedbackHelper playbackFeedbackHelper,
-                                 Navigator navigator,
+                                 NavigationExecutor navigationExecutor,
                                  EventBus eventBus,
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.searchOperations = searchOperations;
         this.playbackInitiator = playbackInitiator;
         this.random = random;
         this.playbackFeedbackHelper = playbackFeedbackHelper;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
@@ -133,7 +133,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
     }
 
     private void fallbackToSearch(String query) {
-        navigator.performSearch(activityContext, query);
+        navigationExecutor.performSearch(activityContext, query);
     }
 
     private class PlayFromQuerySubscriber extends ExpandPlayerSubscriber {
@@ -165,9 +165,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
         @Override
         public void onNext(ListItem result) {
-            navigator.openPlaylistWithAutoPlay(activityContext,
-                                               result.getUrn(),
-                                               Screen.SEARCH_PLAYLIST_DISCO);
+            navigationExecutor.openPlaylistWithAutoPlay(activityContext,
+                                                        result.getUrn(),
+                                                        Screen.SEARCH_PLAYLIST_DISCO);
         }
 
         @Override

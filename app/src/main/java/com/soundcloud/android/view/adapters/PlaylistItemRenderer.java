@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.AttributingActivity;
@@ -37,7 +37,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
@@ -46,7 +46,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 EventBus eventBus,
                                 ScreenProvider screenProvider,
-                                Navigator navigator) {
+                                NavigationExecutor navigationExecutor) {
 
         this.resources = resources;
         this.imageOperations = imageOperations;
@@ -54,7 +54,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -134,7 +134,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     }
 
     private void setPromoterClickable(TextView promoter, PlaylistItem item) {
-        ViewUtils.setTouchClickable(promoter, new PromoterClickViewListener(item, eventBus, screenProvider, navigator));
+        ViewUtils.setTouchClickable(promoter, new PromoterClickViewListener(item, eventBus, screenProvider, navigationExecutor));
     }
 
     private void unsetPromoterClickable(View itemView) {

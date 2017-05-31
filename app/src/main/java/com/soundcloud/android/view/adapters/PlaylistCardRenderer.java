@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapters;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -38,7 +38,7 @@ import java.util.List;
 public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private final Resources resources;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
@@ -49,13 +49,13 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Inject
     public PlaylistCardRenderer(Resources resources,
-                                Navigator navigator, ImageOperations imageOperations,
+                                NavigationExecutor navigationExecutor, ImageOperations imageOperations,
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 CardEngagementsPresenter cardEngagementsPresenter,
                                 ScreenProvider screenProvider,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.resources = resources;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.cardEngagementsPresenter = cardEngagementsPresenter;
@@ -116,7 +116,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         loadArtwork(itemView, playableItem);
         itemView.title.setText(playableItem.title());
         itemView.creator.setText(playableItem.creatorName());
-        itemView.creator.setOnClickListener(v -> navigator.legacyOpenProfile(v.getContext(), playableItem.creatorUrn()));
+        itemView.creator.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(v.getContext(), playableItem.creatorUrn()));
     }
 
     private void loadArtwork(PlaylistViewHolder itemView, PlayableItem playableItem) {

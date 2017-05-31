@@ -7,6 +7,8 @@ import com.soundcloud.android.configuration.ForceUpdateLightCycle;
 import com.soundcloud.android.configuration.experiments.ItalianExperiment;
 import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.image.ImageOperationsController;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.navigation.Navigator_ObserverFactory;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleAppCompatActivity;
@@ -28,8 +30,8 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     @Inject @LightCycle ForceUpdateLightCycle forceUpdateLightCycle;
     @Inject ConfigurationUpdateLightCycle configurationUpdateLightCycle;
     @Inject ItalianExperiment italianExperiment;
-    @Inject NavigationDelegate navigationDelegate;
-    @Inject NavigationDelegate_ObserverFactory navigationDelegateObserverFactory;
+    @Inject Navigator navigator;
+    @Inject Navigator_ObserverFactory navigatorObserverFactory;
 
     private final CompositeDisposable disposable = new CompositeDisposable();
 
@@ -51,8 +53,8 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     @Override
     protected void onResume() {
         super.onResume();
-        disposable.add(navigationDelegate.listenToNavigation()
-                                         .subscribeWith(navigationDelegateObserverFactory.create()));
+        disposable.add(navigator.listenToNavigation()
+                                .subscribeWith(navigatorObserverFactory.create()));
     }
 
     @Override

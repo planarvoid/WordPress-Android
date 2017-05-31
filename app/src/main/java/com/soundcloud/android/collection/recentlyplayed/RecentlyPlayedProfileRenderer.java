@@ -5,7 +5,7 @@ import static butterknife.ButterKnife.findById;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.CollectionEvent;
@@ -38,20 +38,20 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final UserMenuPresenter userMenuPresenter;
 
     RecentlyPlayedProfileRenderer(boolean fixedWidth,
                                   @Provided ImageOperations imageOperations,
-                                  @Provided Navigator navigator,
+                                  @Provided NavigationExecutor navigationExecutor,
                                   @Provided ScreenProvider screenProvider,
                                   @Provided EventBus eventBus,
                                   @Provided UserMenuPresenter userMenuPresenter) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.userMenuPresenter = userMenuPresenter;
@@ -100,7 +100,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
             Urn urn = user.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigator.legacyOpenProfile(view.getContext(), urn, lastScreen);
+            navigationExecutor.legacyOpenProfile(view.getContext(), urn, lastScreen);
         };
     }
 

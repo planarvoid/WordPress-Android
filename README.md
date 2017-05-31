@@ -114,7 +114,7 @@ To run the unit test suite using Gradle, `cd` into the parent module, then run
     
 To run individual unit-tests, something like:
    
-    $ ./gradlew :app:testDevDebug --tests 'com.soundcloud.android.NavigatorTest'
+    $ ./gradlew :app:testDevDebug --tests 'com.soundcloud.android.NavigationExecutorTest'
 
 ### Unit tests in Android Studio
 

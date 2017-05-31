@@ -22,7 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AppInstallAd;
@@ -104,7 +104,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
     @Mock private Observer<Iterable<StreamItem>> itemObserver;
     @Mock private MixedItemClickListener.Factory itemClickListenerFactory;
     @Mock private MixedItemClickListener itemClickListener;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private FacebookInvitesDialogPresenter facebookInvitesDialogPresenter;
     @Mock private View view;
     @Mock private NewItemsIndicator newItemsIndicator;
@@ -144,7 +144,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
                 itemClickListenerFactory,
                 swipeRefreshAttacher,
                 facebookInvitesDialogPresenter,
-                navigator,
+                navigationExecutor,
                 newItemsIndicator,
                 followingOperations,
                 whyAdsDialogPresenter,
@@ -349,7 +349,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test
@@ -584,7 +584,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(view.getContext(), appInstall);
 
-        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(appInstall.clickThroughUrl()));
+        verify(navigationExecutor).openAdClickthrough(view.getContext(), Uri.parse(appInstall.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -598,7 +598,7 @@ public class StreamPresenterTest extends AndroidUnitTest {
 
         presenter.onAdItemClicked(view.getContext(), videoAd);
 
-        verify(navigator).openAdClickthrough(view.getContext(), Uri.parse(videoAd.clickThroughUrl()));
+        verify(navigationExecutor).openAdClickthrough(view.getContext(), Uri.parse(videoAd.clickThroughUrl()));
         final UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(trackingEvent.kind()).isEqualTo(UIEvent.Kind.AD_CLICKTHROUGH);
     }
@@ -674,6 +674,6 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onVideoFullscreenClicked(context(), videoAd);
 
         verify(streamAdsController).setFullscreenEnabled();
-        verify(navigator).openFullscreenVideoAd(context(), videoAd.adUrn());
+        verify(navigationExecutor).openFullscreenVideoAd(context(), videoAd.adUrn());
     }
 }

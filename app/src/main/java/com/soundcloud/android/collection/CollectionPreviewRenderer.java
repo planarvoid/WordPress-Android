@@ -2,7 +2,7 @@ package com.soundcloud.android.collection;
 
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -31,7 +31,7 @@ import java.util.List;
 
 class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final Resources resources;
     private final FeatureOperations featureOperations;
     private final ImageOperations imageOperations;
@@ -41,7 +41,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
-    CollectionPreviewRenderer(Navigator navigator,
+    CollectionPreviewRenderer(NavigationExecutor navigationExecutor,
                               Resources resources,
                               FeatureOperations featureOperations,
                               ImageOperations imageOperations,
@@ -49,7 +49,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
                               FeatureFlags featureFlags,
                               ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                               ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.resources = resources;
         this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
@@ -70,19 +70,19 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     @VisibleForTesting
     void onGoToTrackLikesClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_TRACKS_FIRST_PAGE_LOAD);
-        navigator.openTrackLikes(v.getContext());
+        navigationExecutor.openTrackLikes(v.getContext());
     }
 
     @VisibleForTesting
     void onGoToPlaylistsAndAlbumsClick(Activity activity) {
         performanceMetricsEngine.startMeasuring(MetricType.PLAYLISTS_LOAD);
-        navigator.openPlaylistsAndAlbumsCollection(activity);
+        navigationExecutor.openPlaylistsAndAlbumsCollection(activity);
     }
 
     @VisibleForTesting
     void onGoToStationsClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.LIKED_STATIONS_LOAD);
-        navigator.openLikedStations(v.getContext());
+        navigationExecutor.openLikedStations(v.getContext());
     }
 
     private CollectionPreviewView getLikesPreviewView(View view) {
@@ -103,13 +103,13 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         });
 
         item.getPlaylists().ifPresent(playlists -> {
-            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigator.openPlaylistsCollection(activity));
+            CollectionPreviewView playlistsPreviewView = setupPlaylistsView(view, R.string.collections_playlists_separate_header, v -> navigationExecutor.openPlaylistsCollection(activity));
             removeIconIfNecessary(playlistsPreviewView);
             setThumbnails(playlists, playlistsPreviewView);
         });
 
         item.getAlbums().ifPresent(albums -> {
-            CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigator.openAlbumsCollection(activity));
+            CollectionPreviewView albumsPreviewView = setupAlbumsView(view, v -> navigationExecutor.openAlbumsCollection(activity));
             removeIconIfNecessary(albumsPreviewView);
             setThumbnails(albums, albumsPreviewView);
         });

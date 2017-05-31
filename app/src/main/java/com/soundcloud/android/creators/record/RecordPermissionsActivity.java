@@ -1,6 +1,6 @@
 package com.soundcloud.android.creators.record;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -21,7 +21,7 @@ public class RecordPermissionsActivity extends LoggedInActivity {
 
     private static final int REQUEST_CODE = R.string.record_permission_rationale % 0xffff;
 
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     public RecordPermissionsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -61,7 +61,7 @@ public class RecordPermissionsActivity extends LoggedInActivity {
             case REQUEST_CODE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    navigator.openRecord(this, getRecording(), Screen.fromIntent(getIntent()));
+                    navigationExecutor.openRecord(this, getRecording(), Screen.fromIntent(getIntent()));
                 }
                 finish();
             }

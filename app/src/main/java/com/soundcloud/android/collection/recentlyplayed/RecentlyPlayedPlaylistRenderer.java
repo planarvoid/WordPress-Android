@@ -5,7 +5,7 @@ import static butterknife.ButterKnife.findById;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
@@ -37,7 +37,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
@@ -45,14 +45,14 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
-                                   @Provided Navigator navigator,
+                                   @Provided NavigationExecutor navigationExecutor,
                                    @Provided ScreenProvider screenProvider,
                                    @Provided EventBus eventBus,
                                    @Provided PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                    @Provided PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
@@ -108,7 +108,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
             Urn urn = playlist.getUrn();
             Screen lastScreen = screenProvider.getLastScreen();
             eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
-            navigator.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
+            navigationExecutor.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
         };
     }
 

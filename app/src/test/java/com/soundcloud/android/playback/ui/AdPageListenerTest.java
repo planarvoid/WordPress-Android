@@ -6,7 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -46,11 +46,11 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Mock private AdsOperations adsOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
     @Mock private Activity activity;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
 
     @Before
     public void setUp() throws Exception {
-        listener = new AdPageListener(navigator, playSessionController, playQueueManager,
+        listener = new AdPageListener(navigationExecutor, playSessionController, playQueueManager,
                                       eventBus, adsOperations, whyAdsPresenter);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
@@ -67,7 +67,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(context());
 
-        verify(navigator).openAdClickthrough(context(), Uri.parse(adData.clickThroughUrl().get()));
+        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(adData.clickThroughUrl().get()));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough(context());
 
-        verify(navigator).openAdClickthrough(context(), Uri.parse(videoAd.clickThroughUrl()));
+        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(videoAd.clickThroughUrl()));
     }
 
     @Test
@@ -148,7 +148,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).legacyOpenProfile(any(Context.class), eq(Urn.forUser(42L)));
+        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(Urn.forUser(42L)));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
         verify(playQueueManager).moveToNextPlayableItem();
-        verify(navigator).legacyOpenPlaylist(any(Context.class), eq(Urn.forPlaylist(42L)), eq(Screen.STREAM));
+        verify(navigationExecutor).legacyOpenPlaylist(any(Context.class), eq(Urn.forPlaylist(42L)), eq(Screen.STREAM));
     }
 
     @Test

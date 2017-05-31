@@ -3,7 +3,6 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.java.strings.Strings.EMPTY;
 import static com.soundcloud.java.strings.Strings.isNotBlank;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -15,6 +14,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -37,7 +37,7 @@ public class CardEngagementsPresenter {
     private final EventTracker eventTracker;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     public interface CardEngagementClickListener {
         void onLikeClick(View likeButton);
@@ -53,7 +53,7 @@ public class CardEngagementsPresenter {
                              EventTracker eventTracker,
                              ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                              FeedbackController feedbackController,
-                             Navigator navigator) {
+                             NavigationExecutor navigationExecutor) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
@@ -61,7 +61,7 @@ public class CardEngagementsPresenter {
         this.eventTracker = eventTracker;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     public void bind(final CardViewHolder viewHolder,
@@ -112,7 +112,7 @@ public class CardEngagementsPresenter {
         final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController, navigator));
+                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,
                                                                      contextMetadata,

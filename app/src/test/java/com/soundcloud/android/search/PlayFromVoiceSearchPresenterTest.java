@@ -5,7 +5,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.main.Screen;
@@ -46,7 +46,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     @Mock private SearchOperations searchOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Random random;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private PlaybackFeedbackHelper playbackFeedbackHelper;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
     private TestEventBus eventBus;
@@ -60,7 +60,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
                                                      playbackInitiator,
                                                      random,
                                                      playbackFeedbackHelper,
-                                                     navigator,
+                                                     navigationExecutor,
                                                      eventBus,
                                                      performanceMetricsEngine);
     }
@@ -86,7 +86,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).performSearch(activity, QUERY);
+        verify(navigationExecutor).performSearch(activity, QUERY);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).performSearch(activity, QUERY);
+        verify(navigationExecutor).performSearch(activity, QUERY);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).performSearch(activity, GENRE);
+        verify(navigationExecutor).performSearch(activity, GENRE);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).performSearch(activity, GENRE);
+        verify(navigationExecutor).performSearch(activity, GENRE);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(navigator).openPlaylistWithAutoPlay(activity, playlistItem.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigationExecutor).openPlaylistWithAutoPlay(activity, playlistItem.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     private Intent getPlayFromSearchIntent(String query) {

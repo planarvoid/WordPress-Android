@@ -3,7 +3,7 @@ package com.soundcloud.android.comments;
 import static com.soundcloud.android.comments.CommentsOperations.TO_COMMENT_VIEW_MODEL;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
@@ -34,7 +34,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Inject CommentsOperations operations;
     @Inject PagingListItemAdapter<Comment> adapter;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject @LightCycle ListViewController listViewController;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
@@ -61,7 +61,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        navigator.legacyOpenProfile(getActivity(), adapter.getItem(position).getUserUrn());
+        navigationExecutor.legacyOpenProfile(getActivity(), adapter.getItem(position).getUserUrn());
     }
 
     @Override

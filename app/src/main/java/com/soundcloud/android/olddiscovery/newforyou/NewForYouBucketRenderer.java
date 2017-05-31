@@ -2,7 +2,7 @@ package com.soundcloud.android.olddiscovery.newforyou;
 
 import static com.soundcloud.java.collections.Lists.transform;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.systemplaylist.SystemPlaylistArtworkView;
 import com.soundcloud.android.image.ImageOperations;
@@ -20,13 +20,13 @@ import java.util.List;
 public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryItem> {
 
     private final ImageOperations imageOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EntityItemCreator entityItemCreator;
 
     @Inject
-    NewForYouBucketRenderer(ImageOperations imageOperations, Navigator navigator, EntityItemCreator entityItemCreator) {
+    NewForYouBucketRenderer(ImageOperations imageOperations, NavigationExecutor navigationExecutor, EntityItemCreator entityItemCreator) {
         this.imageOperations = imageOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.entityItemCreator = entityItemCreator;
     }
 
@@ -54,6 +54,6 @@ public class NewForYouBucketRenderer implements CellRenderer<NewForYouDiscoveryI
     }
 
     private View.OnClickListener getOnClickListener(View viewAllView) {
-        return view -> navigator.openNewForYou(viewAllView.getContext());
+        return view -> navigationExecutor.openNewForYou(viewAllView.getContext());
     }
 }

@@ -10,7 +10,7 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFL
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.ConfigurationManager;
@@ -57,7 +57,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
     @Inject OfflinePropertiesProvider offlinePropertiesProvider;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject FeatureFlags featureFlags;
     @Inject ConfigurationManager configurationManager;
     @Inject ApplicationProperties applicationProperties;

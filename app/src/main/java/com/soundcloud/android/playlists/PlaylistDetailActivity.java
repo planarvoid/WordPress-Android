@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -34,7 +34,7 @@ public class PlaylistDetailActivity extends FullscreenablePlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject @Named(PlaylistsModule.FULLSCREEN_PLAYLIST_DETAILS) boolean showFullscreenPlaylistDetails;
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {

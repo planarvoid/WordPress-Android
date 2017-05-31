@@ -1,10 +1,12 @@
-package com.soundcloud.android;
+package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.model.Urn.forAd;
+import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.FullScreenVideoActivity;
@@ -87,11 +89,11 @@ import android.net.Uri;
 import java.util.Collections;
 import java.util.List;
 
-public class NavigatorTest extends AndroidUnitTest {
+public class NavigationExecutorTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
 
-    private Navigator navigator;
+    private NavigationExecutor navigationExecutor;
 
     private Context appContext;
     private Activity activityContext;
@@ -101,14 +103,14 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator(eventTracker, featureFlags);
+        navigationExecutor = new NavigationExecutor(eventTracker, featureFlags);
         appContext = context();
         activityContext = activity();
     }
 
     @Test
     public void openHome() {
-        navigator.openHome(activityContext);
+        navigationExecutor.openHome(activityContext);
         assertThat(activityContext).nextStartedIntent()
                                    .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                    .opensActivity(MainActivity.class);
@@ -116,7 +118,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openHomeAsRootScreen() {
-        navigator.openHomeAsRootScreen(activityContext);
+        navigationExecutor.openHomeAsRootScreen(activityContext);
         assertThat(activityContext).isFinishing();
         assertThat(activityContext).nextStartedIntent()
                                    .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -130,7 +132,7 @@ public class NavigatorTest extends AndroidUnitTest {
         Referrer.FACEBOOK.addToIntent(intent);
         Screen.AUTH_LOG_IN.addToIntent(intent);
 
-        navigator.launchHome(activityContext, intent.getExtras());
+        navigationExecutor.launchHome(activityContext, intent.getExtras());
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsScreen(Screen.AUTH_LOG_IN)
@@ -141,7 +143,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void launchHomeWithoutExtra() {
-        navigator.launchHome(activityContext, null);
+        navigationExecutor.launchHome(activityContext, null);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsScreen(Screen.UNKNOWN)
@@ -152,7 +154,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openCollectionAsTopScreen() {
-        navigator.openCollectionAsTopScreen(appContext);
+        navigationExecutor.openCollectionAsTopScreen(appContext);
         assertThat(activityContext).nextStartedIntent()
                                    .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
                                    .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -163,7 +165,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openCollectionAsRootScreen() {
-        navigator.openCollectionAsRootScreen(activityContext);
+        navigationExecutor.openCollectionAsRootScreen(activityContext);
         assertThat(activityContext).isFinishing();
         assertThat(activityContext).nextStartedIntent()
                                    .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -174,7 +176,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openCollection() {
-        navigator.openCollection(activityContext);
+        navigationExecutor.openCollection(activityContext);
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.COLLECTION);
     }
@@ -182,7 +184,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openAdClickthrough() {
         final Uri uri = Uri.parse("http://clickthroughurl.com");
-        navigator.openAdClickthrough(activityContext, uri);
+        navigationExecutor.openAdClickthrough(activityContext, uri);
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_VIEW)
                                    .containsUri(uri)
@@ -192,7 +194,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openVideoFullScreen() {
         final Urn urn = forAd("network", "123");
-        navigator.openFullscreenVideoAd(activityContext, urn);
+        navigationExecutor.openFullscreenVideoAd(activityContext, urn);
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(FullScreenVideoActivity.EXTRA_AD_URN, urn)
                                    .opensActivity(FullScreenVideoActivity.class);
@@ -201,14 +203,14 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openVisualPrestitial() {
         final VisualPrestitialAd ad = VisualPrestitialAd.create(AdFixtures.getApiVisualPrestitial());
-        navigator.openPrestititalAd(activityContext);
+        navigationExecutor.openPrestititalAd(activityContext);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(PrestitialActivity.class);
     }
 
     @Test
     public void openUpgrade() {
-        navigator.openUpgrade(activityContext, UpsellContext.OFFLINE);
+        navigationExecutor.openUpgrade(activityContext, UpsellContext.OFFLINE);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ConversionActivity.class);
@@ -216,14 +218,14 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openUpgradeFromDeeplink() {
-        navigator.openUpgradeOnMain(activityContext, UpsellContext.DEFAULT);
+        navigationExecutor.openUpgradeOnMain(activityContext, UpsellContext.DEFAULT);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ConversionActivity.class);
     }
 
     @Test
     public void openProductChoiceOnMain() {
-        navigator.openProductChoiceOnMain(activityContext, Plan.MID_TIER);
+        navigationExecutor.openProductChoiceOnMain(activityContext, Plan.MID_TIER);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ProductChoiceActivity.class)
                                    .containsExtra(ProductChoiceActivity.DEFAULT_PLAN, Plan.MID_TIER);
@@ -231,15 +233,15 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openDirectCheckout() {
-        navigator.openDirectCheckout(activityContext, Plan.HIGH_TIER);
+        navigationExecutor.openDirectCheckout(activityContext, Plan.HIGH_TIER);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(WebCheckoutActivity.class)
-                                   .containsExtra(Navigator.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
+                                   .containsExtra(IntentFactory.EXTRA_CHECKOUT_PLAN, Plan.HIGH_TIER);
     }
 
     @Test
     public void openNotificationPreferencesFromDeeplink() {
-        navigator.openNotificationPreferencesFromDeeplink(activityContext);
+        navigationExecutor.openNotificationPreferencesFromDeeplink(activityContext);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(NotificationPreferencesActivity.class)
                                    .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -254,7 +256,7 @@ public class NavigatorTest extends AndroidUnitTest {
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
         final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
 
-        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo, event);
+        navigationExecutor.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo, event);
 
         verify(eventTracker).trackNavigation(event);
 
@@ -274,7 +276,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
         final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
 
-        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, event);
+        navigationExecutor.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, event);
 
         verify(eventTracker).trackNavigation(event);
 
@@ -292,7 +294,7 @@ public class NavigatorTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn, "query");
 
-        navigator.legacyOpenPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
+        navigationExecutor.legacyOpenPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
@@ -306,7 +308,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensLegacyPlaylistWithoutSearchQuerySourceInfo() {
         Urn playlist = Urn.forPlaylist(123L);
 
-        navigator.legacyOpenPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
+        navigationExecutor.legacyOpenPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
@@ -318,7 +320,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void openPlaylistWithAutoPlay() {
         Urn playlist = Urn.forPlaylist(123L);
 
-        navigator.openPlaylistWithAutoPlay(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
+        navigationExecutor.openPlaylistWithAutoPlay(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
@@ -329,7 +331,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void legacyOpensProfileActivity() {
-        navigator.legacyOpenProfile(activityContext, USER_URN);
+        navigationExecutor.legacyOpenProfile(activityContext, USER_URN);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -340,7 +342,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensProfileActivity() {
         UIEvent uiEvent = UIEvent.fromPlayerOpen(false);
 
-        navigator.openProfile(activityContext, USER_URN, uiEvent);
+        navigationExecutor.openProfile(activityContext, USER_URN, uiEvent);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -351,7 +353,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensProfileActivityWithScreen() {
-        navigator.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK);
+        navigationExecutor.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -363,7 +365,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensProfileActivityWithSearchSourceInfo() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
 
-        navigator.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
+        navigationExecutor.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -374,7 +376,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingIntentToProfileFromNotification() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.openProfileFromNotification(appContext, USER_URN);
+        PendingIntent pendingIntent = PendingIntentFactory.openProfileFromNotification(appContext, USER_URN);
 
         pendingIntent.send();
 
@@ -387,7 +389,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingIntentToProfileFromWidget() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = Navigator.openProfileFromWidget(appContext, USER_URN, 0);
+        PendingIntent pendingIntent = PendingIntentFactory.openProfileFromWidget(appContext, USER_URN, 0);
 
         pendingIntent.send();
 
@@ -401,7 +403,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openRecordPermissions() {
         Recording recording = new Recording();
-        navigator.openRecord(activityContext, recording);
+        navigationExecutor.openRecord(activityContext, recording);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(Recording.EXTRA, recording)
@@ -413,7 +415,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void openRecord() {
         Shadows.shadowOf(activityContext.getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
         Recording recording = new Recording();
-        navigator.openRecord(activityContext, recording);
+        navigationExecutor.openRecord(activityContext, recording);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(Recording.EXTRA, recording)
@@ -424,7 +426,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensOnboarding() {
         Uri uri = Uri.parse("soundcloud://tracks:123");
-        navigator.openOnboarding(activityContext, uri, Screen.DEEPLINK);
+        navigationExecutor.openOnboarding(activityContext, uri, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(OnboardActivity.EXTRA_DEEP_LINK_URI, uri)
@@ -436,7 +438,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensResolveActivity() {
         Uri uri = Uri.parse("soundcloud://tracks:123");
-        navigator.openResolveForUri(activityContext, uri);
+        navigationExecutor.openResolveForUri(activityContext, uri);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_VIEW)
@@ -447,7 +449,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensStream() {
-        navigator.openStream(activityContext, Screen.DEEPLINK);
+        navigationExecutor.openStream(activityContext, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.STREAM)
@@ -456,7 +458,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensDiscovery() {
-        navigator.openDiscovery(activityContext, Screen.DEEPLINK);
+        navigationExecutor.openDiscovery(activityContext, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.DISCOVERY)
@@ -465,14 +467,14 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensLauncher() {
-        navigator.openLauncher(activityContext);
+        navigationExecutor.openLauncher(activityContext);
 
         assertThat(activityContext).nextStartedIntent().opensActivity(LauncherActivity.class);
     }
 
     @Test
     public void opensStreamWithExpandedPlayer() {
-        navigator.openStreamWithExpandedPlayer(activityContext, Screen.DEEPLINK);
+        navigationExecutor.openStreamWithExpandedPlayer(activityContext, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.STREAM)
@@ -483,7 +485,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensWebView() {
         Uri uri = Uri.parse("http://soundcloud.com/skrillex");
-        navigator.openWebView(activityContext, uri);
+        navigationExecutor.openWebView(activityContext, uri);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsUri(uri)
@@ -492,7 +494,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensViewAllRecommendations() {
-        navigator.openViewAllRecommendations(activityContext);
+        navigationExecutor.openViewAllRecommendations(activityContext);
 
         assertThat(activityContext).nextStartedIntent().opensActivity(ViewAllRecommendedTracksActivity.class);
     }
@@ -501,7 +503,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensPlaylistDiscoveryTag() {
         final String playListTag = "playListTag";
 
-        navigator.openPlaylistDiscoveryTag(activityContext, playListTag);
+        navigationExecutor.openPlaylistDiscoveryTag(activityContext, playListTag);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(PlaylistDiscoveryActivity.EXTRA_PLAYLIST_TAG, playListTag)
@@ -510,7 +512,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensTrackLikes() {
-        navigator.openTrackLikes(activityContext);
+        navigationExecutor.openTrackLikes(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackLikesActivity.class);
@@ -518,7 +520,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensNewForYou() {
-        navigator.openNewForYou(activityContext);
+        navigationExecutor.openNewForYou(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(SystemPlaylistActivity.class)
@@ -528,7 +530,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensSystemPlaylist() {
         final Urn urn = Urn.forSystemPlaylist("123");
-        navigator.openSystemPlaylist(activityContext, urn, Screen.DEEPLINK);
+        navigationExecutor.openSystemPlaylist(activityContext, urn, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(SystemPlaylistActivity.class)
@@ -546,12 +548,12 @@ public class NavigatorTest extends AndroidUnitTest {
         final Optional<Link> nextHref = Optional.absent();
         final Urn queryUrn = Urn.forTrack(1);
 
-        navigator.openSearchPremiumContentResults(activityContext,
-                                                  searchQuery,
-                                                  searchType,
-                                                  urns,
-                                                  nextHref,
-                                                  queryUrn);
+        navigationExecutor.openSearchPremiumContentResults(activityContext,
+                                                           searchQuery,
+                                                           searchType,
+                                                           urns,
+                                                           nextHref,
+                                                           queryUrn);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(SearchPremiumResultsActivity.class)
@@ -565,7 +567,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void performSearch() {
-        navigator.performSearch(activityContext, "query");
+        navigationExecutor.performSearch(activityContext, "query");
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PERFORM_SEARCH)
@@ -576,7 +578,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensTrackComments() {
         Urn trackUrn = Urn.forTrack(123);
 
-        navigator.openTrackComments(activityContext, trackUrn);
+        navigationExecutor.openTrackComments(activityContext, trackUrn);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(TrackCommentsActivity.class)
@@ -585,7 +587,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensOfflineSettingsOnboarding() {
-        navigator.openOfflineSettingsOnboarding(activityContext);
+        navigationExecutor.openOfflineSettingsOnboarding(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(OfflineSettingsOnboardingActivity.class);
@@ -593,7 +595,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void resetsAccountForUpgrade() {
-        navigator.resetForAccountUpgrade(activityContext);
+        navigationExecutor.resetForAccountUpgrade(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(GoOnboardingActivity.class)
@@ -604,7 +606,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void resetsAccountForDowngrade() {
-        navigator.resetForAccountDowngrade(activityContext);
+        navigationExecutor.resetForAccountDowngrade(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(GoOffboardingActivity.class)
@@ -616,7 +618,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensProfileReposts() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigator.openProfileReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+        navigationExecutor.openProfileReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(UserRepostsActivity.EXTRA_USER_URN, USER_URN)
@@ -628,7 +630,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensProfileTracks() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigator.openProfileTracks(activityContext, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        navigationExecutor.openProfileTracks(activityContext, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(UserTracksActivity.EXTRA_USER_URN, USER_URN)
@@ -640,7 +642,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openProfileAlbums() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigator.openProfileAlbums(activityContext, USER_URN, Screen.USER_ALBUMS, searchSourceInfo);
+        navigationExecutor.openProfileAlbums(activityContext, USER_URN, Screen.USER_ALBUMS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(UserAlbumsActivity.EXTRA_USER_URN, USER_URN)
@@ -652,7 +654,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensProfileLikes() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigator.openProfileLikes(activityContext, USER_URN, Screen.USER_LIKES, searchSourceInfo);
+        navigationExecutor.openProfileLikes(activityContext, USER_URN, Screen.USER_LIKES, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(UserLikesActivity.EXTRA_USER_URN, USER_URN)
@@ -664,7 +666,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void opensProfilePlaylists() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L), "query");
-        navigator.openProfilePlaylists(activityContext, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
+        navigationExecutor.openProfilePlaylists(activityContext, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(UserPlaylistsActivity.EXTRA_USER_URN, USER_URN)
@@ -675,7 +677,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensPlayHistory() {
-        navigator.openPlayHistory(activityContext);
+        navigationExecutor.openPlayHistory(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(PlayHistoryActivity.class);
@@ -683,7 +685,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensRecentlyPlayed() {
-        navigator.openRecentlyPlayed(activityContext);
+        navigationExecutor.openRecentlyPlayed(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(RecentlyPlayedActivity.class);
@@ -695,7 +697,7 @@ public class NavigatorTest extends AndroidUnitTest {
         final ChartType chartType = ChartType.TOP;
         final String header = "header";
         final ChartCategory chartCategory = ChartCategory.AUDIO;
-        navigator.openChart(activityContext, genreUrn, chartType, chartCategory, header);
+        navigationExecutor.openChart(activityContext, genreUrn, chartType, chartCategory, header);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
@@ -706,7 +708,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensAllGenres() {
-        navigator.openAllGenres(activityContext);
+        navigationExecutor.openAllGenres(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(AllGenresActivity.class);
@@ -714,7 +716,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensAllGenresFromDeeplink() throws Exception {
-        navigator.openAllGenres(activityContext, ChartCategory.MUSIC);
+        navigationExecutor.openAllGenres(activityContext, ChartCategory.MUSIC);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(AllGenresPresenter.EXTRA_CATEGORY, ChartCategory.MUSIC)
@@ -724,7 +726,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void legacyOpenStationInfo() {
         final Urn someStation = Urn.forArtistStation(123L);
-        navigator.legacyOpenStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
+        navigationExecutor.legacyOpenStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
@@ -738,7 +740,7 @@ public class NavigatorTest extends AndroidUnitTest {
         final Urn seedTrack = Urn.forTrack(123L);
         final UIEvent navigationEvent = UIEvent.fromNavigation(seedTrack, EventContextMetadata.builder().build());
 
-        navigator.openStationInfo(activityContext, someStation, seedTrack, DiscoverySource.STATIONS, navigationEvent);
+        navigationExecutor.openStationInfo(activityContext, someStation, seedTrack, DiscoverySource.STATIONS, navigationEvent);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(StationInfoActivity.EXTRA_SOURCE, DiscoverySource.STATIONS.value())
@@ -751,7 +753,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openActivities() {
-        navigator.openActivities(activityContext);
+        activityContext.startActivity(createActivitiesIntent((Context) activityContext));
         assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);
     }
 
@@ -759,7 +761,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void openFollowers() {
         Urn userUrn = Urn.forUser(123L);
         SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
-        navigator.openFollowers(activityContext, userUrn, searchQuerySourceInfo);
+        navigationExecutor.openFollowers(activityContext, userUrn, searchQuerySourceInfo);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(FollowersActivity.class)
                                    .containsExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
@@ -771,7 +773,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void openFollowings() {
         Urn userUrn = Urn.forUser(123L);
         SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
-        navigator.openFollowings(activityContext, userUrn, searchQuerySourceInfo);
+        navigationExecutor.openFollowings(activityContext, userUrn, searchQuerySourceInfo);
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(FollowingsActivity.class)
                                    .containsExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
@@ -780,7 +782,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingOfflineSettings() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.createPendingOfflineSettings(activityContext);
+        PendingIntent pendingIntent = PendingIntentFactory.createPendingOfflineSettings(activityContext);
 
         pendingIntent.send();
 
@@ -790,7 +792,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingChangeStorageLocation() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.createPendingChangeStorageLocation(activityContext);
+        PendingIntent pendingIntent = PendingIntentFactory.createPendingChangeStorageLocation(activityContext);
 
         pendingIntent.send();
 
@@ -800,7 +802,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingHomeIntent() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.createPendingHomeIntent(activityContext);
+        PendingIntent pendingIntent = PendingIntentFactory.createPendingHomeIntent(activityContext);
 
         pendingIntent.send();
 
@@ -811,7 +813,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingCollectionIntent() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.createPendingCollectionIntent(activityContext);
+        PendingIntent pendingIntent = PendingIntentFactory.createPendingCollectionIntent(activityContext);
 
         pendingIntent.send();
 
@@ -822,7 +824,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openLinkWorksForEmails() {
-        navigator.openEmail(activityContext, "email@address.com");
+        navigationExecutor.openEmail(activityContext, "email@address.com");
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_SENDTO)
@@ -832,7 +834,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openLinkFallsBackToAndroidForUnrecognisedLinks() {
-        navigator.openExternal(activityContext, Uri.parse("http://facebook.com/whatever"));
+        navigationExecutor.openExternal(activityContext, Uri.parse("http://facebook.com/whatever"));
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Intent.ACTION_VIEW)

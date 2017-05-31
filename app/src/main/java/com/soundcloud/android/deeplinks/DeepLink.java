@@ -37,7 +37,13 @@ public enum DeepLink {
     SHARE_APP,
     SYSTEM_SETTINGS,
     REMOTE_SIGN_IN,
-    UNKNOWN;
+    UNKNOWN,
+
+    // Navigation Target Deeplinks
+
+    ACTIVITIES,
+    SEARCH_RESULTS_VIEW_ALL
+    ;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 

@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -19,6 +18,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -68,7 +68,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     private final FeedbackController feedbackController;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -106,7 +106,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                            ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper,
                            FeedbackController feedbackController,
-                           Navigator navigator) {
+                           NavigationExecutor navigationExecutor) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackItemRepository = trackItemRepository;
         this.eventBus = eventBus;
@@ -125,7 +125,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.feedbackController = feedbackController;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -313,7 +313,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final boolean addLike = !track.isUserLike();
         likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigator));
+                      .subscribe(new LikeToggleSubscriber(context, addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         trackLike(addLike);
     }

@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
@@ -42,7 +42,7 @@ import java.util.Date;
 
 public class PrestitialPresenterTest extends AndroidUnitTest {
 
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
     @Mock AdViewabilityController viewabilityController;
     @Mock VisualPrestitialView visualPrestitialView;
     @Mock PrestitialAdsController adsController;
@@ -79,7 +79,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
                                             videoSurfaceProvider,
                                             whyAdsDialogPresenter,
                                             adPlayer,
-                                            navigator,
+                                            navigationExecutor,
                                             eventBus);
         when(adsController.getCurrentAd()).thenReturn(Optional.of(visualPrestitialAd));
     }
@@ -118,7 +118,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onClickThrough(imageView, visualPrestitialAd);
 
-        verify(navigator).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
+        verify(navigationExecutor).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
     }
 
     @Test
@@ -341,7 +341,7 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
 
         presenter.onOptionOneClick(PrestitialPage.END_CARD, sponsoredSessionAd, context());
 
-        verify(navigator).openAdClickthrough(context(), Uri.parse(sponsoredSessionAd.optInCard().clickthroughUrl()));
+        verify(navigationExecutor).openAdClickthrough(context(), Uri.parse(sponsoredSessionAd.optInCard().clickthroughUrl()));
     }
 
     @Test

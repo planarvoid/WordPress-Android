@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.NavigationDelegate;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.java.optional.Optional;
@@ -33,7 +33,7 @@ public class SingleSelectionContentCardRendererTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private DiscoveryCard.SingleContentSelectionCard card;
     @Mock private SelectionItem selectionItem;
-    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private Navigator navigator;
     @Mock private ScreenProvider screenProvider;
 
     private SingleSelectionContentCardRenderer renderer;

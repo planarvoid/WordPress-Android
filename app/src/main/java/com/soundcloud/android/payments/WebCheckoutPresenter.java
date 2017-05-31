@@ -1,8 +1,7 @@
 package com.soundcloud.android.payments;
 
-import static com.soundcloud.android.Navigator.EXTRA_CHECKOUT_PLAN;
-
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.IntentFactory;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.PendingPlanOperations;
@@ -61,7 +60,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final LocaleFormatter localeFormatter;
     private final Lazy<WebPaymentOperations> paymentOperations;
     private final PendingPlanOperations pendingPlanOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private final Resources resources;
 
@@ -76,7 +75,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
                                 LocaleFormatter localeFormatter,
                                 Lazy<WebPaymentOperations> paymentOperations,
                                 PendingPlanOperations pendingPlanOperations,
-                                Navigator navigator,
+                                NavigationExecutor navigationExecutor,
                                 EventBus eventBus,
                                 Resources resources) {
         this.view = view;
@@ -84,7 +83,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         this.localeFormatter = localeFormatter;
         this.paymentOperations = paymentOperations;
         this.pendingPlanOperations = pendingPlanOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.resources = resources;
     }
@@ -152,7 +151,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private void launchUpgrade() {
         Plan targetPlan = Plan.fromId(getProductFromIntent().getPlanId());
         pendingPlanOperations.setPendingUpgrade(targetPlan);
-        navigator.resetForAccountUpgrade(activity);
+        navigationExecutor.resetForAccountUpgrade(activity);
     }
 
     private void trackPurchase() {
@@ -275,8 +274,8 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private Plan getIntentCheckoutPlan() {
-        if (activity.getIntent().hasExtra(EXTRA_CHECKOUT_PLAN)) {
-            return (Plan) activity.getIntent().getSerializableExtra(EXTRA_CHECKOUT_PLAN);
+        if (activity.getIntent().hasExtra(IntentFactory.EXTRA_CHECKOUT_PLAN)) {
+            return (Plan) activity.getIntent().getSerializableExtra(IntentFactory.EXTRA_CHECKOUT_PLAN);
         }
         return Plan.UNDEFINED;
     }

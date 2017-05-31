@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -58,7 +58,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
     @Inject ConfigurationManager configurationManager;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Inject CastConfigStorage castConfigStorage;
     @Inject EventBus eventBus;
@@ -140,7 +140,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
 
         screen.findPreference(getString(R.string.dev_drawer_action_kill_app_key))
               .setOnPreferenceClickListener(preference -> {
-                  navigator.restartApp(getActivity());
+                  navigationExecutor.restartApp(getActivity());
                   return true;
               });
 
@@ -209,7 +209,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                      .edit()
                      .putString("pending_plan_upgrade", plan.planId)
                      .apply();
-        navigator.resetForAccountUpgrade(getActivity());
+        navigationExecutor.resetForAccountUpgrade(getActivity());
     }
 
     private void launchFakeDowngrade(Plan plan) {
@@ -217,7 +217,7 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                      .edit()
                      .putString("pending_plan_downgrade", plan.planId)
                      .apply();
-        navigator.resetForAccountDowngrade(getActivity());
+        navigationExecutor.resetForAccountDowngrade(getActivity());
     }
 
     private void addIntroductoryOverlaysControls() {
@@ -264,13 +264,13 @@ public class DevDrawerFragment extends PreferenceFragment implements Introductor
                     if (Strings.isNotBlank(newID)) {
                         castConfigStorage.saveReceiverIDOverride(newID);
                         dialog.dismiss();
-                        navigator.restartApp(getActivity());
+                        navigationExecutor.restartApp(getActivity());
                     }
                 })
                 .setNeutralButton(R.string.dev_drawer_dialog_cast_id_reset, (dialog, which) -> {
                     castConfigStorage.reset();
                     dialog.dismiss();
-                    navigator.restartApp(getActivity());
+                    navigationExecutor.restartApp(getActivity());
                 })
                 .setNegativeButton(R.string.btn_cancel, null)
                 .create()

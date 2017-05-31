@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -30,19 +30,19 @@ import javax.inject.Inject;
 
 class AdPageListener extends PageListener {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final WhyAdsDialogPresenter whyAdsPresenter;
 
     @Inject
-    public AdPageListener(Navigator navigator,
+    public AdPageListener(NavigationExecutor navigationExecutor,
                           PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus, AdsOperations adsOperations,
                           WhyAdsDialogPresenter whyAdsPresenter) {
         super(playSessionController, eventBus);
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.whyAdsPresenter = whyAdsPresenter;
@@ -93,7 +93,7 @@ class AdPageListener extends PageListener {
                 openUserOrPlaylistDeeplink(activityContext, deepLink, clickThrough);
                 break;
             default:
-                navigator.openAdClickthrough(activityContext, clickThrough);
+                navigationExecutor.openAdClickthrough(activityContext, clickThrough);
                 break;
         }
 
@@ -146,9 +146,9 @@ class AdPageListener extends PageListener {
             public void onNext(PlayerUIEvent playerUIEvent) {
                 if (urn.isPlaylist()) {
                     final Screen originScreen = Screen.fromTag(playQueueManager.getScreenTag());
-                    navigator.legacyOpenPlaylist(activityContext, urn, originScreen);
+                    navigationExecutor.legacyOpenPlaylist(activityContext, urn, originScreen);
                 } else if (urn.isUser()) {
-                    navigator.legacyOpenProfile(activityContext, urn);
+                    navigationExecutor.legacyOpenProfile(activityContext, urn);
                 }
             }
         };

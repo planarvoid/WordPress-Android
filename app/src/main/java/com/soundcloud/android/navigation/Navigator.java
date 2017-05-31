@@ -1,12 +1,10 @@
-package com.soundcloud.android.main;
+package com.soundcloud.android.navigation;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.deeplinks.IntentResolver;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import io.reactivex.Observable;
@@ -17,15 +15,19 @@ import android.support.annotation.CallSuper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Resolves the provided {@link NavigationTarget} and pushes the resulting {@link NavigationResult} to the observable from {@link #listenToNavigation()}.
+ * This kind of navigation should be used instead of {@link NavigationExecutor}.
+ */
 @Singleton
-public class NavigationDelegate {
+public class Navigator {
 
-    private final IntentResolver intentResolver;
+    private final NavigationResolver navigationResolver;
     private final PublishSubject<NavigationTarget> subject = PublishSubject.create();
 
     @Inject
-    NavigationDelegate(IntentResolver intentResolver) {
-        this.intentResolver = intentResolver;
+    Navigator(NavigationResolver navigationResolver) {
+        this.navigationResolver = navigationResolver;
     }
 
     public void navigateTo(NavigationTarget navigationTarget) {
@@ -33,7 +35,7 @@ public class NavigationDelegate {
     }
 
     public Observable<NavigationResult> listenToNavigation() {
-        return subject.flatMapSingle(intentResolver::resolveNavigationResult);
+        return subject.flatMapSingle(navigationResolver::resolveNavigationResult);
     }
 
     @AutoFactory

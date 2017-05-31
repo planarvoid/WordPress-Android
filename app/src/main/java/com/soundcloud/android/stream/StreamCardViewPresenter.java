@@ -3,7 +3,7 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -32,19 +32,19 @@ class StreamCardViewPresenter {
     private final HeaderSpannableBuilder headerSpannableBuilder;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final Resources resources;
     private final ImageOperations imageOperations;
 
     @Inject
     StreamCardViewPresenter(HeaderSpannableBuilder headerSpannableBuilder, EventBus eventBus,
-                            ScreenProvider screenProvider, Navigator navigator, Resources resources,
+                            ScreenProvider screenProvider, NavigationExecutor navigationExecutor, Resources resources,
                             ImageOperations imageOperations) {
 
         this.headerSpannableBuilder = headerSpannableBuilder;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.resources = resources;
         this.imageOperations = imageOperations;
     }
@@ -148,7 +148,7 @@ class StreamCardViewPresenter {
                        eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
             itemView.setPromoterHeader(promotedProperties.promoterName().get(), headerSpannableBuilder.get());
-            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
+            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigationExecutor));
         } else {
             itemView.hideUserImage();
 
@@ -188,7 +188,7 @@ class StreamCardViewPresenter {
 
         @Override
         public void onClick(View v) {
-            navigator.openProfile(v.getContext(), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata));
+            navigationExecutor.openProfile(v.getContext(), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata));
         }
     }
 }

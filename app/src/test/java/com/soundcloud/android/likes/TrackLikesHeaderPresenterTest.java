@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -78,7 +78,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private OfflineLikesDialog offlineLikesDialog;
     @Mock private ConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
@@ -103,7 +103,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 playbackInitiator,
                 TestSubscribers.expandPlayerSubscriber(),
                 InjectionSupport.providerOf(offlineLikesDialog),
-                navigator,
+                navigationExecutor,
                 eventBus,
                 InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)), offlineSettingsStorage);
 
@@ -357,7 +357,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onUpsell();
 
-        verify(navigator).openUpgrade(any(Activity.class), eq(UpsellContext.OFFLINE));
+        verify(navigationExecutor).openUpgrade(any(Activity.class), eq(UpsellContext.OFFLINE));
     }
 
     @Test

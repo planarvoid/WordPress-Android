@@ -5,7 +5,8 @@ import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
 import static android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
 import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.IntentFactory;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.main.MainActivity;
@@ -30,7 +31,7 @@ class MediaNotificationHelper {
     private static final int NEXT_ACTION_POSITION = 2;
 
     static Optional<NotificationCompat.Builder> from(Context context,
-                                                     Navigator navigator,
+                                                     NavigationExecutor navigationExecutor,
                                                      MediaSessionCompat mediaSession,
                                                      boolean playing) {
         Optional<MediaDescriptionCompat> descriptionOpt = getMediaDescription(mediaSession);
@@ -45,7 +46,7 @@ class MediaNotificationHelper {
                     .setSubText(description.getDescription())
                     .setSmallIcon(NOTIFICATION_ICON)
                     .setLargeIcon(description.getIconBitmap())
-                    .setContentIntent(getContentIntent(context, navigator))
+                    .setContentIntent(getContentIntent(context, navigationExecutor))
                     .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                     .setShowWhen(false)
                     .setAutoCancel(true)
@@ -97,7 +98,7 @@ class MediaNotificationHelper {
         return PendingIntent.getBroadcast(context, keyCode, intent, 0);
     }
 
-    private static PendingIntent getContentIntent(Context context, Navigator navigator) {
+    private static PendingIntent getContentIntent(Context context, NavigationExecutor navigationExecutor) {
         final Intent intent = new Intent(context, MainActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -108,7 +109,7 @@ class MediaNotificationHelper {
 
         return PendingIntent.getActivity(context,
                                          0,
-                                         navigator.createHomeIntentFromNotification(context),
+                                         IntentFactory.createHomeIntentFromNotification(context),
                                          PendingIntent.FLAG_CANCEL_CURRENT);
     }
 

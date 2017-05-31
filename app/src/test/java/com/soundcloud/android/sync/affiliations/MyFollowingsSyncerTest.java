@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -67,7 +67,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private FollowingOperations followingOperations;
     @Mock private NotificationManager notificationManger;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private UserAssociationStorage userAssociationStorage;
     private JsonTransformer jsonTransformer = new JacksonJsonTransformer();
     private PublishSubject<FollowingStatusEvent> followingStatusPublishSubject;

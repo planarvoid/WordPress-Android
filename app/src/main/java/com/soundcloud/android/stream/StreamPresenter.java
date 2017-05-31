@@ -10,7 +10,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdItemRenderer;
@@ -91,7 +91,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     private final UpdatePlayableAdapterSubscriberFactory updatePlayableAdapterSubscriberFactory;
     private final FollowingOperations followingOperations;
     private final StreamMeasurements streamMeasurements;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final NewItemsIndicator newItemsIndicator;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
 
@@ -110,7 +110,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                     MixedItemClickListener.Factory itemClickListenerFactory,
                     StreamSwipeRefreshAttacher swipeRefreshAttacher,
                     FacebookInvitesDialogPresenter invitesDialogPresenter,
-                    Navigator navigator,
+                    NavigationExecutor navigationExecutor,
                     NewItemsIndicator newItemsIndicator,
                     FollowingOperations followingOperations,
                     WhyAdsDialogPresenter whyAdsDialogPresenter,
@@ -127,7 +127,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
         this.invitesDialogPresenter = invitesDialogPresenter;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.newItemsIndicator = newItemsIndicator;
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
         this.itemClickListener = itemClickListenerFactory.create(Screen.STREAM, null);
@@ -340,7 +340,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     public void onUpsellItemClicked(Context context, int position) {
-        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick());
     }
 
@@ -371,7 +371,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         final UIEvent event = isAppInstall ? UIEvent.fromAppInstallAdClickThrough((AppInstallAd) adData)
                                            : UIEvent.fromPlayableClickThrough((VideoAd) adData, new TrackSourceInfo(Screen.STREAM.get(), true));
         eventBus.publish(EventQueue.TRACKING, event);
-        navigator.openAdClickthrough(context, Uri.parse(clickthrough));
+        navigationExecutor.openAdClickthrough(context, Uri.parse(clickthrough));
     }
 
     @Override
@@ -389,6 +389,6 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     @Override
     public void onVideoFullscreenClicked(Context context, VideoAd videoAd) {
         streamAdsController.setFullscreenEnabled();
-        navigator.openFullscreenVideoAd(context, videoAd.adUrn());
+        navigationExecutor.openFullscreenVideoAd(context, videoAd.adUrn());
     }
 }

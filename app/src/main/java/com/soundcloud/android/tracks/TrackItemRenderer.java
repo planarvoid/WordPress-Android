@@ -4,7 +4,7 @@ import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
@@ -57,7 +57,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final NetworkConnectionHelper connectionHelper;
@@ -70,7 +70,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              TrackItemMenuPresenter trackItemMenuPresenter,
                              EventBus eventBus,
                              ScreenProvider screenProvider,
-                             Navigator navigator,
+                             NavigationExecutor navigationExecutor,
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory,
                              FeatureFlags featureFlags,
@@ -81,7 +81,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.featureOperations = featureOperations;
         this.trackItemViewFactory = trackItemViewFactory;
         this.featureFlags = featureFlags;
@@ -305,7 +305,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final Context context = itemView.getContext();
         if (track.isPromoted() && track.promoterUrn().isPresent()) {
             itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.promoterName()));
-            itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
+            itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigationExecutor));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted));
         }

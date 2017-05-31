@@ -1,6 +1,6 @@
 package com.soundcloud.android.settings;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
@@ -15,7 +15,7 @@ import javax.inject.Inject;
 public class SettingsActivity extends LoggedInActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     public SettingsActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -37,7 +37,7 @@ public class SettingsActivity extends LoggedInActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        navigator.openHome(this);
+        navigationExecutor.openHome(this);
         finish();
         return true;
     }

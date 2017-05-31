@@ -1,6 +1,6 @@
 package com.soundcloud.android.more;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -18,6 +18,8 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.MainPagerAdapter;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
@@ -34,6 +36,7 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -53,6 +56,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final EventBus eventBus;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
+    private final NavigationExecutor navigationExecutor;
     private final Navigator navigator;
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
@@ -76,6 +80,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                      EventBus eventBus,
                      FeatureOperations featureOperations,
                      OfflineContentOperations offlineContentOperations,
+                     NavigationExecutor navigationExecutor,
                      Navigator navigator,
                      BugReporter bugReporter,
                      ApplicationProperties appProperties,
@@ -91,6 +96,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.eventBus = eventBus;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
+        this.navigationExecutor = navigationExecutor;
         this.navigator = navigator;
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
@@ -220,26 +226,26 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onProfileClicked(View view) {
-        navigator.legacyOpenProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
+        navigationExecutor.legacyOpenProfile(view.getContext(), accountOperations.getLoggedInUserUrn());
     }
 
     @Override
     public void onActivitiesClicked(View view) {
         performanceMetricsEngine.startMeasuring(MetricType.ACTIVITIES_LOAD);
-        navigator.openActivities(view.getContext());
+        navigator.navigateTo(NavigationTarget.forActivities((Activity) view.getContext()));
     }
 
     @Override
     public void onRecordClicked(View view) {
-        navigator.openRecord(view.getContext(), Screen.MORE);
+        navigationExecutor.openRecord(view.getContext(), Screen.MORE);
     }
 
     @Override
     public void onOfflineSettingsClicked(View view) {
         if (showOfflineSettingsOnboarding()) {
-            navigator.openOfflineSettingsOnboarding(view.getContext());
+            navigationExecutor.openOfflineSettingsOnboarding(view.getContext());
         } else {
-            navigator.openOfflineSettings(view.getContext());
+            navigationExecutor.openOfflineSettings(view.getContext());
         }
     }
 
@@ -250,12 +256,12 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onNotificationPreferencesClicked(View view) {
-        navigator.openNotificationPreferences(view.getContext());
+        navigationExecutor.openNotificationPreferences(view.getContext());
     }
 
     @Override
     public void onBasicSettingsClicked(View view) {
-        navigator.openBasicSettings(view.getContext());
+        navigationExecutor.openBasicSettings(view.getContext());
     }
 
     @Override
@@ -265,12 +271,12 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onHelpCenterClicked(View view) {
-        navigator.openHelpCenter(view.getContext());
+        navigationExecutor.openHelpCenter(view.getContext());
     }
 
     @Override
     public void onLegalClicked(View view) {
-        navigator.openLegal(view.getContext());
+        navigationExecutor.openLegal(view.getContext());
     }
 
     @Override
@@ -280,7 +286,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
     @Override
     public void onUpsellClicked(View view) {
-        navigator.openUpgrade(view.getContext(), UpsellContext.DEFAULT);
+        navigationExecutor.openUpgrade(view.getContext(), UpsellContext.DEFAULT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsClick());
     }
 

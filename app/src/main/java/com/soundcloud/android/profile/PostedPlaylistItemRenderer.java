@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ImageOperations;
@@ -26,14 +26,14 @@ class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
                                       CondensedNumberFormatter numberFormatter,
                                       PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                       EventBus eventBus, ScreenProvider screenProvider,
-                                      Navigator navigator) {
+                                      NavigationExecutor navigationExecutor) {
         super(resources,
               imageOperations,
               numberFormatter,
               playlistItemMenuPresenter,
               eventBus,
               screenProvider,
-              navigator);
+              navigationExecutor);
     }
 
     @Override

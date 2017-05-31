@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -69,7 +69,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private MenuItem menuItem;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayQueueHelper playQueueHelper;
@@ -109,7 +109,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   screenProvider,
                                                   featureOperations,
                                                   offlineOperations,
-                                                  navigator,
+                                                  navigationExecutor,
                                                   playQueueHelper,
                                                   eventTracker,
                                                   playlistMenuRenderFactory,
@@ -128,7 +128,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlistItem);
         presenter.handleUpsell(context);
 
-        verify(navigator).openUpgrade(context, UpsellContext.OFFLINE);
+        verify(navigationExecutor).openUpgrade(context, UpsellContext.OFFLINE);
     }
 
     @Test

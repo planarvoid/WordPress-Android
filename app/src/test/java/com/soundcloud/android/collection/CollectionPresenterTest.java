@@ -9,7 +9,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -94,7 +94,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private FeatureOperations featureOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private OfflinePropertiesProvider offlinePropertiesProvider;
     @Mock private FeatureFlags featureFlags;
     @Mock private PerformanceMetricsEngine performanceMetricEngine;
@@ -116,7 +116,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
                                             expandPlayerSubscriberProvider,
                                             playHistoryOperations,
                                             featureOperations,
-                                            navigator,
+                                            navigationExecutor,
                                             offlinePropertiesProvider,
                                             featureFlags,
                                             performanceMetricEngine);
@@ -341,7 +341,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
-        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.DEFAULT);
     }
 
     @Test

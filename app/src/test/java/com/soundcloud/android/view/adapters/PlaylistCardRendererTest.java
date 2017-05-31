@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
 public class PlaylistCardRendererTest extends AndroidUnitTest {
 
     @Mock ImageOperations imageOperations;
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
     @Mock PlaylistItemMenuPresenter playlistMenuPresenter;
     @Mock CardEngagementsPresenter cardEngagementsPresenter;
     @Mock ScreenProvider screenProvider;
@@ -39,7 +39,7 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         renderer = new PlaylistCardRenderer(resources(),
-                                            navigator,
+                                            navigationExecutor,
                                             imageOperations,
                                             playlistMenuPresenter,
                                             cardEngagementsPresenter,

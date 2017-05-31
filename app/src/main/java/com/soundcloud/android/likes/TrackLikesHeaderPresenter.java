@@ -7,7 +7,7 @@ import static rx.Observable.combineLatest;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -66,7 +66,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final FeatureOperations featureOperations;
     private final EventBus eventBus;
     private final TrackLikeOperations likeOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
@@ -119,7 +119,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      PlaybackInitiator playbackInitiator,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      Provider<OfflineLikesDialog> syncLikesDialogProvider,
-                                     Navigator navigator,
+                                     NavigationExecutor navigationExecutor,
                                      EventBus eventBus,
                                      Provider<UpdateHeaderViewSubscriber> subscriberProvider,
                                      OfflineSettingsStorage offlineSettingsStorage) {
@@ -131,7 +131,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.offlineContentOperations = offlineContentOperations;
         this.subscriberProvider = subscriberProvider;
         this.offlineSettingsStorage = offlineSettingsStorage;
@@ -213,7 +213,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onUpsell() {
-        navigator.openUpgrade(fragment.getActivity(), UpsellContext.OFFLINE);
+        navigationExecutor.openUpgrade(fragment.getActivity(), UpsellContext.OFFLINE);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesClick());
     }
 

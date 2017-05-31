@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.AdPlaybackEvent.*;
 import static com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -38,7 +38,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final AdStateProvider stateProvider;
     private final CurrentDateProvider dateProvider;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final TrackSourceInfo trackSourceInfo;
     private final StreamAdsController streamAdsController;
     private final AdViewabilityController adViewabilityController;
@@ -56,13 +56,13 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
                              CurrentDateProvider dateProvider,
                              AdPlayer adPlayer,
                              EventBus eventBus,
-                             Navigator navigator) {
+                             NavigationExecutor navigationExecutor) {
         view.setListener(this);
         this.view = view;
         this.adPlayer = adPlayer;
         this.stateProvider = stateProvider;
         this.dateProvider = dateProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.streamAdsController = streamAdsController;
         this.adViewabilityController = adViewabilityController;
@@ -151,7 +151,7 @@ class FullScreenVideoPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onLearnMoreClick(Context context) {
         ad.ifPresent(video -> {
-            navigator.openAdClickthrough(context, Uri.parse(video.clickThroughUrl()));
+            navigationExecutor.openAdClickthrough(context, Uri.parse(video.clickThroughUrl()));
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayableClickThrough(video, trackSourceInfo));
         });
     }

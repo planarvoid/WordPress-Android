@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
@@ -40,7 +40,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistDiscoveryOperations operations;
     @Mock private PlaylistResultsAdapter adapter;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private View view;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -52,7 +52,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(view.getContext()).thenReturn(fragmentRule.getActivity());
         fakePlaylistResultsForTag(SEARCH_TAG);
-        presenter = new PlaylistResultsPresenter(operations, adapter, swipeRefreshAttacher, navigator, eventBus);
+        presenter = new PlaylistResultsPresenter(operations, adapter, swipeRefreshAttacher, navigationExecutor, eventBus);
     }
 
     @Test
@@ -71,9 +71,9 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(navigator).legacyOpenPlaylist(fragmentRule.getActivity(),
-                                             clickedPlaylist.getUrn(),
-                                             Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigationExecutor).legacyOpenPlaylist(fragmentRule.getActivity(),
+                                                      clickedPlaylist.getUrn(),
+                                                      Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     @Test

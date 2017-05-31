@@ -1,6 +1,6 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
@@ -46,7 +46,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
 
     private final PlaylistDiscoveryOperations operations;
     private final PlaylistResultsAdapter adapter;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
 
     private Subscription eventSubscription = RxUtils.invalidSubscription();
@@ -55,12 +55,12 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     PlaylistResultsPresenter(PlaylistDiscoveryOperations operations,
                              PlaylistResultsAdapter adapter,
                              SwipeRefreshAttacher swipeRefreshAttacher,
-                             Navigator navigator,
+                             NavigationExecutor navigationExecutor,
                              EventBus eventBus) {
         super(swipeRefreshAttacher, Options.grid(R.integer.grids_num_columns).build());
         this.operations = operations;
         this.adapter = adapter;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
     }
 
@@ -106,7 +106,7 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     @Override
     protected void onItemClicked(View view, int position) {
         PlaylistItem playlist = adapter.getItem(position);
-        navigator.legacyOpenPlaylist(view.getContext(), playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        navigationExecutor.legacyOpenPlaylist(view.getContext(), playlist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
         eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

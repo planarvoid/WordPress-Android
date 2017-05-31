@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -35,18 +35,18 @@ public class MixedItemClickListener {
 
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final Screen screen;
     private final SearchQuerySourceInfo searchQuerySourceInfo;
 
     public MixedItemClickListener(PlaybackInitiator playbackInitiator,
                                   Provider<ExpandPlayerSubscriber> subscriberProvider,
-                                  Navigator navigator,
+                                  NavigationExecutor navigationExecutor,
                                   Screen screen,
                                   SearchQuerySourceInfo searchQuerySourceInfo) {
         this.playbackInitiator = playbackInitiator;
         this.subscriberProvider = subscriberProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.screen = screen;
         this.searchQuerySourceInfo = searchQuerySourceInfo;
     }
@@ -139,20 +139,20 @@ public class MixedItemClickListener {
     private void handleNonTrackItemClick(Context context, ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
-            navigator.openPlaylist(context,
-                                   entityUrn,
-                                   screen,
-                                   searchQuerySourceInfo,
-                                   promotedPlaylistInfo(item),
-                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)));
+            navigationExecutor.openPlaylist(context,
+                                            entityUrn,
+                                            screen,
+                                            searchQuerySourceInfo,
+                                            promotedPlaylistInfo(item),
+                                            UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)));
         } else if (entityUrn.isPlaylist()) {
-            navigator.legacyOpenPlaylist(context,
-                                         entityUrn,
-                                         screen,
-                                         searchQuerySourceInfo,
-                                         promotedPlaylistInfo(item));
+            navigationExecutor.legacyOpenPlaylist(context,
+                                                  entityUrn,
+                                                  screen,
+                                                  searchQuerySourceInfo,
+                                                  promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
-            navigator.legacyOpenProfile(context, entityUrn, screen, searchQuerySourceInfo);
+            navigationExecutor.legacyOpenProfile(context, entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn [" + entityUrn + "] in " + this.getClass()
                                                                             .getSimpleName() + ": " + entityUrn);
@@ -201,24 +201,24 @@ public class MixedItemClickListener {
 
         private final PlaybackInitiator playbackInitiator;
         private final Provider<ExpandPlayerSubscriber> subscriberProvider;
-        private final Navigator navigator;
+        private final NavigationExecutor navigationExecutor;
         private final PerformanceMetricsEngine performanceMetricsEngine;
 
         @Inject
         public Factory(PlaybackInitiator playbackInitiator,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       Navigator navigator,
+                       NavigationExecutor navigationExecutor,
                        PerformanceMetricsEngine performanceMetricsEngine) {
             this.playbackInitiator = playbackInitiator;
             this.subscriberProvider = subscriberProvider;
-            this.navigator = navigator;
+            this.navigationExecutor = navigationExecutor;
             this.performanceMetricsEngine = performanceMetricsEngine;
         }
 
         public MixedItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
             return new MixedItemClickListener(playbackInitiator,
                                               subscriberProvider,
-                                              navigator,
+                                              navigationExecutor,
                                               screen,
                                               searchQuerySourceInfo);
         }

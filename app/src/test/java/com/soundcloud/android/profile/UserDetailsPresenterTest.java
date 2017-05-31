@@ -11,13 +11,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.main.NavigationDelegate;
-import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -37,10 +37,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -71,11 +69,11 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
     @Mock private View userDetailsHolder;
     @Mock private EmptyView emptyView;
     @Mock private Intent intent;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private SocialMediaLinkItem socialMediaLink;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private ScreenProvider screenProvider;
-    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private Navigator navigator;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
     @Captor private ArgumentCaptor<UserDetailsView.UserDetailsListener> listenerCaptor;
     private CondensedNumberFormatter numberFormatter;
@@ -105,7 +103,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
         when(resources.getStringArray(R.array.ak_number_suffixes)).thenReturn(new String[]{"", "K", "M", "B"});
         numberFormatter = CondensedNumberFormatter.create(Locale.GERMAN, resources);
-        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator, navigationDelegate, screenProvider);
+        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigationExecutor, navigator, screenProvider);
     }
 
     @Test
@@ -229,7 +227,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         listenerCaptor.getValue().onLinkClicked(socialMediaLink);
 
         ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigationDelegate).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
         assertThat(resultNavigationTarget.target()).isEqualTo(url);
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.USER_INFO);
@@ -242,7 +240,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowersClicked();
-        verify(navigator).openFollowers(view.getContext(), USER_URN, searchQuerySourceInfo);
+        verify(navigationExecutor).openFollowers(view.getContext(), USER_URN, searchQuerySourceInfo);
     }
 
     @Test
@@ -252,7 +250,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
-        verify(navigator).openFollowings(view.getContext(), USER_URN, searchQuerySourceInfo);
+        verify(navigationExecutor).openFollowings(view.getContext(), USER_URN, searchQuerySourceInfo);
     }
 
     @Test

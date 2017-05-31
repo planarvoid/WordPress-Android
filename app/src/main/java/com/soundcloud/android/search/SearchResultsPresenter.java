@@ -1,6 +1,6 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.performance.MetricKey;
@@ -101,7 +101,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final SearchTracker searchTracker;
     private final ScreenProvider screenProvider;
     private final SearchPlayQueueFilter playQueueFilter;
@@ -147,7 +147,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                            SearchOperations searchOperations,
                            SearchResultsAdapter adapter,
                            MixedItemClickListener.Factory clickListenerFactory,
-                           EventBus eventBus, Navigator navigator,
+                           EventBus eventBus, NavigationExecutor navigationExecutor,
                            SearchTracker searchTracker,
                            ScreenProvider screenProvider,
                            SearchPlayQueueFilter playQueueFilter,
@@ -159,7 +159,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.searchTracker = searchTracker;
         this.screenProvider = screenProvider;
         this.playQueueFilter = playQueueFilter;
@@ -320,18 +320,18 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     public void onPremiumContentHelpClicked(Context context) {
         searchTracker.trackResultsUpsellClick(searchType);
-        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override
     public void onPremiumContentViewAllClicked(Context context, List<Urn> premiumItemsSource, Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn, apiQuery);
-        navigator.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource, nextHref, queryUrn);
+        navigationExecutor.openSearchPremiumContentResults(context, apiQuery, searchType, premiumItemsSource, nextHref, queryUrn);
     }
 
     @Override
     public void onUpsellClicked(Context context) {
         searchTracker.trackPremiumResultsUpsellClick();
-        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 }

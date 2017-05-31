@@ -4,7 +4,7 @@ import static com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import static com.soundcloud.android.events.AdPlaybackEvent.*;
 import static com.soundcloud.android.playback.VideoSurfaceProvider.Origin;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -46,7 +46,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private final VideoSurfaceProvider videoSurfaceProvider;
     private final WhyAdsDialogPresenter whyAdsDialogPresenter;
     private final AdPlayer adPlayer;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
 
     private WeakReference<Activity> activityRef;
@@ -62,7 +62,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
                         VideoSurfaceProvider videoSurfaceProvider,
                         WhyAdsDialogPresenter whyAdsDialogPresenter,
                         AdPlayer adPlayer,
-                        Navigator navigator,
+                        NavigationExecutor navigationExecutor,
                         EventBus eventBus) {
         this.adsController = adsController;
         this.adViewabilityController = adViewabilityController;
@@ -72,7 +72,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         this.videoSurfaceProvider = videoSurfaceProvider;
         this.whyAdsDialogPresenter = whyAdsDialogPresenter;
         this.adPlayer = adPlayer;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
     }
 
@@ -156,9 +156,9 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     public void onClickThrough(View view, AdData ad) {
         if (ad instanceof VisualPrestitialAd) {
             final VisualPrestitialAd visualAd = (VisualPrestitialAd) ad;
-            navigator.openAdClickthrough(view.getContext(), visualAd.clickthroughUrl());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(visualAd));
-            endActivity();
+        navigationExecutor.openAdClickthrough(view.getContext(), visualAd.clickthroughUrl());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPrestitialAdClickThrough(visualAd));
+        endActivity();
         }
     }
 
@@ -176,7 +176,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         if (page == PrestitialPage.OPT_IN_CARD) {
             endActivity();
         } else {
-            navigator.openAdClickthrough(context, Uri.parse(ad.optInCard().clickthroughUrl()));
+            navigationExecutor.openAdClickthrough(context, Uri.parse(ad.optInCard().clickthroughUrl()));
         }
     }
 

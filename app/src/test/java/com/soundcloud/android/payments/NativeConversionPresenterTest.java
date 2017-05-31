@@ -9,7 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
@@ -39,7 +39,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
     @Mock private ConversionView conversionView;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
@@ -57,7 +57,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
                                                   paymentErrorPresenter,
                                                   conversionView,
                                                   new TestEventBus(),
-                                                  navigator);
+                                                  navigationExecutor);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -124,7 +124,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(activity, null);
 
-        verify(navigator).resetForAccountUpgrade(activity);
+        verify(navigationExecutor).resetForAccountUpgrade(activity);
     }
 
     @Test
@@ -351,7 +351,7 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(activity, null);
         presenter.handleBillingResult(TestBillingResults.success());
 
-        verify(navigator).resetForAccountUpgrade(activity);
+        verify(navigationExecutor).resetForAccountUpgrade(activity);
     }
 
     @Test

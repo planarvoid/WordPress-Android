@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
@@ -43,7 +43,7 @@ public class RecordActivity extends LoggedInActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject EventBus eventBus;
     @Inject SoundRecorder recorder;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     private Subscription initialStateSubscription = RxUtils.invalidSubscription();
 
@@ -108,7 +108,7 @@ public class RecordActivity extends LoggedInActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        navigator.openHome(this);
+        navigationExecutor.openHome(this);
         finish();
         return true;
     }

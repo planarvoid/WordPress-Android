@@ -19,6 +19,8 @@ import com.soundcloud.android.image.ImageProcessorJB;
 import com.soundcloud.android.main.NavigationModel;
 import com.soundcloud.android.main.NavigationModelFactory;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.SmoothNavigationExecutor;
 import com.soundcloud.android.offline.OfflineModule;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -59,6 +61,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
@@ -311,12 +314,13 @@ public class ApplicationModule {
         return new FacebookSdk();
     }
 
+    @SuppressLint("VisibleForTests")
     @Provides
-    public Navigator provideNavigator(EventTracker eventTracker, FeatureFlags featureFlags) {
+    public NavigationExecutor provideNavigationExecutor(EventTracker eventTracker, FeatureFlags featureFlags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigator(eventTracker, featureFlags);
+            return new SmoothNavigationExecutor(eventTracker, featureFlags);
         } else {
-            return new Navigator(eventTracker, featureFlags);
+            return new NavigationExecutor(eventTracker, featureFlags);
         }
     }
 

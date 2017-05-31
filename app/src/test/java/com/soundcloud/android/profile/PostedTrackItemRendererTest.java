@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
@@ -67,7 +67,7 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
                                                null,
                                                mock(EventBus.class),
                                                mock(ScreenProvider.class),
-                                               mock(Navigator.class),
+                                               mock(NavigationExecutor.class),
                                                mock(FeatureOperations.class),
                                                mock(TrackItemView.Factory.class),
                                                mock(FeatureFlags.class),

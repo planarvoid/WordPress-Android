@@ -29,7 +29,7 @@ public class ChartsUriResolver {
         this.resources = resources;
     }
 
-    ChartDetails resolveUri(Uri uri) {
+    public ChartDetails resolveUri(Uri uri) {
         if (DeepLink.isWebScheme(uri)) {
             return getChartDetailsFromWebScheme(uri);
         } else if (DeepLink.isHierarchicalSoundCloudScheme(uri)) {

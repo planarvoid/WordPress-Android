@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
@@ -22,11 +22,11 @@ class UserSoundsItemClickListener {
         return userSoundsItem.getPlayableItem().orNull();
     }
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final MixedItemClickListener mixedItemClickListener;
 
-    UserSoundsItemClickListener(Navigator navigator, MixedItemClickListener mixedItemClickListener) {
-        this.navigator = navigator;
+    UserSoundsItemClickListener(NavigationExecutor navigationExecutor, MixedItemClickListener mixedItemClickListener) {
+        this.navigationExecutor = navigationExecutor;
         this.mixedItemClickListener = mixedItemClickListener;
     }
 
@@ -66,22 +66,22 @@ class UserSoundsItemClickListener {
 
         switch (collectionType) {
             case UserSoundsTypes.REPOSTS:
-                navigator.openProfileReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
+                navigationExecutor.openProfileReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.TRACKS:
-                navigator.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                navigationExecutor.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.ALBUMS:
-                navigator.openProfileAlbums(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                navigationExecutor.openProfileAlbums(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.LIKES:
-                navigator.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
+                navigationExecutor.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.PLAYLISTS:
-                navigator.openProfilePlaylists(view.getContext(),
-                                               userUrn,
-                                               Screen.USER_PLAYLISTS,
-                                               searchQuerySourceInfo);
+                navigationExecutor.openProfilePlaylists(view.getContext(),
+                                                        userUrn,
+                                                        Screen.USER_PLAYLISTS,
+                                                        searchQuerySourceInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);
@@ -89,18 +89,18 @@ class UserSoundsItemClickListener {
     }
 
     public static class Factory {
-        private final Navigator navigator;
+        private final NavigationExecutor navigationExecutor;
         private final MixedItemClickListener.Factory mixedItemClickListenerFactory;
 
         @Inject
-        Factory(Navigator navigator, MixedItemClickListener.Factory mixedItemClickListenerFactory) {
-            this.navigator = navigator;
+        Factory(NavigationExecutor navigationExecutor, MixedItemClickListener.Factory mixedItemClickListenerFactory) {
+            this.navigationExecutor = navigationExecutor;
             this.mixedItemClickListenerFactory = mixedItemClickListenerFactory;
         }
 
         public UserSoundsItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
             final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(screen, searchQuerySourceInfo);
-            return new UserSoundsItemClickListener(navigator, clickListener);
+            return new UserSoundsItemClickListener(navigationExecutor, clickListener);
         }
     }
 }

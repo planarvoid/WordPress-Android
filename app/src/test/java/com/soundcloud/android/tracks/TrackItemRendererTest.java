@@ -10,7 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartCategory;
@@ -58,7 +58,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private View itemView;
     @Mock private ImageView imageView;
     @Mock private TrackItemView trackItemView;
@@ -75,7 +75,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
-                                         screenProvider, navigator, featureOperations, trackItemViewFactory, flags, offlineSettingsOperations, connectionHelper);
+                                         screenProvider, navigationExecutor, featureOperations, trackItemViewFactory, flags, offlineSettingsOperations, connectionHelper);
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
                                            .urn(Urn.forTrack(123))
@@ -308,7 +308,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).setPromotedClickable(captor.capture());
         captor.getValue().onClick(itemView);
 
-        verify(navigator).legacyOpenProfile(context(), Urn.forUser(193L));
+        verify(navigationExecutor).legacyOpenProfile(context(), Urn.forUser(193L));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

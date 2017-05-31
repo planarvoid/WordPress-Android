@@ -2,7 +2,7 @@ package com.soundcloud.android.collection;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -21,7 +21,7 @@ import android.view.View;
 
 public class CollectionPreviewRendererTest extends AndroidUnitTest {
 
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private Resources resources;
     @Mock private FeatureOperations featureOperations;
     @Mock private ImageOperations imageOperations;
@@ -36,7 +36,7 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        collectionPreviewRenderer = new CollectionPreviewRenderer(navigator,
+        collectionPreviewRenderer = new CollectionPreviewRenderer(navigationExecutor,
                                                                   resources,
                                                                   featureOperations,
                                                                   imageOperations,

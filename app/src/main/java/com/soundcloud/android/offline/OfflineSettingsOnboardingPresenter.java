@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
@@ -13,14 +13,14 @@ import javax.inject.Inject;
 
 public class OfflineSettingsOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final OfflineSettingsStorage storage;
 
     private AppCompatActivity activity;
 
     @Inject
-    OfflineSettingsOnboardingPresenter(Navigator navigator, OfflineSettingsStorage storage) {
-        this.navigator = navigator;
+    OfflineSettingsOnboardingPresenter(NavigationExecutor navigationExecutor, OfflineSettingsStorage storage) {
+        this.navigationExecutor = navigationExecutor;
         this.storage = storage;
     }
 
@@ -38,6 +38,6 @@ public class OfflineSettingsOnboardingPresenter extends DefaultActivityLightCycl
     @OnClick(R.id.btn_continue)
     void onContinue() {
         storage.setOfflineSettingsOnboardingSeen();
-        navigator.openOfflineSettings(activity);
+        navigationExecutor.openOfflineSettings(activity);
     }
 }

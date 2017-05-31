@@ -4,7 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ImageOperations;
@@ -55,7 +55,7 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
         renderer = new PostedPlaylistItemRenderer(resources(),
                                                   mock(ImageOperations.class), numberFormatter,
                                                   mock(PlaylistItemMenuPresenter.class), mock(EventBus.class),
-                                                  mock(ScreenProvider.class), mock(Navigator.class));
+                                                  mock(ScreenProvider.class), mock(NavigationExecutor.class));
     }
 
     @Test

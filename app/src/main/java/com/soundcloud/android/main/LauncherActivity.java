@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -16,7 +16,7 @@ public class LauncherActivity extends RootActivity {
 
     @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     public LauncherActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -50,7 +50,7 @@ public class LauncherActivity extends RootActivity {
     private void handleLoggedInUser() {
         final Intent intent = getIntent();
         intent.putExtra(EXTRA_FROM_LAUNCHER, true);
-        navigator.launchHome(this, intent.getExtras());
+        navigationExecutor.launchHome(this, intent.getExtras());
     }
 
 }

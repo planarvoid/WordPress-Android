@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.deeplinks.ReferrerResolver;
-import com.soundcloud.android.main.NavigationDelegate;
-import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.storage.provider.Content;
@@ -34,12 +34,12 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
 
     @Mock private SearchTracker tracker;
     @Mock private SearchIntentResolver.DeepLinkListener listener;
-    @Mock private NavigationDelegate navigationDelegate;
+    @Mock private Navigator navigator;
     @Mock private ReferrerResolver referrerResolver;
 
     @Before
     public void setUp() {
-        intentResolver = new SearchIntentResolver(listener, navigationDelegate, referrerResolver, tracker);
+        intentResolver = new SearchIntentResolver(listener, navigator, referrerResolver, tracker);
         intent = new Intent();
     }
 
@@ -82,7 +82,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
         intentResolver.handle(activity(), intent);
 
         final ArgumentCaptor<NavigationTarget> navigationTargetArgumentCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
-        verify(navigationDelegate).navigateTo(navigationTargetArgumentCaptor.capture());
+        verify(navigator).navigateTo(navigationTargetArgumentCaptor.capture());
         final NavigationTarget resultNavigationTarget = navigationTargetArgumentCaptor.getValue();
         assertThat(resultNavigationTarget.screen()).isEqualTo(Screen.DEEPLINK);
         assertThat(resultNavigationTarget.referrer()).isEqualTo(Optional.of(Referrer.STREAM_NOTIFICATION.value()));

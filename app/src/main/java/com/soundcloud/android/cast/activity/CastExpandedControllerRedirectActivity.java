@@ -1,12 +1,12 @@
 package com.soundcloud.android.cast.activity;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.IntentFactory;
 
 import android.content.Intent;
 
 public class CastExpandedControllerRedirectActivity extends CastRedirectActivity {
     @Override
-    protected Intent getRedirectionIntent(Navigator navigator) {
-        return navigator.createHomeIntentFromCastExpandedController(this);
+    protected Intent getRedirectionIntent() {
+        return IntentFactory.createHomeIntentFromCastExpandedController(this);
     }
 }

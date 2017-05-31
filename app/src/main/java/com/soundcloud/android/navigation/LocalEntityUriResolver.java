@@ -1,5 +1,6 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
+import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnCollection;
 import com.soundcloud.android.model.UrnNamespace;

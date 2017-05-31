@@ -1,6 +1,6 @@
 package com.soundcloud.android.upgrade;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
@@ -20,12 +20,12 @@ public class UnrecoverableErrorDialog extends DialogFragment {
 
     private static final String DIALOG_TAG = "go_onboarding_error_dlg";
 
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     private final DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
-            navigator.openHomeAsRootScreen(getActivity());
+            navigationExecutor.openHomeAsRootScreen(getActivity());
         }
     };
 

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
@@ -24,12 +24,12 @@ public class TrackInfoCommentClickListenerTest extends AndroidUnitTest {
     private Urn trackUrn = Urn.forTrack(123);
     private FragmentActivity activity = new FragmentActivity();
 
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
     @Mock TrackInfoFragment fragment;
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackInfoFragment.TrackInfoCommentClickListener(fragment, eventBus, trackUrn, navigator);
+        listener = new TrackInfoFragment.TrackInfoCommentClickListener(fragment, eventBus, trackUrn, navigationExecutor);
 
         when(fragment.getActivity()).thenReturn(activity);
     }
@@ -52,6 +52,6 @@ public class TrackInfoCommentClickListenerTest extends AndroidUnitTest {
         listener.onCommentsClicked();
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        verify(navigator).openTrackComments(activity, trackUrn);
+        verify(navigationExecutor).openTrackComments(activity, trackUrn);
     }
 }

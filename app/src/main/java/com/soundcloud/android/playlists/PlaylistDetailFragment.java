@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.java.collections.Lists.transform;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -62,7 +62,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
     @Inject PlaylistTrackItemRendererFactory trackItemRendererFactory;
     @Inject PlaylistEditionItemTouchCallbackFactory touchCallbackFactory;
     @Inject PlaylistDetailsAdapterFactory newPlaylistDetailsAdapterFactory;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject SharePresenter shareOperations;
     @Inject PlaylistDetailsHeaderRendererFactory playlistDetailsHeaderRendererFactory;
     @Inject PlaylistDetailsHeaderAnimatorFactory headerAnimatorFactory;
@@ -159,15 +159,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment<PlaylistDe
 
                 presenter.goToCreator()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(urn -> navigator.legacyOpenProfile(getActivity(), urn)),
+                         .subscribe(urn -> navigationExecutor.legacyOpenProfile(getActivity(), urn)),
 
                 presenter.goToContentUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> navigator.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT)),
+                         .subscribe(ignored -> navigationExecutor.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT)),
 
                 presenter.goToOfflineUpsell()
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(ignored -> navigator.openUpgrade(getContext(), UpsellContext.OFFLINE)),
+                         .subscribe(ignored -> navigationExecutor.openUpgrade(getContext(), UpsellContext.OFFLINE)),
 
                 presenter.onRepostResult()
                          .observeOn(AndroidSchedulers.mainThread())

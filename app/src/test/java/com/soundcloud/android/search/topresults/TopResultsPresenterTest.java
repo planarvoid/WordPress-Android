@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingStateProvider;
@@ -98,7 +98,7 @@ public class TopResultsPresenterTest extends AndroidUnitTest {
     @Mock private TopResultsPresenter.TopResultsView topResultsView;
     @Mock private SearchPlayQueueFilter playQueueFilter;
     @Mock private PlaybackInitiator playbackInitiator;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private EventTracker eventTracker;
     @Mock private SearchTracker searchTracker;
     @Mock private TrackingStateProvider trackingStateProvider;

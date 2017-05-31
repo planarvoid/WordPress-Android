@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -96,7 +96,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final Resources resources;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final FeatureOperations featureOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final OfflinePropertiesProvider offlinePropertiesProvider;
     private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
@@ -116,7 +116,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                         PlayHistoryOperations playHistoryOperations,
                         FeatureOperations featureOperations,
-                        Navigator navigator,
+                        NavigationExecutor navigationExecutor,
                         OfflinePropertiesProvider offlinePropertiesProvider,
                         FeatureFlags featureFlags,
                         PerformanceMetricsEngine performanceMetricsEngine) {
@@ -130,7 +130,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         this.resources = resources;
         this.collectionOptionsStorage = collectionOptionsStorage;
         this.featureOperations = featureOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
@@ -219,7 +219,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void onUpsell(Context context) {
-        navigator.openUpgrade(context, UpsellContext.DEFAULT);
+        navigationExecutor.openUpgrade(context, UpsellContext.DEFAULT);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forCollectionClick());
     }
 

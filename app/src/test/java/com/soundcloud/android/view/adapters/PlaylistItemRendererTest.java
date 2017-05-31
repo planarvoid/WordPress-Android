@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
@@ -39,7 +39,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private PlaylistItemMenuPresenter playlistItemMenuPresenter;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
 
     private final CondensedNumberFormatter numberFormatter =
             CondensedNumberFormatter.create(Locale.US, resources());
@@ -65,7 +65,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
         renderer = new PlaylistItemRenderer(resources(), imageOperations, numberFormatter,
-                                            playlistItemMenuPresenter, eventBus, screenProvider, navigator);
+                                            playlistItemMenuPresenter, eventBus, screenProvider, navigationExecutor);
     }
 
     @Test

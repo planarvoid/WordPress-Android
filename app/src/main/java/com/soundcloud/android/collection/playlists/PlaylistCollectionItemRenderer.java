@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playlists;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.PlaylistItemIndicatorsView;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -28,7 +28,7 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
 
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final FeatureOperations featureOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final PlaylistItemIndicatorsView playlistItemIndicatorsView;
@@ -36,13 +36,13 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     @Inject
     PlaylistCollectionItemRenderer(ImageOperations imageOperations,
                                    Resources resources,
-                                   Navigator navigator,
+                                   NavigationExecutor navigationExecutor,
                                    FeatureOperations featureOperations,
                                    PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                    PlaylistItemIndicatorsView playlistItemIndicatorsView) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.featureOperations = featureOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.playlistItemIndicatorsView = playlistItemIndicatorsView;
@@ -86,6 +86,6 @@ class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionP
     }
 
     private View.OnClickListener goToPlaylist(final PlaylistItem playlistItem) {
-        return view -> navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
+        return view -> navigationExecutor.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
     }
 }

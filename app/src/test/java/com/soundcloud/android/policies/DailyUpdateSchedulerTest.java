@@ -1,20 +1,18 @@
 package com.soundcloud.android.policies;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Context;
 
 public class DailyUpdateSchedulerTest extends AndroidUnitTest {
 
@@ -22,40 +20,22 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
     private long currentTime = 1000L;
 
     @Mock private AlarmManager alarmManager;
-    @Mock private Context context;
-    @Mock private DailyUpdateScheduler.PendingIntentFactory pendingIntentFactory;
-    @Mock private PendingIntent intent;
-
-    @Captor private ArgumentCaptor<PendingIntent> intentArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        scheduler = new DailyUpdateScheduler(context,
+        scheduler = new DailyUpdateScheduler(context(),
                                              alarmManager,
-                                             new TestDateProvider(currentTime),
-                                             pendingIntentFactory);
+                                             new TestDateProvider(currentTime));
     }
 
     @Test
     public void scheduleDailyPolicyUpdatesIfNotYetScheduled() {
-        when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_NO_CREATE)).thenReturn(null);
-        when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT)).thenReturn(intent);
-
+        scheduler.schedule();
         scheduler.schedule();
 
-        verify(pendingIntentFactory).getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
-        verify(alarmManager).setInexactRepeating(DailyUpdateScheduler.ALARM_TYPE,
-                                                 currentTime + DailyUpdateScheduler.POLICY_UPDATE_DELAY,
-                                                 AlarmManager.INTERVAL_DAY,
-                                                 intent);
-    }
-
-    @Test
-    public void scheduleDailyPolicyUpdatesDoesNothingIfAlreadyScheduled() {
-        when(pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_NO_CREATE)).thenReturn(intent);
-
-        scheduler.schedule();
-
-        verifyZeroInteractions(alarmManager);
+        verify(alarmManager, times(1)).setInexactRepeating(eq(DailyUpdateScheduler.ALARM_TYPE),
+                                                           eq(currentTime + DailyUpdateScheduler.POLICY_UPDATE_DELAY),
+                                                           eq(AlarmManager.INTERVAL_DAY),
+                                                           any(PendingIntent.class));
     }
 }

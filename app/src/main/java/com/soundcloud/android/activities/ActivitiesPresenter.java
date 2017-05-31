@@ -2,7 +2,7 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.rx.observers.LambdaSubscriber.onNext;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -34,7 +34,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     private final ActivitiesOperations operations;
     private final ActivitiesAdapter adapter;
     private final TrackRepository trackRepository;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
 
@@ -43,7 +43,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
                         ActivitiesOperations operations,
                         ActivitiesAdapter adapter,
                         TrackRepository trackRepository,
-                        Navigator navigator,
+                        NavigationExecutor navigationExecutor,
                         NewItemsIndicator newItemsIndicator,
                         PerformanceMetricsEngine performanceMetricsEngine) {
         super(swipeRefreshAttacher, RecyclerViewPresenter.Options.list().build(),
@@ -51,7 +51,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         this.operations = operations;
         this.adapter = adapter;
         this.trackRepository = trackRepository;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
@@ -112,13 +112,13 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
             trackSubscription = RxJava.toV1Observable(trackRepository.track(trackUrn)).subscribe(new DefaultSubscriber<Track>() {
                 @Override
                 public void onNext(Track track) {
-                    navigator.openTrackComments(view.getContext(), trackUrn);
+                    navigationExecutor.openTrackComments(view.getContext(), trackUrn);
                 }
             });
         } else {
             // in all other cases we simply go to the user profile
             final Urn userUrn = item.getUrn();
-            navigator.legacyOpenProfile(view.getContext(), userUrn);
+            navigationExecutor.legacyOpenProfile(view.getContext(), userUrn);
         }
     }
 

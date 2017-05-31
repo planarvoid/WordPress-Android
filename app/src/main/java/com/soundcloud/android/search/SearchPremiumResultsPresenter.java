@@ -13,7 +13,7 @@ import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_S
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_QUERY_URN;
 import static com.soundcloud.android.search.SearchPremiumResultsActivity.EXTRA_SEARCH_TYPE;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -77,7 +77,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final FeatureOperations featureOperations;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private final SearchTracker searchTracker;
     private final SearchPlayQueueFilter playQueueFilter;
@@ -94,7 +94,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
                                   SearchResultsAdapter adapter,
                                   MixedItemClickListener.Factory clickListenerFactory,
                                   FeatureOperations featureOperations,
-                                  Navigator navigator,
+                                  NavigationExecutor navigationExecutor,
                                   EventBus eventBus,
                                   SearchTracker searchTracker,
                                   SearchPlayQueueFilter playQueueFilter) {
@@ -103,7 +103,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.featureOperations = featureOperations;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.searchTracker = searchTracker;
         this.playQueueFilter = playQueueFilter;
@@ -138,7 +138,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     @Override
     public void onUpsellClicked(Context context) {
         searchTracker.trackPremiumResultsUpsellClick();
-        navigator.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
+        navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 
     @Override

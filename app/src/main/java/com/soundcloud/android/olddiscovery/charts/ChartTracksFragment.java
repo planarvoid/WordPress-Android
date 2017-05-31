@@ -1,6 +1,6 @@
 package com.soundcloud.android.olddiscovery.charts;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.model.ChartType;
@@ -30,7 +30,7 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
 
 
     @Inject @LightCycle ChartTracksPresenter presenter;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private Subscription errorSubscription;
@@ -71,7 +71,7 @@ public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFr
         errorSubscription = presenter.invalidGenreError()
                                      .subscribe(LambdaSubscriber.onNext(invalidGenre -> {
                                          ErrorUtils.handleSilentException("Charts Deeplink: Genre not found", new ChartsDeeplinkNotFoundException());
-                                         navigator.openAllGenres(getContext());
+                                         navigationExecutor.openAllGenres(getContext());
                                          getActivity().finish();
                                      }));
     }

@@ -3,7 +3,7 @@ package com.soundcloud.android.olddiscovery.recommendations;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -35,7 +35,7 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
     private final boolean isViewAllBucket;
     private final RecommendationRendererFactory rendererFactory;
     private final PerformanceMetricsEngine performanceMetricsEngine;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private final TrackRecommendationListener listener;
@@ -45,12 +45,12 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
             boolean isViewAllBucket,
             TrackRecommendationListener listener,
             @Provided RecommendationRendererFactory rendererFactory,
-            @Provided Navigator navigator,
+            @Provided NavigationExecutor navigationExecutor,
             @Provided PerformanceMetricsEngine performanceMetricsEngine,
             @Provided ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.isViewAllBucket = isViewAllBucket;
         this.listener = listener;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.rendererFactory = rendererFactory;
         this.performanceMetricsEngine = performanceMetricsEngine;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
@@ -100,7 +100,7 @@ public class RecommendationBucketRenderer implements CellRenderer<RecommendedTra
 
     void onViewAllButtonClick(View v) {
         performanceMetricsEngine.startMeasuring(MetricType.SUGGESTED_TRACKS_LOAD);
-        navigator.openViewAllRecommendations(v.getContext());
+        navigationExecutor.openViewAllRecommendations(v.getContext());
     }
 
     private void bindReasonView(View bucketView, final RecommendedTracksBucketItem bucket) {

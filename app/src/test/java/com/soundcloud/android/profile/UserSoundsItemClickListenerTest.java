@@ -5,7 +5,7 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
@@ -25,7 +25,7 @@ import android.view.View;
 public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(123L);
 
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private MixedItemClickListener mixedItemClickListener;
     @Mock private View view;
     @Mock private Context context;
@@ -35,7 +35,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new UserSoundsItemClickListener(navigator, mixedItemClickListener);
+        subject = new UserSoundsItemClickListener(navigationExecutor, mixedItemClickListener);
         when(view.getContext()).thenReturn(context);
     }
 
@@ -78,7 +78,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).openProfileReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+        verify(navigationExecutor).openProfileReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).openProfileTracks(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        verify(navigationExecutor).openProfileTracks(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).openProfileAlbums(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        verify(navigationExecutor).openProfileAlbums(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).openProfileLikes(context, USER_URN, Screen.USER_LIKES, searchSourceInfo);
+        verify(navigationExecutor).openProfileLikes(context, USER_URN, Screen.USER_LIKES, searchSourceInfo);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
                             searchSourceInfo,
                             module);
 
-        verify(navigator).openProfilePlaylists(context, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
+        verify(navigationExecutor).openProfilePlaylists(context, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
     }
 
     @Test

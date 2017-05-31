@@ -2,7 +2,7 @@ package com.soundcloud.android.olddiscovery.recommendedplaylists;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -35,7 +35,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
     private static final int RECOMMENDED_PLAYLIST_TYPE = 0;
 
     private final QueryPositionProvider queryPositionProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ScreenProvider screenProvider;
     private final EventBus eventBus;
 
@@ -44,12 +44,12 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
 
     RecommendedPlaylistsAdapter(QueryPositionProvider queryPositionProvider,
                                 @Provided CarouselPlaylistItemRenderer renderer,
-                                @Provided Navigator navigator,
+                                @Provided NavigationExecutor navigationExecutor,
                                 @Provided ScreenProvider screenProvider,
                                 @Provided EventBus eventBus) {
         super(renderer);
         this.queryPositionProvider = queryPositionProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.screenProvider = screenProvider;
         this.eventBus = eventBus;
         renderer.setPlaylistListener(this);
@@ -95,7 +95,7 @@ public class RecommendedPlaylistsAdapter extends RecyclerItemAdapter<PlaylistIte
                                                                                   this.queryUrn);
         final UIEvent event = UIEvent.fromNavigation(playlistUrn, eventContextMetadata);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromRecommendedPlaylists(playlistUrn, eventContextMetadata));
-        navigator.openPlaylist(context, playlistUrn, screen, event);
+        navigationExecutor.openPlaylist(context, playlistUrn, screen, event);
     }
 
     private EventContextMetadata getEventContextMetadata(Module module,

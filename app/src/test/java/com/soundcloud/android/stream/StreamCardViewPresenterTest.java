@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -53,7 +53,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Mock private HeaderSpannableBuilder headerSpannableBuilder;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private ImageOperations imageOperations;
     @Mock private StreamItemViewHolder itemView;
     @Mock private ImageView imageView;
@@ -67,7 +67,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                                                navigator, resources(), imageOperations);
+                                                navigationExecutor, resources(), imageOperations);
 
         when(itemView.getImage()).thenReturn(imageView);
         when(itemView.getUserImage()).thenReturn(imageView);
@@ -117,7 +117,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         verify(itemView).setPromoterClickable(captor.capture());
         captor.getValue().onClick(view);
 
-        verify(navigator).legacyOpenProfile(any(Context.class), eq(Urn.forUser(193L)));
+        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(Urn.forUser(193L)));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackingEvent.class));
     }
 

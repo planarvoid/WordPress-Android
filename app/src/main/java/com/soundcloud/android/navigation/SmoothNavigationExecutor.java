@@ -1,5 +1,6 @@
-package com.soundcloud.android;
+package com.soundcloud.android.navigation;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.olddiscovery.SearchActivity;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -10,16 +11,21 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.SharedElementCallback;
 import android.content.Intent;
+import android.support.annotation.VisibleForTesting;
 import android.util.Pair;
 import android.view.View;
 
 import java.util.List;
 
+/**
+ * {@inheritDoc}
+ */
 @TargetApi(21)
 @SuppressLint("NewApi")
-class SmoothNavigator extends Navigator {
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public class SmoothNavigationExecutor extends NavigationExecutor {
 
-    SmoothNavigator(EventTracker eventTracker, FeatureFlags featureFlags) {
+    public SmoothNavigationExecutor(EventTracker eventTracker, FeatureFlags featureFlags) {
         super(eventTracker, featureFlags);
     }
 

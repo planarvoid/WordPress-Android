@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import butterknife.ButterKnife;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
@@ -42,7 +42,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                                                                                QUERY_POSITION,
                                                                                Urn.NOT_SET);
 
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private RecommendationRendererFactory recommendationRendererFactory;
     @Mock private TrackRecommendationListener listener;
     @Mock private RecommendationRenderer recommendationRenderer;
@@ -140,7 +140,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         return new RecommendationBucketRenderer(true,
                                                 listener,
                                                 recommendationRendererFactory,
-                                                navigator,
+                                                navigationExecutor,
                                                 performanceMetricsEngine,
                                                 changeLikeToSaveExperimentStringHelper);
     }
@@ -149,7 +149,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         return new RecommendationBucketRenderer(false,
                                                 listener,
                                                 recommendationRendererFactory,
-                                                navigator,
+                                                navigationExecutor,
                                                 performanceMetricsEngine,
                                                 changeLikeToSaveExperimentStringHelper);
     }

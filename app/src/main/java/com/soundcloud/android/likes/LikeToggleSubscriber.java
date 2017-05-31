@@ -2,11 +2,11 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.utils.ViewUtils.isContextInstanceOf;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 
@@ -18,18 +18,18 @@ public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
     private final boolean likeStatus;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final FeedbackController feedbackController;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     public LikeToggleSubscriber(Context context,
                                 boolean likeStatus,
                                 ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                                 FeedbackController feedbackController,
-                                Navigator navigator) {
+                                NavigationExecutor navigationExecutor) {
         this.context = context;
         this.likeStatus = likeStatus;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.feedbackController = feedbackController;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -51,9 +51,9 @@ public class LikeToggleSubscriber extends DefaultSubscriber<Object> {
 
     private void navigateToCollection(Context viewContext) {
         if (isContextInstanceOf(viewContext, MainActivity.class)) {
-            navigator.openCollection(viewContext);
+            navigationExecutor.openCollection(viewContext);
         } else {
-            navigator.openCollectionAsTopScreen(context);
+            navigationExecutor.openCollectionAsTopScreen(context);
         }
     }
 

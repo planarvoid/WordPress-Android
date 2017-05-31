@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EventTracker;
@@ -25,6 +24,7 @@ import com.soundcloud.android.events.LikesStatusEvent.LikeStatus;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -71,7 +71,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
     @Mock FeedbackController feedbackController;
-    @Mock Navigator navigator;
+    @Mock NavigationExecutor navigationExecutor;
 
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -115,7 +115,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                changeLikeToSaveExperiment,
                                                changeLikeToSaveExperimentStringHelper,
                                                feedbackController,
-                                               navigator);
+                                               navigationExecutor);
     }
 
     @Test

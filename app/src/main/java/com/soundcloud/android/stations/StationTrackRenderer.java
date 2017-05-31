@@ -6,7 +6,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -27,7 +27,7 @@ import java.util.List;
 @AutoFactory(allowSubclasses = true)
 class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ImageOperations imageOperations;
     private final StationInfoClickListener clickListener;
     private final TrackItemMenuPresenter menuPresenter;
@@ -48,11 +48,11 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     };
 
     StationTrackRenderer(StationInfoClickListener clickListener,
-                         @Provided Navigator navigator,
+                         @Provided NavigationExecutor navigationExecutor,
                          @Provided ImageOperations imageOperations,
                          @Provided TrackItemMenuPresenter menuPresenter) {
         this.clickListener = clickListener;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.imageOperations = imageOperations;
         this.menuPresenter = menuPresenter;
     }
@@ -89,7 +89,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(View.VISIBLE);
-            artist.setOnClickListener(v -> navigator.legacyOpenProfile(artist.getContext(), creatorUrn));
+            artist.setOnClickListener(v -> navigationExecutor.legacyOpenProfile(artist.getContext(), creatorUrn));
         }
 
         findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);

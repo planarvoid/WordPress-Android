@@ -2,7 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -20,14 +20,14 @@ public class ConfigurationUpdateLightCycleTest {
 
     @Mock private ConfigurationManager configurationManager;
     @Mock private PendingPlanOperations pendingPlanOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private AppCompatActivity activity;
 
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        lightCycle = new ConfigurationUpdateLightCycle(configurationManager, pendingPlanOperations, navigator, eventBus);
+        lightCycle = new ConfigurationUpdateLightCycle(configurationManager, pendingPlanOperations, navigationExecutor, eventBus);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class ConfigurationUpdateLightCycleTest {
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.FREE_TIER, Plan.HIGH_TIER));
 
-        verify(navigator).resetForAccountUpgrade(activity);
+        verify(navigationExecutor).resetForAccountUpgrade(activity);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ConfigurationUpdateLightCycleTest {
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.MID_TIER, Plan.HIGH_TIER));
 
-        verify(navigator).resetForAccountUpgrade(activity);
+        verify(navigationExecutor).resetForAccountUpgrade(activity);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class ConfigurationUpdateLightCycleTest {
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forUpgrade(Plan.FREE_TIER, Plan.MID_TIER));
 
-        verify(navigator).resetForAccountUpgrade(activity);
+        verify(navigationExecutor).resetForAccountUpgrade(activity);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ConfigurationUpdateLightCycleTest {
 
         eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
 
-        verify(navigator).resetForAccountDowngrade(activity);
+        verify(navigationExecutor).resetForAccountDowngrade(activity);
     }
 
 }

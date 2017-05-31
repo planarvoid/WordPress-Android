@@ -2,9 +2,9 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.discovery.DiscoveryTrackingManager.SCREEN;
 
-import com.soundcloud.android.Navigator;
-import com.soundcloud.android.main.NavigationDelegate;
-import com.soundcloud.android.main.NavigationTarget;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -30,25 +30,25 @@ import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, DiscoveryCard> implements SearchListener {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
-    private final NavigationDelegate navigationDelegate;
+    private final Navigator navigator;
     private final DiscoveryTrackingManager discoveryTrackingManager;
     private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryAdapterFactory adapterFactory,
-                       Navigator navigator,
+                       NavigationExecutor navigationExecutor,
                        DiscoveryOperations discoveryOperations,
-                       NavigationDelegate navigationDelegate,
+                       Navigator navigator,
                        DiscoveryTrackingManager discoveryTrackingManager) {
         super(swipeRefreshAttacher, Options.defaults());
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.discoveryOperations = discoveryOperations;
         adapter = adapterFactory.create(this);
-        this.navigationDelegate = navigationDelegate;
+        this.navigator = navigator;
         this.discoveryTrackingManager = discoveryTrackingManager;
     }
 
@@ -77,7 +77,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     }
 
     private void selectionItemClick(Activity activity, SelectionItem selectionItem) {
-        selectionItem.link().ifPresent(link -> navigationDelegate.navigateTo(NavigationTarget.forNavigation(activity, link, selectionItem.webLink(), SCREEN)));
+        selectionItem.link().ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(activity, link, selectionItem.webLink(), SCREEN)));
     }
 
     @Override
@@ -118,6 +118,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
 
     @Override
     public void onSearchClicked(Context context) {
-        navigator.openSearch((Activity) context);
+        navigationExecutor.openSearch((Activity) context);
     }
 }

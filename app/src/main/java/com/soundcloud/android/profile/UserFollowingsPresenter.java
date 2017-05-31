@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -33,7 +33,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
 
     private final UserProfileOperations profileOperations;
     private final UserRecyclerItemAdapter adapter;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Screen screen;
@@ -44,13 +44,13 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
                             SwipeRefreshAttacher swipeRefreshAttacher,
                             UserProfileOperations profileOperations,
                             UserRecyclerItemAdapter adapter,
-                            Navigator navigator,
+                            NavigationExecutor navigationExecutor,
                             EventBus eventBus) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
     }
 
@@ -102,7 +102,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
                                                                                        .module(Module.create(Module.USER_FOLLOWING, position))
                                                                                        .pageName(screen.get());
 
-        navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
+        navigationExecutor.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
     }
 
     @Override

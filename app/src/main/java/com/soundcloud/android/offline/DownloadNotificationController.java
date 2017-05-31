@@ -1,8 +1,9 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.collections.Iterables;
@@ -32,7 +33,7 @@ class DownloadNotificationController {
     private final Resources resources;
     private final NotificationManager notificationManager;
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final FeatureFlags featureFlags;
 
     private int totalDownloads;
@@ -46,13 +47,13 @@ class DownloadNotificationController {
     @Inject
     DownloadNotificationController(Context context, NotificationManager notificationManager,
                                    Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                   Resources resources, Navigator navigator,
+                                   Resources resources, NavigationExecutor navigationExecutor,
                                    FeatureFlags featureFlags) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
         this.notificationBuilderProvider = notificationBuilderProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.featureFlags = featureFlags;
     }
 
@@ -173,7 +174,7 @@ class DownloadNotificationController {
     private Notification completedWithInaccessibleStorageErrorNotification() {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_cloud);
 
-        notification.setContentIntent(navigator.createPendingChangeStorageLocation(context));
+        notification.setContentIntent(PendingIntentFactory.createPendingChangeStorageLocation(context));
         notification.setContentTitle(resources.getString(R.string.sd_card_cannot_be_found));
         notification.setContentText(resources.getString(R.string.tap_here_to_change_storage_location));
         return notification.build();
@@ -182,7 +183,7 @@ class DownloadNotificationController {
     private Notification completedWithStorageErrorsNotification() {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_cloud);
 
-        notification.setContentIntent(navigator.createPendingOfflineSettings(context));
+        notification.setContentIntent(PendingIntentFactory.createPendingOfflineSettings(context));
         notification.setContentTitle(resources.getString(R.string.offline_update_storage_limit_reached_title));
         notification.setContentText(resources.getString(R.string.offline_update_storage_limit_reached_message));
         return notification.build();
@@ -253,11 +254,11 @@ class DownloadNotificationController {
 
     private PendingIntent getPendingIntent(@Nullable DownloadRequest request) {
         return request == null
-               ? navigator.createPendingHomeIntent(context)
-               : navigator.createPendingCollectionIntent(context);
+               ? PendingIntentFactory.createPendingHomeIntent(context)
+               : PendingIntentFactory.createPendingCollectionIntent(context);
     }
 
-    private static class ProgressNotificationData {
+    private static final class ProgressNotificationData {
         private final int currentDownload;
         private final int totalDownloads;
         private final int downloadProgress;

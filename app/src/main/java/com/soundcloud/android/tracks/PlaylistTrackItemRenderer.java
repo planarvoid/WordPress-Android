@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -40,7 +40,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                               @Provided EventBus eventBus,
                               @Provided FeatureOperations featureOperations,
                               @Provided ScreenProvider screenProvider,
-                              @Provided Navigator navigator,
+                              @Provided NavigationExecutor navigationExecutor,
                               @Provided TrackItemView.Factory trackItemViewFactory,
                               @Provided FeatureFlags featureFlags,
                               @Provided OfflineSettingsOperations offlineSettingsOperations,
@@ -51,7 +51,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
               eventBus,
               featureOperations,
               screenProvider,
-              navigator,
+              navigationExecutor,
               trackItemViewFactory,
               featureFlags,
               offlineSettingsOperations,

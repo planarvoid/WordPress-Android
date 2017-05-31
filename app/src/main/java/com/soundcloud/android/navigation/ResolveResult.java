@@ -1,4 +1,4 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;

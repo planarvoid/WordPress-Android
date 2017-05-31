@@ -9,7 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurements;
 import com.soundcloud.android.olddiscovery.perf.DiscoveryMeasurementsFactory;
@@ -70,7 +70,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private StartStationHandler startStationHandler;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<OldDiscoveryItem> oldDiscoveryItems;
@@ -102,7 +102,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
                 adapterFactory,
                 recommendationBucketRendererFactory,
                 imagePauseOnScrollListener,
-                navigator,
+                navigationExecutor,
                 eventBus,
                 startStationHandler,
                 trackRecommendationPlaybackInitiator,
@@ -132,7 +132,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
 
         presenter.onTagSelected(context, playListTag);
 
-        verify(navigator).openPlaylistDiscoveryTag(context, playListTag);
+        verify(navigationExecutor).openPlaylistDiscoveryTag(context, playListTag);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class OldDiscoveryPresenterTest extends AndroidUnitTest {
     public void handlesUpsellItemClicked() {
         presenter.onUpsellItemClicked(context(), 0);
 
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UpgradeFunnelEvent.class);
     }
 

@@ -2,7 +2,7 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.payments.error.PaymentError;
@@ -27,7 +27,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     private final PaymentErrorPresenter paymentErrorPresenter;
     private final ConversionView conversionView;
     private final EventBus eventBus;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
 
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
@@ -39,12 +39,12 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     @Inject
     NativeConversionPresenter(NativePaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                              ConversionView conversionView, EventBus eventBus, Navigator navigator) {
+                              ConversionView conversionView, EventBus eventBus, NavigationExecutor navigationExecutor) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.conversionView = conversionView;
         this.eventBus = eventBus;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
     }
 
     @Override
@@ -207,7 +207,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private void upgradeSuccess() {
-        navigator.resetForAccountUpgrade(activity);
+        navigationExecutor.resetForAccountUpgrade(activity);
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeSuccess());
     }
 

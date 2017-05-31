@@ -2,7 +2,7 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.events.EventQueue;
@@ -20,20 +20,20 @@ import javax.inject.Inject;
 
 public class StartStationHandler {
 
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
     private final PerformanceMetricsEngine performanceMetricsEngine;
 
     @Inject
-    public StartStationHandler(Navigator navigator, EventBus eventBus, PerformanceMetricsEngine performanceMetricsEngine) {
-        this.navigator = navigator;
+    public StartStationHandler(NavigationExecutor navigationExecutor, EventBus eventBus, PerformanceMetricsEngine performanceMetricsEngine) {
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
         this.performanceMetricsEngine = performanceMetricsEngine;
     }
 
     public void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
         startMeasuringStationLoad();
-        navigator.legacyOpenStationInfo(context, stationUrn, discoverySource);
+        navigationExecutor.legacyOpenStationInfo(context, stationUrn, discoverySource);
     }
 
     public void startStation(Context context, Urn stationUrn) {
@@ -42,11 +42,11 @@ public class StartStationHandler {
 
     public void openStationWithSeedTrack(Context context, Urn seedTrack, UIEvent navigationEvent) {
         startMeasuringStationLoad();
-        navigator.openStationInfo(context,
-                                  Urn.forTrackStation(seedTrack.getNumericId()),
-                                  seedTrack,
-                                  STATIONS,
-                                  navigationEvent);
+        navigationExecutor.openStationInfo(context,
+                                           Urn.forTrackStation(seedTrack.getNumericId()),
+                                           seedTrack,
+                                           STATIONS,
+                                           navigationEvent);
     }
 
     public void startStationFromPlayer(Context context, Urn trackUrn, boolean trackBlocked) {
@@ -83,9 +83,9 @@ public class StartStationHandler {
             startMeasuringStationLoad();
 
             if (trackBlocked) {
-                navigator.legacyOpenStationInfo(context, stationUrn, trackUrn, STATIONS);
+                navigationExecutor.legacyOpenStationInfo(context, stationUrn, trackUrn, STATIONS);
             } else {
-                navigator.legacyOpenStationInfo(context, stationUrn, STATIONS);
+                navigationExecutor.legacyOpenStationInfo(context, stationUrn, STATIONS);
             }
         }
     }

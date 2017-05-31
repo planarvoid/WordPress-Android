@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.PrestitialAdsController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 public class MainActivity extends PlayerActivity {
 
     @Inject PlaySessionController playSessionController;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
     @Inject FeatureFlags featureFlags;
     @Inject ShortcutController shortcutController;
 

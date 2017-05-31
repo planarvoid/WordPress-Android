@@ -4,7 +4,7 @@ import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.PLAY_
 import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.SEARCH;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.rx.RxUtils;
@@ -26,7 +26,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final ShortcutController shortcutController;
     private final FeatureOperations featureOperations;
 
@@ -39,13 +39,13 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     @Inject
     MainTabsPresenter(BaseLayoutHelper layoutHelper,
                       MainPagerAdapter.Factory pagerAdapterFactory,
-                      Navigator navigator,
+                      NavigationExecutor navigationExecutor,
                       ShortcutController shortcutController,
                       FeatureOperations featureOperations,
                       MainTabsView mainTabsView) {
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.shortcutController = shortcutController;
         this.featureOperations = featureOperations;
         this.mainTabsView = mainTabsView;
@@ -135,12 +135,12 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
             case Actions.SHORTCUT_SEARCH:
                 shortcutController.reportUsage(SEARCH);
                 mainTabsView.selectItem(Screen.SEARCH_MAIN);
-                navigator.openSearchFromShortcut(activity);
+                navigationExecutor.openSearchFromShortcut(activity);
                 break;
             case Actions.SHORTCUT_PLAY_LIKES:
                 shortcutController.reportUsage(PLAY_LIKES);
                 mainTabsView.selectItem(Screen.COLLECTIONS);
-                navigator.openTrackLikesFromShortcut(activity, intent);
+                navigationExecutor.openTrackLikesFromShortcut(activity, intent);
                 break;
             default:
                 break;
@@ -148,11 +148,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     }
 
     private void openSearchScreen(final Intent intent) {
-        if (intent.hasExtra(Navigator.EXTRA_SEARCH_INTENT)) {
-            navigator.openSearch(activity, intent.getParcelableExtra(Navigator.EXTRA_SEARCH_INTENT));
-        } else {
-            navigator.openSearch(activity);
-        }
+        navigationExecutor.openSearch(activity, intent);
     }
 
     private class UpdateDevelopmentMenuAction extends DefaultSubscriber<Boolean> {

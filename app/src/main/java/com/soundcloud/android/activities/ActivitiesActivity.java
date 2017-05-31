@@ -1,6 +1,6 @@
 package com.soundcloud.android.activities;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
 public class ActivitiesActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject Navigator navigator;
+    @Inject NavigationExecutor navigationExecutor;
 
     public ActivitiesActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -41,7 +41,7 @@ public class ActivitiesActivity extends PlayerActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        navigator.openHome(this);
+        navigationExecutor.openHome(this);
         finish();
         return true;
     }

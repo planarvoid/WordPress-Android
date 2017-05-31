@@ -7,13 +7,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class ChartDetails {
-    abstract ChartType type();
-    abstract Urn genre();
-    abstract ChartCategory category();
-    abstract Optional<String> title();
+public abstract class ChartDetails {
+    public abstract ChartType type();
+    public abstract Urn genre();
+    public abstract ChartCategory category();
+    public abstract Optional<String> title();
 
-    static ChartDetails create(ChartType type, Urn genre, ChartCategory category, Optional<String> title) {
+    public static ChartDetails create(ChartType type, Urn genre, ChartCategory category, Optional<String> title) {
         return new AutoValue_ChartDetails(type, genre, category, title);
     }
 }

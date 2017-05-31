@@ -1,7 +1,7 @@
 package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.IntentFactory;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -28,26 +28,23 @@ public class UploadNotificationController {
     private final NotificationManager notificationManager;
     private final NotificationCompat.Builder progressNotification;
     private final NotificationCompat.Builder finishedNotification;
-    private final Navigator navigator;
     private final AccountOperations accountOperations;
 
     @Inject
-    public UploadNotificationController(Context context,
-                                        Resources resources,
-                                        NotificationManager notificationManager,
-                                        Provider<NotificationCompat.Builder> notificationBuilderProvider,
-                                        Navigator navigator,
-                                        AccountOperations accountOperations) {
+    UploadNotificationController(Context context,
+                                 Resources resources,
+                                 NotificationManager notificationManager,
+                                 Provider<NotificationCompat.Builder> notificationBuilderProvider,
+                                 AccountOperations accountOperations) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
-        this.navigator = navigator;
         this.accountOperations = accountOperations;
         this.progressNotification = notificationBuilderProvider.get();
         this.finishedNotification = notificationBuilderProvider.get();
     }
 
-    public void showProcessingNotification(Recording recording) {
+    void showProcessingNotification(Recording recording) {
         sendNotification(createProcessingNotification(recording));
     }
 
@@ -65,7 +62,7 @@ public class UploadNotificationController {
         return PendingIntent.getActivity(context, 0, monitorIntentWithProgress, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public void showTransferringNotification(Recording recording, int progress) {
+    void showTransferringNotification(Recording recording, int progress) {
         sendNotification(createTransferringNotification(recording, progress));
     }
 
@@ -84,16 +81,16 @@ public class UploadNotificationController {
         return PendingIntent.getActivity(context, 0, monitorIntentWithProgress, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public void showUploadFinished(Recording recording) {
+    void showUploadFinished(Recording recording) {
         sendNotification(createUploadFinishedNotification(recording));
     }
 
-    public void showUploadError(Recording recording) {
+    void showUploadError(Recording recording) {
         sendNotification(createUploadErrorNotification(recording));
     }
 
     private Notification createUploadFinishedNotification(Recording recording) {
-        final Intent profileIntent = navigator.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
+        final Intent profileIntent = IntentFactory.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_finished_title));
         finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded,
@@ -119,7 +116,7 @@ public class UploadNotificationController {
         return finishedNotification.build();
     }
 
-    public void onUploadCancelled() {
+    void onUploadCancelled() {
         notificationManager.cancel(NotificationConstants.UPLOADING_NOTIFY_ID);
     }
 
@@ -160,7 +157,7 @@ public class UploadNotificationController {
         }
     }
 
-    public Intent getMonitorIntent(Recording recording) {
+    private Intent getMonitorIntent(Recording recording) {
         return new Intent(Actions.UPLOAD_MONITOR).putExtra(UploadService.EXTRA_RECORDING, recording);
     }
 }

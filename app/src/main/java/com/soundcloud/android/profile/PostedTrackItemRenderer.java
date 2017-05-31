@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
@@ -27,11 +27,11 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                             CondensedNumberFormatter numberFormatter,
                             TrackItemMenuPresenter trackItemMenuPresenter,
                             EventBus eventBus, ScreenProvider screenProvider,
-                            Navigator navigator, FeatureOperations featureOperations,
+                            NavigationExecutor navigationExecutor, FeatureOperations featureOperations,
                             TrackItemView.Factory trackItemViewFactory, FeatureFlags featureFlags,
                             OfflineSettingsOperations offlineSettingsOperations, NetworkConnectionHelper connectionHelper) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
-              screenProvider, navigator, featureOperations, trackItemViewFactory, featureFlags, offlineSettingsOperations, connectionHelper);
+              screenProvider, navigationExecutor, featureOperations, trackItemViewFactory, featureFlags, offlineSettingsOperations, connectionHelper);
     }
 
     @Override

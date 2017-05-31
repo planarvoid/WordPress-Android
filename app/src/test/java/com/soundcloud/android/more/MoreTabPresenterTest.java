@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.performance.MetricType;
@@ -25,6 +25,8 @@ import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.UpsellContext;
@@ -64,13 +66,14 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Mock private ImageOperations imageOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private BugReporter bugReporter;
     @Mock private ApplicationProperties appProperties;
     @Mock private OfflineSettingsStorage storage;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private FeedbackController feedbackController;
     @Mock private PerformanceMetricsEngine performanceMetricsEngine;
+    @Mock private Navigator navigator;
 
     @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
@@ -86,6 +89,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
                                          eventBus,
                                          featureOperations,
                                          offlineContentOperations,
+                                         navigationExecutor,
                                          navigator,
                                          bugReporter,
                                          appProperties,
@@ -154,9 +158,12 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Test
     public void onActivitiesClickedNavigatesToActivities() {
         initFragment();
-        listenerArgumentCaptor.getValue().onActivitiesClicked(new View(context()));
+        listenerArgumentCaptor.getValue().onActivitiesClicked(new View(activity()));
 
-        verify(navigator).openActivities(context());
+        ArgumentCaptor<NavigationTarget> targetCaptor = ArgumentCaptor.forClass(NavigationTarget.class);
+        verify(navigator).navigateTo(targetCaptor.capture());
+        NavigationTarget target = targetCaptor.getValue();
+        assertThat(target.deeplink().orNull()).isEqualTo(DeepLink.ACTIVITIES);
     }
 
     @Test
@@ -164,7 +171,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onRecordClicked(new View(context()));
 
-        verify(navigator).openRecord(context(), Screen.MORE);
+        verify(navigationExecutor).openRecord(context(), Screen.MORE);
     }
 
     @Test
@@ -172,7 +179,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onProfileClicked(new View(context()));
 
-        verify(navigator).legacyOpenProfile(context(), USER_URN);
+        verify(navigationExecutor).legacyOpenProfile(context(), USER_URN);
     }
 
     @Test
@@ -180,7 +187,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
-        verify(navigator).openOfflineSettings(context());
+        verify(navigationExecutor).openOfflineSettings(context());
     }
 
     @Test
@@ -191,7 +198,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
-        verify(navigator).openOfflineSettingsOnboarding(context());
+        verify(navigationExecutor).openOfflineSettingsOnboarding(context());
     }
 
     @Test
@@ -202,7 +209,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
         listenerArgumentCaptor.getValue().onOfflineSettingsClicked(new View(context()));
 
-        verify(navigator).openOfflineSettings(context());
+        verify(navigationExecutor).openOfflineSettings(context());
     }
 
     @Test
@@ -210,7 +217,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onNotificationPreferencesClicked(new View(context()));
 
-        verify(navigator).openNotificationPreferences(context());
+        verify(navigationExecutor).openNotificationPreferences(context());
     }
 
     @Test
@@ -218,7 +225,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
 
-        verify(navigator).openBasicSettings(context());
+        verify(navigationExecutor).openBasicSettings(context());
     }
 
     @Test
@@ -226,7 +233,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onUpsellClicked(new View(context()));
 
-        verify(navigator).openUpgrade(context(), UpsellContext.DEFAULT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.DEFAULT);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).get(0).getKind()).isEqualTo(UpgradeFunnelEvent.Kind.UPSELL_CLICK.toString());
     }
 
@@ -265,7 +272,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onHelpCenterClicked(new View(context()));
 
-        verify(navigator).openHelpCenter(context());
+        verify(navigationExecutor).openHelpCenter(context());
     }
 
     @Test
@@ -273,7 +280,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         initFragment();
         listenerArgumentCaptor.getValue().onLegalClicked(new View(context()));
 
-        verify(navigator).openLegal(context());
+        verify(navigationExecutor).openLegal(context());
     }
 
     @Test
@@ -354,9 +361,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldStartMeasuringActivitiesLoadMetricOnActivitiesClicked() {
-
-        presenter.onActivitiesClicked(mock(View.class));
-
+        presenter.onActivitiesClicked(new View(activity()));
         verify(performanceMetricsEngine).startMeasuring(MetricType.ACTIVITIES_LOAD);
     }
 

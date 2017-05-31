@@ -6,7 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -39,7 +39,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private LikeOperations likeOperations;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private TrackRepository trackRepository;
     @Mock private EngagementsTracking engagementsTracking;
 
@@ -50,7 +50,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
-                                         likeOperations, navigator, engagementsTracking);
+                                         likeOperations, navigationExecutor, engagementsTracking);
     }
 
     @Test
@@ -125,13 +125,13 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onGotoUser(context(), userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(navigator).legacyOpenProfile(any(Context.class), eq(userUrn));
+        verify(navigationExecutor).legacyOpenProfile(any(Context.class), eq(userUrn));
     }
 
     @Test
     public void onUpsellStartsUpsellFlow() {
         listener.onUpsell(context(), Urn.forTrack(123));
-        verify(navigator).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
+        verify(navigationExecutor).openUpgrade(context(), UpsellContext.PREMIUM_CONTENT);
     }
 
     @Test

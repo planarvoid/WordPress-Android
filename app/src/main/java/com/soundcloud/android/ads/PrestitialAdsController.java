@@ -1,6 +1,6 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
@@ -25,7 +25,7 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     private final AdsOperations adsOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
     private final EventBus eventBus;
 
     private RootActivity activity;
@@ -36,11 +36,11 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
     @Inject
     PrestitialAdsController(AdsOperations adsOperations,
                             PlaySessionStateProvider playSessionStateProvider,
-                            Navigator navigator,
+                            NavigationExecutor navigationExecutor,
                             EventBus eventBus) {
         this.adsOperations = adsOperations;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
         this.eventBus = eventBus;
     }
 
@@ -95,10 +95,10 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
         @Override
         public void onNext(AdData data) {
-            final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
-            currentAd = Optional.of(data);
-            eventBus.publish(EventQueue.TRACKING, event);
-            navigator.openPrestititalAd(activity);
+
+                final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
+            currentAd = Optional.of(data);    eventBus.publish(EventQueue.TRACKING, event);
+                navigationExecutor.openPrestititalAd(activity);
         }
     }
 }

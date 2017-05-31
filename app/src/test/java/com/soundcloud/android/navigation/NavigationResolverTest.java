@@ -1,4 +1,4 @@
-package com.soundcloud.android.deeplinks;
+package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -22,22 +21,23 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.deeplinks.ChartDetails;
+import com.soundcloud.android.deeplinks.ChartsUriResolver;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.main.NavigationResult;
-import com.soundcloud.android.main.NavigationTarget;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -52,7 +52,7 @@ import org.robolectric.shadows.ShadowToast;
 import android.content.res.Resources;
 import android.net.Uri;
 
-public class IntentResolverTest extends AndroidUnitTest {
+public class NavigationResolverTest extends AndroidUnitTest {
     private static final String TOP_FIFTY = "Top 50";
     private static final ResolveResult RESULT_TRACK = ResolveResult.succes(Urn.forTrack(123));
     private static final Screen NAVIGATION_SCREEN = Screen.DISCOVER;
@@ -63,7 +63,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private EventBus eventBus;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private FeatureOperations featureOperations;
     @Mock private Resources resources;
     @Mock private ChartsUriResolver chartsUriResolver;
@@ -72,23 +72,23 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private PlaybackServiceController playbackServiceController;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
-    private IntentResolver resolver;
+    private NavigationResolver resolver;
 
 
     @Before
     public void setUp() {
-        resolver = new IntentResolver(resolveOperations,
-                                      localEntityUriResolver,
-                                      accountOperations,
-                                      playbackServiceController,
-                                      playbackInitiator,
-                                      playQueueManager,
-                                      eventBus,
-                                      navigator,
-                                      featureOperations,
-                                      chartsUriResolver,
-                                      signInOperations,
-                                      () -> expandPlayerSubscriber);
+        resolver = new NavigationResolver(resolveOperations,
+                                          localEntityUriResolver,
+                                          accountOperations,
+                                          playbackServiceController,
+                                          playbackInitiator,
+                                          playQueueManager,
+                                          eventBus,
+                                          navigationExecutor,
+                                          featureOperations,
+                                          chartsUriResolver,
+                                          signInOperations,
+                                          () -> expandPlayerSubscriber);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
@@ -104,7 +104,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
-        verify(navigator).openStreamWithExpandedPlayer(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStreamWithExpandedPlayer(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -199,8 +199,8 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), DEEPLINK_SCREEN);
-        verify(navigator, never()).openStreamWithExpandedPlayer(navigationTarget.activity(), DEEPLINK_SCREEN);
-        verify(navigator).openLauncher(navigationTarget.activity());
+        verify(navigationExecutor, never()).openStreamWithExpandedPlayer(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openLauncher(navigationTarget.activity());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
+        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
+        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -233,7 +233,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), DEEPLINK_SCREEN);
+        verify(navigationExecutor).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -244,7 +244,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), DEEPLINK_SCREEN);
+        verify(navigationExecutor).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -308,7 +308,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
         verifyTrackingEvent(navigationTarget.referrer());
     }
 
@@ -341,7 +341,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
         verifyTrackingEvent(event, Urn.forTrack(123), Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
 
         DeeplinkReportEvent reportEvent = (DeeplinkReportEvent) captor.getAllValues().get(1);
         assertThat(reportEvent.kind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink(Referrer.OTHER.toString()).kind());
@@ -356,7 +356,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -368,7 +368,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -381,7 +381,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -393,7 +393,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
         verify(accountOperations).loginCrawlerUser();
-        verify(navigator).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openSearch(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -404,7 +404,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -415,7 +415,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -426,7 +426,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -438,7 +438,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -450,7 +450,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(accountOperations).loginCrawlerUser();
         verifyTrackingEvent(Optional.of(Referrer.GOOGLE_CRAWLER.value()));
-        verify(navigator).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -462,7 +462,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigator).openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
+        verify(navigationExecutor).openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
     }
 
     @Test
@@ -474,7 +474,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -486,7 +486,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -500,7 +500,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -515,7 +515,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
     }
 
     @Test
@@ -528,7 +528,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -540,7 +540,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -555,7 +555,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -568,7 +568,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CHECKOUT);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -581,7 +581,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -593,7 +593,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -608,7 +608,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigator).openProductChoiceOnMain(navigationTarget.activity(), Plan.MID_TIER);
+        verify(navigationExecutor).openProductChoiceOnMain(navigationTarget.activity(), Plan.MID_TIER);
     }
 
     @Test
@@ -621,7 +621,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.CONVERSION);
-        verify(navigator).openProductChoiceOnMain(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openProductChoiceOnMain(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -634,7 +634,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -646,7 +646,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()), Screen.SETTINGS_OFFLINE);
-        verify(navigator).openOfflineSettings(navigationTarget.activity());
+        verify(navigationExecutor).openOfflineSettings(navigationTarget.activity());
     }
 
     @Test
@@ -658,7 +658,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -669,7 +669,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openNotificationPreferencesFromDeeplink(navigationTarget.activity());
+        verify(navigationExecutor).openNotificationPreferencesFromDeeplink(navigationTarget.activity());
     }
 
     @Test
@@ -680,7 +680,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
-        verify(navigator).openCollection(navigationTarget.activity());
+        verify(navigationExecutor).openCollection(navigationTarget.activity());
     }
 
     @Test
@@ -690,7 +690,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openViewAllRecommendations(navigationTarget.activity());
+        verify(navigationExecutor).openViewAllRecommendations(navigationTarget.activity());
     }
 
     @Test
@@ -700,7 +700,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), DEEPLINK_SCREEN);
     }
 
     @Test
@@ -711,11 +711,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openChart(navigationTarget.activity(),
-                                    Chart.GLOBAL_GENRE,
-                                    ChartType.TOP,
-                                    ChartCategory.MUSIC,
-                                    TOP_FIFTY);
+        verify(navigationExecutor).openChart(navigationTarget.activity(),
+                                             Chart.GLOBAL_GENRE,
+                                             ChartType.TOP,
+                                             ChartCategory.MUSIC,
+                                             TOP_FIFTY);
     }
 
     @Test
@@ -726,11 +726,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openChart(navigationTarget.activity(),
-                                    Chart.GLOBAL_GENRE,
-                                    ChartType.TOP,
-                                    ChartCategory.MUSIC,
-                                    TOP_FIFTY);
+        verify(navigationExecutor).openChart(navigationTarget.activity(),
+                                             Chart.GLOBAL_GENRE,
+                                             ChartType.TOP,
+                                             ChartCategory.MUSIC,
+                                             TOP_FIFTY);
     }
 
     @Test
@@ -742,7 +742,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
+        verify(navigationExecutor).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
     }
 
     @Test
@@ -754,7 +754,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
+        verify(navigationExecutor).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
     }
 
     @Test
@@ -764,7 +764,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openEmail(navigationTarget.activity(), "test@abc.com");
+        verify(navigationExecutor).openEmail(navigationTarget.activity(), "test@abc.com");
     }
 
     @Test
@@ -774,7 +774,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openEmail(navigationTarget.activity(), "test@abc.com");
+        verify(navigationExecutor).openEmail(navigationTarget.activity(), "test@abc.com");
     }
 
     @Test
@@ -784,7 +784,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openExternal(navigationTarget.activity(), Uri.parse(target));
+        verify(navigationExecutor).openExternal(navigationTarget.activity(), Uri.parse(target));
     }
 
     @Test
@@ -794,7 +794,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openExternal(navigationTarget.activity(), Uri.parse(target));
+        verify(navigationExecutor).openExternal(navigationTarget.activity(), Uri.parse(target));
     }
 
     @Test
@@ -806,7 +806,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verifyTrackingEvent(Optional.of(Referrer.OTHER.value()));
         verifyZeroInteractions(resolveOperations);
-        verify(navigator).openNewForYou(navigationTarget.activity());
+        verify(navigationExecutor).openNewForYou(navigationTarget.activity());
     }
 
     // For Navigation
@@ -817,7 +817,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -826,7 +826,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -898,7 +898,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
-        verifyZeroInteractions(navigator);
+        verifyZeroInteractions(navigationExecutor);
         verify(expandPlayerSubscriber).onNext(playbackResult);
     }
 
@@ -915,7 +915,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         verify(resolveOperations).resolve(target);
         verify(playbackInitiator).startPlayback(Urn.forTrack(123), NAVIGATION_SCREEN);
-        verifyZeroInteractions(navigator);
+        verifyZeroInteractions(navigationExecutor);
         verify(expandPlayerSubscriber).onNext(playbackResult);
     }
 
@@ -927,7 +927,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
+        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -938,7 +938,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
+        verify(navigationExecutor).legacyOpenPlaylist(navigationTarget.activity(), Urn.forPlaylist(123), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -949,7 +949,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), NAVIGATION_SCREEN);
+        verify(navigationExecutor).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -960,7 +960,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(resolveOperations, never()).resolve(anyString());
-        verify(navigator).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), NAVIGATION_SCREEN);
+        verify(navigationExecutor).legacyOpenProfile(navigationTarget.activity(), Urn.forUser(123), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -972,7 +972,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -984,7 +984,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openSearch(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openSearch(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -996,7 +996,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openSearch(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openSearch(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1009,7 +1009,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1020,7 +1020,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1031,7 +1031,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1042,7 +1042,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openRecord(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1054,7 +1054,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openOnboarding(navigationTarget.activity(), Uri.parse(target), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1066,7 +1066,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
+        verify(navigationExecutor).openUpgradeOnMain(navigationTarget.activity(), UpsellContext.DEFAULT);
     }
 
     @Test
@@ -1078,7 +1078,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1090,7 +1090,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1104,7 +1104,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1119,7 +1119,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.MID_TIER);
     }
 
     @Test
@@ -1132,7 +1132,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1144,7 +1144,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1159,7 +1159,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -1172,7 +1172,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openDirectCheckout(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -1185,7 +1185,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1197,7 +1197,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
         assertThat(ShadowToast.getTextOfLatestToast())
                 .isEqualTo(context().getString(R.string.product_choice_error_already_subscribed));
     }
@@ -1212,7 +1212,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openProductChoiceOnMain(navigationTarget.activity(), Plan.MID_TIER);
+        verify(navigationExecutor).openProductChoiceOnMain(navigationTarget.activity(), Plan.MID_TIER);
     }
 
     @Test
@@ -1225,7 +1225,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openProductChoiceOnMain(navigationTarget.activity(), Plan.HIGH_TIER);
+        verify(navigationExecutor).openProductChoiceOnMain(navigationTarget.activity(), Plan.HIGH_TIER);
     }
 
     @Test
@@ -1238,7 +1238,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1250,7 +1250,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openOfflineSettings(navigationTarget.activity());
+        verify(navigationExecutor).openOfflineSettings(navigationTarget.activity());
     }
 
     @Test
@@ -1262,7 +1262,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openStream(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1273,7 +1273,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(eventBus);
-        verify(navigator).openNotificationPreferencesFromDeeplink(navigationTarget.activity());
+        verify(navigationExecutor).openNotificationPreferencesFromDeeplink(navigationTarget.activity());
     }
 
     @Test
@@ -1283,7 +1283,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openCollection(navigationTarget.activity());
+        verify(navigationExecutor).openCollection(navigationTarget.activity());
     }
 
     @Test
@@ -1293,7 +1293,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openViewAllRecommendations(navigationTarget.activity());
+        verify(navigationExecutor).openViewAllRecommendations(navigationTarget.activity());
     }
 
     @Test
@@ -1303,7 +1303,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openDiscovery(navigationTarget.activity(), NAVIGATION_SCREEN);
+        verify(navigationExecutor).openDiscovery(navigationTarget.activity(), NAVIGATION_SCREEN);
     }
 
     @Test
@@ -1314,11 +1314,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openChart(navigationTarget.activity(),
-                                    Chart.GLOBAL_GENRE,
-                                    ChartType.TOP,
-                                    ChartCategory.MUSIC,
-                                    TOP_FIFTY);
+        verify(navigationExecutor).openChart(navigationTarget.activity(),
+                                             Chart.GLOBAL_GENRE,
+                                             ChartType.TOP,
+                                             ChartCategory.MUSIC,
+                                             TOP_FIFTY);
     }
 
     @Test
@@ -1329,11 +1329,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openChart(navigationTarget.activity(),
-                                    Chart.GLOBAL_GENRE,
-                                    ChartType.TOP,
-                                    ChartCategory.MUSIC,
-                                    TOP_FIFTY);
+        verify(navigationExecutor).openChart(navigationTarget.activity(),
+                                             Chart.GLOBAL_GENRE,
+                                             ChartType.TOP,
+                                             ChartCategory.MUSIC,
+                                             TOP_FIFTY);
     }
 
     @Test
@@ -1345,7 +1345,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
+        verify(navigationExecutor).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
     }
 
     @Test
@@ -1357,7 +1357,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
+        verify(navigationExecutor).openRemoteSignInWebView(navigationTarget.activity(), fakeUri);
     }
 
     @Test
@@ -1367,7 +1367,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openEmail(navigationTarget.activity(), "test@abc.com");
+        verify(navigationExecutor).openEmail(navigationTarget.activity(), "test@abc.com");
     }
 
     @Test
@@ -1377,7 +1377,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openEmail(navigationTarget.activity(), "test@abc.com");
+        verify(navigationExecutor).openEmail(navigationTarget.activity(), "test@abc.com");
     }
 
     @Test
@@ -1387,7 +1387,27 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigator).openExternal(navigationTarget.activity(), Uri.parse(target));
+        verify(navigationExecutor).openExternal(navigationTarget.activity(), Uri.parse(target));
+    }
+
+    // Deeplink Navigation
+
+    @Test
+    public void navigationDeeplink_shouldOpenActivities() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forActivities(activity());
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openActivities(navigationTarget.activity());
+    }
+
+    @Test
+    public void navigationDeeplink_shouldOpenSearchTopResultsViewAllPage() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forSearchViewAll(activity(), Optional.of(Urn.NOT_SET), "test", TopResults.Bucket.Kind.GO_TRACKS, true);
+
+        resolveTarget(navigationTarget);
+
+        verify(navigationExecutor).openSearchViewAll(navigationTarget);
     }
 
     @Test
@@ -1398,7 +1418,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(navigator).openNewForYou(navigationTarget.activity());
+        verify(navigationExecutor).openNewForYou(navigationTarget.activity());
     }
 
     // Fallback Errors
@@ -1411,7 +1431,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verifyZeroInteractions(resolveOperations);
-        verify(navigator).openWebView(navigationTarget.activity(), Uri.parse(target));
+        verify(navigationExecutor).openWebView(navigationTarget.activity(), Uri.parse(target));
     }
 
     @Test
@@ -1514,7 +1534,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private NavigationTarget getTargetForDeeplink(String target, Referrer referrer) {
-        return NavigationTarget.forDeeplink(activity(), target, referrer.value());
+        return NavigationTarget.forExternalDeeplink(activity(), target, referrer.value());
     }
 
     private void resolveTarget(NavigationTarget navigationTarget) {

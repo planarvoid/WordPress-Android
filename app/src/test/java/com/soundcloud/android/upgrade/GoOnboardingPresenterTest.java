@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Navigator;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.PendingPlanOperations;
@@ -32,7 +32,7 @@ import java.io.IOException;
 public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Mock private AppCompatActivity activity;
-    @Mock private Navigator navigator;
+    @Mock private NavigationExecutor navigationExecutor;
     @Mock private PendingPlanOperations pendingPlanOperations;
     @Mock private PlanChangeOperations planChangeOperations;
 
@@ -45,7 +45,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(pendingPlanOperations.getPendingUpgrade()).thenReturn(Plan.MID_TIER);
         view = new GoOnboardingViewStub();
-        presenter = new GoOnboardingPresenter(navigator, pendingPlanOperations, planChangeOperations, view, eventBus);
+        presenter = new GoOnboardingPresenter(navigationExecutor, pendingPlanOperations, planChangeOperations, view, eventBus);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         presenter.onStartClicked();
 
         assertThat(view.isStartButtonWaiting).isFalse();
-        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
+        verify(navigationExecutor).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         subject.onNext(accountUpgradeSignal);
         subject.onCompleted();
 
-        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
+        verify(navigationExecutor).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
@@ -158,7 +158,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         success.onNext(accountUpgradeSignal);
         success.onCompleted();
 
-        verify(navigator).openCollectionAsRootScreen(any(Activity.class));
+        verify(navigationExecutor).openCollectionAsRootScreen(any(Activity.class));
     }
 
     @Test
