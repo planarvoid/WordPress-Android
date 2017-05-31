@@ -1,5 +1,6 @@
 package com.soundcloud.android.navigation;
 
+import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -39,6 +40,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.Assertions;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -49,6 +51,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowToast;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 
@@ -1390,7 +1393,18 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(navigationExecutor).openExternal(navigationTarget.activity(), Uri.parse(target));
     }
 
-    // Deeplink Navigation
+    @Test
+    public void navigation_shouldGoToTheUpload() throws Exception {
+        String target = "soundcloud://the-upload";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(navigationExecutor).openNewForYou(navigationTarget.activity());
+    }
+
+    // For Deeplink Navigation
 
     @Test
     public void navigationDeeplink_shouldOpenActivities() throws Exception {
@@ -1398,7 +1412,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
 
         resolveTarget(navigationTarget);
 
-        verify(navigationExecutor).openActivities(navigationTarget.activity());
+        Context context = navigationTarget.activity();
+        context.startActivity(createActivitiesIntent(context));
     }
 
     @Test
@@ -1411,15 +1426,25 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldGoToTheUpload() throws Exception {
-        String target = "soundcloud://the-upload";
-        NavigationTarget navigationTarget = getTargetForNavigation(target);
+    public void navigationDeeplink_shouldOpenFollowers() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forFollowers(activity(), Urn.forUser(123L), Optional.absent());
 
         resolveTarget(navigationTarget);
 
-        verifyZeroInteractions(resolveOperations);
-        verify(navigationExecutor).openNewForYou(navigationTarget.activity());
+        Assertions.assertThat(activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createFollowersIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
     }
+
+    @Test
+    public void navigationDeeplink_shouldOpenFollowings() throws Exception {
+        NavigationTarget navigationTarget = NavigationTarget.forFollowings(activity(), Urn.forUser(123L), Optional.absent());
+
+        resolveTarget(navigationTarget);
+
+        Assertions.assertThat(navigationTarget.activity()).nextStartedIntent()
+                  .isEqualToIntent(IntentFactory.createFollowingsIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
+    }
+
 
     // Fallback Errors
 

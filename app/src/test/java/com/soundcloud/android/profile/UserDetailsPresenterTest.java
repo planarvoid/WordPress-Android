@@ -37,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -61,15 +62,12 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     @Mock private UserProfileOperations profileOperations;
     @Mock private UserDetailsView userDetailsView;
-    @Mock private ProfileActivity activity;
     @Mock private UserDetailsFragment fragment;
     @Mock private View view;
     @Mock private Resources resources;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
     @Mock private View userDetailsHolder;
     @Mock private EmptyView emptyView;
-    @Mock private Intent intent;
-    @Mock private NavigationExecutor navigationExecutor;
     @Mock private SocialMediaLinkItem socialMediaLink;
     @Mock private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private ScreenProvider screenProvider;
@@ -94,6 +92,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         emptyUserProfileInfo = UserProfileInfo.create(new ModelCollection<>(newArrayList()), Optional.absent(), emptyUser());
         when(fragment.getArguments()).thenReturn(value);
         when(fragment.getActivity()).thenReturn(activity());
+        when(view.getContext()).thenReturn(activity());
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -103,7 +102,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
         when(resources.getStringArray(R.array.ak_number_suffixes)).thenReturn(new String[]{"", "K", "M", "B"});
         numberFormatter = CondensedNumberFormatter.create(Locale.GERMAN, resources);
-        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigationExecutor, navigator, screenProvider);
+        presenter = new UserDetailsPresenter(profileOperations, userDetailsView, numberFormatter, navigator, screenProvider);
     }
 
     @Test
@@ -240,7 +239,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowersClicked();
-        verify(navigationExecutor).openFollowers(view.getContext(), USER_URN, searchQuerySourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forFollowers((Activity) view.getContext(), USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test
@@ -250,7 +249,7 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         listenerCaptor.getValue().onViewFollowingClicked();
-        verify(navigationExecutor).openFollowings(view.getContext(), USER_URN, searchQuerySourceInfo);
+        verify(navigator).navigateTo(NavigationTarget.forFollowings((Activity) view.getContext(), USER_URN, Optional.of(searchQuerySourceInfo)));
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.soundcloud.android.navigation;
 import static com.soundcloud.android.model.Urn.forAd;
 import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Actions;
@@ -53,8 +52,6 @@ import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.profile.FollowersActivity;
-import com.soundcloud.android.profile.FollowingsActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
@@ -755,29 +752,6 @@ public class NavigationExecutorTest extends AndroidUnitTest {
     public void openActivities() {
         activityContext.startActivity(createActivitiesIntent((Context) activityContext));
         assertThat(activityContext).nextStartedIntent().opensActivity(ActivitiesActivity.class);
-    }
-
-    @Test
-    public void openFollowers() {
-        Urn userUrn = Urn.forUser(123L);
-        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
-        navigationExecutor.openFollowers(activityContext, userUrn, searchQuerySourceInfo);
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(FollowersActivity.class)
-                                   .containsExtra(FollowersActivity.EXTRA_USER_URN, userUrn)
-                                   .containsExtra(FollowersActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
-    }
-
-
-    @Test
-    public void openFollowings() {
-        Urn userUrn = Urn.forUser(123L);
-        SearchQuerySourceInfo searchQuerySourceInfo = mock(SearchQuerySourceInfo.class);
-        navigationExecutor.openFollowings(activityContext, userUrn, searchQuerySourceInfo);
-        assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(FollowingsActivity.class)
-                                   .containsExtra(FollowingsActivity.EXTRA_USER_URN, userUrn)
-                                   .containsExtra(FollowingsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
     @Test

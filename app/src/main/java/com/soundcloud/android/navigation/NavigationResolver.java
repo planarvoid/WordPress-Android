@@ -1,5 +1,9 @@
 package com.soundcloud.android.navigation;
 
+import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
+import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
+
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.R;
@@ -34,6 +38,7 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
@@ -211,6 +216,10 @@ public class NavigationResolver {
                 return startExternal(navigationTarget);
             case ACTIVITIES:
                 return showActivities(navigationTarget);
+            case FOLLOWERS:
+                return showFollowers(navigationTarget);
+            case FOLLOWINGS:
+                return showFollowings(navigationTarget);
             default:
                 return resolveTarget(navigationTarget);
         }
@@ -234,7 +243,25 @@ public class NavigationResolver {
     private Single<Action> showActivities(NavigationTarget navigationTarget) {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
-            navigationExecutor.openActivities(navigationTarget.activity());
+            Context context = navigationTarget.activity();
+            context.startActivity(createActivitiesIntent(context));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showFollowers(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            navigationTarget.activity().startActivity(createFollowersIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showFollowings(NavigationTarget navigationTarget) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            Intent followingsIntent = createFollowingsIntent(navigationTarget.activity(), navigationTarget.targetUrn().get(), navigationTarget.searchQuerySourceInfo());
+            navigationTarget.activity().startActivity(followingsIntent);
         });
     }
 

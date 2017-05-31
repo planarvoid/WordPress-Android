@@ -19,6 +19,12 @@ public final class IntentAssert extends AbstractAssert<IntentAssert, Intent> {
         super(actual, IntentAssert.class);
     }
 
+    public IntentAssert isEqualToIntent(Intent expected) {
+        isNotNull();
+        assertThat(actual.filterEquals(expected)).isTrue();
+        return this;
+    }
+
     public IntentAssert containsAction(String action) {
         Preconditions.checkNotNull(action);
         isNotNull();

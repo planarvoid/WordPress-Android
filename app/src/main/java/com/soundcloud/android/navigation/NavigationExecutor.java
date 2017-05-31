@@ -1,7 +1,6 @@
 package com.soundcloud.android.navigation;
 
 import static com.soundcloud.android.navigation.IntentFactory.addSearchQuerySource;
-import static com.soundcloud.android.navigation.IntentFactory.createActivitiesIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAdClickthroughIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAlbumsCollectionIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createAllGenresIntent;
@@ -12,8 +11,6 @@ import static com.soundcloud.android.navigation.IntentFactory.createConversionIn
 import static com.soundcloud.android.navigation.IntentFactory.createDirectCheckoutIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createDiscoveryIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createEmailIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createFollowersIntent;
-import static com.soundcloud.android.navigation.IntentFactory.createFollowingsIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createFullscreenVideoAdIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createHomeIntent;
 import static com.soundcloud.android.navigation.IntentFactory.createLaunchIntent;
@@ -295,22 +292,6 @@ public class NavigationExecutor {
 
     public void openSystemPlaylist(Context context, Urn urn, Screen screen) {
         context.startActivity(createSystemPlaylistIntent(context, urn, screen));
-    }
-
-    public void openActivities(Context context) {
-        context.startActivity(createActivitiesIntent(context));
-    }
-
-    public void openFollowers(Context context,
-                              Urn userUrn,
-                              SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(createFollowersIntent(context, userUrn, Optional.fromNullable(searchQuerySourceInfo)));
-    }
-
-    public void openFollowings(Context context,
-                               Urn userUrn,
-                               SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(createFollowingsIntent(context, userUrn, Optional.fromNullable(searchQuerySourceInfo)));
     }
 
     public void openBasicSettings(Context context) {

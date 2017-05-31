@@ -1,6 +1,7 @@
 package com.soundcloud.android.navigation;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -23,7 +24,9 @@ public abstract class NavigationTarget {
     public abstract Screen screen();
     public abstract Optional<String> referrer();
     public abstract Optional<Urn> queryUrn();
+    public abstract Optional<Urn> targetUrn();
     public abstract Optional<TopResultsMetaData> topResultsMetaData();
+    public abstract Optional<SearchQuerySourceInfo> searchQuerySourceInfo();
     public abstract Builder toBuilder();
 
     public static Builder newBuilder() {
@@ -32,6 +35,8 @@ public abstract class NavigationTarget {
                 .fallback(Optional.absent())
                 .deeplink(Optional.absent())
                 .queryUrn(Optional.absent())
+                .targetUrn(Optional.absent())
+                .searchQuerySourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent());
     }
 
@@ -89,6 +94,22 @@ public abstract class NavigationTarget {
         return forNavigationDeeplink(activity, DeepLink.ACTIVITIES, Screen.UNKNOWN);
     }
 
+    public static NavigationTarget forFollowers(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forNavigationDeeplink(activity, DeepLink.FOLLOWERS, Screen.UNKNOWN)
+                .toBuilder()
+                .targetUrn(Optional.of(userUrn))
+                .searchQuerySourceInfo(searchQuerySourceInfo)
+                .build();
+    }
+
+    public static NavigationTarget forFollowings(Activity activity, Urn userUrn, Optional<SearchQuerySourceInfo> searchQuerySourceInfo) {
+        return forNavigationDeeplink(activity, DeepLink.FOLLOWINGS, Screen.UNKNOWN)
+                .toBuilder()
+                .targetUrn(Optional.of(userUrn))
+                .searchQuerySourceInfo(searchQuerySourceInfo)
+                .build();
+    }
+
     public static NavigationTarget forSearchViewAll(Activity activity, Optional<Urn> queryUrn, String query, TopResults.Bucket.Kind kind, boolean isPremium) {
         return forNavigationDeeplink(activity, DeepLink.SEARCH_RESULTS_VIEW_ALL, Screen.UNKNOWN)
                 .toBuilder()
@@ -119,6 +140,8 @@ public abstract class NavigationTarget {
         abstract Builder topResultsMetaData(Optional<TopResultsMetaData> metaData);
         abstract Builder deeplink(Optional<DeepLink> deepLink);
         abstract Builder queryUrn(Optional<Urn> queryUrn);
+        abstract Builder targetUrn(Optional<Urn> targetUrn);
+        abstract Builder searchQuerySourceInfo(Optional<SearchQuerySourceInfo> searchQuerySourceInfo);
     }
 
     @AutoValue

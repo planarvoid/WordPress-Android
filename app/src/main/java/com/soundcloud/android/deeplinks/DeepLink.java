@@ -42,6 +42,8 @@ public enum DeepLink {
     // Navigation Target Deeplinks
 
     ACTIVITIES,
+    FOLLOWERS,
+    FOLLOWINGS,
     SEARCH_RESULTS_VIEW_ALL
     ;
 

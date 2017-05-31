@@ -22,6 +22,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -38,12 +39,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private final UserProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
     private final CondensedNumberFormatter numberFormatter;
-    private final NavigationExecutor navigationExecutor;
     private final Navigator navigator;
     private final ScreenProvider screenProvider;
 
     private Urn userUrn;
-    private SearchQuerySourceInfo searchQuerySourceInfo;
+    private Optional<SearchQuerySourceInfo> searchQuerySourceInfo;
     private Observable<UserProfileInfo> userDetailsObservable;
     private UserProfileInfo userProfileInfo;
 
@@ -51,13 +51,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     UserDetailsPresenter(UserProfileOperations profileOperations,
                          UserDetailsView userDetailsView,
                          CondensedNumberFormatter numberFormatter,
-                         NavigationExecutor navigationExecutor,
                          Navigator navigator,
                          ScreenProvider screenProvider) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
         this.numberFormatter = numberFormatter;
-        this.navigationExecutor = navigationExecutor;
         this.navigator = navigator;
         this.screenProvider = screenProvider;
     }
@@ -66,7 +64,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
-        searchQuerySourceInfo = fragment.getArguments().getParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY);
+        searchQuerySourceInfo = Optional.fromNullable(fragment.getArguments().getParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY));
 
         userDetailsObservable = profileOperations.userProfileInfo(userUrn).cache();
     }
@@ -84,12 +82,12 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
             @Override
             public void onViewFollowersClicked() {
-                navigationExecutor.openFollowers(view.getContext(), userUrn, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forFollowers((Activity) view.getContext(), userUrn, searchQuerySourceInfo));
             }
 
             @Override
             public void onViewFollowingClicked() {
-                navigationExecutor.openFollowings(view.getContext(), userUrn, searchQuerySourceInfo);
+                navigator.navigateTo(NavigationTarget.forFollowings((Activity) view.getContext(), userUrn, searchQuerySourceInfo));
             }
         });
 
