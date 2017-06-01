@@ -46,7 +46,7 @@ def toolsPackages() {
 def testRunner() {
   new TestRunner(project.projectDir, project.rootDir, project.mobileTestRunnerUrl, project.mobileTestRunnerUser, project.mobileTestRunnerHost, project.mobileTestRunnerReportUrl,
           project.testInstrumentationRunner, project.mobileTestRunnerMaxTestAttempts, project.mobileTestRunnerScheduleAllTestAttemptsAtOnce, project.mobileTestRunnerMaxCollectionTaskAttempts,
-          applicationPackage(), testPackage(), toolsPackages())
+          applicationPackage(), testPackage(), toolsPackages(), project.mobileTestRunnerSshPort as int)
 }
 
 static def systemPropertiesForBuildType(buildType) {

@@ -28,9 +28,10 @@ allprojects {
     androidNetworkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
 
     mobileTestRunnerUser = "mobile"
-    mobileTestRunnerHost = 'chaos-slave.mobile.s-cloud.net'
-    mobileTestRunner = "com.soundcloud.mobiletestrunner:client:132-31-55df03b"
-    mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
+    mobileTestRunnerHost = envOr('MTR_HOST', 'chaos-slave.mobile.s-cloud.net')
+    mobileTestRunnerSshPort = envOr('MTR_SSH_PORT', '22')
+    mobileTestRunner = "com.soundcloud.mobiletestrunner:client:138-36-854afc4"
+    mobileTestRunnerUrl = envOr('MTR_URL', "http://$mobileTestRunnerHost:5000")
     mobileTestRunnerReportUrl = "http://mobile-jenkins.int.s-cloud.net:84"
     mobileTestRunnerMaxTestAttempts = 3
     mobileTestRunnerScheduleAllTestAttemptsAtOnce = false
@@ -82,3 +83,8 @@ task pullAlphaDb() {
     pullDb("alpha")
   }
 }
+
+def envOr(String key, String defaultValue) {
+  System.getenv(key)?:defaultValue
+}
+

@@ -21,7 +21,7 @@ timestamps {
             node(NODE_NAME) {
               compileStage()
             }
-            node("chaos-slave") {
+            node(NODE_NAME) {
               acceptanceTestStage()
             }
           }
