@@ -1132,7 +1132,7 @@
         <item quantity="other">%d Added</item>
     </plurals>
     <string name="shortcut_play_tracks">Play tracks</string>
-    <string name="list_empty_you_tracks_message">Add your favorite tracks to hear them again</string>
+    <string name="list_empty_you_tracks_message">Add your favorite tracks to hear them again.</string>
     <string name="add_snackbar_overflow_action">Added to my collection</string>
     <string name="remove_snackbar_overflow_action">Removed from my collection</string>
     <string name="add_error_snackbar_overflow_action">Track status was not changed</string>
@@ -1151,14 +1151,16 @@
     <string name="offline_tracks_dialog_message">This will save your current and future tracks offline so you can listen without Wi-Fi or data connection.</string>
     <string name="go_onboarding_offline_settings_subtext_tracks">Selecting this will save all your current and future tracks, playlists and albums offline automatically.</string>
     <string name="pref_offline_offline_collection_description_off_tracks">Turn this on to save all your current and future tracks, playlists and albums offline.</string>
+    <string name="remove_offline_content_body_sync_collection_tracks">You’re about to remove everything from offline listening. Additionally, your newly added tracks, playlists and albums won’t save automatically anymore.</string>
     <string name="disable_offline_collection_body_tracks">Your new tracks, playlists and albums won’t save automatically anymore and existing saved tracks will be removed from offline listening.</string>
+    <string name="disable_offline_collection_from_context_body_tracks">You’re about to remove this from offline. Additionally, your newly created or added playlists won’t save offline automatically anymore.</string>
     <string name="empty_you_sounds_message_secondary_add">Tracks you add, repost or upload will appear here.</string>
     <string name="user_profile_sounds_header_tracks_in_collection">Tracks in their collection</string>
     <string name="user_profile_sounds_view_all_tracks_in_collection">View all tracks in their collection</string>
     <string name="user_profile_sounds_tracks_in_collection_empty">This person doesn’t have any added tracks in their collection yet.</string>
     <string name="user_tracks_label">Tracks</string>
-    <string name="push_notifications_add">Your post was added to a collection</string>
-    <string name="email_notifications_add">Your post was added to a collection</string>
+    <string name="push_notifications_add">Post added to collection</string>
+    <string name="email_notifications_add">Post added to collection</string>
     <string name="play_queue_header_tracks">From your tracks</string>
     <string name="suggested_creators_relation_added">You recently added their track to your collection</string>
     <string name="like_your_favorite_tracks_title">Like your favorite tracks</string>

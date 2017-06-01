@@ -69,7 +69,7 @@
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/likes"
                     style="@style/TrackInfo.Text.Stats"
-                    android:drawableLeft="@drawable/list_item_like" />
+                    android:drawableLeft="@drawable/stats_likes_grey" />
 
                 <View
                     android:id="@+id/divider2"

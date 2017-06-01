@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -40,6 +41,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
     @Mock private NavigationExecutor navigationExecutor;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     private final CondensedNumberFormatter numberFormatter =
             CondensedNumberFormatter.create(Locale.US, resources());
@@ -65,7 +67,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
         renderer = new PlaylistItemRenderer(resources(), imageOperations, numberFormatter,
-                                            playlistItemMenuPresenter, eventBus, screenProvider, navigationExecutor);
+                                            playlistItemMenuPresenter, eventBus, screenProvider, navigationExecutor, changeLikeToSaveExperiment);
     }
 
     @Test
@@ -116,15 +118,6 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(builder.likesCount(Consts.NOT_SET).build()));
 
         assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
-    }
-
-    @Test
-    public void shouldBindLikeStatusToView() {
-        renderer.bindItemView(0, itemView, singletonList(playlistItem));
-        assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(0);
-
-        renderer.bindItemView(0, itemView, singletonList(builder.isUserLike(true).build()));
-        assertThat(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).isEqualTo(1);
     }
 
     @Test

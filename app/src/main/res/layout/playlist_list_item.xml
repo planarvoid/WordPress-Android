@@ -15,7 +15,7 @@
             style="@style/ListItemText.Numeric.Stats"
             android:layout_below="@id/list_item_subheader"
             android:layout_toRightOf="@id/image"
-            android:drawableLeft="@drawable/list_item_like" />
+            android:drawableLeft="@drawable/stats_likes_grey" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/promoted_playlist"

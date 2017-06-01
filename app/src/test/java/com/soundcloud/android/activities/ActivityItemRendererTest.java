@@ -5,6 +5,7 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
@@ -26,6 +27,7 @@ import java.util.Date;
 public class ActivityItemRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
+    @Mock private ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock private ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private View itemView;
@@ -35,7 +37,7 @@ public class ActivityItemRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.engagement_list_item, new FrameLayout(context()), false);
-        renderer = new ActivityItemRenderer(resources(), imageOperations, changeLikeToSaveExperimentStringHelper);
+        renderer = new ActivityItemRenderer(resources(), imageOperations, changeLikeToSaveExperiment, changeLikeToSaveExperimentStringHelper);
     }
 
     @Test

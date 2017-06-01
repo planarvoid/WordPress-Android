@@ -5,6 +5,7 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackIte
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.PlayableFixtures;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -24,13 +25,14 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     private View view;
     private TrackInfoPresenter presenter;
 
+    @Mock ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
 
     private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackInfoPresenter(resources(), numberFormatter);
+        presenter = new TrackInfoPresenter(resources(), numberFormatter, changeLikeToSaveExperiment);
         view = presenter.create(LayoutInflater.from(context()), new FrameLayout(context()));
     }
 

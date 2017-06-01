@@ -1,13 +1,14 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -19,7 +20,6 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +38,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
     private final NavigationExecutor navigationExecutor;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     @Inject
     public PlaylistItemRenderer(Resources resources,
@@ -46,7 +47,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                 EventBus eventBus,
                                 ScreenProvider screenProvider,
-                                NavigationExecutor navigationExecutor) {
+                                NavigationExecutor navigationExecutor,
+                                ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
 
         this.resources = resources;
         this.imageOperations = imageOperations;
@@ -55,6 +57,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
         this.navigationExecutor = navigationExecutor;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     @Override
@@ -169,9 +172,18 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         if (hasLike(likesCount)) {
             likesCountText.setVisibility(View.VISIBLE);
             likesCountText.setText(numberFormatter.format(likesCount));
-            final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
-            heartIcon.setLevel(playlist.isUserLike() ? 1 : 0);
+            likesCountText.setCompoundDrawablesWithIntrinsicBounds(changeLikeToSaveExperiment.isEnabled()
+                                                                   ? getAddedDrawable(playlist.isUserLike())
+                                                                   : getLikesDrawable(playlist.isUserLike()), 0, 0, 0);
         }
+    }
+
+    private int getAddedDrawable(boolean isUserLike) {
+        return isUserLike ? R.drawable.stats_added_orange : R.drawable.stats_added_grey;
+    }
+
+    private int getLikesDrawable(boolean isUserLike) {
+        return isUserLike ? R.drawable.stats_likes_orange : R.drawable.stats_likes_grey;
     }
 
     private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,

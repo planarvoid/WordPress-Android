@@ -249,7 +249,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private int getRemoveAllOfflineContentDialogBody() {
         return offlineContentOperations.isOfflineCollectionEnabled()
-               ? R.string.remove_offline_content_body_sync_collection
+               ? changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.REMOVE_OFFLINE_CONTENT_BODY_SYNC_COLLECTION)
                : R.string.remove_offline_content_body_default;
     }
 

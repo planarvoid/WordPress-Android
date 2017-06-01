@@ -13,6 +13,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -80,6 +81,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
     private final TrackLikesAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private CompositeSubscription viewLifeCycle;
@@ -113,6 +115,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
                         OfflinePropertiesProvider offlinePropertiesProvider,
                         FeatureFlags featureFlags,
                         PerformanceMetricsEngine performanceMetricsEngine,
+                        ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                         ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher);
         this.likeOperations = likeOperations;
@@ -122,6 +125,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         this.offlinePropertiesProvider = offlinePropertiesProvider;
         this.featureFlags = featureFlags;
         this.performanceMetricsEngine = performanceMetricsEngine;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
         this.adapter = adapterFactory.create(headerPresenter);
         this.headerPresenter = headerPresenter;
@@ -186,7 +190,9 @@ class TrackLikesPresenter extends RecyclerViewPresenter<TrackLikesPresenter.Trac
         // remove the blinking whenever we notifyItemChanged
         ((DefaultItemAnimator) getRecyclerView().getItemAnimator()).setSupportsChangeAnimations(false);
 
-        getEmptyView().setImage(R.drawable.empty_like);
+        getEmptyView().setImage(changeLikeToSaveExperiment.isEnabled()
+                                ? R.drawable.empty_tracks_added
+                                : R.drawable.empty_like);
         getEmptyView().setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIST_EMPTY_YOU_LIKES_MESSAGE));
         getEmptyView().setBackgroundResource(R.color.page_background);
 

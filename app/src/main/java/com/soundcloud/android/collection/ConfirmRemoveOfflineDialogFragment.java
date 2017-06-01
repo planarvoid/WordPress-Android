@@ -6,6 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
@@ -35,6 +37,7 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Inject EventBus eventBus;
     @Inject ScreenProvider screenProvider;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
+    @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     public static void showForPlaylist(FragmentManager fragmentManager,
                                        Urn playlist,
@@ -60,7 +63,7 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setTitle(R.string.disable_offline_collection_from_context_title)
-                .setMessage(R.string.disable_offline_collection_from_context_body).get();
+                .setMessage(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.DISABLE_OFFLINE_COLLECTION_FROM_CONTEXT_BODY)).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

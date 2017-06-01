@@ -47,7 +47,7 @@ public class BasicSettingsFragment extends PreferenceFragment {
 
     private void setupSyncWifiOnlyPreference() {
         getPreferenceScreen().findPreference(SYNC_WIFI_ONLY)
-                             .setTitle(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PREF_SYNC_WIFI_ONLY_DESCRIPTION));
+                             .setSummary(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.PREF_SYNC_WIFI_ONLY_DESCRIPTION));
     }
 
     @Override public void onDestroyView() {

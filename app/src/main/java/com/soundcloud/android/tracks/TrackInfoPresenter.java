@@ -4,6 +4,7 @@ import static android.text.Html.fromHtml;
 import static java.lang.System.getProperty;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.strings.Strings;
@@ -22,15 +23,17 @@ public class TrackInfoPresenter {
 
     private final Resources resources;
     private final CondensedNumberFormatter numberFormatter;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
 
     interface CommentClickListener {
         void onCommentsClicked();
     }
 
     @Inject
-    public TrackInfoPresenter(Resources resources, CondensedNumberFormatter numberFormatter) {
+    TrackInfoPresenter(Resources resources, CondensedNumberFormatter numberFormatter, ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         this.resources = resources;
         this.numberFormatter = numberFormatter;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
     }
 
     public View create(LayoutInflater inflater, ViewGroup container) {
@@ -48,12 +51,12 @@ public class TrackInfoPresenter {
         bindPrivateOrStats(view, trackItem);
     }
 
-    public void showSpinner(View view) {
+    void showSpinner(View view) {
         hideView(view, R.id.description);
         showView(view, R.id.loading);
     }
 
-    public void bindDescription(View view, TrackItem trackItem) {
+    void bindDescription(View view, TrackItem trackItem) {
         final String source = trackItem.description().or(Strings.EMPTY);
         if (source.isEmpty()) {
             bindNoDescription(view);
@@ -64,7 +67,7 @@ public class TrackInfoPresenter {
         hideView(view, R.id.loading);
     }
 
-    public void bindNoDescription(View view) {
+    void bindNoDescription(View view) {
         showView(view, R.id.no_description);
         hideView(view, R.id.loading);
         hideView(view, R.id.description);
@@ -110,6 +113,14 @@ public class TrackInfoPresenter {
         setStat(view, R.id.reposts, trackItem.repostsCount());
 
         toggleDividers(view);
+        setLikesDrawable(view);
+    }
+
+    private void setLikesDrawable(View view) {
+        final TextView likes = (TextView) view.findViewById(R.id.likes);
+        likes.setCompoundDrawablesWithIntrinsicBounds(changeLikeToSaveExperiment.isEnabled()
+                                                      ? R.drawable.stats_added_grey
+                                                      : R.drawable.stats_likes_grey, 0, 0, 0);
     }
 
     private void toggleDividers(View view) {

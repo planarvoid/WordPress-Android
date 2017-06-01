@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<PlayableItem>> {
 
     private final UserProfileOperations operations;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
@@ -31,9 +33,11 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<
                        MixedItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
                        UserProfileOperations operations,
+                       ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                        ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter, clickListenerFactory, updaterFactory);
         this.operations = operations;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
@@ -48,7 +52,9 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection<
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
-        emptyView.setImage(R.drawable.empty_like);
+        emptyView.setImage(changeLikeToSaveExperiment.isEnabled()
+                           ? R.drawable.empty_tracks_added
+                           : R.drawable.empty_like);
         emptyView.setMessageText(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.USER_PROFILE_SOUNDS_LIKES_EMPTY));
     }
 

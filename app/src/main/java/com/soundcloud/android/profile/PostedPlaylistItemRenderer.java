@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -21,19 +22,22 @@ import java.util.List;
 class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
 
     @Inject
-    public PostedPlaylistItemRenderer(Resources resources,
-                                      ImageOperations imageOperations,
-                                      CondensedNumberFormatter numberFormatter,
-                                      PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                      EventBus eventBus, ScreenProvider screenProvider,
-                                      NavigationExecutor navigationExecutor) {
+    PostedPlaylistItemRenderer(Resources resources,
+                               ImageOperations imageOperations,
+                               CondensedNumberFormatter numberFormatter,
+                               PlaylistItemMenuPresenter playlistItemMenuPresenter,
+                               EventBus eventBus,
+                               ScreenProvider screenProvider,
+                               NavigationExecutor navigationExecutor,
+                               ChangeLikeToSaveExperiment changeLikeToSaveExperiment) {
         super(resources,
               imageOperations,
               numberFormatter,
               playlistItemMenuPresenter,
               eventBus,
               screenProvider,
-              navigationExecutor);
+              navigationExecutor,
+              changeLikeToSaveExperiment);
     }
 
     @Override

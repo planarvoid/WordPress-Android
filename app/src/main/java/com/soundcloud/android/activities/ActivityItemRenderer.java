@@ -1,6 +1,7 @@
 package com.soundcloud.android.activities;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ApiImageSize;
@@ -22,14 +23,17 @@ import java.util.List;
 public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     @Inject
     ActivityItemRenderer(Resources resources,
                          ImageOperations imageOperations,
+                         ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                          ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
 
@@ -68,7 +72,9 @@ public class ActivityItemRenderer implements CellRenderer<ActivityItem> {
                 titleText = String.format(
                         resources.getString(changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.NOTIFICATION_USERNAME_LIKED_TRACKTITLE)),
                         activityItem.getPlayableTitle());
-                iconId = R.drawable.stats_likes_grey;
+                iconId = changeLikeToSaveExperiment.isEnabled()
+                         ? R.drawable.stats_added_grey
+                         : R.drawable.stats_likes_grey;
                 break;
             case TRACK_REPOST:
             case PLAYLIST_REPOST:

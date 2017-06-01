@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -53,9 +54,13 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
         renderer = new PostedPlaylistItemRenderer(resources(),
-                                                  mock(ImageOperations.class), numberFormatter,
-                                                  mock(PlaylistItemMenuPresenter.class), mock(EventBus.class),
-                                                  mock(ScreenProvider.class), mock(NavigationExecutor.class));
+                                                  mock(ImageOperations.class),
+                                                  numberFormatter,
+                                                  mock(PlaylistItemMenuPresenter.class),
+                                                  mock(EventBus.class),
+                                                  mock(ScreenProvider.class),
+                                                  mock(NavigationExecutor.class),
+                                                  mock(ChangeLikeToSaveExperiment.class));
     }
 
     @Test
