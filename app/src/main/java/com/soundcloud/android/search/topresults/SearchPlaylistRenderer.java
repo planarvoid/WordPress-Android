@@ -5,7 +5,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.optional.Optional;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.view.View;
 import android.view.ViewGroup;

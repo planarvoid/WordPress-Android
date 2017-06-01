@@ -9,7 +9,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -34,7 +34,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
     private final PublishSubject<SearchItem.Playlist> playlistClick;
     private final PublishSubject<SearchItem.User> userClick;
     private final PublishSubject<TopResults.Bucket.Kind> viewAllClick;
-    private final PublishSubject<Void> helpClick;
+    private final PublishSubject<UiAction.HelpClick> helpClick;
 
     BucketRenderer(@Provided SearchItemAdapterFactory searchItemAdapterFactory,
                    @Provided CondensedNumberFormatter numberFormatter,
@@ -43,7 +43,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
                    PublishSubject<SearchItem.Playlist> playlistClick,
                    PublishSubject<SearchItem.User> userClick,
                    PublishSubject<TopResults.Bucket.Kind> viewAllClick,
-                   PublishSubject<Void> helpClick) {
+                   PublishSubject<UiAction.HelpClick> helpClick) {
         this.searchItemAdapterFactory = searchItemAdapterFactory;
         this.numberFormatter = numberFormatter;
         this.featureOperations = featureOperations;
@@ -111,7 +111,7 @@ class BucketRenderer implements CellRenderer<TopResultsBucketViewModel> {
         final View helpItemView = itemView.findViewById(R.id.help);
         if (featureOperations.upsellHighTier() && bucket.kind() == GO_TRACKS) {
             helpItemView.setVisibility(View.VISIBLE);
-            helpItemView.setOnClickListener(view -> helpClick.onNext(null));
+            helpItemView.setOnClickListener(view -> helpClick.onNext(UiAction.HelpClick.create()));
         } else {
             helpItemView.setVisibility(View.GONE);
         }

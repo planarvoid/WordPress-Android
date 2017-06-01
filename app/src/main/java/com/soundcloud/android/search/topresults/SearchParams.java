@@ -10,8 +10,13 @@ abstract class SearchParams {
     abstract String userQuery();
     abstract Optional<Urn> queryUrn();
     abstract Optional<Integer> queryPosition();
+    abstract boolean isRefreshing();
 
     static SearchParams create(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
-        return new AutoValue_SearchParams(apiQuery, userQuery, queryUrn, queryPosition);
+        return new AutoValue_SearchParams(apiQuery, userQuery, queryUrn, queryPosition, false);
+    }
+
+    static SearchParams createRefreshing(String apiQuery, String userQuery, Optional<Urn> queryUrn, Optional<Integer> queryPosition) {
+        return new AutoValue_SearchParams(apiQuery, userQuery, queryUrn, queryPosition, true);
     }
 }

@@ -4,7 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

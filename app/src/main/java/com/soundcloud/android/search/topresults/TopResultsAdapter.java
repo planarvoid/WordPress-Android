@@ -3,7 +3,7 @@ package com.soundcloud.android.search.topresults;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -16,7 +16,7 @@ class TopResultsAdapter extends RecyclerItemAdapter<TopResultsBucketViewModel, R
                       PublishSubject<SearchItem.Playlist> playlistClick,
                       PublishSubject<SearchItem.User> userClick,
                       PublishSubject<TopResults.Bucket.Kind> viewAllClick,
-                      PublishSubject<Void> helpClick) {
+                      PublishSubject<UiAction.HelpClick> helpClick) {
         super(bucketRendererFactory.create(trackClick, playlistClick, userClick, viewAllClick, helpClick));
     }
 

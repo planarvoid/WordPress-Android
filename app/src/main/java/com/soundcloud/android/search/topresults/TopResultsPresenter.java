@@ -2,219 +2,210 @@ package com.soundcloud.android.search.topresults;
 
 import static com.soundcloud.java.collections.Lists.transform;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingStateProvider;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.Module;
-import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Entity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.rx.observers.LambdaSubscriber;
-import com.soundcloud.android.search.SearchPlayQueueFilter;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.topresults.TopResults.Bucket;
-import com.soundcloud.android.view.collection.CollectionRendererState;
-import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.subjects.PublishSubject;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 public class TopResultsPresenter {
 
-    interface TopResultsView {
+    private static final Screen SCREEN = Screen.SEARCH_EVERYTHING;
 
-        Observable<SearchParams> searchIntent();
-
-        Observable<SearchParams> refreshIntent();
-
-        Observable<Void> enterScreen();
-
-        Observable<SearchItem.Track> trackClick();
-
-        Observable<SearchItem.Playlist> playlistClick();
-
-        Observable<SearchItem.User> userClick();
-
-        Observable<TopResults.Bucket.Kind> viewAllClick();
-
-        Observable<Void> helpClick();
-
-        String searchQuery();
-
-        void navigateToPlaylist(GoToItemArgs goToItemArgs);
-
-        void navigateToUser(GoToItemArgs goToItemArgs);
-
-        void navigateToViewAll(TopResultsViewAllArgs topResultsViewAllArgs);
-
-        void navigateToHelp();
-
-        void renderNewState(CollectionRendererState<TopResultsBucketViewModel> newState);
-
-        void showError(PlaybackResult.ErrorReason errorReason);
-    }
-
-    private final PublishSubject<PlaybackResult.ErrorReason> playbackError = PublishSubject.create();
-
-    private final TopResultsDataSource dataSource;
-    private final SearchPlayQueueFilter playQueueFilter;
-    private final PlaybackInitiator playbackInitiator;
     private final EventTracker eventTracker;
     private final SearchTracker searchTracker;
-    private final EventBus eventBus;
     private final TrackingStateProvider trackingStateProvider;
+    private final TopResultsOperations operations;
+    private final Scheduler scheduler;
+    private final Navigator navigator;
+    private final NavigationExecutor navigationExecutor;
+    private final PlaybackFeedbackHelper playbackFeedbackHelper;
+    private final SearchClickListener searchClickListener;
+    private final CompositeDisposable viewSubscription = new CompositeDisposable();
 
-    private CompositeSubscription viewSubscription = new CompositeSubscription();
+    interface TopResultsView extends Consumer<ViewModel> {
+
+        Observable<UiAction.Search> searchIntent();
+
+        Observable<UiAction.Refresh> refreshIntent();
+
+        Observable<UiAction.Enter> enterScreen();
+
+        Observable<UiAction.TrackClick> trackClick();
+
+        Observable<UiAction.PlaylistClick> playlistClick();
+
+        Observable<UiAction.UserClick> userClick();
+
+        Observable<UiAction.ViewAllClick> viewAllClick();
+
+        Observable<UiAction.HelpClick> helpClick();
+
+        void handleActionResult(ClickResultAction action);
+    }
 
     @Inject
-    TopResultsPresenter(TopResultsDataSource dataSource,
-                        SearchPlayQueueFilter playQueueFilter,
-                        PlaybackInitiator playbackInitiator,
-                        EventTracker eventTracker,
+    TopResultsPresenter(EventTracker eventTracker,
                         SearchTracker searchTracker,
-                        EventBus eventBus,
-                        TrackingStateProvider trackingStateProvider) {
-        this.dataSource = dataSource;
-        this.playQueueFilter = playQueueFilter;
-        this.playbackInitiator = playbackInitiator;
+                        TrackingStateProvider trackingStateProvider,
+                        TopResultsOperations operations,
+                        @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
+                        Navigator navigator,
+                        NavigationExecutor navigationExecutor,
+                        PlaybackFeedbackHelper playbackFeedbackHelper,
+                        SearchClickListener searchClickListener) {
         this.eventTracker = eventTracker;
         this.searchTracker = searchTracker;
-        this.eventBus = eventBus;
         this.trackingStateProvider = trackingStateProvider;
+        this.operations = operations;
+        this.scheduler = scheduler;
+        this.navigator = navigator;
+        this.navigationExecutor = navigationExecutor;
+        this.playbackFeedbackHelper = playbackFeedbackHelper;
+        this.searchClickListener = searchClickListener;
     }
 
     void attachView(TopResultsView topResultsView) {
-        viewSubscription = new CompositeSubscription();
-        viewSubscription.addAll(inputs(topResultsView));
-        viewSubscription.addAll(
-                dataSource.viewModel().map(TopResultsViewModel::buckets)
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribe(LambdaSubscriber.onNext(topResultsView::renderNewState)),
-                playbackError.subscribe(LambdaSubscriber.onNext(topResultsView::showError)));
-        viewSubscription.addAll(clicks(topResultsView, topResultsView.searchQuery()));
+        final Observable<ViewModel> viewModel = Observable.merge(topResultsView.searchIntent().map(UiAction.Search::searchParams).doOnNext(this::trackFirstSearch),
+                                                                 topResultsView.refreshIntent().map(UiAction.Refresh::searchParams))
+                                                          .flatMap(operations::search)
+                                                          .scan(ViewModel.empty(), ViewModel::with)
+                                                          .distinctUntilChanged()
+                                                          .share()
+                                                          .subscribeOn(scheduler)
+                                                          .observeOn(AndroidSchedulers.mainThread());
+
+        final Observable<TopResultsViewModel> searchResultModel = viewModel.filter(item -> item.data().isPresent()).map(item -> item.data().get());
+        //View model subscription
+        viewSubscription.add(viewModel.subscribe(topResultsView));
+
+        //Handling enter screen event and tracking of page view, emits only when new enter screen event is emitted
+        viewSubscription.add(Observable.combineLatest(topResultsView.enterScreen(), searchResultModel, (action, model) -> Pair.of(action, model.queryUrn()))
+                                       .distinctUntilChanged(Pair::first)
+                                       .subscribe(this::trackPageView));
+
+        //Handling clicks
+        viewSubscription.addAll(topResultsView.trackClick()
+                                              .withLatestFrom(searchResultModel, this::toTrackClickParams)
+                                              .flatMap(searchClickListener::trackClickToPlaybackResult)
+                                              .compose(showErrorFromPlaybackResult())
+                                              .subscribe(topResultsView::handleActionResult),
+                                topResultsView.playlistClick()
+                                              .withLatestFrom(searchResultModel, this::toClickParams)
+                                              .doOnNext(this::trackClickOnItem)
+                                              .map(searchClickListener::playlistClickToNavigateAction)
+                                              .subscribe(topResultsView::handleActionResult),
+                                topResultsView.userClick()
+                                              .withLatestFrom(searchResultModel, this::toClickParams)
+                                              .doOnNext(this::trackClickOnItem)
+                                              .map(searchClickListener::userClickToNavigateAction)
+                                              .subscribe(topResultsView::handleActionResult),
+                                topResultsView.viewAllClick()
+                                              .withLatestFrom(searchResultModel.map(TopResultsViewModel::queryUrn), this::toAction)
+                                              .subscribe(topResultsView::handleActionResult),
+                                topResultsView.helpClick()
+                                              .doOnNext(click -> searchTracker.trackResultsUpsellClick(SCREEN))
+                                              .map(click -> this.helpClickToNavigateAction())
+                                              .subscribe(topResultsView::handleActionResult));
     }
 
-    private Subscription[] inputs(TopResultsView topResultsView) {
-        return new Subscription[]{
-                dataSource.subscribe(topResultsView.searchIntent(), topResultsView.refreshIntent()),
-                topResultsView.searchIntent()
-                        .subscribe(LambdaSubscriber.onNext(this::trackFirstSearch)),
-                topResultsView.enterScreen()
-                              .flatMap(ignore -> dataSource.queryUrn().map(queryUrn -> Pair.of(topResultsView.searchQuery(), queryUrn)).take(1))
-                        .subscribe(LambdaSubscriber.onNext(this::trackPageView))
-        };
+    void detachView() {
+        viewSubscription.clear();
     }
 
-    private Subscription[] clicks(TopResultsView topResultsView, String searchQuery) {
-        return new Subscription[]{
-                topResultsView.trackClick().withLatestFrom(dataSource.viewModel(), Pair::of)
-                          .flatMap(pair -> playTrack(pair.first(), searchQuery, pair.second()))
-                        .subscribe(LambdaSubscriber.onNext(this::showPlaybackResult)),
-                topResultsView.playlistClick().withLatestFrom(dataSource.viewModel(), (clickedItem, viewModel) -> toGoToItemArgs(clickedItem, viewModel, searchQuery))
-                        .subscribe(LambdaSubscriber.onNext(args -> onSearchItemClicked(topResultsView::navigateToPlaylist, args))),
-                topResultsView.userClick().withLatestFrom(dataSource.viewModel(), (clickedItem, viewModel) -> toGoToItemArgs(clickedItem, viewModel, searchQuery))
-                        .subscribe(LambdaSubscriber.onNext(args -> onSearchItemClicked(topResultsView::navigateToUser, args))),
-                topResultsView.viewAllClick().withLatestFrom(dataSource.queryUrn(), TopResultsViewAllArgs::create)
-                        .subscribe(LambdaSubscriber.onNext(topResultsView::navigateToViewAll)),
-                topResultsView.helpClick().subscribe(LambdaSubscriber.onNext(ignore -> onHelpClicked(topResultsView)))
-        };
+    private ObservableTransformer<PlaybackResult, ClickResultAction> showErrorFromPlaybackResult() {
+        return trackClick -> trackClick.filter(playbackResult -> !playbackResult.isSuccess())
+                                       .map(playbackResult -> context -> playbackFeedbackHelper.showFeedbackOnPlaybackError(playbackResult.getErrorReason()));
     }
 
-    private void onHelpClicked(TopResultsView topResultsView) {
-        searchTracker.trackResultsUpsellClick(Screen.SEARCH_EVERYTHING);
-        topResultsView.navigateToHelp();
+    private ClickResultAction helpClickToNavigateAction() {
+        return context -> navigationExecutor.openUpgrade(context, UpsellContext.PREMIUM_CONTENT);
     }
 
-    private void onSearchItemClicked(Action1<GoToItemArgs> navigateAction, GoToItemArgs args) {
-        eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, args.searchQuerySourceInfo(), args.clickSource()));
-        navigateAction.call(args);
+    private void trackClickOnItem(SearchClickListener.ClickParams clickParams) {
+        eventTracker.trackSearch(SearchEvent.tapItemOnScreen(clickParams.screen(), clickParams.searchQuerySourceInfo(), clickParams.clickSource()));
     }
 
-    private void trackPageView(Pair<String, Optional<Urn>> searchQueryPair) {
-        eventTracker.trackScreen(ScreenEvent.create(Screen.SEARCH_EVERYTHING.get(), new SearchQuerySourceInfo(searchQueryPair.second().or(Urn.NOT_SET), searchQueryPair.first())),
+    private void trackPageView(Pair<UiAction.Enter, Optional<Urn>> searchQueryPair) {
+        eventTracker.trackScreen(ScreenEvent.create(SCREEN.get(), new SearchQuerySourceInfo(searchQueryPair.second().or(Urn.NOT_SET), searchQueryPair.first().searchQuery())),
                                  trackingStateProvider.getLastEvent());
     }
 
     private void trackFirstSearch(SearchParams params) {
-        searchTracker.trackSearchFormulationEnd(Screen.SEARCH_EVERYTHING, params.userQuery(), params.queryUrn(), params.queryPosition());
+        searchTracker.trackSearchFormulationEnd(SCREEN, params.userQuery(), params.queryUrn(), params.queryPosition());
     }
 
-    private void showPlaybackResult(PlaybackResult playbackResult) {
-        if (playbackResult.isSuccess()) {
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        } else {
-            playbackError.onNext(playbackResult.getErrorReason());
-        }
-    }
-
-    void detachView() {
-        viewSubscription.unsubscribe();
-    }
-
-    @VisibleForTesting
-    Observable<TopResultsViewModel> viewModel() {
-        return dataSource.viewModel();
-    }
-
-    @VisibleForTesting
-    Observable<PlaybackResult.ErrorReason> playbackError() {
-        return playbackError;
-    }
-
-    private Observable<PlaybackResult> playTrack(SearchItem clickedItem, String searchQuery, TopResultsViewModel viewModel) {
-        final List<TopResultsBucketViewModel> buckets = viewModel.buckets().items();
-        // TODO this should always be present, see https://soundcloud.atlassian.net/browse/DROID-1292
+    private SearchClickListener.TrackClickParams toTrackClickParams(UiAction.TrackClick trackClick, TopResultsViewModel viewModel) {
+        final SearchItem.Track clickedItem = trackClick.clickedTrack();
+        final List<TopResultsBucketViewModel> buckets = viewModel.buckets();
         final Optional<TopResultsBucketViewModel> currentBucket = buckets.isEmpty() ? Optional.absent() : Optional.of(buckets.get(clickedItem.bucketPosition()));
-        final SearchItem.Track trackSearchItem = (SearchItem.Track) clickedItem;
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET),
-                                                                                      currentBucket.isPresent() ? getPosition(clickedItem, currentBucket.get(), buckets) : 0,
-                                                                                      trackSearchItem.trackItem().getUrn(),
-                                                                                      searchQuery);
-        final List<PlayableItem> playableItems = buckets.isEmpty() ? Lists.newArrayList(trackSearchItem.trackItem()) : filterPlayableItems(viewModel.buckets().items());
-        final int position = playableItems.indexOf(trackSearchItem.trackItem());
+        final List<PlayableItem> playableItems = buckets.isEmpty() ? Lists.newArrayList(clickedItem.trackItem()) : filterPlayableItems(viewModel.buckets());
+        final int position = playableItems.indexOf(clickedItem.trackItem());
 
-        List<PlayableItem> adjustedQueue = playQueueFilter.correctQueue(playableItems, position);
-        int adjustedPosition = playQueueFilter.correctPosition(position);
-
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
-        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-
-
-        List<Urn> transform = transform(adjustedQueue, Entity::getUrn);
-        return playbackInitiator.playPosts(transform, trackSearchItem.itemUrn().get(), adjustedPosition, playSessionSource)
-                                .doOnNext(args -> {
-                                    if (currentBucket.isPresent()) {
-                                        eventTracker.trackSearch(SearchEvent.tapItemOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo, currentBucket.get().kind().toClickSource()));
-                                    }
-                                });
+        final List<Urn> transform = transform(playableItems, Entity::getUrn);
+        final Bucket.Kind kind = currentBucket.transform(TopResultsBucketViewModel::kind).or(Bucket.Kind.TRACKS);
+        return SearchClickListener.TrackClickParams.create(clickedItem.trackItem().getUrn(),
+                                                           trackClick.searchQuery(),
+                                                           viewModel.queryUrn(),
+                                                           position,
+                                                           getContextFromBucket(kind, position),
+                                                           SCREEN,
+                                                           kind.toClickSource(),
+                                                           transform);
     }
 
-    private GoToItemArgs toGoToItemArgs(SearchItem searchItem, TopResultsViewModel viewModel, String searchQuery) {
 
-        final List<TopResultsBucketViewModel> buckets = viewModel.buckets().items();
+    private SearchClickListener.ClickParams toClickParams(UiAction.PlaylistClick clickAction, TopResultsViewModel viewModel) {
+        return toClickParams(viewModel, clickAction.clickedPlaylist(), clickAction.clickedPlaylist().playlistItem().getUrn(), clickAction.searchQuery());
+    }
+
+    private SearchClickListener.ClickParams toClickParams(UiAction.UserClick clickAction, TopResultsViewModel viewModel) {
+        return toClickParams(viewModel, clickAction.clickedUser(), clickAction.clickedUser().userItem().getUrn(), clickAction.searchQuery());
+    }
+
+    private SearchClickListener.ClickParams toClickParams(TopResultsViewModel viewModel, SearchItem searchItem, Urn urn, String searchQuery) {
+        final List<TopResultsBucketViewModel> buckets = viewModel.buckets();
         final TopResultsBucketViewModel itemBucket = buckets.get(searchItem.bucketPosition());
         int position = getPosition(searchItem, itemBucket, buckets);
-        final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(viewModel.queryUrn().or(Urn.NOT_SET), position, searchItem.itemUrn().get(), searchQuery);
-        return GoToItemArgs.create(searchQuerySourceInfo, searchItem.itemUrn().get(), getEventContextMetadata(itemBucket.kind(), position), itemBucket.kind().toClickSource());
+        return SearchClickListener.ClickParams.create(urn,
+                                                      searchQuery,
+                                                      viewModel.queryUrn(),
+                                                      position,
+                                                      getContextFromBucket(itemBucket.kind(), position),
+                                                      SCREEN,
+                                                      itemBucket.kind().toClickSource());
+    }
+
+    private ClickResultAction toAction(UiAction.ViewAllClick viewAllClick, Optional<Urn> queryUrn) {
+        final boolean isPremium = viewAllClick.bucketKind() == Bucket.Kind.GO_TRACKS;
+        return activity -> navigator.navigateTo(NavigationTarget.forSearchViewAll(activity, queryUrn, viewAllClick.searchQuery(), viewAllClick.bucketKind(), isPremium));
     }
 
     private int getPosition(SearchItem searchItem, TopResultsBucketViewModel itemBucket, List<TopResultsBucketViewModel> buckets) {
@@ -240,13 +231,6 @@ public class TopResultsPresenter {
             }
         }
         return playables;
-    }
-
-    private EventContextMetadata getEventContextMetadata(Bucket.Kind bucketKind, int positionInBucket) {
-        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .pageName(Screen.SEARCH_EVERYTHING.get())
-                                                                         .module(getContextFromBucket(bucketKind, positionInBucket));
-        return builder.build();
     }
 
     private Module getContextFromBucket(Bucket.Kind bucketKind, int positionInBucket) {

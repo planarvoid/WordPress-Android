@@ -3,7 +3,6 @@ package com.soundcloud.android.search.topresults;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.search.ApiUniversalSearchItem;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.java.optional.Optional;
 
@@ -74,9 +73,9 @@ public abstract class TopResults {
 
         abstract int totalResults();
 
-        abstract List<ApiUniversalSearchItem> items();
+        abstract List<DomainSearchItem> items();
 
-        static Bucket create(Kind kind, int totalResults, List<ApiUniversalSearchItem> items) {
+        static Bucket create(Kind kind, int totalResults, List<DomainSearchItem> items) {
             return new AutoValue_TopResults_Bucket(kind, totalResults, items);
         }
     }

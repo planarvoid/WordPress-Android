@@ -1,6 +1,5 @@
 package com.soundcloud.android.search.topresults;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.performance.MetricKey;
@@ -8,24 +7,22 @@ import com.soundcloud.android.analytics.performance.MetricParams;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetric;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.CollectionLoadingState;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.navigation.NavigationTarget;
-import com.soundcloud.android.navigation.Navigator;
-import com.soundcloud.android.payments.UpsellContext;
-import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.SearchEmptyStateProvider;
-import com.soundcloud.android.search.SearchTracker;
+import com.soundcloud.android.search.topresults.UiAction.Refresh;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.android.view.collection.CollectionRenderer;
 import com.soundcloud.android.view.collection.CollectionRendererState;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
+import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -48,22 +45,18 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
 
     @Inject TopResultsPresenter presenter;
     @Inject TopResultsAdapterFactory adapterFactory;
-    @Inject Navigator navigator;
-    @Inject NavigationExecutor navigationExecutor;
-    @Inject PlaybackFeedbackHelper playbackFeedbackHelper;
-    @Inject SearchTracker searchTracker;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject LeakCanaryWrapper leakCanaryWrapper;
 
     private CollectionRenderer<TopResultsBucketViewModel, RecyclerView.ViewHolder> collectionRenderer;
 
-    private final BehaviorSubject<SearchParams> searchIntent = BehaviorSubject.create();
+    private final BehaviorSubject<UiAction.Search> searchIntent = BehaviorSubject.create();
 
     private final PublishSubject<SearchItem.Track> trackClick = PublishSubject.create();
     private final PublishSubject<SearchItem.Playlist> playlistClick = PublishSubject.create();
     private final PublishSubject<SearchItem.User> userClick = PublishSubject.create();
     private final PublishSubject<TopResults.Bucket.Kind> viewAllClick = PublishSubject.create();
-    private final PublishSubject<Void> helpClick = PublishSubject.create();
+    private final PublishSubject<UiAction.HelpClick> helpClick = PublishSubject.create();
 
 
     public static TopResultsFragment newInstance(String apiQuery,
@@ -94,15 +87,36 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchIntent.onNext(createSearchParams());
+        searchIntent.onNext(UiAction.Search.create(SearchParams.create(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition())));
         collectionRenderer = new CollectionRenderer<>(adapterFactory.create(trackClick, playlistClick, userClick, viewAllClick, helpClick),
                                                       this::isTheSameItem,
                                                       Object::equals,
                                                       new SearchEmptyStateProvider(),
                                                       true,
                                                       false);
-        presenter.attachView(this);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void accept(@NonNull ViewModel viewModel) throws Exception {
+        final CollectionRendererState<TopResultsBucketViewModel> newState = toLegacyModel(viewModel);
+        collectionRenderer.render(newState);
+        if (!newState.collectionLoadingState().isLoadingNextPage()) {
+            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_EVERYTHING.toString());
+            PerformanceMetric metric = PerformanceMetric.builder()
+                                                        .metricType(MetricType.PERFORM_SEARCH)
+                                                        .metricParams(params)
+                                                        .build();
+            performanceMetricsEngine.endMeasuring(metric);
+        }
+    }
+
+    private CollectionRendererState<TopResultsBucketViewModel> toLegacyModel(ViewModel viewModel) {
+        final CollectionLoadingState.Builder builder = CollectionLoadingState.builder();
+        builder.isRefreshing(viewModel.isRefreshing());
+        builder.isLoadingNextPage(viewModel.isLoading());
+        builder.refreshError(viewModel.error());
+        return CollectionRendererState.create(builder.build(), viewModel.data().isPresent() ? viewModel.data().get().buckets() : Lists.newArrayList());
     }
 
     private boolean isTheSameItem(TopResultsBucketViewModel item1, TopResultsBucketViewModel item2) {
@@ -116,67 +130,64 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     }
 
     @Override
-    public Observable<SearchParams> searchIntent() {
+    public Observable<UiAction.Search> searchIntent() {
         return searchIntent;
     }
 
     @Override
-    public Observable<SearchParams> refreshIntent() {
-        return collectionRenderer.onRefresh().map(ignore -> createSearchParams());
+    public Observable<Refresh> refreshIntent() {
+        return RxJava.toV2Observable(collectionRenderer.onRefresh()
+                                                       .map(ignore -> Refresh.create(SearchParams.createRefreshing(apiQuery(), userQuery(), searchQueryUrn(), searchQueryPosition()))));
     }
 
     @Override
-    public Observable<Void> enterScreen() {
-        return ((RootActivity) getActivity()).enterScreen();
+    public Observable<UiAction.Enter> enterScreen() {
+        return RxJava.toV2Observable(((RootActivity) getActivity()).enterScreen().map(ignore -> UiAction.Enter.create(apiQuery())));
     }
 
     @Override
-    public Observable<SearchItem.Track> trackClick() {
-        return trackClick;
+    public Observable<UiAction.TrackClick> trackClick() {
+        return trackClick.map(track -> UiAction.TrackClick.create(apiQuery(), track));
     }
 
     @Override
-    public Observable<SearchItem.Playlist> playlistClick() {
-        return playlistClick;
+    public Observable<UiAction.PlaylistClick> playlistClick() {
+        return playlistClick.map(playlist -> UiAction.PlaylistClick.create(apiQuery(), playlist));
     }
 
     @Override
-    public Observable<SearchItem.User> userClick() {
-        return userClick;
+    public Observable<UiAction.UserClick> userClick() {
+        return userClick.map(user -> UiAction.UserClick.create(apiQuery(), user));
     }
 
     @Override
-    public Observable<TopResults.Bucket.Kind> viewAllClick() {
-        return viewAllClick;
+    public Observable<UiAction.ViewAllClick> viewAllClick() {
+        return viewAllClick.map(kind -> UiAction.ViewAllClick.create(apiQuery(), kind));
     }
 
     @Override
-    public Observable<Void> helpClick() {
+    public Observable<UiAction.HelpClick> helpClick() {
         return helpClick;
     }
 
     @Override
-    public String searchQuery() {
-        return getApiQuery();
+    public void handleActionResult(ClickResultAction action) {
+        action.run(getActivity());
     }
 
-    private SearchParams createSearchParams() {
-        return SearchParams.create(getApiQuery(), getUserQuery(), getSearchQueryUrn(), getSearchQueryPosition());
-    }
-
-    private String getApiQuery() {
+    private String apiQuery() {
         return getArguments().getString(KEY_API_QUERY);
     }
 
-    private String getUserQuery() {
+    private String userQuery() {
         return getArguments().getString(KEY_USER_QUERY);
     }
 
-    private Optional<Urn> getSearchQueryUrn() {
+    private Optional<Urn> searchQueryUrn() {
         return Optional.fromNullable(getArguments().<Urn>getParcelable(KEY_QUERY_URN));
     }
 
-    private Optional<Integer> getSearchQueryPosition() {
+    private Optional<Integer> searchQueryPosition() {
         return Optional.fromNullable(getArguments().getInt(KEY_QUERY_POSITION));
     }
 
@@ -189,56 +200,7 @@ public class TopResultsFragment extends Fragment implements TopResultsPresenter.
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         collectionRenderer.attach(view, false, new LinearLayoutManager(view.getContext()));
-    }
-
-    @Override
-    public void navigateToPlaylist(GoToItemArgs args) {
-        navigationExecutor.openPlaylist(getContext(),
-                                        args.itemUrn(),
-                                        Screen.SEARCH_EVERYTHING,
-                                        args.searchQuerySourceInfo(),
-                                        null, // top results cannot be promoted *yet
-                                        UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
-    }
-
-    @Override
-    public void navigateToUser(GoToItemArgs args) {
-        navigationExecutor.openProfile(getContext(),
-                                       args.itemUrn(),
-                                       Screen.SEARCH_EVERYTHING,
-                                       UIEvent.fromNavigation(args.itemUrn(), args.eventContextMetadata()));
-    }
-
-    @Override
-    public void navigateToViewAll(TopResultsViewAllArgs args) {
-        navigator.navigateTo(NavigationTarget.forSearchViewAll(getActivity(),
-                                                               args.queryUrn(),
-                                                               getApiQuery(),
-                                                               args.kind(),
-                                                               args.isPremium()));
-    }
-
-    @Override
-    public void navigateToHelp() {
-        navigationExecutor.openUpgrade(getContext(), UpsellContext.PREMIUM_CONTENT);
-    }
-
-    @Override
-    public void renderNewState(CollectionRendererState<TopResultsBucketViewModel> newState) {
-        collectionRenderer.render(newState);
-        if (!newState.collectionLoadingState().isLoadingNextPage()) {
-            MetricParams params = new MetricParams().putString(MetricKey.SCREEN, Screen.SEARCH_EVERYTHING.toString());
-            PerformanceMetric metric = PerformanceMetric.builder()
-                                                        .metricType(MetricType.PERFORM_SEARCH)
-                                                        .metricParams(params)
-                                                        .build();
-            performanceMetricsEngine.endMeasuring(metric);
-        }
-    }
-
-    @Override
-    public void showError(PlaybackResult.ErrorReason errorReason) {
-        playbackFeedbackHelper.showFeedbackOnPlaybackError(errorReason);
+        presenter.attachView(this);
     }
 
     @Override
