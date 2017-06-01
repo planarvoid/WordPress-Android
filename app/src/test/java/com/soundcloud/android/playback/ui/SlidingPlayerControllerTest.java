@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.SlidingPlayerController.EXTRA_EXPAND_PLAYER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +20,8 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
