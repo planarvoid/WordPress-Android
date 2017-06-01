@@ -281,4 +281,22 @@ public class OptionalTest {
         });
         assertSame(foo, reference.get());
     }
+
+    @Test
+    public void testContainsOnAbsent() {
+        Optional<String> absent = Optional.absent();
+        assertFalse(absent.contains("foo"));
+    }
+
+    @Test
+    public void testContainsWithDifferentObject() {
+        Optional<String> present = Optional.of("bar");
+        assertFalse(present.contains("foo"));
+    }
+
+    @Test
+    public void testContainsWithMatchingObject() {
+        Optional<String> present = Optional.of("foo");
+        assertTrue(present.contains("foo"));
+    }
 }

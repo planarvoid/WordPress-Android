@@ -666,7 +666,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPrestitialAdImpressionEvents() {
-        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.create(AdFixtures.visualPrestitialAd());
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.createForDisplay(AdFixtures.visualPrestitialAd());
         final ArgumentCaptor<TrackingRecord> eventCaptor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         when(dataBuilder.buildForPrestitialAd(event)).thenReturn("PrestitialAdImpression");

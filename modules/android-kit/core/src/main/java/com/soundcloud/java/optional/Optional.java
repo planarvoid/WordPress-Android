@@ -120,6 +120,10 @@ public abstract class Optional<T> implements Serializable {
         }
     }
 
+    public boolean contains(T object) {
+        return isPresent() && get().equals(object);
+    }
+
     /**
      * Returns {@code true} if this holder contains a (non-null) instance.
      */

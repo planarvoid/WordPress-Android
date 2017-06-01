@@ -24,7 +24,7 @@ public abstract class SponsoredSessionAd extends AdData {
     public abstract VideoAd video();
 
     @AutoValue
-    abstract static class OptInCard extends ApiBaseAdVisual {
+    public abstract static class OptInCard extends ApiBaseAdVisual {
         @JsonCreator
         static OptInCard create(@JsonProperty("urn") Urn adUrn,
                                 @JsonProperty("image_url") String imageUrl,
@@ -36,7 +36,7 @@ public abstract class SponsoredSessionAd extends AdData {
     }
 
     @AutoValue
-    abstract static class ApiModel {
+    public abstract static class ApiModel {
         @JsonCreator
         public static ApiModel create(@JsonProperty("ad_urn") Urn urn,
                                       @JsonProperty("ad_free_minutes") int adFreeMinutes,

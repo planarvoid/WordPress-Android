@@ -6,6 +6,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -36,7 +37,8 @@ class SponsoredSessionCardView extends PrestitialView {
                                  PrestitialPage prestitialPage) {
         ButterKnife.bind(this, view);
 
-        imageOperations.displayAdImage(ad.adUrn(), ad.optInCard().imageUrl(), imageView, new PrestitialImageCompanionListener(ad, listener));
+        imageOperations.displayAdImage(ad.adUrn(), ad.optInCard().imageUrl(), imageView,
+                                       new PrestitialImageCompanionListener(ad, listener, Optional.of(prestitialPage)));
 
         optionOneView.setText(prestitialPage.optionOne);
         optionOneView.setOnClickListener(buttonView-> listener.onOptionOneClick(prestitialPage, ad, buttonView.getContext()));

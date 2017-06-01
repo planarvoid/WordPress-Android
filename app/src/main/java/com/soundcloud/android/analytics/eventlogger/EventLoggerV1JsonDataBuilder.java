@@ -129,7 +129,7 @@ class EventLoggerV1JsonDataBuilder {
     String buildForPrestitialAd(PrestitialAdImpressionEvent event) {
         return transform(buildBaseEvent(PrestitialAdImpressionEvent.EVENT_NAME, event.getTimestamp())
                                  .clientEventId(event.id())
-                                 .impressionName(PrestitialAdImpressionEvent.IMPRESSION_NAME)
+                                 .impressionName(event.impressionName())
                                  .adUrn(event.urn().toString())
                                  .pageName(PrestitialAdImpressionEvent.PAGE_NAME)
                                  .monetizationType(event.monetizationType()));

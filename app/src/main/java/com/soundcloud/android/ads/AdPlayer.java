@@ -131,8 +131,8 @@ class AdPlayer implements Player.PlayerListener {
     private void publishVolumeToggleEvent(boolean mute) {
         if (currentAd.isPresent()) {
             final VideoAd ad = currentAd.get();
-            final UIEvent event = mute ? UIEvent.fromVideoMute(ad, getSourceInfo())
-                                       : UIEvent.fromVideoUnmute(ad, getSourceInfo());
+            final UIEvent event = mute ? UIEvent.fromVideoMute(ad, getSourceInfo(ad))
+                                       : UIEvent.fromVideoUnmute(ad, getSourceInfo(ad));
             adViewabilityController.onVolumeToggle(ad.uuid(), mute);
             eventBus.publish(EventQueue.TRACKING, event);
         }
@@ -209,8 +209,9 @@ class AdPlayer implements Player.PlayerListener {
         this.isUserInitiated = isUserInitiated;
     }
 
-    private TrackSourceInfo getSourceInfo() {
-        return new TrackSourceInfo(Screen.STREAM.get(), isUserInitiated);
+    private TrackSourceInfo getSourceInfo(VideoAd ad) {
+        final Screen screen = ad.monetizationType() == AdData.MonetizationType.INLAY ? Screen.STREAM : Screen.PRESTITIAL;
+        return new TrackSourceInfo(screen.get(), isUserInitiated);
     }
 
     @Override
@@ -229,7 +230,8 @@ class AdPlayer implements Player.PlayerListener {
             final VideoAd ad = currentAd.get();
             final PlayStateEvent playState = PlayStateEvent.create(stateTransition, stateTransition.getProgress().getDuration());
             final AdPlayStateTransition stateEvent = AdPlayStateTransition.create(ad, lastState, isPlayerMuted, currentDateProvider.getCurrentDate());
-            analyticsController.onStateTransition(Screen.STREAM, isUserInitiated, ad, playState);
+            final Screen screen = ad.monetizationType() == AdData.MonetizationType.INLAY ? Screen.STREAM : Screen.PRESTITIAL;
+            analyticsController.onStateTransition(screen, isUserInitiated, ad, playState);
             stateProvider.put(ad.uuid(), stateEvent);
             eventBus.publish(EventQueue.AD_PLAYBACK, stateEvent);
         }

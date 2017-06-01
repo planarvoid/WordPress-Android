@@ -112,13 +112,23 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigatesToClickThroughUrlOnClickThrough() {
+    public void navigatesToClickThroughUrlOnClickThroughForVisualPrestitial() {
         final View imageView = new View(context());
         presenter.onCreate(activity, null);
 
         presenter.onClickThrough(imageView, visualPrestitialAd);
 
         verify(navigationExecutor).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
+    }
+
+    @Test
+    public void noOpOnClickThroughForSponsoredSessionAd() {
+        final View imageView = new View(context());
+        presenter.onCreate(activity, null);
+
+        presenter.onClickThrough(imageView, sponsoredSessionAd);
+
+        verify(navigationExecutor, never()).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
     }
 
     @Test
@@ -142,15 +152,47 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesImpressionOnImageLoadComplete() {
-        presenter.onImageLoadComplete(visualPrestitialAd, imageView);
+    public void publishesImpressionOnImageLoadCompleteForVisualPrestitial() {
+        presenter.onImageLoadComplete(visualPrestitialAd, imageView, Optional.absent());
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
     }
 
     @Test
-    public void startsViewabilityTrackingOnImageLoadComplete(){
-        presenter.onImageLoadComplete(visualPrestitialAd, imageView);
+    public void publishesImpressionOnImageLoadCompleteAndImageIsOnCurrentPageForSponsoredSession(){
+        setupSponsoredSession();
+        final PrestitialPage currentPage = PrestitialPage.END_CARD;
+        setSponsoredSessionPage(currentPage.ordinal());
+        presenter.onImageLoadComplete(sponsoredSessionAd, imageView, Optional.of(currentPage));
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
+    }
+
+    @Test
+    public void defersPublishOfImpressionIfImageLoadedIsNotOnCurrentPageUntilPageIsVisible(){
+        setupSponsoredSession();
+        final PrestitialPage currentPage = PrestitialPage.END_CARD;
+        final int previousPageIndex = currentPage.ordinal() - 1;
+        setSponsoredSessionPage(previousPageIndex);
+        // Image loads but is not on screen
+        presenter.onImageLoadComplete(sponsoredSessionAd, imageView, Optional.of(currentPage));
+
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+
+        // Pager navigates to page where that contains image
+        setSponsoredSessionPage(currentPage.ordinal());
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+
+        // Only fires impression once
+        setSponsoredSessionPage(currentPage.ordinal());
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+    }
+
+    @Test
+    public void startsViewabilityTrackingOnImageLoadCompleteForVisualPrestitial(){
+        presenter.onImageLoadComplete(visualPrestitialAd, imageView, Optional.absent());
 
         verify(viewabilityController).startDisplayTracking(imageView, visualPrestitialAd);
     }
@@ -372,10 +414,10 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         when(adapter.getPage(1)).thenReturn(PrestitialPage.VIDEO_CARD);
         when(adapter.getPage(2)).thenReturn(PrestitialPage.END_CARD);
         when(adsController.getCurrentAd()).thenReturn(Optional.of(sponsoredSessionAd));
+        presenter.onCreate(activity, null);
     }
 
     private void setSponsoredSessionPage(int position) {
-        presenter.onCreate(activity, null);
         ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
         pager.setCurrentItem(position);
     }

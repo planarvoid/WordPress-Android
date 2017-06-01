@@ -1165,7 +1165,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createJsonForPrestitialAdImpressionEvent() throws ApiMapperException {
         final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
-        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.create(prestitial);
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.createForDisplay(prestitial);
 
         jsonDataBuilder.buildForPrestitialAd(event);
 

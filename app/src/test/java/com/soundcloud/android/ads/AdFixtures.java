@@ -162,7 +162,7 @@ public class AdFixtures {
                                                   60,
                                                   getApiVideoAd(),
                                                   SponsoredSessionAd.OptInCard.create(
-                                                          Urn.NOT_SET,
+                                                          Urn.forAd("ads", "123"),
                                                           "http://image-url.com",
                                                           "http://clickthrough.com",
                                                           Arrays.asList("sponsored_session_impression1","sponsored_session_impression2"),

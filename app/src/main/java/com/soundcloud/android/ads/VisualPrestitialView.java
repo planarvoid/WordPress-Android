@@ -4,6 +4,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,7 +27,7 @@ class VisualPrestitialView extends PrestitialView {
     public void setupContentView(AppCompatActivity activity, VisualPrestitialAd ad, Listener listener) {
         ButterKnife.bind(this, activity);
 
-        imageOperations.displayAdImage(ad.adUrn(), ad.imageUrl(), imageView, new PrestitialImageCompanionListener(ad, listener));
+        imageOperations.displayAdImage(ad.adUrn(), ad.imageUrl(), imageView, new PrestitialImageCompanionListener(ad, listener, Optional.absent()));
 
         continueButton.setOnClickListener(btnView -> listener.onContinueClick());
         imageView.setOnClickListener(imageView -> listener.onClickThrough(imageView, ad));

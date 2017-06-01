@@ -10,6 +10,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.PlayableAdData;
+import com.soundcloud.android.ads.SponsoredSessionAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -367,11 +368,26 @@ public abstract class UIEvent extends TrackingEvent {
                                           .build();
     }
 
-    public static UIEvent fromPrestitialAdClickThrough(VisualPrestitialAd ad) {
+    public static UIEvent fromPrestitialAdClickThrough(AdData ad) {
+        final boolean isDisplayPrestitial = ad instanceof VisualPrestitialAd;
+        return isDisplayPrestitial ? fromVisualDisplayPrestitial((VisualPrestitialAd) ad)
+                                   : fromSponsoredSession((SponsoredSessionAd) ad);
+    }
+
+    private static UIEvent fromVisualDisplayPrestitial(VisualPrestitialAd ad) {
         return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(ad)
                                           .adTrackingUrls(Optional.of(ad.clickUrls()))
                                           .clickthroughsUrl(Optional.of(ad.clickthroughUrl().toString()))
                                           .clickthroughsKind(Optional.of("clickthrough::display"))
+                                          .build();
+    }
+
+    private static UIEvent fromSponsoredSession(SponsoredSessionAd ad) {
+        final SponsoredSessionAd.OptInCard optInCard = ad.optInCard();
+        return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(ad)
+                                          .adTrackingUrls(Optional.of(optInCard.trackingClickUrls()))
+                                          .clickthroughsUrl(Optional.of(optInCard.clickthroughUrl()))
+                                          .clickthroughsKind(Optional.of("clickthrough::" + ad.monetizationType().key()))
                                           .build();
     }
 

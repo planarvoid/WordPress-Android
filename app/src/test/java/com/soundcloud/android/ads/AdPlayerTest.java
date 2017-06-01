@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -285,8 +286,10 @@ public class AdPlayerTest extends AndroidUnitTest {
         player.play(VIDEO_AD, NOT_USER_INITIATED);
         player.toggleVolume();
 
+        final UIEvent lastTrackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), false);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_UNMUTE");
+        assertThat(lastTrackingEvent.getKind()).isEqualTo("VIDEO_AD_UNMUTE");
+        assertThat(lastTrackingEvent.originScreen().get()).isEqualTo("stream:main");
     }
 
     @Test
@@ -298,7 +301,9 @@ public class AdPlayerTest extends AndroidUnitTest {
         final InOrder inOrder = Mockito.inOrder(adViewabilityController);
         inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), false);
         inOrder.verify(adViewabilityController).onVolumeToggle(VIDEO_AD.uuid(), true);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo("VIDEO_AD_MUTE");
+        final UIEvent lastTrackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(lastTrackingEvent.getKind()).isEqualTo("VIDEO_AD_MUTE");
+        assertThat(lastTrackingEvent.originScreen().get()).isEqualTo("stream:main");
     }
 
     @Test

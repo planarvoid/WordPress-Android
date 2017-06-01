@@ -30,7 +30,7 @@ public class PrestitialActivity extends LoggedInActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.VISUAL_PRESTITIAL;
+        return Screen.PRESTITIAL;
     }
 
     @Override
