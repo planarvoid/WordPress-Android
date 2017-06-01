@@ -4,7 +4,9 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanChangeDetector;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.net.HttpHeaders;
 import okhttp3.Interceptor;
+import okhttp3.Request;
 import okhttp3.Response;
 
 import javax.inject.Inject;
@@ -24,10 +26,17 @@ class ApiUserPlanInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        final Response response = chain.proceed(chain.request());
-        final Plan remotePlan = Plan.fromId(response.header(USER_PLAN_HEADER));
-        Log.d(TAG, "Got remote plan: " + remotePlan + " for req=" + chain.request());
-        planChangeDetector.handleRemotePlan(remotePlan);
+        final Request request = chain.request();
+        final Response response = chain.proceed(request);
+        if (isAuthorizedRequest(request)) {
+            final Plan remotePlan = Plan.fromId(response.header(USER_PLAN_HEADER));
+            Log.d(TAG, "Got remote plan: " + remotePlan + " for req=" + request);
+            planChangeDetector.handleRemotePlan(remotePlan);
+        }
         return response;
+    }
+
+    private boolean isAuthorizedRequest(Request request) {
+        return request.headers().names().contains(HttpHeaders.AUTHORIZATION);
     }
 }

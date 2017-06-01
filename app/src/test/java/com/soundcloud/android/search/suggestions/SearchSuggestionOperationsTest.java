@@ -21,7 +21,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.matchers.ApiRequestTo;
-import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
@@ -105,7 +104,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
-        requestMatcher.withoutHeader(HttpHeaders.AUTHORIZATION);
+        requestMatcher.doesNotSendAuthorizationToken();
 
         operations.suggestionsFor(SEARCH_QUERY).test();
 
@@ -140,7 +139,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
                                                                                       QUERY_URN.toString());
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
-                .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER));
+                .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER))
+                .doesNotSendAuthorizationToken();
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken)))
                 .thenReturn(Observable.just(autocompletions));

@@ -62,7 +62,7 @@ class SearchSuggestionOperations {
     }
 
     private Observable<List<SuggestionItem>> getAutocompletions(String query) {
-        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
+        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE)
                                                      .addQueryParam("query", query)
                                                      .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
                                                      .forPrivateApi();
