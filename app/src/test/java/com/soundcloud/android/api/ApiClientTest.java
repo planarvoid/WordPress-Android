@@ -17,6 +17,9 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.experiments.Assignment;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -38,11 +41,14 @@ import org.mockito.Mock;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 public class ApiClientTest extends AndroidUnitTest {
 
     private static final String URL = "http://path/to/resource";
     private static final String JSON_DATA = "{}";
+    public static final Layer LAYER = new Layer("layerName", 123, "experimentName", 456, "variantName");
+    private static final String LAYERS_JSON_DATA = "[{\"experimentId\":123,\"experimentName\":\"experiment_name\",\"layerName\":\"layerName\",\"variantId\":456,\"variantName\":\"variant_name\"}]";
     private static final String CLIENT_ID = "testClientId";
     private static final String OAUTH_TOKEN = "OAuth 12345";
 
@@ -58,6 +64,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private Call httpCall;
     @Mock private AccountOperations accountOperations;
     @Mock private LocaleFormatter localeFormatter;
+    @Mock private ExperimentOperations experimentOperations;
 
     @Captor private ArgumentCaptor<Request> httpRequestCaptor;
 
@@ -143,6 +150,34 @@ public class ApiClientTest extends AndroidUnitTest {
 
         assertThat(response.isSuccess()).isTrue();
         assertThat(httpRequestCaptor.getValue().header("Device-Locale")).isNull();
+    }
+
+    @Test
+    public void shouldSendVariantHeaderWhenUserIsInAnExperiment() throws Exception {
+        List<Layer> layers = Collections.singletonList(LAYER);
+        when(experimentOperations.getAssignment()).thenReturn(new Assignment(layers));
+        when(jsonTransformer.toJson(layers)).thenReturn(LAYERS_JSON_DATA);
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("App-Experiments")).isEqualTo(LAYERS_JSON_DATA);
+    }
+
+    @Test
+    public void shouldNotSendVariantHeaderWhenUserIsNotInAnExperiment() throws Exception {
+        when(experimentOperations.getAssignment()).thenReturn(Assignment.empty());
+
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("APP_EXPERIMENTS")).isNull();
+        verifyZeroInteractions(jsonTransformer);
     }
 
     @Test
@@ -443,6 +478,17 @@ public class ApiClientTest extends AndroidUnitTest {
         apiClient.fetchMappedResponse(request, ApiTrack.class);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowRuntimeExceptionWhenJsonifyingAssignmentFails() throws Exception {
+        List<Layer> layers = Collections.singletonList(LAYER);
+        when(experimentOperations.getAssignment()).thenReturn(new Assignment(layers));
+        when(jsonTransformer.toJson(layers)).thenThrow(new ApiMapperException("expected"));
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void shouldThrowWhenAssertingBackgroundThreadButExecutingOnMainThread() throws Exception {
         apiClient.setAssertBackgroundThread(true);
@@ -475,7 +521,8 @@ public class ApiClientTest extends AndroidUnitTest {
                              unauthorisedRequestRegistry,
                              accountOperations,
                              localeFormatter,
-                             failFastOnMapper);
+                             failFastOnMapper,
+                             experimentOperations);
     }
 
 }

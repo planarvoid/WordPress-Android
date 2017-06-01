@@ -7,6 +7,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.android.utils.Log;
@@ -45,6 +46,7 @@ public class ApiClient {
     private final AccountOperations accountOperations;
     private final LocaleFormatter localeFormatter;
     private final boolean failFastOnMapper;
+    private final ExperimentOperations experimentOperations;
 
     private boolean assertBackgroundThread;
 
@@ -52,7 +54,8 @@ public class ApiClient {
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
                      OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                     AccountOperations accountOperations, LocaleFormatter localeFormatter, boolean failFastOnMapper) {
+                     AccountOperations accountOperations, LocaleFormatter localeFormatter, boolean failFastOnMapper,
+                     ExperimentOperations experimentOperations) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
@@ -63,6 +66,7 @@ public class ApiClient {
         this.accountOperations = accountOperations;
         this.localeFormatter = localeFormatter;
         this.failFastOnMapper = failFastOnMapper;
+        this.experimentOperations = experimentOperations;
     }
 
     public void setAssertBackgroundThread(boolean assertBackgroundThread) {
@@ -146,6 +150,13 @@ public class ApiClient {
         if (maybeAdId.isPresent()) {
             builder.header(ApiHeaders.ADID, maybeAdId.get());
             builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
+        }
+        if (experimentOperations.getAssignment() != null && !experimentOperations.getAssignment().isEmpty()) {
+            try {
+                builder.header(ApiHeaders.APP_EXPERIMENTS, jsonTransformer.toJson(experimentOperations.getAssignment().getLayers()));
+            } catch (ApiMapperException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // transfer other HTTP headers

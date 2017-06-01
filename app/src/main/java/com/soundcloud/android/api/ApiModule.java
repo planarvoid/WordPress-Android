@@ -7,6 +7,7 @@ import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
@@ -62,10 +63,11 @@ public class ApiModule {
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                       AccountOperations accountOperations,
                                       LocaleFormatter localeFormatter,
-                                      ApplicationProperties applicationProperties) {
+                                      ApplicationProperties applicationProperties,
+                                      ExperimentOperations experimentOperations) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
                                             oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter,
-                                            applicationProperties.shouldFailFastOnMappingExceptions());
+                                            applicationProperties.shouldFailFastOnMappingExceptions(), experimentOperations);
         apiClient.setAssertBackgroundThread(true);
         return apiClient;
     }

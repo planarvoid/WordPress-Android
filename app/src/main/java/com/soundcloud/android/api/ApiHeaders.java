@@ -8,5 +8,6 @@ public class ApiHeaders {
     public static final String APP_VERSION = "App-Version";
     public static final String APP_ENVIRONMENT = "App-Environment";
     public static final String DEVICE_LOCALE = "Device-Locale";
+    public static final String APP_EXPERIMENTS = "App-Experiments";
 
 }

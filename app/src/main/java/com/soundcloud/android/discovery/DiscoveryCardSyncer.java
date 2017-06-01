@@ -14,9 +14,7 @@ import java.util.concurrent.Callable;
 class DiscoveryCardSyncer implements Callable<Boolean> {
 
     private static final String PARAM_LOCALE = "locale";
-    private static final String PARAM_EXPERIMENT = "experiment_variant";
     private final LocaleFormatter localeFormatter;
-    private final ExperimentOperations experimentOperations;
     private final ApiClient apiClient;
     private final DiscoveryWritableStorage discoveryWritableStorage;
 
@@ -28,14 +26,12 @@ class DiscoveryCardSyncer implements Callable<Boolean> {
         this.apiClient = apiClient;
         this.discoveryWritableStorage = discoveryWritableStorage;
         this.localeFormatter = localeFormatter;
-        this.experimentOperations = experimentOperations;
     }
 
     @Override
     public Boolean call() throws Exception {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.DISCOVERY_CARDS.path());
         localeFormatter.getLocale().ifPresent(locale -> builder.addQueryParam(PARAM_LOCALE, locale));
-        experimentOperations.getSerializedActiveVariants().ifPresent(activeVariants -> builder.addQueryParam(PARAM_EXPERIMENT, activeVariants));
         final ApiRequest apiRequest = builder.forPrivateApi().build();
         final ModelCollection<ApiDiscoveryCard> apiDiscoveryCards = apiClient.fetchMappedResponse(apiRequest, new TypeToken<ModelCollection<ApiDiscoveryCard>>() {});
         discoveryWritableStorage.storeDiscoveryCards(apiDiscoveryCards);
