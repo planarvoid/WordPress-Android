@@ -4,7 +4,6 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.discovery.DiscoveryConfiguration;
 import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.android.olddiscovery.DefaultHomeScreenConfiguration;
-import com.soundcloud.android.olddiscovery.OldDiscoveryNavigationTarget;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 
 import javax.inject.Inject;
@@ -35,7 +34,7 @@ public class NavigationModelFactory {
 
         return new NavigationModel(
                 new StreamNavigationTarget(true),
-                new OldDiscoveryNavigationTarget(),
+                discoveryConfiguration.navigationTarget(),
                 changeLikeToSaveExperiment.navigationTarget(),
                 new MoreNavigationTarget());
 

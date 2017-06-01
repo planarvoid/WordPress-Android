@@ -59,7 +59,6 @@ public class RecentlyPlayedTest extends ActivityTest<MainActivity> {
         final VisualPlayerElement playerElement = stationHomeScreen.clickPlay();
 
         assertThat(playerElement, Is.is(visible()));
-        waiter.waitForPlayerPage();
         assertThat(playerElement, Is.is(playing()));
 
         mrLocalLocal.verify(TEST_SCENARIO_RECENTLY_PLAYED_STATION);

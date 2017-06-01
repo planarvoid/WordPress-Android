@@ -49,8 +49,19 @@ public class NavigationModelFactoryTest {
     }
 
     @Test
-    public void testWhenStreamIsHomeScreen() throws Exception {
+    public void testWhenStreamIsHomeScreenAndDiscoveryBackendIsEnabled() throws Exception {
         when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
+        when(discoveryConfiguration.navigationTarget()).thenReturn(new DiscoveryNavigationTarget());
+
+        NavigationModel navigationModel = factory.build();
+        assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);
+        assertThat(navigationModel.getItem(1).getScreen()).isEqualTo(Screen.DISCOVER);
+    }
+
+    @Test
+    public void testWhenStreamIsHomeScreenAndDiscoveryBackendIsDisabled() throws Exception {
+        when(defaultHomeScreenConfiguration.isDiscoveryHome()).thenReturn(false);
+        when(discoveryConfiguration.navigationTarget()).thenReturn(new OldDiscoveryNavigationTarget());
 
         NavigationModel navigationModel = factory.build();
         assertThat(navigationModel.getItem(0).getScreen()).isEqualTo(Screen.STREAM);

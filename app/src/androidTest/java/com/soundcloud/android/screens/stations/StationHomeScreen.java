@@ -30,8 +30,10 @@ public class StationHomeScreen extends Screen {
     }
 
     public VisualPlayerElement clickPlay() {
+        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         playButton().click();
-        return new VisualPlayerElement(testDriver);
+        visualPlayerElement.waitForExpandedPlayer();
+        return visualPlayerElement;
     }
 
     public String stationTitle() {

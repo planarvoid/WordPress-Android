@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery;
 
-
+import com.soundcloud.android.configuration.experiments.StaticDiscoverContentExperiment;
 import com.soundcloud.android.main.BaseNavigationTarget;
 import com.soundcloud.android.olddiscovery.OldDiscoveryNavigationTarget;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -10,18 +10,24 @@ import javax.inject.Inject;
 
 public class DiscoveryConfiguration {
 
+    private final StaticDiscoverContentExperiment staticDiscoverContentExperiment;
     private final FeatureFlags featureFlags;
 
     @Inject
-    DiscoveryConfiguration(FeatureFlags featureFlags) {
+    DiscoveryConfiguration(StaticDiscoverContentExperiment staticDiscoverContentExperiment, FeatureFlags featureFlags) {
+        this.staticDiscoverContentExperiment = staticDiscoverContentExperiment;
         this.featureFlags = featureFlags;
     }
 
     public BaseNavigationTarget navigationTarget() {
-        return isEnabled() ? new DiscoveryNavigationTarget() : new OldDiscoveryNavigationTarget();
+        return shouldShowDiscoverBackendContent() ? new DiscoveryNavigationTarget() : new OldDiscoveryNavigationTarget();
     }
 
-    private boolean isEnabled() {
+    private boolean shouldShowDiscoverBackendContent() {
+        return isDiscoverBackendFeatureFlagEnabled() && !staticDiscoverContentExperiment.isEnabled();
+    }
+
+    private boolean isDiscoverBackendFeatureFlagEnabled() {
         return featureFlags.isEnabled(Flag.DISCOVER_BACKEND);
     }
 }

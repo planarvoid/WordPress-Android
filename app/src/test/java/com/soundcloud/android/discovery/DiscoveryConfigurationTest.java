@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.experiments.StaticDiscoverContentExperiment;
 import com.soundcloud.android.olddiscovery.OldDiscoveryNavigationTarget;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -15,26 +16,36 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DiscoveryConfigurationTest {
 
+    @Mock private StaticDiscoverContentExperiment staticDiscoverContentExperiment;
     @Mock private FeatureFlags featureFlags;
 
-    private DiscoveryConfiguration discoverBackendConfiguration;
+    private DiscoveryConfiguration discoveryConfiguration;
 
     @Before
     public void setUp() throws Exception {
-        discoverBackendConfiguration = new DiscoveryConfiguration(featureFlags);
+        discoveryConfiguration = new DiscoveryConfiguration(staticDiscoverContentExperiment, featureFlags);
     }
 
     @Test
-    public void useDiscoveryNavigationTargetWhenDiscoverBackendIsEnabled() {
+    public void useDiscoveryNavigationTargetWhenDiscoverBackendFeatureFlagIsEnabledAndStaticContentExperimentIsDisabled() {
         when(featureFlags.isEnabled(Flag.DISCOVER_BACKEND)).thenReturn(true);
+        when(staticDiscoverContentExperiment.isEnabled()).thenReturn(false);
 
-        assertThat(discoverBackendConfiguration.navigationTarget()).isInstanceOf(DiscoveryNavigationTarget.class);
+        assertThat(discoveryConfiguration.navigationTarget()).isInstanceOf(DiscoveryNavigationTarget.class);
     }
 
     @Test
-    public void useOldDiscoveryNavigationTargetWhenDiscoverBackendIsDisabled() {
+    public void useOldDiscoveryNavigationTargetWhenDiscoverBackendFeatureFlagIsEnabledAndStaticContentExperimentIsEnabled() {
+        when(featureFlags.isEnabled(Flag.DISCOVER_BACKEND)).thenReturn(true);
+        when(staticDiscoverContentExperiment.isEnabled()).thenReturn(true);
+
+        assertThat(discoveryConfiguration.navigationTarget()).isInstanceOf(OldDiscoveryNavigationTarget.class);
+    }
+
+    @Test
+    public void useOldDiscoveryNavigationTargetWhenDiscoverBackendFeatureFlagIsDisabled() {
         when(featureFlags.isEnabled(Flag.DISCOVER_BACKEND)).thenReturn(false);
 
-        assertThat(discoverBackendConfiguration.navigationTarget()).isInstanceOf(OldDiscoveryNavigationTarget.class);
+        assertThat(discoveryConfiguration.navigationTarget()).isInstanceOf(OldDiscoveryNavigationTarget.class);
     }
 }
