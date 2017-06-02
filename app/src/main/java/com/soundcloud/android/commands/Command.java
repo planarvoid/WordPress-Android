@@ -3,7 +3,6 @@ package com.soundcloud.android.commands;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import rx.Observable;
-import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -17,15 +16,12 @@ public abstract class Command<I, O> {
     }
 
     public Observable<O> toObservable(final I input) {
-        return Observable.create(new Observable.OnSubscribe<O>() {
-            @Override
-            public void call(Subscriber<? super O> subscriber) {
-                try {
-                    subscriber.onNext(Command.this.call(input));
-                    subscriber.onCompleted();
-                } catch (Throwable t) {
-                    subscriber.onError(t);
-                }
+        return Observable.create(subscriber -> {
+            try {
+                subscriber.onNext(Command.this.call(input));
+                subscriber.onCompleted();
+            } catch (Throwable t) {
+                subscriber.onError(t);
             }
         });
     }

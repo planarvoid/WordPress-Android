@@ -8,6 +8,8 @@ import java.util.List;
 
 @AutoValue
 public abstract class PromotedProperties {
+    private boolean impressionHasFired;
+
     public abstract String adUrn();
 
     public abstract List<String> trackClickedUrls();
@@ -30,5 +32,13 @@ public abstract class PromotedProperties {
                                             Optional<Urn> promoterUrn,
                                             Optional<String> promoterName) {
         return new AutoValue_PromotedProperties(adUrn, trackClickedUrls, trackImpressionUrls, trackPlayedUrls, promoterClickedUrls, promoterUrn, promoterName);
+    }
+
+    public boolean shouldFireImpression() {
+        return !impressionHasFired;
+    }
+
+    public void markImpressionFired() {
+        impressionHasFired = true;
     }
 }

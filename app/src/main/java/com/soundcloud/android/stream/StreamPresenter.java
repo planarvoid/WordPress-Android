@@ -154,7 +154,10 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         return CollectionBinding.from(RxJava.toV1Observable(streamOperations.initialStreamItems().toObservable())
                                                       .observeOn(AndroidSchedulers.mainThread())
                                                       .doOnSubscribe(streamMeasurements::startLoading)
-                                                      .doOnNext(streamItems -> adapter.clear()))
+                                                      .doOnNext(streamItems -> {
+                                                          handlePromotedImpression(streamItems);
+                                                          adapter.clear();
+                                                      }))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .addObserver(onNext(streamItems -> streamMeasurements.endLoading()))
@@ -165,7 +168,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
         streamMeasurements.startRefreshing();
         newItemsIndicator.hideAndReset();
-        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.updatedStreamItems().toObservable()))
+        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.updatedStreamItems().toObservable()
+                                                                            .doOnNext(this::handlePromotedImpression)))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .addObserver(onNext(streamItems -> streamMeasurements.endRefreshing()))
@@ -182,6 +186,7 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
         configureEmptyView();
         addScrollListeners();
+        handlePromotedImpression();
 
         viewLifeCycleSubscription = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, updatePlayableAdapterSubscriberFactory.create(adapter)),
@@ -205,8 +210,17 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
         } else {
             streamAdsController.onFocusLoss(true);
         }
-        if (streamDepthPublisher.isPresent()) {
-            streamDepthPublisher.get().onFocusChange(hasFocus);
+        streamDepthPublisher.ifPresent(depthPublisher -> depthPublisher.onFocusChange(hasFocus));
+        handlePromotedImpression();
+    }
+
+    private void handlePromotedImpression() {
+        handlePromotedImpression(adapter.getItems());
+    }
+
+    private void handlePromotedImpression(List<StreamItem> items) {
+        if (hasFocus) {
+            streamOperations.publishPromotedImpression(items);
         }
     }
 

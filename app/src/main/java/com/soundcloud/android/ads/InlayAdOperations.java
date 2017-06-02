@@ -40,7 +40,6 @@ class InlayAdOperations {
                        .filter(AdPlaybackEvent::forAppInstall)
                        .cast(InlayAdEvent.class)
                        .filter(new OnScreenAndImageLoaded(helper))
-                       .cast(InlayAdEvent.class)
                        .map(event -> {
                                 final long eventTime = event.eventTime().getTime();
                                 final AppInstallAd ad = (AppInstallAd) event.getAd();

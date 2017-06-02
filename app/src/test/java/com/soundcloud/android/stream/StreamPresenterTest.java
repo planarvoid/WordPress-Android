@@ -180,21 +180,60 @@ public class StreamPresenterTest extends AndroidUnitTest {
         binding.items().subscribe(itemObserver);
 
         verify(itemObserver).onNext(items);
+        verify(streamOperations, never()).publishPromotedImpression(items);
+    }
+
+    @Test
+    public void onBuildBindingPublishesPromotedImpressionWhenStreamInFocus() {
+        final TrackItem promotedTrackItem = expectedPromotedTrack();
+        TrackStreamItem promotedTrackStreamItem = TrackStreamItem.create(promotedTrackItem, CREATED_AT, Optional.absent());
+        final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
+        TrackStreamItem normalTrackStreamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
+        final PlaylistItem playlistItem = expectedLikedPlaylistForPlaylistsScreen();
+        PlaylistStreamItem playlistStreamItem = PlaylistStreamItem.create(playlistItem, CREATED_AT, Optional.absent());
+        final List<StreamItem> items = Arrays.asList(promotedTrackStreamItem,
+                                                     normalTrackStreamItem,
+                                                     playlistStreamItem);
+        when(streamOperations.initialStreamItems()).thenReturn(Single.just(items));
+        presenter.onFocusChange(true);
+
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onBuildBinding(null);
+        binding.connect();
+        binding.items().subscribe(itemObserver);
+
+        verify(itemObserver).onNext(items);
+        verify(streamOperations).publishPromotedImpression(items);
     }
 
     @Test
     public void canRefreshStreamItems() {
         final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
         final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
-        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(
-                Collections.singletonList(streamItem)
-        ));
+        final List<StreamItem> items = Collections.singletonList(streamItem);
+        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(items));
 
         CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onRefreshBinding();
         binding.connect();
         binding.items().subscribe(itemObserver);
 
-        verify(itemObserver).onNext(Collections.singletonList(streamItem));
+        verify(itemObserver).onNext(items);
+        verify(streamOperations, never()).publishPromotedImpression(items);
+    }
+
+    @Test
+    public void onRefreshBindingPublishesPromotedImpressionWhenStreamInFocus() {
+        final TrackItem trackItem = expectedTrackForListItem(Urn.forTrack(123L));
+        final StreamItem streamItem = TrackStreamItem.create(trackItem, CREATED_AT, Optional.absent());
+        final List<StreamItem> items = Collections.singletonList(streamItem);
+        when(streamOperations.updatedStreamItems()).thenReturn(Single.just(items));
+        presenter.onFocusChange(true);
+
+        CollectionBinding<List<StreamItem>, StreamItem> binding = presenter.onRefreshBinding();
+        binding.connect();
+        binding.items().subscribe(itemObserver);
+
+        verify(itemObserver).onNext(items);
+        verify(streamOperations).publishPromotedImpression(items);
     }
 
     @Test
@@ -451,6 +490,28 @@ public class StreamPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onViewCreatedShouldHandlePromotedImpressionIfStreamInFocus() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        when(adapter.getItems()).thenReturn(Collections.emptyList());
+        presenter.onFocusChange(true);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        verify(streamOperations, times(2)).publishPromotedImpression(Collections.emptyList());
+    }
+
+    @Test
+    public void onViewCreatedShouldNotHandlePromotedImpressionIfStreamIsNotInFocus() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        when(adapter.getItems()).thenReturn(Collections.emptyList());
+        presenter.onFocusChange(false);
+
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
+
+        verify(streamOperations, never()).publishPromotedImpression(Collections.emptyList());
+    }
+
+    @Test
     public void shouldClearStreamAdControllerOnViewDestroy() {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
@@ -498,6 +559,28 @@ public class StreamPresenterTest extends AndroidUnitTest {
         presenter.onFocusChange(false);
 
         verify(streamAdsController).onFocusLoss(true);
+    }
+
+    @Test
+    public void shouldHandlePromotedImpressionIfStreamInFocus() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        when(adapter.getItems()).thenReturn(Collections.emptyList());
+
+        presenter.onFocusChange(true);
+
+        verify(streamOperations).publishPromotedImpression(Collections.emptyList());
+    }
+
+    @Test
+    public void shouldNotHandlePromotedImpressionIfStreamIsNotInFocus() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+
+        when(adapter.getItems()).thenReturn(Collections.emptyList());
+
+        presenter.onFocusChange(false);
+
+        verify(streamOperations, never()).publishPromotedImpression(Collections.emptyList());
     }
 
     @Test

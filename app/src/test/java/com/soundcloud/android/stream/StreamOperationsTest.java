@@ -7,8 +7,11 @@ import static io.reactivex.Observable.just;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -185,32 +188,30 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     }
 
     @Test
-    public void initialStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
-        itemsWithPromoted.add(0, promotedStreamTrack);
+    public void publishPromotedImpressionDoesNothingIfThereAreNoPromotedItems() {
+        operations.publishPromotedImpression(Collections.emptyList());
 
-        final List<StreamItem> streamItemsWithPromoted = viewModelsFromStorageModel(itemsWithPromoted);
-
-        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted, streamItemsWithPromoted);
-        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(rx.Observable.just(successWithChange()));
-
-        operations.initialStreamItems().subscribe(observer);
-
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
-        verify(markPromotedItemAsStaleCommand).call(track.trackItem().adUrn());
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+        verify(markPromotedItemAsStaleCommand, never()).toSingle(any());
     }
 
     @Test
-    public void updatedItemsStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        final List<StreamItem> streamItemsWithPromoted = initUpdatedTimelineItems();
+    public void publishPromotedImpressionFiresImpressionsOnlyOncePerPromotedItem() {
+        when(markPromotedItemAsStaleCommand.toSingle("ad:urn:123")).thenReturn(Single.never());
+        final List<StreamEntity> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        itemsWithPromoted.add(0, promotedStreamTrack);
+        initWithStorageModelOnRepeatAfterSyncing(itemsWithPromoted);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(rx.Observable.just(successWithChange()));
+        final TestObserver<List<StreamItem>> subscriber = subscribeToInitialStream();
+        final List<StreamItem> streamItems = subscriber.values().get(0);
 
-        operations.updatedStreamItems().subscribe(observer);
+        //Call impression twice on same stream items
+        operations.publishPromotedImpression(streamItems);
+        operations.publishPromotedImpression(streamItems);
 
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        TrackStreamItem track = (TrackStreamItem) streamItemsWithPromoted.get(0);
-        verify(markPromotedItemAsStaleCommand).call(track.trackItem().adUrn());
+        verify(markPromotedItemAsStaleCommand, times(1)).toSingle("ad:urn:123");
     }
 
     @Test

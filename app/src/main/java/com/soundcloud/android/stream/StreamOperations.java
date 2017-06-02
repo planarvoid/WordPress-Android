@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver.fireAndForget;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
@@ -92,7 +93,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
                                               .zipWith(initialNotificationItem(),
                                                        StreamOperations::addNotificationItemToStream)
                                               .map(this::addUpsellableItem)
-                                              .doOnSuccess(this::promotedImpressionAction)
                                               // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                                               // logic to the presenter
                                               .observeOn(mainThread())
@@ -121,7 +121,6 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
                     .zipWith(updatedNotificationItem(), StreamOperations::addNotificationItemToStream)
-                    .doOnSuccess(this::promotedImpressionAction)
                     // Temporary workaround for https://github.com/soundcloud/android-listeners/issues/6807. We should move the below
                     // logic to the presenter
                     .observeOn(mainThread())
@@ -208,13 +207,18 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
         return null;
     }
 
-    private void promotedImpressionAction(List<StreamItem> streamItems) {
-        final Optional<PlayableItem> promotedListItemOpt = getFirstPromotedListItem(streamItems);
-        if (promotedListItemOpt.isPresent()) {
-            PlayableItem promotedListItem = promotedListItemOpt.get();
-            markPromotedItemAsStaleCommand.call(promotedListItem.adUrn());
-            eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(promotedListItem, Screen.STREAM.get()));
-        }
+    void publishPromotedImpression(List<StreamItem> streamItems) {
+        getFirstPromotedListItem(streamItems).ifPresent(this::publishPromotedImpressionIfNecessary);
+    }
+
+    private void publishPromotedImpressionIfNecessary(PlayableItem promotedItem) {
+        promotedItem.promotedProperties().ifPresent(properties -> {
+            if (properties.shouldFireImpression()) {
+                fireAndForget(markPromotedItemAsStaleCommand.toSingle(promotedItem.adUrn()).subscribeOn(scheduler).toObservable());
+                eventBus.publish(EventQueue.TRACKING, PromotedTrackingEvent.forImpression(promotedItem, Screen.STREAM.get()));
+                properties.markImpressionFired();
+            }
+        });
     }
 
     private static List<StreamItem> addNotificationItemToStream(List<StreamItem> streamItems,
