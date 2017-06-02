@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -44,6 +45,7 @@ public class StationsOperations {
     private final StoreStationCommand storeStationCommand;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
+    private final io.reactivex.Scheduler schedulerV2;
     private final EventBus eventBus;
     private final TrackItemRepository trackItemRepository;
 
@@ -55,6 +57,7 @@ public class StationsOperations {
                               StoreStationCommand storeStationCommand,
                               SyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                              @Named(ApplicationModule.RX_HIGH_PRIORITY) io.reactivex.Scheduler schedulerV2,
                               EventBus eventBus,
                               TrackItemRepository trackItemRepository) {
         this.syncStateStorage = syncStateStorage;
@@ -64,6 +67,7 @@ public class StationsOperations {
         this.scheduler = scheduler;
         this.storeTracksCommand = storeTracksCommand;
         this.storeStationCommand = storeStationCommand;
+        this.schedulerV2 = schedulerV2;
         this.eventBus = eventBus;
         this.trackItemRepository = trackItemRepository;
     }
@@ -120,26 +124,26 @@ public class StationsOperations {
         return station -> station.getTracks().isEmpty() ? station : Station.stationWithSeedTrack(station, seed);
     }
 
-    public Observable<StationRecord> collection(final int type) {
-        final Observable<StationRecord> collection;
+    public io.reactivex.Observable<StationRecord> collection(final int type) {
+        final io.reactivex.Observable<StationRecord> collection;
         if (syncStateStorage.hasSyncedBefore(typeToSyncable(type))) {
             collection = loadStationsCollection(type);
         } else {
             collection = syncAndLoadStationsCollection(type);
         }
-        return collection.subscribeOn(scheduler);
+        return collection.subscribeOn(schedulerV2);
     }
 
-    private Observable<StationRecord> loadStationsCollection(final int type) {
-        return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
+    private io.reactivex.Observable<StationRecord> loadStationsCollection(final int type) {
+        return RxJava.toV2Observable(stationsStorage.getStationsCollection(type).subscribeOn(scheduler));
     }
 
-    private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-        return syncStations(type).flatMap(o -> loadStationsCollection(type));
+    private io.reactivex.Observable<StationRecord> syncAndLoadStationsCollection(int type) {
+        return syncStations(type).flatMap(__ -> loadStationsCollection(type));
     }
 
-    public Observable<SyncJobResult> syncStations(int type) {
-        return syncInitiator.sync(typeToSyncable(type));
+    public io.reactivex.Observable<SyncJobResult> syncStations(int type) {
+        return RxJava.toV2Observable(syncInitiator.sync(typeToSyncable(type)));
     }
 
     Observable<SyncJobResult> syncLikedStations() {

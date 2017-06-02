@@ -34,6 +34,10 @@ public class NewSyncOperations {
                             .onErrorReturn(SyncResult::error);
     }
 
+    public Single<SyncResult> failSafeSync(Syncable syncable) {
+        return sync(syncable).onErrorResumeNext(throwable -> Single.just(SyncResult.error(throwable)));
+    }
+
     public Single<SyncResult> lazySyncIfStale(Syncable syncable) {
         if (syncStateStorage.hasSyncedBefore(syncable)) {
             if (!isContentStale(syncable)) {

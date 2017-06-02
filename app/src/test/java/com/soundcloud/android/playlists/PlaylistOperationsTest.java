@@ -58,7 +58,6 @@ import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class PlaylistOperationsTest extends AndroidUnitTest {
 
@@ -192,7 +191,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         when(upsellOperations.getUpsell(playlist, trackItems())).thenReturn(Optional.absent());
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()))
-                .thenReturn(Observable.just(singletonList(playlistPostItem)));
+                .thenReturn(Maybe.just(singletonList(playlistPostItem)));
 
         operations.playlistWithTracksAndRecommendations(this.playlist.urn()).subscribe(viewModelSubscriber);
 

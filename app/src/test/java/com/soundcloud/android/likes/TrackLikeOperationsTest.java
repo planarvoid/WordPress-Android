@@ -26,6 +26,7 @@ import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -94,12 +95,12 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         when(loadLikedTracksCommand.toObservable(Optional.of(Params.from(INITIAL_TIMESTAMP, PAGE_SIZE)))).thenReturn(
                 Observable.just(likes));
-        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
+        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
     }
 
     @Test
     public void syncAndLoadTrackLikesWhenHasNotSyncedBefore() {
-        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(false));
+        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(false));
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(tracks)));
 
@@ -116,7 +117,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadTrackLikesWhenHasSyncedBefore() {
-        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
+        when(syncInitiatorBridge.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
         when(trackRepository.fromUrns(eq(transform(asList(likes.get(0), likes.get(1)), UrnHolder::urn))))
                 .thenReturn(Observable.just(urnToTrackMap(tracks)));
 

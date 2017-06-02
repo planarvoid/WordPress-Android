@@ -19,6 +19,8 @@ import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
+import io.reactivex.subjects.MaybeSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,7 +42,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
 
     private OfflinePropertiesProvider provider;
     private PublishSubject<Map<Urn, OfflineState>> offlineTracksStatesLoader = PublishSubject.create();
-    private PublishSubject<List<Playlist>> offlinePlaylistsLoader = PublishSubject.create();
+    private MaybeSubject<List<Playlist>> offlinePlaylistsLoader = MaybeSubject.create();
     private PublishSubject<OfflineState> offlineLikesTracksStateLoader = PublishSubject.create();
     private TestEventBus eventBus = new TestEventBus();
 
@@ -139,7 +141,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
 
     private void resetStorage() {
         when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.empty());
-        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(Observable.empty());
+        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)).thenReturn(Maybe.empty());
         when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.empty());
         when(offlineStateOperations.loadLikedTrackState()).thenReturn(OfflineState.NOT_OFFLINE);
     }
@@ -186,7 +188,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
     }
 
     private void storageEmitsOfflinePlaylist() {
-        offlinePlaylistsLoader.onCompleted();
+        offlinePlaylistsLoader.onComplete();
     }
 
     private void storageEmitsOfflineTracks() {
@@ -195,7 +197,7 @@ public class OfflinePropertiesProviderTest extends AndroidUnitTest {
 
     private void storageEmitsOfflinePlaylist(Playlist playlist, OfflineState state) {
         setUpOfflinePlaylist(playlist, state);
-        offlinePlaylistsLoader.onNext(singletonList(playlist));
+        offlinePlaylistsLoader.onSuccess(singletonList(playlist));
     }
 
     private void storageEmitsOfflineTracks(Urn track, OfflineState state) {

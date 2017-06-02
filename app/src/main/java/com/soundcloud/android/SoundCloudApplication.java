@@ -50,6 +50,7 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
@@ -317,7 +318,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         fireAndForget(syncInitiator.sync(Syncable.MY_PLAYLISTS));
         fireAndForget(syncInitiator.sync(Syncable.PLAYLIST_LIKES));
         fireAndForget(syncInitiator.sync(Syncable.TRACK_LIKES));
-        fireAndForget(stationsOperations.syncStations(StationsCollectionsTypes.LIKED));
+        fireAndForget(RxJava.toV1Observable(stationsOperations.syncStations(StationsCollectionsTypes.LIKED)));
         fireAndForget(syncInitiator.sync(Syncable.PLAY_HISTORY));
         fireAndForget(syncInitiator.sync(Syncable.RECENTLY_PLAYED));
     }

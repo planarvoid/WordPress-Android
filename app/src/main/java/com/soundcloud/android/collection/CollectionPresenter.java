@@ -26,19 +26,21 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.rx.observers.LambdaObserver;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.annotations.VisibleForTesting;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -61,18 +63,10 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     private static final int FIXED_ITEMS = 5;
 
-    private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
-        @Override
-        public Boolean call(Object event) {
-            return !swipeRefreshAttacher.isRefreshing();
-        }
-    };
-
-    @VisibleForTesting
-    final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
-            new Func1<MyCollection, Iterable<CollectionItem>>() {
+    @VisibleForTesting final Function<MyCollection, Iterable<CollectionItem>> toCollectionItems =
+            new Function<MyCollection, Iterable<CollectionItem>>() {
                 @Override
-                public List<CollectionItem> call(MyCollection myCollection) {
+                public List<CollectionItem> apply(MyCollection myCollection) {
                     List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
                     if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)
                             && featureOperations.isOfflineContentEnabled()
@@ -91,7 +85,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
             };
 
     private final SwipeRefreshAttacher swipeRefreshAttacher;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final CollectionAdapter adapter;
     private final Resources resources;
     private final CollectionOptionsStorage collectionOptionsStorage;
@@ -104,7 +98,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
 
-    private CompositeSubscription eventSubscriptions = new CompositeSubscription();
+    private CompositeDisposable eventSubscriptions = new CompositeDisposable();
 
     @Inject
     CollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -112,7 +106,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
                         CollectionOptionsStorage collectionOptionsStorage,
                         CollectionAdapter adapter,
                         Resources resources,
-                        EventBus eventBus,
+                        EventBusV2 eventBus,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                         PlayHistoryOperations playHistoryOperations,
                         FeatureOperations featureOperations,
@@ -175,26 +169,26 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void onDestroy(Fragment fragment) {
-        eventSubscriptions.unsubscribe();
+        eventSubscriptions.clear();
         super.onDestroy(fragment);
     }
 
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollection> collections = collectionOperations.collections()
-                                                                         .doOnSubscribe(() -> performanceMetricsEngine.startMeasuring(MetricType.COLLECTION_LOAD))
-                                                                         .doOnCompleted(() -> performanceMetricsEngine.endMeasuring(MetricType.COLLECTION_LOAD))
+                                                                         .doOnSubscribe(disposable -> performanceMetricsEngine.startMeasuring(MetricType.COLLECTION_LOAD))
+                                                                         .doOnComplete(() -> performanceMetricsEngine.endMeasuring(MetricType.COLLECTION_LOAD))
                                                                          .observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
+        return CollectionBinding.fromV2(collections.doOnNext(new OnCollectionLoadedComsumer()), toCollectionItems)
                                 .withAdapter(adapter)
                                 .build();
     }
 
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
-        final Observable<MyCollection> collections =
-                collectionOperations.updatedCollections().observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnError(new OnErrorAction()), toCollectionItems)
+        final Observable<MyCollection> collections = collectionOperations.updatedCollections()
+                                                                         .observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.fromV2(collections.doOnError(__ -> showError()), toCollectionItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -232,7 +226,7 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
         final Observable<MyCollection> source = collectionOperations.collections()
                                                                     .observeOn(AndroidSchedulers.mainThread());
         retryWith(CollectionBinding
-                          .from(source, toCollectionItems)
+                          .fromV2(source, toCollectionItems)
                           .withAdapter(adapter).build());
     }
 
@@ -260,47 +254,23 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
     }
 
     private void subscribeForUpdates() {
-        eventSubscriptions.unsubscribe();
-        eventSubscriptions = new CompositeSubscription(
+        eventSubscriptions.clear();
+        eventSubscriptions = new CompositeDisposable(
                 subscribeToOfflineContent(),
                 collectionOperations.onCollectionChanged()
-                                    .filter(isNotRefreshing)
+                                    .filter(event -> !swipeRefreshAttacher.isRefreshing())
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new RefreshCollectionsSubscriber())
+                                    .subscribeWith(LambdaObserver.onNext(__ -> refreshCollections()))
         );
     }
 
-    private Subscription subscribeToOfflineContent() {
+    private Disposable subscribeToOfflineContent() {
         if (featureFlags.isEnabled(Flag.OFFLINE_PROPERTIES_PROVIDER)) {
-            return offlinePropertiesProvider.states()
+            return offlinePropertiesProvider.statesV2()
                                             .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(new OfflinePropertiesSubscriber(adapter));
+                                            .subscribeWith(new OfflinePropertiesSubscriber(adapter));
         } else {
             return eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter));
-        }
-    }
-
-    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
-        @Override
-        public void onNext(Object ignored) {
-            refreshCollections();
-        }
-    }
-
-    private class OnCollectionLoadedAction implements Action1<MyCollection> {
-        @Override
-        public void call(MyCollection myCollection) {
-            subscribeForUpdates();
-            if (myCollection.hasError()) {
-                showError();
-            }
-        }
-    }
-
-    private class OnErrorAction implements Action1<Throwable> {
-        @Override
-        public void call(Throwable ignored) {
-            showError();
         }
     }
 
@@ -351,13 +321,22 @@ class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Collection
 
     @Override
     public void trackItemClicked(Urn urn, int position) {
-        playHistoryOperations
-                .startPlaybackFrom(urn, Screen.COLLECTIONS)
-                .subscribe(expandPlayerSubscriberProvider.get());
+        RxJava.toV1Observable(playHistoryOperations
+                                      .startPlaybackFrom(urn, Screen.COLLECTIONS)
+        ).subscribe(expandPlayerSubscriberProvider.get());
     }
 
+    private class OnCollectionLoadedComsumer implements Consumer<MyCollection> {
+        @Override
+        public void accept(MyCollection myCollection) {
+            subscribeForUpdates();
+            if (myCollection.hasError()) {
+                showError();
+            }
+        }
+    }
 
-    private static class OfflinePropertiesSubscriber extends DefaultSubscriber<OfflineProperties> {
+    private static class OfflinePropertiesSubscriber extends DefaultObserver<OfflineProperties> {
 
         private final CollectionAdapter adapter;
 

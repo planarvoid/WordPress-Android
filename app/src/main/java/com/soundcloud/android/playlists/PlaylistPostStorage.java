@@ -6,6 +6,7 @@ import static com.soundcloud.propeller.query.Query.Order.DESC;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables;
@@ -14,21 +15,21 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import java.util.List;
 
 public class PlaylistPostStorage {
 
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final CurrentDateProvider dateProvider;
     private final RemovePlaylistCommand removePlaylistCommand;
     private final PlaylistAssociationMapper playlistAssociationMapper;
 
     @Inject
-    public PlaylistPostStorage(PropellerRx propellerRx,
+    public PlaylistPostStorage(PropellerRxV2 propellerRx,
                                CurrentDateProvider dateProvider,
                                RemovePlaylistCommand removePlaylistCommand,
                                PlaylistAssociationMapperFactory mapperFactory) {
@@ -39,9 +40,8 @@ public class PlaylistPostStorage {
     }
 
     public Observable<List<PlaylistAssociation>> loadPostedPlaylists(int limit, long fromTimestamp) {
-        return propellerRx.query(buildLoadPostedPlaylistsQuery(limit, fromTimestamp))
-                          .map(playlistAssociationMapper)
-                          .toList();
+        return propellerRx.queryResult(buildLoadPostedPlaylistsQuery(limit, fromTimestamp))
+                          .map(result -> result.toList(playlistAssociationMapper));
     }
 
     private Query buildLoadPostedPlaylistsQuery(int limit, long fromTimestamp) {
@@ -85,6 +85,6 @@ public class PlaylistPostStorage {
     }
 
     Observable<TxnResult> remove(Urn urn) {
-        return removePlaylistCommand.toObservable(urn);
+        return RxJava.toV2Observable(removePlaylistCommand.toObservable(urn));
     }
 }

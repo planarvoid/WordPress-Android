@@ -35,6 +35,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -182,11 +183,11 @@ class PlaylistsPresenter extends RecyclerViewPresenter<List<PlaylistCollectionIt
     }
 
     private Observable<List<PlaylistItem>> playlists() {
-        return myPlaylistsOperations.myPlaylists(currentOptions).map(toPlaylistsItems());
+        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(currentOptions)).map(toPlaylistsItems());
     }
 
     private Observable<List<PlaylistItem>> updatedPlaylists() {
-        return myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions).map(toPlaylistsItems());
+        return RxJava.toV1Observable(myPlaylistsOperations.refreshAndLoadPlaylists(currentOptions)).map(toPlaylistsItems());
     }
 
     private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {

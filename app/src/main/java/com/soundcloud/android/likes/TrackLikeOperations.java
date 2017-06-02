@@ -10,6 +10,7 @@ import com.soundcloud.android.events.LikesStatusEvent;
 import com.soundcloud.android.likes.LoadLikedTracksCommand.Params;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnHolder;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.tracks.TrackItem;
@@ -20,7 +21,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.support.annotation.VisibleForTesting;
@@ -88,16 +88,13 @@ public class TrackLikeOperations {
     }
 
     Observable<List<LikeWithTrack>> likedTracks() {
-        return syncInitiatorBridge
-                .hasSyncedTrackLikesBefore()
-                .flatMap(new Func1<Boolean, Observable<List<LikeWithTrack>>>() {
-                    @Override
-                    public Observable<List<LikeWithTrack>> call(Boolean hasSynced) {
-                        if (hasSynced) {
-                            return likedTracks(INITIAL_TIMESTAMP);
-                        } else {
-                            return updatedLikedTracks();
-                        }
+        return RxJava.toV1Observable(syncInitiatorBridge
+                .hasSyncedTrackLikesBefore())
+                .flatMap(hasSynced -> {
+                    if (hasSynced) {
+                        return likedTracks(INITIAL_TIMESTAMP);
+                    } else {
+                        return updatedLikedTracks();
                     }
                 }).subscribeOn(scheduler);
     }

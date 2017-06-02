@@ -9,13 +9,12 @@ import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
@@ -26,7 +25,6 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private ConnectionHelper connectionHelper;
     @Mock private Action0 requestSystemSyncAction;
     private TestEventBus eventBus;
 

@@ -35,6 +35,7 @@ import com.soundcloud.android.view.ViewError;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.subjects.MaybeSubject;
 import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
     private SingleSubject<List<Track>> tracklistSubject;
     private PublishSubject<ModelCollection<ApiPlaylistPost>> otherUserOtherPlaylists = PublishSubject.create();
     private ApiRequestException apiRequestException = TestApiResponses.networkError().getFailure();
-    private PublishSubject<List<Playlist>> myOtherPlaylists = PublishSubject.create();
+    private MaybeSubject<List<Playlist>> myOtherPlaylists = MaybeSubject.create();
     private PublishSubject<SyncJobResult> syncResultSubject = PublishSubject.create();
 
     //
@@ -251,7 +252,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         List<Playlist> myPlaylists = asList(playlist, otherPlaylist); // current playlist should be filtered out
 
         tracklistSubject.onSuccess(trackItems);
-        myOtherPlaylists.onNext(myPlaylists);
+        myOtherPlaylists.onSuccess(myPlaylists);
 
         test.assertValues(
                 PlaylistWithExtrasState.initialState(),
@@ -269,7 +270,7 @@ public class PlaylistDetailsDataSourceProviderTest extends AndroidUnitTest {
         List<Playlist> myPlaylists = Collections.singletonList(playlist); // current playlist should be filtered out
 
         tracklistSubject.onSuccess(trackItems);
-        myOtherPlaylists.onNext(myPlaylists);
+        myOtherPlaylists.onSuccess(myPlaylists);
 
         test.assertValues(
                 PlaylistWithExtrasState.initialState(),

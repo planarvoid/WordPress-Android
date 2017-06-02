@@ -7,12 +7,13 @@ import com.soundcloud.android.likes.Like;
 import com.soundcloud.android.likes.LoadLikedTracksCommand;
 import com.soundcloud.android.likes.LoadLikedTracksOfflineStateCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -35,11 +36,11 @@ public class OfflineStateOperations {
     private final TrackDownloadsStorage trackDownloadsStorage;
     private final Scheduler scheduler;
 
-    private final Func1<Boolean, Observable<OfflineState>> TO_OFFLINE_LIKES_STATE = new Func1<Boolean, Observable<OfflineState>>() {
+    private final Function<Boolean, Observable<OfflineState>> TO_OFFLINE_LIKES_STATE = new Function<Boolean, Observable<OfflineState>>() {
         @Override
-        public Observable<OfflineState> call(Boolean enabled) {
+        public Observable<OfflineState> apply(Boolean enabled) {
             if (enabled) {
-                return trackDownloadsStorage.getLikesOfflineState();
+                return RxJava.toV2Observable(trackDownloadsStorage.getLikesOfflineState());
             } else {
                 return Observable.just(OfflineState.NOT_OFFLINE);
             }
@@ -55,7 +56,7 @@ public class OfflineStateOperations {
             LoadLikedTracksOfflineStateCommand loadLikedTracksOfflineStateCommand,
             OfflineContentStorage offlineContentStorage,
             TrackDownloadsStorage trackDownloadsStorage,
-            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+            @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.isOfflineLikedTracksEnabledCommand = isOfflineLikedTracksEnabledCommand;
         this.loadOfflinePlaylistsContainingTracksCommand = loadOfflinePlaylistsContainingTracksCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;

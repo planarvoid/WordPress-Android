@@ -33,6 +33,8 @@ import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -49,7 +51,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -123,14 +124,14 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     @Override
     public void trackItemClicked(Urn urn, int position) {
-        playHistoryOperations
-                .startPlaybackFrom(urn, Screen.PLAY_HISTORY)
+        RxJava.toV1Observable(playHistoryOperations
+                .startPlaybackFrom(urn, Screen.PLAY_HISTORY))
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override
     protected CollectionBinding<List<PlayHistoryItem>, PlayHistoryItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(playHistoryOperations.playHistory()
+        return CollectionBinding.fromV2(playHistoryOperations.playHistory()
                                                            .map(toPlayHistoryItem()))
                                 .withAdapter(adapter)
                                 .addObserver(onNext(items -> endMeasuringListeningHistoryLoad(Iterables.size(items))))
@@ -145,7 +146,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
                                                                .build());
     }
 
-    private Func1<List<TrackItem>, List<PlayHistoryItem>> toPlayHistoryItem() {
+    private io.reactivex.functions.Function<List<TrackItem>, List<PlayHistoryItem>> toPlayHistoryItem() {
         return trackItems -> {
             final int trackCount = trackItems.size();
             final List<PlayHistoryItem> items = new ArrayList<>(trackCount + 1);
@@ -161,7 +162,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
 
     @Override
     protected CollectionBinding<List<PlayHistoryItem>, PlayHistoryItem> onRefreshBinding() {
-        return CollectionBinding.from(playHistoryOperations.refreshPlayHistory().map(toPlayHistoryItem()))
+        return CollectionBinding.fromV2(playHistoryOperations.refreshPlayHistory().map(toPlayHistoryItem()))
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -210,7 +211,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private class ClearHistorySubscriber extends DefaultSubscriber<Boolean> {
+    private class ClearHistorySubscriber extends DefaultObserver<Boolean> {
         @Override
         public void onNext(Boolean wasSuccessful) {
             if (!wasSuccessful) {

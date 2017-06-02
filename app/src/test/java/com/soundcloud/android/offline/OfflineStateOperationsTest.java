@@ -20,12 +20,11 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRepository;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +57,7 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
                                                 loadLikedTracksOfflineStateCommand,
                                                 offlineContentStorage,
                                                 trackDownloadsStorage,
-                                                Schedulers.immediate());
+                                                Schedulers.trampoline());
 
         when(isOfflineLikedEnabledCommand.call(null)).thenReturn(true);
     }
@@ -132,29 +131,25 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
 
     @Test
     public void getLikedTracksOfflineStateReturnsNoOfflineWhenOfflineLikedTrackAreDisabled() {
-        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(false));
 
-        operations.loadLikedTracksOfflineState().subscribe(subscriber);
-
-        subscriber.assertValue(OfflineState.NOT_OFFLINE);
+        operations.loadLikedTracksOfflineState().test()
+                  .assertValue(NOT_OFFLINE);
     }
 
     @Test
     public void getLikedTracksOfflineStateReturnsStateFromStorageWhenOfflineLikedTracksAreEnabled() {
-        final TestSubscriber<OfflineState> subscriber = new TestSubscriber<>();
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
-        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
+        when(trackDownloadsStorage.getLikesOfflineState()).thenReturn(rx.Observable.just(OfflineState.REQUESTED));
 
-        operations.loadLikedTracksOfflineState().subscribe(subscriber);
-
-        subscriber.assertValue(OfflineState.REQUESTED);
+        operations.loadLikedTracksOfflineState().test()
+                  .assertValue(REQUESTED);
     }
 
     private void setPlaylist(Urn track, Urn playlist, TrackItem... tracks) {
         final List<TrackItem> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTracksCommand.call(singletonList(track))).thenReturn(singletonList(playlist));
-        when(trackRepository.forPlaylist(playlist)).thenReturn(Observable.just(tracksList));
+        when(trackRepository.forPlaylist(playlist)).thenReturn(rx.Observable.just(tracksList));
         when(loadLikedTracksCommand.call(Optional.absent())).thenReturn(transform(tracksList, entity -> Like.create(entity.getUrn(), new Date())));
         when(loadLikedTracksOfflineStateCommand.call(null)).thenReturn(transform(tracksList, TrackItem::offlineState));
     }

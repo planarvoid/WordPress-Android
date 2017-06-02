@@ -151,7 +151,7 @@ class DataSourceProvider {
         if (!otherPlaylistsByUserConfig.isEnabled()) {
             return Observable.just(Collections.emptyList());
         } else if (accountOperations.isLoggedInUser(playlist.creatorUrn())) {
-            return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build())
+            return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()))
                                         .map(playlistsWithExclusion(playlist));
         } else {
             Observable<List<Playlist>> eagerEmission = just(Collections.<Playlist>emptyList());

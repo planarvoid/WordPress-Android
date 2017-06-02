@@ -2,6 +2,11 @@ package com.soundcloud.android.rx.observers;
 
 import rx.functions.Action1;
 
+/**
+ * <p>This class has been deprecated in favor of {@link LambdaObserver<T>} and for the sake of migrating from RxJava 1 to
+ * RxJava 2.</p>
+ */
+@Deprecated
 public class LambdaSubscriber<T> extends DefaultSubscriber<T> {
 
     private final Action1<T> onNextAction;

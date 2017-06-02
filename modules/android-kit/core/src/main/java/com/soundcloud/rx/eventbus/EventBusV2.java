@@ -1,8 +1,9 @@
 package com.soundcloud.rx.eventbus;
 
-import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.observers.ResourceObserver;
 
 public interface EventBusV2 {
 
@@ -10,13 +11,13 @@ public interface EventBusV2 {
      * Subscribes the given observer to the given queue. On which thread the observer
      * receives events is implementation defined (see {@link DefaultEventBus}.
      */
-    <E> Observer<E> subscribe(Queue<E> queue, io.reactivex.Observer<E> observer);
+    <E> Disposable subscribe(Queue<E> queue, ResourceObserver<E> observer);
 
     /**
      * Subscribes the given observer to the given queue. The observer will receive
      * events on the same thread on which the event was published.
      */
-    <E> Observer<E> subscribeImmediate(Queue<E> queue, io.reactivex.Observer<E> observer);
+    <E> Disposable subscribeImmediate(Queue<E> queue, ResourceObserver<E> observer);
 
     /**
      * Post the given event to this queue.

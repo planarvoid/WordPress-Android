@@ -22,16 +22,17 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -105,7 +106,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
     @Override
     protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(recentlyPlayedOperations.recentlyPlayed().map(augmentRecentlyPlayedItems()))
+        return CollectionBinding.fromV2(recentlyPlayedOperations.recentlyPlayed().map(augmentRecentlyPlayedItems()))
                                 .withAdapter(adapter)
                                 .addObserver(onNext(items -> endMeasuringLoadTime(Iterables.size(items))))
                                 .build();
@@ -121,13 +122,13 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
     @Override
     protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onRefreshBinding() {
-        return CollectionBinding.from(recentlyPlayedOperations.refreshRecentlyPlayed()
+        return CollectionBinding.fromV2(recentlyPlayedOperations.refreshRecentlyPlayed()
                                                               .map(augmentRecentlyPlayedItems()))
                                 .withAdapter(adapter)
                                 .build();
     }
 
-    private Func1<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedItem>> augmentRecentlyPlayedItems() {
+    private Function<List<RecentlyPlayedPlayableItem>, List<RecentlyPlayedItem>> augmentRecentlyPlayedItems() {
         return recentlyPlayedPlayableItems -> {
             final int contextCount = recentlyPlayedPlayableItems.size();
             List<RecentlyPlayedItem> list = new ArrayList<>(contextCount + 1);
@@ -219,7 +220,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         }
     }
 
-    private class ClearSubscriber extends DefaultSubscriber<Boolean> {
+    private class ClearSubscriber extends DefaultObserver<Boolean> {
         @Override
         public void onNext(Boolean wasSuccessful) {
             if (!wasSuccessful) {

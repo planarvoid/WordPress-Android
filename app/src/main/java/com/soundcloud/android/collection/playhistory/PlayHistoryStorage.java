@@ -10,13 +10,15 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackStorage;
+import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
-import rx.Observable;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -25,17 +27,31 @@ import java.util.List;
 
 public class PlayHistoryStorage {
 
+    private static final RxResultMapperV2<Track> TRACK_MAPPER = new RxResultMapperV2<Track>() {
+        @Override
+        public Track map(CursorReader cursorReader) {
+            return TrackStorage.trackFromCursorReader(cursorReader);
+        }
+    };
+    private static final RxResultMapperV2<Urn> URN_MAPPER = new RxResultMapperV2<Urn>() {
+        @Override
+        public Urn map(CursorReader cursorReader) {
+            return Urn.forTrack(cursorReader.getLong(PlayHistory.TRACK_ID.name()));
+        }
+    };
+
     private final PropellerDatabase database;
-    private final PropellerRx rxDatabase;
+    private final PropellerRxV2 rxDatabase;
 
     @Inject
     public PlayHistoryStorage(PropellerDatabase database) {
         this.database = database;
-        this.rxDatabase = new PropellerRx(database);
+        this.rxDatabase = new PropellerRxV2(database);
     }
 
-    Observable<Track> loadTracks(int limit) {
-        return rxDatabase.query(loadTracksQuery(limit)).map(TrackStorage::trackFromCursorReader);
+    Observable<List<Track>> loadTracks(int limit) {
+        return rxDatabase.queryResult(loadTracksQuery(limit))
+                         .map(result -> result.toList(TRACK_MAPPER));
     }
 
     List<PlayHistoryRecord> loadUnSyncedPlayHistory() {
@@ -68,8 +84,9 @@ public class PlayHistoryStorage {
         return database.bulkInsert(PlayHistory.TABLE, buildBulkValues(addRecords));
     }
 
-    Observable<Urn> loadPlayHistoryForPlayback() {
-        return rxDatabase.query(loadForPlaybackQuery()).map(cursorReader -> Urn.forTrack(cursorReader.getLong(PlayHistory.TRACK_ID.name())));
+    Observable<List<Urn>> loadPlayHistoryForPlayback() {
+        return rxDatabase.queryResult(loadForPlaybackQuery())
+                         .map(result -> result.toList(URN_MAPPER));
     }
 
     boolean hasPendingTracksToSync() {

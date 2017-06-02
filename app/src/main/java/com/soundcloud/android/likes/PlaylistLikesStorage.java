@@ -8,20 +8,20 @@ import com.soundcloud.android.playlists.PlaylistAssociationMapper;
 import com.soundcloud.android.playlists.PlaylistAssociationMapperFactory;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import java.util.List;
 
 public class PlaylistLikesStorage {
 
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final PlaylistAssociationMapper playlistAssociationMapper;
 
     @Inject
-    public PlaylistLikesStorage(PropellerRx propellerRx,
-                                PlaylistAssociationMapperFactory mapperFactory) {
+    PlaylistLikesStorage(PropellerRxV2 propellerRx,
+                         PlaylistAssociationMapperFactory mapperFactory) {
         this.propellerRx = propellerRx;
         this.playlistAssociationMapper = mapperFactory.create(Tables.Likes.CREATED_AT);
     }
@@ -37,6 +37,7 @@ public class PlaylistLikesStorage {
                                  .order(Tables.Likes.CREATED_AT, DESC)
                                  .limit(limit);
 
-        return propellerRx.query(query).map(playlistAssociationMapper).toList();
+        return propellerRx.queryResult(query)
+                          .map(result -> result.toList(playlistAssociationMapper));
     }
 }

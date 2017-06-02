@@ -23,7 +23,6 @@ import com.soundcloud.propeller.test.assertions.QueryAssertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,13 +37,11 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     private PlaylistPostStorage storage;
 
-    private TestSubscriber<List<PlaylistAssociation>> subscriber = new TestSubscriber<>();
-
     @Mock private RemovePlaylistCommand removePlaylistCommand;
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlaylistPostStorage(propellerRx(),
+        storage = new PlaylistPostStorage(propellerRxV2(),
                                           new TestDateProvider(),
                                           removePlaylistCommand,
                                           new PlaylistAssociationMapperFactory(providerOf(new NewPlaylistMapper())));
@@ -55,9 +52,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Arrays.asList(playlist2, playlist1));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Arrays.asList(playlist2, playlist1));
     }
 
     @Test
@@ -66,10 +62,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
 
         storage.markPendingRemoval(playlist1.getPlaylist().urn()).subscribe();
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(playlist2));
         databaseAssertions().assertPlaylistInserted(playlist1.getPlaylist().urn());
-        subscriber.assertValue(Collections.singletonList(playlist2));
     }
 
     @Test
@@ -83,9 +78,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrack(playlistUrn, 1);
         testFixtures().insertPlaylistTrack(playlistUrn, 2);
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
+        final List<PlaylistAssociation> result = storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+                                                        .values().get(0);
 
-        final List<PlaylistAssociation> result = subscriber.getOnNextEvents().get(0);
         assertThat(result.get(1).getPlaylist().urn()).isEqualTo(playlistUrn);
         assertThat(result.get(1).getPlaylist().trackCount()).isEqualTo(3);
     }
@@ -94,9 +89,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
     public void shouldAdhereToLimit() throws Exception {
         createPlaylistPostAt(POSTED_DATE_1);
         final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
-        storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.singletonList(playlist2));
+        storage.loadPostedPlaylists(1, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(playlist2));
     }
 
     @Test
@@ -104,9 +98,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist1 = createPlaylistRepostAt(POSTED_DATE_1, POSTED_DATE_1);
         createPlaylistRepostAt(POSTED_DATE_3, POSTED_DATE_1);
 
-        storage.loadPostedPlaylists(2, POSTED_DATE_2.getTime()).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.singletonList(playlist1));
+        storage.loadPostedPlaylists(2, POSTED_DATE_2.getTime()).test()
+               .assertValue(Collections.singletonList(playlist1));
     }
 
     @Test
@@ -121,9 +114,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                                                                         playlistAssociation.getCreatedAt());
 
 
-        storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.singletonList(expected));
+        storage.loadPostedPlaylists(1, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(expected));
     }
 
     @Test
@@ -138,9 +130,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                                                                         playlistAssociation.getCreatedAt());
 
 
-        storage.loadPostedPlaylists(1, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.singletonList(expected));
+        storage.loadPostedPlaylists(1, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(expected));
     }
 
     @Test
@@ -149,9 +140,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation playlist2 = createPlaylistPostAt(POSTED_DATE_2);
         createPlaylistAt(POSTED_DATE_3); // deleted
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Arrays.asList(playlist2, playlist1));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Arrays.asList(playlist2, playlist1));
     }
 
     @Test
@@ -161,9 +151,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         createTrackWithId(9999);
         createPlaylistCollectionWithId(9999, new Date());
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Arrays.asList(playlist2, playlist1));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Arrays.asList(playlist2, playlist1));
     }
 
     @Test
@@ -171,10 +160,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final ApiPlaylist postedPlaylist = insertPlaylistWithRequestedDownload(POSTED_DATE_1,
                                                                                System.currentTimeMillis());
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.REQUESTED)));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.REQUESTED)));
     }
 
     @Test
@@ -183,10 +170,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                                                                              123L,
                                                                              System.currentTimeMillis());
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
     }
 
     @Test
@@ -194,10 +179,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final ApiPlaylist postedPlaylist = insertPlaylistWithUnavailableTrack(POSTED_DATE_1, 123L);
         addCreatorOptOutTrackToPlaylist(postedPlaylist);
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.UNAVAILABLE)));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.UNAVAILABLE)));
     }
 
     @Test
@@ -207,10 +190,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                                                                              System.currentTimeMillis());
         addCreatorOptOutTrackToPlaylist(postedPlaylist);
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(
-                Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Collections.singletonList(createPostedPlaylist(postedPlaylist, OfflineState.DOWNLOADED)));
     }
 
     @Test
@@ -226,9 +207,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
         final PlaylistAssociation requestedPlaylist = createPostedPlaylist(postedPlaylistRequested,
                                                                            OfflineState.REQUESTED);
 
-        storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
-
-        subscriber.assertValue(Arrays.asList(requestedPlaylist, downloadedPlaylist));
+        storage.loadPostedPlaylists(10, Long.MAX_VALUE).test()
+               .assertValue(Arrays.asList(requestedPlaylist, downloadedPlaylist));
     }
 
     @Test

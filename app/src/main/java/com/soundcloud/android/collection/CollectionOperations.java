@@ -4,7 +4,7 @@ import static com.soundcloud.android.events.EventQueue.LIKE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAYLIST_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
 import static com.soundcloud.android.events.EventQueue.URN_STATE_CHANGED;
-import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
+import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE_PREDICATE;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
@@ -22,6 +22,7 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.EntityItemCreator;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -29,11 +30,14 @@ import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Notification;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.Notification;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import android.support.annotation.NonNull;
 
@@ -47,7 +51,7 @@ public class CollectionOperations {
 
     private static final int PLAY_HISTORY_LIMIT = 3;
 
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private final LoadLikedTrackPreviewsCommand loadLikedTrackPreviews;
     private final SyncInitiatorBridge syncInitiator;
@@ -84,7 +88,7 @@ public class CollectionOperations {
         return stations.isOnError() ? Collections.emptyList() : stations.getValue();
     }
 
-    private static final Func1<? super UrnStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = (Func1<UrnStateChangedEvent, Boolean>) event -> {
+    private static final Predicate<? super UrnStateChangedEvent> IS_COLLECTION_CHANGE_FILTER = event -> {
         switch (event.kind()) {
             case ENTITY_CREATED:
             case ENTITY_DELETED:
@@ -97,8 +101,8 @@ public class CollectionOperations {
     };
 
     @Inject
-    CollectionOperations(EventBus eventBus,
-                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+    CollectionOperations(EventBusV2 eventBus,
+                         @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                          LoadLikedTrackPreviewsCommand loadLikedTrackPreviews,
                          SyncInitiatorBridge syncInitiator,
                          StationsOperations stationsOperations,
@@ -130,21 +134,21 @@ public class CollectionOperations {
                 eventBus.queue(PLAYLIST_CHANGED).filter(event -> event.kind() == PlaylistChangedEvent.Kind.PLAYLIST_PUSHED_TO_SERVER).cast(Object.class),
                 eventBus.queue(URN_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(LIKE_CHANGED).cast(Object.class),
-                eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)
+                eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE_PREDICATE)
         );
     }
 
     public Observable<MyCollection> collections() {
         return Observable.zip(
-                myPlaylists().map(toPlaylistsItems()).materialize(),
+                myPlaylists().map(toPlaylistsItems()).toObservable().materialize(),
                 likesItem().materialize(),
-                loadStations().materialize(),
+                loadStations().toObservable().materialize(),
                 playHistoryItems().materialize(),
                 recentlyPlayed().materialize(),
                 (playlists, likes, stations, playHistoryTrackItems, recentlyPlayedItems) -> {
-                    if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()
-                            && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
-                        return Notification.createOnCompleted();
+                    if (playlists.isOnComplete() && likes.isOnComplete() && stations.isOnComplete()
+                            && playHistoryTrackItems.isOnComplete() && recentlyPlayedItems.isOnComplete()) {
+                        return Notification.createOnComplete();
                     }
                     return Notification.createOnNext(myCollection(getLikesPreviews(likes),
                                                                   getPlaylistsPreview(playlists),
@@ -169,7 +173,7 @@ public class CollectionOperations {
         return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
-    public Observable<List<Playlist>> myPlaylists() {
+    public Maybe<List<Playlist>> myPlaylists() {
         return myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL);
     }
 
@@ -193,21 +197,18 @@ public class CollectionOperations {
 
     private Observable<List<LikedTrackPreview>> tracksLiked() {
         return syncInitiator.hasSyncedTrackLikesBefore()
-                            .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
-                                @Override
-                                public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {
-                                    if (hasSynced) {
-                                        return likedTrackPreviews();
-                                    } else {
-                                        return refreshLikesAndLoadPreviews();
-                                    }
+                            .flatMapObservable(hasSynced -> {
+                                if (hasSynced) {
+                                    return likedTrackPreviews();
+                                } else {
+                                    return refreshLikesAndLoadPreviews();
                                 }
                             }).subscribeOn(scheduler);
     }
 
     Observable<MyCollection> updatedCollections() {
         return Observable.zip(
-                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()),
+                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL).map(toPlaylistsItems()).toObservable(),
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                LikesItem::create),
@@ -248,27 +249,28 @@ public class CollectionOperations {
     }
 
     @NonNull
-    private Func1<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
+    private Function<List<Playlist>, List<PlaylistItem>> toPlaylistsItems() {
         return playlists -> Lists.transform(playlists, entityItemCreator::playlistItem);
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
-        return syncInitiator.refreshLikedTracks().flatMap(o -> likedTrackPreviews());
+        return syncInitiator.refreshLikedTracks()
+                            .andThen(likedTrackPreviews());
     }
 
     private Observable<List<LikedTrackPreview>> likedTrackPreviews() {
-        return loadLikedTrackPreviews.toObservable(null).subscribeOn(scheduler);
+        return RxJava.toV2Observable(loadLikedTrackPreviews.toObservable(null)).subscribeOn(scheduler);
     }
 
     private Observable<List<StationRecord>> refreshStationsAndLoad() {
-        return syncStations().flatMap(o -> loadStations());
+        return syncStations().flatMapSingle(__ -> loadStations());
     }
 
     private Observable<SyncJobResult> syncStations() {
         return stationsOperations.syncStations(StationsCollectionsTypes.LIKED);
     }
 
-    private Observable<List<StationRecord>> loadStations() {
+    private Single<List<StationRecord>> loadStations() {
         return stationsOperations.collection(StationsCollectionsTypes.LIKED).toList();
     }
 

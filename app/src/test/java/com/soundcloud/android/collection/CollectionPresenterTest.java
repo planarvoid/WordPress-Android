@@ -15,7 +15,6 @@ import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
-import com.soundcloud.android.collection.playlists.PlaylistOptionsPresenter;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -35,13 +34,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
 
@@ -88,7 +87,6 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private CollectionOperations collectionOperations;
     @Mock private CollectionOptionsStorage collectionOptionsStorage;
-    @Mock private PlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionAdapter adapter;
     @Mock private Fragment fragment;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
@@ -99,8 +97,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PerformanceMetricsEngine performanceMetricEngine;
 
-    private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
-    private TestEventBus eventBus = new TestEventBus();
+    private final Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
@@ -123,8 +121,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPresentPreviewOfLikesAndPlaylistsWithPlayHistoryAndRecentlyPlayed() {
-        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(MY_COLLECTION);
+    public void shouldPresentPreviewOfLikesAndPlaylistsWithPlayHistoryAndRecentlyPlayed() throws Exception {
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.apply(MY_COLLECTION);
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(MY_COLLECTION.getLikes(),
@@ -138,9 +136,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPresentPreviewWhenNoPlayHistory() {
+    public void shouldPresentPreviewWhenNoPlayHistory() throws Exception {
         MyCollection myCollection = MY_COLLECTION_WITHOUT_PLAY_HISTORY;
-        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.apply(myCollection);
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
@@ -154,9 +152,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPresentPreviewWhenNoLikesOrPlaylists() {
+    public void shouldPresentPreviewWhenNoLikesOrPlaylists() throws Exception {
         MyCollection myCollection = MY_COLLECTION_EMPTY;
-        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.apply(myCollection);
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
@@ -177,7 +175,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
 
-        collectionSyncedBus.onNext(null);
+        collectionSyncedBus.onNext(1);
 
         verify(collectionOperations, never()).collections();
     }
@@ -190,7 +188,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
 
-        collectionSyncedBus.onNext(null);
+        collectionSyncedBus.onNext(1);
 
         verify(collectionOperations).collections();
     }
@@ -204,7 +202,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragment, null);
         reset(collectionOperations);
 
-        collectionSyncedBus.onNext(null);
+        collectionSyncedBus.onNext(1);
         verify(collectionOperations, never()).collections();
     }
 
@@ -216,13 +214,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAddOnboardingWhenEnabled() {
+    public void shouldAddOnboardingWhenEnabled() throws Exception {
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 
-        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+        assertThat(presenter.toCollectionItems.apply(MY_COLLECTION)).containsExactly(
                 CollectionItem.OnboardingCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
                         MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
@@ -246,14 +244,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAddOfflineOnboardingWhenEnabled() {
+    public void shouldAddOfflineOnboardingWhenEnabled() throws Exception {
         when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOfflineOnboardingEnabled()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 
-        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+        assertThat(presenter.toCollectionItems.apply(MY_COLLECTION)).containsExactly(
                 CollectionItem.OfflineOnboardingCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
                         MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
@@ -277,14 +275,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAddUpsellWhenEnabledAndOnboardingDisabled() {
+    public void shouldAddUpsellWhenEnabledAndOnboardingDisabled() throws Exception {
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
 
         presenter.onCreate(fragment, null);
 
-        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+        assertThat(presenter.toCollectionItems.apply(MY_COLLECTION)).containsExactly(
                 CollectionItem.UpsellCollectionItem.create(),
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
                         MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
@@ -294,14 +292,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotAddUpsellWhenUpgradeIsUnavailable() {
+    public void shouldNotAddUpsellWhenUpgradeIsUnavailable() throws Exception {
         when(collectionOptionsStorage.isUpsellEnabled()).thenReturn(true);
         when(collectionOptionsStorage.isOnboardingEnabled()).thenReturn(false);
         when(featureOperations.upsellOfflineContent()).thenReturn(false);
 
         presenter.onCreate(fragment, null);
 
-        assertThat(presenter.toCollectionItems.call(MY_COLLECTION)).containsExactly(
+        assertThat(presenter.toCollectionItems.apply(MY_COLLECTION)).containsExactly(
                 PreviewCollectionItem.forLikesPlaylistsAndStations(
                         MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistAndAlbums(), MY_COLLECTION.getPlaylists(), MY_COLLECTION.getAlbums(), MY_COLLECTION.getStations()),
                 RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),

@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.utils.ConnectionHelper;
@@ -196,7 +197,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             return eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
                            .filter(OfflineContentChangedEvent.HAS_LIKED_COLLECTION_CHANGE)
                            .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                           .startWith(offlineStateOperations.loadLikedTracksOfflineState())
+                           .startWith(RxJava.toV1Observable(offlineStateOperations.loadLikedTracksOfflineState()))
                            .observeOn(AndroidSchedulers.mainThread());
         } else {
             return Observable.just(OfflineState.NOT_OFFLINE);

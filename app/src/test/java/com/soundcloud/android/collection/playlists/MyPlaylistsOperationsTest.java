@@ -1,32 +1,29 @@
 package com.soundcloud.android.collection.playlists;
 
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.playlists.PlaylistAssociation;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,12 +32,8 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     private MyPlaylistsOperations operations;
 
     @Mock private SyncInitiatorBridge syncInitiator;
-    @Mock private CollectionOptionsStorage collectionOptionsStorage;
-    @Mock private FeatureFlags featureFlags;
     @Mock private PlaylistLikesStorage playlistLikesStorage;
     @Mock private PlaylistPostStorage playlistPostStorage;
-
-    private TestSubscriber<List<Playlist>> subscriber = new TestSubscriber<>();
 
     private Playlist postedPlaylist1;
     private Playlist postedPlaylist2;
@@ -61,10 +54,10 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
                 syncInitiator,
                 playlistLikesStorage,
                 playlistPostStorage,
-                Schedulers.immediate());
+                Schedulers.trampoline());
 
-        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Observable.just(true));
-        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
+        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Single.just(true));
+        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
 
 
         postedPlaylist1 = getPlaylistItem(Urn.forPlaylist(1L), "apple");
@@ -101,10 +94,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Test
     public void myPlaylistsReturnsPostedPlaylists() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(false).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 album1,
                 postedPlaylist2,
                 postedPlaylist1
@@ -114,10 +106,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Test
     public void myPlaylistsReturnsLikedPlaylists() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(false).showLikes(true).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 likedPlaylist3Offline,
                 likedPlaylist2,
                 likedPlaylist1
@@ -127,10 +118,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Test
     public void myPlaylistsReturnsOnlyAlbums() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().entities(PlaylistsOptions.Entities.ALBUMS).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Collections.singletonList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(singletonList(
                 album1
         ));
     }
@@ -138,10 +128,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Test
     public void myPlaylistsReturnsPostedAndLikedPlaylistsSortedByCreationDate() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
@@ -162,10 +151,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         when(playlistLikesStorage.loadLikedPlaylists(any(Integer.class), eq(Long.MAX_VALUE))).thenReturn(likedPlaylists);
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 album1,
                 likedPlaylist3,
                 likedPlaylist3Offline,
@@ -179,10 +167,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     public void myPlaylistsWithoutFiltersReturnsPostedAndLikedPlaylistsSortedByCreationDate() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(false).showLikes(false).build();
 
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
@@ -197,10 +184,9 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true)
                                                          .sortByTitle(true).build();
 
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(Arrays.asList(
                 postedPlaylist1,
                 postedPlaylist2,
                 likedPlaylist1,
@@ -213,30 +199,29 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
     @Test
     public void myPlaylistsReturnsOfflineOnly() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showOfflineOnly(true).build();
-        operations.myPlaylists(options).subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(singletonList(
+        operations.myPlaylists(options).test()
+                  .assertValueCount(1)
+                  .assertValues(singletonList(
                 likedPlaylist3Offline));
     }
 
     @Test
     public void myPlaylistsSyncsBeforeReturningIfNeverSyncedBefore() throws Exception {
-        final PublishSubject<Void> subject = PublishSubject.create();
+        final CompletableSubject subject = CompletableSubject.create();
         when(syncInitiator.refreshMyPostedAndLikedPlaylists()).thenReturn(subject);
 
-        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Observable.just(false));
+        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Single.just(false));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
 
-        operations.myPlaylists(options).subscribe(subscriber);
+        TestObserver<List<Playlist>> testObserver = operations.myPlaylists(options).test();
 
-        assertThat(subscriber.getOnNextEvents()).isEmpty();
+         testObserver.assertNoValues();
 
-        subject.onNext(null);
+        subject.onComplete();
 
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        testObserver.assertValueCount(1);
+        testObserver.assertValue(Arrays.asList(
                 album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,
@@ -248,19 +233,19 @@ public class MyPlaylistsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void refreshAndLoadPlaylistsReturnsMyPlaylistsAfterSync() throws Exception {
-        final PublishSubject<Void> subject = PublishSubject.create();
+        final CompletableSubject subject = CompletableSubject.create();
         when(syncInitiator.refreshMyPostedAndLikedPlaylists()).thenReturn(subject);
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
-        operations.refreshAndLoadPlaylists(options).subscribe(subscriber);
+        TestObserver testObserver = operations.refreshAndLoadPlaylists(options).test();
 
-        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        testObserver.assertNoValues();
 
-        subject.onNext(null);
+        subject.onComplete();
 
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
 
-        assertThat(subscriber.getOnNextEvents().get(0)).isEqualTo(Arrays.asList(
+        testObserver.assertValue(Arrays.asList(
                 album1,
                 likedPlaylist3Offline,
                 likedPlaylist2,

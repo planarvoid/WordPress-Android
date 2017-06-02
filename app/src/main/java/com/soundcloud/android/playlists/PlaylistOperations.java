@@ -267,7 +267,7 @@ public class PlaylistOperations {
     }
 
     private Observable<List<Playlist>> myPlaylists() {
-        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build());
+        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.builder().showLikes(false).showPosts(true).build()));
     }
 
     private Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {

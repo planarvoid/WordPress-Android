@@ -3,8 +3,10 @@ package com.soundcloud.rx.eventbus;
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.observers.ResourceObserver;
 import io.reactivex.subjects.Subject;
 
 public class DefaultEventBusV2 implements EventBusV2 {
@@ -17,13 +19,17 @@ public class DefaultEventBusV2 implements EventBusV2 {
         this.eventBus = new DefaultEventBus(null);
     }
 
-    @Override
-    public <E> Observer<E> subscribe(Queue<E> queue, Observer<E> observer) {
+    <E> Observer<E> subscribe(Queue<E> queue, Observer<E> observer) {
         return queue(queue).subscribeOn(defaultScheduler).subscribeWith(observer);
     }
 
     @Override
-    public <E> Observer<E> subscribeImmediate(Queue<E> queue, Observer<E> observer) {
+    public <E> Disposable subscribe(Queue<E> queue, ResourceObserver<E> observer) {
+        return queue(queue).subscribeOn(defaultScheduler).subscribeWith(observer);
+    }
+
+    @Override
+    public <E> Disposable subscribeImmediate(Queue<E> queue, ResourceObserver<E> observer) {
         return queue(queue).subscribeWith(observer);
     }
 

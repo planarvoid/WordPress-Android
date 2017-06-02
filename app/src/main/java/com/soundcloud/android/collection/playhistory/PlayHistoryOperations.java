@@ -1,6 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -8,12 +8,15 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.sync.SyncOperations;
-import com.soundcloud.android.sync.SyncOperations.Result;
+import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
-import rx.Observable;
-import rx.Scheduler;
+import com.soundcloud.java.collections.Lists;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,15 +29,15 @@ public class PlayHistoryOperations {
     private final PlaybackInitiator playbackInitiator;
     private final PlayHistoryStorage playHistoryStorage;
     private final Scheduler scheduler;
-    private final SyncOperations syncOperations;
+    private final NewSyncOperations syncOperations;
     private final ClearPlayHistoryCommand clearPlayHistoryCommand;
     private final EntityItemCreator entityItemCreator;
 
     @Inject
     public PlayHistoryOperations(PlaybackInitiator playbackInitiator,
                                  PlayHistoryStorage playHistoryStorage,
-                                 @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                 SyncOperations syncOperations,
+                                 @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
+                                 NewSyncOperations syncOperations,
                                  ClearPlayHistoryCommand clearPlayHistoryCommand,
                                  EntityItemCreator entityItemCreator) {
         this.playbackInitiator = playbackInitiator;
@@ -52,8 +55,8 @@ public class PlayHistoryOperations {
     public Observable<List<TrackItem>> playHistory(final int limit) {
         return syncOperations.lazySyncIfStale(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
-                             .onErrorResumeNext(Observable.just(Result.NO_OP))
-                             .flatMap(o -> tracks(limit));
+                             .onErrorResumeNext(Single.just(SyncResult.noOp()))
+                             .flatMapObservable(__ -> tracks(limit));
     }
 
     Observable<List<TrackItem>> refreshPlayHistory() {
@@ -63,26 +66,26 @@ public class PlayHistoryOperations {
     public Observable<List<TrackItem>> refreshPlayHistory(final int limit) {
         return syncOperations.failSafeSync(Syncable.PLAY_HISTORY)
                              .observeOn(scheduler)
-                             .flatMap(o -> tracks(limit));
+                             .flatMapObservable(__ -> tracks(limit));
     }
 
     private Observable<List<TrackItem>> tracks(int limit) {
-        return playHistoryStorage.loadTracks(limit).map(entityItemCreator::trackItem).toList();
+        return playHistoryStorage.loadTracks(limit)
+                                 .map(tracks -> Lists.transform(tracks, entityItemCreator::trackItem));
     }
 
     public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
-        return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
-                                            PlaySessionSource.forHistory(screen));
+        return RxJava.toV2Observable(playbackInitiator.playTracks(RxJava.toV1Observable(getAllTracksForPlayback()), trackUrn, 0,
+                                            PlaySessionSource.forHistory(screen)));
     }
 
     Observable<Boolean> clearHistory() {
-        return clearPlayHistoryCommand.toObservable(null)
-                                      .subscribeOn(scheduler);
+        return RxJava.toV2Observable(clearPlayHistoryCommand.toObservable(null))
+                                             .subscribeOn(scheduler);
     }
 
     private Observable<List<Urn>> getAllTracksForPlayback() {
         return playHistoryStorage.loadPlayHistoryForPlayback()
-                                 .toList()
                                  .subscribeOn(scheduler);
     }
 }

@@ -52,7 +52,9 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
+import com.soundcloud.rx.eventbus.DefaultEventBusV2;
 import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
@@ -205,6 +207,12 @@ public class ApplicationModule {
     @Singleton
     public EventBus provideEventBus() {
         return new DefaultEventBus(AndroidSchedulers.mainThread());
+    }
+
+    @Provides
+    @Singleton
+    public EventBusV2 provideEventBusV2() {
+        return new DefaultEventBusV2(io.reactivex.android.schedulers.AndroidSchedulers.mainThread());
     }
 
     @Provides

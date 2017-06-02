@@ -2,7 +2,10 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -23,8 +26,8 @@ public class SyncInitiatorBridge {
         fireAndForget(syncInitiator.sync(Syncable.ME));
     }
 
-    public Observable<Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {
-        return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS) &&
+    public Single<Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {
+        return Single.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS) &&
                                        syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES));
     }
 
@@ -32,18 +35,17 @@ public class SyncInitiatorBridge {
         return syncInitiator.sync(Syncable.MY_PLAYLISTS).map(RxUtils.TO_VOID);
     }
 
-    public Observable<Void> refreshMyPostedAndLikedPlaylists() {
-        return syncInitiator.sync(Syncable.MY_PLAYLISTS)
-                            .zipWith(syncInitiator.sync(Syncable.PLAYLIST_LIKES), RxUtils.ZIP_TO_VOID
-                            );
+    public Completable refreshMyPostedAndLikedPlaylists() {
+        return RxJava.toV2Completable(syncInitiator.sync(Syncable.MY_PLAYLISTS))
+                .mergeWith(RxJava.toV2Completable(syncInitiator.sync(Syncable.PLAYLIST_LIKES)));
     }
 
-    public Observable<Boolean> hasSyncedTrackLikesBefore() {
-        return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES));
+    public Single<Boolean> hasSyncedTrackLikesBefore() {
+        return Single.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES));
     }
 
-    public Observable<Void> refreshLikedTracks() {
-        return syncInitiator.sync(Syncable.TRACK_LIKES).map(RxUtils.TO_VOID);
+    public Completable refreshLikedTracks() {
+        return RxJava.toV2Completable(syncInitiator.sync(Syncable.TRACK_LIKES));
     }
 
     public Observable<Void> refreshFollowings() {

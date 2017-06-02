@@ -17,7 +17,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static rx.Observable.just;
 
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -46,11 +45,11 @@ import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
@@ -113,8 +112,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(fragment.getFragmentManager()).thenReturn(fragmentManager);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.NOT_OFFLINE));
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(just(true));
+                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
         when(headerViewFactory.create(any(View.class),
                                       any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
@@ -140,9 +139,9 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(likeOperations.likedTrackUrns()).thenReturn(just(likedTrackUrns));
-        when(playbackInitiator.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
-                .thenReturn(Observable.empty());
+        when(likeOperations.likedTrackUrns()).thenReturn(rx.Observable.just(likedTrackUrns));
+        when(playbackInitiator.playTracksShuffled(any(rx.Observable.class), any(PlaySessionSource.class)))
+                .thenReturn(rx.Observable.empty());
         createAndBindView();
 
         presenter.onShuffle();
@@ -252,7 +251,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.DOWNLOADED));
+                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
         createAndBindView();
 
         verify(headerView).show(OfflineState.DOWNLOADED);
@@ -261,7 +260,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.REQUESTED));
+                .thenReturn(Observable.just(OfflineState.REQUESTED));
         createAndBindView();
 
         verify(headerView).show(OfflineState.REQUESTED);
@@ -270,7 +269,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showsDefaultStateWhenLikedTracksDownloadStateIsNoOffline() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.NOT_OFFLINE));
+                .thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         createAndBindView();
 
         verify(headerView).show(OfflineState.NOT_OFFLINE);
@@ -280,7 +279,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     public void removeDownloadStateWhenOfflineLikedChangeToDisable() {
         final OfflineContentChangedEvent offlineLikesDisabled = removed(true);
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.DOWNLOADED));
+                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
         createAndBindView();
 
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, offlineLikesDisabled);
@@ -309,7 +308,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void disablesLikesSyncingWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.just(null));
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(rx.Observable.just(null));
         createAndBindView();
 
         presenter.onMakeAvailableOffline(false);
@@ -321,7 +320,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showWarningTextWhenPendingDownloadAndWifiOnly() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.REQUESTED));
+                .thenReturn(Observable.just(OfflineState.REQUESTED));
         when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
 
@@ -333,7 +332,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void showWarningTextWhenPendingDownloadAndOffline() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.REQUESTED));
+                .thenReturn(Observable.just(OfflineState.REQUESTED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
 
@@ -343,7 +342,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Test
     public void doNotShowWarningTextForNonPendingStates() {
         when(offlineStateOperations.loadLikedTracksOfflineState())
-                .thenReturn(just(OfflineState.DOWNLOADED));
+                .thenReturn(Observable.just(OfflineState.DOWNLOADED));
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         createAndBindView();
 
@@ -362,7 +361,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineDownloadOptionWhenOfflineLikesDisabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(false));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
         createAndBindView();
 
         verify(headerView).setDownloadedButtonState(false);
@@ -370,7 +369,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void showsOfflineRemovalOptionWhenOfflineTracksEnabled() {
-        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(Observable.just(true));
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
         createAndBindView();
 
         verify(headerView).setDownloadedButtonState(true);
@@ -399,7 +398,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     @Test
     public void sendsTrackingEventWhenRemovingOfflineLikes() {
-        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(Observable.empty());
+        when(offlineContentOperations.disableOfflineLikedTracks()).thenReturn(rx.Observable.empty());
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(false);
         createAndBindView();
 
@@ -421,6 +420,6 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
     private void enableOfflineLikes() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(just(OfflineState.REQUESTED));
+        when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.REQUESTED));
     }
 }

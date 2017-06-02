@@ -2,6 +2,7 @@ package com.soundcloud.android.rx;
 
 import hu.akarnokd.rxjava.interop.RxJavaInterop;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -38,6 +39,10 @@ public final class RxJava {
 
     public static <T> Single<T> toV2Single(rx.Observable<T> sourceObservable) {
         return RxJavaInterop.toV2Single(sourceObservable.toSingle());
+    }
+
+    public static <T> Completable toV2Completable(rx.Observable<T> sourceObservable) {
+        return RxJavaInterop.toV2Completable(sourceObservable.toCompletable());
     }
 
     private RxJava() {}

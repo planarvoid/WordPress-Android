@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -114,9 +115,9 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     }
 
     private Observable<List<StationViewModel>> stationsSource() {
-        return operations.collection(StationsCollectionsTypes.LIKED)
-                         .map(toViewModel)
-                         .toList();
+        return RxJava.toV1Observable(operations.collection(StationsCollectionsTypes.LIKED))
+                     .map(toViewModel)
+                     .toList();
     }
 
     @Override

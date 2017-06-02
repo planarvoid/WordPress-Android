@@ -21,7 +21,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.Playlist;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -30,14 +29,16 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,11 +56,9 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
-    @Mock private FeatureFlags featureFlags;
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment;
 
-    private TestSubscriber<MyCollection> subscriber = new TestSubscriber<>();
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
             LikedTrackPreview.create(Urn.forTrack(1L), "http://image/url1"),
             LikedTrackPreview.create(Urn.forTrack(2L), "http://image/url2")
@@ -92,15 +91,13 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     );
 
 
-    private TestEventBus eventBus;
-    private TestSubscriber<Object> collectionChangedSubscriber = new TestSubscriber<>();
+    private final TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Before
     public void setUp() throws Exception {
-        eventBus = new TestEventBus();
         operations = new CollectionOperations(
                 eventBus,
-                Schedulers.immediate(),
+                Schedulers.trampoline(),
                 loadLikedTrackPreviewsCommand,
                 syncInitiator,
                 stationsOperations,
@@ -114,12 +111,12 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 playlistAndAlbumsPreviewsExperiment);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
-        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
+        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.just(trackPreviews));
+        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
+                .thenReturn(Maybe.just(singletonList(Playlist.from(ModelFixtures.create(ApiPlaylist.class)))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS))
                 .thenReturn(Observable.just(recentlyPlayed));
@@ -127,69 +124,66 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onCollectionChangedWhenTrackLikeEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(1), true, 1));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void onCollectionChangedWhenTrackUnlikeEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forTrack(1), false, 1));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void onCollectionChangedWhenPlaylistLikeEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forPlaylist(1), true, 1));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void onCollectionChangedWhenPlaylistUnlikeEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.create(Urn.forPlaylist(1), true, 1));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void onCollectionChangedWhenPlaylistCreatedEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         final Urn localPlaylist = Urn.newLocalPlaylist();
         eventBus.publish(EventQueue.URN_STATE_CHANGED, UrnStateChangedEvent.fromEntityCreated(localPlaylist));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void onCollectionChangedWhenPlaylistPushedEventFires() {
-        operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
+        TestObserver testObserver = operations.onCollectionChanged().test();
 
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
         eventBus.publish(EventQueue.PLAYLIST_CHANGED, PlaylistEntityChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), Playlist.from(apiPlaylist)));
 
-        assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
+        testObserver.assertValueCount(1);
     }
 
     @Test
     public void collectionsShouldReturnAnErrorWhenAllCollectionsFailedToLoad() {
         final RuntimeException exception = new RuntimeException("Test");
 
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.error(
-                exception));
-
-        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL)).thenReturn(
-                Observable.error(exception));
+        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(rx.Observable.error(exception));
+        when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL)).thenReturn(Maybe.error(exception));
 
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED)).thenReturn(Observable.error(
                 exception));
@@ -200,10 +194,9 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS)).thenReturn(
                 Observable.error(exception));
 
-        operations.collections().subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        MyCollection collection = operations.collections().test()
+                                              .assertValueCount(1)
+                                              .values().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(Collections.emptyList());
         assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
@@ -215,14 +208,13 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final RuntimeException exception = new RuntimeException("Test");
 
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.error(exception));
+                .thenReturn(Maybe.error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Observable.error(exception));
 
-        operations.collections().subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        MyCollection collection = operations.collections().test()
+                                              .assertValueCount(1)
+                                              .values().get(0);
         assertThat(collection.getLikes().trackPreviews()).isEqualTo(trackPreviews);
         assertThat(collection.getPlaylistAndAlbums().get()).isEqualTo(Collections.emptyList());
         assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
@@ -237,12 +229,12 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
         Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.just(Arrays.asList(playlist1, playlist2, album1)));
+                .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 
-        operations.collections().subscribe(subscriber);
+        MyCollection collection = operations.collections().test()
+                                              .assertValueCount(1)
+                                              .values().get(0);
 
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        MyCollection collection = subscriber.getOnNextEvents().get(0);
         assertThat(collection.getPlaylistAndAlbums().isPresent()).isFalse();
         assertThat(collection.getPlaylists().isPresent()).isTrue();
         assertThat(collection.getAlbums().isPresent()).isTrue();
@@ -258,12 +250,11 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
         Playlist album1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(true).build();
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
-                .thenReturn(Observable.just(Arrays.asList(playlist1, playlist2, album1)));
+                .thenReturn(Maybe.just(Arrays.asList(playlist1, playlist2, album1)));
 
-        operations.collections().subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        MyCollection collection = operations.collections().test()
+                                              .assertValueCount(1)
+                                              .values().get(0);
         assertThat(collection.getPlaylistAndAlbums().isPresent()).isTrue();
         assertThat(collection.getPlaylists().isPresent()).isFalse();
         assertThat(collection.getAlbums().isPresent()).isFalse();
@@ -272,19 +263,22 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void collectionsSyncsBeforeReturningIfNeverSyncedBefore() throws Exception {
-        final PublishSubject<Void> subject = PublishSubject.create();
+        CompletableSubject subject = CompletableSubject.create();
 
         when(syncInitiator.refreshLikedTracks()).thenReturn(subject);
-        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(false));
+        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Single.just(false));
 
-        operations.collections().subscribe(subscriber);
+        TestObserver<MyCollection> testObserver = operations.collections().test();
 
-        assertThat(subscriber.getOnNextEvents()).isEmpty();
+        testObserver.assertNoValues();
 
-        subject.onNext(null);
+        subject.onComplete();
 
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikes().trackPreviews()).isEqualTo(trackPreviews);
+        List<LikedTrackPreview> previews = testObserver.assertValueCount(1)
+                                                                 .values().get(0)
+                                                                 .getLikes()
+                                                                 .trackPreviews();
+        assertThat(previews).isEqualTo(trackPreviews);
     }
 
 }

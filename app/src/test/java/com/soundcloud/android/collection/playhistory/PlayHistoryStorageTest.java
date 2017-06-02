@@ -23,15 +23,13 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadTracksReturnsTracksSortedInReverseTimestampOrder()  {
+    public void loadTracksReturnsTracksSortedInReverseTimestampOrder() {
         final Track expected1 = insertTrackWithPlayHistory(1000L);
         final Track expected2 = insertTrackWithPlayHistory(2000L);
 
-        final List<Track> tracks = storage.loadTracks(10).toList().toBlocking().single();
-
-        assertThat(tracks.size()).isEqualTo(2);
-        assertSameTrack(expected2, tracks.get(0));
-        assertSameTrack(expected1, tracks.get(1));
+        storage.loadTracks(10).test()
+               .assertValueCount(1)
+               .assertValues(Arrays.asList(expected2, expected1));
     }
 
     @Test
@@ -45,12 +43,9 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         insertPlayHistory(track2.urn(), 1500L);
         insertPlayHistory(track1.urn(), 2500L);
 
-        final List<Track> tracks = storage.loadTracks(10).toList().toBlocking().single();
-
-        assertThat(tracks.size()).isEqualTo(3);
-        assertSameTrack(track3, tracks.get(0));
-        assertSameTrack(track1, tracks.get(1));
-        assertSameTrack(track2, tracks.get(2));
+        storage.loadTracks(10).test()
+               .assertValueCount(1)
+               .assertValues(Arrays.asList(track3, track1, track2));
     }
 
     @Test
@@ -58,7 +53,9 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         final Track expected = insertTrackWithPlayHistory(1000L);
         testFixtures().insertCompletedTrackDownload(expected.urn(), 1000L, 2000L);
 
-        final Track actual = storage.loadTracks(10).first().toBlocking().single();
+        Track actual = storage.loadTracks(10).firstOrError().test()
+                              .assertValueCount(1)
+                              .values().get(0).get(0);
 
         assertThat(actual.offlineState()).isEqualTo(OfflineState.DOWNLOADED);
     }
@@ -67,7 +64,7 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
     public void loadTracksReturnsTracks() {
         final Track expected = insertTrackWithPlayHistory(1000L);
 
-        Track actual = storage.loadTracks(10).first().toBlocking().single();
+        Track actual = storage.loadTracks(10).firstOrError().test().values().get(0).get(0);
 
         assertSameTrack(expected, actual);
     }
@@ -121,7 +118,9 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
         storage.removePlayHistory(Collections.singletonList(
                 PlayHistoryRecord.create(2000L, trackItem1.urn(), Urn.NOT_SET)));
 
-        final List<Track> existingTracks = storage.loadTracks(10).toList().toBlocking().single();
+        final List<Track> existingTracks = storage.loadTracks(10).test()
+                                                  .assertValueCount(1)
+                                                  .values().get(0);
 
         assertThat(existingTracks.size()).isEqualTo(1);
         assertSameTrack(trackItem2, existingTracks.get(0));
@@ -145,9 +144,9 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
         insertPlayHistory(urn1, 3000L);
 
-        final List<Urn> urns = storage.loadPlayHistoryForPlayback().toList().toBlocking().single();
-
-        assertThat(urns).containsExactly(urn1, urn2);
+        storage.loadPlayHistoryForPlayback().test()
+               .assertValueCount(1)
+               .assertValues(Arrays.asList(urn1, urn2));
     }
 
     @Test
@@ -158,9 +157,9 @@ public class PlayHistoryStorageTest extends StorageIntegrationTest {
 
         insertPlayHistory(urn3, 4000L);
 
-        final List<Urn> urns = storage.loadPlayHistoryForPlayback().toList().toBlocking().single();
-
-        assertThat(urns).containsExactly(urn2, urn1);
+        storage.loadPlayHistoryForPlayback().test()
+               .assertValueCount(1)
+               .assertValues(Arrays.asList(urn2, urn1));
     }
 
     @Test

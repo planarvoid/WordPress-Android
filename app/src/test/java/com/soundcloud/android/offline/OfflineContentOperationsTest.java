@@ -27,6 +27,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.Maybe;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -134,7 +135,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
 
@@ -155,7 +156,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 .build();
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(expectedContent));
         when(loadOfflineContentUpdatesCommand.toObservable(expectedContent)).thenReturn(Observable.just(updates));
 
@@ -173,7 +174,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final OfflineContentUpdates offlineContentUpdates = mock(OfflineContentUpdates.class);
 
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.just(Collections.emptyList()));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
         when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
                 offlineContentUpdates));
@@ -189,8 +190,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlist2 = Urn.forPlaylist(456L);
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
         when(offlineContentStorage.addLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
-        when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1),
-                                                                                          createPlaylistItem(playlist2))));
+        when(collectionOperations.myPlaylists()).thenReturn(Maybe.just(Arrays.asList(createPlaylistItem(playlist1),
+                                                                                     createPlaylistItem(playlist2))));
         when(offlineContentStorage.resetOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
         final PublishSubject<Void> refreshSubject = PublishSubject.create();
         when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(refreshSubject);
@@ -302,7 +303,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     public void clearOfflineContentStartsService() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
 
         operations.clearOfflineContent().subscribe();
 
@@ -314,7 +315,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         OfflineContentLocation location = OfflineContentLocation.DEVICE_STORAGE;
         List<Urn> reset = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(resetOfflineContentCommand.toObservable(location)).thenReturn(Observable.just(reset));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
 
         operations.resetOfflineContent(location).subscribe();
 
@@ -325,7 +326,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     public void resetOfflineFeature() {
         List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
         when(clearOfflineContentCommand.toObservable(null)).thenReturn(Observable.just(removed));
-        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
+        when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(io.reactivex.Observable.just(true));
 
         operations.disableOfflineFeature().subscribe();
 

@@ -65,6 +65,7 @@ public class StationsOperationsTest extends AndroidUnitTest {
                 storeStationCommand,
                 syncInitiator,
                 Schedulers.immediate(),
+                io.reactivex.schedulers.Schedulers.trampoline(),
                 eventBus,
                 trackRepository);
 

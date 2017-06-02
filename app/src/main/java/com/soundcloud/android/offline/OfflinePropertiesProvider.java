@@ -11,6 +11,7 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -98,7 +99,7 @@ public class OfflinePropertiesProvider {
     }
 
     private Observable<Map<Urn, OfflineState>> loadPlaylistCollectionOfflineStates() {
-        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY)
+        return RxJava.toV1Observable(myPlaylistsOperations.myPlaylists(PlaylistsOptions.OFFLINE_ONLY))
                                     .map(this::loadPlaylistsOfflineStatesSync);
     }
 
@@ -142,6 +143,10 @@ public class OfflinePropertiesProvider {
 
     public Observable<OfflineProperties> states() {
         return subject.asObservable();
+    }
+
+    public io.reactivex.Observable<OfflineProperties> statesV2() {
+        return RxJava.toV2Observable(subject.asObservable());
     }
 
 }

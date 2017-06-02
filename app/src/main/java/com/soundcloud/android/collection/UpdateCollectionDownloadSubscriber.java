@@ -1,9 +1,9 @@
 package com.soundcloud.android.collection;
 
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 
-class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
+class UpdateCollectionDownloadSubscriber extends DefaultObserver<OfflineContentChangedEvent> {
 
     private final CollectionAdapter adapter;
 
