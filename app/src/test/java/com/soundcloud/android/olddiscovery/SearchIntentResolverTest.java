@@ -44,7 +44,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldResolvePlayFromSearch() {
+    public void shouldResolvePlayFromSearch() throws Exception {
         intent.setAction(SearchIntentResolver.ACTION_PLAY_FROM_SEARCH);
         intent.putExtra(SearchManager.QUERY, SEARCH_QUERY);
 
@@ -54,7 +54,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldResolveActionSearch() {
+    public void shouldResolveActionSearch() throws Exception {
         intent.setAction(Intent.ACTION_SEARCH);
         intent.putExtra(SearchManager.QUERY, SEARCH_QUERY);
 
@@ -64,7 +64,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldInterceptSearchUrlWithQueryParam() {
+    public void shouldInterceptSearchUrlWithQueryParam() throws Exception {
         intent.setData(Uri.parse("https://soundcloud.com/search/people?q=" + SEARCH_QUERY));
 
         intentResolver.handle(activity(), intent);
@@ -73,7 +73,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchSystemSearch() {
+    public void shouldLaunchSystemSearch() throws Exception {
         when(referrerResolver.getReferrerFromIntent(eq(intent), any())).thenReturn(Referrer.STREAM_NOTIFICATION.value());
         final Uri uri = Content.TRACK.uri;
         intent.setAction(Intent.ACTION_VIEW);
@@ -90,7 +90,7 @@ public class SearchIntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackScreen() {
+    public void shouldTrackScreen() throws Exception {
         intentResolver.handle(activity(), intent);
 
         verify(tracker).trackMainScreenEvent();

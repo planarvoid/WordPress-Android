@@ -5,6 +5,7 @@ import static com.soundcloud.android.discovery.DiscoveryTrackingManager.SCREEN;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -13,6 +14,7 @@ import com.soundcloud.android.search.SearchItemRenderer.SearchListener;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
@@ -77,7 +79,12 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryCard>, Disc
     }
 
     private void selectionItemClick(Activity activity, SelectionItem selectionItem) {
-        selectionItem.link().ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(activity, link, selectionItem.webLink(), SCREEN)));
+        selectionItem.link()
+                     .ifPresent(link -> navigator.navigateTo(NavigationTarget.forNavigation(activity,
+                                                                                            link,
+                                                                                            selectionItem.webLink(),
+                                                                                            SCREEN,
+                                                                                            Optional.of(DiscoverySource.RECOMMENDATIONS)))); // TODO (REC-1302): Use correct one))));
     }
 
     @Override

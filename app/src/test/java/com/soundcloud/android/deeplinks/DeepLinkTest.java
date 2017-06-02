@@ -213,6 +213,23 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldHandleStationDeeplinks() throws Exception {
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/artist/123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/artist/123");
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/artist/soundcloud:users:123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/artist/soundcloud:users:123");
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/artist/soundcloud:artist-stations:123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/artist/soundcloud:artist-stations:123");
+
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/track/123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/track/123");
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/track/soundcloud:tracks:123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/track/soundcloud:tracks:123");
+        assertDeeplink(DeepLink.STATION, "https://soundcloud.com/stations/track/soundcloud:track-stations:123");
+        assertDeeplink(DeepLink.STATION, "soundcloud://stations/track/soundcloud:track-stations:123");
+    }
+
+    @Test
     public void shouldHandleTheUploadDeeplinks() throws Exception {
         assertDeeplink(DeepLink.THE_UPLOAD, "soundcloud://discover/new-tracks-for-you");
         assertDeeplink(DeepLink.THE_UPLOAD, "https://soundcloud.com/discover/new-tracks-for-you");

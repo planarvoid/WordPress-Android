@@ -22,7 +22,7 @@ public class ChartsUriResolverTest extends AndroidUnitTest {
         chartsUriResolver = new ChartsUriResolver(context(), resources());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = UriResolveException.class)
     public void resolveInvalidUriThrows() throws Exception {
         chartsUriResolver.resolveUri(Uri.parse("asdfasdfasdfasdf"));
     }

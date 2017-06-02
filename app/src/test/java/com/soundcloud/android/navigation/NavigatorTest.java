@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
@@ -56,7 +57,7 @@ public class NavigatorTest {
     @Test
     public void callsNavigationActions() throws Exception {
         Action action = mock(Action.class);
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER);
+        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, action)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(feedbackController));
@@ -72,7 +73,7 @@ public class NavigatorTest {
     public void doesNotCrashDuringActionExecution() throws Exception {
         Action action = mock(Action.class);
         doThrow(new ActivityNotFoundException("Test")).when(action).run();
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER);
+        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.just(NavigationResult.create(target, action)));
 
         navigator.listenToNavigation().subscribeWith(new Navigator.Observer(feedbackController));
@@ -88,7 +89,7 @@ public class NavigatorTest {
 
     @Test
     public void crashesOnResolverError() throws Exception {
-        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER);
+        NavigationTarget target = NavigationTarget.forNavigation(activity, "target", Optional.absent(), Screen.DISCOVER, Optional.of(DiscoverySource.RECOMMENDATIONS));
         IOException exception = new IOException();
         when(navigationResolver.resolveNavigationResult(any())).thenReturn(Single.error(exception));
 

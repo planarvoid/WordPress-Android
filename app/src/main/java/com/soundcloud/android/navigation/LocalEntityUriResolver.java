@@ -1,6 +1,7 @@
 package com.soundcloud.android.navigation;
 
 import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnCollection;
 import com.soundcloud.android.model.UrnNamespace;
@@ -24,31 +25,35 @@ class LocalEntityUriResolver {
     private static final EnumSet<UrnCollection> URI_LOCALLY_SUPPORTED_ENTITIES = EnumSet.of(UrnCollection.TRACKS,
                                                                                             UrnCollection.PLAYLISTS,
                                                                                             UrnCollection.USERS,
-                                                                                            UrnCollection.SYSTEM_PLAYLIST);
+                                                                                            UrnCollection.SYSTEM_PLAYLIST,
+                                                                                            UrnCollection.ARTIST_STATIONS,
+                                                                                            UrnCollection.TRACK_STATIONS);
 
     @Inject
     LocalEntityUriResolver() {
     }
 
-    Single<Urn> resolve(String identifier) {
-        Optional<String> path = extractPath(identifier);
-        Preconditions.checkState(path.isPresent(), "canResolveLocally should be called before to verify the URN can be extracted");
-
-        return path.transform(pathToMatch -> {
-            final Matcher pathMatcher = URI_PATH_PATTERN.matcher(pathToMatch);
-            Preconditions.checkState(pathMatcher.matches(), "canResolveLocally should be called before to verify the URN can be extracted");
-            final String entity = pathMatcher.group(1);
-            final String pathId = pathMatcher.group(2);
-            final Urn urn;
-            if (URI_ID_PATTERN.matcher(pathId).matches()) {
-                urn = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.from(entity), Long.valueOf(pathId));
-            } else if (pathId.startsWith(UrnNamespace.SOUNDCLOUD.value())){
-                urn = new Urn(pathId);
-            } else {
-                urn = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.from(entity), pathId);
-            }
-            return Single.just(urn);
-        }).get();
+    Single<Urn> resolve(String identifier) throws UriResolveException {
+        try {
+            Optional<String> path = extractPath(identifier);
+            return path.transform(pathToMatch -> {
+                final Matcher pathMatcher = URI_PATH_PATTERN.matcher(pathToMatch);
+                Preconditions.checkState(pathMatcher.matches(), "canResolveLocally should be called before to verify the URN can be extracted");
+                final String entity = pathMatcher.group(1);
+                final String pathId = pathMatcher.group(2);
+                final Urn urn;
+                if (URI_ID_PATTERN.matcher(pathId).matches()) {
+                    urn = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.from(entity), Long.valueOf(pathId));
+                } else if (pathId.startsWith(UrnNamespace.SOUNDCLOUD.value())) {
+                    urn = new Urn(pathId);
+                } else {
+                    urn = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.from(entity), pathId);
+                }
+                return Single.just(urn);
+            }).get();
+        } catch (Exception e) {
+            throw new UriResolveException("LocalEntity uri " + identifier + " could not be resolved. Did you check before with #canResolveLocally?", e);
+        }
     }
 
     boolean canResolveLocally(String identifier) {

@@ -29,13 +29,17 @@ public class ChartsUriResolver {
         this.resources = resources;
     }
 
-    public ChartDetails resolveUri(Uri uri) {
-        if (DeepLink.isWebScheme(uri)) {
-            return getChartDetailsFromWebScheme(uri);
-        } else if (DeepLink.isHierarchicalSoundCloudScheme(uri)) {
-            return getChartDetailsFromSoundCloudScheme(uri);
-        } else {
-            throw new IllegalArgumentException("Invalid schema for charts deeplink");
+    public ChartDetails resolveUri(Uri uri) throws UriResolveException {
+        try {
+            if (DeepLink.isWebScheme(uri)) {
+                return getChartDetailsFromWebScheme(uri);
+            } else if (DeepLink.isHierarchicalSoundCloudScheme(uri)) {
+                return getChartDetailsFromSoundCloudScheme(uri);
+            } else {
+                throw new IllegalArgumentException("Invalid schema for charts deeplink");
+            }
+        } catch (Exception e) {
+            throw new UriResolveException("Charts Uri " + uri + " could not be resolved", e);
         }
     }
 

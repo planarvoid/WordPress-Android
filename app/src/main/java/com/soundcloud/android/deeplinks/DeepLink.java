@@ -19,6 +19,7 @@ public enum DeepLink {
     RECORD,
     THE_UPLOAD,
     WEB_VIEW,
+    STATION,
     ENTITY,
     SOUNDCLOUD_GO_PLUS_UPSELL,
     SOUNDCLOUD_GO_BUY,
@@ -58,6 +59,7 @@ public enum DeepLink {
                        RECORD,
                        THE_UPLOAD,
                        ENTITY,
+                       STATION,
                        TRACK_ENTITY,
                        PLAYLIST_ENTITY,
                        SYSTEM_PLAYLIST_ENTITY,
@@ -179,6 +181,11 @@ public enum DeepLink {
                 return RECORD;
             case "the-upload":
                 return THE_UPLOAD;
+            case "stations":
+                if (isStationsUrl("/stations" + uri.getPath())) {
+                    return STATION;
+                }
+                return ENTITY;
             case "soundcloudgo":
             case "go":
             case "ht_modal":
@@ -308,6 +315,8 @@ public enum DeepLink {
                     return REMOTE_SIGN_IN;
                 } else if (isChartsUrl(uri)) {
                     return CHARTS;
+                } else if (isStationsUrl(uri.getPath())) {
+                    return STATION;
                 } else if (isWebViewUrl(uri)) {
                     return WEB_VIEW;
                 } else {
@@ -318,7 +327,11 @@ public enum DeepLink {
 
     private static boolean isRemoteSignIn(Uri uri) {
         List<String> segments = uri.getPathSegments();
-        return segments != null && segments.size() > 0 && segments.get(0).equals("activate");
+        return segments != null && !segments.isEmpty() && segments.get(0).equals("activate");
+    }
+
+    private static boolean isStationsUrl(String path) {
+        return path.startsWith("/stations/track/") || path.startsWith("/stations/artist/");
     }
 
     private static boolean isChartsUrl(Uri uri) {

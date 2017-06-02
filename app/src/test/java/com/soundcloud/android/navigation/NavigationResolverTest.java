@@ -33,11 +33,15 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.olddiscovery.charts.Chart;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSingleObserver;
+import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.Assertions;
@@ -62,6 +66,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     private static final Screen DEEPLINK_SCREEN = Screen.DEEPLINK;
 
     private LocalEntityUriResolver localEntityUriResolver = new LocalEntityUriResolver();
+    private StationsUriResolver stationsUriResolver = new StationsUriResolver();
     @Mock private ResolveOperations resolveOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackInitiator playbackInitiator;
@@ -73,6 +78,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
     @Mock private SignInOperations signInOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaybackServiceController playbackServiceController;
+    @Mock private StartStationHandler startStationHandler;
+    @Mock private ApplicationProperties applicationProperties;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
 
     private NavigationResolver resolver;
@@ -91,7 +98,8 @@ public class NavigationResolverTest extends AndroidUnitTest {
                                           featureOperations,
                                           chartsUriResolver,
                                           signInOperations,
-                                          () -> expandPlayerSubscriber);
+                                          startStationHandler,
+                                          stationsUriResolver,applicationProperties,() -> expandPlayerSubscriber);
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
@@ -102,7 +110,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     // For Deeplink
 
     @Test
-    public void deeplink_shouldLaunchSoundStreamIfUriBlank() {
+    public void deeplink_shouldLaunchSoundStreamIfUriBlank() throws Exception {
         NavigationTarget navigationTarget = getTargetForDeeplink("");
 
         resolveTarget(navigationTarget);
@@ -111,7 +119,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchSoundStreamIfUriNull() {
+    public void deeplink_shouldLaunchSoundStreamIfUriNull() throws Exception {
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
         resolveTarget(navigationTarget);
@@ -120,7 +128,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() {
+    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() throws Exception {
         String target = "soundcloud:tracks:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -131,7 +139,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldResolveLocallyAndLaunchPlayer() {
+    public void deeplink_shouldResolveLocallyAndLaunchPlayer() throws Exception {
         NavigationTarget navigationTarget = getTargetForDeeplink("soundcloud://tracks:123");
 
         resolveTarget(navigationTarget);
@@ -141,7 +149,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldConvertOpaqueUriWithAdjustReftagQueryParamToHierarchicalAndLaunchPlayer() {
+    public void deeplink_shouldConvertOpaqueUriWithAdjustReftagQueryParamToHierarchicalAndLaunchPlayer() throws Exception {
         String target = "soundcloud:tracks:123?adjust_reftag=c6vlQZj4w9FOi";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -207,7 +215,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchPlaylistDetails() {
+    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchPlaylistDetails() throws Exception {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -229,7 +237,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchUserProfile() {
+    public void deeplink_shouldConvertOpaqueUriToHierarchicalAndLaunchUserProfile() throws Exception {
         String target = "soundcloud:users:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -251,7 +259,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldTrackForegroundEventsWithResources() {
+    public void deeplink_shouldTrackForegroundEventsWithResources() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.TWITTER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -269,7 +277,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldTrackForegroundEventsWithResourcesOnPlaybackFailed() {
+    public void deeplink_shouldTrackForegroundEventsWithResourcesOnPlaybackFailed() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.TWITTER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -287,7 +295,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() {
+    public void deeplink_shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.FACEBOOK);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -306,7 +314,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldTrackForegroundEventsWithoutResourcesForHome() {
+    public void deeplink_shouldTrackForegroundEventsWithoutResourcesForHome() throws Exception {
         NavigationTarget navigationTarget = getTargetForDeeplink(null);
 
         resolveTarget(navigationTarget);
@@ -316,7 +324,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLoginCrawler() {
+    public void deeplink_shouldLoginCrawler() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -331,7 +339,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() {
+    public void deeplink_shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -351,7 +359,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchSearchForWebScheme() {
+    public void deeplink_shouldLaunchSearchForWebScheme() throws Exception {
         String target = "https://soundcloud.com/search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -363,7 +371,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchSearchForSoundCloudScheme() {
+    public void deeplink_shouldLaunchSearchForSoundCloudScheme() throws Exception {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -375,7 +383,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchSearchForLoggedOutUsers() {
+    public void deeplink_shouldNotLaunchSearchForLoggedOutUsers() throws Exception {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
@@ -388,7 +396,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchSearchForCrawlers() {
+    public void deeplink_shouldLaunchSearchForCrawlers() throws Exception {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
@@ -400,7 +408,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchRecordForWebScheme() {
+    public void deeplink_shouldLaunchRecordForWebScheme() throws Exception {
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -411,7 +419,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithUpload() {
+    public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -422,7 +430,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithRecord() {
+    public void deeplink_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -433,7 +441,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchRecordForLoggedOutUsers() {
+    public void deeplink_shouldNotLaunchRecordForLoggedOutUsers() throws Exception {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -445,7 +453,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchRecordForCrawlers() {
+    public void deeplink_shouldLaunchRecordForCrawlers() throws Exception {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target, Referrer.GOOGLE_CRAWLER);
 
@@ -457,7 +465,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchUpgradeForSoundCloudScheme() {
+    public void deeplink_shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -469,7 +477,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() {
+    public void deeplink_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -481,7 +489,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -495,7 +503,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() {
+    public void deeplink_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -509,7 +517,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchMidTierCheckoutForFreeUserWithSoundCloudScheme() {
+    public void deeplink_shouldLaunchMidTierCheckoutForFreeUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgo";
@@ -522,7 +530,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchMidTierCheckout() {
+    public void deeplink_shouldNotLaunchMidTierCheckout() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgo";
@@ -535,7 +543,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+    public void deeplink_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -549,7 +557,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchHighTierCheckoutForMidTierUserWithSoundCloudScheme() {
+    public void deeplink_shouldLaunchHighTierCheckoutForMidTierUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -562,7 +570,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchHighTierCheckoutForFreeUserWithSoundCloudScheme() {
+    public void deeplink_shouldLaunchHighTierCheckoutForFreeUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -575,7 +583,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchHighTierCheckout() {
+    public void deeplink_shouldNotLaunchHighTierCheckout() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -588,7 +596,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() {
+    public void deeplink_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -602,7 +610,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchProductChoiceForMidTierUpsell() {
+    public void deeplink_shouldLaunchProductChoiceForMidTierUpsell() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
@@ -615,7 +623,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchProductChoiceForHighTierUpsell() {
+    public void deeplink_shouldLaunchProductChoiceForHighTierUpsell() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://soundcloudgo/soundcloudgoplus";
@@ -628,7 +636,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchProductChoice() {
+    public void deeplink_shouldNotLaunchProductChoice() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
@@ -641,7 +649,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchOfflineSettingsForSoundCloudScheme() {
+    public void deeplink_shouldLaunchOfflineSettingsForSoundCloudScheme() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -653,7 +661,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() {
+    public void deeplink_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -665,7 +673,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchNotificationPreferences() {
+    public void deeplink_shouldLaunchNotificationPreferences() throws Exception {
         String target = "soundcloud://notification_preferences";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -676,7 +684,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldLaunchCollection() {
+    public void deeplink_shouldLaunchCollection() throws Exception {
         String target = "soundcloud://collection";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -687,7 +695,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenDiscoverFromWebLink() {
+    public void deeplink_shouldOpenDiscoverFromWebLink() throws Exception {
         String target = "https://soundcloud.com/discover";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -697,7 +705,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenDiscoveryFromUri() {
+    public void deeplink_shouldOpenDiscoveryFromUri() throws Exception {
         String target = "soundcloud://discovery";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
 
@@ -707,7 +715,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenChartsFromWebLink() {
+    public void deeplink_shouldOpenChartsFromWebLink() throws Exception {
         String target = "https://soundcloud.com/charts/top?genre=all";
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -722,7 +730,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenChartsFromUri() {
+    public void deeplink_shouldOpenChartsFromUri() throws Exception {
         String target = "soundcloud://charts:top:all";
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -737,7 +745,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenWebViewWithStateParameter() {
+    public void deeplink_shouldOpenWebViewWithStateParameter() throws Exception {
         Uri fakeUri = Uri.parse("http://foo.com");
         when(signInOperations.generateRemoteSignInUri("/activate/something")).thenReturn(fakeUri);
         String target = "http://soundcloud.com/activate/something";
@@ -749,7 +757,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deeplink_shouldOpenWebViewWithoutStateParameter() {
+    public void deeplink_shouldOpenWebViewWithoutStateParameter() throws Exception {
         Uri fakeUri = Uri.parse("http://foo.com");
         when(signInOperations.generateRemoteSignInUri()).thenReturn(fakeUri);
         String target = "soundcloud://remote-sign-in";
@@ -801,6 +809,27 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void deeplink_shouldOpenStationArtist() throws Exception {
+        String target = "soundcloud://stations/artist/123";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forArtistStation(123L), DiscoverySource.DEEPLINK);
+    }
+
+    @Test
+    public void deeplink_shouldOpenStationTrack() throws Exception {
+        String target = "soundcloud://stations/track/123";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forTrackStation(123L), DiscoverySource.DEEPLINK);
+    }
+    @Test
     public void deeplink_shouldGoToTheUpload() throws Exception {
         String target = "soundcloud://the-upload";
         NavigationTarget navigationTarget = getTargetForDeeplink(target);
@@ -812,10 +841,33 @@ public class NavigationResolverTest extends AndroidUnitTest {
         verify(navigationExecutor).openNewForYou(navigationTarget.activity());
     }
 
+    @Test
+    public void deeplink_shouldOpenStationArtistLocally() throws Exception {
+        String target = "soundcloud:artist-stations:123";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forArtistStation(123L), DiscoverySource.DEEPLINK);
+    }
+
+    @Test
+    public void deeplink_shouldOpenStationTrackLocally() throws Exception {
+        String target = "soundcloud:track-stations:123";
+        NavigationTarget navigationTarget = getTargetForDeeplink(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forTrackStation(123L), DiscoverySource.DEEPLINK);
+    }
+
+
     // For Navigation
 
     @Test
-    public void navigation_shouldLaunchSoundStreamIfUriBlank() {
+    public void navigation_shouldLaunchSoundStreamIfUriBlank() throws Exception {
         NavigationTarget navigationTarget = getTargetForNavigation("");
 
         resolveTarget(navigationTarget);
@@ -824,7 +876,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchSoundStreamIfUriNull() {
+    public void navigation_shouldLaunchSoundStreamIfUriNull() throws Exception {
         NavigationTarget navigationTarget = getTargetForNavigation(null);
 
         resolveTarget(navigationTarget);
@@ -833,7 +885,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() {
+    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchPlayer() throws Exception {
         String target = "soundcloud:tracks:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -844,7 +896,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldResolveLocallyAndLaunchPlayer() {
+    public void navigation_shouldResolveLocallyAndLaunchPlayer() throws Exception {
         NavigationTarget navigationTarget = getTargetForNavigation("soundcloud://tracks:123");
 
         resolveTarget(navigationTarget);
@@ -854,7 +906,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldConvertOpaqueUriWithAdjustReftagQueryParamToHierarchicalAndLaunchPlayer() {
+    public void navigation_shouldConvertOpaqueUriWithAdjustReftagQueryParamToHierarchicalAndLaunchPlayer() throws Exception {
         String target = "soundcloud:tracks:123?adjust_reftag=c6vlQZj4w9FOi";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -923,7 +975,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchPlaylistDetails() {
+    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchPlaylistDetails() throws Exception {
         String target = "soundcloud:playlists:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -945,7 +997,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchUserProfile() {
+    public void navigation_shouldConvertOpaqueUriToHierarchicalAndLaunchUserProfile() throws Exception {
         String target = "soundcloud:users:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -967,7 +1019,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() {
+    public void navigation_shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() throws Exception {
         String target = "soundcloud://sounds:123";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(resolveOperations.resolve(target)).thenReturn(Single.just(RESULT_TRACK));
@@ -979,7 +1031,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchSearchForWebScheme() {
+    public void navigation_shouldLaunchSearchForWebScheme() throws Exception {
         String target = "https://soundcloud.com/search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -991,7 +1043,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchSearchForSoundCloudScheme() {
+    public void navigation_shouldLaunchSearchForSoundCloudScheme() throws Exception {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1003,7 +1055,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchSearchForLoggedOutUsers() {
+    public void navigation_shouldNotLaunchSearchForLoggedOutUsers() throws Exception {
         String target = "soundcloud://search?q=skrillex";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
@@ -1016,7 +1068,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchRecordForWebScheme() {
+    public void navigation_shouldLaunchRecordForWebScheme() throws Exception {
         String target = "https://soundcloud.com/upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1027,7 +1079,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchRecordForSoundCloudSchemeWithUpload() {
+    public void navigation_shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
         String target = "soundcloud://upload";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1038,7 +1090,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchRecordForSoundCloudSchemeWithRecord() {
+    public void navigation_shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1049,7 +1101,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchRecordForLoggedOutUsers() {
+    public void navigation_shouldNotLaunchRecordForLoggedOutUsers() throws Exception {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         String target = "soundcloud://record";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1061,7 +1113,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchUpgradeForSoundCloudScheme() {
+    public void navigation_shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1073,7 +1125,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() {
+    public void navigation_shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1085,7 +1137,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+    public void navigation_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1099,7 +1151,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() {
+    public void navigation_shouldNotLaunchMidTierCheckoutIfUserAlreadyHasAMidTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         String target = "soundcloud://buysoundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1113,7 +1165,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchMidTierCheckoutForFreeUserWithSoundCloudScheme() {
+    public void navigation_shouldLaunchMidTierCheckoutForFreeUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgo";
@@ -1126,7 +1178,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchMidTierCheckout() {
+    public void navigation_shouldNotLaunchMidTierCheckout() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgo";
@@ -1139,7 +1191,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() {
+    public void navigation_shouldNotLaunchHighTierCheckoutIfUserAlreadyHasAHighTierPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://buysoundcloudgoplus";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1153,7 +1205,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchHighTierCheckoutForMidTierUserWithSoundCloudScheme() {
+    public void navigation_shouldLaunchHighTierCheckoutForMidTierUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -1166,7 +1218,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchHighTierCheckoutForFreeUserWithSoundCloudScheme() {
+    public void navigation_shouldLaunchHighTierCheckoutForFreeUserWithSoundCloudScheme() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(true);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -1179,7 +1231,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchHighTierCheckout() {
+    public void navigation_shouldNotLaunchHighTierCheckout() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellHighTier()).thenReturn(false);
         String target = "soundcloud://buysoundcloudgoplus";
@@ -1192,7 +1244,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() {
+    public void navigation_shouldNotLaunchProductChoiceIfUserAlreadyHasAGoPlan() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1206,7 +1258,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchProductChoiceForMidTierUpsell() {
+    public void navigation_shouldLaunchProductChoiceForMidTierUpsell() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
@@ -1219,7 +1271,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchProductChoiceForHighTierUpsell() {
+    public void navigation_shouldLaunchProductChoiceForHighTierUpsell() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(true);
         String target = "soundcloud://soundcloudgo/soundcloudgoplus";
@@ -1232,7 +1284,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchProductChoice() {
+    public void navigation_shouldNotLaunchProductChoice() throws Exception {
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
         when(featureOperations.upsellBothTiers()).thenReturn(false);
         String target = "soundcloud://soundcloudgo/soundcloudgo";
@@ -1245,7 +1297,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchOfflineSettingsForSoundCloudScheme() {
+    public void navigation_shouldLaunchOfflineSettingsForSoundCloudScheme() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1257,7 +1309,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() {
+    public void navigation_shouldNotLaunchOfflineSettingsWhenOfflineContentIsNotEnabled() throws Exception {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         String target = "soundcloud://settings_offlinelistening";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1269,7 +1321,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchNotificationPreferences() {
+    public void navigation_shouldLaunchNotificationPreferences() throws Exception {
         String target = "soundcloud://notification_preferences";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1280,7 +1332,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldLaunchCollection() {
+    public void navigation_shouldLaunchCollection() throws Exception {
         String target = "soundcloud://collection";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1290,7 +1342,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenDiscoverFromWebLink() {
+    public void navigation_shouldOpenDiscoverFromWebLink() throws Exception {
         String target = "https://soundcloud.com/discover";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1300,7 +1352,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenDiscoveryFromUri() {
+    public void navigation_shouldOpenDiscoveryFromUri() throws Exception {
         String target = "soundcloud://discovery";
         NavigationTarget navigationTarget = getTargetForNavigation(target);
 
@@ -1310,7 +1362,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenChartsFromWebLink() {
+    public void navigation_shouldOpenChartsFromWebLink() throws Exception {
         String target = "https://soundcloud.com/charts/top?genre=all";
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1325,7 +1377,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenChartsFromUri() {
+    public void navigation_shouldOpenChartsFromUri() throws Exception {
         String target = "soundcloud://charts:top:all";
         when(chartsUriResolver.resolveUri(Uri.parse(target))).thenReturn(ChartDetails.create(ChartType.TOP, Chart.GLOBAL_GENRE, ChartCategory.MUSIC, Optional.of(TOP_FIFTY)));
         NavigationTarget navigationTarget = getTargetForNavigation(target);
@@ -1340,7 +1392,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenWebViewWithStateParameter() {
+    public void navigation_shouldOpenWebViewWithStateParameter() throws Exception {
         Uri fakeUri = Uri.parse("http://foo.com");
         when(signInOperations.generateRemoteSignInUri("/activate/something")).thenReturn(fakeUri);
         String target = "http://soundcloud.com/activate/something";
@@ -1352,7 +1404,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigation_shouldOpenWebViewWithoutStateParameter() {
+    public void navigation_shouldOpenWebViewWithoutStateParameter() throws Exception {
         Uri fakeUri = Uri.parse("http://foo.com");
         when(signInOperations.generateRemoteSignInUri()).thenReturn(fakeUri);
         String target = "soundcloud://remote-sign-in";
@@ -1391,6 +1443,50 @@ public class NavigationResolverTest extends AndroidUnitTest {
         resolveTarget(navigationTarget);
 
         verify(navigationExecutor).openExternal(navigationTarget.activity(), Uri.parse(target));
+    }
+
+    @Test
+    public void navigation_shouldOpenStationArtist() throws Exception {
+        String target = "soundcloud://stations/artist/123";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forArtistStation(123L), DiscoverySource.RECOMMENDATIONS);
+    }
+
+    @Test
+    public void navigation_shouldOpenStationTrack() throws Exception {
+        String target = "soundcloud://stations/track/123";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forTrackStation(123L), DiscoverySource.RECOMMENDATIONS);
+    }
+
+    @Test
+    public void navigation_shouldOpenStationArtistLocally() throws Exception {
+        String target = "soundcloud:artist-stations:123";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forArtistStation(123L), DiscoverySource.RECOMMENDATIONS);
+    }
+
+    @Test
+    public void navigation_shouldOpenStationTrackLocally() throws Exception {
+        String target = "soundcloud:track-stations:123";
+        NavigationTarget navigationTarget = getTargetForNavigation(target);
+
+        resolveTarget(navigationTarget);
+
+        verifyZeroInteractions(resolveOperations);
+        verify(startStationHandler).startStation(navigationTarget.activity(), Urn.forTrackStation(123L), DiscoverySource.RECOMMENDATIONS);
     }
 
     @Test
@@ -1551,7 +1647,7 @@ public class NavigationResolverTest extends AndroidUnitTest {
     }
 
     private NavigationTarget getTargetForNavigation(String target, String fallback) {
-        return NavigationTarget.forNavigation(activity(), target, Optional.fromNullable(fallback), NAVIGATION_SCREEN);
+        return NavigationTarget.forNavigation(activity(), target, Optional.fromNullable(fallback), NAVIGATION_SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS));
     }
 
     private NavigationTarget getTargetForDeeplink(String target) {

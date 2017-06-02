@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.navigation.Navigator;
 
 import android.content.res.Resources;
@@ -40,7 +41,12 @@ public class ResolveActivity extends RootActivity {
     protected void onResume() {
         super.onResume();
         final Uri uri = getIntent().getData();
-        final String referrer = referrerResolver.getReferrerFromIntent(getIntent(), getResources());
+        String referrer = null;
+        try {
+            referrer = referrerResolver.getReferrerFromIntent(getIntent(), getResources());
+        } catch (UriResolveException e) {
+            ErrorUtils.handleSilentException(e);
+        }
         navigator.navigateTo(NavigationTarget.forExternalDeeplink(this, uri.toString(), referrer));
     }
 

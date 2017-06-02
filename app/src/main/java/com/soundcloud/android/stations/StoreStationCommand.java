@@ -18,12 +18,12 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
+public class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
 
     private final DateProvider dateProvider;
 
     @Inject
-    public StoreStationCommand(PropellerDatabase database, CurrentDateProvider dateProvider) {
+    StoreStationCommand(PropellerDatabase database, CurrentDateProvider dateProvider) {
         super(database);
         this.dateProvider = dateProvider;
     }

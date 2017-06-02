@@ -41,7 +41,7 @@ public class ReferrerResolver {
         // for dagger
     }
 
-    public String getReferrerFromIntent(Intent intent, Resources resources) {
+    public String getReferrerFromIntent(Intent intent, Resources resources) throws UriResolveException {
         try {
             if (containsParameter(intent, PARAM_REF)) {
                 return extractParam(intent, PARAM_REF);
@@ -59,11 +59,15 @@ public class ReferrerResolver {
                 return Referrer.GOOGLE_CRAWLER.value();
             } else if (isBrowserIntent(intent)) {
                 return referrerFromBrowser(intent);
+            } else {
+                return Referrer.OTHER.value();
             }
         } catch (ClassCastException e) {
             Log.e("Referrer could not be extracted from intent: " + intent, e);
+            return Referrer.OTHER.value();
+        } catch (Exception e) {
+            throw new UriResolveException("Referrer could not be extracted from intent: " + intent, e);
         }
-        return Referrer.OTHER.value();
     }
 
     private boolean containsParameter(Intent intent, String param) {

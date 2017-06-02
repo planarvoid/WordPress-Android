@@ -17,6 +17,8 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StoreStationCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import io.reactivex.Completable;
@@ -40,6 +42,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private StoreStationCommand storeStationsCommand;
 
     private Scheduler scheduler = Schedulers.trampoline();
 
@@ -49,7 +52,8 @@ public class ResolveOperationsTest extends AndroidUnitTest {
                                            scheduler,
                                            storeTracksCommand,
                                            storePlaylistsCommand,
-                                           storeUsersCommand);
+                                           storeUsersCommand,
+                                           storeStationsCommand);
     }
 
     @Test
@@ -169,20 +173,35 @@ public class ResolveOperationsTest extends AndroidUnitTest {
         verify(storeUsersCommand).call(Collections.singletonList(resolvedResource.getOptionalUser().get()));
     }
 
+    @Test
+    public void storesStation() throws Exception {
+        String uri = "http://soundcloud.com/stations/artist/tycho";
+        ApiResolvedResource resolvedResource = resolvedStation();
+        mockResolutionFor(uri, resolvedResource);
+
+        operations.resolve(uri).test();
+
+        verify(storeStationsCommand).call(resolvedResource.getOptionalStation().get());
+    }
+
     private ApiResolvedResource resolvedTrack() {
-        return new ApiResolvedResource(ModelFixtures.create(ApiTrack.class), null, null);
+        return new ApiResolvedResource(ModelFixtures.create(ApiTrack.class), null, null, null);
     }
 
     private ApiResolvedResource resolvedPlaylist() {
-        return new ApiResolvedResource(null, ModelFixtures.create(ApiPlaylist.class), null);
+        return new ApiResolvedResource(null, ModelFixtures.create(ApiPlaylist.class), null, null);
     }
 
     private ApiResolvedResource resolvedUser() {
-        return new ApiResolvedResource(null, null, ModelFixtures.create(ApiUser.class));
+        return new ApiResolvedResource(null, null, ModelFixtures.create(ApiUser.class), null);
+    }
+
+    private ApiResolvedResource resolvedStation() {
+        return new ApiResolvedResource(null, null, null, StationFixtures.getApiStation());
     }
 
     private ApiResolvedResource unsupportedResource() {
-        return new ApiResolvedResource(null, null, null);
+        return new ApiResolvedResource(null, null, null, null);
     }
 
     private void mockResolutionFor(String url, ApiResolvedResource resolvedResource) throws Exception {

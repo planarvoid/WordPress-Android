@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
 import com.soundcloud.android.configuration.experiments.TopResultsConfig;
+import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -14,6 +15,8 @@ import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import com.soundcloud.android.search.topresults.TopResultsFragment;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.optional.Optional;
@@ -109,7 +112,12 @@ public class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity
         setupTransitionAnimation(window);
         setupViews(activity);
         if (bundle == null) {
-            intentResolver.handle(activity, activity.getIntent());
+            try {
+                intentResolver.handle(activity, activity.getIntent());
+            } catch (UriResolveException e) {
+                AndroidUtils.showToast(activity, R.string.error_unknown_navigation);
+                ErrorUtils.handleSilentException(e);
+            }
         }
     }
 

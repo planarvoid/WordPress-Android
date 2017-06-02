@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.SocialMediaLinkItem;
@@ -77,7 +78,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
             public void onLinkClicked(SocialMediaLinkItem socialMediaLinkItem) {
-                navigator.navigateTo(NavigationTarget.forNavigation(fragment.getActivity(), socialMediaLinkItem.url(), Optional.absent(), screenProvider.getLastScreen()));
+                navigator.navigateTo(NavigationTarget.forNavigation(fragment.getActivity(),
+                                                                    socialMediaLinkItem.url(),
+                                                                    Optional.absent(),
+                                                                    screenProvider.getLastScreen(),
+                                                                    Optional.of(DiscoverySource.RECOMMENDATIONS))); // TODO (REC-1302): Use correct one
             }
 
             @Override

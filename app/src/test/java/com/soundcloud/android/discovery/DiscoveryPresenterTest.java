@@ -22,11 +22,13 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
@@ -113,7 +115,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(SINGLE_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(SINGLE_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN)));
+        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, SINGLE_APP_LINK.get(), SINGLE_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
     }
 
     @Test
@@ -128,6 +130,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         selectionItemPublishSubject.onNext(MULTI_SELECTION_ITEM);
 
         verify(discoveryTrackingManager).trackSelectionItemClick(MULTI_SELECTION_ITEM, cards);
-        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN)));
+        verify(navigator).navigateTo(eq(NavigationTarget.forNavigation(activity, MULTI_APP_LINK.get(), MULTI_WEB_LINK, SCREEN, Optional.of(DiscoverySource.RECOMMENDATIONS))));
     }
 }

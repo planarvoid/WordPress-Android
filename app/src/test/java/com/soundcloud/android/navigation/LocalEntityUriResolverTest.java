@@ -45,6 +45,15 @@ public class LocalEntityUriResolverTest {
         assertTrue(resolver.canResolveLocally("soundcloud:system-playlists:123"));
         assertTrue(resolver.canResolveLocally("soundcloud://system-playlists/soundcloud:system-playlists:123:soundcloud:users:123"));
         assertTrue(resolver.canResolveLocally("soundcloud:system-playlists:123:soundcloud:users:123"));
+        assertTrue(resolver.canResolveLocally("soundcloud://artist-stations/123"));
+        assertTrue(resolver.canResolveLocally("https://soundcloud.com/artist-stations/123"));
+        assertTrue(resolver.canResolveLocally("http://www.soundcloud.com/artist-stations/123"));
+        assertTrue(resolver.canResolveLocally("https://www.m.soundcloud.com/artist-stations/123"));
+        assertTrue(resolver.canResolveLocally("soundcloud://track-stations/123"));
+        assertTrue(resolver.canResolveLocally("https://soundcloud.com/track-stations/123"));
+        assertTrue(resolver.canResolveLocally("http://www.soundcloud.com/track-stations/123"));
+        assertTrue(resolver.canResolveLocally("https://www.m.soundcloud.com/track-stations/123"));
+
     }
 
     @Test
@@ -75,6 +84,14 @@ public class LocalEntityUriResolverTest {
         resolver.resolve("soundcloud:system-playlists:123").test().assertValue(Urn.forSystemPlaylist("123"));
         resolver.resolve("soundcloud://system-playlists/soundcloud:system-playlists:123:soundcloud:users:123").test().assertValue(Urn.forSystemPlaylist("123:soundcloud:users:123"));
         resolver.resolve("soundcloud:system-playlists:123:soundcloud:users:123").test().assertValue(Urn.forSystemPlaylist("123:soundcloud:users:123"));
+        resolver.resolve("soundcloud://artist-stations/123").test().assertValue(Urn.forArtistStation(123L));
+        resolver.resolve("https://soundcloud.com/artist-stations/123").test().assertValue(Urn.forArtistStation(123L));
+        resolver.resolve("http://www.soundcloud.com/artist-stations/123").test().assertValue(Urn.forArtistStation(123L));
+        resolver.resolve("https://www.m.soundcloud.com/artist-stations/123").test().assertValue(Urn.forArtistStation(123L));
+        resolver.resolve("soundcloud://track-stations/123").test().assertValue(Urn.forTrackStation(123L));
+        resolver.resolve("https://soundcloud.com/track-stations/123").test().assertValue(Urn.forTrackStation(123L));
+        resolver.resolve("http://www.soundcloud.com/track-stations/123").test().assertValue(Urn.forTrackStation(123L));
+        resolver.resolve("https://www.m.soundcloud.com/track-stations/123").test().assertValue(Urn.forTrackStation(123L));
     }
 
     @Test

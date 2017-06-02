@@ -6,6 +6,7 @@ import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.model.UrnCollection;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.search.topresults.TopResults;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.optional.Optional;
@@ -25,17 +26,19 @@ public abstract class NavigationTarget {
     public abstract Optional<String> referrer();
     public abstract Optional<Urn> queryUrn();
     public abstract Optional<Urn> targetUrn();
+    public abstract Optional<DiscoverySource> discoverySource();
     public abstract Optional<TopResultsMetaData> topResultsMetaData();
     public abstract Optional<SearchQuerySourceInfo> searchQuerySourceInfo();
-    public abstract Builder toBuilder();
+    abstract Builder toBuilder();
 
-    public static Builder newBuilder() {
+    static Builder newBuilder() {
         return new AutoValue_NavigationTarget.Builder()
                 .referrer(Optional.absent())
                 .fallback(Optional.absent())
                 .deeplink(Optional.absent())
                 .queryUrn(Optional.absent())
                 .targetUrn(Optional.absent())
+                .discoverySource(Optional.absent())
                 .searchQuerySourceInfo(Optional.absent())
                 .topResultsMetaData(Optional.absent());
     }
@@ -44,11 +47,12 @@ public abstract class NavigationTarget {
      * Used for internal navigation using deeplink's (e.g. provided through Discovery Backend) and external links.
      * Similar to {@link #forExternalDeeplink(Activity, String, String)} but for in app navigation.
      */
-    public static NavigationTarget forNavigation(Activity activity, @Nullable String target, Optional<String> fallback, Screen screen) {
+    public static NavigationTarget forNavigation(Activity activity, @Nullable String target, Optional<String> fallback, Screen screen, Optional<DiscoverySource> discoverySource) {
         return newBuilder().activity(activity)
                            .target(target)
                            .fallback(fallback)
                            .screen(screen)
+                           .discoverySource(discoverySource)
                            .build();
     }
 
@@ -66,7 +70,7 @@ public abstract class NavigationTarget {
 
     /**
      * Used for navigation from a real deeplink.
-     * Similar to {@link #forNavigation(Activity, String, Optional, Screen)} but for real deeplink navigation.
+     * Similar to {@link #forNavigation(Activity, String, Optional, Screen, Optional)} but for real deeplink navigation.
      */
     public static NavigationTarget forExternalDeeplink(Activity activity, @Nullable String target, String referrer) {
         return newBuilder().activity(activity)
@@ -87,7 +91,7 @@ public abstract class NavigationTarget {
      */
     public static NavigationTarget forUrn(Activity activity, Urn urn, Screen screen) {
         Preconditions.checkArgument(urn.isTrack() || urn.isUser() || urn.isPlaylist() || urn.isSystemPlaylist(), "URN navigation for " + UrnCollection.from(urn) + " not supported.");
-        return forNavigation(activity, urn.toString(), Optional.absent(), screen);
+        return forNavigation(activity, urn.toString(), Optional.absent(), screen, Optional.absent());
     }
 
     public static NavigationTarget forActivities(Activity activity) {
@@ -118,22 +122,31 @@ public abstract class NavigationTarget {
                 .build();
     }
 
-    public NavigationTarget withScreen(Screen screen) {
+    NavigationTarget withScreen(Screen screen) {
         return toBuilder().screen(screen).build();
     }
 
-    public Uri targetUri() {
+    NavigationTarget withTarget(String target) {
+        return toBuilder().target(target).build();
+    }
+
+    NavigationTarget withFallback(Optional<String> fallback) {
+        return toBuilder().fallback(fallback).build();
+    }
+
+    Uri targetUri() {
         return Uri.parse(target());
     }
 
     @AutoValue.Builder
-    public abstract static class Builder {
-        public abstract Builder activity(Activity activity);
-        public abstract Builder target(@Nullable String target);
-        public abstract Builder fallback(Optional<String> fallback);
-        public abstract Builder screen(Screen screen);
-        public abstract Builder referrer(Optional<String> referrer);
-        public abstract NavigationTarget build();
+    abstract static class Builder {
+        abstract Builder activity(Activity activity);
+        abstract Builder target(@Nullable String target);
+        abstract Builder fallback(Optional<String> fallback);
+        abstract Builder screen(Screen screen);
+        abstract Builder referrer(Optional<String> referrer);
+        abstract Builder discoverySource(Optional<DiscoverySource> discoverySource);
+        abstract NavigationTarget build();
 
         // Optional arguments depending on the started context
 
@@ -142,6 +155,9 @@ public abstract class NavigationTarget {
         abstract Builder queryUrn(Optional<Urn> queryUrn);
         abstract Builder targetUrn(Optional<Urn> targetUrn);
         abstract Builder searchQuerySourceInfo(Optional<SearchQuerySourceInfo> searchQuerySourceInfo);
+        Builder discoverySource(@Nullable DiscoverySource discoverySource) {
+            return discoverySource(Optional.fromNullable(discoverySource));
+        }
     }
 
     @AutoValue

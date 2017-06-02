@@ -15,6 +15,7 @@ import com.soundcloud.android.deeplinks.AllGenresUriResolver;
 import com.soundcloud.android.deeplinks.ChartDetails;
 import com.soundcloud.android.deeplinks.ChartsUriResolver;
 import com.soundcloud.android.deeplinks.DeepLink;
+import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -22,10 +23,14 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.auth.SignInOperations;
 import com.soundcloud.android.payments.UpsellContext;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxJava;
+import com.soundcloud.android.stations.StartStationHandler;
+import com.soundcloud.android.stations.StationsUriResolver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -62,6 +67,9 @@ public class NavigationResolver {
     private final ChartsUriResolver chartsUriResolver;
     private final SignInOperations signInOperations;
     private final LocalEntityUriResolver localEntityUriResolver;
+    private final StartStationHandler startStationHandler;
+    private final StationsUriResolver stationsUriResolver;
+    private final ApplicationProperties applicationProperties;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Inject
@@ -76,6 +84,9 @@ public class NavigationResolver {
                        FeatureOperations featureOperations,
                        ChartsUriResolver chartsUriResolver,
                        SignInOperations signInOperations,
+                       StartStationHandler startStationHandler,
+                       StationsUriResolver stationsUriResolver,
+                       ApplicationProperties applicationProperties,
                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
@@ -88,6 +99,9 @@ public class NavigationResolver {
         this.chartsUriResolver = chartsUriResolver;
         this.signInOperations = signInOperations;
         this.localEntityUriResolver = localEntityUriResolver;
+        this.startStationHandler = startStationHandler;
+        this.stationsUriResolver = stationsUriResolver;
+        this.applicationProperties = applicationProperties;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
@@ -95,26 +109,44 @@ public class NavigationResolver {
     public Single<NavigationResult> resolveNavigationResult(NavigationTarget navigationTarget) {
         String target = navigationTarget.target();
         if (Strings.isNullOrEmpty(target)) {
-            if (navigationTarget.deeplink().isPresent()) {
-                return handleDeepLink(navigationTarget, navigationTarget.deeplink().get()).map(action -> NavigationResult.create(navigationTarget, action));
-            } else {
+            try {
+                if (navigationTarget.deeplink().isPresent()) {
+                    return handleDeepLink(navigationTarget, navigationTarget.deeplink().get()).map(action -> NavigationResult.create(navigationTarget, action));
+                } else {
+                    return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+                }
+            } catch (UriResolveException e) {
+                handleUriResolveException(navigationTarget, e);
                 return showStream(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
             }
         } else {
             final Uri hierarchicalUri = UriUtils.convertToHierarchicalUri(Uri.parse(navigationTarget.target()));
-            NavigationTarget newTarget = navigationTarget.toBuilder().target(hierarchicalUri.toString()).build();
-            if (localEntityUriResolver.canResolveLocally(newTarget.target())) {
-                return resolveLocal(navigationTarget, newTarget);
-            } else if (localEntityUriResolver.isKnownDeeplink(newTarget.target())) {
-                return resolveDeeplink(hierarchicalUri, newTarget);
-            } else {
+            NavigationTarget newTarget = navigationTarget.withTarget(hierarchicalUri.toString());
+            try {
+                if (localEntityUriResolver.canResolveLocally(newTarget.target())) {
+                    return resolveLocal(navigationTarget, newTarget);
+                } else if (localEntityUriResolver.isKnownDeeplink(newTarget.target())) {
+                    return resolveDeeplink(hierarchicalUri, newTarget);
+                } else {
+                    return resolveTarget(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
+                }
+            } catch (UriResolveException e) {
+                handleUriResolveException(navigationTarget, e);
                 return resolveTarget(navigationTarget).map(action -> NavigationResult.create(navigationTarget, action));
             }
         }
     }
 
+    private void handleUriResolveException(NavigationTarget navigationTarget, UriResolveException e) {
+        final String msg = "Local resolve failed";
+        if (applicationProperties.isDebuggableFlavor()) {
+            AndroidUtils.showToast(navigationTarget.activity(), msg);
+        }
+        ErrorUtils.handleSilentException(msg, e);
+    }
+
     @CheckResult
-    private Single<NavigationResult> resolveDeeplink(Uri hierarchicalUri, NavigationTarget newTarget) {
+    private Single<NavigationResult> resolveDeeplink(Uri hierarchicalUri, NavigationTarget newTarget) throws UriResolveException {
         final DeepLink deepLink = DeepLink.fromUri(hierarchicalUri);
         if (shouldShowLogInMessage(deepLink, newTarget.referrer())) {
             return showOnboardingForDeeplink(newTarget).map(action -> NavigationResult.create(newTarget, action));
@@ -124,7 +156,7 @@ public class NavigationResolver {
     }
 
     @CheckResult
-    private Single<NavigationResult> resolveLocal(NavigationTarget navigationTarget, NavigationTarget newTarget) {
+    private Single<NavigationResult> resolveLocal(NavigationTarget navigationTarget, NavigationTarget newTarget) throws UriResolveException {
         return localEntityUriResolver.resolve(newTarget.target())
                                      .observeOn(AndroidSchedulers.mainThread())
                                      .flatMap(urn -> startActivityForResource(navigationTarget, urn).map(action -> NavigationResult.create(navigationTarget, action, urn)));
@@ -148,26 +180,29 @@ public class NavigationResolver {
     @CheckResult
     private Single<Action> handleUnsuccessfulResolve(NavigationTarget navigationTarget, ResolveResult resolveResult) {
         final Optional<String> errorUrl = resolveResult.uri().transform(Uri::toString);
-        final NavigationTarget fallbackAwareTaget = navigationTarget.toBuilder().fallback(navigationTarget.fallback().or(errorUrl)).build();
-        if (shouldRetryWithFallback(fallbackAwareTaget)) {
-            return resolveNavigationResult(fallbackAwareTaget.toBuilder()
-                                                             .target(fallbackAwareTaget.fallback().get())
-                                                             .fallback(Optional.absent())
-                                                             .build())
+        final NavigationTarget fallbackAwareTarget = navigationTarget.withFallback(navigationTarget.fallback().or(errorUrl));
+        if (shouldRetryWithFallback(fallbackAwareTarget)) {
+            if (applicationProperties.isDebuggableFlavor()) {
+                AndroidUtils.showToast(navigationTarget.activity(), "Retry resolve with fallback");
+            }
+            final Exception e = resolveResult.exception().or(new UriResolveException("Resolve with fallback"));
+            ErrorUtils.handleSilentException("Resolve uri " + navigationTarget.target() + " with fallback " + fallbackAwareTarget.fallback().orNull(), e);
+            return resolveNavigationResult(fallbackAwareTarget.withTarget(fallbackAwareTarget.fallback().get())
+                                                              .withFallback(Optional.absent()))
                     .map(NavigationResult::action);
         } else {
-            trackForegroundEvent(fallbackAwareTaget);
+            trackForegroundEvent(fallbackAwareTarget);
             Optional<Exception> exception = resolveResult.exception();
             if (exception.isPresent() && !ErrorUtils.isNetworkError(exception.get())) {
                 ErrorUtils.handleSilentException("unable to load deeplink:" + errorUrl, exception.get());
-                reportFailedToResolveDeeplink(fallbackAwareTaget);
+                reportFailedToResolveDeeplink(fallbackAwareTarget);
             }
-            return launchApplicationWithMessage(fallbackAwareTaget, R.string.error_unknown_navigation);
+            return launchApplicationWithMessage(fallbackAwareTarget, R.string.error_unknown_navigation);
         }
     }
 
     @CheckResult
-    private Single<Action> handleDeepLink(NavigationTarget navigationTarget, DeepLink deepLink) {
+    private Single<Action> handleDeepLink(NavigationTarget navigationTarget, DeepLink deepLink) throws UriResolveException {
         switch (deepLink) {
             case HOME:
             case STREAM:
@@ -182,6 +217,8 @@ public class NavigationResolver {
                 return showCharts(navigationTarget);
             case CHARTS_ALL_GENRES:
                 return showAllGenresCharts(navigationTarget);
+            case STATION:
+                return showStation(navigationTarget);
             case SEARCH:
                 return showSearchScreen(navigationTarget);
             case SEARCH_RESULTS_VIEW_ALL:
@@ -340,6 +377,26 @@ public class NavigationResolver {
         return Single.just(() -> {
             trackForegroundEvent(navigationTarget);
             navigationExecutor.openAllGenres(navigationTarget.activity(), AllGenresUriResolver.resolveUri(navigationTarget.targetUri()));
+        });
+    }
+
+    @CheckResult
+    private Single<Action> showStation(NavigationTarget navigationTarget) throws UriResolveException {
+        Optional<Urn> urn = stationsUriResolver.resolve(navigationTarget.targetUri());
+        if (urn.isPresent()) {
+            return showStation(navigationTarget, urn.get());
+        } else {
+            throw new UriResolveException("Station " + navigationTarget.target() + " could not be resolved locally");
+        }
+    }
+
+    @CheckResult
+    private Single<Action> showStation(NavigationTarget navigationTarget, Urn urn) {
+        return Single.just(() -> {
+            trackForegroundEvent(navigationTarget);
+            startStationHandler.startStation(navigationTarget.activity(),
+                                             urn,
+                                             navigationTarget.discoverySource().or(DiscoverySource.DEEPLINK)); // TODO (REC-1302): Shall this be part of `forDeeplink` already?
         });
     }
 
@@ -521,6 +578,8 @@ public class NavigationResolver {
             return Single.just(() -> navigationExecutor.legacyOpenPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
         } else if (urn.isSystemPlaylist()) {
             return Single.just(() -> navigationExecutor.openSystemPlaylist(navigationTarget.activity(), urn, navigationTarget.screen()));
+        } else if (urn.isArtistStation() || urn.isTrackStation()) {
+            return showStation(navigationTarget, urn);
         } else {
             ErrorUtils.handleSilentException(new IllegalArgumentException("Trying to navigate to unsupported urn: " + urn + " in version: " + BuildConfig.VERSION_CODE));
             return Single.never();

@@ -11,6 +11,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.StoreStationCommand;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 
@@ -29,18 +30,21 @@ class ResolveOperations {
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
+    private final StoreStationCommand storeStationsCommand;
 
     @Inject
     ResolveOperations(ApiClientRxV2 apiClient,
                       @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                       StoreTracksCommand storeTracksCommand,
                       StorePlaylistsCommand storePlaylistsCommand,
-                      StoreUsersCommand storeUsersCommand) {
+                      StoreUsersCommand storeUsersCommand,
+                      StoreStationCommand storeStationsCommand) {
         this.apiClient = apiClient;
         this.scheduler = scheduler;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
+        this.storeStationsCommand = storeStationsCommand;
     }
 
     Single<ResolveResult> resolve(@NonNull final String target) {
@@ -92,6 +96,8 @@ class ResolveOperations {
             storePlaylistsCommand.call(Collections.singletonList(resource.getOptionalPlaylist().get()));
         } else if (resource.getOptionalUser().isPresent()) {
             storeUsersCommand.call(Collections.singletonList(resource.getOptionalUser().get()));
+        } else if (resource.getOptionalStation().isPresent()) {
+            storeStationsCommand.call(resource.getOptionalStation().get());
         }
     }
 }

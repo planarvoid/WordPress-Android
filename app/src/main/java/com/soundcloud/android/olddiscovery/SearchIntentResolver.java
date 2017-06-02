@@ -5,6 +5,7 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.deeplinks.DeepLink;
 import com.soundcloud.android.deeplinks.ReferrerResolver;
+import com.soundcloud.android.deeplinks.UriResolveException;
 import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
 import com.soundcloud.android.search.SearchTracker;
@@ -39,7 +40,7 @@ class SearchIntentResolver {
         this.tracker = tracker;
     }
 
-    void handle(Activity activity, Intent intent) {
+    void handle(Activity activity, Intent intent) throws UriResolveException {
         if (isInterceptedSearchAction(intent)) {
             searchFromDeepLink(intent.getStringExtra(SearchManager.QUERY));
         } else if (isInterceptedSearchUrl(intent)) {
@@ -69,7 +70,7 @@ class SearchIntentResolver {
                 && !intent.getData().getPath().equals(INTENT_URI_SEARCH_PATH);
     }
 
-    private void handleUri(Activity activity, Intent intent) {
+    private void handleUri(Activity activity, Intent intent) throws UriResolveException {
         final Content content = Content.match(intent.getData());
         if (content == Content.SEARCH_ITEM) {
             searchFromDeepLink(Uri.decode(intent.getData().getLastPathSegment()));
