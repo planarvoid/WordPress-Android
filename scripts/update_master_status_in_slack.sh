@@ -10,19 +10,18 @@ FAIL_ICON=':red_build:'
 CURRENT_BUILD=${BUILD_NUMBER}
 PREVIOUS_BUILD=$(expr ${CURRENT_BUILD} - 1)
 
-BASE_URL=$(echo ${JOB_URL} | sed 's/mobile-jenkins.int.s-cloud.net/chaos-hare.mobile.s-cloud.net:8080/g')
 function payload {
     echo "{\"channel\":\"$TARGET_CHANNEL\", \"username\": \"$3\", \"text\": \"$1\", \"icon_emoji\": \"$2\"}"
 }
 
 function getSubBuildData {
-    local SUBRESULTS=$(curl -s "${BASE_URL}${CURRENT_BUILD}/wfapi/describe" | jq -r '.stages[] | select(.name | contains("Reporting") | not) | .status , .name')
+    local SUBRESULTS=$(curl -s "${JOB_URL}${CURRENT_BUILD}/wfapi/describe" | jq -r '.stages[] | select(.name | contains("Reporting") | not) | .status , .name')
     local FORMATTED=$(echo ${SUBRESULTS} | sed 's/SUCCESS/\\n:green_build:/g' | sed 's/FAILED/\\n:red_build:/g')
     echo ${FORMATTED}
 }
 
 function getBuildStatus {
-    echo $(curl -s "${BASE_URL}$1/wfapi/describe" | jq -r '.status')
+    echo $(curl -s "${JOB_URL}$1/wfapi/describe" | jq -r '.status')
 }
 
 CURRENT_BUILD_STATUS=$1
