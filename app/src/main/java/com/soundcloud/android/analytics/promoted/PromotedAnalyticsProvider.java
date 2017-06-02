@@ -9,6 +9,7 @@ import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -57,6 +58,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
             trackingUrls = sessionEvent.trackingUrls().or(Collections.emptyList());
         } else if (event instanceof PrestitialAdImpressionEvent) {
             trackingUrls = ((PrestitialAdImpressionEvent) event).impressionUrls();
+        } else if (event instanceof SponsoredSessionStartEvent) {
+            trackingUrls = ((SponsoredSessionStartEvent) event).trackingUrls();
         } else {
             trackingUrls = Collections.emptyList();
         }

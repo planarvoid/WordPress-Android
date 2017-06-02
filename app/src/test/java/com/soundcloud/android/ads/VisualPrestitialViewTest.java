@@ -9,6 +9,7 @@ import com.soundcloud.android.image.DefaultImageListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -61,6 +62,6 @@ public class VisualPrestitialViewTest extends AndroidUnitTest {
         final ImageView imageView = view.imageView;
         imageView.performClick();
 
-        verify(listener).onClickThrough(imageView, ad);
+        verify(listener).onImageClick(imageView.getContext(), ad, Optional.absent());
     }
 }

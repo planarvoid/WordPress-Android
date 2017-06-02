@@ -11,6 +11,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -83,6 +84,16 @@ class EventLoggerV1JsonDataBuilder {
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
         this.featureFlags = featureFlags;
+    }
+
+    String buildForSponsoredSessionStartEvent(SponsoredSessionStartEvent event) {
+        return transform(buildBaseEvent(CLICK_EVENT, event.getTimestamp())
+                                 .clientEventId(event.id())
+                                 .clickName(SponsoredSessionStartEvent.CLICK_NAME)
+                                 .clickTarget(event.clickTarget())
+                                 .adUrn(event.adUrn().toString())
+                                 .pageName(event.page().get())
+                                 .monetizationType(event.monetizationType()));
     }
 
     String buildForAudioEvent(PlaybackSessionEvent event) {

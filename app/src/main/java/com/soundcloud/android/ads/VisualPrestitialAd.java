@@ -10,13 +10,13 @@ import android.net.Uri;
 import java.util.List;
 
 @AutoValue
-public abstract class VisualPrestitialAd extends VisualAdData {
+public abstract class VisualPrestitialAd extends VisualAdData implements PrestitialAd {
 
     public static VisualPrestitialAd create(ApiModel apiModel) {
-        return new AutoValue_VisualPrestitialAd(apiModel.adUrn(),
+        return new AutoValue_VisualPrestitialAd(Uri.parse(apiModel.clickthroughUrl()),
+                                                apiModel.adUrn(),
                                                 MonetizationType.PRESTITIAL,
                                                 apiModel.imageUrl(),
-                                                Uri.parse(apiModel.clickthroughUrl()),
                                                 apiModel.trackingImpressionUrls(),
                                                 apiModel.trackingClickUrls());
     }

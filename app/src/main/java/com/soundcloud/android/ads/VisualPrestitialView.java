@@ -30,6 +30,6 @@ class VisualPrestitialView extends PrestitialView {
         imageOperations.displayAdImage(ad.adUrn(), ad.imageUrl(), imageView, new PrestitialImageCompanionListener(ad, listener, Optional.absent()));
 
         continueButton.setOnClickListener(btnView -> listener.onContinueClick());
-        imageView.setOnClickListener(imageView -> listener.onClickThrough(imageView, ad));
+        imageView.setOnClickListener(imageView -> listener.onImageClick(imageView.getContext(), ad, Optional.absent()));
     }
 }

@@ -23,6 +23,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -105,6 +106,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleAdPlaybackErrorEvent((AdPlaybackErrorEvent) event);
         } else if (event instanceof ScrollDepthEvent) {
             handleScrollDepthEvent((ScrollDepthEvent) event);
+        } else if (event instanceof SponsoredSessionStartEvent) {
+            handleSponsoredSessionStartEvent((SponsoredSessionStartEvent) event);
         }
     }
 
@@ -256,6 +259,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void trackAudioSessionEvent(PlaybackSessionEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAudioEvent(eventData));
+    }
+
+    private void handleSponsoredSessionStartEvent(SponsoredSessionStartEvent eventData)  {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForSponsoredSessionStartEvent(eventData));
     }
 
     private void trackEvent(long timeStamp, String data) {

@@ -40,6 +40,7 @@ import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.ScrollDepthEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -726,6 +727,18 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackOfflineSyncCancelEvent() {
         OfflinePerformanceEvent event = OfflinePerformanceEvent.fromCancelled(trackUrn, trackingMetadata);
         assertThat(v1OfflinePerformanceEventCaptor("ForOfflineSyncEvent", event)).isEqualTo("ForOfflineSyncEvent");
+    }
+
+    @Test
+    public void shouldTrackSponsoredSessionStartEvent() {
+        SponsoredSessionStartEvent event = SponsoredSessionStartEvent.create(AdFixtures.sponsoredSessionAd(), Screen.PRESTITIAL);
+        when(dataBuilder.buildForSponsoredSessionStartEvent(event)).thenReturn("SponsoredSessionStartEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTrackingManager).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("SponsoredSessionStartEvent");
     }
 
     @Test

@@ -9,8 +9,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
@@ -109,7 +111,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private void bindSponsoredSession(SponsoredSessionAd ad, AppCompatActivity activity) {
         final PrestitialAdapter adapter = prestitialAdapterFactory.create(ad, this, sponsoredSessionVideoView.get());
         final ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
-        final SponsoredSessionPageListener pageChangeListener = new SponsoredSessionPageListener(adapter, ad.video());
+        final SponsoredSessionPageListener pageChangeListener = new SponsoredSessionPageListener(adapter, ad);
         pager.addOnPageChangeListener(pageChangeListener);
         pager.setAdapter(adapter);
         pagerRef = new WeakReference<>(pager);
@@ -164,9 +166,11 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     @Override
-    public void onClickThrough(View view, AdData ad) {
-        if (ad instanceof VisualPrestitialAd) {
-            onClickThrough(view.getContext(), ((VisualPrestitialAd) ad).clickthroughUrl(), ad);
+    public void onImageClick(Context context, AdData ad, Optional<PrestitialPage> page) {
+        if (page.contains(PrestitialPage.OPT_IN_CARD))  {
+            advanceToNextPage();
+        } else {
+            onClickThrough(context, ((PrestitialAd) ad).clickthroughUrl(), ad);
         }
     }
 
@@ -187,30 +191,28 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void onImageLoadForSponsoredSession(SponsoredSessionAd ad, PrestitialPage page) {
-        final boolean isEndCard = page == PrestitialPage.END_CARD;
-        final PrestitialAdImpressionEvent impressionEvent = PrestitialAdImpressionEvent.createForSponsoredSession(ad, isEndCard);
-
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.createForSponsoredSession(ad, page.is(PrestitialPage.END_CARD));
         if (currentPage.contains(page)) {
-            publishTrackingEvent(impressionEvent);
+            publishTrackingEvent(event);
         } else {
-            pageListener.ifPresent(listener -> listener.addDeferredEventForPage(page, impressionEvent));
+            pageListener.ifPresent(listener -> listener.addDeferredEventForPage(page, event));
         }
     }
 
     @Override
     public void onOptionOneClick(PrestitialPage page, SponsoredSessionAd ad, Context context) {
-        if (page == PrestitialPage.OPT_IN_CARD) {
+        if (page.is(PrestitialPage.OPT_IN_CARD)) {
             endActivity();
-        } else {
-            onClickThrough(context, Uri.parse(ad.optInCard().clickthroughUrl()), ad);
+        } else if (page.is(PrestitialPage.END_CARD)) {
+            onClickThrough(context, ad.clickthroughUrl(), ad);
         }
     }
 
     @Override
     public void onOptionTwoClick(PrestitialPage page, SponsoredSessionAd ad) {
-        if (page == PrestitialPage.OPT_IN_CARD) {
+        if (page.is(PrestitialPage.OPT_IN_CARD)) {
             advanceToNextPage();
-        } else {
+        } else if (page.is(PrestitialPage.END_CARD)) {
             endActivity();
         }
     }
@@ -254,41 +256,36 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     private class SponsoredSessionPageListener extends ViewPager.SimpleOnPageChangeListener {
 
         private final PrestitialAdapter adapter;
-        private final VideoAd videoAd;
+        private final SponsoredSessionAd ad;
 
         Map<PrestitialPage, TrackingEvent> deferredEvent = new HashMap<>(PrestitialPage.values().length);
 
-        SponsoredSessionPageListener(PrestitialAdapter adapter, VideoAd videoAd) {
+        SponsoredSessionPageListener(PrestitialAdapter adapter, SponsoredSessionAd ad) {
             this.adapter = adapter;
-            this.videoAd = videoAd;
+            this.ad = ad;
         }
 
         @Override
         public void onPageSelected(int position) {
             currentPage = Optional.of(adapter.getPage(position));
-            switch (currentPage.get()) {
-                case OPT_IN_CARD:
-                case END_CARD:
-                    publishDeferredEvents(currentPage.get());
-                    break;
-                case VIDEO_CARD:
-                    onVideoPageSelect();
-                    break;
-                default:
-                    break;
+            publishDeferredEvents(currentPage.get());
+            if (currentPage.contains(PrestitialPage.VIDEO_CARD)) {
+                onVideoPageSelect();
+            } else if (currentPage.contains(PrestitialPage.END_CARD)) {
+                onEndCardSelect();
             }
+        }
+
+        private void onVideoPageSelect() {
+            sponsoredSessionVideoView.get().adjustLayoutForVideo(ad.video());
+            adPlayer.play(ad.video(), true);
+            subscription = eventBus.queue(EventQueue.AD_PLAYBACK)
+                                   .filter(event -> event.forStateTransition() || event.forAdProgressEvent())
+                                   .subscribe(new AdTransitionSubscriber());
         }
 
         void addDeferredEventForPage(PrestitialPage page, TrackingEvent event) {
             deferredEvent.put(page, event);
-        }
-
-        private void onVideoPageSelect() {
-            sponsoredSessionVideoView.get().adjustLayoutForVideo(videoAd);
-            adPlayer.play(videoAd, true);
-            subscription = eventBus.queue(EventQueue.AD_PLAYBACK)
-                                   .filter(event -> event.forStateTransition() || event.forAdProgressEvent())
-                                   .subscribe(new AdTransitionSubscriber());
         }
 
         private void publishDeferredEvents(PrestitialPage page) {
@@ -297,18 +294,23 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
                 deferredEvent.remove(page);
             }
         }
+
+        private void onEndCardSelect() {
+            eventBus.publish(EventQueue.TRACKING, SponsoredSessionStartEvent.create(ad, Screen.PRESTITIAL));
+        }
     }
 
     private class AdTransitionSubscriber extends DefaultSubscriber<AdPlaybackEvent> {
         @Override
         public void onNext(AdPlaybackEvent event) {
+            final SponsoredSessionVideoView videoView = PrestitialPresenter.this.sponsoredSessionVideoView.get();
             if (event.forAdProgressEvent()) {
                 final PlaybackProgress progress = ((AdProgressEvent) event).playbackProgress();
-                sponsoredSessionVideoView.get().setProgress(progress);
+                videoView.setProgress(progress);
             } else if (event.forStateTransition()) {
                 final PlaybackStateTransition stateTransition = ((AdPlayStateTransition) event).stateTransition();
-                sponsoredSessionVideoView.get().setPlayState(stateTransition);
-                if (stateTransition.playbackEnded()) {
+                videoView.setPlayState(stateTransition);
+                if (stateTransition.playbackEnded() || stateTransition.wasError()) {
                     advanceToNextPage();
                 }
             }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -71,9 +72,18 @@ public class SponsoredSessionCardViewTest extends AndroidUnitTest {
     public void secondOptionButtonForwardsClickToListener() {
         cardView.setupContentView(view, SPONSORED_SESSION_AD, listener, PrestitialPage.OPT_IN_CARD);
 
-        final View buttonView = view.findViewById(R.id.btn_right);
-        buttonView.performClick();
+        view.findViewById(R.id.btn_right).performClick();
 
         verify(listener).onOptionTwoClick(PrestitialPage.OPT_IN_CARD, SPONSORED_SESSION_AD);
+    }
+
+    @Test
+    public void clickingImageForwardsClickToListener() {
+        cardView.setupContentView(view, SPONSORED_SESSION_AD, listener, PrestitialPage.OPT_IN_CARD);
+
+        final View imageView = view.findViewById(R.id.ad_image_view);
+        imageView.performClick();
+
+        verify(listener).onImageClick(imageView.getContext(), SPONSORED_SESSION_AD, Optional.of(PrestitialPage.OPT_IN_CARD));
     }
 }

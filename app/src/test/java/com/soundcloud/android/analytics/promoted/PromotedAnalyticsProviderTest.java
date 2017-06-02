@@ -23,8 +23,10 @@ import com.soundcloud.android.events.AdSessionEventArgs;
 import com.soundcloud.android.events.InlayAdImpressionEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -421,6 +423,20 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertPromotedTrackingRecord(event1, "video_finish1", playbackSessionEvent.getTimestamp());
         final TrackingRecord event2 = captor.getAllValues().get(1);
         assertPromotedTrackingRecord(event2, "video_finish2", playbackSessionEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksSponsoredSessionStartEvent() {
+        final SponsoredSessionStartEvent event = SponsoredSessionStartEvent.create(AdFixtures.sponsoredSessionAd(), Screen.PRESTITIAL);
+        analyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "reward1", event.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "reward2", event.getTimestamp());
     }
 
     @Test

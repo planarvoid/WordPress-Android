@@ -160,6 +160,7 @@ public class AdFixtures {
     public static SponsoredSessionAd.ApiModel getApiSponsoredSession() {
         return SponsoredSessionAd.ApiModel.create(Urn.forAd("ads", "123"),
                                                   60,
+                                                  Arrays.asList("reward1", "reward2"),
                                                   getApiVideoAd(),
                                                   SponsoredSessionAd.OptInCard.create(
                                                           Urn.forAd("ads", "123"),

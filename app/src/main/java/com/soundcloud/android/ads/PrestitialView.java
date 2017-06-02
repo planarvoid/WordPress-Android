@@ -18,8 +18,8 @@ abstract class PrestitialView {
 
         void onSkipAd();
         void onWhyAdsClicked(Context context);
-        void onClickThrough(View view, AdData ad);
         void onImageLoadComplete(AdData ad, View imageView, Optional<PrestitialPage> page);
+        void onImageClick(Context context, AdData ad, Optional<PrestitialPage> page);
         void onOptionOneClick(PrestitialPage page, SponsoredSessionAd ad, Context context);
         void onOptionTwoClick(PrestitialPage page, SponsoredSessionAd ad);
         void onContinueClick();

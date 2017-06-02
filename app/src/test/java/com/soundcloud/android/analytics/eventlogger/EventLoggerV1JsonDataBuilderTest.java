@@ -18,6 +18,7 @@ import com.soundcloud.android.ads.AppInstallAd;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.InterstitialAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
+import com.soundcloud.android.ads.SponsoredSessionAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.ads.VisualPrestitialAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -28,6 +29,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.olddiscovery.recommendations.QuerySourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -1160,6 +1162,22 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::full_screen"));
+    }
+
+    @Test
+    public void createJsonForSponsoredSessionStartEvent() throws ApiMapperException {
+        final SponsoredSessionAd sponsoredSessionAd = AdFixtures.sponsoredSessionAd();
+        final SponsoredSessionStartEvent event = SponsoredSessionStartEvent.create(sponsoredSessionAd, Screen.PRESTITIAL);
+
+        jsonDataBuilder.buildForSponsoredSessionStartEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .monetizationType("sponsored_session")
+                                               .adUrn("ads:ads:123")
+                                               .pageName("ads:display")
+                                               .clickName("ad::start_session")
+                                               .clickTarget("60")
+                                               .clientEventId(event.id()));
     }
 
     @Test

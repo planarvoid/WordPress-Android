@@ -371,7 +371,7 @@ public abstract class UIEvent extends TrackingEvent {
     public static UIEvent fromPrestitialAdClickThrough(AdData ad) {
         final boolean isDisplayPrestitial = ad instanceof VisualPrestitialAd;
         return isDisplayPrestitial ? fromVisualDisplayPrestitial((VisualPrestitialAd) ad)
-                                   : fromSponsoredSession((SponsoredSessionAd) ad);
+                                   : fromSponsoredSessionClickthrough((SponsoredSessionAd) ad);
     }
 
     private static UIEvent fromVisualDisplayPrestitial(VisualPrestitialAd ad) {
@@ -382,7 +382,7 @@ public abstract class UIEvent extends TrackingEvent {
                                           .build();
     }
 
-    private static UIEvent fromSponsoredSession(SponsoredSessionAd ad) {
+    private static UIEvent fromSponsoredSessionClickthrough(SponsoredSessionAd ad) {
         final SponsoredSessionAd.OptInCard optInCard = ad.optInCard();
         return event(Kind.AD_CLICKTHROUGH).basicAdAttributes(ad)
                                           .adTrackingUrls(Optional.of(optInCard.trackingClickUrls()))

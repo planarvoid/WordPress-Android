@@ -31,15 +31,16 @@ class SponsoredSessionCardView extends PrestitialView {
         this.resources = resources;
     }
 
-    public void setupContentView(View view,
+    public void setupContentView(View cardView,
                                  SponsoredSessionAd ad,
                                  Listener listener,
                                  PrestitialPage prestitialPage) {
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, cardView);
 
         imageOperations.displayAdImage(ad.adUrn(), ad.optInCard().imageUrl(), imageView,
                                        new PrestitialImageCompanionListener(ad, listener, Optional.of(prestitialPage)));
 
+        imageView.setOnClickListener(view -> listener.onImageClick(view.getContext(), ad, Optional.of(prestitialPage)));
         optionOneView.setText(prestitialPage.optionOne);
         optionOneView.setOnClickListener(buttonView-> listener.onOptionOneClick(prestitialPage, ad, buttonView.getContext()));
         optionTwoView.setText(prestitialPage.optionTwo);

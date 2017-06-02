@@ -11,13 +11,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.PrestitialAdapter.PrestitialPage;
 import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
+import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.VideoSurfaceProvider;
@@ -112,41 +114,57 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void navigatesToClickThroughUrlOnClickThroughForVisualPrestitial() {
-        final View imageView = new View(context());
+    public void navigatesToClickThroughOnImageClickForVisualPrestitial() {
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, visualPrestitialAd);
+        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
 
         verify(navigationExecutor).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
     }
 
     @Test
-    public void noOpOnClickThroughForSponsoredSessionAd() {
-        final View imageView = new View(context());
+    public void navigatesToClickThroughOnImageClickForSponsoredSessionAdEndCard() {
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, sponsoredSessionAd);
+        presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
-        verify(navigationExecutor, never()).openAdClickthrough(context(), visualPrestitialAd.clickthroughUrl());
+        verify(navigationExecutor).openAdClickthrough(context(), sponsoredSessionAd.clickthroughUrl());
     }
 
     @Test
-    public void publishesUIEventOnClickThrough() {
-        final View imageView = new View(context());
+    public void navigatesToNextPageOnImageClickForSponsoredSessionOptInCard() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.OPT_IN_CARD));
+
+        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        assertThat(pager.getCurrentItem()).isEqualTo(2);
+    }
+
+    @Test
+    public void publishesUIEventOnClickThroughForVisualPrestitial() {
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, visualPrestitialAd);
+        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
+
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
+    }
+
+    @Test
+    public void publishesUIEventOnClickThroughForSponsoredSession() {
+        presenter.onCreate(activity, null);
+
+        presenter.onImageClick(context(), sponsoredSessionAd, Optional.of(PrestitialPage.END_CARD));
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(UIEvent.class);
     }
 
     @Test
     public void finishesActivityOnClickThrough() {
-        final View imageView = new View(context());
         presenter.onCreate(activity, null);
 
-        presenter.onClickThrough(imageView, visualPrestitialAd);
+        presenter.onImageClick(context(), visualPrestitialAd, Optional.absent());
 
         verify(activity).finish();
     }
@@ -182,12 +200,25 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         // Pager navigates to page where that contains image
         setSponsoredSessionPage(currentPage.ordinal());
 
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(SponsoredSessionStartEvent.class);
 
         // Only fires impression once
         setSponsoredSessionPage(currentPage.ordinal());
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
+    }
+
+    @Test
+    public void publishesSessionStartEventWhenPagerSwitchedToEndCard(){
+        setupSponsoredSession();
+        final PrestitialPage currentPage = PrestitialPage.END_CARD;
+        final int previousPageIndex = currentPage.ordinal() - 1;
+
+        setSponsoredSessionPage(previousPageIndex);
+        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+        setSponsoredSessionPage(currentPage.ordinal());
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(SponsoredSessionStartEvent.class);
     }
 
     @Test
@@ -241,6 +272,18 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         setSponsoredSessionPage(1);
 
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.complete();
+        eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
+
+        ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);
+        assertThat(pager.getCurrentItem()).isEqualTo(2);
+    }
+
+    @Test
+    public void pagerIsAdvancedWhenVideoHasAnError() {
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        final PlaybackStateTransition stateTransition = TestPlayerTransitions.error(PlayStateReason.ERROR_FORBIDDEN);
         eventBus.publish(EventQueue.AD_PLAYBACK, AdPlayStateTransition.create(sponsoredSessionAd.video(), stateTransition, false, new Date(1)));
 
         ViewPager pager = (ViewPager) activity.findViewById(R.id.prestitial_pager);

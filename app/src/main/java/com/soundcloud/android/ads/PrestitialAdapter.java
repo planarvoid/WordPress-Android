@@ -97,5 +97,9 @@ class PrestitialAdapter extends PagerAdapter {
             this.optionOne = optionOne;
             this.optionTwo = optionTwo;
         }
+
+        boolean is(PrestitialPage page) {
+            return this == page;
+        }
     }
 }
