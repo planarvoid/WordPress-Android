@@ -6,7 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlaybackItem;
@@ -33,7 +33,7 @@ public class PlayStatePublisherTest {
     @Mock private PlaySessionStateProvider sessionStateProvider;
     @Mock private PlaybackAnalyticsController analyticsController;
     @Mock private PlayQueueAdvancer playQueueAdvancer;
-    @Mock private AdsController adsController;
+    @Mock private PlayerAdsController adsController;
     @Mock private UuidProvider uuidProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
 

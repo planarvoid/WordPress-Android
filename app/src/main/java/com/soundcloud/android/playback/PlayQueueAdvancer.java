@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.utils.ConnectionHelper;
 
@@ -14,7 +14,7 @@ public class PlayQueueAdvancer {
     private final PlayQueueManager playQueueManager;
     private final ConnectionHelper connectionHelper;
     private final PlaySessionController playSessionController;
-    private final AdsController adsController;
+    private final PlayerAdsController adsController;
     private final PlaybackServiceController serviceController;
     private final CastConnectionHelper castConnectionHelper;
 
@@ -26,7 +26,7 @@ public class PlayQueueAdvancer {
     public PlayQueueAdvancer(PlayQueueManager playQueueManager,
                              ConnectionHelper connectionHelper,
                              PlaySessionController playSessionController,
-                             AdsController adsController,
+                             PlayerAdsController adsController,
                              PlaybackServiceController serviceController,
                              CastConnectionHelper castConnectionHelper) {
         this.playQueueManager = playQueueManager;

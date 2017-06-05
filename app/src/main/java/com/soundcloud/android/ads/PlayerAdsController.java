@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
-public class AdsController {
+public class PlayerAdsController {
 
     public static final int FAILED_AD_WAIT_SECS = 6;
     private static final int MAX_CONCURRENT_AD_FETCHES = 2;
@@ -126,42 +126,42 @@ public class AdsController {
     };
 
     @Inject
-    public AdsController(EventBus eventBus, AdsOperations adsOperations,
-                         FeatureOperations featureOperations,
-                         VisualAdImpressionOperations visualAdImpressionOperations,
-                         AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         VideoSourceProvider videoSourceProvider,
-                         PlayQueueManager playQueueManager,
-                         TrackRepository trackRepository, CastConnectionHelper castConnectionHelper) {
+    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+                               FeatureOperations featureOperations,
+                               VisualAdImpressionOperations visualAdImpressionOperations,
+                               AdOverlayImpressionOperations adOverlayImpressionOperations,
+                               VideoSourceProvider videoSourceProvider,
+                               PlayQueueManager playQueueManager,
+                               TrackRepository trackRepository, CastConnectionHelper castConnectionHelper) {
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
              videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, AndroidSchedulers.mainThread());
     }
 
-    public AdsController(EventBus eventBus, AdsOperations adsOperations,
-                         FeatureOperations featureOperations,
-                         VisualAdImpressionOperations visualAdImpressionOperations,
-                         AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         VideoSourceProvider videoSourceProvider,
-                         PlayQueueManager playQueueManager,
-                         TrackRepository trackRepository,
-                         CastConnectionHelper castConnectionHelper,
-                         Scheduler scheduler) {
+    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+                               FeatureOperations featureOperations,
+                               VisualAdImpressionOperations visualAdImpressionOperations,
+                               AdOverlayImpressionOperations adOverlayImpressionOperations,
+                               VideoSourceProvider videoSourceProvider,
+                               PlayQueueManager playQueueManager,
+                               TrackRepository trackRepository,
+                               CastConnectionHelper castConnectionHelper,
+                               Scheduler scheduler) {
 
         this(eventBus, adsOperations, featureOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
              videoSourceProvider, playQueueManager, trackRepository, castConnectionHelper, scheduler,
              DEFAULT_OPERATION_STALE_TIME);
     }
 
-    public AdsController(EventBus eventBus, AdsOperations adsOperations,
-                         FeatureOperations featureOperations,
-                         VisualAdImpressionOperations visualAdImpressionOperations,
-                         AdOverlayImpressionOperations adOverlayImpressionOperations,
-                         VideoSourceProvider videoSourceProvider,
-                         PlayQueueManager playQueueManager,
-                         TrackRepository trackRepository,
-                         CastConnectionHelper castConnectionHelper,
-                         Scheduler scheduler,
-                         long fetchOperationStaleTime) {
+    public PlayerAdsController(EventBus eventBus, AdsOperations adsOperations,
+                               FeatureOperations featureOperations,
+                               VisualAdImpressionOperations visualAdImpressionOperations,
+                               AdOverlayImpressionOperations adOverlayImpressionOperations,
+                               VideoSourceProvider videoSourceProvider,
+                               PlayQueueManager playQueueManager,
+                               TrackRepository trackRepository,
+                               CastConnectionHelper castConnectionHelper,
+                               Scheduler scheduler,
+                               long fetchOperationStaleTime) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.featureOperations = featureOperations;

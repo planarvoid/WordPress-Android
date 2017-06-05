@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.external;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.PlaybackServiceController;
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -16,7 +16,7 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaybackServiceController serviceInitiator;
-    @Mock private AdsController adsController;
+    @Mock private PlayerAdsController adsController;
 
     @Before
     public void setup() {

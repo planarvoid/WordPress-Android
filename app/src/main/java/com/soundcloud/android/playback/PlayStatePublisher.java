@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.utils.Log;
@@ -17,7 +17,7 @@ public class PlayStatePublisher {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final PlaybackAnalyticsController analyticsController;
     private final PlayQueueAdvancer playQueueAdvancer;
-    private final AdsController adsController;
+    private final PlayerAdsController adsController;
     private final EventBus eventBus;
     private final CastConnectionHelper castConnectionHelper;
 
@@ -25,7 +25,7 @@ public class PlayStatePublisher {
     public PlayStatePublisher(PlaySessionStateProvider playSessionStateProvider,
                               PlaybackAnalyticsController analyticsController,
                               PlayQueueAdvancer playQueueAdvancer,
-                              AdsController adsController,
+                              PlayerAdsController adsController,
                               EventBus eventBus,
                               CastConnectionHelper castConnectionHelper) {
         this.playSessionStateProvider = playSessionStateProvider;

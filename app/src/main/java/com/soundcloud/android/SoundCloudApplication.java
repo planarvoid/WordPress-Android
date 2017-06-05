@@ -13,7 +13,7 @@ import com.moat.analytics.mobile.scl.MoatAnalytics;
 import com.moat.analytics.mobile.scl.MoatOptions;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.PlaySessionOriginScreenProvider;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -109,7 +109,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlaylistExploder playlistExploder;
     @Inject PlayQueueExtender playQueueExtender;
     @Inject PlayPublisher playPublisher;
-    @Inject AdsController adsController;
+    @Inject PlayerAdsController playerAdsController;
     @Inject PlaylistTagStorage playlistTagStorage;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
@@ -227,7 +227,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
-        adsController.subscribe();
+        playerAdsController.subscribe();
         screenProvider.subscribe();
         playSessionOriginScreenProvider.subscribe();
         appboyPlaySessionState.subscribe();

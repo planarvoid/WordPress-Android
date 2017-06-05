@@ -6,7 +6,7 @@ import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPP
 import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.analytics.performance.MetricKey;
@@ -48,7 +48,7 @@ public class PlaySessionController {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 
-    private final AdsController adsController;
+    private final PlayerAdsController playerAdsController;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final CastConnectionHelper castConnectionHelper;
@@ -64,7 +64,7 @@ public class PlaySessionController {
     @Inject
     public PlaySessionController(EventBus eventBus,
                                  AdsOperations adsOperations,
-                                 AdsController adsController,
+                                 PlayerAdsController playerAdsController,
                                  PlayQueueManager playQueueManager,
                                  PlaySessionStateProvider playSessionStateProvider,
                                  CastConnectionHelper castConnectionHelper,
@@ -75,7 +75,7 @@ public class PlaySessionController {
                                  PerformanceMetricsEngine performanceMetricsEngine) {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
-        this.adsController = adsController;
+        this.playerAdsController = playerAdsController;
         this.playQueueManager = playQueueManager;
         this.playbackStrategyProvider = playbackStrategyProvider;
         this.playbackFeedbackHelper = playbackFeedbackHelper;
@@ -203,7 +203,7 @@ public class PlaySessionController {
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         if (!playQueueManager.getCurrentPlayQueueItem().equals(playQueueItem)) {
-            adsController.publishAdDeliveryEventIfUpcoming();
+            playerAdsController.publishAdDeliveryEventIfUpcoming();
             publishSkipEventIfAd();
             playQueueManager.setCurrentPlayQueueItem(playQueueItem);
         }

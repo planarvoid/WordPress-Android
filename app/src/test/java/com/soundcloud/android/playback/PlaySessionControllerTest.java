@@ -15,7 +15,7 @@ import com.soundcloud.android.PlaybackServiceController;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AdsController;
+import com.soundcloud.android.ads.PlayerAdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -61,7 +61,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
-    @Mock private AdsController adsController;
+    @Mock private PlayerAdsController adsController;
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private ConnectionHelper connectionHelper;
     @Mock private PlaybackStrategy playbackStrategy;
