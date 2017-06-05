@@ -2,11 +2,12 @@ package com.soundcloud.android.deeplinks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.navigation.NavigationTarget;
+import com.soundcloud.android.ads.AdsStorage;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.navigation.NavigationTarget;
 import com.soundcloud.android.navigation.Navigator;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.res.Resources;
 import android.net.Uri;
@@ -17,6 +18,7 @@ public class ResolveActivity extends RootActivity {
 
     @Inject ReferrerResolver referrerResolver;
     @Inject Navigator navigator;
+    @Inject AdsStorage adsStorage;
 
     public ResolveActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -47,6 +49,7 @@ public class ResolveActivity extends RootActivity {
         } catch (UriResolveException e) {
             ErrorUtils.handleSilentException(e);
         }
+        adsStorage.setLastPrestitialFetch(); // prevent prestitial from launching when DeepLink
         navigator.navigateTo(NavigationTarget.forExternalDeeplink(this, uri.toString(), referrer));
     }
 

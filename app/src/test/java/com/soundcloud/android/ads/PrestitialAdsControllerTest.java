@@ -7,11 +7,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.RootActivity;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.Context;
 import android.content.Intent;
 
 public class PrestitialAdsControllerTest extends AndroidUnitTest {
@@ -28,12 +27,17 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
     @Mock NavigationExecutor navigationExecutor;
     @Mock AdsOperations adsOperations;
     @Mock PlaySessionStateProvider playSessionStateProvider;
+    @Mock AdsStorage adsStorage;
 
     @Mock RootActivity activity;
     @Mock Intent intent;
 
     private TestEventBus eventBus;
     private PrestitialAdsController controller;
+    private TestPrestitialStateSetup stateSetup;
+    private final Observable<VisualPrestitialAd> VISUAL_PRESTITIAL_AD = Observable.just(AdFixtures.visualPrestitialAd());
+    private final Observable<VisualPrestitialAd> NO_AD = Observable.empty();
+    Runnable notFetched, notOpened, isFetched, isOpened;
 
     @Before
     public void setUp() {
@@ -41,94 +45,163 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         controller = new PrestitialAdsController(adsOperations,
                                                  playSessionStateProvider,
                                                  navigationExecutor,
+                                                 adsStorage,
                                                  eventBus);
 
         when(activity.getIntent()).thenReturn(intent);
+        stateSetup = new TestPrestitialStateSetup();
+        setUpVerifications();
+        controller.onCreate(activity, null);
     }
 
     @Test
-    public void willNotFetchPrestitialOnCreateIfNotLaunchedFromLauncher() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+    public void willNotFetchPrestitialOnResumeIfNotLaunchedFromLauncher() {
+        stateSetup.isPlaying(false)
+                  .fromLauncher(false)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
-        controller.onCreate(activity, null);
+        controller.onResume(activity);
 
-        verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verifyPrestitial(notFetched, notOpened);
     }
 
     @Test
-    public void willNotFetchPrestitialOnCreateIfLaunchedFromLauncherAndPlayerPlaying() {
-        final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.just(prestitial));
+    public void willNotFetchPrestitialOnResumeIfLaunchedFromLauncherAndPlayerPlaying() {
+        stateSetup.isPlaying(true)
+                  .fromLauncher(true)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
-        controller.onCreate(activity, null);
+        controller.onResume(activity);
 
-        verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verifyPrestitial(notFetched, notOpened);
     }
 
     @Test
     public void willFetchAndLaunchPrestitialOnCreateIfLaunchedFromLauncherAndPlayerNotPlaying() {
-        final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.just(prestitial));
+        stateSetup.isPlaying(false)
+                  .fromLauncher(true)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
-        controller.onCreate(activity, null);
+        controller.onResume(activity);
 
-        verify(navigationExecutor).openPrestititalAd(activity);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
+        verifyPrestitial(isFetched, isOpened);
+    }
+
+    @Test
+    public void willFetchAndLaunchPrestitialOnResumeIfTimeLimitHasPassedAndPlayerNotPlaying() {
+        stateSetup.isPlaying(false)
+                  .fromLauncher(false)
+                  .hasPassedTimeLimit(true)
+                  .withAd(VISUAL_PRESTITIAL_AD);
+
+        controller.onResume(activity);
+
+        verifyPrestitial(isFetched, isOpened);
+    }
+
+    @Test
+    public void willNotFetchAndLaunchPrestitialOnResumeIfTimeLimitHasPassedAndPlayerIsPlaying() {
+        stateSetup.isPlaying(true)
+                  .fromLauncher(false)
+                  .hasPassedTimeLimit(true)
+                  .withAd(VISUAL_PRESTITIAL_AD);
+
+        controller.onResume(activity);
+
+        verifyPrestitial(notFetched, notOpened);
     }
 
     @Test
     public void willNotLaunchPrestitialIfPrestitialsFetchReturnsEmpty() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.empty());
+        stateSetup.isPlaying(false)
+                  .fromLauncher(true)
+                  .hasPassedTimeLimit(true)
+                  .withAd(NO_AD);
 
-        controller.onCreate(activity, null);
+        controller.onResume(activity);
 
-        verify(navigationExecutor, never()).openPrestititalAd(any(Context.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verifyPrestitial(isFetched, notOpened);
     }
 
     @Test
     public void willNotFetchPrestitialOnNewIntentIfNotLaunchedFromLauncher() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
+        stateSetup.isPlaying(false)
+                  .fromLauncher(false)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
         controller.onNewIntent(activity, intent);
 
-        verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verifyPrestitial(notFetched, notOpened);
     }
 
     @Test
     public void willNotFetchPrestitialOnNewIntentIfLaunchedFromLauncherAndPlayerPlaying() {
-        final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.just(prestitial));
+        stateSetup.isPlaying(true)
+                  .fromLauncher(true)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
         controller.onNewIntent(activity, intent);
 
-        verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+        verifyPrestitial(notFetched, notOpened);
     }
 
     @Test
     public void willFetchAndLaunchPrestitialOnNewIntentIfLaunchedFromLauncherAndPlayerNotPlaying() {
-        final VisualPrestitialAd prestitial = AdFixtures.visualPrestitialAd();
-
-        controller.onCreate(activity, null);
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(true);
-        when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(Observable.just(prestitial));
+        stateSetup.isPlaying(false)
+                  .fromLauncher(true)
+                  .hasPassedTimeLimit(false)
+                  .withAd(VISUAL_PRESTITIAL_AD);
 
         controller.onNewIntent(activity, intent);
 
-        verify(navigationExecutor, times(1)).openPrestititalAd(activity);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
+        verifyPrestitial(isFetched, isOpened);
+    }
+
+    private void setUpVerifications() {
+        isFetched = () -> verify(adsOperations, times(1)).prestitialAd(any(AdRequestData.class));
+        notFetched = () -> verify(adsOperations, never()).prestitialAd(any(AdRequestData.class));
+        isOpened = () -> {
+            verify(navigationExecutor, times(1)).openPrestititalAd(activity);
+            assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
+            verify(adsStorage, times(1)).setLastPrestitialFetch();
+        };
+        notOpened = () -> {
+            verify(navigationExecutor, never()).openPrestititalAd(activity);
+            assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+            verify(adsStorage, never()).setLastPrestitialFetch();
+        };
+    }
+
+    private void verifyPrestitial(Runnable... verifications) {
+        for(Runnable verification : verifications) {
+            verification.run();
+        }
+    }
+
+    private class TestPrestitialStateSetup {
+        TestPrestitialStateSetup fromLauncher(boolean isFromLauncher) {
+            when(intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false)).thenReturn(isFromLauncher);
+            return this;
+        }
+
+        TestPrestitialStateSetup withAd(Observable ad) {
+            when(adsOperations.prestitialAd(any(AdRequestData.class))).thenReturn(ad);
+            return this;
+        }
+
+        TestPrestitialStateSetup isPlaying(boolean isPlaying) {
+            when(playSessionStateProvider.isPlaying()).thenReturn(isPlaying);
+            return this;
+        }
+
+        TestPrestitialStateSetup hasPassedTimeLimit(boolean canRequestPrestitial) {
+            when(adsStorage.shouldShowPrestitial()).thenReturn(canRequestPrestitial);
+            return this;
+        }
     }
 }

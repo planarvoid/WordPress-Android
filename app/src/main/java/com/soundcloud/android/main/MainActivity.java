@@ -1,12 +1,12 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.PrestitialAdsController;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.deeplinks.ShortcutController;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.lightcycle.LightCycle;

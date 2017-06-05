@@ -26,6 +26,7 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
     private final AdsOperations adsOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final NavigationExecutor navigationExecutor;
+    private final AdsStorage adsStorage;
     private final EventBus eventBus;
 
     private RootActivity activity;
@@ -37,10 +38,12 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
     PrestitialAdsController(AdsOperations adsOperations,
                             PlaySessionStateProvider playSessionStateProvider,
                             NavigationExecutor navigationExecutor,
+                            AdsStorage adsStorage,
                             EventBus eventBus) {
         this.adsOperations = adsOperations;
         this.playSessionStateProvider = playSessionStateProvider;
         this.navigationExecutor = navigationExecutor;
+        this.adsStorage = adsStorage;
         this.eventBus = eventBus;
     }
 
@@ -48,16 +51,18 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
     public void onCreate(RootActivity activity, @Nullable Bundle bundle) {
         super.onCreate(activity, bundle);
         this.activity = activity;
-
-        if (bundle == null) {
-            fetchPrestitialAdIfNecessary(activity.getIntent());
-        }
     }
 
     @Override
     public void onNewIntent(RootActivity activity, Intent intent) {
         super.onNewIntent(activity, intent);
         fetchPrestitialAdIfNecessary(intent);
+    }
+
+    @Override
+    public void onResume(RootActivity activity) {
+        super.onResume(activity);
+        fetchPrestitialAdIfNecessary(activity.getIntent());
     }
 
     @Override
@@ -79,7 +84,8 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     private void fetchPrestitialAdIfNecessary(Intent intent) {
         final boolean startedFromLauncher = intent.getBooleanExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false);
-        if (startedFromLauncher && !playSessionStateProvider.isPlaying()) {
+        if ((startedFromLauncher || adsStorage.shouldShowPrestitial()) && !playSessionStateProvider.isPlaying()) {
+            intent.putExtra(LauncherActivity.EXTRA_FROM_LAUNCHER, false);
             final AdRequestData requestData = AdRequestData.forPageAds(Optional.absent());
             subscriber = adsOperations.prestitialAd(requestData)
                                       .subscribe(new PrestitialAdSubscriber(requestData.getRequestId()));
@@ -95,10 +101,11 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
         @Override
         public void onNext(AdData data) {
-
-                final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
-            currentAd = Optional.of(data);    eventBus.publish(EventQueue.TRACKING, event);
-                navigationExecutor.openPrestititalAd(activity);
+            final AdDeliveryEvent event = AdDeliveryEvent.adDelivered(data.adUrn(), requestId);
+            currentAd = Optional.of(data);
+            eventBus.publish(EventQueue.TRACKING, event);
+            navigationExecutor.openPrestititalAd(activity);
+            adsStorage.setLastPrestitialFetch();
         }
     }
 }

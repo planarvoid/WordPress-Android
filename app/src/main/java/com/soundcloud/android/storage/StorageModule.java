@@ -51,6 +51,7 @@ public class StorageModule {
     public static final String FEATURES_FLAGS = "FeatureFlags";
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
     public static final String PREFS_FEATURE_FLAGS = "feature_flags";
+    public static final String ADS = "ads";
 
     private static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
     private static final String CHARTS_SYNC = "ChartsSync";
@@ -80,6 +81,7 @@ public class StorageModule {
     private static final String PREFS_IMAGE_CONFIG = "image_configuration";
     private static final String PREFS_PLAY_SESSION_STATE = "play_session_state";
     private static final String PREFS_UNAUTHORIZED_ERRORS = "unauthorized_errors";
+    private static final String PREFS_ADS = "ads";
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY_SKIPPY)
@@ -174,6 +176,12 @@ public class StorageModule {
     SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
         return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE),
                                          obfuscator);
+    }
+
+    @Provides
+    @Named(ADS)
+    SharedPreferences provideAdsPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_ADS, Context.MODE_PRIVATE);
     }
 
     @Provides
