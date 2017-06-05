@@ -78,6 +78,7 @@ android {
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
     }
 
     alpha {
@@ -101,6 +102,7 @@ android {
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
     }
 
     beta {
@@ -117,6 +119,7 @@ android {
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
     }
 
     release {
@@ -131,6 +134,7 @@ android {
       buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
+      buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
     }
   }
 }
