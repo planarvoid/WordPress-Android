@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.ads.PlayableAdData.ReportingEvent;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.PlayableAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
@@ -168,9 +169,14 @@ public abstract class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     private static List<String> getStartTracking(PlayableAdData adData) {
-        List<String> trackingUrls = new ArrayList<>();
-        trackingUrls.addAll(adData.impressionUrls());
+        final List<String> trackingUrls = new ArrayList<>();
+
+        // Sponsored session impression urls are fired separately (earlier, for frequency capping)
+        if (adData.monetizationType() != AdData.MonetizationType.SPONSORED_SESSION) {
+            trackingUrls.addAll(adData.impressionUrls());
+        }
         trackingUrls.addAll(adData.startUrls());
+
         return trackingUrls;
     }
 

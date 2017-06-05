@@ -117,6 +117,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
         pagerRef = new WeakReference<>(pager);
         currentPage = Optional.of(PrestitialPage.OPT_IN_CARD);
         pageListener = Optional.of(pageChangeListener);
+        eventBus.publish(EventQueue.TRACKING, PrestitialAdImpressionEvent.createForSponsoredSession(ad));
     }
 
     @Override
@@ -191,7 +192,7 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     }
 
     private void onImageLoadForSponsoredSession(SponsoredSessionAd ad, PrestitialPage page) {
-        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.createForSponsoredSession(ad, page.is(PrestitialPage.END_CARD));
+        final PrestitialAdImpressionEvent event = PrestitialAdImpressionEvent.createForSponsoredSessionDisplay(ad, page.is(PrestitialPage.END_CARD));
         if (currentPage.contains(page)) {
             publishTrackingEvent(event);
         } else {

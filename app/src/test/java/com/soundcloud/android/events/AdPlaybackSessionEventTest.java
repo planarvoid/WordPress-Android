@@ -123,6 +123,19 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldCreateFromPlayEventWithStartUrlsForSponsoredSessionVideoAd() {
+        final VideoAd videoAd = AdFixtures.sponsoredSessionAd().video();
+        final AdSessionEventArgs args = AdSessionEventArgs.create(sourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forStart(videoAd, args);
+
+        assertThat(playEvent.eventKind()).isEqualTo(AdPlaybackSessionEvent.EventKind.START);
+        assertThat(playEvent.adUrn()).isEqualTo(AD_URN_2);
+        assertThat(playEvent.monetizationType()).isEqualTo(AdData.MonetizationType.SPONSORED_SESSION);
+        assertThat(playEvent.trackingUrls().get()).containsExactly("video_start1",
+                                                                   "video_start2");
+    }
+
+    @Test
     public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(TRACK_URN);
         videoAd.setEventReported(PlayableAdData.ReportingEvent.START);

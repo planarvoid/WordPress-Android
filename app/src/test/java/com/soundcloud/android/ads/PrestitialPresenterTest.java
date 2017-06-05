@@ -17,6 +17,7 @@ import com.soundcloud.android.events.AdPlaybackEvent.AdPlayStateTransition;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.SponsoredSessionStartEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -41,6 +42,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.util.Date;
+import java.util.List;
 
 public class PrestitialPresenterTest extends AndroidUnitTest {
 
@@ -195,29 +197,31 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         // Image loads but is not on screen
         presenter.onImageLoadComplete(sponsoredSessionAd, imageView, Optional.of(currentPage));
 
-        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
-
         // Pager navigates to page where that contains image
         setSponsoredSessionPage(currentPage.ordinal());
 
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
-        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(SponsoredSessionStartEvent.class);
+        final List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events.size()).isEqualTo(3);
+        assertThat(events.get(0)).isInstanceOf(PrestitialAdImpressionEvent.class);
+        assertThat(events.get(1)).isInstanceOf(PrestitialAdImpressionEvent.class);
+        assertThat(events.get(2)).isInstanceOf(SponsoredSessionStartEvent.class);
 
         // Only fires impression once
         setSponsoredSessionPage(currentPage.ordinal());
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
+        assertThat(events.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void publishesImpressionEventWhenOptInCardShowsUp(){
+        setupSponsoredSession();
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isInstanceOf(PrestitialAdImpressionEvent.class);
     }
 
     @Test
     public void publishesSessionStartEventWhenPagerSwitchedToEndCard(){
         setupSponsoredSession();
-        final PrestitialPage currentPage = PrestitialPage.END_CARD;
-        final int previousPageIndex = currentPage.ordinal() - 1;
-
-        setSponsoredSessionPage(previousPageIndex);
-        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
-        setSponsoredSessionPage(currentPage.ordinal());
+        setSponsoredSessionPage(PrestitialPage.END_CARD.ordinal());
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(SponsoredSessionStartEvent.class);
     }
 

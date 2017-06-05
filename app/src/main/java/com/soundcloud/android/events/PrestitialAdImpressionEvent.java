@@ -14,6 +14,7 @@ import java.util.List;
 public abstract class PrestitialAdImpressionEvent extends TrackingEvent {
     private static final String DISPLAY_IMPRESSION_NAME = "display";
     private static final String END_CARD_IMPRESSION_NAME = "end_card";
+    private static final String SPONSORED_SESSION_IMPRESSION_NAME = "sponsored_session";
 
     public static final String EVENT_NAME = "impression";
     public static final String PAGE_NAME = Screen.PRESTITIAL.get();
@@ -36,7 +37,11 @@ public abstract class PrestitialAdImpressionEvent extends TrackingEvent {
                                                          monetizationType);
     }
 
-    public static PrestitialAdImpressionEvent createForSponsoredSession(SponsoredSessionAd ad, boolean isEndCard) {
+    public static PrestitialAdImpressionEvent createForSponsoredSession(SponsoredSessionAd ad) {
+        return create(ad.adUrn(), SPONSORED_SESSION_IMPRESSION_NAME, ad.video().impressionUrls(), ad.monetizationType().key());
+    }
+
+    public static PrestitialAdImpressionEvent createForSponsoredSessionDisplay(SponsoredSessionAd ad, boolean isEndCard) {
         final SponsoredSessionAd.OptInCard displayCard = ad.optInCard();
         final String impressionName = isEndCard ? END_CARD_IMPRESSION_NAME : DISPLAY_IMPRESSION_NAME;
         final List<String> impressionUrls = isEndCard ? Collections.emptyList() : displayCard.trackingImpressionUrls();
