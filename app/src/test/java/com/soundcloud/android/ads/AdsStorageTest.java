@@ -38,7 +38,7 @@ public class AdsStorageTest extends AndroidUnitTest {
 
     @Test
     public void shouldShowPrestitialReturnsFalseIfFetchIntervalHasNotPassed() {
-        setPrestitialFetchMinutesAgo(10);
+        setPrestitialFetchMinutesAgo(1);
 
         assertThat(adsStorage.shouldShowPrestitial()).isFalse();
     }
