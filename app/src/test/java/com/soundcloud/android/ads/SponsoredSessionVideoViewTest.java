@@ -131,9 +131,9 @@ public class SponsoredSessionVideoViewTest extends AndroidUnitTest {
     }
 
     @Test
-    public void pressingVideoContainerCallsTogglePlaybackOnListener() {
+    public void pressingVideoViewCallsTogglePlaybackOnListener() {
         videoView.setupContentView(view, SPONSORED_SESSION, listener);
-        view.findViewById(R.id.video_container).performClick();
+        view.findViewById(R.id.video_view).performClick();
 
         verify(listener).onTogglePlayback();
     }

@@ -72,9 +72,10 @@ class SponsoredSessionVideoView extends PrestitialView {
     }
 
     private void bindClickListeners(Listener listener) {
-        playButton.setOnClickListener(ignored -> listener.onTogglePlayback());
-        videoContainer.setOnClickListener(ignored -> listener.onTogglePlayback());
-        videoOverlay.setOnClickListener(ignored -> listener.onTogglePlayback());
+        final View.OnClickListener togglePlaybackOnClick = ignored -> listener.onTogglePlayback();
+        playButton.setOnClickListener(togglePlaybackOnClick);
+        videoOverlay.setOnClickListener(togglePlaybackOnClick);
+        videoView.setOnClickListener(togglePlaybackOnClick);
         whyAds.setOnClickListener(textView -> listener.onWhyAdsClicked(textView.getContext()));
         skipAd.setOnClickListener(ignored -> listener.onSkipAd());
     }
