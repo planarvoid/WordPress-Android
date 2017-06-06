@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import static android.util.Log.DEBUG;
 import static com.soundcloud.android.analytics.performance.MetricType.APP_ON_CREATE;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
@@ -50,8 +49,8 @@ import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
@@ -372,16 +371,13 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     @VisibleForTesting
     public boolean addUserAccountAndEnableSync(ApiUser user, Token token, SignupVia via) {
-        ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "entering addUserAccountAndEnableSync");
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time
             syncConfig.enableSyncing(account);
             requestCollectionsSync();
-            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addUserAccountAndEnableSync: true");
             return true;
         } else {
-            ErrorUtils.logInBetaAndBelow(DEBUG, "AddAccountFlow", "addUserAccountAndEnableSync: false");
             return false;
         }
     }
