@@ -416,6 +416,13 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         verify(adsOperations).inlayAds(any(AdRequestData.class));
     }
 
+    @Test
+    public void clearAdsShouldResetControllerAndRemoveAllAdsFromInlayAdHelper() {
+        controller.clearAds();
+
+        verify(inlayAdHelper).removeAllAds();
+    }
+
     private Observable<List<AdData>> justInlays() {
         final List<AdData> installs = new ArrayList<>(inlays);
         return Observable.just(installs);

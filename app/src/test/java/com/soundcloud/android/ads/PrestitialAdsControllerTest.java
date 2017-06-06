@@ -24,6 +24,9 @@ import android.content.Intent;
 
 public class PrestitialAdsControllerTest extends AndroidUnitTest {
 
+    @Mock PlayerAdsController playerAdsController;
+    @Mock StreamAdsController streamAdsController;
+
     @Mock NavigationExecutor navigationExecutor;
     @Mock AdsOperations adsOperations;
     @Mock PlaySessionStateProvider playSessionStateProvider;
@@ -37,12 +40,14 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
     private TestPrestitialStateSetup stateSetup;
     private final Observable<VisualPrestitialAd> VISUAL_PRESTITIAL_AD = Observable.just(AdFixtures.visualPrestitialAd());
     private final Observable<VisualPrestitialAd> NO_AD = Observable.empty();
-    Runnable notFetched, notOpened, isFetched, isOpened;
+    private Runnable notFetched, notOpened, isFetched, isOpened;
 
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        controller = new PrestitialAdsController(adsOperations,
+        controller = new PrestitialAdsController(playerAdsController,
+                                                 streamAdsController,
+                                                 adsOperations,
                                                  playSessionStateProvider,
                                                  navigationExecutor,
                                                  adsStorage,
@@ -160,6 +165,14 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         controller.onNewIntent(activity, intent);
 
         verifyPrestitial(isFetched, isOpened);
+    }
+
+    @Test
+    public void clearAllExistingAdsShouldCallClearAdsOnPlayerAdsControllerAndStreamAdsController() {
+        controller.clearAllExistingAds();
+
+        verify(playerAdsController).clearAds();
+        verify(streamAdsController).clearAds();
     }
 
     private void setUpVerifications() {

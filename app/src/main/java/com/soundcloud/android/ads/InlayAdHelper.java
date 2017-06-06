@@ -58,6 +58,10 @@ class InlayAdHelper {
         this.videoAdItemRenderer = adapter.getVideoAdItemRenderer();
     }
 
+    void removeAllAds() {
+        adapter.removeAds();
+    }
+
     Subscription subscribe() {
         return eventBus.queue(EventQueue.AD_PLAYBACK)
                        .filter(AdPlaybackEvent::forStateTransition)

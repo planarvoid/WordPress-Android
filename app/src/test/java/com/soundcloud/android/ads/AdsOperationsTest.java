@@ -466,13 +466,26 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void sendsEventWhenClearingAds() {
+    public void sendsEventWhenClearingPlayableAdsFromQueue() {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.removeItems(any())).thenReturn(true);
+        when(playQueueManager.removeOverlayAds()).thenReturn(false);
 
         adsOperations.clearAllAdsFromQueue();
 
         verify(playQueueManager).removeItems(eq(AdUtils.IS_PLAYER_AD_ITEM));
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
+    }
+
+    @Test
+    public void sendsEventWhenClearingOverlayAds() {
+        when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
+        when(playQueueManager.removeItems(any())).thenReturn(false);
+        when(playQueueManager.removeOverlayAds()).thenReturn(true);
+
+        adsOperations.clearAllAdsFromQueue();
+
+        verify(playQueueManager).removeOverlayAds();
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
     }
 

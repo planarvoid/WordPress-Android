@@ -8,6 +8,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
@@ -20,8 +21,8 @@ import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -805,6 +806,16 @@ public class PlayerAdsControllerTest extends AndroidUnitTest {
         adsController.publishAdDeliveryEventIfUpcoming();
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
+    }
+
+    @Test
+    public void clearingAdsInControllerShouldForwardCallToAdsOperation() {
+        adsController.clearAds();
+
+        verify(adsOperations).clearAllAdsFromQueue();
+
+        adsController.reconfigureAdForNextTrack();
+        verifyNoMoreInteractions(playQueueManager);
     }
 
     private void insertFullAdsForNextTrack() {

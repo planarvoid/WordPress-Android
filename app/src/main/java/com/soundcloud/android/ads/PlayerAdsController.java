@@ -230,6 +230,11 @@ public class PlayerAdsController {
         }
     }
 
+    void clearAds() {
+        adsForNextTrack = Optional.absent();
+        adsOperations.clearAllAdsFromQueue();
+    }
+
     private Urn getUpcomingMonetizableUrn() {
         final List<Urn> upcomingUrns = playQueueManager.getUpcomingPlayQueueItems(2);
         for (Urn monetizableUrn : currentAdsFetches.keySet()) {

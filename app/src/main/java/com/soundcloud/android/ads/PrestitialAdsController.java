@@ -1,13 +1,14 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.RootActivity;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -23,6 +24,9 @@ import javax.inject.Singleton;
 @Singleton
 public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootActivity> {
 
+    private final PlayerAdsController playerAdsController;
+    private final StreamAdsController streamAdsController;
+
     private final AdsOperations adsOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final NavigationExecutor navigationExecutor;
@@ -35,11 +39,15 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
     private Optional<AdData> currentAd = Optional.absent();
 
     @Inject
-    PrestitialAdsController(AdsOperations adsOperations,
+    PrestitialAdsController(PlayerAdsController playerAdsController,
+                            StreamAdsController streamAdsController,
+                            AdsOperations adsOperations,
                             PlaySessionStateProvider playSessionStateProvider,
                             NavigationExecutor navigationExecutor,
                             AdsStorage adsStorage,
                             EventBus eventBus) {
+        this.playerAdsController = playerAdsController;
+        this.streamAdsController = streamAdsController;
         this.adsOperations = adsOperations;
         this.playSessionStateProvider = playSessionStateProvider;
         this.navigationExecutor = navigationExecutor;
@@ -80,6 +88,12 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     Optional<AdData> getCurrentAd() {
         return currentAd;
+    }
+
+    void clearAllExistingAds() {
+        Log.d(Log.ADS_TAG, "Clearing all inserted ads");
+        playerAdsController.clearAds();
+        streamAdsController.clearAds();
     }
 
     private void fetchPrestitialAdIfNecessary(Intent intent) {

@@ -674,6 +674,21 @@ public class PlayQueueManager {
         return queueUpdated;
     }
 
+    public boolean removeOverlayAds() {
+        boolean queueUpdated = false;
+        for (int i = 0; i < playQueue.size(); i++) {
+            final PlayQueueItem item = playQueue.getPlayQueueItem(i);
+            if (item.getAdData().isPresent() && item.isTrack()) {
+                final TrackQueueItem track = new TrackQueueItem.Builder((TrackQueueItem) item)
+                                                               .withoutAdData()
+                                                               .build();
+                playQueue.replaceItem(i, Collections.singletonList(track));
+                queueUpdated = true;
+            }
+        }
+        return queueUpdated;
+    }
+
     @Nullable
     public PromotedSourceInfo getCurrentPromotedSourceInfo(Urn trackUrn) {
         if (isTrackFromCurrentPromotedItem(trackUrn)) {

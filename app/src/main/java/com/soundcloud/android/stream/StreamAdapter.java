@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.ListIterator;
 
 public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, RecyclerView.ViewHolder> {
 
@@ -106,6 +107,17 @@ public class StreamAdapter extends PagingRecyclerItemAdapter<StreamItem, Recycle
         ErrorUtils.log(Log.INFO, "StreamAdapter", "Remove position = [" + position + "]");
         checkMainThread();
         super.removeItem(position);
+    }
+
+    public void removeAds() {
+        checkMainThread();
+        final ListIterator<StreamItem> iterator = items.listIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().isAd()) {
+                iterator.remove();
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override

@@ -247,7 +247,10 @@ public class AdsOperations {
     }
 
     public void clearAllAdsFromQueue() {
-        if (playQueueManager.removeItems(AdUtils.IS_PLAYER_AD_ITEM)) {
+        final boolean itemsRemoved = playQueueManager.removeItems(AdUtils.IS_PLAYER_AD_ITEM);
+        final boolean adDataRemoved = playQueueManager.removeOverlayAds();
+
+        if (itemsRemoved || adDataRemoved) {
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAdsRemoved(playQueueManager.getCollectionUrn()));
         }
     }

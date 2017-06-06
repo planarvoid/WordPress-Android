@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PrestitialAdImpressionEvent;
 import com.soundcloud.android.events.SponsoredSessionStartEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -219,9 +220,11 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void publishesSessionStartEventWhenPagerSwitchedToEndCard(){
+    public void publishesSessionStartEventAndClearsAdsWhenPagerSwitchedToEndCard(){
         setupSponsoredSession();
         setSponsoredSessionPage(PrestitialPage.END_CARD.ordinal());
+
+        verify(adsController).clearAllExistingAds();
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(SponsoredSessionStartEvent.class);
     }
 
@@ -411,6 +414,21 @@ public class PrestitialPresenterTest extends AndroidUnitTest {
         presenter.onResume(activity);
 
         verify(videoSurfaceProvider).setTextureView(sponsoredSessionAd.video().uuid(), PRESTITIAL, textureView, viewabilityLayer);
+    }
+
+    @Test
+    public void onResumeShouldNotReattachVideoSurfaceIfPlayerHasOtherAdType() {
+        final View viewabilityLayer = mock(View.class);
+        final TextureView textureView = mock(TextureView.class);
+        sponsoredSessionVideoView.viewabilityLayer = viewabilityLayer;
+        sponsoredSessionVideoView.videoView = textureView;
+        when(adPlayer.getCurrentAd()).thenReturn(Optional.of(AdFixtures.getVideoAd(Urn.forAd("123", "abc"))));
+        setupSponsoredSession();
+        setSponsoredSessionPage(1);
+
+        presenter.onResume(activity);
+
+        verify(videoSurfaceProvider, never()).setTextureView(sponsoredSessionAd.video().uuid(), PRESTITIAL, textureView, viewabilityLayer);
     }
 
     @Test

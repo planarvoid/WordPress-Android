@@ -89,6 +89,13 @@ public class InlayAdHelperTest extends AndroidUnitTest {
     }
 
     @Test
+    public void removeAllAdsForwardsCallToAdapter() {
+        inlayAdHelper.removeAllAds();
+
+        verify(adapter).removeAds();
+    }
+
+    @Test
     public void insertAdOnScrollDownWithOnEmptyAdapterFailsToInsertAd() {
         setEdgeVisiblePosition(0);
         setStreamItems(0, TRACK_ITEM);

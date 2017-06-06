@@ -172,6 +172,11 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
             return getThis();
         }
 
+        public T withoutAdData() {
+            this.adData = Optional.absent();
+            return getThis();
+        }
+
         public T blocked(boolean blocked) {
             this.blocked = blocked;
             return getThis();

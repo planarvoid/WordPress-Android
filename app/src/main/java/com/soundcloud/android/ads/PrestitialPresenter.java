@@ -130,8 +130,10 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
     @Override
     public void onResume(AppCompatActivity activity) {
         adPlayer.getCurrentAd().ifPresent(ad -> {
-            final SponsoredSessionVideoView videoCardView = sponsoredSessionVideoView.get();
-            onVideoTextureBind(videoCardView.videoView, videoCardView.viewabilityLayer, ad);
+            if (ad.monetizationType() == AdData.MonetizationType.SPONSORED_SESSION) {
+                final SponsoredSessionVideoView videoCardView = sponsoredSessionVideoView.get();
+                onVideoTextureBind(videoCardView.videoView, videoCardView.viewabilityLayer, ad);
+            }
         });
     }
 
@@ -271,13 +273,13 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
             currentPage = Optional.of(adapter.getPage(position));
             publishDeferredEvents(currentPage.get());
             if (currentPage.contains(PrestitialPage.VIDEO_CARD)) {
-                onVideoPageSelect();
+                onVideoPageSelected();
             } else if (currentPage.contains(PrestitialPage.END_CARD)) {
-                onEndCardSelect();
+                onEndCardSelected();
             }
         }
 
-        private void onVideoPageSelect() {
+        private void onVideoPageSelected() {
             sponsoredSessionVideoView.get().adjustLayoutForVideo(ad.video());
             adPlayer.play(ad.video(), true);
             subscription = eventBus.queue(EventQueue.AD_PLAYBACK)
@@ -296,8 +298,9 @@ class PrestitialPresenter extends DefaultActivityLightCycle<AppCompatActivity> i
             }
         }
 
-        private void onEndCardSelect() {
+        private void onEndCardSelected() {
             eventBus.publish(EventQueue.TRACKING, SponsoredSessionStartEvent.create(ad, Screen.PRESTITIAL));
+            adsController.clearAllExistingAds();
         }
     }
 

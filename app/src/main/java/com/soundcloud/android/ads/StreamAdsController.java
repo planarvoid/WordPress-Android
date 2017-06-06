@@ -126,6 +126,12 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         }
     }
 
+    void clearAds() {
+        availableAds = Collections.emptyList();
+        inlayAdHelper.ifPresent(InlayAdHelper::removeAllAds);
+        reset();
+    }
+
     private boolean isOrientationChanging(Fragment fragment) {
         return fragment.getActivity().isChangingConfigurations();
     }

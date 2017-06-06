@@ -636,6 +636,32 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void removesOverlayAdsFromPlayQueueAndReturnsTrueIfSuccessful() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueue.getPlayQueueItem(1);
+        final TrackQueueItem trackQueueItemWithOverlay = new TrackQueueItem.Builder(trackQueueItem)
+                                                                           .withAdData(AdFixtures.getInterstitialAd(Urn.forTrack(123L)))
+                                                                           .build();
+        playQueue.replaceItem(1, Collections.singletonList(trackQueueItemWithOverlay));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
+
+        assertThat(playQueueManager.removeOverlayAds()).isTrue();
+        assertPlayQueueItemsEqual(playQueueManager.getPlayQueueItemAtPosition(1),
+                                  trackQueueItem);
+        assertThat(playQueueManager.getPlayQueueItemAtPosition(1).getAdData().isPresent()).isFalse();
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void removesOverlayAdsDoesNothingIfNoOverlaysAreOnTracksInPlayQueueAndReturnsFalse() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
+
+        assertThat(playQueueManager.removeOverlayAds()).isFalse();
+        assertThat(playQueueManager.getQueueSize()).isEqualTo(3);
+    }
+
+    @Test
     public void moveToNextPlayableItemGoesToNextItemIfAudioAd() {
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
         final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(2L)));
