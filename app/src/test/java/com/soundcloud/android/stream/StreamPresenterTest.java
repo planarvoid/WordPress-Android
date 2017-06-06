@@ -72,7 +72,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import rx.Observer;
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
 
 import android.net.Uri;
 import android.support.v4.app.Fragment;

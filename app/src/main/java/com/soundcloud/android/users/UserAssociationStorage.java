@@ -20,10 +20,11 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ScalarMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.BulkInsertValues;
-import rx.Observable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
@@ -39,12 +40,12 @@ public class UserAssociationStorage {
     private static final int BATCH_SIZE = 500;
 
     private final PropellerDatabase propeller;
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
 
     @Inject
     public UserAssociationStorage(PropellerDatabase propeller) {
         this.propeller = propeller;
-        this.propellerRx = new PropellerRx(propeller);
+        this.propellerRx = new PropellerRxV2(propeller);
     }
 
     public void clear() {
@@ -106,14 +107,14 @@ public class UserAssociationStorage {
         return new HashSet<>(propeller.query(followingIds).toList(ScalarMapper.create(Long.class)));
     }
 
-    public Observable<List<Following>> followedUsers(int limit, long fromPosition) {
+    public Single<List<Following>> followedUsers(int limit, long fromPosition) {
         final Query query = buildFollowingsQuery(limit, fromPosition);
-        return propellerRx.query(query).map(new UserAssociationMapper()).toList();
+        return propellerRx.queryResult(query).map(result -> result.toList(new UserAssociationMapper())).singleOrError();
     }
 
-    public Observable<User> followedUser(Urn urn) {
+    public Maybe<User> followedUser(Urn urn) {
         final Query query = buildFollowingsBaseQuery().whereEq(TARGET_ID, urn.getNumericId());
-        return propellerRx.query(query).map(new UserAssociationMapper()).map(Following::user);
+        return propellerRx.queryResult(query).map(result -> result.first(new UserAssociationMapper())).firstElement().map(Following::user);
     }
 
     private Optional<UserAssociation> loadFollowedUser(Urn urn) {
@@ -121,7 +122,7 @@ public class UserAssociationStorage {
         return Optional.fromNullable(propeller.query(query).firstOrDefault(new UserAssociationMapper(), null)).transform(Following::userAssociation);
     }
 
-    public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
+    public Single<List<Urn>> followedUserUrns(int limit, long fromPosition) {
         Query query = Query.from(UserAssociations.TABLE)
                            .select(TARGET_ID)
                            .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
@@ -129,10 +130,10 @@ public class UserAssociationStorage {
                            .order(POSITION, ASC)
                            .limit(limit);
 
-        return propellerRx.query(query).map(new UserUrnMapper()).toList();
+        return propellerRx.queryResult(query).map(result -> result.toList(new UserUrnMapper())).singleOrError();
     }
 
-    public Observable<List<UserAssociation>> followedUserAssociations() {
+    public Single<List<UserAssociation>> followedUserAssociations() {
         Query query = Query.from(UserAssociations.TABLE)
                            .select(TARGET_ID,
                                    ASSOCIATION_TYPE,
@@ -142,7 +143,7 @@ public class UserAssociationStorage {
                            )
                            .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
                            .whereNull(REMOVED_AT);
-        return propellerRx.query(query).map(new UserAssociationEntityMapper()).toList();
+        return propellerRx.queryResult(query).map(result -> result.toList(new UserAssociationEntityMapper())).singleOrError();
     }
 
     public boolean hasStaleFollowings() {
@@ -186,14 +187,14 @@ public class UserAssociationStorage {
                                        .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING));
     }
 
-    private class UserUrnMapper extends RxResultMapper<Urn> {
+    private class UserUrnMapper extends RxResultMapperV2<Urn> {
         @Override
         public Urn map(CursorReader reader) {
             return Urn.forUser(reader.getLong(TARGET_ID));
         }
     }
 
-    private class UserAssociationMapper extends RxResultMapper<Following> {
+    private class UserAssociationMapper extends RxResultMapperV2<Following> {
         @Override
         public Following map(CursorReader reader) {
             User user = User.fromCursorReader(reader);
@@ -201,7 +202,7 @@ public class UserAssociationStorage {
         }
     }
 
-    private static class UserAssociationEntityMapper extends RxResultMapper<UserAssociation> {
+    private static class UserAssociationEntityMapper extends RxResultMapperV2<UserAssociation> {
 
         @Override
         public UserAssociation map(CursorReader reader) {

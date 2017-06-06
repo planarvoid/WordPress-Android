@@ -1,8 +1,6 @@
 package com.soundcloud.android.suggestedcreators;
 
-import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
-import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
-import static com.soundcloud.android.rx.RxUtils.ZIP_TO_VOID;
+import static com.soundcloud.android.ApplicationModule.RX_HIGH_PRIORITY;
 
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.configuration.experiments.SuggestedCreatorsExperiment;
@@ -10,19 +8,21 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.MyProfileOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stream.StreamItem;
-import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,15 +33,15 @@ import java.util.concurrent.TimeUnit;
 public class SuggestedCreatorsOperations {
     private static final long VISIBLE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
     private static final int FOLLOWINGS_LIMIT = 5;
-    private final Func1<List<UserAssociation>, Boolean> lessThanLimitFollowers = new Func1<List<UserAssociation>, Boolean>() {
+    private final Predicate<List<UserAssociation>> lessThanLimitFollowers = new Predicate<List<UserAssociation>>() {
         @Override
-        public Boolean call(List<UserAssociation> userAssociations) {
+        public boolean test(List<UserAssociation> userAssociations) {
             return userAssociations.size() <= FOLLOWINGS_LIMIT || featureFlags.isEnabled(Flag.FORCE_SUGGESTED_CREATORS_FOR_ALL);
         }
     };
     private final FeatureFlags featureFlags;
     private final MyProfileOperations myProfileOperations;
-    private final SyncOperations syncOperations;
+    private final NewSyncOperations syncOperations;
     private final SuggestedCreatorsStorage suggestedCreatorsStorage;
     private final Scheduler scheduler;
     private final FollowingOperations followingOperations;
@@ -51,9 +51,9 @@ public class SuggestedCreatorsOperations {
     @Inject
     SuggestedCreatorsOperations(FeatureFlags featureFlags,
                                 MyProfileOperations myProfileOperations,
-                                SyncOperations syncOperations,
+                                NewSyncOperations syncOperations,
                                 SuggestedCreatorsStorage suggestedCreatorsStorage,
-                                @Named(HIGH_PRIORITY) Scheduler scheduler,
+                                @Named(RX_HIGH_PRIORITY) Scheduler scheduler,
                                 FollowingOperations followingOperations,
                                 CurrentDateProvider dateProvider,
                                 SuggestedCreatorsExperiment suggestedCreatorsExperiment) {
@@ -67,34 +67,27 @@ public class SuggestedCreatorsOperations {
         this.suggestedCreatorsExperiment = suggestedCreatorsExperiment;
     }
 
-    public Observable<StreamItem> suggestedCreators() {
+    public Maybe<StreamItem> suggestedCreators() {
         if (featureFlags.isEnabled(Flag.SUGGESTED_CREATORS) || suggestedCreatorsExperiment.isEnabled()) {
             return myProfileOperations.followingsUserAssociations()
                                       .filter(lessThanLimitFollowers)
-                                      .flatMap(loadSuggestedCreators());
+                                      .flatMap(this::loadSuggestedCreators);
         }
-        return Observable.empty();
+        return Maybe.empty();
     }
 
-    public Maybe<StreamItem> suggestedCreatorsV2() {
-        return RxJava.toV2Observable(suggestedCreators()).firstElement();
+    Completable toggleFollow(Urn urn, boolean isFollowing) {
+        return Completable.mergeArray(followingOperations.toggleFollowing(urn, isFollowing),
+                                      suggestedCreatorsStorage.toggleFollowSuggestedCreator(urn, isFollowing).subscribeOn(scheduler));
     }
 
-    Observable<Void> toggleFollow(Urn urn, boolean isFollowing) {
-        return Observable.combineLatest(
-                followingOperations.toggleFollowing(urn, isFollowing),
-                suggestedCreatorsStorage.toggleFollowSuggestedCreator(urn, isFollowing).subscribeOn(scheduler),
-                ZIP_TO_VOID
-        );
+    private Maybe<StreamItem> loadSuggestedCreators(List<UserAssociation> userAssociations) {
+        return lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
+                                 .filter(list -> !list.isEmpty())
+                                 .map(StreamItem::forSuggestedCreators);
     }
 
-    private Func1<List<UserAssociation>, Observable<StreamItem>> loadSuggestedCreators() {
-        return userAssociations -> lazySyncCreators().map(filterOutAlreadyFollowed(userAssociations))
-                                             .filter(IS_NOT_EMPTY_LIST)
-                                             .map(StreamItem::forSuggestedCreators);
-    }
-
-    private Func1<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<UserAssociation> userAssociations) {
+    private Function<List<SuggestedCreator>, List<SuggestedCreator>> filterOutAlreadyFollowed(final List<UserAssociation> userAssociations) {
         return suggestedCreators -> {
             final List<SuggestedCreator> result = Lists.newArrayList();
             final long currentTimeMillis = dateProvider.getCurrentTime();
@@ -116,11 +109,11 @@ public class SuggestedCreatorsOperations {
         };
     }
 
-    private Observable<List<SuggestedCreator>> lazySyncCreators() {
+    private Single<List<SuggestedCreator>> lazySyncCreators() {
         return load(syncOperations.lazySyncIfStale(Syncable.SUGGESTED_CREATORS));
     }
 
-    private Observable<List<SuggestedCreator>> load(Observable<SyncOperations.Result> source) {
+    private Single<List<SuggestedCreator>> load(Single<SyncResult> source) {
         return source.flatMap(o -> suggestedCreatorsStorage.suggestedCreators()
                                                            .subscribeOn(scheduler));
     }

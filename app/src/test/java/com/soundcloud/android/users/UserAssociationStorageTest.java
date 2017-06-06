@@ -19,10 +19,10 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.query.Query;
+import io.reactivex.observers.TestObserver;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
 import java.util.List;
@@ -32,8 +32,8 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     private UserAssociationStorage storage;
 
-    private TestSubscriber<List<Following>> subscriber = new TestSubscriber<>();
-    private TestSubscriber<List<Urn>> urnSubscriber = new TestSubscriber<>();
+    private TestObserver<List<Following>> subscriber = new TestObserver<>();
+    private TestObserver<List<Urn>> urnSubscriber = new TestObserver<>();
 
     private User followingAndFollower;
     private User following;
@@ -95,10 +95,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadFollowingLoadsSingleFollowing() {
-        final TestSubscriber<User> subscriber = new TestSubscriber<>();
-        storage.followedUser(following.urn()).subscribe(subscriber);
-
-        subscriber.assertValues(following);
+        storage.followedUser(following.urn()).test().assertValues(following);
     }
 
     @Test

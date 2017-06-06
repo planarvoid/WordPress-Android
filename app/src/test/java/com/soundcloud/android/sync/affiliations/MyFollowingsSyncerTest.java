@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -23,8 +22,8 @@ import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -34,10 +33,10 @@ import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.subjects.PublishSubject;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -70,7 +69,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
     @Mock private NavigationExecutor navigationExecutor;
     @Mock private UserAssociationStorage userAssociationStorage;
     private JsonTransformer jsonTransformer = new JacksonJsonTransformer();
-    private PublishSubject<FollowingStatusEvent> followingStatusPublishSubject;
+    private CompletableSubject followingStatusPublishSubject;
 
     @Before
     public void setUp() throws Exception {
@@ -247,7 +246,7 @@ public class MyFollowingsSyncerTest extends AndroidUnitTest {
                 )
         );
 
-        followingStatusPublishSubject = PublishSubject.create();
+        followingStatusPublishSubject = CompletableSubject.create();
         when(followingOperations.toggleFollowing(USER_1, false)).thenReturn(followingStatusPublishSubject);
 
         if (body.isPresent()) {

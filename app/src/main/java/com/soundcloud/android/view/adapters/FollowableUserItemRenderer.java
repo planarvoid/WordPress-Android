@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -9,6 +7,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.optional.Optional;
@@ -58,7 +57,7 @@ public class FollowableUserItemRenderer extends UserItemRenderer {
         toggleFollow.setOnClickListener(v -> {
             final String screen = screenProvider.getLastScreen().get();
 
-            fireAndForget(followingOperations.toggleFollowing(user.getUrn(), toggleFollow.isChecked()));
+            followingOperations.toggleFollowing(user.getUrn(), toggleFollow.isChecked()).subscribe(new DefaultDisposableCompletableObserver());
 
             engagementsTracking.followUserUrn(user.getUrn(),
                                               toggleFollow.isChecked(),

@@ -110,7 +110,7 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     }
 
     private Single<Optional<StreamItem>> initialNotificationItem() {
-        return suggestedCreatorsOperations.suggestedCreatorsV2()
+        return suggestedCreatorsOperations.suggestedCreators()
                                           .switchIfEmpty(facebookInvites.creatorInvites())
                                           .switchIfEmpty(facebookInvites.listenerInvites())
                                           .map(Optional::of)
@@ -128,7 +128,7 @@ public class StreamOperations extends TimelineOperations<StreamEntity, StreamIte
     }
 
     private Single<Optional<StreamItem>> updatedNotificationItem() {
-        return suggestedCreatorsOperations.suggestedCreatorsV2()
+        return suggestedCreatorsOperations.suggestedCreators()
                                           .map(Optional::of)
                                           .toSingle(Optional.absent());
     }

@@ -48,8 +48,8 @@ public class SyncInitiatorBridge {
         return RxJava.toV2Completable(syncInitiator.sync(Syncable.TRACK_LIKES));
     }
 
-    public Observable<Void> refreshFollowings() {
-        return syncInitiator.sync(Syncable.MY_FOLLOWINGS).map(RxUtils.TO_VOID);
+    public Observable<SyncJobResult> refreshFollowings() {
+        return syncInitiator.sync(Syncable.MY_FOLLOWINGS);
     }
 
     public Observable<Void> syncTrackLikes() {

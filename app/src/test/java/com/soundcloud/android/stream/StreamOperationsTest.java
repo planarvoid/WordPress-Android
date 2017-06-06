@@ -83,7 +83,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
         when(removeStalePromotedItemsCommand.toSingle(null)).thenReturn(Single.just(Collections.emptyList()));
         when(facebookInvitesOperations.creatorInvites()).thenReturn(Maybe.empty());
         when(facebookInvitesOperations.listenerInvites()).thenReturn(Maybe.empty());
-        when(suggestedCreatorsOperations.suggestedCreatorsV2()).thenReturn(Maybe.empty());
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Maybe.empty());
         when(streamEntityToItemTransformer.apply(eq(emptyList()))).thenReturn(Single.just(emptyList()));
         this.operations = (StreamOperations) super.operations;
     }
@@ -464,7 +464,7 @@ public class StreamOperationsTest extends TimelineOperationsTest<StreamEntity, S
     }
 
     private void initSuggestedCreatorsItem() {
-        when(suggestedCreatorsOperations.suggestedCreatorsV2()).thenReturn(Maybe.just(SUGGESTED_CREATORS_ITEM));
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Maybe.just(SUGGESTED_CREATORS_ITEM));
     }
 
     private void initFacebookListenersItem() {

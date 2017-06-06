@@ -1,18 +1,16 @@
 package com.soundcloud.android.facebookinvites;
 
-import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
-
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.profile.LastPostedTrack;
 import com.soundcloud.android.profile.MyProfileOperations;
-import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.utils.ConnectionHelper;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import io.reactivex.Maybe;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -33,13 +31,13 @@ public class FacebookInvitesOperations {
     private final DateProvider dateProvider;
     private final MyProfileOperations myProfileOperations;
 
-    private final Func1<LastPostedTrack, Observable<StreamItem>> toCreatorInvitesItem =
+    private final Function<LastPostedTrack, Maybe<StreamItem>> toCreatorInvitesItem =
             track -> {
                 if (isPostRecentlyCreated(track)) {
-                    return Observable.just(StreamItem.forFacebookCreatorInvites(track.urn(),
-                                                                                track.permalinkUrl()));
+                    return Maybe.just(StreamItem.forFacebookCreatorInvites(track.urn(),
+                                                                           track.permalinkUrl()));
                 } else {
-                    return Observable.empty();
+                    return Maybe.empty();
                 }
             };
 
@@ -57,30 +55,28 @@ public class FacebookInvitesOperations {
     }
 
     public Maybe<StreamItem> creatorInvites() {
-        final Observable<StreamItem> observable = canShowForCreators()
-                .filter(IS_TRUE)
-                .flatMap(o -> myProfileOperations.lastPublicPostedTrack()
-                                                 .flatMap(toCreatorInvitesItem)
-                                                 .onErrorResumeNext(Observable.empty()));
-        return RxJava.toV2Observable(observable).firstElement();
+        return canShowForCreators()
+                .filter(canShowForCreators -> canShowForCreators)
+                .flatMapObservable(o -> myProfileOperations.lastPublicPostedTrack()
+                                                           .flatMapMaybe(toCreatorInvitesItem)
+                                                           .onErrorResumeNext(Observable.empty())).firstElement();
     }
 
     public Maybe<StreamItem> listenerInvites() {
-        final Observable<StreamItem> observable = canShowForListeners()
-                .filter(IS_TRUE)
-                .flatMap(o -> Observable.just(StreamItem.forFacebookListenerInvites()));
-        return RxJava.toV2Observable(observable).firstElement();
+        return canShowForListeners()
+                .filter(canShowForListeners -> canShowForListeners)
+                .flatMap(o -> Maybe.just(StreamItem.forFacebookListenerInvites()));
     }
 
-    private Observable<Boolean> canShowForCreators() {
-        return Observable.fromCallable(() -> canShowAfterLastClick()
+    private Single<Boolean> canShowForCreators() {
+        return Single.fromCallable(() -> canShowAfterLastClick()
                 && canShowCreatorsAfterLastCreatorDismiss()
                 && facebookApiHelper.canShowAppInviteDialog()
                 && connectionHelper.isNetworkConnected());
     }
 
-    Observable<Boolean> canShowForListeners() {
-        return Observable.fromCallable(() -> canShowAfterLastClick()
+    Single<Boolean> canShowForListeners() {
+        return Single.fromCallable(() -> canShowAfterLastClick()
                 && canShowAfterLastOpen()
                 && canShowAfterLastDismisses()
                 && facebookApiHelper.canShowAppInviteDialog()

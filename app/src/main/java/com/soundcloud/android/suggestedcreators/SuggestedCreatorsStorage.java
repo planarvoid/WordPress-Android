@@ -8,13 +8,13 @@ import com.soundcloud.android.users.User;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 
 import android.content.ContentValues;
 
@@ -23,25 +23,28 @@ import java.util.Date;
 import java.util.List;
 
 public class SuggestedCreatorsStorage {
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final PropellerDatabase propeller;
     private final DateProvider dateProvider;
 
     @Inject
-    SuggestedCreatorsStorage(PropellerRx propellerRx, PropellerDatabase propeller, CurrentDateProvider dateProvider) {
+    SuggestedCreatorsStorage(PropellerRxV2 propellerRx, PropellerDatabase propeller, CurrentDateProvider dateProvider) {
         this.propellerRx = propellerRx;
         this.propeller = propeller;
         this.dateProvider = dateProvider;
     }
 
-    Observable<List<SuggestedCreator>> suggestedCreators() {
-        return propellerRx.query(buildSuggestedCreatorsQuery()).map(new SuggestedCreatorMapper()).toList();
+    Single<List<SuggestedCreator>> suggestedCreators() {
+        return propellerRx.queryResult(buildSuggestedCreatorsQuery()).map(result -> result.toList(new SuggestedCreatorMapper())).singleOrError();
     }
 
-    Observable<ChangeResult> toggleFollowSuggestedCreator(Urn urn, boolean isFollowing) {
+    Completable toggleFollowSuggestedCreator(Urn urn, boolean isFollowing) {
         return propellerRx.update(Tables.SuggestedCreators.TABLE,
                                   buildContentValuesForFollowingCreator(isFollowing),
-                                  filter().whereEq(Tables.SuggestedCreators.SUGGESTED_USER_ID, urn.getNumericId()));
+                                  filter().whereEq(Tables.SuggestedCreators.SUGGESTED_USER_ID, urn.getNumericId()))
+                          .map(changeResult -> changeResult.getNumRowsAffected() > 0)
+                          .first(false)
+                          .toCompletable();
     }
 
     public void clear() {
@@ -64,7 +67,7 @@ public class SuggestedCreatorsStorage {
         return values;
     }
 
-    private class SuggestedCreatorMapper extends RxResultMapper<SuggestedCreator> {
+    private class SuggestedCreatorMapper extends RxResultMapperV2<SuggestedCreator> {
 
         @Override
         public SuggestedCreator map(CursorReader reader) {

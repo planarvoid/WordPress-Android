@@ -2,7 +2,6 @@ package com.soundcloud.android.users;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,16 +9,15 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import io.reactivex.subjects.CompletableSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.subjects.PublishSubject;
 
 import android.view.View;
 
@@ -41,7 +39,6 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(userRepository.localUserInfo(any(Urn.class))).thenReturn(Observable.just(USER));
-        when(followingOperations.toggleFollowing(any(Urn.class), anyBoolean())).thenReturn(Observable.empty());
 
         presenter = new UserMenuPresenter(userMenuRenderFactory,
                                           followingOperations,
@@ -55,7 +52,7 @@ public class UserMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void togglesFollowStatus() {
-        final PublishSubject<FollowingStatusEvent> followObservable = PublishSubject.create();
+        final CompletableSubject followObservable = CompletableSubject.create();
 
         when(followingOperations.toggleFollowing(USER.urn(), !USER.isFollowing())).thenReturn(followObservable);
         presenter.show(button, USER.urn(), EVENT_CONTEXT_METADATA);

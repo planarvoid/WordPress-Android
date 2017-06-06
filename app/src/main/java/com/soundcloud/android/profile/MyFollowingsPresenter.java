@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -12,6 +11,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -19,14 +19,14 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
-import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
+import com.soundcloud.android.view.adapters.PrependItemToListObserver;
+import com.soundcloud.android.view.adapters.RemoveEntityListObserver;
 import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
 import com.soundcloud.java.collections.Lists;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Function;
 import org.jetbrains.annotations.Nullable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,9 +42,9 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     private final FollowingOperations followingOperations;
     private final EntityItemCreator entityItemCreator;
 
-    private final Func1<List<Following>, List<UserItem>> pageTransformer = new Func1<List<Following>, List<UserItem>>() {
+    private final Function<List<Following>, List<UserItem>> pageTransformer = new Function<List<Following>, List<UserItem>>() {
         @Override
-        public List<UserItem> call(List<Following> collection) {
+        public List<UserItem> apply(List<Following> collection) {
             return Lists.transform(collection, following -> entityItemCreator.userItem(following.user()));
         }
     };
@@ -52,8 +52,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
     private final UserRecyclerItemAdapter adapter;
     private final NavigationExecutor navigationExecutor;
     private Screen screen;
-    private CompositeSubscription updateFollowingsSubscription;
-
+    private CompositeDisposable updateFollowingsSubscription;
 
     @Inject
     MyFollowingsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -77,15 +76,15 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
 
         screen = (Screen) fragment.getArguments().getSerializable(SCREEN_KEY);
 
-        updateFollowingsSubscription = new CompositeSubscription(
+        updateFollowingsSubscription = new CompositeDisposable(
 
                 followingOperations.populatedOnUserFollowed()
-                                   .observeOn(AndroidSchedulers.mainThread())
-                                   .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribeWith(new PrependItemToListObserver<>(adapter)),
 
                 followingOperations.onUserUnfollowed()
-                                   .observeOn(AndroidSchedulers.mainThread())
-                                   .subscribe(new RemoveEntityListSubscriber(adapter))
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribeWith(new RemoveEntityListObserver(adapter))
         );
 
         getBinding().connect();
@@ -93,7 +92,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
 
     @Override
     public void onDestroy(Fragment fragment) {
-        updateFollowingsSubscription.unsubscribe();
+        updateFollowingsSubscription.clear();
         super.onDestroy(fragment);
     }
 
@@ -113,7 +112,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
 
     @Override
     protected CollectionBinding<List<Following>, UserItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(profileOperations.pagedFollowings(), pageTransformer)
+        return CollectionBinding.fromV2(profileOperations.followings(), pageTransformer)
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())
                                 .build();
@@ -121,7 +120,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<Following>, UserI
 
     @Override
     protected CollectionBinding<List<Following>, UserItem> onRefreshBinding() {
-        return CollectionBinding.from(profileOperations.updatedFollowings(), pageTransformer)
+        return CollectionBinding.fromV2(profileOperations.updatedFollowings(), pageTransformer)
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())
                                 .build();

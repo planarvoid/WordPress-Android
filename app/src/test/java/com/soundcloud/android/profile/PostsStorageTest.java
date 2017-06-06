@@ -9,7 +9,6 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
 
@@ -29,7 +28,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void setUp() {
         user = testFixtures().insertUser();
 
-        storage = new PostsStorage(propellerRx());
+        storage = new PostsStorage(propellerRxV2());
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(user.getUrn());
     }
@@ -38,22 +37,16 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void shouldLoadLastPublicPostedTrackWithDatePostedAndPermalink() throws Exception {
         post1 = createTrackPostForLastPostedAt(POSTED_DATE_2);
         createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
-        storage.loadLastPublicPostedTrack().subscribe(subscriber);
-
-        subscriber.assertValue(post1);
+        storage.loadLastPublicPostedTrack().test().assertValue(post1);
     }
 
     @Test
     public void shouldLoadLastPublicPostedTrackExcludingPrivateTracks() throws Exception {
         createPrivateTrackPostForLastPostedAt(POSTED_DATE_2);
         post2 = createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<LastPostedTrack> subscriber = new TestSubscriber<>();
 
-        storage.loadLastPublicPostedTrack().subscribe(subscriber);
-
-        subscriber.assertValue(post2);
+        storage.loadLastPublicPostedTrack().test().assertValue(post2);
     }
 
     private ApiTrack createTrackAt(Date creationDate) {

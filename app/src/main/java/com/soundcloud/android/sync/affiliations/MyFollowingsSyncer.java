@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.affiliations;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiClient;
@@ -16,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.profile.Following;
 import com.soundcloud.android.profile.VerifyAgeActivity;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.Log;
@@ -184,7 +183,7 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
                                        NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
                                        notification.get());
         }
-        DefaultSubscriber.fireAndForget(followingOperations.toggleFollowing(userUrn, false));
+        followingOperations.toggleFollowing(userUrn, false).subscribe(new DefaultDisposableCompletableObserver());
     }
 
     private Optional<Notification> getNotificationForError(Urn userUrn, String userName, FollowError error) {
@@ -204,12 +203,10 @@ public class MyFollowingsSyncer implements Callable<Boolean> {
     @VisibleForTesting
     static class FollowErrorNotificationBuilder {
         private final Context context;
-        private final NavigationExecutor navigationExecutor;
 
         @Inject
-        FollowErrorNotificationBuilder(Context context, NavigationExecutor navigationExecutor) {
+        FollowErrorNotificationBuilder(Context context) {
             this.context = context;
-            this.navigationExecutor = navigationExecutor;
         }
 
         Notification buildBlockedFollowNotification(Urn userUrn, String userName) {

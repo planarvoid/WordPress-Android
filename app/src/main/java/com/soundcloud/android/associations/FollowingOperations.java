@@ -7,14 +7,14 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.EntityItemCreator;
-import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.NewSyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.functions.Func1;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,28 +24,19 @@ import javax.inject.Named;
  */
 public class FollowingOperations {
     private final Scheduler scheduler;
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final UpdateFollowingCommand storeFollowingCommand;
     private final UserAssociationStorage userAssociationStorage;
     private final EntityItemCreator entityItemCreator;
-    private final SyncOperations syncOperations;
-
-    private final Func1<Urn, Observable<UserItem>> loadFollowedUser = new Func1<Urn, Observable<UserItem>>() {
-        @Override
-        public Observable<UserItem> call(Urn urn) {
-            return userAssociationStorage.followedUser(urn)
-                                         .map(entityItemCreator::userItem)
-                                         .subscribeOn(scheduler);
-        }
-    };
+    private final NewSyncOperations syncOperations;
 
     @Inject
-    public FollowingOperations(EventBus eventBus,
+    public FollowingOperations(EventBusV2 eventBus,
                                UpdateFollowingCommand storeFollowingCommand,
-                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                               @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler,
                                UserAssociationStorage userAssociationStorage,
                                EntityItemCreator entityItemCreator,
-                               SyncOperations syncOperations) {
+                               NewSyncOperations syncOperations) {
         this.eventBus = eventBus;
         this.storeFollowingCommand = storeFollowingCommand;
         this.scheduler = scheduler;
@@ -55,7 +46,10 @@ public class FollowingOperations {
     }
 
     public Observable<UserItem> populatedOnUserFollowed() {
-        return onUserFollowed().flatMap(loadFollowedUser);
+        return onUserFollowed().flatMap(urn -> userAssociationStorage.followedUser(urn)
+                                                                     .map(entityItemCreator::userItem)
+                                                                     .subscribeOn(scheduler)
+                                                                     .toObservable());
     }
 
     public Observable<Urn> onUserFollowed() {
@@ -70,18 +64,19 @@ public class FollowingOperations {
                        .map(FollowingStatusEvent::urn);
     }
 
-    public Observable<FollowingStatusEvent> toggleFollowing(final Urn targetUrn, final boolean following) {
+    public Completable toggleFollowing(final Urn targetUrn, final boolean following) {
         final UpdateFollowingCommand.UpdateFollowingParams params =
                 new UpdateFollowingCommand.UpdateFollowingParams(targetUrn, following);
 
         return storeFollowingCommand
-                .toObservable(params)
+                .toSingle(params)
                 .flatMap(followingCount -> syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS)
                                                          .map(result -> following ?
                                                                         FollowingStatusEvent.createFollowed(targetUrn, followingCount) :
                                                                         FollowingStatusEvent.createUnfollowed(targetUrn, followingCount)))
-                .doOnNext(event -> eventBus.publish(EventQueue.FOLLOWING_CHANGED, event))
-                .subscribeOn(scheduler);
+                .doOnSuccess(event -> eventBus.publish(EventQueue.FOLLOWING_CHANGED, event))
+                .subscribeOn(scheduler)
+                .toCompletable();
     }
 
 }

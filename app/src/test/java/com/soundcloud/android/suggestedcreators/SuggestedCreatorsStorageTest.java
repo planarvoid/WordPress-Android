@@ -6,10 +6,10 @@ import com.soundcloud.android.sync.suggestedCreators.ApiSuggestedCreator;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.optional.Optional;
+import io.reactivex.observers.TestObserver;
 import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
 import java.util.List;
@@ -23,13 +23,11 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         }
     };
     private SuggestedCreatorsStorage suggestedCreatorsStorage;
-    private TestSubscriber<List<SuggestedCreator>> subscriber;
     private final long NOW = 1;
 
     @Before
     public void setup() {
-        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRx(), propeller(), new TestDateProvider(NOW));
-        subscriber = new TestSubscriber<>();
+        suggestedCreatorsStorage = new SuggestedCreatorsStorage(propellerRxV2(), propeller(), new TestDateProvider(NOW));
     }
 
     @Test
@@ -37,10 +35,8 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         final ApiSuggestedCreator apiSuggestedCreator = SuggestedCreatorsFixtures.createApiSuggestedCreator();
         testFixtures().insertSuggestedCreator(apiSuggestedCreator);
 
-        suggestedCreatorsStorage.suggestedCreators().subscribe(subscriber);
-
-        subscriber.assertValueCount(1);
-        List<SuggestedCreator> actual = subscriber.getOnNextEvents().get(0);
+        final TestObserver<List<SuggestedCreator>> subscriber = suggestedCreatorsStorage.suggestedCreators().test().assertValueCount(1);
+        List<SuggestedCreator> actual = subscriber.values().get(0);
         SuggestedCreator suggestedCreator = actual.get(0);
         assertThat(suggestedCreator.getCreator().urn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
         assertThat(suggestedCreator.getRelation().value()).isEqualTo(apiSuggestedCreator.getRelationKey());
@@ -55,10 +51,8 @@ public class SuggestedCreatorsStorageTest extends StorageIntegrationTest {
         suggestedCreatorsStorage.toggleFollowSuggestedCreator(apiSuggestedCreator.getSuggestedUser().getUrn(), true)
                                 .subscribe();
 
-        suggestedCreatorsStorage.suggestedCreators().subscribe(this.subscriber);
-
-        this.subscriber.assertValueCount(1);
-        List<SuggestedCreator> actual = this.subscriber.getOnNextEvents().get(0);
+        final TestObserver<List<SuggestedCreator>> subscriber = suggestedCreatorsStorage.suggestedCreators().test().assertValueCount(1);
+        List<SuggestedCreator> actual = subscriber.values().get(0);
         SuggestedCreator suggestedCreator = actual.get(0);
         assertThat(suggestedCreator.getCreator().urn()).isEqualTo(apiSuggestedCreator.getSeedUser().getUrn());
         assertThat(suggestedCreator.followedAt()).is(PRESENT);

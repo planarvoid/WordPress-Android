@@ -62,7 +62,7 @@ class TopResultsOperations {
         final Single<ApiTopResults> searchMaybe = apiSearch(search);
         return searchMaybe.toObservable().flatMap(result -> io.reactivex.Observable.combineLatest(
                 RxJava.toV2Observable(likedStatuses.likedStatuses()),
-                RxJava.toV2Observable(followingStatuses.followingStatuses()),
+                followingStatuses.followingStatuses(),
                 RxJava.toV2Observable(playSessionStateProvider.nowPlayingUrn()),
                 (likedStatuses, followingStatuses, urn) -> ApiTopResultsMapper.toDomainModel(result, entityItemCreator, likedStatuses, followingStatuses, urn)));
     }

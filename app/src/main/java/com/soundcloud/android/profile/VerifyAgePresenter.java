@@ -11,6 +11,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -83,7 +84,7 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle<Activity> {
         return new DefaultSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean success) {
-                fireAndForget(followingOperations.toggleFollowing(userToFollowUrn, true));
+                followingOperations.toggleFollowing(userToFollowUrn, true).subscribe(new DefaultDisposableCompletableObserver());
                 engagementsTracking.followUserUrn(userToFollowUrn,
                                                   true,
                                                   EventContextMetadata.builder()

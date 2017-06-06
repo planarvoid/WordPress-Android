@@ -1,13 +1,12 @@
 package com.soundcloud.android.users;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StartStationHandler;
 import rx.Subscription;
@@ -55,7 +54,7 @@ public class UserMenuPresenter implements UserMenuRenderer.Listener {
     @Override
     public void handleToggleFollow(User user) {
         boolean isFollowed = !user.isFollowing();
-        fireAndForget(followingOperations.toggleFollowing(user.urn(), isFollowed));
+        followingOperations.toggleFollowing(user.urn(), isFollowed).subscribe(new DefaultDisposableCompletableObserver());
         engagementsTracking.followUserUrn(user.urn(), isFollowed, eventContextMetadata);
     }
 

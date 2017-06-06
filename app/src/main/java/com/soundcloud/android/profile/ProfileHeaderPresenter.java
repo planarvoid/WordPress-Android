@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.soundcloud.android.Consts;
@@ -17,6 +15,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -105,7 +104,7 @@ class ProfileHeaderPresenter extends DefaultActivityLightCycle<RootActivity> {
                                                        final FollowingOperations followingOperations,
                                                        final EngagementsTracking engagementsTracking) {
         return v -> {
-            fireAndForget(followingOperations.toggleFollowing(user, followButton.isChecked()));
+            followingOperations.toggleFollowing(user, followButton.isChecked()).subscribe(new DefaultDisposableCompletableObserver());
             engagementsTracking.followUserUrn(user,
                                               followButton.isChecked(),
                                               getEventContextMetadata());

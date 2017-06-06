@@ -56,7 +56,7 @@ import com.soundcloud.android.view.adapters.UpdateTrackListSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -151,13 +151,13 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
 
     @Override
     protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.initialStreamItems().toObservable())
-                                                      .observeOn(AndroidSchedulers.mainThread())
-                                                      .doOnSubscribe(streamMeasurements::startLoading)
-                                                      .doOnNext(streamItems -> {
-                                                          handlePromotedImpression(streamItems);
-                                                          adapter.clear();
-                                                      }))
+        return CollectionBinding.fromV2(streamOperations.initialStreamItems().toObservable()
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .doOnSubscribe(__ -> streamMeasurements.startLoading())
+                                                        .doOnNext(streamItems -> {
+                                                            handlePromotedImpression(streamItems);
+                                                            adapter.clear();
+                                                        }))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .addObserver(onNext(streamItems -> streamMeasurements.endLoading()))
@@ -168,8 +168,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
     protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
         streamMeasurements.startRefreshing();
         newItemsIndicator.hideAndReset();
-        return CollectionBinding.from(RxJava.toV1Observable(streamOperations.updatedStreamItems().toObservable()
-                                                                            .doOnNext(this::handlePromotedImpression)))
+        return CollectionBinding.fromV2(streamOperations.updatedStreamItems().toObservable()
+                                                        .doOnNext(this::handlePromotedImpression))
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
                                 .addObserver(onNext(streamItems -> streamMeasurements.endRefreshing()))
@@ -198,8 +198,8 @@ class StreamPresenter extends TimelinePresenter<StreamItem> implements
                 fireAndForget(eventBus.queue(EventQueue.STREAM)
                                       .filter(StreamEvent::isStreamRefreshed)
                                       .flatMap(o -> updateIndicatorFromMostRecent())),
-                followingOperations.onUserFollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
-                followingOperations.onUserUnfollowed().subscribe(urn -> swipeRefreshAttacher.forceRefresh())
+                RxJava.toV1Observable(followingOperations.onUserFollowed()).subscribe(urn -> swipeRefreshAttacher.forceRefresh()),
+                RxJava.toV1Observable(followingOperations.onUserUnfollowed()).subscribe(urn -> swipeRefreshAttacher.forceRefresh())
         );
     }
 

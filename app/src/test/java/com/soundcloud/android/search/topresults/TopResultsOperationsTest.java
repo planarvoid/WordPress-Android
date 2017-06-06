@@ -32,6 +32,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +58,7 @@ public class TopResultsOperationsTest extends AndroidUnitTest {
     };
 
     private final rx.subjects.BehaviorSubject<LikedStatuses> likesStatuses = rx.subjects.BehaviorSubject.create();
-    private final rx.subjects.BehaviorSubject<FollowingStatuses> followingStatuses = rx.subjects.BehaviorSubject.create();
+    private final BehaviorSubject<FollowingStatuses> followingStatuses = BehaviorSubject.create();
     private final rx.subjects.BehaviorSubject<Urn> nowPlaying = rx.subjects.BehaviorSubject.create();
 
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;

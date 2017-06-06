@@ -1,6 +1,5 @@
 package com.soundcloud.android.suggestedcreators;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -9,9 +8,10 @@ import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperime
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.profile.ProfileImageHelper;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.DefaultDisposableCompletableObserver;
 import com.soundcloud.android.users.User;
 
 import android.content.res.Resources;
@@ -88,7 +88,7 @@ public class SuggestedCreatorRenderer implements CellRenderer<SuggestedCreatorIt
             toggleButton.setEnabled(false);
             suggestedCreatorItem.following = isChecked;
             suggestedCreatorsOperations.toggleFollow(suggestedCreatorItem.creator().urn(), isChecked)
-                                       .subscribe(new DefaultSubscriber<Void>());
+                                       .subscribe(new DefaultDisposableCompletableObserver());
 
             engagementsTracking.followUserUrn(suggestedCreatorItem.creator().urn(),
                                               isChecked,

@@ -4,15 +4,16 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
 import com.soundcloud.android.users.UserAssociation;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.BehaviorSubject;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,14 +28,14 @@ public class FollowingStateProvider {
 
     private final UserAssociationStorage userAssociationStorage;
     private final BehaviorSubject<FollowingStatuses> statuses = BehaviorSubject.create();
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private Set<Urn> followings = new HashSet<>();
 
     @Inject
     public FollowingStateProvider(UserAssociationStorage userAssociationStorage,
-                                  EventBus eventBus,
-                                  @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                                  EventBusV2 eventBus,
+                                  @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.userAssociationStorage = userAssociationStorage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
@@ -45,22 +46,17 @@ public class FollowingStateProvider {
         userAssociationStorage.followedUserAssociations().map(userAssociations -> Lists.transform(userAssociations, UserAssociation::userUrn))
                               .subscribeOn(scheduler)
                               .observeOn(AndroidSchedulers.mainThread())
-                              .subscribe(new DefaultSubscriber<List<Urn>>() {
-                                  @Override
-                                  public void onNext(List<Urn> followings) {
-                                      setFollowings(followings);
-                                      publishSnapshot();
-                                  }
-                              });
+                              .subscribe(LambdaSingleObserver.onNext(followings -> {
+                                  setFollowings(followings);
+                                  publishSnapshot();
+                              }));
 
         eventBus.queue(EventQueue.FOLLOWING_CHANGED)
-                .subscribe(new DefaultSubscriber<FollowingStatusEvent>() {
-                    @Override
-                    public void onNext(FollowingStatusEvent followingStatusEvent) {
-                        updateFollowings(followingStatusEvent);
-                        publishSnapshot();
-                    }
-                });
+                .subscribe(LambdaObserver.onNext(followingStatusEvent -> {
+                                                     updateFollowings(followingStatusEvent);
+                                                     publishSnapshot();
+                                                 }
+                ));
     }
 
     void setFollowings(List<Urn> likesList) {
@@ -80,7 +76,7 @@ public class FollowingStateProvider {
     }
 
     public Observable<FollowingStatuses> followingStatuses() {
-        return statuses.asObservable();
+        return statuses;
     }
 
     public FollowingStatuses latest() {

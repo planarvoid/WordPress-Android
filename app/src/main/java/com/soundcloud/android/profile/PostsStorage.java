@@ -12,9 +12,9 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.PropellerRx;
-import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
+import io.reactivex.Observable;
 
 import android.provider.BaseColumns;
 
@@ -23,15 +23,15 @@ import java.util.Date;
 
 public class PostsStorage {
 
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
 
     @Inject
-    public PostsStorage(PropellerRx propellerRx) {
+    public PostsStorage(PropellerRxV2 propellerRx) {
         this.propellerRx = propellerRx;
     }
 
     public Observable<LastPostedTrack> loadLastPublicPostedTrack() {
-        return propellerRx.query(buildQueryForLastPublicPostedTrack()).map(new LastPostedTrackMapper());
+        return propellerRx.queryResult(buildQueryForLastPublicPostedTrack()).map(result -> result.first(new LastPostedTrackMapper()));
     }
 
     private Query buildQueryForLastPublicPostedTrack() {
@@ -53,7 +53,7 @@ public class PostsStorage {
                     .limit(1);
     }
 
-    private class LastPostedTrackMapper extends RxResultMapper<LastPostedTrack> {
+    private class LastPostedTrackMapper extends RxResultMapperV2<LastPostedTrack> {
         @Override
         public LastPostedTrack map(CursorReader cursorReader) {
             final Urn urn = Urn.forTrack(cursorReader.getLong(BaseColumns._ID));
@@ -62,5 +62,4 @@ public class PostsStorage {
             return LastPostedTrack.create(urn, createdAt, permalinkUrl);
         }
     }
-
 }

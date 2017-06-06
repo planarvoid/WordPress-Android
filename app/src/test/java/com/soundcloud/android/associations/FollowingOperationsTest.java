@@ -9,15 +9,21 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FollowingStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.NewSyncOperations;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.User;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Maybe;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,27 +31,21 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import rx.Observable;
-import rx.Scheduler;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 public class FollowingOperationsTest extends AndroidUnitTest {
 
     private static final int FOLLOWER_COUNT = 2;
     private FollowingOperations operations;
 
-    @Mock private SyncOperations syncOperations;
+    @Mock private NewSyncOperations syncOperations;
     @Mock private UpdateFollowingCommand updateFollowingCommand;
     @Mock private UserAssociationStorage userAssociationStorage;
-    @Mock private EventBus mockEventBus;
+    @Mock private EventBusV2 mockEventBus;
     @Captor private ArgumentCaptor<UpdateFollowingParams> commandParamsCaptor;
     @Captor private ArgumentCaptor<FollowingStatusEvent> followingChangedEventArgumentCaptor;
 
-    private TestEventBus eventBus = new TestEventBus();
-    private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<UserItem> subscriber = new TestSubscriber<>();
-    private TestSubscriber<FollowingStatusEvent> followingStatusTestSubscriber = new TestSubscriber<>();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
+    private Scheduler scheduler = Schedulers.trampoline();
     private Urn targetUrn = Urn.forUser(123);
 
     @Before
@@ -57,7 +57,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
                                              ModelFixtures.entityItemCreator(),
                                              syncOperations);
 
-        when(updateFollowingCommand.toObservable(any(UpdateFollowingParams.class))).thenReturn(Observable.just(FOLLOWER_COUNT));
+        when(updateFollowingCommand.toSingle(any(UpdateFollowingParams.class))).thenReturn(Single.just(FOLLOWER_COUNT));
     }
 
     @Test
@@ -69,12 +69,12 @@ public class FollowingOperationsTest extends AndroidUnitTest {
                                                                 ModelFixtures.entityItemCreator(),
                                                                 syncOperations);
 
-        when(syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS)).thenReturn(Observable.just(SyncOperations.Result.SYNCED));
+        when(syncOperations.failSafeSync(Syncable.MY_FOLLOWINGS)).thenReturn(Single.just(SyncResult.synced()));
 
-        ops.toggleFollowing(targetUrn, true).subscribe(followingStatusTestSubscriber);
+        ops.toggleFollowing(targetUrn, true).test();
 
         final InOrder inOrder = Mockito.inOrder(updateFollowingCommand, syncOperations, mockEventBus);
-        inOrder.verify(updateFollowingCommand).toObservable(commandParamsCaptor.capture());
+        inOrder.verify(updateFollowingCommand).toSingle(commandParamsCaptor.capture());
         inOrder.verify(syncOperations).failSafeSync(Syncable.MY_FOLLOWINGS);
         inOrder.verify(mockEventBus).publish(eq(EventQueue.FOLLOWING_CHANGED), followingChangedEventArgumentCaptor.capture());
 
@@ -88,21 +88,20 @@ public class FollowingOperationsTest extends AndroidUnitTest {
 
     @Test
     public void onUserFollowedEmitsFollowedUser() {
-        operations.populatedOnUserFollowed().subscribe(subscriber);
+        final TestObserver<UserItem> testObserver = operations.populatedOnUserFollowed().test();
 
         final FollowingStatusEvent event = FollowingStatusEvent.createFollowed(targetUrn, FOLLOWER_COUNT);
         final User following = ModelFixtures.user();
-        when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Observable.just(following));
+        when(userAssociationStorage.followedUser(targetUrn)).thenReturn(Maybe.just(following));
 
         eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);
 
-        subscriber.assertValues(ModelFixtures.userItem(following));
+        testObserver.assertValues(ModelFixtures.userItem(following));
     }
 
     @Test
     public void onUserUnFollowedEmitsUrnOfUnfollowedUser() {
-        final TestSubscriber<Urn> subscriber = new TestSubscriber<>();
-        operations.onUserUnfollowed().subscribe(subscriber);
+        final TestObserver<Urn> subscriber = operations.onUserUnfollowed().test();
 
         final FollowingStatusEvent event = FollowingStatusEvent.createUnfollowed(targetUrn, FOLLOWER_COUNT);
         eventBus.publish(EventQueue.FOLLOWING_CHANGED, event);
