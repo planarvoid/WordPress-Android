@@ -26,6 +26,7 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
+import com.soundcloud.java.net.HttpHeaders;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import okhttp3.Call;
@@ -247,14 +248,17 @@ public class ApiClientTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotAddOAuthHeaderWhenEndpointDoesntAcceptIt() throws Exception {
+    public void shouldNotAddAuthorizationOrUDIDIOrADIDRelatedHeadersWhenEndpointIsAnonymous() throws Exception {
         ApiRequest request = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
         when(apiUrlBuilder.build()).thenReturn(URL);
 
         apiClient.fetchResponse(request);
 
-        assertThat(httpRequestCaptor.getValue().headers("Authorization")).doesNotContain(OAUTH_TOKEN);
+        assertThat(httpRequestCaptor.getValue().headers(HttpHeaders.AUTHORIZATION)).isEmpty();
+        assertThat(httpRequestCaptor.getValue().headers(ApiHeaders.UDID)).isEmpty();
+        assertThat(httpRequestCaptor.getValue().headers(ApiHeaders.ADID)).isEmpty();
+        assertThat(httpRequestCaptor.getValue().headers(ApiHeaders.ADID_TRACKING)).isEmpty();
     }
 
     @Test

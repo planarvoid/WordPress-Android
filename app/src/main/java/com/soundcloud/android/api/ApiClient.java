@@ -142,14 +142,16 @@ public class ApiClient {
         }
 
         // user identifiers
-        if (request.sendAuthorizationToken() && accountOperations.getSoundCloudToken().valid()) {
-            builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
-        }
-        builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
-        final Optional<String> maybeAdId = adIdHelper.getAdId();
-        if (maybeAdId.isPresent()) {
-            builder.header(ApiHeaders.ADID, maybeAdId.get());
-            builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
+        if (!request.anonymousRequest()) {
+            if (accountOperations.getSoundCloudToken().valid()) {
+                builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+            }
+            builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
+            final Optional<String> maybeAdId = adIdHelper.getAdId();
+            if (maybeAdId.isPresent()) {
+                builder.header(ApiHeaders.ADID, maybeAdId.get());
+                builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
+            }
         }
         if (experimentOperations.getAssignment() != null && !experimentOperations.getAssignment().isEmpty()) {
             try {

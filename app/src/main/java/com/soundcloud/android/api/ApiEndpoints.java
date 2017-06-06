@@ -28,7 +28,7 @@ public enum ApiEndpoints {
     SEARCH_ALBUMS("/search/albums"),
     SEARCH_PLAYLISTS_WITHOUT_ALBUMS("/search/playlists_without_albums"),
     SEARCH_ALL("/search/universal"),
-    SEARCH_AUTOCOMPLETE("/search/autocomplete", false),
+    SEARCH_AUTOCOMPLETE("/search/autocomplete", true),
     SEARCH_TOP_RESULTS("/search/top_results"),
 
     // search premium content
@@ -158,24 +158,24 @@ public enum ApiEndpoints {
 
     private static final Function<Object, Object> encodingFunction = input -> Uri.encode(String.valueOf(input));
     private final String path;
-    private final boolean acceptsUserAuthorization;
+    private final boolean anonymousRequest;
 
     ApiEndpoints(String path) {
         this.path = path;
-        this.acceptsUserAuthorization = true;
+        this.anonymousRequest = false;
     }
 
-    ApiEndpoints(String path, boolean acceptsUserAuthorization) {
+    ApiEndpoints(String path, boolean anonymousRequest) {
         this.path = path;
-        this.acceptsUserAuthorization = acceptsUserAuthorization;
+        this.anonymousRequest = anonymousRequest;
     }
 
     public String path() {
         return path;
     }
 
-    public boolean acceptsUserAuthorization() {
-        return acceptsUserAuthorization;
+    public boolean anonymousRequest() {
+        return anonymousRequest;
     }
 
     public String path(Object... pathParams) {

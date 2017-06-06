@@ -104,7 +104,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
         final Autocompletion autocompletion = Autocompletion.create("query", "output");
         final ApiRequestTo requestMatcher = setupAutocompletionRemoteSuggestions(autocompletion);
-        requestMatcher.doesNotSendAuthorizationToken();
+        requestMatcher.withAnonymity();
 
         operations.suggestionsFor(SEARCH_QUERY).test();
 
@@ -140,7 +140,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest {
         final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_AUTOCOMPLETE.path())
                 .withQueryParam("query", SEARCH_QUERY)
                 .withQueryParam("limit", String.valueOf(MAX_RESULTS_NUMBER))
-                .doesNotSendAuthorizationToken();
+                .withAnonymity();
 
         when(apiClientRx.mappedResponse(argThat(requestMatcher), eq(autocompletionTypeToken)))
                 .thenReturn(Observable.just(autocompletions));

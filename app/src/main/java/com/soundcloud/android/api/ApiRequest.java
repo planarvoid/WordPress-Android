@@ -36,7 +36,7 @@ public class ApiRequest {
     private final Boolean isPrivate;
     private final MultiMap<String, String> queryParams;
     private final Map<String, String> headers;
-    private final boolean sendAuthorizationToken;
+    private final boolean anonymousRequest;
 
     public static Builder get(String uri) {
         return new Builder(uri, HTTP_GET);
@@ -58,13 +58,13 @@ public class ApiRequest {
         return new Builder(uri, HTTP_DELETE);
     }
 
-    ApiRequest(Uri uri, String method, Boolean isPrivate, MultiMap<String, String> queryParams, Map<String, String> headers, boolean sendAuthorizationToken) {
+    ApiRequest(Uri uri, String method, Boolean isPrivate, MultiMap<String, String> queryParams, Map<String, String> headers, boolean anonymousRequest) {
         this.uri = uri;
         this.httpMethod = method;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
         this.headers = headers;
-        this.sendAuthorizationToken = sendAuthorizationToken;
+        this.anonymousRequest = anonymousRequest;
     }
 
     public Uri getUri() {
@@ -83,8 +83,8 @@ public class ApiRequest {
         return isPrivate;
     }
 
-    public boolean sendAuthorizationToken() {
-        return sendAuthorizationToken;
+    public boolean anonymousRequest() {
+        return anonymousRequest;
     }
 
     @NotNull
@@ -133,32 +133,32 @@ public class ApiRequest {
         private Object content;
         private List<FormPart> formParts;
         private ProgressListener progressListener;
-        private final boolean sendAuthorizationToken;
+        private final boolean anonymousRequest;
 
         public Builder(ApiEndpoints apiEndpoints, String methodName) {
-            this(apiEndpoints.path(), methodName, apiEndpoints.acceptsUserAuthorization());
+            this(apiEndpoints.path(), methodName, apiEndpoints.anonymousRequest());
         }
 
         public Builder(String uri, String methodName) {
-            this(uri, methodName, true);
+            this(uri, methodName, false);
         }
 
-        private Builder(String uri, String methodName, boolean sendAuthorizationToken) {
+        private Builder(String uri, String methodName, boolean anonymousRequest) {
             this.parameters = UriUtils.getQueryParameters(uri);
             this.uri = UriUtils.clearQueryParams(Uri.parse(uri));
             this.httpMethod = methodName;
             this.headers = new HashMap<>();
-            this.sendAuthorizationToken = sendAuthorizationToken;
+            this.anonymousRequest = anonymousRequest;
         }
 
         public ApiRequest build() {
             checkNotNull(isPrivate, "Must specify api mode");
             if (content != null) {
-                return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content, sendAuthorizationToken);
+                return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content, anonymousRequest);
             } else if (formParts != null) {
-                return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers, formParts, progressListener, sendAuthorizationToken);
+                return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers, formParts, progressListener, anonymousRequest);
             } else {
-                return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers, sendAuthorizationToken);
+                return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers, anonymousRequest);
             }
         }
 

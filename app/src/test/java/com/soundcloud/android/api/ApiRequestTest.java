@@ -149,15 +149,15 @@ public class ApiRequestTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotSendAuthorizationTokenForAutocomplete() {
+    public void shouldTreatAutocompleteRequestAsAnonymous() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.SEARCH_AUTOCOMPLETE).forPrivateApi().build();
-        assertThat(request.sendAuthorizationToken()).isFalse();
+        assertThat(request.anonymousRequest()).isTrue();
     }
 
     @Test
-    public void shouldSendAuthorizationTokenOnGenericRequest() {
+    public void shouldTreatGenericRequestAsNotAnonymous() {
         ApiRequest request = validRequest(URI_PATH).build();
-        assertThat(request.sendAuthorizationToken()).isTrue();
+        assertThat(request.anonymousRequest()).isFalse();
     }
 
     private ApiRequest.Builder validRequest(String uri) {

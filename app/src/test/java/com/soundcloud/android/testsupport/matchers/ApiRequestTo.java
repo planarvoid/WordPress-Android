@@ -22,7 +22,7 @@ public class ApiRequestTo extends BaseMatcher<ApiRequest> {
     private Map<String, String> expectedHeaders = new HashMap<>();
     private List<String> unExpectedHeaders = new ArrayList<>();
     private boolean queryMatchError, headerMatchError, formMatchError;
-    private boolean sendAuthorizationToken;
+    private boolean anonymousRequest;
     private String expectedMethod, expectedPath;
     private ApiRequest request;
     private Object content;
@@ -32,7 +32,7 @@ public class ApiRequestTo extends BaseMatcher<ApiRequest> {
         this.expectedMethod = expectedMethod;
         this.expectedPath = expectedPath;
         this.isMobileApi = isMobileApi;
-        this.sendAuthorizationToken = true;
+        this.anonymousRequest = false;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ApiRequestTo extends BaseMatcher<ApiRequest> {
                     && pathMatches()
                     && methodMatches()
                     && request.isPrivate() == isMobileApi
-                    && request.sendAuthorizationToken() == sendAuthorizationToken;
+                    && request.anonymousRequest() == anonymousRequest;
         }
         return false;
     }
@@ -69,8 +69,8 @@ public class ApiRequestTo extends BaseMatcher<ApiRequest> {
         return this;
     }
 
-    public ApiRequestTo doesNotSendAuthorizationToken() {
-        sendAuthorizationToken = false;
+    public ApiRequestTo withAnonymity() {
+        anonymousRequest = true;
         return this;
     }
 
