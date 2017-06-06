@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -30,6 +31,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         return TestUser.likesUser;
     }
 
+    @Ignore // Test is flaky, see http://go/j/LISTEN-1031 for more details
     public void testLikesScreen() throws Exception {
         likesScreen = mainNavHelper.goToTrackLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();
