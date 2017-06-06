@@ -855,6 +855,8 @@
     <string name="offline_no_connection">No connection</string>
     <string name="sd_card_cannot_be_found">SD card cannot be found</string>
     <string name="tap_here_to_change_storage_location">Tap here to change storage location</string>
+    <string name="overlay_listen_offline_likes_title">Listen offline</string>
+    <string name="overlay_listen_offline_likes_description">Tap the arrow to take all your likes offline and take them wherever you go.</string>
 
     <!-- __GO ONBOARDING -->
     <string name="go_onboarding_landing_title">Welcome to SoundCloud Go+</string>

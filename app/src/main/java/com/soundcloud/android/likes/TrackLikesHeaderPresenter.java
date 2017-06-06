@@ -7,7 +7,6 @@ import static rx.Observable.combineLatest;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -16,6 +15,7 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
@@ -28,6 +28,8 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
@@ -72,6 +74,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final OfflineContentOperations offlineContentOperations;
     private final Provider<UpdateHeaderViewSubscriber> subscriberProvider;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final FeatureFlags featureFlags;
 
     private final Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate> toHeaderViewUpdate =
             new Func4<Integer, TrackLikesHeaderView, OfflineState, Boolean, HeaderViewUpdate>() {
@@ -123,7 +126,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      NavigationExecutor navigationExecutor,
                                      EventBus eventBus,
                                      Provider<UpdateHeaderViewSubscriber> subscriberProvider,
-                                     OfflineSettingsStorage offlineSettingsStorage) {
+                                     OfflineSettingsStorage offlineSettingsStorage,
+                                     FeatureFlags featureFlags) {
         this.headerViewFactory = headerViewFactory;
         this.offlineStateOperations = offlineStateOperations;
         this.playbackInitiator = playbackInitiator;
@@ -136,6 +140,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.offlineContentOperations = offlineContentOperations;
         this.subscriberProvider = subscriberProvider;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.featureFlags = featureFlags;
 
         trackCountSubject = BehaviorSubject.create(Consts.NOT_SET);
         viewSubject = BehaviorSubject.create(Optional.<WeakReference<View>>absent());
@@ -229,9 +234,17 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private void enableOfflineLikes() {
         if (offlineSettingsStorage.isOfflineContentAccessible()) {
-            syncLikesDialogProvider.get().show(fragment.getFragmentManager());
+            handleEnableOfflineLikes();
         } else {
             OfflineStorageErrorDialog.show(fragment.getFragmentManager());
+        }
+    }
+
+    private void handleEnableOfflineLikes() {
+        if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
+            fireAndForget(offlineContentOperations.enableOfflineLikedTracks());
+        } else {
+            syncLikesDialogProvider.get().show(fragment.getFragmentManager());
         }
     }
 
@@ -282,6 +295,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             if (headerViewUpdate.isOfflineContentEnabled()) {
                 headerView.setDownloadedButtonState(headerViewUpdate.isOfflineLikesEnabled());
                 configureOfflineState(headerView, headerViewUpdate.getOfflineState());
+                showIntroductoryOverlayIfNecessary(headerView, headerViewUpdate.isOfflineLikesEnabled());
 
             } else if (upsellOfflineContentChanged(headerViewUpdate)) {
                 headerView.showUpsell();
@@ -307,6 +321,18 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             if (offlineState == OfflineState.REQUESTED) {
                 showConnectionWarningIfNecessary(headerView);
             }
+        }
+
+        private void showIntroductoryOverlayIfNecessary(TrackLikesHeaderView headerView, boolean offlineLikesEnabled) {
+            if (!offlineLikesEnabled && canSyncOfflineOnCurrentConnection()) {
+                headerView.showOfflineIntroductoryOverlay();
+            }
+        }
+
+        private boolean canSyncOfflineOnCurrentConnection() {
+            return offlineSettings.isWifiOnlyEnabled()
+                   ? connectionHelper.isWifiConnected()
+                   : connectionHelper.isNetworkConnected();
         }
 
         private void showConnectionWarningIfNecessary(TrackLikesHeaderView headerView) {

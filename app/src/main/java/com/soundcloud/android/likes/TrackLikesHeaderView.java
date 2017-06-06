@@ -6,6 +6,8 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -22,9 +24,10 @@ import android.widget.ImageButton;
 @AutoFactory(allowSubclasses = true)
 class TrackLikesHeaderView {
 
-    private Resources resources;
-    private DownloadStateRenderer downloadStateRenderer;
-    private FeatureFlags featureFlags;
+    private final Resources resources;
+    private final DownloadStateRenderer downloadStateRenderer;
+    private final FeatureFlags featureFlags;
+    private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
     @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
@@ -46,11 +49,13 @@ class TrackLikesHeaderView {
     TrackLikesHeaderView(@Provided Resources resources,
                          @Provided DownloadStateRenderer downloadStateRenderer,
                          @Provided FeatureFlags featureFlags,
+                         @Provided IntroductoryOverlayPresenter introductoryOverlayPresenter,
                          View view,
                          Listener listener) {
         this.resources = resources;
         this.downloadStateRenderer = downloadStateRenderer;
         this.featureFlags = featureFlags;
+        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.listener = listener;
         this.headerView = view.findViewById(R.id.track_likes_header);
 
@@ -74,6 +79,15 @@ class TrackLikesHeaderView {
             if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
                 updateTrackCount(trackCount);
             }
+        }
+    }
+
+    void showOfflineIntroductoryOverlay() {
+        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS) && featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
+            introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
+                                                      offlineStateButton,
+                                                      resources.getString(R.string.overlay_listen_offline_likes_title),
+                                                      resources.getString(R.string.overlay_listen_offline_likes_description));
         }
     }
 

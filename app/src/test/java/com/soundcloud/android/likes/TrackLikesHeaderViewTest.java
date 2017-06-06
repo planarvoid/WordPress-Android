@@ -1,11 +1,17 @@
 package com.soundcloud.android.likes;
 
 import static org.assertj.android.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +32,7 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private TrackLikesHeaderView.Listener listener;
     @Mock private FeatureFlags featureFlags;
+    @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @Before
     public void setUp() throws Exception {
@@ -33,6 +40,7 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
                                                         new DownloadStateRenderer(resources(), featureFlags),
                                                         featureFlags,
+                                                        introductoryOverlayPresenter,
                                                         view,
                                                         listener);
     }
@@ -86,6 +94,41 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
                                                                           .getQuantityString(R.plurals.number_of_liked_tracks_you_liked,
                                                                                              1,
                                                                                              1));
+    }
+
+    @Test
+    public void showIntroductoryOverlay() {
+        mockFeatureFlags(false, false);
+        trackLikesHeaderView.showOfflineIntroductoryOverlay();
+        verifyIntroductoryOverlay(0);
+
+        mockFeatureFlags(false, true);
+        trackLikesHeaderView.showOfflineIntroductoryOverlay();
+        verifyIntroductoryOverlay(0);
+
+        mockFeatureFlags(true, false);
+        trackLikesHeaderView.showOfflineIntroductoryOverlay();
+        verifyIntroductoryOverlay(0);
+
+        mockFeatureFlags(true, true);
+        trackLikesHeaderView.showOfflineIntroductoryOverlay();
+        verifyIntroductoryOverlay(1);
+    }
+
+    private void mockFeatureFlags(boolean newOfflineIconsFlag, boolean collectionOfflineOnboardingFlag) {
+        when(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(newOfflineIconsFlag);
+        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(collectionOfflineOnboardingFlag);
+    }
+
+    private void verifyIntroductoryOverlay(int times) {
+        verify(introductoryOverlayPresenter, times(times)).showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
+                                                                   getOfflineStateButton(),
+                                                                   "Listen offline",
+                                                                   "Tap the arrow to take all your likes offline and take them wherever you go.");
+    }
+
+    private View getOfflineStateButton() {
+        return trackLikesHeaderView.getHeaderView().findViewById(R.id.offline_state_button);
     }
 
     private View getShuffleButton() {

@@ -16,6 +16,8 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PlaylistMarkedForOfflineStateChangedEvent;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -70,6 +72,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;
     @Mock private OfflineContentScheduler serviceScheduler;
     @Mock private ResetOfflineContentCommand resetOfflineContentCommand;
+    @Mock private IntroductoryOverlayOperations introductoryOverlayOperations;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
@@ -108,7 +111,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 trackDownloadsStorage,
                 collectionOperations,
                 loadOfflinePlaylistsCommand,
-                Schedulers.immediate());
+                Schedulers.immediate(),
+                introductoryOverlayOperations);
     }
 
     @Test
@@ -199,6 +203,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         operations.enableOfflineCollection().subscribe();
 
         verify(startServiceAction).call(any());
+        verify(introductoryOverlayOperations).setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true);
         assertThat(refreshSubject.hasObservers()).isTrue();
     }
 

@@ -37,6 +37,8 @@ import com.soundcloud.android.payments.UpsellContext;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.OfflineStorageErrorDialog;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -85,6 +87,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
     @Mock private FragmentTransaction fragmentTransaction;
+    @Mock private FeatureFlags featureFlags;
 
     private TrackLikesHeaderPresenter presenter;
     private TestEventBus eventBus;
@@ -104,7 +107,9 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
                 InjectionSupport.providerOf(offlineLikesDialog),
                 navigationExecutor,
                 eventBus,
-                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)), offlineSettingsStorage);
+                InjectionSupport.providerOf(new UpdateHeaderViewSubscriber(offlineSettings, connectionHelper, eventBus)),
+                offlineSettingsStorage,
+                featureFlags);
 
         likedTrackUrns = asList(TRACK1, TRACK2);
         when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
@@ -298,6 +303,19 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void enablesOfflineLikesWithoutDialogWhenCollectionOfflineOnboardingFlagEnabled() {
+        when(offlineContentOperations.enableOfflineLikedTracks()).thenReturn(rx.Observable.just(null));
+        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+
+        createAndBindView();
+
+        presenter.onMakeAvailableOffline(true);
+
+        verify(offlineContentOperations).enableOfflineLikedTracks();
+        verifyZeroInteractions(offlineLikesDialog);
+    }
+
+    @Test
     public void showsSyncLikesDialogWhenOfflineLikesEnabled() {
         createAndBindView();
 
@@ -347,6 +365,33 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         createAndBindView();
 
         verify(headerView, times(0)).showNoConnection();
+    }
+
+    @Test
+    public void doNotShowIntroductoryOverlayIfLikesEnabled() {
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(true));
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        createAndBindView();
+
+        verify(headerView, never()).showOfflineIntroductoryOverlay();
+    }
+
+    @Test
+    public void doNotShowIntroductoryOverlayIfNoConnection() {
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        createAndBindView();
+
+        verify(headerView, never()).showOfflineIntroductoryOverlay();
+    }
+
+    @Test
+    public void showIntroductoryOverlayIfLikesNotEnabledAndHasConnection() {
+        when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(rx.Observable.just(false));
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        createAndBindView();
+
+        verify(headerView).showOfflineIntroductoryOverlay();
     }
 
     @Test

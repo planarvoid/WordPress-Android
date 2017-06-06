@@ -9,6 +9,8 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.Playlist;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -51,6 +53,7 @@ public class OfflineContentOperations {
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private final Scheduler scheduler;
+    private final IntroductoryOverlayOperations introductoryOverlayOperations;
 
     private final Func1<Collection<Urn>, Observable<?>> UPDATE_POLICIES =
             new Func1<Collection<Urn>, Observable<?>>() {
@@ -82,7 +85,8 @@ public class OfflineContentOperations {
                              TrackDownloadsStorage tracksStorage,
                              CollectionOperations collectionOperations,
                              LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand,
-                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                             IntroductoryOverlayOperations introductoryOverlayOperations) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.publisher = publisher;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
@@ -102,6 +106,7 @@ public class OfflineContentOperations {
         this.collectionOperations = collectionOperations;
         this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
         this.scheduler = scheduler;
+        this.introductoryOverlayOperations = introductoryOverlayOperations;
     }
 
     public Observable<Void> enableOfflineCollection() {
@@ -110,6 +115,7 @@ public class OfflineContentOperations {
                 .flatMap(o -> setMyPlaylistsAsOfflinePlaylists())
                 .doOnNext(ignored -> offlineContentStorage.addOfflineCollection())
                 .doOnNext(serviceInitiator.startFromUserAction())
+                .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
                 .flatMap(ignored -> syncInitiatorBridge.refreshMyPlaylists())
                 .map(RxUtils.TO_VOID)
                 .subscribeOn(scheduler);
@@ -139,9 +145,10 @@ public class OfflineContentOperations {
                                     .subscribeOn(scheduler);
     }
 
-    Observable<Void> enableOfflineLikedTracks() {
+    public Observable<Void> enableOfflineLikedTracks() {
         return offlineContentStorage.addLikedTrackCollection()
                                     .doOnNext(serviceInitiator.startFromUserAction())
+                                    .doOnNext(ignored -> introductoryOverlayOperations.setOverlayShown(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES, true))
                                     .map(RxUtils.TO_VOID)
                                     .subscribeOn(scheduler);
     }
