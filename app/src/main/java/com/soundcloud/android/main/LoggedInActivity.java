@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
+import com.soundcloud.android.ads.AdsStorage;
 import com.soundcloud.android.cast.CastButtonInstaller;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastIntroductoryOverlayPresenter;
@@ -35,6 +36,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject @LightCycle CastIntroductoryOverlayPresenter castIntroductoryOverlayPresenter;
     @Inject CastButtonInstaller castButtonInstaller;
+    @Inject AdsStorage adsStorage;
 
     private Optional<MenuItem> castMenu = Optional.absent();
 
@@ -70,6 +72,7 @@ public abstract class LoggedInActivity extends RootActivity implements CastConne
     @Override
     protected void onResume() {
         super.onResume();
+        adsStorage.preventPrestitialFetchForTimeInterval();
         castConnectionHelper.addOnConnectionChangeListener(this);
     }
 
