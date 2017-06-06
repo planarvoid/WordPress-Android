@@ -12,8 +12,6 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
@@ -62,7 +60,6 @@ public class CollectionOperations {
     private final RecentlyPlayedOperations recentlyPlayedOperations;
     private final MyPlaylistsOperations myPlaylistsOperations;
     private final EntityItemCreator entityItemCreator;
-    private final FeatureOperations featureOperations;
     private final PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment;
 
     private static List<PlaylistItem> getPlaylistsPreview(Notification<List<PlaylistItem>> playlists) {
@@ -112,7 +109,6 @@ public class CollectionOperations {
                          RecentlyPlayedOperations recentlyPlayedOperations,
                          MyPlaylistsOperations myPlaylistsOperations,
                          EntityItemCreator entityItemCreator,
-                         FeatureOperations featureOperations,
                          PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
@@ -125,7 +121,6 @@ public class CollectionOperations {
         this.recentlyPlayedOperations = recentlyPlayedOperations;
         this.myPlaylistsOperations = myPlaylistsOperations;
         this.entityItemCreator = entityItemCreator;
-        this.featureOperations = featureOperations;
         this.playlistAndAlbumsPreviewsExperiment = playlistAndAlbumsPreviewsExperiment;
     }
 
@@ -162,7 +157,7 @@ public class CollectionOperations {
     }
 
     private boolean shouldSeparatePlaylistsAndAlbums() {
-        return featureOperations.getCurrentPlan() == Plan.HIGH_TIER && playlistAndAlbumsPreviewsExperiment.isEnabled();
+        return playlistAndAlbumsPreviewsExperiment.isEnabled();
     }
 
     private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {

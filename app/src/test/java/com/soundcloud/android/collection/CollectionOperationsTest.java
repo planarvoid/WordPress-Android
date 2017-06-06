@@ -10,8 +10,6 @@ import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
 import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.PlaylistAndAlbumsPreviewsExperiment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.LikesStatusEvent;
@@ -56,7 +54,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
-    @Mock private FeatureOperations featureOperations;
     @Mock private PlaylistAndAlbumsPreviewsExperiment playlistAndAlbumsPreviewsExperiment;
 
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
@@ -107,7 +104,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 recentlyPlayedOperations,
                 myPlaylistsOperations,
                 ModelFixtures.entityItemCreator(),
-                featureOperations,
                 playlistAndAlbumsPreviewsExperiment);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
@@ -221,8 +217,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void collectionsShouldSeparatePlaylistsAndAlbumsIfUserIsHighTierAndIntoABTest() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+    public void collectionsShouldSeparatePlaylistsAndAlbumsIfUserIsIntoABTest() {
         when(playlistAndAlbumsPreviewsExperiment.isEnabled()).thenReturn(true);
 
         Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
@@ -243,8 +238,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void collectionsShouldKeepPlaylistsAndAlbumsTogetherIfUserIsNotHighTier() {
-        when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
+    public void collectionsShouldKeepPlaylistsAndAlbumsTogetherIfUserIsNotIntoAbTest() {
+        when(playlistAndAlbumsPreviewsExperiment.isEnabled()).thenReturn(false);
 
         Playlist playlist1 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
         Playlist playlist2 = ModelFixtures.playlistBuilder(Playlist.from(ModelFixtures.create(ApiPlaylist.class))).isAlbum(false).build();
