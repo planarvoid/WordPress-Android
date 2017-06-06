@@ -17,7 +17,8 @@ public class DefaultEventBusV2Test {
     private static final Queue<String> TEST_REPLAY_QUEUE = Queue.of(String.class).replay().get();
     private static final Queue<String> TEST_REPLAY_QUEUE_WITH_DEFAULT = Queue.of(String.class).replay("first!").get();
 
-    private DefaultEventBusV2 eventBus = new DefaultEventBusV2(Schedulers.trampoline());
+    private final DefaultEventBus legacyEventBus = new DefaultEventBus(rx.schedulers.Schedulers.immediate());
+    private final DefaultEventBusV2 eventBus = new DefaultEventBusV2(Schedulers.trampoline(), legacyEventBus);
 
     private TestObserver<String> observer1;
     private TestObserver<String> observer2;

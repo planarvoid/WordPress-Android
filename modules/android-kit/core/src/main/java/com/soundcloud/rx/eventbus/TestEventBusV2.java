@@ -18,7 +18,9 @@ import java.util.Set;
 
 public class TestEventBusV2 implements EventBusV2 {
 
-    private final DefaultEventBusV2 eventBus = new DefaultEventBusV2(Schedulers.trampoline());
+
+    private final DefaultEventBus legacyEventBus = new DefaultEventBus(rx.schedulers.Schedulers.immediate());
+    private final DefaultEventBusV2 eventBus = new DefaultEventBusV2(Schedulers.trampoline(), legacyEventBus);
     private final Map<Queue, Set<TestObserver>> observedQueues = new HashMap<>();
     private final Map<Queue, Set<Disposable>> subscriptions = new HashMap<>();
 

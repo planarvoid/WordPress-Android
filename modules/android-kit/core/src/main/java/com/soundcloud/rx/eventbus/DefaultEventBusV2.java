@@ -12,11 +12,11 @@ import io.reactivex.subjects.Subject;
 public class DefaultEventBusV2 implements EventBusV2 {
 
     private final Scheduler defaultScheduler;
-    private final DefaultEventBus eventBus;
+    private final EventBus eventBus;
 
-    public DefaultEventBusV2(Scheduler defaultScheduler) {
+    public DefaultEventBusV2(Scheduler defaultScheduler, EventBus eventBus) {
         this.defaultScheduler = defaultScheduler;
-        this.eventBus = new DefaultEventBus(null);
+        this.eventBus = eventBus;
     }
 
     <E> Observer<E> subscribe(Queue<E> queue, Observer<E> observer) {

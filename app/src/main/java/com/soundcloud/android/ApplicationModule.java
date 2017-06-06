@@ -211,8 +211,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public EventBusV2 provideEventBusV2() {
-        return new DefaultEventBusV2(io.reactivex.android.schedulers.AndroidSchedulers.mainThread());
+    public EventBusV2 provideEventBusV2(EventBus eventBus) {
+        return new DefaultEventBusV2(io.reactivex.android.schedulers.AndroidSchedulers.mainThread(), eventBus);
     }
 
     @Provides
