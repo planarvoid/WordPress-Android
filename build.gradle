@@ -1,16 +1,18 @@
 def buildSrcDir = 'buildsystem'
 apply from: "${buildSrcDir}/setup.gradle"
-apply from: "${buildSrcDir}/dependencies.gradle"
 apply from: "${buildSrcDir}/tests.gradle"
 
 buildscript {
+  apply from: "buildsystem/dependencies.gradle"
+  def gradleLibs = rootProject.ext.gradleLibraries
+
   repositories {
     mavenLocal()
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.1'
-    classpath 'com.google.gms:google-services:3.0.0'
+    classpath gradleLibs.gradleBuildTools
+    classpath gradleLibs.gms
   }
 }
 
@@ -20,10 +22,6 @@ allprojects {
     javaSrcDirs = 'src/main/java'
     resSrcDirs = 'src/main/res'
     assetsSrcDirs = 'assets'
-
-    androidCompileSdkVersion = 25
-    androidMinSdkVersion = 16
-    androidTargetSdkVersion = 25
 
     androidNetworkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
 

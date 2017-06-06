@@ -3,7 +3,8 @@ task runUnitTests(dependsOn: [':app:runUnitTests',
                               ':modules:mrlocallocal:test',
                               ':modules:android-kit:core:test',
                               ':modules:android-kit:platform:test',
-                              ':modules:lint:rules:test']) {
+                              ':modules:lint:rules:test',
+                              ':modules:lint:integTest:integrationTest']) {
 
 }
 

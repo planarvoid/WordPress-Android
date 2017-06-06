@@ -1,0 +1,1738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 2.3.1">
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        context.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/ads/AdOverlayController.java"
+            line="97"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        context.startActivity(startActivityIntent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/AppboyBroadcastReceiver.java"
+            line="53"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            context.startActivity(Intent.createChooser(intent, chooserText));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/BugReporter.java"
+            line="86"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            context.startActivity(Intent.createChooser(intent, chooserText));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/BugReporter.java"
+            line="106"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        this.startActivity(getRedirectionIntent());"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/cast/activity/CastRedirectActivity.java"
+            line="17"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        activity.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ConversionPresenter.java"
+            line="185"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        activity.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ConversionPresenter.java"
+            line="204"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                    getContext().startActivity(action);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/view/EmptyView.java"
+            line="71"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            getActivity().startActivity(intent);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ForceUpdateDialog.java"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            getActivity().startActivity(intent);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/configuration/ForceUpdateDialog.java"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            activity.startActivityForResult(intent, getArguments().getInt(ARG_REQ_CODE));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/GooglePlusSignInTaskFragment.java"
+            line="69"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                activity.startActivityForResult(i, requestCode);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="300"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            activity.startActivityForResult(intent, requestCode);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/utils/images/ImageUtils.java"
+            line="320"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/LegalFragment.java"
+            line="58"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivity(new Intent(Actions.SEARCH).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
+            line="48"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            startActivity(new Intent(this, MainActivity.class));"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        context.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/accounts/LogoutActivity.java"
+            line="19"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/MainActivity.java"
+            line="68"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        super.startActivityForResult(intent, requestCode);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/MainActivity.java"
+            line="85"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                startActivity(new Intent(getActivity(), ChangeStorageLocationActivity.class));"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/OfflineSettingsFragment.java"
+            line="231"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                .setNegativeButton(R.string.go_to_settings, (dialog, which) -> startActivity(new Intent(getActivity(), ChangeStorageLocationActivity.class)))"
+        errorLine2="                                                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/OfflineStorageErrorDialog.java"
+            line="33"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        oldUserDetailsView.setListener(uri -> fragment.startActivity(new Intent(Intent.ACTION_VIEW, uri)));"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/profile/OldUserDetailsPresenter.java"
+            line="56"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_site))));"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="181"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivityForResult(intent, RequestCodes.PICK_GOOGLE_ACCOUNT);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="485"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_terms))));"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="499"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_privacy))));"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="504"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        startActivityForResult(recoveryIntent, RequestCodes.RECOVER_PASSWORD_CODE);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="513"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="580"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                    startActivity(new Intent(Intent.ACTION_VIEW)"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="934"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            activityContext.startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/search/PlayFromVoiceSearchPresenter.java"
+            line="149"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        activity.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ProductChoicePresenter.java"
+            line="147"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                             () -> startActivity("
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/RecoverActivity.java"
+            line="80"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        context.startActivity(buildShareIntent(context, title, creatorName, permalink));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/share/SharePresenter.java"
+            line="109"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="        context.startActivity(intent);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/SpamDialogOnClickListener.java"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="            activity.startActivity(new Intent(Intent.ACTION_VIEW)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/error/StaleCheckoutDialog.java"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="sc.StartIntent"
+        message="Direct navigation should be replaced with `Navigator` call."
+        errorLine1="                        startActivity(intent);"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/WebViewActivity.java"
+            line="35"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@anim/abc_slide_in_top` is marked as private in com.android.support:appcompat-v7"
+        errorLine1="        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_slide_in_top);"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/view/NewItemsIndicator.java"
+            line="135"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@anim/abc_slide_out_top` is marked as private in com.android.support:appcompat-v7"
+        errorLine1="        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.abc_slide_out_top);"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/view/NewItemsIndicator.java"
+            line="142"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@dimen/abc_dialog_padding_top_material` is marked as private in com.android.support:appcompat-v7"
+        errorLine1="                android:paddingTop=&quot;@dimen/abc_dialog_padding_top_material&quot; />"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/debug_gcm_dialog.xml"
+            line="42"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        Intent startActivityIntent = new Intent(context, MainActivity.class);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/gcm/AppboyBroadcastReceiver.java"
+            line="83"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="                Intent intent = new Intent(context, OnboardActivity.class);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/auth/AuthenticatorService.java"
+            line="71"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        final Intent intent = new Intent(activity, ProductChoiceActivity.class);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ConversionPresenter.java"
+            line="180"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        final Intent intent = new Intent(activity, WebCheckoutActivity.class);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ConversionPresenter.java"
+            line="202"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        final Intent intent = new Intent(getActivity(), WebViewActivity.class);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/LegalFragment.java"
+            line="56"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="            startActivity(new Intent(this, MainActivity.class));"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/LoggedInActivity.java"
+            line="92"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        Intent intent = new Intent(context, LogoutActivity.class);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/accounts/LogoutActivity.java"
+            line="14"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        startActivity(new Intent(this, ResolveActivity.class).setAction(Intent.ACTION_VIEW).setData(data));"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/main/MainActivity.java"
+            line="68"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        final Intent intent = new Intent(context, MainActivity.class);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/mediasession/MediaNotificationHelper.java"
+            line="102"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="                startActivity(new Intent(getActivity(), ChangeStorageLocationActivity.class));"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/OfflineSettingsFragment.java"
+            line="231"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="                .setNegativeButton(R.string.go_to_settings, (dialog, which) -> startActivity(new Intent(getActivity(), ChangeStorageLocationActivity.class)))"
+        errorLine2="                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/settings/OfflineStorageErrorDialog.java"
+            line="33"
+            column="94"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        Intent recoveryIntent = new Intent(this, RecoverActivity.class);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="509"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/onboarding/OnboardActivity.java"
+            line="580"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        Intent intent = new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/widget/PlayerWidgetPresenter.java"
+            line="138"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="                                         new Intent(context,"
+        errorLine2="                                         ^">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/widget/PlayerWidgetRemoteViews.java"
+            line="73"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        Intent intent = new Intent(context, MainActivity.class)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/playback/widget/PlayerWidgetRemoteViews.java"
+            line="104"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="        final Intent intent = new Intent(activity, WebCheckoutActivity.class);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/payments/ProductChoicePresenter.java"
+            line="145"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="sc.CreateIntent"
+        message="Intent&apos;s should be created in the `(Pending)IntentFactory`."
+        errorLine1="            activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/navigation/SmoothNavigationExecutor.java"
+            line="61"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>playlist&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="596"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>playlist&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="600"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>álbum&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="600"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>album&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="604"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>Playlists e álbuns&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="604"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue explanation for more."
+        errorLine1="    &lt;item quantity=&quot;one&quot;>Playlist et album&lt;/item>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="608"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TrulyRandom"
+        message="Potentially insecure random numbers on Android 4.3 and older. Read https://android-developers.blogspot.com/2013/08/some-securerandom-thoughts.html for more info."
+        errorLine1="        this.secureRandom = new SecureRandom();"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/crypto/CryptoOperations.java"
+            line="34"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This Handler class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    private final Handler delayedStopHandler = new Handler() {"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/com/soundcloud/android/creators/record/SoundRecorderService.java"
+            line="44"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ak_list_divider_margin` appears to be unused">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-hdpi/ak_list_divider_margin.9.png"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-mdpi/ak_list_divider_margin.9.png"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/drawable-xhdpi/ak_list_divider_margin.9.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.com_appboy_api_key` appears to be unused">
+        <location
+            file="build.gradle"/>
+        <location
+            file="build/generated/res/resValues/prod/preRelease/values/generated.xml"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.snow` appears to be unused"
+        errorLine1="    &lt;color name=&quot;snow&quot;>#f8f8f8&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            line="6"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.mint` appears to be unused"
+        errorLine1="    &lt;color name=&quot;mint&quot;>#e5f3f3&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            line="25"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.facebook_blue` appears to be unused"
+        errorLine1="    &lt;color name=&quot;facebook_blue&quot;>#3b5998&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            line="29"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.google_blue` appears to be unused"
+        errorLine1="    &lt;color name=&quot;google_blue&quot;>#4285f4&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/colors.xml"
+            line="30"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.snack_bar_bg_light` appears to be unused"
+        errorLine1="    &lt;color name=&quot;snack_bar_bg_light&quot;>@color/page_background&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="45"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.play_queue_shadow_top` appears to be unused"
+        errorLine1="    &lt;color name=&quot;play_queue_shadow_top&quot;>@color/black_15&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="81"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.play_queue_shadow_center` appears to be unused"
+        errorLine1="    &lt;color name=&quot;play_queue_shadow_center&quot;>@color/milkglass&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="82"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.play_queue_shadow_bottom` appears to be unused"
+        errorLine1="    &lt;color name=&quot;play_queue_shadow_bottom&quot;>@color/black&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="83"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.ccl_mr_custom_line_1` appears to be unused"
+        errorLine1="    &lt;color name=&quot;ccl_mr_custom_line_1&quot;>@color/black&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="151"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.ccl_mr_custom_line_2` appears to be unused"
+        errorLine1="    &lt;color name=&quot;ccl_mr_custom_line_2&quot;>@color/black&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="152"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.ccl_mr_custom_button` appears to be unused"
+        errorLine1="    &lt;color name=&quot;ccl_mr_custom_button&quot;>@color/soundcloud_orange&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="153"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.notification_title_text_size` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;notification_title_text_size&quot;>18sp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="80"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.notification_user_text_size` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;notification_user_text_size&quot;>14sp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="81"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.ad_inlay_cta_border_width` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;ad_inlay_cta_border_width&quot;>1dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="224"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.dimen.conversion_headline_width` appears to be unused"
+        errorLine1="    &lt;dimen name=&quot;conversion_headline_width&quot;>250dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/dimens.xml"
+            line="232"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_bug_report` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/ic_bug_report.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_bug_report.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_bug_report.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_bug_report.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_bug_report.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.key_autoplay_related_enabled` appears to be unused"
+        errorLine1="    &lt;string name=&quot;key_autoplay_related_enabled&quot;>autoplay_related_enabled&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/keys_settings.xml"
+            line="6"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.key_subscription_buy` appears to be unused"
+        errorLine1="    &lt;string name=&quot;key_subscription_buy&quot;>buySubscription&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/keys_settings.xml"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.key_subscription_restore` appears to be unused"
+        errorLine1="    &lt;string name=&quot;key_subscription_restore&quot;>restoreSubscription&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/keys_settings.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.notification_close` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/notification_close.9.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/notification_close.9.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/notification_close.9.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/notification_close.9.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.playlist_fragment` appears to be unused"
+        errorLine1="&lt;com.soundcloud.android.view.MultiSwipeRefreshLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playlist_fragment.xml"
+            line="3"
+            column="1"/>
+        <location
+            file="src/main/res/layout-sw600dp-land/playlist_fragment.xml"
+            line="3"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.ak_retry` appears to be unused"
+        errorLine1="    &lt;string name=&quot;ak_retry&quot;>Retry&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values/strings.xml"
+            line="4"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-ar/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-es/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-fr/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-in/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-nl/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-pt/strings.xml"
+            line="3"
+            column="13"/>
+        <location
+            file="/Users/marcprengemann/IdeaProjects/android-listeners/modules/android-kit/platform/src/main/res/values-ru/strings.xml"
+            line="3"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.filter` appears to be unused"
+        errorLine1="    &lt;string name=&quot;filter&quot;>Filter&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="41"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="39"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="41"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="39"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="39"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="39"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="39"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="39"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.authentication_email_other_error_message` appears to be unused"
+        errorLine1="    &lt;string name=&quot;authentication_email_other_error_message&quot;>Sorry we couldn’t create an account for you with the details you provided.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="126"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="113"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="115"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="113"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="113"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="113"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="113"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="113"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_playlists` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search_playlists&quot;>search playlists&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="309"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="275"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="283"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="275"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="280"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="275"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="275"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="275"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_chilling` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_chilling&quot;>Playlists for chilling&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="457"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="411"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="419"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="411"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="416"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="411"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="411"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="411"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_sleeping` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_sleeping&quot;>Playlists for sleeping&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="458"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="412"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="420"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="412"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="417"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="412"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="412"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="412"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_studying` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_studying&quot;>Playlists for studying&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="459"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="413"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="421"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="413"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="418"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="413"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="413"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="413"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_coffeehouse` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_coffeehouse&quot;>Playlists for atmosphere&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="460"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="414"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="422"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="414"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="419"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="414"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="414"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="414"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_workingout` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_workingout&quot;>Playlists for working out&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="461"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="415"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="423"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="415"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="420"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="415"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="415"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="415"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.scenario_playlist_partying` appears to be unused"
+        errorLine1="    &lt;string name=&quot;scenario_playlist_partying&quot;>Playlists for partying&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="462"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="416"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="424"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="416"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="421"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="416"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="416"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="416"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_autoplay_related` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pref_autoplay_related&quot;>Autoplay related tracks&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="524"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="476"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="484"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="476"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="481"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="476"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="476"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="476"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_autoplay_related_desc` appears to be unused"
+        errorLine1="    &lt;string name=&quot;pref_autoplay_related_desc&quot;>When a playlist ends, play tracks based on the last track&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="525"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="477"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="485"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="477"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="482"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="477"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="477"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="477"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cast_player_casting_to` appears to be unused"
+        errorLine1="    &lt;string name=&quot;cast_player_casting_to&quot;>Casting to %s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="628"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="573"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="581"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="573"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="578"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="573"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="573"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="573"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.play_queue_header_auto_play` appears to be unused"
+        errorLine1="    &lt;string name=&quot;play_queue_header_auto_play&quot;>Auto play&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1103"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="996"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="1009"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="996"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1001"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="998"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="996"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="996"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.suggested_creators_relation_listened_to` appears to be unused"
+        errorLine1="    &lt;string name=&quot;suggested_creators_relation_listened_to&quot;>You recently listened to their track&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1116"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="1008"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="1021"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="1008"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1013"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="1010"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="1008"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1008"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.suggested_creators_relation_reposted` appears to be unused"
+        errorLine1="    &lt;string name=&quot;suggested_creators_relation_reposted&quot;>You recently reposted their track&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1118"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="1010"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="1023"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="1010"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1015"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="1012"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="1010"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1010"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.suggested_creators_relation_curated` appears to be unused"
+        errorLine1="    &lt;string name=&quot;suggested_creators_relation_curated&quot;>You recently added their track to a playlist&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1119"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="1011"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="1024"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="1011"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1016"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="1013"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="1011"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1011"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.bug_report_settings_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;bug_report_settings_title&quot;>Send bug report&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1123"
+            column="13"/>
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="1014"
+            column="11"/>
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="1027"
+            column="11"/>
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="1014"
+            column="11"/>
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1019"
+            column="11"/>
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="1016"
+            column="11"/>
+        <location
+            file="src/main/res/values-nl/strings.xml"
+            line="1014"
+            column="11"/>
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1014"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: button_download_downloading.png, entity_downloading.png">
+        <location
+            file="src/main/res/drawable-xhdpi/entity_downloading.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/button_download_downloading.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: button_download_downloading.png, entity_downloading.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/entity_downloading.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/button_download_downloading.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: button_download_waiting.png, entity_no_network.png">
+        <location
+            file="src/main/res/drawable-xhdpi/entity_no_network.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/button_download_waiting.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: button_download_default.png, entity_queued.png">
+        <location
+            file="src/main/res/drawable-xhdpi/entity_queued.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/button_download_default.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: button_download_default.png, entity_queued.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/entity_queued.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/button_download_default.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: splash_page_logo.png, ic_launcher.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_launcher.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/splash_page_logo.png"/>
+    </issue>
+
+</issues>

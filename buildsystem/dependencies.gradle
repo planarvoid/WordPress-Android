@@ -7,6 +7,9 @@ allprojects {
 
 ext {
   androidBuildToolsVersion = '25.0.2'
+  androidCompileSdkVersion = 25
+  androidMinSdkVersion = 16
+  androidTargetSdkVersion = 25
 
   // Dependency versions
   androidMultiDex = "1.0.1"
@@ -104,9 +107,14 @@ ext {
           // static analysis
           checkstyle                   : "com.puppycrawl.tools:checkstyle:7.6.1",
           checkstyleSevntu             : "com.github.sevntu.checkstyle:sevntu-checks:1.23.1",
-          lintApi                      : "com.android.tools.lint:lint-api:$androidSupportVersion"
+          lintApi                      : "com.android.tools.lint:lint-api:$androidSupportVersion",
+          lintChecks                   : "com.android.tools.lint:lint-checks:$androidSupportVersion"
   ]
 
+  gradleLibraries = [
+          gradleBuildTools : 'com.android.tools.build:gradle:2.3.1',
+          gms              : 'com.google.gms:google-services:3.0.0'
+  ]
 
   devLibraries = [
           leakCanary    : "com.squareup.leakcanary:leakcanary-android:1.5.1",
@@ -126,7 +134,8 @@ ext {
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:2.1.8",
           sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
           compileTesting                  : 'com.google.testing.compile:compile-testing:0.10',
-          lintTests                       : "com.android.tools.lint:lint-tests:$androidSupportVersion"
+          lintTests                       : "com.android.tools.lint:lint-tests:$androidSupportVersion",
+          lint                            : "com.android.tools.lint:lint:$androidSupportVersion"
   ]
 
   acceptanceTestLibraries = [

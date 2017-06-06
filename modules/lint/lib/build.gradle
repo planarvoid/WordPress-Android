@@ -13,6 +13,7 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_7
     targetCompatibility JavaVersion.VERSION_1_7
   }
+
   buildTypes {
     release {
       minifyEnabled false
@@ -25,20 +26,17 @@ configurations {
 }
 
 dependencies {
-  lintChecks project(path: ":modules:lint:rules", configuration: "lintChecks")
+  lintChecks project(path: ':modules:lint:rules', configuration: 'lintChecks')
 }
 
 task copyLintJar(type: Copy){
   from (configurations.lintChecks) {
-    rename {
-      String fileName ->
-        'lint.jar'
-    }
+    rename { 'lint.jar' }
   }
   into 'build/intermediates/lint/'
 }
 
 project.afterEvaluate{
-  def compileLintTask = project.tasks.find {it.name == 'compileLint'}
+  def compileLintTask = project.tasks.find { it.name == 'compileLint' }
   compileLintTask.dependsOn(copyLintJar)
 }

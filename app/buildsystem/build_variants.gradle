@@ -111,7 +111,7 @@ android {
     }
 
     prod {
-      minSdkVersion project.ext.androidMinSdkVersion
+      minSdkVersion rootProject.ext.androidMinSdkVersion
     }
   }
 

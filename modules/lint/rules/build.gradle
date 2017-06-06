@@ -1,24 +1,25 @@
 apply plugin: 'java'
 
-jar {
-  manifest {
-    attributes 'Manifest-Version': 1.0
-    attributes 'Lint-Registry': 'com.soundcloud.android.lint.rules.SoundCloudIssueRegistry'
-  }
-}
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
   lintChecks
 }
 
+def libraries = rootProject.ext.libraries
+def unitTestLibraries = rootProject.ext.unitTestLibraries
+
 dependencies {
-  def libraries = rootProject.ext.libraries
-  def unitTestLibraries = rootProject.ext.unitTestLibraries
+  compile libraries.lintApi
+  compile libraries.lintChecks
+
+  testCompile unitTestLibraries.lint
+  testCompile unitTestLibraries.lintTests
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.junit
 
   lintChecks files(jar)
-  compile libraries.lintApi
-  testCompile unitTestLibraries.lintTests
-  testCompile unitTestLibraries.junit
 }
 
 sourceSets {
@@ -28,4 +29,10 @@ sourceSets {
 
 test {
   maxParallelForks = Runtime.runtime.availableProcessors() / 2
+}
+
+jar {
+  manifest {
+    attributes 'Lint-Registry': 'com.soundcloud.android.lint.rules.SoundCloudIssueRegistry'
+  }
 }
