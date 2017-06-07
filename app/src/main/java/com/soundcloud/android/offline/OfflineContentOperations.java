@@ -203,7 +203,7 @@ public class OfflineContentOperations {
     }
 
     public Observable<Boolean> getOfflineContentOrOfflineLikesStatusChanges() {
-        return featureOperations.offlineContentEnabled().concatWith(getOfflineLikedTracksStatusChanges());
+        return RxJava.toV1Observable(featureOperations.offlineContentEnabled()).concatWith(getOfflineLikedTracksStatusChanges());
     }
 
     public Observable<Void> disableOfflineFeature() {

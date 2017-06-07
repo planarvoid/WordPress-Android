@@ -81,7 +81,7 @@ public class StreamAdsControllerTest extends AndroidUnitTest {
         when(inlayAdOperations.subscribe(inlayAdHelper)).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelper.subscribe()).thenReturn(RxUtils.invalidSubscription());
         when(inlayAdHelperFactory.create(any(StaggeredGridLayoutManager.class), any(StreamAdapter.class))).thenReturn(inlayAdHelper);
-        when(featureOperations.adsEnabled()).thenReturn(Observable.just(Boolean.TRUE));
+        when(featureOperations.adsEnabled()).thenReturn(io.reactivex.Observable.just(Boolean.TRUE));
         when(dateProvider.getCurrentDate()).thenReturn(new Date(999));
 
         controller.onViewCreated(recycler, adapter);

@@ -4,10 +4,9 @@ import static com.soundcloud.android.offline.OfflineContentLocation.DEVICE_STORA
 import static com.soundcloud.android.offline.OfflineContentLocation.SD_CARD;
 
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.IOUtils;
-import rx.Observable;
+import io.reactivex.Observable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -85,10 +84,9 @@ public class OfflineSettingsStorage {
                          .map(key -> sharedPreferences.getBoolean(key, false));
     }
 
-    public Observable<Void> getOfflineContentLocationChange() {
+    public Observable<String> getOfflineContentLocationChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                         .filter(OFFLINE_CONTENT_LOCATION::equals)
-                         .map(RxUtils.TO_VOID);
+                         .filter(OFFLINE_CONTENT_LOCATION::equals);
     }
 
     public void clear() {

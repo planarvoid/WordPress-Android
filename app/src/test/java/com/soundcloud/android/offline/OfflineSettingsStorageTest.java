@@ -5,9 +5,9 @@ import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import android.content.SharedPreferences;
 
@@ -16,8 +16,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     private final SharedPreferences preferences = sharedPreferences();
 
     private OfflineSettingsStorage storage;
-    private TestSubscriber<Boolean> wifiOnlyObserver = new TestSubscriber<>();
-    private TestSubscriber<Void> offlineContentLocationObserver = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -26,17 +24,18 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
     @Test
     public void receivedUpdatesFromWifiOnlyOptionChange() {
-        storage.getWifiOnlyOfflineSyncStateChange().subscribe(wifiOnlyObserver);
+        TestObserver<Boolean> testObserver = storage.getWifiOnlyOfflineSyncStateChange().test();
         storage.setWifiOnlyEnabled(true);
-        assertThat(wifiOnlyObserver.getOnNextEvents().get(0)).isTrue();
+        testObserver.assertValueCount(1)
+                    .assertValue(true);
     }
 
     @Test
     public void receivedUpdatesFromOfflineContentLocationChange() {
-        storage.getOfflineContentLocationChange().subscribe(offlineContentLocationObserver);
+        TestObserver<String> testObserver = storage.getOfflineContentLocationChange().test();
         storage.setOfflineContentLocation(OfflineContentLocation.SD_CARD);
         storage.setOfflineContentLocation(OfflineContentLocation.DEVICE_STORAGE);
-        assertThat(offlineContentLocationObserver.getOnNextEvents().size()).isEqualTo(2);
+        testObserver.assertValueCount(2);
     }
 
     @Test

@@ -47,14 +47,14 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     private OfflineContentController controller;
     private TestEventBus eventBus;
-    private PublishSubject<Boolean> wifiOnlyToggleSetting;
+    private io.reactivex.subjects.PublishSubject<Boolean> wifiOnlyToggleSetting;
     private PublishSubject<Void> onCollectionChanged;
     private TestSubscriber<Void> startServiceSubscriber;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        wifiOnlyToggleSetting = PublishSubject.create();
+        wifiOnlyToggleSetting = io.reactivex.subjects.PublishSubject.create();
         onCollectionChanged = PublishSubject.create();
 
         startServiceSubscriber = new TestSubscriber<>();
@@ -241,10 +241,10 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void removePlaylistFromOfflineContentWhenDeleted() {
-        final Urn playlist1 = Urn.forPlaylist(123L);
-        final Urn playlist2 = Urn.forPlaylist(456L);
+        Urn playlist1 = Urn.forPlaylist(123L);
+        Urn playlist2 = Urn.forPlaylist(456L);
 
-        final PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
+        PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
@@ -258,15 +258,15 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void removePlaylistFromOfflineContentWhenUnliked() {
-        final Urn playlist1 = Urn.forPlaylist(123L);
-        final Urn playlist2 = Urn.forPlaylist(456L);
+        Urn playlist1 = Urn.forPlaylist(123L);
+        Urn playlist2 = Urn.forPlaylist(456L);
 
-        final PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
+        PublishSubject<Void> makePlaylistUnavailableOffline = PublishSubject.create();
         when(offlineContentOperations.makePlaylistUnavailableOffline(Arrays.asList(playlist1, playlist2))).thenReturn(
                 makePlaylistUnavailableOffline);
 
         controller.subscribe();
-        final Map<Urn, LikesStatusEvent.LikeStatus> likes = new HashMap<>(2);
+        Map<Urn, LikesStatusEvent.LikeStatus> likes = new HashMap<>(2);
         likes.put(playlist1, LikesStatusEvent.LikeStatus.create(playlist1, false));
         likes.put(playlist2, LikesStatusEvent.LikeStatus.create(playlist2, false));
         eventBus.publish(EventQueue.LIKE_CHANGED, LikesStatusEvent.createFromSync(likes));
@@ -278,7 +278,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void addOfflinePlaylistOnCreationWhenOfflineCollectionEnabled() {
-        final PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
+        PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
                 makeAvailableOffline);
@@ -294,7 +294,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
     @Test
     public void addOfflinePlaylistOnLikeWhenOfflineCollectionEnabled() {
-        final PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
+        PublishSubject<Void> makeAvailableOffline = PublishSubject.create();
         when(offlineContentOperations.isOfflineCollectionEnabled()).thenReturn(true);
         when(offlineContentOperations.makePlaylistAvailableOffline(singletonList(PLAYLIST))).thenReturn(
                 makeAvailableOffline);

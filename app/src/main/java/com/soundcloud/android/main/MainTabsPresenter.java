@@ -4,16 +4,16 @@ import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.PLAY_
 import static com.soundcloud.android.deeplinks.ShortcutController.Shortcut.SEARCH;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ShortcutController;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.navigation.NavigationExecutor;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
-import rx.Subscription;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -32,7 +32,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     private RootActivity activity;
 
-    private Subscription subscriber = RxUtils.invalidSubscription();
+    private Disposable disposable = Disposables.empty();
 
     @LightCycle final MainTabsView mainTabsView;
 
@@ -70,7 +70,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     @Override
     public void onDestroy(RootActivity activity) {
-        subscriber.unsubscribe();
+        disposable.dispose();
 
         super.onDestroy(activity);
     }
@@ -91,9 +91,9 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     }
 
     private void startDevelopmentMenuStream() {
-        subscriber = featureOperations.developmentMenuEnabled()
-                                      .startWith(featureOperations.isDevelopmentMenuEnabled())
-                                      .subscribe(new UpdateDevelopmentMenuAction());
+        disposable = featureOperations.developmentMenuEnabled()
+                           .startWith(featureOperations.isDevelopmentMenuEnabled())
+                           .subscribeWith(new UpdateDevelopmentMenuAction());
     }
 
     private void setTabFromIntent(Intent intent) {
@@ -151,7 +151,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         navigationExecutor.openSearch(activity, intent);
     }
 
-    private class UpdateDevelopmentMenuAction extends DefaultSubscriber<Boolean> {
+    private class UpdateDevelopmentMenuAction extends DefaultObserver<Boolean> {
         @Override
         public void onNext(Boolean developmentModeEnabled) {
             if (developmentModeEnabled) {

@@ -10,7 +10,6 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_REMOVE_ALL_OFFL
 import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.ConfigurationManager;
@@ -21,6 +20,7 @@ import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineContentLocation;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
@@ -30,10 +30,12 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.LeakCanaryWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
+import io.reactivex.disposables.CompositeDisposable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -65,6 +67,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     @Inject ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
 
     private CompositeSubscription subscription;
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     public static OfflineSettingsFragment create() {
         return new OfflineSettingsFragment();
@@ -137,14 +140,15 @@ public class OfflineSettingsFragment extends PreferenceFragment
                                      .subscribe(new CurrentDownloadSubscriber()));
         }
 
-        subscription.add(offlineSettings.getOfflineContentLocationChange()
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new ChangeStorageLocationSubscriber()));
+        disposables.add(offlineSettings.getOfflineContentLocationChange()
+                               .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                               .subscribeWith(new ChangeStorageLocationSubscriber()));
     }
 
     @Override
     public void onDestroyView() {
         subscription.unsubscribe();
+        disposables.clear();
         super.onDestroyView();
         leakCanaryWrapper.watch(this);
     }
@@ -278,9 +282,9 @@ public class OfflineSettingsFragment extends PreferenceFragment
         }
     }
 
-    private final class ChangeStorageLocationSubscriber extends DefaultSubscriber<Void> {
+    private final class ChangeStorageLocationSubscriber extends DefaultObserver<String> {
         @Override
-        public void onNext(Void ignored) {
+        public void onNext(String ignored) {
             setupChangeStorageLocation();
             refreshStoragePreference();
         }

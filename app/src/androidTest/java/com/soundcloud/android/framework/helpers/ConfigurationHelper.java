@@ -15,7 +15,6 @@ import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.playback.ui.PlayerPagerOnboardingPresenter;
 import com.soundcloud.android.playback.ui.PlayerPagerOnboardingStorage;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
@@ -56,11 +55,11 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                   .doOnNext(plans -> {
-                       if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
-                           planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
-                       }
-                   }).subscribe();
+              .doOnNext(plans -> {
+                  if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
+                      planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
+                  }
+              }).subscribe();
     }
 
     public static void disableOfflineContent(Context context) {
@@ -104,7 +103,7 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
-                      .filter(RxUtils.IS_FALSE)
+                      .filter(it -> !it)
                       .doOnNext(enabled -> {
                           Log.d(TAG, "updating feature after change: " + feature.name);
                           featureStorage.update(feature);
@@ -119,7 +118,7 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
-                      .filter(RxUtils.IS_TRUE)
+                      .filter(it -> it)
                       .doOnNext(enabled -> featureStorage.update(feature))
                       .subscribe();
     }

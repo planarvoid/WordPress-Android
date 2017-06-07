@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.offline.OfflineContentController;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;
 
@@ -17,7 +18,7 @@ public class ConfigurationFeatureController {
                                    FeatureOperations featureOperations) {
         this.offlineContentController = offlineContentController;
         this.featureOperations = featureOperations;
-        this.offlineSyncFeatureUpdatesObservable = featureOperations.offlineContentEnabled();
+        this.offlineSyncFeatureUpdatesObservable = RxJava.toV1Observable(featureOperations.offlineContentEnabled());
     }
 
     public void subscribe() {

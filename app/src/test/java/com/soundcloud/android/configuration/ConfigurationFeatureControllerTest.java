@@ -5,12 +5,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.offline.OfflineContentController;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import rx.subjects.PublishSubject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationFeatureControllerTest {
@@ -19,7 +19,7 @@ public class ConfigurationFeatureControllerTest {
     @Mock private FeatureOperations featureOperations;
 
     private ConfigurationFeatureController controller;
-    private PublishSubject<Boolean> featureUpdatesObservable;
+    private io.reactivex.subjects.PublishSubject<Boolean> featureUpdatesObservable;
 
     @Before
     public void setUp() throws Exception {

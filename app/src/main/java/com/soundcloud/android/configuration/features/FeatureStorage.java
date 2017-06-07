@@ -6,8 +6,9 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Log;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import android.content.SharedPreferences;
 
@@ -23,9 +24,9 @@ public class FeatureStorage {
 
     private final SharedPreferences sharedPreferences;
 
-    private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
+    private final Function<String, Boolean> toValue = new Function<String, Boolean>() {
         @Override
-        public Boolean call(String key) {
+        public Boolean apply(String key) {
             return sharedPreferences.getBoolean(key, false);
         }
     };
@@ -65,7 +66,7 @@ public class FeatureStorage {
                          .map(toValue);
     }
 
-    private Func1<String, Boolean> isFeature(final String name) {
+    private Predicate<String> isFeature(final String name) {
         return feature -> feature.equals(name + ENABLED_POSTFIX);
     }
 

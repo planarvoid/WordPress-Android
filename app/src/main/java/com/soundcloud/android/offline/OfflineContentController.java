@@ -7,6 +7,7 @@ import com.soundcloud.android.events.PlaylistChangedEvent;
 import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnStateChangedEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.Lists;
@@ -51,7 +52,7 @@ public class OfflineContentController {
         this.serviceInitiator = serviceInitiator;
         this.eventBus = eventBus;
         this.offlineContentOperations = offlineContentOperations;
-        this.syncWifiOnlyToggled = settingsStorage.getWifiOnlyOfflineSyncStateChange();
+        this.syncWifiOnlyToggled = RxJava.toV1Observable(settingsStorage.getWifiOnlyOfflineSyncStateChange());
     }
 
     public void subscribe() {

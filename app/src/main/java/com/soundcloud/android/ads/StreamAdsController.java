@@ -7,6 +7,7 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.StreamAdapter;
@@ -91,9 +92,9 @@ public class StreamAdsController extends RecyclerView.OnScrollListener {
         final StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
         this.inlayAdHelper = Optional.of(inlayAdHelperFactory.create(staggeredGridLayoutManager, adapter));
 
-        subscriptions.addAll(featureOperations.adsEnabled()
-                                              .startWith(Boolean.TRUE)
-                                              .subscribe(new AdsEnabled()),
+        subscriptions.addAll(RxJava.toV1Observable(featureOperations.adsEnabled())
+                                                     .startWith(Boolean.TRUE)
+                                                     .subscribe(new AdsEnabled()),
                              inlayAdOperations.subscribe(inlayAdHelper.get()),
                              inlayAdHelper.get().subscribe(),
                              eventBus.queue(EventQueue.PLAYER_UI)

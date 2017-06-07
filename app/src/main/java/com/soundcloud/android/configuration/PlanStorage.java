@@ -5,8 +5,9 @@ import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.Observable;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 
 import android.content.SharedPreferences;
 
@@ -25,10 +26,10 @@ public class PlanStorage {
 
     private static final int NO_TRIAL = 0;
 
-    private static final Func1<String, Boolean> UPSELLS_PREFERENCE = key -> KEY_UPSELLS.equals(key);
+    private static final Predicate<String> UPSELLS_PREFERENCE = key -> KEY_UPSELLS.equals(key);
 
     private final SharedPreferences sharedPreferences;
-    private final Func1<String, List<Plan>> toUpsells = key -> getUpsells();
+    private final Function<String, List<Plan>> toUpsells = key -> getUpsells();
 
     @Inject
     public PlanStorage(@Named(StorageModule.FEATURES) SharedPreferences sharedPreferences) {

@@ -3,8 +3,7 @@ package com.soundcloud.android.configuration;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-
-import rx.Observable;
+import io.reactivex.Observable;
 
 import javax.inject.Inject;
 import java.util.List;

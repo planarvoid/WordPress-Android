@@ -7,9 +7,9 @@ import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
+import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestObserver;
 
 import android.content.SharedPreferences;
 
@@ -20,8 +20,6 @@ public class FeatureStorageTest extends AndroidUnitTest {
 
     private FeatureStorage storage;
     private List<Feature> features;
-
-    private TestObserver<Boolean> testObserver = new TestObserver<>();
 
     @Before
     public void setUp() throws Exception {
@@ -59,11 +57,12 @@ public class FeatureStorageTest extends AndroidUnitTest {
 
     @Test
     public void receivesUpdatesToFeatureStatusChanges() {
-        storage.getUpdates("my_feature").subscribe(testObserver);
+        TestObserver<Boolean> testObserver = storage.getUpdates("my_feature").test();
 
         storage.update(new Feature("my_feature", true, Arrays.asList("mid_tier")));
 
-        assertThat(testObserver.getOnNextEvents().get(0)).isTrue();
+        testObserver.assertValueCount(1)
+                    .assertValue(true);
     }
 
     @Test
