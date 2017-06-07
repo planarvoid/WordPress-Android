@@ -80,30 +80,19 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
-        if (profileConfig.hasAlignedUserInfo()) {
-            adapter = new ProfilePagerAdapter(activity,
-                                              user,
-                                              accountOperations.isLoggedInUser(user),
-                                              activity.getIntent()
-                                                             .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO));
-            pager.setAdapter(adapter);
-            pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
-        } else {
-            adapter = new OldProfilePagerAdapter(activity,
-                                                 user,
-                                                 accountOperations.isLoggedInUser(user),
-                                                 scrollHelper,
-                                                 activity.getIntent()
-                                                                 .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO));
-            pager.setAdapter(adapter);
-            pager.setCurrentItem(OldProfilePagerAdapter.TAB_SOUNDS);
-        }
+        adapter = new ProfilePagerAdapter(activity,
+                                          user,
+                                          accountOperations.isLoggedInUser(user),
+                                          activity.getIntent()
+                                                         .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO));
+        pager.setAdapter(adapter);
+        pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
 
         pager.addOnPageChangeListener(enterScreenDispatcher);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        TabLayout tabLayout = (TabLayout) activity.findViewById(profileConfig.hasAlignedUserInfo() ? R.id.tab_indicator_fixed : R.id.tab_indicator_scrollable);
+        TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator_fixed);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(pager);
 

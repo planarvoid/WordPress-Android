@@ -1,7 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -81,7 +79,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getResources()).thenReturn(resources);
         when(activity.findViewById(R.id.tab_indicator_fixed)).thenReturn(tabLayout);
-        when(activity.findViewById(R.id.tab_indicator_scrollable)).thenReturn(tabLayout);
         when(activity.findViewById(R.id.pager)).thenReturn(viewPager);
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
@@ -167,29 +164,6 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.USER_CHANGED, UserChangedEvent.forUpdate(user));
 
         verifyZeroInteractions(profileOperations);
-    }
-
-    @Test
-    public void profilePresenterShouldTrackUserPageViewWhenTabSelected() throws Exception {
-        profilePresenter.onCreate(activity, null);
-        when(viewPager.getCurrentItem()).thenReturn(OldProfilePagerAdapter.TAB_SOUNDS);
-        profilePresenter.onEnterScreen(activity);
-
-        verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
-        assertThat(screenEventArgumentCaptor.getValue().screen()).isEqualTo(Screen.USER_MAIN.get());
-        assertThat(screenEventArgumentCaptor.getValue().pageUrn().get()).isEqualTo(USER_URN);
-    }
-
-    @Test
-    public void profilePresenterShouldTrackYouPageViewWhenTabSelectedOnYourOwnProfile() throws Exception {
-        when(accountOperations.isLoggedInUser(USER_URN)).thenReturn(true);
-
-        profilePresenter.onCreate(activity, null);
-        when(viewPager.getCurrentItem()).thenReturn(OldProfilePagerAdapter.TAB_SOUNDS);
-        profilePresenter.onEnterScreen(activity);
-
-        verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
-        assertThat(screenEventArgumentCaptor.getValue().screen()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 
     private User createProfileUser() {

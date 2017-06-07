@@ -26,7 +26,4 @@ class ProfileConfig {
                 && resources.getBoolean(R.bool.profile_banner);
     }
 
-    boolean hasAlignedUserInfo() {
-        return featureFlags.isEnabled(Flag.ALIGNED_USER_INFO);
-    }
 }

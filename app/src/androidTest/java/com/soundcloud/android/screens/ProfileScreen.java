@@ -193,7 +193,7 @@ public class ProfileScreen extends Screen {
     }
 
     private Tabs tabs() {
-        return testDriver.findOnScreenElement(With.either(With.id(R.id.tab_indicator_scrollable), With.id(R.id.tab_indicator_fixed))).toTabs();
+        return testDriver.findOnScreenElement(With.id(R.id.tab_indicator_fixed)).toTabs();
     }
 
     private ViewElement followButton() {

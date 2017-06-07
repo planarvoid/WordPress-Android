@@ -11,8 +11,6 @@ import static org.hamcrest.core.IsNot.not;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.matcher.screen.IsVisible;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.FollowingsScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -43,8 +41,6 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
     private static final String TEST_SCENARIO_REPOSTS_LIST = "specs/audio-events-v1-other-profile-reposts-list.spec";
     private static final String TEST_SCENARIO_PLAYLISTS_LIST = "specs/other-profile-playlists-list.spec";
 
-    private FeatureFlagsHelper featureFlagsHelper;
-
     // Have to do this because Java can't do import aliasing ;_;
     private static Matcher<Screen> isScreenVisible() {
         return Is.is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible());
@@ -67,9 +63,6 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        featureFlagsHelper = FeatureFlagsHelper.create(getInstrumentation().getTargetContext());
-        featureFlagsHelper.enable(Flag.ALIGNED_USER_INFO);
-
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_USER_URI));
         super.setUp();
 
@@ -79,7 +72,6 @@ public class ProfileTest extends ActivityTest<ResolveActivity> {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        featureFlagsHelper.reset(Flag.ALIGNED_USER_INFO);
     }
 
     public void testPostsTrackClickStartsPlayer() {
