@@ -1,6 +1,9 @@
 [main]
 host = https://www.transifex.com
-lang_map = pt_BR: pt, en_GB: en-rGB
+
+# lang_map = REMOTE_CODE:LOCAL_CODE, REMOTE_CODE:LOCAL_CODE
+# (Note, no spaces allowed!)
+lang_map = pt_BR:pt-rBR, en_GB:en-rGB, es_419:b+es+419
 
 [soundcloud-android.stringsxml]
 source_file = app/src/main/res/values/strings.xml
