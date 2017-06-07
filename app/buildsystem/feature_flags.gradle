@@ -88,7 +88,6 @@ android {
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.SEARCH_TOP_RESULTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PROFILE_BANNER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.WELCOME_USER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_FIRST.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.NEW_FOR_YOU_SECOND.name(), DEFAULT_HIDE
