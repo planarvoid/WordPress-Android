@@ -4,6 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
@@ -15,6 +16,7 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
     @Mock StopReasonProvider stopReasonProvider;
     @Mock PlaySessionStateProvider playSessionStateProvider;
     @Mock PlaySessionController playSessionController;
+    @Mock CastConnectionHelper castConnectionHelper;
     @Mock PlaybackFeedbackHelper playbackFeedbackHelper;
 
     @InjectMocks private ConcurrentPlaybackOperations operations;
@@ -73,4 +75,14 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
         verify(playbackFeedbackHelper, never()).showConcurrentStreamingStoppedFeedback();
     }
 
+    @Test
+    public void pauseIfPlayingDoesNotPauseWhileCastingSinceThePlaybackControlShouldBeOnTheReceiver() {
+        when(castConnectionHelper.isCasting()).thenReturn(true);
+
+        operations.pauseIfPlaying();
+
+        verify(stopReasonProvider, never()).setPendingConcurrentPause();
+        verify(playSessionController, never()).fadeAndPause();
+        verify(playbackFeedbackHelper, never()).showConcurrentStreamingStoppedFeedback();
+    }
 }
