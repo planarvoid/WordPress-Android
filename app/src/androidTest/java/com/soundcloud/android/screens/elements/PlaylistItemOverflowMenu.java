@@ -6,7 +6,6 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
-import com.soundcloud.android.screens.ConfirmDeletePlaylistScreen;
 import com.soundcloud.android.screens.ConfirmDisableSyncCollectionScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
@@ -31,9 +30,9 @@ public class PlaylistItemOverflowMenu extends PopupMenuElement {
         return new UpgradeScreen(testDriver);
     }
 
-    public ConfirmDeletePlaylistScreen clickDelete() {
+    public ConfirmDeletePlaylistDialogElement clickDelete() {
         getDeletePlaylistItem().click();
-        return new ConfirmDeletePlaylistScreen(testDriver, MainActivity.class);
+        return new ConfirmDeletePlaylistDialogElement(testDriver);
     }
 
     public void toggleLike() {

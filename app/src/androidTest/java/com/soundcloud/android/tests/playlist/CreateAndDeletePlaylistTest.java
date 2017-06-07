@@ -1,5 +1,9 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,6 +16,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.StreamCardElement;
@@ -20,20 +25,20 @@ import org.hamcrest.Matchers;
 
 import android.content.Context;
 
-public class PlaylistItemsTest extends ActivityTest<MainActivity> {
+public class CreateAndDeletePlaylistTest extends ActivityTest<MainActivity> {
 
     private String playlist;
     private Context context;
     private final OfflineContentHelper offlineContentHelper;
 
-    public PlaylistItemsTest() {
+    public CreateAndDeletePlaylistTest() {
         super(MainActivity.class);
         offlineContentHelper = new OfflineContentHelper();
     }
 
     @Override
     protected TestUser getUserForLogin() {
-        return TestUser.addToPlaylistUser;
+        return TestUser.createAndDeletePlaylistUser;
     }
 
     @Override
@@ -43,22 +48,36 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         playlist = String.valueOf(System.currentTimeMillis());
     }
 
-    public void testAddTrackToPlaylistFromStream() {
+    @Override
+    protected void addInitialStubMappings() {
+        // Fix : test can't find a track in the stream because the account fills up with playlists.
+        //
+        // This can happen because while the creation is synced, the deletion may not be synced (if the test runner kills the app before),
+        // so just prevent the creation from syncing :)
+        stubFor(post(urlPathEqualTo("/playlists")).willReturn(aResponse().withStatus(500)));
+    }
+
+    public void testCreatePlaylistFromStreamAndDeleteFromPlaylistDetailsScreen() throws Exception {
         StreamScreen streamScreen = new StreamScreen(solo);
         StreamCardElement firstTrack = streamScreen.scrollToFirstTrack();
         String trackAddedTitle = firstTrack.trackTitle();
 
-        firstTrack
-                .clickOverflowButton()
-                .clickAddToPlaylist()
-                .clickCreateNewPlaylist()
-                .enterTitle(playlist)
-                .clickDoneAndReturnToStream();
+        firstTrack.clickOverflowButton()
+                  .clickAddToPlaylist()
+                  .clickCreateNewPlaylist()
+                  .enterTitle(playlist)
+                  .clickDoneAndReturnToStream();
 
-        assertPlaylistContainsTrack(trackAddedTitle);
+        final PlaylistDetailsScreen playlistDetailsScreen = assertPlaylistContainsTrack(trackAddedTitle);
+
+        final PlaylistsScreen playlistsScreen = playlistDetailsScreen.clickPlaylistOverflowButton()
+                                                                     .clickDelete()
+                                                                     .clickConfirm();
+
+        assertThat(playlistsScreen.getPlaylistWithTitle(playlist).isOnScreen(), Matchers.is(false));
     }
 
-    public void testAddTrackToPlaylistFromPlayer() {
+    public void testCreatePlaylistFromPlayerAndDeleteFromPlaylistsScreen() throws Exception {
         enableOfflineContent(context);
 
         final TrackLikesScreen trackLikesScreen = mainNavHelper
@@ -73,7 +92,6 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
                                                                     .clickMenu()
                                                                     .clickAddToPlaylist()
                                                                     .clickCreateNewPlaylist();
-
         assertThat(createPlaylistScreen, Matchers.is(visible()));
         assertThat(createPlaylistScreen.offlineCheck().isOnScreen(), Matchers.is(true));
 
@@ -83,7 +101,15 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
         trackLikesScreen.goBack();
 
-        assertPlaylistContainsTrack(trackAddedTitle);
+        final PlaylistDetailsScreen playlistDetailsScreen = assertPlaylistContainsTrack(trackAddedTitle);
+
+        final PlaylistsScreen playlistsScreen = playlistDetailsScreen.goBackToPlaylists()
+                                                                     .scrollToPlaylistWithTitle(playlist)
+                                                                     .clickOverflow()
+                                                                     .clickDelete()
+                                                                     .clickConfirm();
+
+        assertThat(playlistsScreen.getPlaylistWithTitle(playlist).isOnScreen(), Matchers.is(false));
     }
 
     @Override
@@ -93,13 +119,14 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         offlineContentHelper.clearOfflineContent(context);
     }
 
-    private void assertPlaylistContainsTrack(String trackTitle) {
+    private PlaylistDetailsScreen assertPlaylistContainsTrack(String trackTitle) {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
-        collectionScreen.pullToRefresh();
         PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickPlaylistsPreview()
                                                                       .scrollToAndClickPlaylistWithTitle(playlist);
 
         assertThat(playlistDetailsScreen.getTitle(), is(playlist));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));
+
+        return playlistDetailsScreen;
     }
 }

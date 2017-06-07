@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 public class DeletePlaylistDialogFragment extends DialogFragment {
 
-    private static final String TAG = "DeletePlaylist";
+    public static final String TAG = "DeletePlaylist";
     private static final String PLAYLIST_URN = "PlaylistUrn";
 
     @Inject PlaylistPostOperations operations;

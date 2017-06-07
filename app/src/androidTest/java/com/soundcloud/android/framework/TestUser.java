@@ -98,13 +98,6 @@ public class TestUser {
             "1-21686-107904111-2c69858c2bde2a",
             107904111,
             true);
-    public static final TestUser deletePlaylistUser = new TestUser(
-            "delete-playlist",
-            "delete-playlist@gmail.com",
-            "S0undCl0ud",
-            "1-21686-190901728-67e61c3565bfc2",
-            190901728,
-            true);
     public static final TestUser testUser = new TestUser(
             "slawomir-smiechowy-2",
             "test26-82@wp.pl",
@@ -210,13 +203,13 @@ public class TestUser {
             "1-21686-151205360-cbe46d4f5819e0",
             151205360,
             true);
-    public static final TestUser addToPlaylistUser = new TestUser(
-            "onePlaylistUser",
-            "onePlaylistuser@gmail.com",
-            "passwordyeah88",
-            "1-21686-151356674-b019d504fbb087",
-            151356674,
-            true);
+    public static final TestUser createAndDeletePlaylistUser = new TestUser(
+            "CreateAndDeletePlaylistUser",
+            "soundcloud.Android.CreateAndDeletePlaylistUser@tests.soundcloud",
+            "SoundCloudTest2016",
+            "1-276024-310744516-89c39e4fdd102",
+            310744516,
+            false);
     public static final TestUser profileEntryUser = new TestUser(
             "sc-profile-entry-user",
             "sc-profile-entry-user@gmail.com",
