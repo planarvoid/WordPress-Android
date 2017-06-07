@@ -30,7 +30,7 @@ public class AdsStorage {
         return (dateProvider.getCurrentTime() > (lastTime + getFetchInterval()));
     }
 
-    public void setLastPrestitialFetch() {
+    public void preventPrestitialFetchForTimeInterval() {
         sharedPreferences.edit().putLong(LAST_PRESTITIAL_FETCH, dateProvider.getCurrentTime()).apply();
     }
 

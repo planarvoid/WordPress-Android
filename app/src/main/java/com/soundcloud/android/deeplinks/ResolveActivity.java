@@ -49,7 +49,7 @@ public class ResolveActivity extends RootActivity {
         } catch (UriResolveException e) {
             ErrorUtils.handleSilentException(e);
         }
-        adsStorage.setLastPrestitialFetch(); // prevent prestitial from launching when DeepLink
+        adsStorage.preventPrestitialFetchForTimeInterval(); // prevent prestitial from launching when DeepLink
         navigator.navigateTo(NavigationTarget.forExternalDeeplink(this, uri.toString(), referrer));
     }
 

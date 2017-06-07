@@ -13,6 +13,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.ads.AdsStorage;
 import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -198,6 +199,7 @@ public class OnboardActivity extends FragmentActivity
     @Inject OAuth oauth;
     @Inject PerformanceMetricsEngine performanceMetricsEngine;
     @Inject GooglePlayServicesWrapper playServicesWrapper;
+    @Inject AdsStorage adsStorage;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -302,6 +304,7 @@ public class OnboardActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
+        adsStorage.preventPrestitialFetchForTimeInterval();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(this));
     }
 

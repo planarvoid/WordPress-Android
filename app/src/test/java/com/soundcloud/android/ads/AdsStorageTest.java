@@ -51,12 +51,12 @@ public class AdsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setLastPrestitialFetch() {
+    public void preventPrestitialFetchForInterval() {
         final long fakeTime = 123L;
         when(dateProviderSpy.getCurrentTime()).thenReturn(fakeTime);
         when(editor.putLong(KEY, fakeTime)).thenReturn(editor);
 
-        adsStorage.setLastPrestitialFetch();
+        adsStorage.preventPrestitialFetchForTimeInterval();
 
         verify(editor).putLong(KEY, fakeTime);
         verify(editor).apply();

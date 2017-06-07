@@ -181,12 +181,10 @@ public class PrestitialAdsControllerTest extends AndroidUnitTest {
         isOpened = () -> {
             verify(navigationExecutor, times(1)).openPrestititalAd(activity);
             assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdDeliveryEvent.class);
-            verify(adsStorage, times(1)).setLastPrestitialFetch();
         };
         notOpened = () -> {
             verify(navigationExecutor, never()).openPrestititalAd(activity);
             assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
-            verify(adsStorage, never()).setLastPrestitialFetch();
         };
     }
 

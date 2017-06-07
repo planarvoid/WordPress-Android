@@ -69,8 +69,8 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
 
     @Override
     public void onResume(RootActivity activity) {
-        super.onResume(activity);
         fetchPrestitialAdIfNecessary(activity.getIntent());
+        super.onResume(activity);
     }
 
     @Override
@@ -119,7 +119,6 @@ public class PrestitialAdsController extends ActivityLightCycleDispatcher<RootAc
             currentAd = Optional.of(data);
             eventBus.publish(EventQueue.TRACKING, event);
             navigationExecutor.openPrestititalAd(activity);
-            adsStorage.setLastPrestitialFetch();
         }
     }
 }
