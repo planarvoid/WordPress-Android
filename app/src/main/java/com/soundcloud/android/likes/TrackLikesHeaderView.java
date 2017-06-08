@@ -86,8 +86,8 @@ class TrackLikesHeaderView {
         if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS) && featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
                                                       offlineStateButton,
-                                                      resources.getString(R.string.overlay_listen_offline_likes_title),
-                                                      resources.getString(R.string.overlay_listen_offline_likes_description));
+                                                      R.string.overlay_listen_offline_likes_title,
+                                                      R.string.overlay_listen_offline_likes_description);
         }
     }
 

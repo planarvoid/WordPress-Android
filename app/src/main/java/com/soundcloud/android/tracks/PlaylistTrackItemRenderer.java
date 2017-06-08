@@ -5,14 +5,15 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -20,6 +21,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 
 import android.view.View;
 
@@ -44,7 +46,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                               @Provided TrackItemView.Factory trackItemViewFactory,
                               @Provided FeatureFlags featureFlags,
                               @Provided OfflineSettingsOperations offlineSettingsOperations,
-                              @Provided NetworkConnectionHelper connectionHelper) {
+                              @Provided NetworkConnectionHelper connectionHelper,
+                              @Provided Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter) {
         super(imageOperations,
               numberFormatter,
               trackItemMenuPresenter,
@@ -55,7 +58,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
               trackItemViewFactory,
               featureFlags,
               offlineSettingsOperations,
-              connectionHelper);
+              connectionHelper,
+              introductoryOverlayPresenter);
         this.removeTrackListener = removeTrackListener;
     }
 

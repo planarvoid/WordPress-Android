@@ -4,20 +4,23 @@ import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -28,6 +31,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 
 import android.content.Context;
 import android.view.View;
@@ -40,16 +44,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
-    public interface Listener {
-        void trackItemClicked(Urn urn, int position);
-    }
-
-    private enum ActiveFooter {
-        POSTED,
-        PLAYS_AND_POSTED,
-        OFFLINE_STATE
-    }
-
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
     protected final ScreenProvider screenProvider;
     protected final FeatureOperations featureOperations;
@@ -61,8 +55,19 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final TrackItemView.Factory trackItemViewFactory;
     private final OfflineSettingsOperations offlineSettingsOperations;
     private final NetworkConnectionHelper connectionHelper;
+    private final Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter;
 
-    private Listener listener = null;
+    private Listener listener;
+
+    public interface Listener {
+        void trackItemClicked(Urn urn, int position);
+    }
+
+    private enum ActiveFooter {
+        POSTED,
+        PLAYS_AND_POSTED,
+        OFFLINE_STATE
+    }
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations,
@@ -75,7 +80,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              TrackItemView.Factory trackItemViewFactory,
                              FeatureFlags featureFlags,
                              OfflineSettingsOperations offlineSettingsOperations,
-                             NetworkConnectionHelper connectionHelper) {
+                             NetworkConnectionHelper connectionHelper,
+                             Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -87,6 +93,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.featureFlags = featureFlags;
         this.offlineSettingsOperations = offlineSettingsOperations;
         this.connectionHelper = connectionHelper;
+        this.introductoryOverlayPresenter = introductoryOverlayPresenter;
     }
 
     public TrackItemView.Factory trackItemViewFactory() {
@@ -156,6 +163,32 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                       trackSourceInfo,
                       module,
                       Optional.of(ActiveFooter.OFFLINE_STATE));
+    }
+
+    public void bindSearchTrackView(final TrackItem track,
+                              View itemView,
+                              final int position,
+                              Optional<TrackSourceInfo> trackSourceInfo,
+                              Optional<Module> module) {
+        bindTrackView(track, itemView, position, trackSourceInfo, module, Optional.absent());
+        showGoPlusIntroductoryOverlayIfNeeded(itemView, track);
+    }
+
+    private void showGoPlusIntroductoryOverlayIfNeeded(View itemView, TrackItem track) {
+        final TrackItemView trackItemView = (TrackItemView) itemView.getTag();
+        if (canShowOverlay(track)) {
+            introductoryOverlayPresenter.get().showIfNeeded(IntroductoryOverlayKey.SEARCH_GO_PLUS,
+                                                            trackItemView.goIndicator,
+                                                            R.string.overlay_search_go_plus_title,
+                                                            R.string.overlay_search_go_plus_description,
+                                                            Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
+        }
+    }
+
+    private boolean canShowOverlay(TrackItem track) {
+        return featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)
+                && Plan.HIGH_TIER == featureOperations.getCurrentPlan()
+                && isFullHighTierTrack(track);
     }
 
     private void bindTrackView(final TrackItem trackItem,

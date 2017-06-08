@@ -122,9 +122,9 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     private void verifyIntroductoryOverlay(int times) {
         verify(introductoryOverlayPresenter, times(times)).showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
-                                                                   getOfflineStateButton(),
-                                                                   "Listen offline",
-                                                                   "Tap the arrow to take all your likes offline and take them wherever you go.");
+                                                                        getOfflineStateButton(),
+                                                                        R.string.overlay_listen_offline_likes_title,
+                                                                        R.string.overlay_listen_offline_likes_description);
     }
 
     private View getOfflineStateButton() {

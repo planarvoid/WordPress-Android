@@ -295,7 +295,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             if (headerViewUpdate.isOfflineContentEnabled()) {
                 headerView.setDownloadedButtonState(headerViewUpdate.isOfflineLikesEnabled());
                 configureOfflineState(headerView, headerViewUpdate.getOfflineState());
-                showIntroductoryOverlayIfNecessary(headerView, headerViewUpdate.isOfflineLikesEnabled());
+                showOfflineIntroductoryOverlayIfNeeded(headerView, headerViewUpdate.isOfflineLikesEnabled());
 
             } else if (upsellOfflineContentChanged(headerViewUpdate)) {
                 headerView.showUpsell();
@@ -323,7 +323,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             }
         }
 
-        private void showIntroductoryOverlayIfNecessary(TrackLikesHeaderView headerView, boolean offlineLikesEnabled) {
+        private void showOfflineIntroductoryOverlayIfNeeded(TrackLikesHeaderView headerView, boolean offlineLikesEnabled) {
             if (!offlineLikesEnabled && canSyncOfflineOnCurrentConnection()) {
                 headerView.showOfflineIntroductoryOverlay();
             }

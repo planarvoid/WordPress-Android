@@ -4,6 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,14 +24,14 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     public void setUp() {
         when(overlayTargetView.getContext()).thenReturn(activity());
 
-        presenter = new IntroductoryOverlayPresenter(operations);
+        presenter = new IntroductoryOverlayPresenter(operations, resources());
     }
 
     @Test
     public void noOpIfOverlayWasAlreadyShown() {
         when(operations.wasOverlayShown(fakeKey)).thenReturn(true);
 
-        presenter.showIfNeeded(fakeKey, overlayTargetView, "tt", "ds");
+        presenter.showIfNeeded(fakeKey, overlayTargetView, R.string.cast_introductory_overlay_title, R.string.cast_introductory_overlay_description);
 
         verify(operations, never()).setOverlayShown(fakeKey);
     }
@@ -39,7 +40,7 @@ public class IntroductoryOverlayPresenterTest extends AndroidUnitTest {
     public void markOverlayAsShownAfterFirstTimeShown() {
         when(operations.wasOverlayShown(fakeKey)).thenReturn(false);
 
-        presenter.showIfNeeded(fakeKey, overlayTargetView, "tt", "ds");
+        presenter.showIfNeeded(fakeKey, overlayTargetView, R.string.cast_introductory_overlay_title, R.string.cast_introductory_overlay_description);
 
         verify(operations).setOverlayShown(fakeKey);
     }

@@ -104,8 +104,8 @@ class PlaylistEngagementsRenderer {
 
         if (changeLikeToSaveExperiment.isTooltipEnabled() && !accountOperations.isLoggedInUser(item.creatorUrn())) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.ADD_TO_COLLECTION,
-                                                      likeToggle, changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_TITLE),
-                                                      changeLikeToSaveExperimentStringHelper.getString(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION));
+                                                      likeToggle, changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_TITLE),
+                                                      changeLikeToSaveExperimentStringHelper.getStringResId(ExperimentString.LIKE_YOUR_FAVORITE_TRACKS_DESCRIPTION));
         }
     }
 
@@ -127,8 +127,8 @@ class PlaylistEngagementsRenderer {
 
         if (accountOperations.isLoggedInUser(item.creatorUrn())) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.EDIT_PLAYLIST,
-                                                      overflowButton, resources.getString(R.string.edit_playlists_introductory_overlay_title),
-                                                      resources.getString(R.string.edit_playlists_introductory_overlay_description));
+                                                      overflowButton, R.string.edit_playlists_introductory_overlay_title,
+                                                      R.string.edit_playlists_introductory_overlay_description);
         }
     }
 

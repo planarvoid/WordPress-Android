@@ -1,11 +1,12 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
@@ -16,6 +17,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
 
 import android.view.View;
 
@@ -34,10 +36,20 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
                                          TrackItemView.Factory trackItemViewFactory,
                                          FeatureFlags featureFlags,
                                          OfflineSettingsOperations offlineSettingsOperations,
-                                         NetworkConnectionHelper connectionHelper) {
-        super(imageOperations, numberFormatter, trackItemMenuPresenter,
-              eventBus, screenProvider, navigationExecutor,
-              featureOperations, trackItemViewFactory, featureFlags, offlineSettingsOperations, connectionHelper);
+                                         NetworkConnectionHelper connectionHelper,
+                                         Lazy<IntroductoryOverlayPresenter> introductoryOverlayPresenter) {
+        super(imageOperations,
+              numberFormatter,
+              trackItemMenuPresenter,
+              eventBus,
+              screenProvider,
+              navigationExecutor,
+              featureOperations,
+              trackItemViewFactory,
+              featureFlags,
+              offlineSettingsOperations,
+              connectionHelper,
+              introductoryOverlayPresenter);
     }
 
     @Override

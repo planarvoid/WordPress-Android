@@ -1,15 +1,17 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stream.RepostedProperties;
@@ -37,6 +39,15 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
     @Mock TrackItemView trackItemView;
     @Mock ImageView imageView;
     @Mock View itemView;
+    @Mock EventBus eventBus;
+    @Mock ScreenProvider screenProvider;
+    @Mock NavigationExecutor navigationExecutor;
+    @Mock FeatureOperations featureOperations;
+    @Mock TrackItemView.Factory factory;
+    @Mock FeatureFlags featureFlags;
+    @Mock OfflineSettingsOperations offlineSettingsOperations;
+    @Mock NetworkConnectionHelper networkConnectionHelper;
+    @Mock IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     private TrackItem trackItem;
     private PostedTrackItemRenderer renderer;
@@ -65,14 +76,15 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
         renderer = new PostedTrackItemRenderer(mock(ImageOperations.class),
                                                numberFormatter,
                                                null,
-                                               mock(EventBus.class),
-                                               mock(ScreenProvider.class),
-                                               mock(NavigationExecutor.class),
-                                               mock(FeatureOperations.class),
-                                               mock(TrackItemView.Factory.class),
-                                               mock(FeatureFlags.class),
-                                               mock(OfflineSettingsOperations.class),
-                                               mock(NetworkConnectionHelper.class));
+                                               eventBus,
+                                               screenProvider,
+                                               navigationExecutor,
+                                               featureOperations,
+                                               factory,
+                                               featureFlags,
+                                               offlineSettingsOperations,
+                                               networkConnectionHelper,
+                                               lazyOf(introductoryOverlayPresenter));
     }
 
     @Test

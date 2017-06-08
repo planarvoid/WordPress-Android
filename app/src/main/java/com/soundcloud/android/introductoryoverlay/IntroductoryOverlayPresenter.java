@@ -12,7 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.IdRes;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,25 +25,33 @@ import javax.inject.Inject;
 public class IntroductoryOverlayPresenter {
 
     private final IntroductoryOverlayOperations introductoryOverlayOperations;
+    private final Resources resources;
 
     @Inject
-    public IntroductoryOverlayPresenter(IntroductoryOverlayOperations introductoryOverlayOperations) {
+    public IntroductoryOverlayPresenter(IntroductoryOverlayOperations introductoryOverlayOperations,
+                                        Resources resources) {
         this.introductoryOverlayOperations = introductoryOverlayOperations;
+        this.resources = resources;
     }
 
-    public void showIfNeeded(String overlayKey,
-                             final View targetView, CharSequence title, CharSequence description) {
+    public void showIfNeeded(String overlayKey, final View targetView,
+                             @StringRes int title, @StringRes int description) {
+        showIfNeeded(overlayKey, targetView, title, description, Optional.absent());
+    }
+
+    public void showIfNeeded(String overlayKey, final View targetView,
+                             @StringRes int title, @StringRes int description, Optional<Drawable> icon) {
         if (!introductoryOverlayOperations.wasOverlayShown(overlayKey)) {
             final Activity activity = getActivity(targetView);
             if (activity != null) {
-                show(activity, targetView, title, description);
+                show(activity, targetView, title, description, icon);
                 introductoryOverlayOperations.setOverlayShown(overlayKey);
             }
         }
     }
 
     public void showForMenuItemIfNeeded(String overlayKey, Toolbar toolbar, @IdRes int menuItemIdRes,
-                                        CharSequence title, CharSequence description) {
+                                        @StringRes int title, @StringRes int description) {
         Optional<MenuItem> menuItem = findMenuItem(toolbar, menuItemIdRes);
         if (menuItem.isPresent()) {
             View view = menuItem.get().getActionView();
@@ -56,10 +67,10 @@ public class IntroductoryOverlayPresenter {
         }
     }
 
-    private void show(Activity activity,
-                      final View targetView, CharSequence title, CharSequence description) {
+    private void show(Activity activity, final View targetView,
+                      @StringRes int title, @StringRes int description, Optional<Drawable> iconOptional) {
         Context context = targetView.getContext();
-        TapTarget target = TapTarget.forView(targetView, title, description)
+        TapTarget target = TapTarget.forView(targetView, resources.getString(title), resources.getString(description))
                                     .outerCircleColor(R.color.white)
                                     .targetCircleColor(R.color.soundcloud_orange)
                                     .textColor(R.color.black)
@@ -67,6 +78,8 @@ public class IntroductoryOverlayPresenter {
                                     .titleTextDimen(R.dimen.shrinkwrap_medium_primary_text_size)
                                     .descriptionTextDimen(R.dimen.shrinkwrap_medium_secondary_text_size)
                                     .textTypeface(getFont(context, SOUNDCLOUD_INTERSTATE_LIGHT));
+        iconOptional.ifPresent(target::icon);
+
         TapTargetView.showFor(activity, target, new TapTargetView.Listener() {
             @Override
             public void onTargetClick(TapTargetView view) {

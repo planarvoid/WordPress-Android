@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 @AutoFactory
-public class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
+class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
     private final TrackItemRenderer trackItemRenderer;
     private final PublishSubject<SearchItem.Track> trackClick;
 
@@ -31,6 +31,6 @@ public class SearchTrackRenderer implements CellRenderer<SearchItem.Track> {
     public void bindItemView(int position, View itemView, List<SearchItem.Track> items) {
         final SearchItem.Track track = items.get(position);
         itemView.setOnClickListener(view -> trackClick.onNext(track));
-        trackItemRenderer.bindTrackView(track.trackItem(), itemView, position, Optional.of(track.trackSourceInfo()), Optional.absent());
+        trackItemRenderer.bindSearchTrackView(track.trackItem(), itemView, position, Optional.of(track.trackSourceInfo()), Optional.absent());
     }
 }

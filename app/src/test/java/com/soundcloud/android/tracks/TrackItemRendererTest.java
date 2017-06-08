@@ -2,27 +2,32 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.api.model.ChartType.TOP;
 import static com.soundcloud.android.api.model.ChartType.TRENDING;
+import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
+import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.olddiscovery.charts.ChartTrackItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -66,6 +71,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Mock private FeatureFlags flags;
     @Mock private OfflineSettingsOperations offlineSettingsOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     private TrackItem trackItem;
 
@@ -74,8 +80,18 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
-                                         screenProvider, navigationExecutor, featureOperations, trackItemViewFactory, flags, offlineSettingsOperations, connectionHelper);
+        renderer = new TrackItemRenderer(imageOperations,
+                                         numberFormatter,
+                                         null,
+                                         eventBus,
+                                         screenProvider,
+                                         navigationExecutor,
+                                         featureOperations,
+                                         trackItemViewFactory,
+                                         flags,
+                                         offlineSettingsOperations,
+                                         connectionHelper,
+                                         lazyOf(introductoryOverlayPresenter));
 
         trackBuilder = ModelFixtures.baseTrackBuilder()
                                            .urn(Urn.forTrack(123))
@@ -353,4 +369,51 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView).showPlaycount(anyString());
     }
 
+    @Test
+    public void shouldNotShowGoPlusIntroductoryOverlayIfTrackIsNotFullHighTier() {
+        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(true).subHighTier(true).build());
+
+        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
+
+        verifyZeroInteractions(introductoryOverlayPresenter);
+    }
+
+    @Test
+    public void shouldNotShowGoPlusIntroductoryOverlayIfFeatureFlagIsNotEnabled() {
+        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(false);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
+
+        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
+
+        verifyZeroInteractions(introductoryOverlayPresenter);
+    }
+
+    @Test
+    public void shouldNotShowGoPlusIntroductoryOverlayIfNotHighTier() {
+        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.MID_TIER);
+        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
+
+        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
+
+        verifyZeroInteractions(introductoryOverlayPresenter);
+    }
+
+    @Test
+    public void shouldShowGoPlusIntroductoryOverlay() {
+        when(flags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
+        when(featureOperations.getCurrentPlan()).thenReturn(Plan.HIGH_TIER);
+        TrackItem snippedHighTierTrack = ModelFixtures.trackItem(trackBuilder.snipped(false).subHighTier(true).build());
+
+        renderer.bindSearchTrackView(snippedHighTierTrack, itemView, 0, Optional.absent(), Optional.absent());
+
+        verify(introductoryOverlayPresenter).showIfNeeded(IntroductoryOverlayKey.SEARCH_GO_PLUS,
+                                                          trackItemView.goIndicator,
+                                                          R.string.overlay_search_go_plus_title,
+                                                          R.string.overlay_search_go_plus_description,
+                                                          Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
+    }
 }
