@@ -4,12 +4,13 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.RepostsStatusEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.BehaviorSubject;
+import com.soundcloud.android.rx.observers.LambdaObserver;
+import com.soundcloud.android.rx.observers.LambdaSingleObserver;
+import com.soundcloud.rx.eventbus.EventBusV2;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,14 +26,14 @@ public class RepostsStateProvider {
 
     private final RepostStorage repostStorage;
     private final BehaviorSubject<RepostStatuses> statuses = BehaviorSubject.create();
-    private final EventBus eventBus;
+    private final EventBusV2 eventBus;
     private final Scheduler scheduler;
     private Set<Urn> reposts = new HashSet<>();
 
     @Inject
     public RepostsStateProvider(RepostStorage repostStorage,
-                                EventBus eventBus,
-                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                                EventBusV2 eventBus,
+                                @Named(ApplicationModule.RX_HIGH_PRIORITY) Scheduler scheduler) {
         this.repostStorage = repostStorage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
@@ -42,22 +43,18 @@ public class RepostsStateProvider {
         repostStorage.loadReposts()
                      .subscribeOn(scheduler)
                      .observeOn(AndroidSchedulers.mainThread())
-                     .subscribe(new DefaultSubscriber<List<Urn>>(){
-                    @Override
-                    public void onNext(List<Urn> reposts) {
-                        setReposts(reposts);
-                        publishSnapshot();
-                    }
-                });
+                     .subscribe(LambdaSingleObserver.onNext(reposts -> {
+                                                                setReposts(reposts);
+                                                                publishSnapshot();
+                                                            }
+                     ));
 
         eventBus.queue(EventQueue.REPOST_CHANGED)
-                .subscribe(new DefaultSubscriber<RepostsStatusEvent>(){
-                    @Override
-                    public void onNext(RepostsStatusEvent repostsStatusEvent) {
-                        updateReposts(repostsStatusEvent);
-                        publishSnapshot();
-                    }
-                });
+                .subscribe(LambdaObserver.onNext(repostsStatusEvent -> {
+                                                     updateReposts(repostsStatusEvent);
+                                                     publishSnapshot();
+                                                 }
+                ));
     }
 
     void setReposts(List<Urn> reposts) {
@@ -79,6 +76,6 @@ public class RepostsStateProvider {
     }
 
     public Observable<RepostStatuses> repostedStatuses() {
-        return statuses.asObservable();
+        return statuses;
     }
 }

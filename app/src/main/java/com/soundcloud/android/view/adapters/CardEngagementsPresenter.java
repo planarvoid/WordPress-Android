@@ -15,12 +15,12 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.navigation.NavigationExecutor;
-import com.soundcloud.android.playlists.RepostResultSubscriber;
+import com.soundcloud.android.playlists.RepostResultSingleObserver;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.snackbar.FeedbackController;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -99,7 +99,7 @@ public class CardEngagementsPresenter {
         final boolean addRepost = !playableItem.isUserRepost();
         repostOperations.toggleRepost(entityUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(repostButton.getContext()));
+                        .subscribe(new RepostResultSingleObserver(repostButton.getContext()));
 
         eventTracker.trackEngagement(UIEvent.fromToggleRepost(addRepost, entityUrn,
                                                                        contextMetadata,
@@ -111,7 +111,7 @@ public class CardEngagementsPresenter {
         final Urn entityUrn = playableItem.getUrn();
         final boolean addLike = !playableItem.isUserLike();
         likeOperations.toggleLike(entityUrn, addLike)
-                      .observeOn(AndroidSchedulers.mainThread())
+                      .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike, changeLikeToSaveExperiment, feedbackController, navigationExecutor));
 
         eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,

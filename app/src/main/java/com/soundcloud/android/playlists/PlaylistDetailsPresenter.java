@@ -46,6 +46,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.presentation.EntityItemCreator;
 import com.soundcloud.android.rx.CrashOnTerminateSubscriber;
+import com.soundcloud.android.rx.RxJava;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -262,7 +263,7 @@ public class PlaylistDetailsPresenter {
                 editMode,
                 dataSource.doOnNext(this::showRefreshErrorIfPresent),
                 likesStateProvider.likedStatuses(),
-                repostsStateProvider.repostedStatuses(),
+                RxJava.toV1Observable(repostsStateProvider.repostedStatuses()),
                 offlinePropertiesProvider.states(),
                 this::combine)
                 .distinctUntilChanged()
@@ -694,7 +695,7 @@ public class PlaylistDetailsPresenter {
                                                               playSessionSource.getPromotedSourceInfo(),
                                                               createEntityMetadata(playlist)));
 
-        return repostOperations.toggleRepost(playlist.urn(), isReposted);
+        return RxJava.toV1Observable(repostOperations.toggleRepost(playlist.urn(), isReposted));
     }
 
     private EventContextMetadata getEventContext(Urn playlistUrn) {

@@ -41,6 +41,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -145,7 +146,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickRepostItemRepostsPlaylist() {
-        final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
+        final SingleSubject<RepostOperations.RepostResult> repostObservable = SingleSubject.create();
         when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
@@ -158,7 +159,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickingOnRepostSendsTrackingEvent() {
-        final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
+        final SingleSubject<RepostOperations.RepostResult> repostObservable = SingleSubject.create();
         when(repostOperations.toggleRepost(playlistItem.getUrn(), !playlistItem.isUserRepost())).thenReturn(
                 repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);

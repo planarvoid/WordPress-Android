@@ -166,8 +166,8 @@ public class PlaylistOperations {
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {
-        return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
-                                            .toObservable()
+        return loadPlaylistTrackUrnsProvider.get()
+                                            .toObservable(playlistUrn)
                                             .subscribeOn(scheduler)
                                             .flatMap(trackItems -> {
                                                 if (trackItems.isEmpty()) {
@@ -276,9 +276,7 @@ public class PlaylistOperations {
                 .flatMap(new Func1<SyncJobResult, Observable<List<Urn>>>() {
                     @Override
                     public Observable<List<Urn>> call(SyncJobResult syncJobResult) {
-                        return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
-                                                            .toObservable()
-                                                            .subscribeOn(scheduler);
+                        return loadPlaylistTrackUrnsProvider.get().toObservable(playlistUrn).subscribeOn(scheduler);
                     }
                 });
     }

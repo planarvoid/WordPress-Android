@@ -10,10 +10,8 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
 import java.util.Date;
-import java.util.List;
 
 public class RepostStorageTest extends StorageIntegrationTest {
 
@@ -28,7 +26,7 @@ public class RepostStorageTest extends StorageIntegrationTest {
         playlist = testFixtures().insertPlaylist();
         track = testFixtures().insertTrack();
 
-        repostStorage = new RepostStorage(propeller(), propellerRx(), new TestDateProvider(CREATED_AT));
+        repostStorage = new RepostStorage(propeller(), propellerRxV2(), new TestDateProvider(CREATED_AT));
     }
 
     @Test
@@ -37,11 +35,7 @@ public class RepostStorageTest extends StorageIntegrationTest {
         testFixtures().insertTrackRepost(2, 1);
         testFixtures().insertTrackPost(3, 1, false);
 
-        TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-
-        repostStorage.loadReposts().subscribe(subscriber);
-
-        subscriber.assertValue(asList(Urn.forPlaylist(1), Urn.forTrack(2)));
+        repostStorage.loadReposts().test().assertValue(asList(Urn.forPlaylist(1), Urn.forTrack(2)));
     }
 
     @Test

@@ -150,7 +150,7 @@ class MyPlaylistsSyncer implements Callable<Boolean> {
         Log.d(TAG, "Local Playlist count : " + localPlaylistChanges.size());
         for (LocalPlaylistChange localPlaylistChange : localPlaylistChanges) {
             final Urn playlistUrn = localPlaylistChange.urn();
-            final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
+            final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.call(playlistUrn);
 
             final ApiRequest request = ApiRequest.post(ApiEndpoints.PLAYLISTS_CREATE.path())
                                                  .forPrivateApi()

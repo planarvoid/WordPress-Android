@@ -120,7 +120,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final ApiPlaylist newPlaylist2 = ModelFixtures.create(ApiPlaylist.class);
 
         when(loadLocalPlaylists.call()).thenReturn(playlists);
-        when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
+        when(loadPlaylistTrackUrns.call(playlists.get(0).urn())).thenReturn(playlist1Tracks);
+        when(loadPlaylistTrackUrns.call(playlists.get(1).urn())).thenReturn(playlist2Tracks);
         when(apiClient
                      .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
                                                           .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
@@ -302,7 +303,7 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         when(loadLocalPlaylists.call()).thenReturn(playlists);
-        when(loadPlaylistTrackUrns.call()).thenReturn(playlistTracks);
+        when(loadPlaylistTrackUrns.call(eq(localPlaylistUrn))).thenReturn(playlistTracks);
         when(apiClient
                      .fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
                                                           .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))

@@ -27,7 +27,7 @@ public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
         ApiTrack track2 = testFixtures().insertPlaylistTrack(playlist, 1);
         ApiTrack track3 = testFixtures().insertPlaylistTrack(playlist, 2);
 
-        List<Urn> trackUrns = command.with(playlist.getUrn()).call();
+        List<Urn> trackUrns = command.call(playlist.getUrn());
 
         assertThat(trackUrns).containsExactly(track1.getUrn(), track2.getUrn(), track3.getUrn());
     }
@@ -42,7 +42,7 @@ public class LoadPlaylistTrackUrnsCommandTest extends StorageIntegrationTest {
         final Urn missingTrackUrn = testFixtures().insertPlaylist().getUrn();
         testFixtures().insertPlaylistTrack(playlist.getUrn(), missingTrackUrn, 2);
 
-        List<Urn> trackUrns = command.with(playlist.getUrn()).call();
+        List<Urn> trackUrns = command.call(playlist.getUrn());
 
         assertThat(trackUrns).containsExactly(track1.getUrn(), track2.getUrn());
     }

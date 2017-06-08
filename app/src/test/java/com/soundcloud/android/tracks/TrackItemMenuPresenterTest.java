@@ -37,6 +37,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -152,7 +153,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Test
     public void clickRepostItemRepostsTrack() {
-        final PublishSubject<RepostOperations.RepostResult> repostObservable = PublishSubject.create();
+        final SingleSubject<RepostOperations.RepostResult> repostObservable = SingleSubject.create();
         when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isUserRepost())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 

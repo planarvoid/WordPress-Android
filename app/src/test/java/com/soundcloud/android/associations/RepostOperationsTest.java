@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiClientRxV2;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
@@ -19,14 +19,14 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.rx.eventbus.TestEventBus;
+import com.soundcloud.rx.eventbus.TestEventBusV2;
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 
@@ -39,51 +39,51 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     private RepostOperations operations;
     private TestObserver<RepostOperations.RepostResult> testObserver = new TestObserver<>();
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBusV2 eventBus = new TestEventBusV2();
 
     @Mock private RepostStorage repostStorage;
     @Mock private Command<Urn, Integer> addRepost;
     @Mock private Command<Urn, Integer> removeRepost;
-    @Mock private ApiClientRx apiClientRx;
+    @Mock private ApiClientRxV2 apiClientRx;
     @Mock private WriteResult writeResult;
 
     @Before
     public void setUp() throws Exception {
-        operations = new RepostOperations(repostStorage, apiClientRx, Schedulers.immediate(), eventBus);
+        operations = new RepostOperations(repostStorage, apiClientRx, Schedulers.trampoline(), eventBus);
         when(repostStorage.addRepost()).thenReturn(addRepost);
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(REPOST_COUNT));
-        when(addRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(REPOST_COUNT));
+        when(addRepost.toSingle(TRACK_URN)).thenReturn(Single.just(REPOST_COUNT));
+        when(addRepost.toSingle(PLAYLIST_URN)).thenReturn(Single.just(REPOST_COUNT));
 
         when(repostStorage.removeRepost()).thenReturn(removeRepost);
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(UNPOST_COUNT));
-        when(removeRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(UNPOST_COUNT));
+        when(removeRepost.toSingle(TRACK_URN)).thenReturn(Single.just(UNPOST_COUNT));
+        when(removeRepost.toSingle(PLAYLIST_URN)).thenReturn(Single.just(UNPOST_COUNT));
 
     }
 
     @Test
     public void shouldStoreTrackRepostAndPushToApi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
     public void shouldStorePlaylistRepostAndPushToApi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_SUCCEEDED);
     }
 
     @Test
     public void shouldPublishEntityChangedEventAfterSuccessfulPushToAdi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -96,21 +96,21 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotPushRepostToApiIfStorageCallFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
+        when(addRepost.toSingle(TRACK_URN)).thenReturn(Single.error(mock(PropellerWriteException.class)));
 
-        PublishSubject<ApiResponse> subject = PublishSubject.create();
+        SingleSubject<ApiResponse> subject = SingleSubject.create();
         when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
-        subject.onNext(TestApiResponses.ok()); // this must not propagate
+        subject.onSuccess(TestApiResponses.ok()); // this must not propagate
 
-        assertThat(testObserver.getOnNextEvents()).isEmpty();
-        assertThat(testObserver.getOnErrorEvents()).isNotEmpty();
+        assertThat(testObserver.values()).isEmpty();
+        assertThat(testObserver.errors()).isNotEmpty();
     }
 
     @Test
     public void shouldNotPublishRepostedEventIfInsertFailed() throws Exception {
-        when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
+        when(addRepost.toSingle(TRACK_URN)).thenReturn(Single.error(mock(PropellerWriteException.class)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -123,18 +123,18 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldRollbackStoredRepostAfterFailedApiCall() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.error(new IOException()));
+                .thenReturn(Single.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
-        verify(removeRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.REPOST_FAILED);
+        verify(removeRepost).toSingle(TRACK_URN);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.REPOST_FAILED);
     }
 
     @Test
     public void shouldPublishUnpostedEventAfterRepostFailedApiCall() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.error(new IOException()));
+                .thenReturn(Single.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
 
@@ -147,27 +147,27 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldStoreTrackUnpostAndPushToApi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
     public void shouldStorePlaylistUnpostAndPushToApi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
 
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_SUCCEEDED);
     }
 
     @Test
     public void shouldPublishEntityChangedEventForUnboltAfterSuccessfulPushToApi() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.just(TestApiResponses.status(200)));
+                .thenReturn(Single.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
@@ -179,7 +179,7 @@ public class RepostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishRepostedEventIfRepostRemovalFailed() throws Exception {
-        when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.error(mock(PropellerWriteException.class)));
+        when(removeRepost.toSingle(TRACK_URN)).thenReturn(Single.error(mock(PropellerWriteException.class)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
@@ -192,18 +192,18 @@ public class RepostOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldRollbackRepostRemovalAfterFailedRemoteRemoval() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.error(new IOException()));
+                .thenReturn(Single.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 
-        verify(addRepost).toObservable(TRACK_URN);
-        assertThat(testObserver.getOnNextEvents()).containsExactly(RepostOperations.RepostResult.UNREPOST_FAILED);
+        verify(addRepost).toSingle(TRACK_URN);
+        assertThat(testObserver.values()).containsExactly(RepostOperations.RepostResult.UNREPOST_FAILED);
     }
 
     @Test
     public void shouldPublishRepostedEventAfterFailedRemoteRemoval() throws Exception {
         when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
-                .thenReturn(Observable.error(new IOException()));
+                .thenReturn(Single.error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
 

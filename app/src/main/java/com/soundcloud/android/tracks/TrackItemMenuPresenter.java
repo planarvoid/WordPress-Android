@@ -26,7 +26,7 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.ui.view.PlaybackFeedbackHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.playlists.RepostResultSubscriber;
+import com.soundcloud.android.playlists.RepostResultSingleObserver;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.SharePresenter;
@@ -321,8 +321,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private void handleRepost() {
         final boolean repost = !track.isUserRepost();
         repostOperations.toggleRepost(track.getUrn(), repost)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(context));
+                        .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                        .subscribe(new RepostResultSingleObserver(context));
 
         trackRepost(repost);
     }

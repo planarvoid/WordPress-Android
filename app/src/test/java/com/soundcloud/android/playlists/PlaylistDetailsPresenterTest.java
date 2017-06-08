@@ -66,6 +66,7 @@ import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import edu.emory.mathcs.backport.java.util.Collections;
+import io.reactivex.Single;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -133,7 +134,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     private final Urn playlistUrn = initialPlaylist.urn();
 
     private final BehaviorSubject<LikedStatuses> likeStatuses = BehaviorSubject.create();
-    private final PublishSubject<RepostStatuses> repostStatuses = PublishSubject.create();
+    private final io.reactivex.subjects.PublishSubject<RepostStatuses> repostStatuses = io.reactivex.subjects.PublishSubject.create();
     private final PublishSubject<OfflineProperties> offlineProperties = PublishSubject.create();
     private final PublishSubject<SyncJobResult> syncPlaylist = PublishSubject.create();
 
@@ -483,7 +484,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void repostShowsResult() {
         connect();
 
-        when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
+        when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(Single.just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
 
         AssertableSubscriber<RepostOperations.RepostResult> subscriber = newPlaylistPresenter.onRepostResult().test();
 
@@ -496,7 +497,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void unpostShowsResult() {
         connect();
 
-        when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
+        when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(Single.just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
 
         AssertableSubscriber<RepostOperations.RepostResult> subscriber = newPlaylistPresenter.onRepostResult().test();
 
@@ -509,7 +510,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void repostSendsTracking() {
         connect();
 
-        when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
+        when(repostOperations.toggleRepost(playlistUrn, true)).thenReturn(Single.just(RepostOperations.RepostResult.REPOST_SUCCEEDED));
 
         inputs.onToggleRepost(true);
 
@@ -520,7 +521,7 @@ public class PlaylistDetailsPresenterTest extends AndroidUnitTest {
     public void unpostSendsTracking() {
         connect();
 
-        when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
+        when(repostOperations.toggleRepost(playlistUrn, false)).thenReturn(Single.just(RepostOperations.RepostResult.UNREPOST_SUCCEEDED));
 
         inputs.onToggleRepost(false);
 

@@ -144,9 +144,10 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void trackUrnsForPlaybackReturnsTrackUrnsFromCommand() {
         final TestSubscriber<List<Urn>> observer = new TestSubscriber<>();
         final List<Urn> urnList = asList(Urn.forTrack(123L), Urn.forTrack(456L));
-        when(loadPlaylistTrackUrns.toObservable()).thenReturn(Observable.just(urnList));
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(loadPlaylistTrackUrns.toObservable(playlistUrn)).thenReturn(Observable.just(urnList));
 
-        operations.trackUrnsForPlayback(Urn.forPlaylist(123L)).subscribe(observer);
+        operations.trackUrnsForPlayback(playlistUrn).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0)).isEqualTo(urnList);

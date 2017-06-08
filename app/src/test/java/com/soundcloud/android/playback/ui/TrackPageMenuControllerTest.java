@@ -29,10 +29,10 @@ import com.soundcloud.android.tracks.Track;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.TestEventBus;
+import io.reactivex.subjects.SingleSubject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.subjects.PublishSubject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -58,7 +58,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
-    private PublishSubject<RepostOperations.RepostResult> repostSubject = PublishSubject.create();
+    private SingleSubject<RepostOperations.RepostResult> repostSubject = SingleSubject.create();
     private TrackItem sourceTrack;
     private Track.Builder builder;
 

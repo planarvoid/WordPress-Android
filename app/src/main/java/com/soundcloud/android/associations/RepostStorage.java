@@ -7,7 +7,7 @@ import static com.soundcloud.propeller.query.Query.from;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.BaseRxResultMapper;
+import com.soundcloud.android.storage.BaseRxResultMapperV2;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.Posts;
@@ -20,8 +20,8 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.PropellerRx;
-import rx.Observable;
+import com.soundcloud.propeller.rx.PropellerRxV2;
+import io.reactivex.Single;
 
 import android.content.ContentValues;
 
@@ -31,10 +31,10 @@ import java.util.List;
 class RepostStorage {
 
     private final PropellerDatabase propeller;
-    private final PropellerRx propellerRx;
+    private final PropellerRxV2 propellerRx;
     private final DateProvider dateProvider;
 
-    private final BaseRxResultMapper<Urn> repostsByUrnMapper = new BaseRxResultMapper<Urn>() {
+    private final BaseRxResultMapperV2<Urn> repostsByUrnMapper = new BaseRxResultMapperV2<Urn>() {
         @Override
         public Urn map(CursorReader reader) {
             return readSoundUrn(reader, Posts.TARGET_ID, Posts.TARGET_TYPE);
@@ -42,17 +42,18 @@ class RepostStorage {
     };
 
     @Inject
-    RepostStorage(PropellerDatabase propeller, PropellerRx propellerRx, CurrentDateProvider dateProvider) {
+    RepostStorage(PropellerDatabase propeller, PropellerRxV2 propellerRx, CurrentDateProvider dateProvider) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
     }
 
-    Observable<List<Urn>> loadReposts() {
-        return propellerRx.query(Query.from(Posts.TABLE)
-                                      .select(Posts.TARGET_TYPE, Posts.TARGET_ID)
-                                      .whereEq(Posts.TYPE, Posts.TYPE_REPOST))
-                          .map(repostsByUrnMapper).toList();
+    Single<List<Urn>> loadReposts() {
+        return propellerRx.queryResult(Query.from(Posts.TABLE)
+                                            .select(Posts.TARGET_TYPE, Posts.TARGET_ID)
+                                            .whereEq(Posts.TYPE, Posts.TYPE_REPOST))
+                          .map(queryResult -> queryResult.toList(repostsByUrnMapper))
+                          .firstOrError();
     }
 
     Command<Urn, Integer> addRepost() {
@@ -110,7 +111,7 @@ class RepostStorage {
 
     private ChangeResult updateRepostCount(PropellerDatabase propeller, Urn urn, int repostCount) {
         return propeller.update(Tables.Sounds.TABLE, ContentValuesBuilder.values()
-                                                                  .put(Tables.Sounds.REPOSTS_COUNT, repostCount).get(),
+                                                                         .put(Tables.Sounds.REPOSTS_COUNT, repostCount).get(),
                                 filter().whereEq(Tables.Sounds._ID, urn.getNumericId())
                                         .whereEq(Tables.Sounds._TYPE, getSoundType(urn)));
     }

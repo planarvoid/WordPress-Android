@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
@@ -18,6 +17,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.rx.observers.DefaultSingleObserver;
 import com.soundcloud.android.share.SharePresenter;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -167,7 +167,7 @@ public class TrackPageMenuController
     }
 
     private void handleRepostToggle(boolean wasReposted, Urn trackUrn) {
-        fireAndForget(repostOperations.toggleRepost(trackUrn, wasReposted));
+        repostOperations.toggleRepost(trackUrn, wasReposted).subscribe(new DefaultSingleObserver<>());
 
         eventBus.publish(EventQueue.TRACKING,
                          UIEvent.fromToggleRepost(wasReposted,

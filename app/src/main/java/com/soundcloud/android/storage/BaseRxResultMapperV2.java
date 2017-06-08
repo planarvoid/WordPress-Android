@@ -2,17 +2,12 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.rx.RxResultMapperV2;
 import com.soundcloud.propeller.schema.Column;
 
 import android.provider.BaseColumns;
 
-/**
- * <p>This class has been deprecated in favor of {@link BaseRxResultMapperV2<T>} and for the sake of migrating from RxJava 1 to
- * RxJava 2.</p>
- */
-@Deprecated //Use BaseRxResultMapperV2 instead
-public abstract class BaseRxResultMapper<T> extends RxResultMapper<T> {
+public abstract class BaseRxResultMapperV2<T> extends RxResultMapperV2<T> {
 
     protected Urn readTrackUrn(CursorReader cursorReader) {
         return Urn.forTrack(cursorReader.getLong(BaseColumns._ID));
