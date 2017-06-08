@@ -38,10 +38,8 @@ public class CollectionPreviewRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         collectionPreviewRenderer = new CollectionPreviewRenderer(navigationExecutor,
                                                                   resources,
-                                                                  featureOperations,
                                                                   imageOperations,
                                                                   performanceMetricsEngine,
-                                                                  featureFlags,
                                                                   changeLikeToSaveExperiment,
                                                                   changeLikeToSaveExperimentStringHelper);
     }

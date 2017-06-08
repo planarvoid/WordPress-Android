@@ -9,9 +9,6 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.likes.TrackLikesActivity;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.OfflineStateButtonElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -26,13 +23,10 @@ public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = TrackLikesActivity.class;
 
-    private final FeatureFlagsHelper featureFlagsHelper;
-
     private final With updateInProgress = With.text(testDriver.getString(R.string.offline_update_in_progress));
 
     public TrackLikesScreen(Han solo) {
         super(solo);
-        featureFlagsHelper = FeatureFlagsHelper.create(solo.getCurrentActivity());
     }
 
     public VisualPlayerElement clickTrack(int index) {
@@ -147,17 +141,11 @@ public class TrackLikesScreen extends Screen {
     }
 
     public ViewElement offlineButton() {
-        return testDriver.findOnScreenElement(With.id(featureFlagsHelper.isEnabled(Flag.NEW_OFFLINE_ICONS)
-                                                      ? R.id.offline_state_button
-                                                      : R.id.toggle_download));
+        return testDriver.findOnScreenElement(With.id(R.id.offline_state_button));
     }
 
     public OfflineStateButtonElement offlineButtonElement() {
         return new OfflineStateButtonElement(testDriver, header().findOnScreenElement(With.id(R.id.offline_state_button)));
-    }
-
-    public DownloadImageViewElement headerDownloadElement() {
-        return new DownloadImageViewElement(testDriver, header().findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public CollectionScreen goBack() {

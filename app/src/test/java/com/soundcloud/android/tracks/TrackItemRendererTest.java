@@ -198,18 +198,16 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowNotAvailableOffline() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.UNAVAILABLE).build());
 
         renderer.bindItemView(0, itemView, singletonList(updatedTrackItem));
 
-        verify(trackItemView).showNotAvailableOffline(true);
+        verify(trackItemView).showNotAvailableOffline();
     }
 
     @Test
     public void shouldShowNoWifiForRequestedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(false);
         TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.REQUESTED).build());
@@ -222,7 +220,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowNoConnectionForRequestedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(true);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
@@ -236,7 +233,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowRequestedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         when(offlineSettingsOperations.isWifiOnlyEnabled()).thenReturn(false);
         when(connectionHelper.isWifiConnected()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
@@ -250,7 +246,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadingTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADING).build());
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
@@ -261,7 +256,6 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowDownloadedTrack() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(flags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
         TrackItem updatedTrackItem = ModelFixtures.trackItem(trackBuilder.offlineState(OfflineState.DOWNLOADED).build());
 
         renderer.bindOfflineTrackView(updatedTrackItem, itemView, 0, Optional.absent(), Optional.absent());
@@ -416,4 +410,5 @@ public class TrackItemRendererTest extends AndroidUnitTest {
                                                           R.string.overlay_search_go_plus_description,
                                                           Optional.of(trackItemView.getResources().getDrawable(R.drawable.go_indicator_tooltip)));
     }
+
 }

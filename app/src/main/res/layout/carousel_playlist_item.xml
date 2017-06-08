@@ -13,17 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <com.soundcloud.android.offline.DownloadImageView
-        android:id="@+id/item_download_state"
-        style="@style/DownloadItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/artwork"
-        android:layout_alignTop="@id/artwork"
-        android:layout_marginLeft="@dimen/download_progress_indicator_margin"
-        android:layout_marginTop="@dimen/download_progress_indicator_margin"
-        android:visibility="gone" />
-
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/track_count"
         style="@style/Collections.SmallTrackCount"

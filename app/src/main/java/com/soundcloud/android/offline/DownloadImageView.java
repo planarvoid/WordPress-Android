@@ -68,38 +68,33 @@ public class DownloadImageView extends AppCompatImageView {
         setImageDrawable(drawable);
     }
 
-    public void setState(OfflineState state, boolean selected) {
+    public void setState(OfflineState state) {
         if (!isTransitioningFromDownloadingToRequested(state)) {
-            setSelected(selected);
-            setState(state);
+            offlineState = state;
+            switch (state) {
+                case NOT_OFFLINE:
+                    setNoOfflineState();
+                    break;
+                case UNAVAILABLE:
+                    setDownloadStateResource(unavailable);
+                    break;
+                case REQUESTED:
+                    setDownloadStateResource(queued);
+                    break;
+                case DOWNLOADING:
+                    animateDownloadingState();
+                    break;
+                case DOWNLOADED:
+                    setDownloadStateResource(downloaded);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown state : " + state);
+            }
         }
     }
 
     private boolean isTransitioningFromDownloadingToRequested(OfflineState state) {
         return OfflineState.DOWNLOADING == offlineState && OfflineState.REQUESTED == state;
-    }
-
-    private void setState(OfflineState state) {
-        offlineState = state;
-        switch (state) {
-            case NOT_OFFLINE:
-                setNoOfflineState();
-                break;
-            case UNAVAILABLE:
-                setDownloadStateResource(unavailable);
-                break;
-            case REQUESTED:
-                setDownloadStateResource(queued);
-                break;
-            case DOWNLOADING:
-                animateDownloadingState();
-                break;
-            case DOWNLOADED:
-                setDownloadStateResource(downloaded);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown state : " + state);
-        }
     }
 
 }

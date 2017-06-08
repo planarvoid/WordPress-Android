@@ -4,7 +4,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -18,12 +17,12 @@ import java.util.List;
 
 class PlayHistoryTrackRenderer implements CellRenderer<PlayHistoryItemTrack> {
 
-    private final DownloadableTrackItemRenderer renderer;
+    private final TrackItemRenderer renderer;
     private final ScreenProvider screenProvider;
 
     @Inject
-    public PlayHistoryTrackRenderer(DownloadableTrackItemRenderer renderer,
-                                    ScreenProvider screenProvider) {
+    PlayHistoryTrackRenderer(TrackItemRenderer renderer,
+                             ScreenProvider screenProvider) {
         this.renderer = renderer;
         this.screenProvider = screenProvider;
     }

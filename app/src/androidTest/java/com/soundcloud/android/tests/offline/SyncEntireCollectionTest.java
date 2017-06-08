@@ -7,7 +7,6 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -43,10 +42,7 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
     public void testDisablingSyncEntireCollectionViaPlaylistItem() {
         enableSyncEntireCollection();
 
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
-        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
-
-        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
         final PlaylistElement playlist = playlistsScreen.scrollToFirstPlaylist();
 
         playlist.clickOverflow()
@@ -63,10 +59,7 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
     public void testDisablingSyncEntireCollectionViaPlaylistDetails() {
         enableSyncEntireCollection();
 
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
-        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
-
-        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 
         final PlaylistElement playlist = playlistsScreen
                 .scrollToFirstPlaylist()
@@ -86,10 +79,7 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
     public void testCancelDisablingSyncEntireCollection() {
         enableSyncEntireCollection();
 
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
-        assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
-
-        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 
         final PlaylistElement playlist = playlistsScreen
                 .scrollToFirstPlaylist()

@@ -285,7 +285,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         } else if (track.isPlaying()) {
             itemView.showNowPlaying();
         } else if (featureOperations.isOfflineContentEnabled() && track.isUnavailableOffline()) {
-            itemView.showNotAvailableOffline(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS));
+            itemView.showNotAvailableOffline();
         } else if (ActiveFooter.OFFLINE_STATE == activeFooter.orNull() && shouldShowOfflineState(track.offlineState())) {
             showOfflineState(itemView, track.offlineState());
         } else if (ActiveFooter.POSTED == activeFooter.orNull()) {
@@ -298,8 +298,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     private boolean shouldShowOfflineState(OfflineState offlineState) {
-        return featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)
-                && featureOperations.isOfflineContentEnabled()
+        return featureOperations.isOfflineContentEnabled()
                 && isActiveOfflineState(offlineState);
     }
 
@@ -365,4 +364,5 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     public void setListener(Listener listener) {
         this.listener = listener;
     }
+
 }

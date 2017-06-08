@@ -1,11 +1,10 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.objects.MoreObjects;
@@ -190,9 +189,7 @@ class DownloadNotificationController {
     }
 
     private Notification completedNotification(DownloadRequest request) {
-        final NotificationCompat.Builder notification = buildBaseCompletedNotification(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)
-                                                                                       ? R.drawable.ic_notification_download_completed
-                                                                                       : R.drawable.ic_notification_cloud);
+        final NotificationCompat.Builder notification = buildBaseCompletedNotification(R.drawable.ic_notification_download_completed);
 
         notification.setContentIntent(getPendingIntent(request));
         notification.setContentTitle(resources.getString(R.string.offline_update_completed_title));

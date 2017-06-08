@@ -5,25 +5,18 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.properties.FeatureFlagsHelper;
-import com.soundcloud.android.properties.Flag;
 
 public class TrackItemElement {
     private final ViewElement wrapped;
     private final Han testDriver;
 
-    private final FeatureFlagsHelper featureFlagsHelper;
-
     public TrackItemElement(Han testDriver, ViewElement wrapped) {
         this.wrapped = wrapped;
         this.testDriver = testDriver;
-        featureFlagsHelper = FeatureFlagsHelper.create(testDriver.getCurrentActivity());
     }
 
     public DownloadImageViewElement downloadElement() {
-        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(featureFlagsHelper.isEnabled(Flag.NEW_OFFLINE_ICONS)
-                                                                                            ? R.id.track_list_item_offline_state_image_view
-                                                                                            : R.id.item_download_state)));
+        return new DownloadImageViewElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.track_list_item_offline_state_image_view)));
     }
 
     public String getTitle() {

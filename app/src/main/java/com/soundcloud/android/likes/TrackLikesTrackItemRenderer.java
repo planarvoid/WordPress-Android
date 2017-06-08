@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
@@ -12,10 +12,10 @@ import java.util.List;
 
 class TrackLikesTrackItemRenderer implements CellRenderer<TrackLikesTrackItem> {
 
-    private final DownloadableTrackItemRenderer trackItemRenderer;
+    private final TrackItemRenderer trackItemRenderer;
 
     @Inject
-    TrackLikesTrackItemRenderer(DownloadableTrackItemRenderer trackItemRenderer) {
+    TrackLikesTrackItemRenderer(TrackItemRenderer trackItemRenderer) {
         this.trackItemRenderer = trackItemRenderer;
     }
 

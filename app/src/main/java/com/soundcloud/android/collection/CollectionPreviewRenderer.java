@@ -6,17 +6,12 @@ import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.performance.MetricType;
 import com.soundcloud.android.analytics.performance.PerformanceMetricsEngine;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperiment;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper;
 import com.soundcloud.android.configuration.experiments.ChangeLikeToSaveExperimentStringHelper.ExperimentString;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.annotations.VisibleForTesting;
 
 import android.app.Activity;
@@ -33,9 +28,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private final NavigationExecutor navigationExecutor;
     private final Resources resources;
-    private final FeatureOperations featureOperations;
     private final ImageOperations imageOperations;
-    private final FeatureFlags featureFlags;
     private final PerformanceMetricsEngine performanceMetricsEngine;
     private final ChangeLikeToSaveExperiment changeLikeToSaveExperiment;
     private final ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper;
@@ -43,18 +36,14 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     @Inject
     CollectionPreviewRenderer(NavigationExecutor navigationExecutor,
                               Resources resources,
-                              FeatureOperations featureOperations,
                               ImageOperations imageOperations,
                               PerformanceMetricsEngine performanceMetricsEngine,
-                              FeatureFlags featureFlags,
                               ChangeLikeToSaveExperiment changeLikeToSaveExperiment,
                               ChangeLikeToSaveExperimentStringHelper changeLikeToSaveExperimentStringHelper) {
         this.navigationExecutor = navigationExecutor;
         this.resources = resources;
-        this.featureOperations = featureOperations;
         this.imageOperations = imageOperations;
         this.performanceMetricsEngine = performanceMetricsEngine;
-        this.featureFlags = featureFlags;
         this.changeLikeToSaveExperiment = changeLikeToSaveExperiment;
         this.changeLikeToSaveExperimentStringHelper = changeLikeToSaveExperimentStringHelper;
     }
@@ -126,7 +115,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         likesPreviewView.setTitle(changeLikeToSaveExperimentStringHelper.getString(ExperimentString.COLLECTIONS_YOUR_LIKED_TRACKS));
         removeIconIfNecessary(likesPreviewView);
         setThumbnails(likes.trackPreviews(), likesPreviewView);
-        setLikesDownloadProgressIndicator(likes, view);
     }
 
     private void removeIconIfNecessary(CollectionPreviewView previewView) {
@@ -138,17 +126,6 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
         previewView.refreshThumbnails(imageOperations, imageResources,
                                       resources.getInteger(R.integer.collection_preview_thumbnail_count));
-    }
-
-    private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {
-        final DownloadImageView downloadProgressIcon = (DownloadImageView) likesView.findViewById(R.id.collection_download_state);
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            downloadProgressIcon.setVisibility(View.GONE);
-        } else {
-            downloadProgressIcon.setState(featureOperations.isOfflineContentEnabled()
-                                          ? likes.offlineState()
-                                          : OfflineState.NOT_OFFLINE, false);
-        }
     }
 
     private CollectionPreviewView setupPlaylistsView(View parent, @StringRes int titleRes, View.OnClickListener onClickListener) {

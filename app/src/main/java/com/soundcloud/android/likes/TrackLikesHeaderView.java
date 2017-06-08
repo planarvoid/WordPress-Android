@@ -8,30 +8,27 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.OfflineStateButton;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
-import android.widget.Checkable;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
 class TrackLikesHeaderView {
 
     private final Resources resources;
-    private final DownloadStateRenderer downloadStateRenderer;
     private final FeatureFlags featureFlags;
     private final IntroductoryOverlayPresenter introductoryOverlayPresenter;
 
     @BindView(R.id.shuffle_btn) ImageButton shuffleButton;
-    @BindView(R.id.toggle_download) IconToggleButton downloadToggle;
     @BindView(R.id.offline_state_button) OfflineStateButton offlineStateButton;
+    @BindView(R.id.header_text) TextView headerText;
 
     private final View headerView;
 
@@ -47,13 +44,11 @@ class TrackLikesHeaderView {
     }
 
     TrackLikesHeaderView(@Provided Resources resources,
-                         @Provided DownloadStateRenderer downloadStateRenderer,
                          @Provided FeatureFlags featureFlags,
                          @Provided IntroductoryOverlayPresenter introductoryOverlayPresenter,
                          View view,
                          Listener listener) {
         this.resources = resources;
-        this.downloadStateRenderer = downloadStateRenderer;
         this.featureFlags = featureFlags;
         this.introductoryOverlayPresenter = introductoryOverlayPresenter;
         this.listener = listener;
@@ -72,18 +67,11 @@ class TrackLikesHeaderView {
     }
 
     public void show(OfflineState state) {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.setState(state);
-        } else {
-            downloadStateRenderer.show(state, headerView);
-            if (state == OfflineState.NOT_OFFLINE || state == OfflineState.DOWNLOADED) {
-                updateTrackCount(trackCount);
-            }
-        }
+        offlineStateButton.setState(state);
     }
 
     void showOfflineIntroductoryOverlay() {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS) && featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
+        if (featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)) {
             introductoryOverlayPresenter.showIfNeeded(IntroductoryOverlayKey.LISTEN_OFFLINE_LIKES,
                                                       offlineStateButton,
                                                       R.string.overlay_listen_offline_likes_title,
@@ -92,67 +80,28 @@ class TrackLikesHeaderView {
     }
 
     void showNoWifi() {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.showNoWiFi();
-        } else {
-            downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_wifi), headerView);
-        }
+        offlineStateButton.showNoWiFi();
     }
 
     void showNoConnection() {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.showNoConnection();
-        } else {
-            downloadStateRenderer.setHeaderText(resources.getString(R.string.offline_no_connection), headerView);
-        }
+        offlineStateButton.showNoConnection();
     }
 
     void setDownloadedButtonState(final boolean isOffline) {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.setVisibility(View.VISIBLE);
-            offlineStateButton.setOnClickListener(v -> listener.onMakeAvailableOffline(!isOffline));
-        } else {
-            showLegacyDownloadToggle(isOffline);
-        }
-    }
-
-    private void showLegacyDownloadToggle(boolean isOffline) {
-        downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(isOffline);
-        downloadToggle.setOnClickListener(v -> {
-            boolean changedState = ((Checkable) v).isChecked();
-            downloadToggle.setChecked(!changedState); // Ignore isChecked - button is subscribed to state changes
-            listener.onMakeAvailableOffline(!isOffline);
-        });
+        offlineStateButton.setVisibility(View.VISIBLE);
+        offlineStateButton.setOnClickListener(v -> listener.onMakeAvailableOffline(!isOffline));
     }
 
     void showUpsell() {
-        if (featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            offlineStateButton.setVisibility(View.VISIBLE);
-            offlineStateButton.setOnClickListener(v -> listener.onUpsell());
-        } else {
-            showLegacyUpsell();
-        }
-    }
-
-    private void showLegacyUpsell() {
-        downloadToggle.setVisibility(View.VISIBLE);
-        downloadToggle.setChecked(false);
-        downloadToggle.setOnClickListener(v -> {
-            listener.onUpsell();
-            downloadToggle.setChecked(false);
-        });
+        offlineStateButton.setVisibility(View.VISIBLE);
+        offlineStateButton.setOnClickListener(v -> listener.onUpsell());
     }
 
     void updateTrackCount(int trackCount) {
         this.trackCount = trackCount;
         headerView.setVisibility(trackCount == 0 ? View.GONE : View.VISIBLE);
-        downloadStateRenderer.setHeaderText(getLikedTrackText(trackCount), headerView);
+        headerText.setText(resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, trackCount, trackCount));
         updateShuffleButton(trackCount);
-    }
-
-    private String getLikedTrackText(int likedTracks) {
-        return resources.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
     }
 
     private void updateShuffleButton(int likedTracks) {

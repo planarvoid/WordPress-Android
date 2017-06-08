@@ -35,7 +35,6 @@ public class TrackItemView {
     @BindView(R.id.promoted_track) TextView promoted;
     @BindView(R.id.posted_time) TextView postedTime;
     @BindView(R.id.plays_and_posted_time) TextView playsAndPostedTime;
-    @BindView(R.id.not_available_offline) TextView notAvailableOffline;
     @BindView(R.id.preview_indicator) View previewIndicator;
     @BindView(R.id.go_indicator) View goIndicator;
     @BindView(R.id.track_list_item_geo_blocked_text) TextView geoBlocked;
@@ -145,9 +144,8 @@ public class TrackItemView {
         postedTime.setVisibility(View.GONE);
         goIndicator.setVisibility(View.GONE);
         playsAndPostedTime.setVisibility(View.GONE);
-        notAvailableOffline.setVisibility(View.GONE);
         geoBlocked.setVisibility(View.GONE);
-        offlineStateImage.setState(OfflineState.NOT_OFFLINE, true);
+        offlineStateImage.setState(OfflineState.NOT_OFFLINE);
         offlineStateText.setVisibility(View.GONE);
         noNetwork.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
@@ -189,12 +187,8 @@ public class TrackItemView {
         noNetwork.setVisibility(View.VISIBLE);
     }
 
-    void showNotAvailableOffline(boolean flagEnabled) {
-        if (flagEnabled) {
-            showOfflineState(OfflineState.UNAVAILABLE, R.string.offline_not_available_offline);
-        } else {
-            notAvailableOffline.setVisibility(View.VISIBLE);
-        }
+    void showNotAvailableOffline() {
+        showOfflineState(OfflineState.UNAVAILABLE, R.string.offline_not_available_offline);
     }
 
     void showRequested() {
@@ -210,7 +204,7 @@ public class TrackItemView {
     }
 
     private void showOfflineState(OfflineState offlineState, int resId) {
-        offlineStateImage.setState(offlineState, true);
+        offlineStateImage.setState(offlineState);
         offlineStateText.setText(getResources().getString(resId));
         offlineStateText.setVisibility(View.VISIBLE);
     }

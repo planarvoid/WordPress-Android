@@ -36,17 +36,6 @@
             android:layout_alignBottom="@id/artwork"
             tools:text="12" />
 
-        <com.soundcloud.android.offline.DownloadImageView
-            android:id="@+id/item_download_state"
-            style="@style/DownloadItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/artwork"
-            android:layout_alignLeft="@id/artwork"
-            android:visibility="gone"
-            android:layout_marginTop="@dimen/download_progress_indicator_margin"
-            android:layout_marginLeft="@dimen/download_progress_indicator_margin"/>
-
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Collections.ItemTitle"

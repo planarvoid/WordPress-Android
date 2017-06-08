@@ -12,7 +12,6 @@ import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -59,11 +58,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
                 .toggleOfflineEnabled()
                 .clickKeepLikesSynced();
 
-        if (getFeatureFlags().isEnabled(Flag.NEW_OFFLINE_ICONS)) {
-            assertThat(trackLikesScreen.offlineButtonElement(), is(defaultState()));
-        } else {
-            assertThat(trackLikesScreen.headerDownloadElement(), is(requested()));
-        }
+        assertThat(trackLikesScreen.offlineButtonElement(), is(defaultState()));
         assertThat(trackLikesScreen.tracks().get(0).downloadElement(), is(requested()));
     }
 

@@ -29,10 +29,6 @@
             android:layout_height="match_parent"
             style="@style/EngagementAction.Shuffle" />
 
-        <com.soundcloud.android.view.IconToggleButton
-            android:id="@+id/toggle_download"
-            style="@style/EngagementAction.ToggleButton.Download" />
-
         <com.soundcloud.android.view.OfflineStateButton
             android:id="@+id/offline_state_button"
             style="@style/EngagementAction.OfflineState" />

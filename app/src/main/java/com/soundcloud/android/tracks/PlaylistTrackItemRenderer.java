@@ -28,9 +28,9 @@ import android.view.View;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
+public class PlaylistTrackItemRenderer extends TrackItemRenderer {
 
-    private RemoveTrackListener removeTrackListener;
+    private final RemoveTrackListener removeTrackListener;
     private PromotedSourceInfo promotedSourceInfo;
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn ownerUrn = Urn.NOT_SET;
@@ -52,9 +52,9 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
               numberFormatter,
               trackItemMenuPresenter,
               eventBus,
-              featureOperations,
               screenProvider,
               navigationExecutor,
+              featureOperations,
               trackItemViewFactory,
               featureFlags,
               offlineSettingsOperations,

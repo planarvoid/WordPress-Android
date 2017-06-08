@@ -24,7 +24,6 @@ enum Feature {
   PRESTITIAL,
   WELCOME_USER,
   OFFLINE_PROPERTIES_PROVIDER,
-  NEW_OFFLINE_ICONS,
   FORCE_SHOW_WELCOME_USER,
   SEARCH_PLAY_RELATED_TRACKS,
   RECOMMENDED_PLAYLISTS,
@@ -51,7 +50,6 @@ android {
     buildConfigField FLAG, Feature.COLLECTION_OFFLINE_ONBOARDING.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.FORCE_SHOW_WELCOME_USER.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), UNDER_DEVELOPMENT
-    buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.SEARCH_PLAY_RELATED_TRACKS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), UNDER_DEVELOPMENT
     buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), UNDER_DEVELOPMENT
@@ -71,7 +69,6 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
@@ -93,7 +90,6 @@ android {
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
-      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.ENCRYPTED_HLS.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
@@ -109,7 +105,6 @@ android {
       buildConfigField FLAG, Feature.RECOMMENDED_PLAYLISTS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW
@@ -123,7 +118,6 @@ android {
       buildConfigField FLAG, Feature.DYNAMIC_LINK_SHARING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.OTHER_PLAYLISTS_BY_CREATOR.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.OFFLINE_PROPERTIES_PROVIDER.name(), DEFAULT_SHOW
-      buildConfigField FLAG, Feature.NEW_OFFLINE_ICONS.name(), DEFAULT_SHOW
       buildConfigField FLAG, Feature.FLIPPER.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.FIREBASE_PERFORMANCE_MONITORING.name(), DEFAULT_HIDE
       buildConfigField FLAG, Feature.PRESTITIAL.name(), DEFAULT_SHOW

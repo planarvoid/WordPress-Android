@@ -12,17 +12,6 @@
         ForegroundImageView:square="true"
         android:layout_marginTop="16dp" />
 
-    <com.soundcloud.android.offline.DownloadImageView
-        android:id="@+id/item_download_state"
-        style="@style/DownloadItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/image"
-        android:layout_alignTop="@id/image"
-        android:layout_marginLeft="@dimen/download_progress_indicator_margin"
-        android:layout_marginTop="@dimen/download_progress_indicator_margin"
-        android:visibility="gone" />
-
     <LinearLayout
         android:id="@id/list_item_header_container"
         android:layout_width="wrap_content"

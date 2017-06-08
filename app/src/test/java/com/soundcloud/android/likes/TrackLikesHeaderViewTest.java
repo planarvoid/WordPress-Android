@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayKey;
 import com.soundcloud.android.introductoryoverlay.IntroductoryOverlayPresenter;
-import com.soundcloud.android.offline.DownloadStateRenderer;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -38,7 +37,6 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
         trackLikesHeaderView = new TrackLikesHeaderView(resources(),
-                                                        new DownloadStateRenderer(resources(), featureFlags),
                                                         featureFlags,
                                                         introductoryOverlayPresenter,
                                                         view,
@@ -98,26 +96,13 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
 
     @Test
     public void showIntroductoryOverlay() {
-        mockFeatureFlags(false, false);
+        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(false);
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
         verifyIntroductoryOverlay(0);
 
-        mockFeatureFlags(false, true);
-        trackLikesHeaderView.showOfflineIntroductoryOverlay();
-        verifyIntroductoryOverlay(0);
-
-        mockFeatureFlags(true, false);
-        trackLikesHeaderView.showOfflineIntroductoryOverlay();
-        verifyIntroductoryOverlay(0);
-
-        mockFeatureFlags(true, true);
+        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(true);
         trackLikesHeaderView.showOfflineIntroductoryOverlay();
         verifyIntroductoryOverlay(1);
-    }
-
-    private void mockFeatureFlags(boolean newOfflineIconsFlag, boolean collectionOfflineOnboardingFlag) {
-        when(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(newOfflineIconsFlag);
-        when(featureFlags.isEnabled(Flag.COLLECTION_OFFLINE_ONBOARDING)).thenReturn(collectionOfflineOnboardingFlag);
     }
 
     private void verifyIntroductoryOverlay(int times) {

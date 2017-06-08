@@ -4,17 +4,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.navigation.NavigationExecutor;
 import com.soundcloud.android.navigation.PendingIntentFactory;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -79,7 +77,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
         verify(notificationBuilder).setContentIntent(PendingIntentFactory.createPendingCollectionIntent(context()));
-        verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_cloud);
+        verify(notificationBuilder).setSmallIcon(R.drawable.ic_notification_download_completed);
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -87,9 +85,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onDownloadsFinishedDisplayCompletedNotificationWithNewIcon() {
-        when(featureFlags.isEnabled(Flag.NEW_OFFLINE_ICONS)).thenReturn(true);
-
+    public void onDownloadsFinishedDisplayCompletedNotificationWithIcon() {
         notificationController.onPendingRequests(createQueue(20));
 
         reset(notificationBuilder);
