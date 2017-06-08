@@ -22,7 +22,7 @@ public class WebPaymentIntegrationTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testEndToEndHighTierPlanPurchase()  {
+    public void testEndToEndMidTierPlanPurchase()  {
         CollectionScreen collectionScreen = mainNavHelper.goToMore()
                                                          .clickSubscribe()
                                                          .clickDefaultCheckout()
