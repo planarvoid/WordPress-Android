@@ -36,7 +36,7 @@ android {
       resValue "bool", "register_for_gcm", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile-alpha.soundcloud.com"
-      resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
+      resValue "string", "eventgateway_url", "http://eventgateway-staging.k2.lb.s-cloud.net/v1/events"
       resValue "bool",   "log_queries", "false"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "true"
 
@@ -96,7 +96,7 @@ android {
       resValue "bool", "register_for_gcm", "false"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
+      resValue "string", "eventgateway_url", "http://eventgateway-staging.k2.lb.s-cloud.net/v1/events"
       resValue "bool",   "log_queries", "false"
       resValue "bool",   "fail_fast_on_mapping_exceptions", "true"
 
