@@ -45,7 +45,7 @@ expected_events:
     track_length: '[0-9]+'
     ad_urn: dfp:ads:[0-9,-]+
     track: soundcloud:tracks:[0-9]+
-    player_type: (Skippy|MediaPlayer)
+    player_type: (Flipper|Skippy|MediaPlayer)
     action: play_start
     client_id: '3152'
     page_name: stream:main
