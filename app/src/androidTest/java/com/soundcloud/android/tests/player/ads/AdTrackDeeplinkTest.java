@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
@@ -20,7 +19,6 @@ public class AdTrackDeeplinkTest extends AdBaseTest {
         return TestConsts.AUDIO_AD_WITH_TRACK_DEEPLINK_PLAYLIST_URI;
     }
 
-    @Ignore // FIXME https://soundcloud.atlassian.net/browse/DROID-1347
     public void testCustomCTAButton() {
         swipeToAd();
 
